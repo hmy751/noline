@@ -52,6 +52,9 @@ importers:
       '@babel/core':
         specifier: ^7.20.0
         version: 7.28.4
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../../packages/typescript-config
       '@types/react':
         specifier: ^18.2.79
         version: 18.2.79
@@ -123,6 +126,10 @@ importers:
       zod:
         specifier: ^3.23.8
         version: 3.25.76
+    devDependencies:
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
 
   packages/typescript-config: {}
 

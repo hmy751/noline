@@ -2,11 +2,7 @@
   "extends": "../../packages/typescript-config/src/base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
-    "baseUrl": ".",
-    "paths": {
-      "schema": ["../../packages/schema/src"]
-    }
+    "rootDir": "./src"
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]
