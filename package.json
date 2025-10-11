@@ -25,10 +25,5 @@
     "apps/*",
     "packages/*"
   ],
-  "pnpm": {
-    "overrides": {
-      "@types/react": "^18.2.0",
-      "typescript": "5.5.4"
-    }
-  }
+  "pnpm": {}
 }
