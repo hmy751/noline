@@ -1,0 +1,10 @@
+{
+  "name": "typescript-config",
+  "version": "1.0.0",
+  "private": true,
+  "license": "ISC",
+  "exports": {
+    "./base.json": "./src/base.json",
+    "./react-native.json": "./src/react-native.json"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "extends": "../../packages/typescript-config/src/react-native.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "schema": ["../../packages/schema/src"]
+    }
+  },
+  "include": ["src", "App.tsx"]
+}

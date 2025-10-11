@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Base",
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
+  }
+}
