@@ -1,5 +1,5 @@
 {
-  "name": "server",
+  "name": "@apps/server",
   "version": "1.0.0",
   "private": true,
   "main": "src/index.ts",
@@ -15,7 +15,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "schema": "workspace:*"
+    "@repo/schema": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.14.12",
