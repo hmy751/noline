@@ -12,21 +12,23 @@
   "dependencies": {
     "@babel/runtime": "^7.24.8",
     "@expo/metro-runtime": "^3.2.3",
+    "@repo/schema": "workspace:*",
+    "@repo/ui": "workspace:*",
     "expo": "~51.0.21",
     "expo-status-bar": "~1.12.1",
+    "nativewind": "^4.0.36",
     "react": "18.2.0",
     "react-dom": "^18.2.0",
     "react-native": "0.74.5",
-    "react-native-web": "^0.19.13",
-    "@repo/schema": "workspace:*",
-    "@repo/ui": "workspace:*"
+    "react-native-web": "^0.19.13"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@repo/typescript-config": "workspace:*",
     "@types/react": "^18.2.79",
     "react-native-monorepo-tools": "^1.2.1",
-    "typescript": "~5.3.3",
-    "@repo/typescript-config": "workspace:*"
+    "tailwindcss": "^3.4.6",
+    "typescript": "~5.3.3"
   },
   "private": true
 }

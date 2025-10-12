@@ -39,6 +39,9 @@ importers:
       expo-status-bar:
         specifier: ~1.12.1
         version: 1.12.1
+      nativewind:
+        specifier: ^4.0.36
+        version: 4.2.1(react-native-reanimated@3.19.2(@babel/core@7.28.4)(react-native@0.74.5(@babel/core@7.28.4)(@babel/preset-env@7.28.3(@babel/core@7.28.4))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0))(react-native@0.74.5(@babel/core@7.28.4)(@babel/preset-env@7.28.3(@babel/core@7.28.4))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)(tailwindcss@3.4.18(yaml@2.8.1))
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -64,6 +67,9 @@ importers:
       react-native-monorepo-tools:
         specifier: ^1.2.1
         version: 1.2.1
+      tailwindcss:
+        specifier: ^3.4.6
+        version: 3.4.18(yaml@2.8.1)
       typescript:
         specifier: ~5.3.3
         version: 5.3.3
@@ -944,7 +950,7 @@ packages:
 
   '@expo/bunyan@4.0.1':
     resolution: {integrity: sha512-+Lla7nYSiHZirgK+U/uYzsLv/X+HaJienbD5AKX1UQZHYfWaP+9uuQluRB4GrEVWF0GZ7vEVp/jzaOT9k/SQlg==}
-    engines: {'0': node >=0.10.0}
+    engines: {node: '>=0.10.0'}
 
   '@expo/cli@0.18.31':
     resolution: {integrity: sha512-v9llw9fT3Uv+TCM6Xllo54t672CuYtinEQZ2LPJ2EJsCwuTc4Cd2gXQaouuIVD21VoeGQnr5JtJuWbF97sBKzQ==}
