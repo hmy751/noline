@@ -1,6 +1,7 @@
 {
   "extends": "../../packages/typescript-config/src/base.json",
   "compilerOptions": {
+    "composite": true,
     "outDir": "./dist"
   },
   "include": ["src"],
