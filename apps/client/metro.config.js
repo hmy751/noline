@@ -1,14 +1,23 @@
 // Learn more https://docs.expo.io/guides/customizing-metro
 const { getDefaultConfig } = require('expo/metro-config');
-const { getMetroTools } = require('react-native-monorepo-tools');
+const { withNativeWind } = require('nativewind/metro');
+const path = require('path');
 
-const monorepoMetroTools = getMetroTools();
+const projectRoot = __dirname;
+const workspaceRoot = path.resolve(projectRoot, '../..');
 
 /** @type {import('expo/metro-config').MetroConfig} */
-const config = getDefaultConfig(__dirname);
+const config = getDefaultConfig(projectRoot);
 
-config.watchFolders = monorepoMetroTools.watchFolders;
+config.watchFolders = [workspaceRoot];
 
-config.resolver.extraNodeModules = monorepoMetroTools.extraNodeModules;
+config.resolver.nodeModulesPaths = [
+  path.resolve(projectRoot, 'node_modules'),
+  path.resolve(workspaceRoot, 'node_modules'),
+];
 
-module.exports = config;
+config.resolver.symlinks = true;
+
+module.exports = withNativeWind(config, {
+  input: path.resolve(workspaceRoot, 'apps/client/styles/global.css'),
+});

@@ -15,14 +15,8 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     'react/prop-types': 'off',
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    'import/no-extraneous-dependencies': [
-      'error',
-      {
-        devDependencies: true,
-        optionalDependencies: false,
-        peerDependencies: false,
-      },
-    ],
+    'import/prefer-default-export': 'off',
+    'import/no-extraneous-dependencies': 'off',
   },
   settings: {
     react: {
