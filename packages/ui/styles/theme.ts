@@ -29,8 +29,8 @@ export const theme = {
         foreground: 'hsl(0, 75%, 98%)', // #FBF5F5
       },
       muted: {
-        DEFAULT: 'hsl(120, 8%, 86%)', // Light #D8DBD8
-        foreground: 'hsl(120, 8%, 35%)', // Light #4A594A
+        DEFAULT: 'hsl(120, 8%, 86%)', // Light #D8DBD8 - 연한 초록 배경 (총 경비 카드, 통계 카드)
+        foreground: 'hsl(120, 8%, 35%)', // Light #4A594A - 보조 텍스트 (시간, 메타 정보)
         dark: 'hsl(120, 8%, 22%)', // Dark #363936
         'dark-foreground': 'hsl(120, 8%, 75%)', // Dark #B3BFB3
       },
@@ -77,13 +77,21 @@ export const theme = {
       mono: ['"SF Mono"', 'Menlo', 'monospace'],
     },
     fontSize: {
-      'heading-1': ['32px', { lineHeight: '40px', fontWeight: '700', letterSpacing: '-0.5px' }],
-      'heading-2': ['24px', { lineHeight: '32px', fontWeight: '600', letterSpacing: '-0.3px' }],
-      'heading-3': ['20px', { lineHeight: '28px', fontWeight: '600', letterSpacing: '-0.2px' }],
-      'body-lg': ['16px', { lineHeight: '24px', fontWeight: '400', letterSpacing: '0' }],
+      // Display - Large headings, hero text
+      'display-large': ['32px', { lineHeight: '40px', fontWeight: '700', letterSpacing: '-0.5px' }],
+      'display-medium': ['24px', { lineHeight: '32px', fontWeight: '600', letterSpacing: '-0.3px' }],
+
+      // Title - Section headings, card titles
+      'title-large': ['20px', { lineHeight: '28px', fontWeight: '600', letterSpacing: '-0.2px' }],
+      'title-medium': ['16px', { lineHeight: '24px', fontWeight: '600', letterSpacing: '0' }],
+
+      // Body - Body text
+      'body-large': ['16px', { lineHeight: '24px', fontWeight: '400', letterSpacing: '0' }],
       body: ['14px', { lineHeight: '20px', fontWeight: '400', letterSpacing: '0' }],
-      caption: ['12px', { lineHeight: '16px', fontWeight: '400', letterSpacing: '0' }],
-      small: ['10px', { lineHeight: '14px', fontWeight: '500', letterSpacing: '0.3px' }],
+
+      // Label - Labels, hints, small text
+      label: ['12px', { lineHeight: '16px', fontWeight: '400', letterSpacing: '0' }],
+      'label-small': ['10px', { lineHeight: '14px', fontWeight: '500', letterSpacing: '0.3px' }],
     },
     spacing: {
       '4xs': '2px',
