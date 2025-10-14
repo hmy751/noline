@@ -8,14 +8,10 @@ export type { ButtonProps } from './components/Button';
 export { Input } from './components/Input';
 export type { InputProps } from './components/Input';
 
-export { Avatar, AvatarImage, AvatarFallback } from './components/Avatar';
-export type { AvatarProps, AvatarImageProps, AvatarFallbackProps } from './components/Avatar';
-
-export { Badge } from './components/Badge';
-export type { BadgeProps } from './components/Badge';
+export { Textarea } from './components/Textarea';
+export type { TextareaProps } from './components/Textarea';
 
 export { Label } from './components/Label';
-export type { LabelProps } from './components/Label';
 
 export { Card } from './components/Card';
 export type { CardProps } from './components/Card';
@@ -23,17 +19,15 @@ export type { CardProps } from './components/Card';
 export { Image } from './components/Image';
 export type { ImageProps } from './components/Image';
 
+export { Badge } from './components/Badge';
+export type { BadgeProps } from './components/Badge';
+
 export { Separator } from './components/Separator';
-export type { SeparatorProps } from './components/Separator';
 
-export { Textarea } from './components/Textarea';
-export type { TextareaProps } from './components/Textarea';
+export { Avatar, AvatarImage, AvatarFallback, AvatarRoot } from './components/Avatar';
 
-export { Checkbox } from './components/Checkbox';
-export type { CheckboxProps } from './components/Checkbox';
+export { Checkbox, CheckboxRoot, CheckboxIndicator } from './components/Checkbox';
 
-export { Switch } from './components/Switch';
-export type { SwitchProps } from './components/Switch';
+export { Switch, SwitchRoot } from './components/Switch';
 
-export { RadioGroup, RadioGroupItem } from './components/RadioGroup';
-export type { RadioGroupProps, RadioGroupItemProps } from './components/RadioGroup';
+export { RadioGroup, RadioGroupItem, RadioGroupRoot } from './components/RadioGroup';

@@ -1,20 +1,20 @@
+import * as LabelPrimitive from '@rn-primitives/label';
 import { forwardRef } from 'react';
-import { Text, type TextProps } from 'react-native';
 import { cn } from '../lib/utils';
 
-export interface LabelProps extends TextProps {
-  htmlFor?: string; // For web compatibility (ignored in React Native)
-  className?: string;
-}
+const Label = forwardRef<
+  React.ElementRef<typeof LabelPrimitive.Text>,
+  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Text>
+>(({ className, ...props }, ref) => {
+  return (
+    <LabelPrimitive.Text
+      ref={ref}
+      className={cn('native:text-base text-label font-medium leading-none text-foreground', className)}
+      {...props}
+    />
+  );
+});
 
-export const Label = forwardRef<React.ElementRef<typeof Text>, LabelProps>(
-  ({ className, children, htmlFor: _htmlFor, ...props }, ref) => {
-    return (
-      <Text ref={ref} className={cn('text-label font-medium text-foreground', className)} {...props}>
-        {children}
-      </Text>
-    );
-  },
-);
+Label.displayName = LabelPrimitive.Text.displayName;
 
-Label.displayName = 'Label';
+export { Label };

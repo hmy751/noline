@@ -12,6 +12,12 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@rn-primitives/avatar": "^1.2.0",
+    "@rn-primitives/checkbox": "^1.2.0",
+    "@rn-primitives/label": "^1.2.0",
+    "@rn-primitives/radio-group": "^1.2.0",
+    "@rn-primitives/separator": "^1.2.0",
+    "@rn-primitives/switch": "^1.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "nativewind": "^4.0.36",
