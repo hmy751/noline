@@ -31,3 +31,6 @@ export { Checkbox, CheckboxRoot, CheckboxIndicator } from './components/Checkbox
 export { Switch, SwitchRoot } from './components/Switch';
 
 export { RadioGroup, RadioGroupItem, RadioGroupRoot } from './components/RadioGroup';
+
+export { Select } from './components/Select';
+export type { SelectTriggerProps } from './components/Select';
