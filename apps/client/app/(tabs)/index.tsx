@@ -50,6 +50,18 @@ export default function HomeScreen() {
             {/* Current Trip Card */}
             <TripCard {...currentTrip} />
 
+            {/* Add New Trip Button */}
+            <Pressable
+              className='flex-row items-center justify-center gap-2xs rounded-lg border border-card-border bg-card py-md active:bg-muted'
+              onPress={() => {
+                // TODO: Open add trip drawer
+                console.log('Open add trip drawer');
+              }}
+            >
+              <Plus size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
+              <Text className='text-body text-foreground'>새 여행 추가</Text>
+            </Pressable>
+
             {/* Upcoming Schedule Section */}
             <View className='flex-col gap-sm'>
               <View className='flex-row items-center justify-between'>
@@ -74,24 +86,6 @@ export default function HomeScreen() {
           </Stack>
         </Container>
       </ScrollView>
-
-      {/* FAB (Floating Action Button) */}
-      <Pressable
-        className='absolute bottom-20 right-4 h-14 w-14 items-center justify-center rounded-full bg-primary'
-        style={{
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.3,
-          shadowRadius: 8,
-          elevation: 8,
-        }}
-        onPress={() => {
-          // TODO: Open add trip drawer
-          console.log('Open add trip drawer');
-        }}
-      >
-        <Plus size={28} color='hsl(120, 61%, 98%)' strokeWidth={2.5} />
-      </Pressable>
     </View>
   );
 }

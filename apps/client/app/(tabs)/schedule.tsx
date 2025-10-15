@@ -61,8 +61,6 @@ export default function ScheduleScreen() {
     },
   ];
 
-  const totalCount = schedulesByDate.reduce((acc, group) => acc + group.schedules.length, 0);
-
   return (
     <View className='flex-1 bg-background'>
       {/* Header */}
@@ -93,20 +91,26 @@ export default function ScheduleScreen() {
         <ScrollView className='flex-1'>
           <Container>
             <Stack direction='vertical' gap='md' className='py-sm'>
-              {/* Total Count Badge */}
-              <View className='self-start rounded-full bg-muted px-sm py-2xs'>
-                <Text className='text-body text-foreground'>{totalCount}개</Text>
-              </View>
-
               {/* Schedule Groups by Date */}
-              {schedulesByDate.map((group, groupIndex) => (
+              {schedulesByDate.map((group) => (
                 <View key={group.date} className='flex-col gap-sm'>
                   {/* Date Header with Count */}
                   <View className='flex-row items-center justify-between'>
-                    <Text className='text-title-large text-foreground'>{group.dateLabel}</Text>
-                    <View className='rounded-full bg-muted px-xs py-3xs'>
-                      <Text className='text-label text-foreground'>{group.schedules.length}개</Text>
+                    <View className='flex-row items-center gap-2xs'>
+                      <Text className='text-title-large text-foreground'>{group.dateLabel}</Text>
+                      <View className='rounded-full bg-muted px-xs py-3xs'>
+                        <Text className='text-label text-foreground'>{group.schedules.length}개</Text>
+                      </View>
                     </View>
+                    <Pressable
+                      className='flex-row items-center gap-3xs rounded-md border border-card-border bg-card px-xs py-3xs active:bg-muted'
+                      onPress={() => {
+                        // TODO: Open add schedule for this date
+                        console.log('Add schedule for', group.date);
+                      }}
+                    >
+                      <Text className='text-label text-foreground'>추가</Text>
+                    </Pressable>
                   </View>
 
                   {/* Schedules for this date */}

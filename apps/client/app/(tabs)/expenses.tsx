@@ -1,68 +1,73 @@
-import { useState } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { Container, Stack, ExpenseCard } from '@/shared/components';
-import { Camera, Plus } from 'lucide-react-native';
-
-type TabType = 'all' | 'schedule' | 'unlinked';
+import { Camera } from 'lucide-react-native';
 
 export default function ExpensesScreen() {
-  const [selectedTab, setSelectedTab] = useState<TabType>('all');
-
   // TODO: Replace with real data
-  const expenses = [
+  const expensesByDate = [
     {
-      id: '1',
-      date: undefined,
+      date: '2025-03-18',
+      dateLabel: '2025-03-18',
       items: [
         {
-          title: '에펠탑 입장권',
-          amount: '26.00',
-          currency: 'EUR',
-          category: '관광',
-          location: '에펠탑 방문 · 파리',
-          date: '3월 15일',
-          hasReceipt: true,
-          isPending: false,
-        },
-        {
-          title: '기념품',
-          amount: '15.50',
-          currency: 'EUR',
-          category: '쇼핑',
-          location: '에펠탑 방문 · 파리',
-          date: '3월 15일',
-          hasReceipt: false,
-          isPending: false,
-        },
-        {
-          title: '루브르 입장권',
-          amount: '17.00',
-          currency: 'EUR',
-          category: '관광',
-          location: '루브르 박물관 · 파리',
-          date: '3월 16일',
-          hasReceipt: true,
-          isPending: false,
-        },
-        {
-          title: '택시',
-          amount: '18.00',
+          title: '공항 택시',
+          amount: '55.00',
           currency: 'EUR',
           category: '교통',
-          location: undefined,
-          date: '3월 15일',
+          date: '2025-03-18',
+          hasReceipt: true,
+          isPending: false,
+        },
+        {
+          title: '베르사유 입장권',
+          amount: '20.00',
+          currency: 'EUR',
+          category: '관광',
+          date: '2025-03-18',
+          hasReceipt: true,
+          isPending: false,
+        },
+        {
+          title: '왕복 기차표',
+          amount: '14.00',
+          currency: 'EUR',
+          category: '교통',
+          date: '2025-03-18',
+          hasReceipt: true,
+          isPending: false,
+        },
+      ],
+    },
+    {
+      date: '2025-03-17',
+      dateLabel: '2025-03-17',
+      items: [
+        {
+          title: '초상화 그리기',
+          amount: '25.00',
+          currency: 'EUR',
+          category: '체험',
+          date: '2025-03-17',
           hasReceipt: false,
-          isPending: true,
+          isPending: false,
+        },
+        {
+          title: '돔 입장료',
+          amount: '8.00',
+          currency: 'EUR',
+          category: '관광',
+          date: '2025-03-17',
+          hasReceipt: true,
+          isPending: false,
         },
       ],
     },
   ];
 
-  const tabs = [
-    { key: 'all' as const, label: '전체' },
-    { key: 'schedule' as const, label: '일정별' },
-    { key: 'unlinked' as const, label: '미연결' },
-  ];
+  const totalExpense = expensesByDate.reduce(
+    (acc, group) => acc + group.items.reduce((sum, item) => sum + parseFloat(item.amount), 0),
+    0,
+  );
 
   return (
     <View className='flex-1 bg-background'>
@@ -86,34 +91,35 @@ export default function ExpensesScreen() {
             {/* Total Expense Card */}
             <View className='flex-col gap-3xs'>
               <Text className='text-label text-muted-foreground'>총 경비</Text>
-              <Text className='text-display-large text-primary'>EUR 76.50</Text>
+              <Text className='text-display-large text-primary'>EUR {totalExpense.toFixed(2)}</Text>
             </View>
 
-            {/* Tabs */}
-            <View className='flex-row gap-2xs rounded-lg bg-card p-3xs'>
-              {tabs.map((tab, index) => (
-                <Pressable
-                  key={tab.key}
-                  className={`flex-1 items-center rounded-md py-xs ${
-                    selectedTab === tab.key ? 'bg-background' : 'bg-transparent'
-                  }`}
-                  onPress={() => setSelectedTab(tab.key)}
-                >
-                  <Text
-                    className={`text-body ${selectedTab === tab.key ? 'text-foreground' : 'text-muted-foreground'}`}
+            {/* Expense List by Date */}
+            {expensesByDate.map((group) => (
+              <View key={group.date} className='flex-col gap-sm'>
+                {/* Date Header */}
+                <View className='flex-row items-center justify-between'>
+                  <View className='flex-row items-center gap-2xs'>
+                    <Text className='text-title-large text-foreground'>{group.dateLabel}</Text>
+                    <View className='rounded-full bg-muted px-xs py-3xs'>
+                      <Text className='text-label text-foreground'>{group.items.length}개</Text>
+                    </View>
+                  </View>
+                  <Pressable
+                    className='flex-row items-center gap-3xs rounded-md border border-card-border bg-card px-xs py-3xs active:bg-muted'
+                    onPress={() => {
+                      // TODO: Open add expense for this date
+                      console.log('Add expense for', group.date);
+                    }}
                   >
-                    {tab.label} ({index === 0 ? '4' : index === 1 ? '3' : '1'})
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
+                    <Text className='text-label text-foreground'>추가</Text>
+                  </Pressable>
+                </View>
 
-            {/* Expense List */}
-            {expenses.map((group) => (
-              <View key={group.id} className='flex-col gap-sm'>
+                {/* Expense Cards */}
                 {group.items.map((expense, index) => (
                   <ExpenseCard
-                    key={`${group.id}-${index}`}
+                    key={`${group.date}-${index}`}
                     {...expense}
                     onPress={() => {
                       // TODO: Navigate to expense detail
@@ -126,17 +132,6 @@ export default function ExpensesScreen() {
           </Stack>
         </Container>
       </ScrollView>
-
-      {/* FAB (Floating Action Button) */}
-      <Pressable
-        className='absolute bottom-20 right-4 h-14 w-14 items-center justify-center rounded-full bg-primary shadow-lg'
-        onPress={() => {
-          // TODO: Open add expense drawer
-          console.log('Open add expense drawer');
-        }}
-      >
-        <Plus size={28} color='hsl(120, 61%, 98%)' strokeWidth={2.5} />
-      </Pressable>
     </View>
   );
 }
