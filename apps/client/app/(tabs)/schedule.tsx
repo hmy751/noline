@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
-import { Container, Stack, ScheduleCard } from '@/shared/components';
-import { Menu, Map, List, ChevronDown } from 'lucide-react-native';
+import { Container, Stack, ScheduleCard, TripSelector } from '@/shared/components';
+import { Menu, Map, List } from 'lucide-react-native';
 
 type ViewMode = 'list' | 'map';
 
@@ -65,10 +65,7 @@ export default function ScheduleScreen() {
     <View className='flex-1 bg-background'>
       {/* Header */}
       <View className='h-14 flex-row items-center justify-between border-b border-card-border bg-background px-sm'>
-        <Pressable className='flex-row items-center gap-3xs'>
-          <Text className='text-title-medium text-foreground'>파리, 프랑스</Text>
-          <ChevronDown size={18} color='hsl(0, 0%, 12%)' strokeWidth={2} />
-        </Pressable>
+        <Text className='text-title-large text-foreground'>일정</Text>
         <View className='flex-row items-center gap-2xs'>
           <Pressable className='h-10 w-10 items-center justify-center rounded-full active:bg-muted'>
             <Menu size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
@@ -85,6 +82,15 @@ export default function ScheduleScreen() {
           </Pressable>
         </View>
       </View>
+
+      {/* Current Trip Selector - Sticky */}
+      <TripSelector
+        defaultTrip={{ value: 'paris', label: '파리, 프랑스' }}
+        onTripChange={(trip) => {
+          console.log('Selected trip:', trip);
+        }}
+        className='border-b border-card-border bg-background px-md py-sm'
+      />
 
       {/* Content */}
       {viewMode === 'list' ? (

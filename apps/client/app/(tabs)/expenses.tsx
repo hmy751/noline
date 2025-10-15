@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, Pressable } from 'react-native';
-import { Container, Stack, ExpenseCard } from '@/shared/components';
+import { Container, Stack, ExpenseCard, TripSelector } from '@/shared/components';
 import { Camera } from 'lucide-react-native';
 
 export default function ExpensesScreen() {
@@ -84,6 +84,15 @@ export default function ExpensesScreen() {
           <Camera size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
         </Pressable>
       </View>
+
+      {/* Current Trip Selector - Sticky */}
+      <TripSelector
+        defaultTrip={{ value: 'paris', label: '파리, 프랑스' }}
+        onTripChange={(trip) => {
+          console.log('Selected trip:', trip);
+        }}
+        className='border-b border-card-border bg-background px-md py-sm'
+      />
 
       <ScrollView className='flex-1'>
         <Container>
