@@ -1,16 +1,17 @@
 import { View, Text, Pressable, type PressableProps } from 'react-native';
 import { Card, Badge } from '@repo/ui';
 import { cn } from '@repo/ui';
+import { MapPin, Camera, Clock } from 'lucide-react-native';
 
 interface ExpenseCardProps extends Omit<PressableProps, 'children'> {
   title: string;
   amount: string;
   currency: string;
   category?: string;
-  schedule?: string;
+  location?: string;
+  date?: string;
   hasReceipt?: boolean;
-  isSynced?: boolean;
-  icon?: string;
+  isPending?: boolean;
   className?: string;
 }
 
@@ -19,43 +20,57 @@ export function ExpenseCard({
   amount,
   currency,
   category,
-  schedule,
+  location,
+  date,
   hasReceipt = false,
-  isSynced = true,
-  icon = '💶',
+  isPending = false,
   className,
   ...props
 }: ExpenseCardProps) {
   return (
     <Pressable {...props}>
       {({ pressed }) => (
-        <Card className={cn('p-xs flex-row items-center gap-xs', pressed && 'opacity-80', className)}>
-          <View className='h-10 w-10 items-center justify-center rounded-md bg-muted'>
-            <Text className='text-display-medium'>{icon}</Text>
-          </View>
-
-          <View className='flex-1 flex-col gap-3xs'>
-            <Text className='text-title-medium text-foreground'>{title}</Text>
-            <Text className='text-body text-primary'>
-              {currency} {amount}
-            </Text>
-            {(category || schedule) && (
-              <Text className='text-label text-muted-foreground'>
-                {category}
-                {category && schedule && ' | '}
-                {schedule}
-              </Text>
+        <Card className={cn('p-sm flex-col gap-xs', pressed && 'opacity-70', className)}>
+          {/* Title and Amount */}
+          <View className='flex-row items-start justify-between'>
+            <Text className='flex-1 text-title-medium text-foreground'>{title}</Text>
+            {isPending && (
+              <Badge variant='outline' className='ml-xs'>
+                <Clock size={10} color='hsl(45, 90%, 55%)' strokeWidth={2} />
+              </Badge>
             )}
-          </View>
-
-          <View className='flex-col items-end gap-3xs'>
-            {hasReceipt && <Text className='text-label'>📸</Text>}
-            {isSynced && (
-              <Badge variant='outline' className='h-4 px-2xs'>
-                <Text className='text-label-small text-status-online'>✓</Text>
+            {hasReceipt && (
+              <Badge variant='outline' className='ml-xs'>
+                <Camera size={10} color='hsl(0, 0%, 12%)' strokeWidth={2} />
               </Badge>
             )}
           </View>
+
+          <Text className='text-display-medium text-primary'>
+            {currency} {amount}
+          </Text>
+
+          {/* Location and Category */}
+          <View className='flex-row items-center gap-3xs'>
+            {location && (
+              <>
+                <MapPin size={14} color='hsl(120, 8%, 35%)' strokeWidth={2} />
+                <Text className='text-body text-muted-foreground'>
+                  {location}
+                  {category && ` · ${category}`}
+                </Text>
+              </>
+            )}
+          </View>
+
+          {/* Date Badge */}
+          {date && (
+            <View className='flex-row items-center gap-xs'>
+              <View className='rounded-md bg-muted px-2xs py-3xs'>
+                <Text className='text-label text-foreground'>{date}</Text>
+              </View>
+            </View>
+          )}
         </Card>
       )}
     </Pressable>

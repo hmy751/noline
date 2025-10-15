@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { Container, Stack, ScheduleCard } from '@/shared/components';
+import { Menu, Map, List, ChevronDown, Calendar, Plus } from 'lucide-react-native';
 
 type ViewMode = 'list' | 'map';
 
@@ -13,28 +14,28 @@ export default function ScheduleScreen() {
 
   const schedules = [
     {
-      order: 1,
       time: '09:00',
       title: '에펠탑 방문',
       location: '에펠탑',
-      expense: '26.00',
-      expenseCount: 1,
-    },
-    {
-      order: 2,
-      time: '14:00',
-      title: '루브르 박물관',
-      location: '루브르',
-      expense: '17.00',
-      expenseCount: 2,
-    },
-    {
-      order: 3,
-      time: '19:00',
-      title: '저녁식사',
-      location: '샹젤리제 거리',
+      date: '2025-03-15',
       expense: undefined,
-      expenseCount: 0,
+      expenseCount: undefined,
+    },
+    {
+      time: '14:00',
+      title: '센강 유람선',
+      location: '센강',
+      date: '2025-03-15',
+      expense: undefined,
+      expenseCount: undefined,
+    },
+    {
+      time: '19:00',
+      title: '상젤리제 거리 산책',
+      location: '상젤리제',
+      date: '2025-03-15',
+      expense: undefined,
+      expenseCount: undefined,
     },
   ];
 
@@ -46,17 +47,22 @@ export default function ScheduleScreen() {
         style={{ height: 56 }}
       >
         <Pressable className='flex-row items-center gap-xs'>
-          <Text className='text-title-large text-foreground'>▼ 파리, 프랑스</Text>
+          <Text className='text-title-large text-foreground'>파리, 프랑스</Text>
+          <ChevronDown size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
         </Pressable>
         <View className='flex-row items-center gap-xs'>
           <Pressable className='h-10 w-10 items-center justify-center'>
-            <Text className='text-body'>≡</Text>
+            <Menu size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
           </Pressable>
           <Pressable
             className='h-10 w-10 items-center justify-center'
             onPress={() => setViewMode(viewMode === 'list' ? 'map' : 'list')}
           >
-            <Text className='text-body'>{viewMode === 'list' ? '🗺️' : '📋'}</Text>
+            {viewMode === 'list' ? (
+              <Map size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
+            ) : (
+              <List size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
+            )}
           </Pressable>
         </View>
       </View>
@@ -87,11 +93,14 @@ export default function ScheduleScreen() {
         <ScrollView className='flex-1'>
           <Container>
             <Stack direction='vertical' gap='md' className='py-sm'>
-              <Text className='text-title-large text-foreground'>📅 2025년 3월 15일</Text>
+              <View className='flex-row items-center gap-xs'>
+                <Calendar size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
+                <Text className='text-title-large text-foreground'>2025년 3월 15일</Text>
+              </View>
 
-              {schedules.map((schedule) => (
+              {schedules.map((schedule, index) => (
                 <ScheduleCard
-                  key={schedule.order}
+                  key={index}
                   {...schedule}
                   onPress={() => {
                     // TODO: Navigate to schedule detail
@@ -104,7 +113,8 @@ export default function ScheduleScreen() {
         </ScrollView>
       ) : (
         <View className='flex-1 items-center justify-center bg-muted'>
-          <Text className='text-title-large text-muted-foreground'>🗺️ 지도 뷰 (구현 예정)</Text>
+          <Map size={48} color='hsl(120, 8%, 35%)' strokeWidth={1.5} />
+          <Text className='mt-sm text-title-large text-muted-foreground'>지도 뷰 (구현 예정)</Text>
         </View>
       )}
 
@@ -116,7 +126,7 @@ export default function ScheduleScreen() {
           console.log('Open add schedule drawer');
         }}
       >
-        <Text className='text-display-medium text-primary-foreground'>+</Text>
+        <Plus size={28} color='hsl(120, 61%, 98%)' strokeWidth={2.5} />
       </Pressable>
     </View>
   );

@@ -6,12 +6,28 @@ export interface CardProps extends ViewProps {
   className?: string;
 }
 
-export const Card = forwardRef<React.ElementRef<typeof View>, CardProps>(({ className, children, ...props }, ref) => {
-  return (
-    <View ref={ref} className={cn('rounded-lg border border-card-border bg-card p-sm', className)} {...props}>
-      {children}
-    </View>
-  );
-});
+export const Card = forwardRef<React.ElementRef<typeof View>, CardProps>(
+  ({ className, children, style, ...props }, ref) => {
+    return (
+      <View
+        ref={ref}
+        className={cn('rounded-lg bg-card p-sm', className)}
+        style={[
+          {
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.05,
+            shadowRadius: 2,
+            elevation: 1,
+          },
+          style,
+        ]}
+        {...props}
+      >
+        {children}
+      </View>
+    );
+  },
+);
 
 Card.displayName = 'Card';

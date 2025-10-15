@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { Container, Stack, ExpenseCard } from '@/shared/components';
+import { Camera, Plus } from 'lucide-react-native';
 
 type TabType = 'all' | 'schedule' | 'unlinked';
 
@@ -11,53 +12,47 @@ export default function ExpensesScreen() {
   const expenses = [
     {
       id: '1',
-      date: '3월 15일',
+      date: undefined,
       items: [
         {
           title: '에펠탑 입장권',
           amount: '26.00',
           currency: 'EUR',
           category: '관광',
-          schedule: '에펠탑 방문',
+          location: '에펠탑 방문 · 파리',
+          date: '3월 15일',
           hasReceipt: true,
-          isSynced: true,
-          icon: '🎫',
+          isPending: false,
         },
         {
           title: '기념품',
           amount: '15.50',
           currency: 'EUR',
           category: '쇼핑',
-          schedule: '에펠탑 방문',
+          location: '에펠탑 방문 · 파리',
+          date: '3월 15일',
           hasReceipt: false,
-          isSynced: true,
-          icon: '🎁',
+          isPending: false,
+        },
+        {
+          title: '루브르 입장권',
+          amount: '17.00',
+          currency: 'EUR',
+          category: '관광',
+          location: '루브르 박물관 · 파리',
+          date: '3월 16일',
+          hasReceipt: true,
+          isPending: false,
         },
         {
           title: '택시',
           amount: '18.00',
           currency: 'EUR',
           category: '교통',
-          schedule: undefined,
+          location: undefined,
+          date: '3월 15일',
           hasReceipt: false,
-          isSynced: true,
-          icon: '🚕',
-        },
-      ],
-    },
-    {
-      id: '2',
-      date: '3월 16일',
-      items: [
-        {
-          title: '루브르 입장권',
-          amount: '17.00',
-          currency: 'EUR',
-          category: '관광',
-          schedule: '루브르 박물관',
-          hasReceipt: true,
-          isSynced: true,
-          icon: '🎫',
+          isPending: true,
         },
       ],
     },
@@ -81,7 +76,7 @@ export default function ExpensesScreen() {
             console.log('Open camera');
           }}
         >
-          <Text className='text-body'>📷</Text>
+          <Camera size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
         </Pressable>
       </View>
 
@@ -89,25 +84,25 @@ export default function ExpensesScreen() {
         <Container>
           <Stack direction='vertical' gap='md' className='py-sm'>
             {/* Total Expense Card */}
-            <View className='rounded-lg bg-muted p-sm'>
-              <Text className='text-label text-muted-foreground'>💰 총 경비</Text>
-              <Text className='text-display-medium text-primary'>EUR 156.50</Text>
+            <View className='flex-col gap-3xs'>
+              <Text className='text-label text-muted-foreground'>총 경비</Text>
+              <Text className='text-display-large text-primary'>EUR 76.50</Text>
             </View>
 
             {/* Tabs */}
-            <View className='flex-row gap-2xs rounded-md bg-muted p-3xs'>
-              {tabs.map((tab) => (
+            <View className='flex-row gap-2xs rounded-lg bg-card p-3xs'>
+              {tabs.map((tab, index) => (
                 <Pressable
                   key={tab.key}
-                  className={`flex-1 items-center rounded-md py-2xs ${
-                    selectedTab === tab.key ? 'bg-primary' : 'bg-transparent'
+                  className={`flex-1 items-center rounded-md py-xs ${
+                    selectedTab === tab.key ? 'bg-background' : 'bg-transparent'
                   }`}
                   onPress={() => setSelectedTab(tab.key)}
                 >
                   <Text
-                    className={`text-body ${selectedTab === tab.key ? 'text-primary-foreground' : 'text-foreground'}`}
+                    className={`text-body ${selectedTab === tab.key ? 'text-foreground' : 'text-muted-foreground'}`}
                   >
-                    {tab.label}
+                    {tab.label} ({index === 0 ? '4' : index === 1 ? '3' : '1'})
                   </Text>
                 </Pressable>
               ))}
@@ -116,7 +111,6 @@ export default function ExpensesScreen() {
             {/* Expense List */}
             {expenses.map((group) => (
               <View key={group.id} className='flex-col gap-sm'>
-                <Text className='text-title-medium text-foreground'>📅 {group.date}</Text>
                 {group.items.map((expense, index) => (
                   <ExpenseCard
                     key={`${group.id}-${index}`}
@@ -141,7 +135,7 @@ export default function ExpensesScreen() {
           console.log('Open add expense drawer');
         }}
       >
-        <Text className='text-display-medium text-primary-foreground'>+</Text>
+        <Plus size={28} color='hsl(120, 61%, 98%)' strokeWidth={2.5} />
       </Pressable>
     </View>
   );

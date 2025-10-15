@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unstable-nested-components */
 import { Tabs } from 'expo-router';
-import { View, Text } from 'react-native';
+import { Home, Calendar, Wallet, User } from 'lucide-react-native';
 
 export default function TabsLayout() {
   return (
@@ -27,44 +27,28 @@ export default function TabsLayout() {
         name='index'
         options={{
           title: '홈',
-          tabBarIcon: ({ size }) => (
-            <View className='items-center justify-center' style={{ width: size, height: size }}>
-              <Text className='text-title-medium'>🏠</Text>
-            </View>
-          ),
+          tabBarIcon: ({ color, size }) => <Home size={size} color={color} strokeWidth={2} />,
         }}
       />
       <Tabs.Screen
         name='schedule'
         options={{
           title: '일정',
-          tabBarIcon: ({ size }) => (
-            <View className='items-center justify-center' style={{ width: size, height: size }}>
-              <Text className='text-title-medium'>📅</Text>
-            </View>
-          ),
+          tabBarIcon: ({ color, size }) => <Calendar size={size} color={color} strokeWidth={2} />,
         }}
       />
       <Tabs.Screen
         name='expenses'
         options={{
           title: '경비',
-          tabBarIcon: ({ size }) => (
-            <View className='items-center justify-center' style={{ width: size, height: size }}>
-              <Text className='text-title-medium'>💶</Text>
-            </View>
-          ),
+          tabBarIcon: ({ color, size }) => <Wallet size={size} color={color} strokeWidth={2} />,
         }}
       />
       <Tabs.Screen
         name='profile'
         options={{
           title: '프로필',
-          tabBarIcon: ({ size }) => (
-            <View className='items-center justify-center' style={{ width: size, height: size }}>
-              <Text className='text-title-medium'>👤</Text>
-            </View>
-          ),
+          tabBarIcon: ({ color, size }) => <User size={size} color={color} strokeWidth={2} />,
         }}
       />
     </Tabs>

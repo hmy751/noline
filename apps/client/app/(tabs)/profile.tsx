@@ -1,150 +1,128 @@
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { Container, Stack } from '@/shared/components';
-import { Avatar, AvatarImage, AvatarFallback, Switch, Separator } from '@repo/ui';
+import { Avatar, AvatarFallback, Switch, Separator } from '@repo/ui';
 import { useState } from 'react';
+import { User, Sun, Moon, Settings, Globe, Download, ChevronRight, Wifi } from 'lucide-react-native';
 
 export default function ProfileScreen() {
   const [darkMode, setDarkMode] = useState(false);
-  const [offlineMode, setOfflineMode] = useState(true);
-  const [notifications, setNotifications] = useState(true);
-  const [syncEnabled, setSyncEnabled] = useState(true);
 
   // TODO: Replace with real data
   const user = {
-    name: '여행자 이름',
-    email: 'traveler@email.com',
-    initials: '여이',
+    name: '여행자',
+    email: 'traveler@example.com',
+    initials: '여',
   };
 
-  const stats = [
-    { icon: '🌍', label: '총 여행', value: '5회' },
-    { icon: '📅', label: '총 일정', value: '42개' },
-    { icon: '💶', label: '총 경비', value: '€1,234.50' },
+  const menuItems: Array<{
+    icon: 'sun' | 'moon' | 'settings' | 'globe' | 'download';
+    label: string;
+    hasSwitch: boolean;
+    value?: boolean;
+    onChange?: (value: boolean) => void;
+  }> = [
+    { icon: 'sun', label: '다크 모드', hasSwitch: true, value: darkMode, onChange: setDarkMode },
+    { icon: 'settings', label: '설정', hasSwitch: false },
+    { icon: 'globe', label: '언어 설정', hasSwitch: false },
+    { icon: 'download', label: '오프라인 지도 관리', hasSwitch: false },
   ];
 
-  const settings = [
-    {
-      icon: '🌙',
-      label: '다크 모드',
-      value: darkMode,
-      onChange: setDarkMode,
-    },
-    {
-      icon: '🌐',
-      label: '오프라인 모드',
-      value: offlineMode,
-      onChange: setOfflineMode,
-    },
-    {
-      icon: '🔔',
-      label: '알림',
-      value: notifications,
-      onChange: setNotifications,
-    },
-    {
-      icon: '💾',
-      label: '데이터 동기화',
-      value: syncEnabled,
-      onChange: setSyncEnabled,
-    },
-  ];
-
-  const menuItems = [
-    { icon: '📄', label: '이용약관' },
-    { icon: '🔒', label: '개인정보 처리방침' },
-    { icon: 'ℹ️', label: '앱 정보 v1.0.0' },
-    { icon: '🚪', label: '로그아웃', isDestructive: true },
+  const infoItems = [
+    { label: '앱 버전', value: '1.0.0' },
+    { label: '저장된 데이터', value: '2.4 MB' },
   ];
 
   return (
     <View className='flex-1 bg-background'>
       {/* Header */}
       <View className='h-14 flex-row items-center justify-between border-b border-card-border bg-background px-sm'>
-        <Text className='text-title-large text-foreground'>프로필</Text>
-        <Pressable
-          className='h-10 w-10 items-center justify-center'
-          onPress={() => {
-            // TODO: Navigate to settings
-            console.log('Navigate to settings');
-          }}
-        >
-          <Text className='text-body'>⚙️</Text>
-        </Pressable>
+        <Text className='text-display-large text-foreground'>프로필</Text>
+        <View className='flex-row items-center gap-3xs'>
+          <Wifi size={14} color='hsl(140, 65%, 45%)' strokeWidth={2} />
+          <Text className='text-body text-status-online'>온라인</Text>
+        </View>
       </View>
 
       <ScrollView className='flex-1'>
         <Container>
-          <Stack direction='vertical' gap='md' className='py-sm'>
+          <Stack direction='vertical' gap='lg' className='py-sm'>
             {/* Profile Section */}
-            <View className='items-center gap-sm py-sm'>
-              <Avatar className='h-20 w-20'>
-                <AvatarImage source={{ uri: 'https://via.placeholder.com/80' }} />
-                <AvatarFallback>
-                  <Text className='text-display-medium text-foreground'>{user.initials}</Text>
-                </AvatarFallback>
-              </Avatar>
-              <View className='items-center gap-3xs'>
-                <Text className='text-title-large text-foreground'>{user.name}</Text>
-                <Text className='text-body text-muted-foreground'>{user.email}</Text>
+            <View className='rounded-xl bg-card p-md'>
+              <View className='flex-row items-center gap-sm'>
+                <Avatar className='h-16 w-16 bg-primary' alt='User Avatar'>
+                  <AvatarFallback>
+                    <User size={32} color='hsl(120, 61%, 98%)' strokeWidth={2} />
+                  </AvatarFallback>
+                </Avatar>
+                <View className='flex-1 flex-col gap-3xs'>
+                  <Text className='text-title-large text-foreground'>{user.name}</Text>
+                  <Text className='text-body text-muted-foreground'>{user.email}</Text>
+                </View>
               </View>
             </View>
-
-            <Separator />
-
-            {/* Stats Section */}
-            <View className='flex-col gap-sm'>
-              <Text className='text-title-large text-foreground'>📊 통계</Text>
-              <View className='rounded-lg bg-card p-sm'>
-                {stats.map((stat, index) => (
-                  <View key={stat.label}>
-                    <View className='flex-row items-center justify-between py-xs'>
-                      <Text className='text-body text-foreground'>
-                        {stat.icon} {stat.label}
-                      </Text>
-                      <Text className='text-body text-primary'>{stat.value}</Text>
-                    </View>
-                    {index < stats.length - 1 && <Separator />}
-                  </View>
-                ))}
-              </View>
-            </View>
-
-            <Separator />
-
-            {/* Settings Section */}
-            <View className='flex-col gap-sm'>
-              <Text className='text-title-large text-foreground'>⚙️ 설정</Text>
-              <View className='flex-col gap-xs'>
-                {settings.map((setting) => (
-                  <View key={setting.label} className='flex-row items-center justify-between rounded-lg bg-card p-sm'>
-                    <Text className='text-body text-foreground'>
-                      {setting.icon} {setting.label}
-                    </Text>
-                    <Switch checked={setting.value} onCheckedChange={setting.onChange} />
-                  </View>
-                ))}
-              </View>
-            </View>
-
-            <Separator />
 
             {/* Menu Items */}
-            <View className='flex-col gap-xs'>
-              {menuItems.map((item) => (
-                <Pressable
-                  key={item.label}
-                  className='rounded-lg bg-card p-sm'
-                  onPress={() => {
-                    // TODO: Handle menu item press
-                    console.log('Menu item pressed:', item.label);
-                  }}
-                >
-                  <Text className={`text-body ${item.isDestructive ? 'text-destructive' : 'text-foreground'}`}>
-                    {item.icon} {item.label}
-                  </Text>
-                </Pressable>
+            <View className='rounded-xl bg-card'>
+              {menuItems.map((item, index) => {
+                const IconComponent =
+                  item.icon === 'sun'
+                    ? darkMode
+                      ? Moon
+                      : Sun
+                    : item.icon === 'settings'
+                      ? Settings
+                      : item.icon === 'globe'
+                        ? Globe
+                        : Download;
+
+                return (
+                  <View key={item.label}>
+                    <Pressable
+                      className='flex-row items-center justify-between p-sm'
+                      onPress={() => {
+                        if (!item.hasSwitch) {
+                          console.log('Menu item pressed:', item.label);
+                        }
+                      }}
+                    >
+                      <View className='flex-row items-center gap-xs'>
+                        <IconComponent size={18} color='hsl(0, 0%, 12%)' strokeWidth={2} />
+                        <Text className='text-body text-foreground'>{item.label}</Text>
+                      </View>
+                      {item.hasSwitch && item.value !== undefined && item.onChange ? (
+                        <Switch checked={item.value} onCheckedChange={item.onChange} />
+                      ) : !item.hasSwitch ? (
+                        <ChevronRight size={18} color='hsl(120, 8%, 35%)' strokeWidth={2} />
+                      ) : null}
+                    </Pressable>
+                    {index < menuItems.length - 1 && <Separator />}
+                  </View>
+                );
+              })}
+            </View>
+
+            {/* Info Section */}
+            <View className='rounded-xl bg-card'>
+              {infoItems.map((item, index) => (
+                <View key={item.label}>
+                  <View className='flex-row items-center justify-between p-sm'>
+                    <Text className='text-body text-muted-foreground'>{item.label}</Text>
+                    <Text className='text-body text-foreground'>{item.value}</Text>
+                  </View>
+                  {index < infoItems.length - 1 && <Separator />}
+                </View>
               ))}
             </View>
+
+            {/* Logout Button */}
+            <Pressable
+              className='rounded-xl bg-card p-sm'
+              onPress={() => {
+                console.log('Logout pressed');
+              }}
+            >
+              <Text className='text-center text-body text-foreground'>로그아웃</Text>
+            </Pressable>
           </Stack>
         </Container>
       </ScrollView>

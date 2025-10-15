@@ -1,52 +1,62 @@
 import { View, Text, Pressable, type PressableProps } from 'react-native';
-import { Card, Badge } from '@repo/ui';
+import { Card } from '@repo/ui';
 import { cn } from '@repo/ui';
+import { MapPin, Wallet } from 'lucide-react-native';
 
 interface ScheduleCardProps extends Omit<PressableProps, 'children'> {
-  order: number;
+  date?: string;
   time: string;
   title: string;
   location: string;
   expense?: string;
   expenseCount?: number;
+  currency?: string;
   className?: string;
 }
 
 export function ScheduleCard({
-  order,
+  date,
   time,
   title,
   location,
   expense,
   expenseCount,
+  currency = 'EUR',
   className,
   ...props
 }: ScheduleCardProps) {
   return (
     <Pressable {...props}>
       {({ pressed }) => (
-        <Card className={cn('p-sm flex-col gap-2xs', pressed && 'opacity-80', className)}>
-          <View className='flex-row items-start justify-between'>
-            <View className='flex-row items-center gap-xs'>
-              <Badge variant='default' className='h-6 w-6 items-center justify-center rounded-full'>
-                <Text className='text-label-small text-primary-foreground'>{order}</Text>
-              </Badge>
-              <Text className='text-label text-muted-foreground'>{time}</Text>
-            </View>
-          </View>
-
+        <Card className={cn('p-sm flex-col gap-xs', pressed && 'opacity-70', className)}>
+          {/* Title */}
           <Text className='text-title-medium text-foreground'>{title}</Text>
 
+          {/* Location */}
           <View className='flex-row items-center gap-3xs'>
-            <Text className='text-body text-muted-foreground'>📍 {location}</Text>
+            <MapPin size={14} color='hsl(120, 8%, 35%)' strokeWidth={2} />
+            <Text className='text-body text-muted-foreground'>{location}</Text>
           </View>
 
-          {(expense || expenseCount) && (
-            <View className='flex-row items-center gap-xs'>
-              {expense && <Text className='text-body text-primary'>💶 {expense}</Text>}
-              {expenseCount && <Text className='text-body text-muted-foreground'>🧾 {expenseCount}건</Text>}
+          {/* Date, Time, and Expense */}
+          <View className='flex-row items-center gap-xs'>
+            {date && (
+              <View className='rounded-md bg-muted px-2xs py-3xs'>
+                <Text className='text-label text-foreground'>{date}</Text>
+              </View>
+            )}
+            <View className='rounded-md bg-muted px-2xs py-3xs'>
+              <Text className='text-label text-foreground'>{time}</Text>
             </View>
-          )}
+            {expense && expenseCount && (
+              <View className='flex-row items-center gap-3xs'>
+                <Wallet size={12} color='hsl(0, 0%, 12%)' strokeWidth={2} />
+                <Text className='text-label text-foreground'>
+                  {currency} {expense} ({expenseCount}개)
+                </Text>
+              </View>
+            )}
+          </View>
         </Card>
       )}
     </Pressable>

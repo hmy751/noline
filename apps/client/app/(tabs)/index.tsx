@@ -1,30 +1,35 @@
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { Container, Stack, TripCard, ScheduleCard } from '@/shared/components';
+import { Wifi, ChevronRight, Plus } from 'lucide-react-native';
 
 export default function HomeScreen() {
   // TODO: Replace with real data
   const currentTrip = {
     destination: '파리',
     country: '프랑스',
-    startDate: '2025.03.15',
-    endDate: '2025.03.20',
-    daysRemaining: 5,
+    startDate: '3월 15일',
+    endDate: '3월 20일',
+    scheduleCount: 12,
+    totalExpense: '1,250.00',
+    currency: 'EUR',
   };
 
-  const todaySchedules = [
+  const upcomingSchedules = [
     {
-      order: 1,
-      time: '09:00',
+      time: '14:00',
       title: '에펠탑 방문',
-      location: '에펠탑',
-      expense: '26.00',
+      location: '파리, 프랑스',
+      date: '3월 15일',
+      expense: '41.50',
+      expenseCount: 2,
     },
     {
-      order: 2,
-      time: '14:00',
+      time: '10:00',
       title: '루브르 박물관',
-      location: '루브르',
+      location: '파리, 프랑스',
+      date: '3월 16일',
       expense: '17.00',
+      expenseCount: 1,
     },
   ];
 
@@ -32,10 +37,11 @@ export default function HomeScreen() {
     <View className='flex-1 bg-background'>
       {/* Header */}
       <View className='h-14 flex-row items-center justify-between border-b border-card-border bg-background px-sm'>
-        <Text className='text-display-large text-foreground'>🏠 Project</Text>
-        <Pressable className='h-10 w-10 items-center justify-center'>
-          <Text className='text-title-large'>👤</Text>
-        </Pressable>
+        <Text className='text-display-large text-foreground'>Noline</Text>
+        <View className='flex-row items-center gap-3xs'>
+          <Wifi size={14} color='hsl(140, 65%, 45%)' strokeWidth={2} />
+          <Text className='text-body text-status-online'>온라인</Text>
+        </View>
       </View>
 
       <ScrollView className='flex-1'>
@@ -44,22 +50,19 @@ export default function HomeScreen() {
             {/* Current Trip Card */}
             <TripCard {...currentTrip} />
 
-            {/* Total Expense Card */}
-            <View className='rounded-lg bg-muted p-sm'>
-              <Text className='text-label text-muted-foreground'>💰 총 경비</Text>
-              <Text className='text-display-medium text-primary'>EUR 156.50</Text>
-            </View>
-
-            {/* Separator */}
-            <View className='h-px w-full bg-border' />
-
-            {/* Today's Schedule Section */}
+            {/* Upcoming Schedule Section */}
             <View className='flex-col gap-sm'>
-              <Text className='text-title-large text-foreground'>📅 오늘의 일정 (3월 15일)</Text>
+              <View className='flex-row items-center justify-between'>
+                <Text className='text-title-large text-foreground'>다가오는 일정</Text>
+                <Pressable className='flex-row items-center gap-3xs'>
+                  <Text className='text-body text-primary'>전체보기</Text>
+                  <ChevronRight size={16} color='hsl(120, 61%, 34%)' strokeWidth={2} />
+                </Pressable>
+              </View>
 
-              {todaySchedules.map((schedule) => (
+              {upcomingSchedules.map((schedule, index) => (
                 <ScheduleCard
-                  key={schedule.order}
+                  key={index}
                   {...schedule}
                   onPress={() => {
                     // TODO: Navigate to schedule detail
@@ -74,13 +77,20 @@ export default function HomeScreen() {
 
       {/* FAB (Floating Action Button) */}
       <Pressable
-        className='absolute bottom-20 right-4 h-14 w-14 items-center justify-center rounded-full bg-primary shadow-lg'
+        className='absolute bottom-20 right-4 h-14 w-14 items-center justify-center rounded-full bg-primary'
+        style={{
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+          elevation: 8,
+        }}
         onPress={() => {
           // TODO: Open add trip drawer
           console.log('Open add trip drawer');
         }}
       >
-        <Text className='text-display-medium text-primary-foreground'>+</Text>
+        <Plus size={28} color='hsl(120, 61%, 98%)' strokeWidth={2.5} />
       </Pressable>
     </View>
   );
