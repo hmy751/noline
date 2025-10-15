@@ -28,7 +28,7 @@ export function ScheduleCard({
   return (
     <Pressable {...props}>
       {({ pressed }) => (
-        <Card className={cn('p-sm flex-col gap-xs', pressed && 'opacity-70', className)}>
+        <Card className={cn('p-sm flex-col gap-xs transition-all', pressed && 'scale-[0.98] opacity-95', className)}>
           {/* Title */}
           <Text className='text-title-medium text-foreground'>{title}</Text>
 

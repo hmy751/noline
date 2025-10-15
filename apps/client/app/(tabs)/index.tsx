@@ -37,7 +37,7 @@ export default function HomeScreen() {
     <View className='flex-1 bg-background'>
       {/* Header */}
       <View className='h-14 flex-row items-center justify-between border-b border-card-border bg-background px-sm'>
-        <Text className='text-display-large text-foreground'>Noline</Text>
+        <Text className='text-title-large font-semibold text-foreground'>Noline</Text>
         <View className='flex-row items-center gap-3xs'>
           <Wifi size={14} color='hsl(140, 65%, 45%)' strokeWidth={2} />
           <Text className='text-body text-status-online'>온라인</Text>
