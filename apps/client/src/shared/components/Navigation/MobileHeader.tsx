@@ -5,12 +5,20 @@ import { NetworkStatusIndicator } from '../Feedback';
 interface MobileHeaderProps {
   title: string;
   leftIcon?: React.ReactNode;
+  leftIconAccessibilityLabel?: string;
   onLeftPress?: () => void;
   rightAction?: React.ReactNode;
   className?: string;
 }
 
-export function MobileHeader({ title, leftIcon, onLeftPress, rightAction, className }: MobileHeaderProps) {
+export function MobileHeader({
+  title,
+  leftIcon,
+  leftIconAccessibilityLabel,
+  onLeftPress,
+  rightAction,
+  className,
+}: MobileHeaderProps) {
   return (
     <View
       className={cn(
@@ -20,11 +28,18 @@ export function MobileHeader({ title, leftIcon, onLeftPress, rightAction, classN
     >
       <View className='flex-1 flex-row items-center'>
         {leftIcon && onLeftPress && (
-          <Pressable onPress={onLeftPress} className='mr-2 h-10 w-10 items-center justify-center -ml-2'>
+          <Pressable
+            onPress={onLeftPress}
+            className='mr-2 h-10 w-10 items-center justify-center -ml-2'
+            accessibilityRole='button'
+            accessibilityLabel={leftIconAccessibilityLabel || '뒤로 가기'}
+          >
             {leftIcon}
           </Pressable>
         )}
-        <Text className='text-title-large font-semibold text-foreground'>{title}</Text>
+        <Text className='text-title-large font-semibold text-foreground' accessibilityRole='header'>
+          {title}
+        </Text>
       </View>
 
       <View className='flex-row items-center gap-3'>

@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, Pressable } from 'react-native';
-import { Container, Stack, ExpenseCard, TripSelector } from '@/shared/components';
+import { Container, Stack, ExpenseCard, TripSelector, MobileHeader } from '@/shared/components';
 import { Camera } from 'lucide-react-native';
 
 export default function ExpensesScreen() {
@@ -72,18 +72,22 @@ export default function ExpensesScreen() {
   return (
     <View className='flex-1 bg-background'>
       {/* Header */}
-      <View className='h-14 flex-row items-center justify-between border-b border-card-border bg-background px-sm'>
-        <Text className='text-title-large text-foreground'>경비</Text>
-        <Pressable
-          className='h-10 w-10 items-center justify-center'
-          onPress={() => {
-            // TODO: Open camera
-            console.log('Open camera');
-          }}
-        >
-          <Camera size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
-        </Pressable>
-      </View>
+      <MobileHeader
+        title='경비'
+        rightAction={
+          <Pressable
+            className='h-10 w-10 items-center justify-center'
+            onPress={() => {
+              // TODO: Open camera
+              console.log('Open camera');
+            }}
+            accessibilityRole='button'
+            accessibilityLabel='영수증 스캔 카메라 열기'
+          >
+            <Camera size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
+          </Pressable>
+        }
+      />
 
       {/* Current Trip Selector - Sticky */}
       <TripSelector

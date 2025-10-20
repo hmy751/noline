@@ -1,8 +1,8 @@
 import { View, Text, ScrollView, Pressable } from 'react-native';
-import { Container, Stack } from '@/shared/components';
+import { Container, Stack, MobileHeader } from '@/shared/components';
 import { Avatar, AvatarFallback, Switch, Separator } from '@repo/ui';
 import { useState } from 'react';
-import { User, Sun, Moon, Settings, Globe, Download, ChevronRight, Wifi } from 'lucide-react-native';
+import { User, Sun, Moon, Settings, Globe, Download, ChevronRight } from 'lucide-react-native';
 
 export default function ProfileScreen() {
   const [darkMode, setDarkMode] = useState(false);
@@ -35,13 +35,7 @@ export default function ProfileScreen() {
   return (
     <View className='flex-1 bg-background'>
       {/* Header */}
-      <View className='h-14 flex-row items-center justify-between border-b border-card-border bg-background px-sm'>
-        <Text className='text-title-large font-semibold text-foreground'>프로필</Text>
-        <View className='flex-row items-center gap-3xs'>
-          <Wifi size={14} color='hsl(140, 65%, 45%)' strokeWidth={2} />
-          <Text className='text-body text-status-online'>온라인</Text>
-        </View>
-      </View>
+      <MobileHeader title='프로필' />
 
       <ScrollView className='flex-1'>
         <Container>

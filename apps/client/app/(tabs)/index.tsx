@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { router } from 'expo-router';
-import { Container, Stack, TripCard, ScheduleCard } from '@/shared/components';
-import { Wifi, ChevronRight, Plus } from 'lucide-react-native';
+import { Container, Stack, TripCard, ScheduleCard, MobileHeader } from '@/shared/components';
+import { ChevronRight, Plus } from 'lucide-react-native';
 
 export default function HomeScreen() {
   // TODO: Replace with real data
@@ -37,13 +37,7 @@ export default function HomeScreen() {
   return (
     <View className='flex-1 bg-background'>
       {/* Header */}
-      <View className='h-14 flex-row items-center justify-between border-b border-card-border bg-background px-sm'>
-        <Text className='text-title-large font-semibold text-foreground'>Noline</Text>
-        <View className='flex-row items-center gap-3xs'>
-          <Wifi size={14} color='hsl(140, 65%, 45%)' strokeWidth={2} />
-          <Text className='text-body text-status-online'>온라인</Text>
-        </View>
-      </View>
+      <MobileHeader title='Noline' />
 
       <ScrollView className='flex-1'>
         <Container>

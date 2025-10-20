@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, ScrollView, Pressable } from 'react-native';
-import { Container, Stack, ScheduleCard, TripSelector } from '@/shared/components';
+import { Container, Stack, ScheduleCard, TripSelector, MobileHeader } from '@/shared/components';
 import { Menu, Map, List } from 'lucide-react-native';
 
 type ViewMode = 'list' | 'map';
@@ -64,24 +64,32 @@ export default function ScheduleScreen() {
   return (
     <View className='flex-1 bg-background'>
       {/* Header */}
-      <View className='h-14 flex-row items-center justify-between border-b border-card-border bg-background px-sm'>
-        <Text className='text-title-large text-foreground'>일정</Text>
-        <View className='flex-row items-center gap-2xs'>
-          <Pressable className='h-10 w-10 items-center justify-center rounded-full active:bg-muted'>
-            <Menu size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
-          </Pressable>
-          <Pressable
-            className='h-10 w-10 items-center justify-center rounded-full active:bg-muted'
-            onPress={() => setViewMode(viewMode === 'list' ? 'map' : 'list')}
-          >
-            {viewMode === 'list' ? (
-              <Map size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
-            ) : (
-              <List size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
-            )}
-          </Pressable>
-        </View>
-      </View>
+      <MobileHeader
+        title='일정'
+        rightAction={
+          <View className='flex-row items-center gap-2xs'>
+            <Pressable
+              className='h-10 w-10 items-center justify-center rounded-full active:bg-muted'
+              accessibilityRole='button'
+              accessibilityLabel='메뉴 열기'
+            >
+              <Menu size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
+            </Pressable>
+            <Pressable
+              className='h-10 w-10 items-center justify-center rounded-full active:bg-muted'
+              onPress={() => setViewMode(viewMode === 'list' ? 'map' : 'list')}
+              accessibilityRole='button'
+              accessibilityLabel={viewMode === 'list' ? '지도 보기로 전환' : '목록 보기로 전환'}
+            >
+              {viewMode === 'list' ? (
+                <Map size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
+              ) : (
+                <List size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
+              )}
+            </Pressable>
+          </View>
+        }
+      />
 
       {/* Current Trip Selector - Sticky */}
       <TripSelector
