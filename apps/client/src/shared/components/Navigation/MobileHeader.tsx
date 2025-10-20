@@ -1,16 +1,16 @@
 import { View, Text, Pressable } from 'react-native';
 import { cn } from '@repo/ui';
+import { NetworkStatusIndicator } from '../Feedback';
 
 interface MobileHeaderProps {
-  title?: string;
+  title: string;
   leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
   onLeftPress?: () => void;
-  onRightPress?: () => void;
+  rightAction?: React.ReactNode;
   className?: string;
 }
 
-export function MobileHeader({ title, leftIcon, rightIcon, onLeftPress, onRightPress, className }: MobileHeaderProps) {
+export function MobileHeader({ title, leftIcon, onLeftPress, rightAction, className }: MobileHeaderProps) {
   return (
     <View
       className={cn(
@@ -18,22 +18,18 @@ export function MobileHeader({ title, leftIcon, rightIcon, onLeftPress, onRightP
         className,
       )}
     >
-      <View className='w-10'>
+      <View className='flex-1 flex-row items-center'>
         {leftIcon && onLeftPress && (
-          <Pressable onPress={onLeftPress} className='h-10 w-10 items-center justify-center'>
+          <Pressable onPress={onLeftPress} className='mr-2 h-10 w-10 items-center justify-center -ml-2'>
             {leftIcon}
           </Pressable>
         )}
+        <Text className='text-title-large font-semibold text-foreground'>{title}</Text>
       </View>
 
-      {title && <Text className='text-title-large text-foreground'>{title}</Text>}
-
-      <View className='w-10'>
-        {rightIcon && onRightPress && (
-          <Pressable onPress={onRightPress} className='h-10 w-10 items-center justify-center'>
-            {rightIcon}
-          </Pressable>
-        )}
+      <View className='flex-row items-center gap-3'>
+        <NetworkStatusIndicator />
+        {rightAction}
       </View>
     </View>
   );

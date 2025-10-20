@@ -1,4 +1,5 @@
 import { View, Text, ScrollView, Pressable } from 'react-native';
+import { router } from 'expo-router';
 import { Container, Stack, TripCard, ScheduleCard } from '@/shared/components';
 import { Wifi, ChevronRight, Plus } from 'lucide-react-native';
 
@@ -54,8 +55,7 @@ export default function HomeScreen() {
             <Pressable
               className='flex-row items-center justify-center gap-2xs rounded-lg border border-card-border bg-card py-md active:bg-muted'
               onPress={() => {
-                // TODO: Open add trip drawer
-                console.log('Open add trip drawer');
+                router.push('/add-trip');
               }}
             >
               <Plus size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
