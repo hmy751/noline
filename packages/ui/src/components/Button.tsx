@@ -28,7 +28,7 @@ const buttonVariants = cva(
   },
 );
 
-const buttonTextVariants = cva('font-medium', {
+const buttonTextVariants = cva('font-semibold', {
   variants: {
     variant: {
       default: 'text-primary-foreground',
@@ -57,7 +57,18 @@ export interface ButtonProps extends PressableProps, VariantProps<typeof buttonV
 }
 
 export const Button = forwardRef<React.ElementRef<typeof Pressable>, ButtonProps>(
-  ({ className, textClassName, variant, size, children, disabled, ...props }, ref) => {
+  ({ className, textClassName, variant = 'default', size, children, disabled, ...props }, ref) => {
+    // 각 variant별 텍스트 색상 정의
+    const textColorMap: Record<NonNullable<typeof variant>, string> = {
+      default: '#F5FBF5', // primary-foreground
+      destructive: '#FBF5F5', // destructive-foreground
+      outline: '#1F1F1F', // foreground
+      secondary: '#1F1F1F', // foreground
+      ghost: '#1F1F1F', // foreground
+    };
+
+    const textColor = textColorMap[variant ?? 'default'];
+
     return (
       <Pressable
         ref={ref}
@@ -66,7 +77,9 @@ export const Button = forwardRef<React.ElementRef<typeof Pressable>, ButtonProps
         {...props}
       >
         {typeof children === 'string' ? (
-          <Text className={cn(buttonTextVariants({ variant, size }), textClassName)}>{children}</Text>
+          <Text className={cn(buttonTextVariants({ variant, size }), textClassName)} style={{ color: textColor }}>
+            {children}
+          </Text>
         ) : (
           children
         )}
