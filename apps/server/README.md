@@ -89,17 +89,31 @@ pnpm install
 
 ### 3. 데이터베이스 설정
 
-PostgreSQL이 실행 중이어야 합니다.
+**Docker로 PostgreSQL 시작:**
 
 ```bash
-# 마이그레이션 파일 생성
-pnpm db:generate
+# PostgreSQL 시작
+pnpm docker:up
 
-# 데이터베이스에 스키마 적용
+# 상태 확인
+docker ps
+
+# 로그 확인 (선택)
+pnpm docker:logs
+```
+
+**테이블은 이미 생성되어 있습니다!** ✅
+
+만약 테이블을 다시 생성하려면:
+
+```bash
+# 방법 1: Drizzle Kit 사용 (대화형)
 pnpm db:push
+# y 입력
 
-# Drizzle Studio 실행 (선택 사항)
-pnpm db:studio
+# 방법 2: 컨테이너 재시작 (데이터 유지)
+pnpm docker:down
+pnpm docker:up
 ```
 
 ### 4. 서버 실행
