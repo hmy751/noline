@@ -1,8 +1,8 @@
-import { View, Text } from 'react-native';
-import { Card, Pressable, cn, type PressableComponentProps } from '@repo/ui';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { Card, cn } from '@repo/ui';
 import { MapPin, Wallet } from 'lucide-react-native';
 
-interface ScheduleCardProps extends Omit<PressableComponentProps, 'children'> {
+interface ScheduleCardProps {
   date?: string;
   time: string;
   title: string;
@@ -11,6 +11,7 @@ interface ScheduleCardProps extends Omit<PressableComponentProps, 'children'> {
   expenseCount?: number;
   currency?: string;
   className?: string;
+  onPress?: () => void;
 }
 
 export function ScheduleCard({
@@ -22,42 +23,40 @@ export function ScheduleCard({
   expenseCount,
   currency = 'EUR',
   className,
-  ...props
+  onPress,
 }: ScheduleCardProps) {
   return (
-    <Pressable {...props}>
-      {({ pressed }) => (
-        <Card className={cn('p-sm flex-col gap-xs transition-all', pressed && 'scale-[0.98] opacity-95', className)}>
-          {/* Title */}
-          <Text className='text-title-medium text-foreground'>{title}</Text>
+    <TouchableOpacity onPress={onPress} activeOpacity={0.95}>
+      <Card className={cn('p-sm flex-col gap-xs', className)}>
+        {/* Title */}
+        <Text className='text-title-medium text-foreground'>{title}</Text>
 
-          {/* Location */}
-          <View className='flex-row items-center gap-3xs'>
-            <MapPin size={14} color='hsl(120, 8%, 35%)' strokeWidth={2} />
-            <Text className='text-body text-muted-foreground'>{location}</Text>
-          </View>
+        {/* Location */}
+        <View className='flex-row items-center gap-3xs'>
+          <MapPin size={14} color='hsl(120, 8%, 35%)' strokeWidth={2} />
+          <Text className='text-body text-muted-foreground'>{location}</Text>
+        </View>
 
-          {/* Date, Time, and Expense */}
-          <View className='flex-row items-center gap-xs'>
-            {date && (
-              <View className='rounded-md bg-muted px-2xs py-3xs'>
-                <Text className='text-label text-foreground'>{date}</Text>
-              </View>
-            )}
+        {/* Date, Time, and Expense */}
+        <View className='flex-row items-center gap-xs'>
+          {date && (
             <View className='rounded-md bg-muted px-2xs py-3xs'>
-              <Text className='text-label text-foreground'>{time}</Text>
+              <Text className='text-label text-foreground'>{date}</Text>
             </View>
-            {expense && expenseCount && (
-              <View className='flex-row items-center gap-3xs'>
-                <Wallet size={12} color='hsl(0, 0%, 12%)' strokeWidth={2} />
-                <Text className='text-label text-foreground'>
-                  {currency} {expense} ({expenseCount}개)
-                </Text>
-              </View>
-            )}
+          )}
+          <View className='rounded-md bg-muted px-2xs py-3xs'>
+            <Text className='text-label text-foreground'>{time}</Text>
           </View>
-        </Card>
-      )}
-    </Pressable>
+          {expense && expenseCount && (
+            <View className='flex-row items-center gap-3xs'>
+              <Wallet size={12} color='hsl(0, 0%, 12%)' strokeWidth={2} />
+              <Text className='text-label text-foreground'>
+                {currency} {expense} ({expenseCount}개)
+              </Text>
+            </View>
+          )}
+        </View>
+      </Card>
+    </TouchableOpacity>
   );
 }

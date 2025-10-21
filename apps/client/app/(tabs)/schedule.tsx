@@ -70,6 +70,7 @@ export default function ScheduleScreen() {
         rightAction={
           <View className='flex-row items-center gap-2xs'>
             <Pressable
+              variant='ghost'
               className='h-10 w-10 items-center justify-center rounded-full active:bg-muted'
               accessibilityRole='button'
               accessibilityLabel='메뉴 열기'
@@ -77,6 +78,7 @@ export default function ScheduleScreen() {
               <Menu size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
             </Pressable>
             <Pressable
+              variant='ghost'
               className='h-10 w-10 items-center justify-center rounded-full active:bg-muted'
               onPress={() => setViewMode(viewMode === 'list' ? 'map' : 'list')}
               accessibilityRole='button'
@@ -118,6 +120,7 @@ export default function ScheduleScreen() {
                       </View>
                     </View>
                     <Pressable
+                      variant='outline'
                       className='flex-row items-center gap-3xs rounded-md border border-card-border bg-card px-xs py-3xs active:bg-muted'
                       onPress={() => {
                         // TODO: Open add schedule for this date

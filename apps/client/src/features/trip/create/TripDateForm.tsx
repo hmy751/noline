@@ -69,7 +69,9 @@ export default function TripDateForm({ city }: TripDateFormProps) {
             </TouchableOpacity>
           </View>
         </View>
-        <Pressable onPress={handleCreateTrip}>여행 생성</Pressable>
+        <Pressable variant='default' onPress={handleCreateTrip}>
+          여행 생성
+        </Pressable>
       </View>
       <DatePicker
         visible={pickerVisible}

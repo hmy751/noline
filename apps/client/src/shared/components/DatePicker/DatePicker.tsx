@@ -15,7 +15,7 @@ export default function DatePicker({ visible, onClose, onSelectDate, ...props }:
         <View className='rounded-t-2xl bg-card p-lg'>
           <View className='flex-row items-center justify-between pb-md'>
             <Text className='text-title-large'>날짜 선택</Text>
-            <Pressable onPress={onClose}>
+            <Pressable variant='ghost' onPress={onClose}>
               <X size={24} className='text-muted-foreground' />
             </Pressable>
           </View>
@@ -26,7 +26,7 @@ export default function DatePicker({ visible, onClose, onSelectDate, ...props }:
             }}
             {...props}
           />
-          <Pressable onPress={onClose} className='mt-md'>
+          <Pressable variant='default' onPress={onClose} className='mt-md'>
             확인
           </Pressable>
         </View>

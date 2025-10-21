@@ -72,6 +72,7 @@ export default function ProfileScreen() {
                 return (
                   <View key={item.label}>
                     <Pressable
+                      variant='ghost'
                       className='flex-row items-center justify-between p-sm'
                       onPress={() => {
                         if (!item.hasSwitch) {
@@ -110,6 +111,7 @@ export default function ProfileScreen() {
 
             {/* Logout Button */}
             <Pressable
+              variant='outline'
               className='rounded-xl bg-card p-sm'
               onPress={() => {
                 console.log('Logout pressed');

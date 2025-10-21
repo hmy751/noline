@@ -1,6 +1,6 @@
 import { View, Text } from 'react-native';
 import { cn, Pressable } from '@repo/ui';
-import { NetworkStatusIndicator } from '../Feedback';
+import { NetworkStatusIndicator } from './NetworkStatusIndicator';
 
 interface MobileHeaderProps {
   title: string;
@@ -29,6 +29,7 @@ export function MobileHeader({
       <View className='flex-1 flex-row items-center'>
         {leftIcon && onLeftPress && (
           <Pressable
+            variant='ghost'
             onPress={onLeftPress}
             className='mr-2 h-10 w-10 items-center justify-center -ml-2'
             accessibilityRole='button'

@@ -48,6 +48,7 @@ export default function HomeScreen() {
 
             {/* Add New Trip Button */}
             <Pressable
+              variant='outline'
               className='flex-row items-center justify-center gap-2xs rounded-lg border border-card-border bg-card py-md active:bg-muted'
               onPress={() => {
                 router.push('/create-trip');
@@ -61,7 +62,7 @@ export default function HomeScreen() {
             <View className='flex-col gap-sm'>
               <View className='flex-row items-center justify-between'>
                 <Text className='text-title-large text-foreground'>다가오는 일정</Text>
-                <Pressable className='flex-row items-center gap-3xs'>
+                <Pressable variant='ghost' className='flex-row items-center gap-3xs'>
                   <Text className='text-body text-primary'>전체보기</Text>
                   <ChevronRight size={16} color='hsl(120, 61%, 34%)' strokeWidth={2} />
                 </Pressable>

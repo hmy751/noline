@@ -77,6 +77,7 @@ export default function ExpensesScreen() {
         title='경비'
         rightAction={
           <Pressable
+            variant='ghost'
             className='h-10 w-10 items-center justify-center'
             onPress={() => {
               // TODO: Open camera
@@ -120,6 +121,7 @@ export default function ExpensesScreen() {
                     </View>
                   </View>
                   <Pressable
+                    variant='outline'
                     className='flex-row items-center gap-3xs rounded-md border border-card-border bg-card px-xs py-3xs active:bg-muted'
                     onPress={() => {
                       // TODO: Open add expense for this date
