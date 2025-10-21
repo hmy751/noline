@@ -1,5 +1,6 @@
-import { useMutation } from '@tanstack/react-query';
-import { fetchCreateTrip, type CreateTripRequest } from '@/shared/api/trip';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { fetchCreateTrip, type CreateTripRequest } from '../api';
+import { tripQueryKeys } from '../current/useGetTrips';
 import { useRouter } from 'expo-router';
 
 /**
@@ -9,6 +10,7 @@ import { useRouter } from 'expo-router';
  */
 export const useCreateTrip = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (data: CreateTripRequest) => {
@@ -17,6 +19,10 @@ export const useCreateTrip = () => {
     },
     onSuccess: (data) => {
       console.log('Trip created successfully:', data);
+      // 캐시 무효화 - 새 여행이 생성되었으므로 전체 여행 다시 조회
+      queryClient.invalidateQueries({
+        queryKey: tripQueryKeys.all(),
+      });
       // 성공 시 홈 화면으로 이동
       router.push('/(tabs)');
     },

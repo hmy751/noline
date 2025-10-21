@@ -1,8 +1,61 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { db, trips } from '../db/index.js';
+import { desc, sql } from 'drizzle-orm';
 
 const router = Router();
+
+// GET /api/trips - 전체 여행 조회
+router.get('/', async (req: Request, res: Response) => {
+  try {
+    // TODO: 실제 인증 구현 후 userId 사용
+    const userId = 1; // 테스트용 userId
+
+    // 모든 여행 조회
+    const allTrips = await db
+      .select({
+        id: trips.id,
+        name: trips.name,
+        destination: trips.destination,
+        country: trips.country,
+        startDate: trips.startDate,
+        endDate: trips.endDate,
+        createdAt: trips.createdAt,
+        updatedAt: trips.updatedAt,
+      })
+      .from(trips)
+      .where(sql`${trips.userId} = ${userId}`)
+      .orderBy(desc(trips.createdAt));
+
+    if (!allTrips || allTrips.length === 0) {
+      return res.status(404).json({
+        error: 'Not found',
+        message: 'No trips found',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: allTrips,
+    });
+  } catch (error) {
+    console.error('Error fetching trips:', error);
+
+    if (error instanceof Error) {
+      res.status(500).json({
+        error: 'Internal server error',
+        message: 'Failed to fetch trips',
+        details: error.message,
+      });
+    } else {
+      res.status(500).json({
+        error: 'Internal server error',
+        message: 'Failed to fetch trips',
+        details: 'Unknown error occurred',
+      });
+    }
+  }
+});
 
 // POST /api/trips - 여행 생성
 router.post('/', async (req: Request, res: Response) => {

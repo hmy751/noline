@@ -1,0 +1,1 @@
+export { selectMainTrip } from './selectMainTrip';

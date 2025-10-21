@@ -5,10 +5,7 @@ import { Container } from '@/shared/components/layout/Container';
 import { MobileHeader } from '@/shared/components';
 import { useDebounce } from '@/shared/hooks/useDebounce';
 import { City } from '@/features/trip/create/geonames.api';
-import { useSearchCities } from '@/features/trip/create/useSearchCities';
-import { CitySearchBar } from '@/features/trip/create/CitySearchBar';
-import { CitySearchResults } from '@/features/trip/create/CitySearchResults';
-import TripDateForm from '@/features/trip/create/TripDateForm';
+import { useSearchCities, CitySearchBar, CitySearchResults, TripDateForm } from '@/features/trip/create';
 import { useStep } from '@/shared/hooks/useStep';
 
 export default function CreateTripScreen() {
