@@ -34,3 +34,6 @@ export { RadioGroup, RadioGroupItem, RadioGroupRoot } from './components/RadioGr
 
 export { Select } from './components/Select';
 export type { SelectTriggerProps } from './components/Select';
+
+export { Calendar } from './components/Calendar';
+export type { CalendarProps } from './components/Calendar';
