@@ -1,5 +1,10 @@
 import { z } from 'zod';
 
+// ========================================
+// Schedule Schemas
+// ========================================
+
+// Select Schema (DB에서 조회한 데이터)
 export const scheduleSchema = z.object({
   id: z.string().uuid(),
   userId: z.string().uuid(),
@@ -9,36 +14,43 @@ export const scheduleSchema = z.object({
   address: z.string().nullable(),
   date: z.string(),
   time: z.string(),
-  latitude: z.number().nullable(),
-  longitude: z.number().nullable(),
-  synced: z.boolean(),
+  latitude: z.string().nullable(),
+  longitude: z.string().nullable(),
   createdAt: z.date(),
   updatedAt: z.date(),
+
+  // Phase 2: Local-First 필드 (선택적)
+  deletedAt: z.date().nullable().optional(),
+  version: z.number().optional(),
 });
 
-export const createScheduleSchema = z.object({
-  tripId: z.string().uuid('Invalid trip ID'),
+// Insert Schema (일정 생성)
+export const insertScheduleSchema = z.object({
+  userId: z.string().uuid(),
+  tripId: z.string().uuid(),
   title: z.string().min(1, 'Title is required'),
   location: z.string().min(1, 'Location is required'),
-  address: z.string().optional().nullable(),
+  address: z.string().nullable().optional(),
   date: z.string().min(1, 'Date is required'),
   time: z.string().min(1, 'Time is required'),
-  latitude: z.number().optional().nullable(),
-  longitude: z.number().optional().nullable(),
+  latitude: z.string().nullable().optional(),
+  longitude: z.string().nullable().optional(),
 });
 
+// Update Schema (일정 수정)
 export const updateScheduleSchema = z.object({
-  tripId: z.string().uuid().optional(),
   title: z.string().min(1).optional(),
   location: z.string().min(1).optional(),
   address: z.string().nullable().optional(),
   date: z.string().min(1).optional(),
   time: z.string().min(1).optional(),
-  latitude: z.number().nullable().optional(),
-  longitude: z.number().nullable().optional(),
-  synced: z.boolean().optional(),
+  latitude: z.string().nullable().optional(),
+  longitude: z.string().nullable().optional(),
 });
 
+// ========================================
+// Types
+// ========================================
 export type Schedule = z.infer<typeof scheduleSchema>;
-export type CreateSchedule = z.infer<typeof createScheduleSchema>;
+export type InsertSchedule = z.infer<typeof insertScheduleSchema>;
 export type UpdateSchedule = z.infer<typeof updateScheduleSchema>;
