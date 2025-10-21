@@ -1,4 +1,4 @@
-import { pgTable, serial, text, timestamp, varchar, decimal, pgEnum } from 'drizzle-orm/pg-core';
+import { pgTable, serial, integer, text, timestamp, varchar, decimal, pgEnum } from 'drizzle-orm/pg-core';
 
 // Enums
 export const expenseCategoryEnum = pgEnum('expense_category', [
@@ -24,13 +24,15 @@ export const users = pgTable('users', {
 // Trips Table
 export const trips = pgTable('trips', {
   id: serial('id').primaryKey(),
-  userId: serial('user_id')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
+  userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }), // nullable - 인증 추가 전까지 옵션
   name: varchar('name', { length: 200 }).notNull(),
   destination: varchar('destination', { length: 200 }).notNull(),
-  startDate: timestamp('start_date').notNull(),
-  endDate: timestamp('end_date').notNull(),
+  country: varchar('country', { length: 100 }),
+  latitude: decimal('latitude', { precision: 10, scale: 7 }),
+  longitude: decimal('longitude', { precision: 10, scale: 7 }),
+  cityId: integer('city_id'),
+  startDate: timestamp('start_date'),
+  endDate: timestamp('end_date'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -38,14 +40,14 @@ export const trips = pgTable('trips', {
 // Schedules Table
 export const schedules = pgTable('schedules', {
   id: serial('id').primaryKey(),
-  tripId: serial('trip_id')
+  tripId: integer('trip_id')
     .notNull()
     .references(() => trips.id, { onDelete: 'cascade' }),
   title: varchar('title', { length: 200 }).notNull(),
   location: text('location'),
   startTime: timestamp('start_time').notNull(),
   endTime: timestamp('end_time'),
-  order: serial('order').notNull(),
+  order: integer('order').notNull(),
   memo: text('memo'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -54,17 +56,17 @@ export const schedules = pgTable('schedules', {
 // Expenses Table
 export const expenses = pgTable('expenses', {
   id: serial('id').primaryKey(),
-  tripId: serial('trip_id')
+  tripId: integer('trip_id')
     .notNull()
     .references(() => trips.id, { onDelete: 'cascade' }),
-  scheduleId: serial('schedule_id').references(() => schedules.id, { onDelete: 'set null' }),
+  scheduleId: integer('schedule_id').references(() => schedules.id, { onDelete: 'set null' }),
   title: varchar('title', { length: 200 }).notNull(),
   amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
   currency: varchar('currency', { length: 3 }).notNull().default('EUR'),
   category: expenseCategoryEnum('category').notNull(),
   date: timestamp('date').notNull(),
   memo: text('memo'),
-  isSynced: serial('is_synced').notNull().default(0), // 0: not synced, 1: synced
+  isSynced: integer('is_synced').notNull().default(0), // 0: not synced, 1: synced
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

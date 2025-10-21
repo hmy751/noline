@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 
+import tripsRouter from './trips.js';
+
 const router = Router();
 
 // Health check endpoint
@@ -20,5 +22,8 @@ router.get('/', (req: Request, res: Response) => {
     description: 'Travel expense tracking API',
   });
 });
+
+// Trip routes
+router.use('/trips', tripsRouter);
 
 export default router;
