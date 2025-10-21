@@ -49,7 +49,7 @@ export default function HomeScreen() {
             <Pressable
               className='flex-row items-center justify-center gap-2xs rounded-lg border border-card-border bg-card py-md active:bg-muted'
               onPress={() => {
-                router.push('/add-trip');
+                router.push('/create-trip');
               }}
             >
               <Plus size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
