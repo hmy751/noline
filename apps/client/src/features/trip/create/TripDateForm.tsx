@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Calendar, CalendarDays, MapPin } from 'lucide-react-native';
-import { Button, Label } from '@repo/ui';
+import { Pressable, Label } from '@repo/ui';
 import DatePicker from '@/shared/components/DatePicker/DatePicker';
 import { type City } from './geonames.api';
 
@@ -69,7 +69,7 @@ export default function TripDateForm({ city }: TripDateFormProps) {
             </TouchableOpacity>
           </View>
         </View>
-        <Button onPress={handleCreateTrip}>여행 생성</Button>
+        <Pressable onPress={handleCreateTrip}>여행 생성</Pressable>
       </View>
       <DatePicker
         visible={pickerVisible}

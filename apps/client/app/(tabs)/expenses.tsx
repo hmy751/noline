@@ -1,5 +1,6 @@
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { Container, Stack, ExpenseCard, TripSelector, MobileHeader } from '@/shared/components';
+import { Pressable } from '@repo/ui';
 import { Camera } from 'lucide-react-native';
 
 export default function ExpensesScreen() {

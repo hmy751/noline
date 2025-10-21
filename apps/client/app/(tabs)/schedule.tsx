@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { Container, Stack, ScheduleCard, TripSelector, MobileHeader } from '@/shared/components';
+import { Pressable } from '@repo/ui';
 import { Menu, Map, List } from 'lucide-react-native';
 
 type ViewMode = 'list' | 'map';

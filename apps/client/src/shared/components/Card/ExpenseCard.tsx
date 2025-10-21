@@ -1,9 +1,8 @@
-import { View, Text, Pressable, type PressableProps } from 'react-native';
-import { Card, Badge } from '@repo/ui';
-import { cn } from '@repo/ui';
+import { View, Text } from 'react-native';
+import { Card, Badge, Pressable, cn, type PressableComponentProps } from '@repo/ui';
 import { MapPin, Camera, Clock } from 'lucide-react-native';
 
-interface ExpenseCardProps extends Omit<PressableProps, 'children'> {
+interface ExpenseCardProps extends Omit<PressableComponentProps, 'children'> {
   title: string;
   amount: string;
   currency: string;

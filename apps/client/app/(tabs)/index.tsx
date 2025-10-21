@@ -1,6 +1,7 @@
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { Container, Stack, TripCard, ScheduleCard, MobileHeader } from '@/shared/components';
+import { Pressable } from '@repo/ui';
 import { ChevronRight, Plus } from 'lucide-react-native';
 
 export default function HomeScreen() {

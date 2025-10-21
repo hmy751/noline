@@ -1,7 +1,6 @@
-import { Modal, Pressable, Text, View } from 'react-native';
+import { Modal, Text, View } from 'react-native';
 import { X } from 'lucide-react-native';
-import { Calendar, CalendarProps } from '@repo/ui';
-import { Button } from '@repo/ui';
+import { Calendar, CalendarProps, Pressable } from '@repo/ui';
 
 type DatePickerProps = {
   visible: boolean;
@@ -27,9 +26,9 @@ export default function DatePicker({ visible, onClose, onSelectDate, ...props }:
             }}
             {...props}
           />
-          <Button onPress={onClose} className='mt-md'>
+          <Pressable onPress={onClose} className='mt-md'>
             확인
-          </Button>
+          </Pressable>
         </View>
       </View>
     </Modal>

@@ -1,6 +1,6 @@
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { Container, Stack, MobileHeader } from '@/shared/components';
-import { Avatar, AvatarFallback, Switch, Separator } from '@repo/ui';
+import { Avatar, AvatarFallback, Switch, Separator, Pressable } from '@repo/ui';
 import { useState } from 'react';
 import { User, Sun, Moon, Settings, Globe, Download, ChevronRight } from 'lucide-react-native';
 

@@ -1,5 +1,5 @@
-import { View, Text, Pressable } from 'react-native';
-import { cn } from '@repo/ui';
+import { View, Text } from 'react-native';
+import { cn, Pressable } from '@repo/ui';
 import { NetworkStatusIndicator } from '../Feedback';
 
 interface MobileHeaderProps {

@@ -1,9 +1,9 @@
 import { forwardRef } from 'react';
-import { Pressable, Text, type PressableProps } from 'react-native';
+import { Pressable as RNPressable, Text, type PressableProps, type PressableStateCallbackType } from 'react-native';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/utils';
 
-const buttonVariants = cva(
+const pressableVariants = cva(
   'inline-flex items-center justify-center rounded-md font-medium transition-colors active:opacity-80',
   {
     variants: {
@@ -28,7 +28,7 @@ const buttonVariants = cva(
   },
 );
 
-const buttonTextVariants = cva('font-semibold', {
+const pressableTextVariants = cva('font-semibold', {
   variants: {
     variant: {
       default: 'text-primary-foreground',
@@ -50,13 +50,15 @@ const buttonTextVariants = cva('font-semibold', {
   },
 });
 
-export interface ButtonProps extends PressableProps, VariantProps<typeof buttonVariants> {
-  children?: React.ReactNode;
+export interface PressableComponentProps
+  extends Omit<PressableProps, 'children'>,
+    VariantProps<typeof pressableVariants> {
+  children?: React.ReactNode | ((state: PressableStateCallbackType) => React.ReactNode);
   className?: string;
   textClassName?: string;
 }
 
-export const Button = forwardRef<React.ElementRef<typeof Pressable>, ButtonProps>(
+export const Pressable = forwardRef<React.ElementRef<typeof RNPressable>, PressableComponentProps>(
   ({ className, textClassName, variant = 'default', size, children, disabled, ...props }, ref) => {
     // 각 variant별 텍스트 색상 정의
     const textColorMap: Record<NonNullable<typeof variant>, string> = {
@@ -70,22 +72,26 @@ export const Button = forwardRef<React.ElementRef<typeof Pressable>, ButtonProps
     const textColor = textColorMap[variant ?? 'default'];
 
     return (
-      <Pressable
+      <RNPressable
         ref={ref}
-        className={cn(buttonVariants({ variant, size, className }), disabled && 'opacity-50')}
+        className={cn(pressableVariants({ variant, size, className }), disabled && 'opacity-50')}
         disabled={disabled}
         {...props}
       >
-        {typeof children === 'string' ? (
-          <Text className={cn(buttonTextVariants({ variant, size }), textClassName)} style={{ color: textColor }}>
-            {children}
-          </Text>
-        ) : (
-          children
-        )}
-      </Pressable>
+        {(state) => {
+          const content = typeof children === 'function' ? children(state) : children;
+
+          return typeof content === 'string' ? (
+            <Text className={cn(pressableTextVariants({ variant, size }), textClassName)} style={{ color: textColor }}>
+              {content}
+            </Text>
+          ) : (
+            content
+          );
+        }}
+      </RNPressable>
     );
   },
 );
 
-Button.displayName = 'Button';
+Pressable.displayName = 'Pressable';

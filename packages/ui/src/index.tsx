@@ -2,8 +2,8 @@
 export { cn } from './lib/utils';
 
 // Components
-export { Button } from './components/Button';
-export type { ButtonProps } from './components/Button';
+export { Pressable } from './components/Pressable';
+export type { PressableComponentProps } from './components/Pressable';
 
 export { Input } from './components/Input';
 export type { InputProps } from './components/Input';
