@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { City, searchCities } from '@/features/trip/create/geonames.api';
 
 export const cityQueryKeys = {
@@ -12,6 +12,6 @@ export const useSearchCities = (searchQuery: string) => {
     queryFn: () => searchCities(searchQuery),
     enabled: !!searchQuery,
     staleTime: 1000 * 60 * 5, // 5 minutes
-    placeholderData: [],
+    placeholderData: keepPreviousData,
   });
 };

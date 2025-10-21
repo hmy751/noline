@@ -13,7 +13,7 @@ export default function CreateTripScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
-  const { data: cities = [], isLoading, isFetching, error } = useSearchCities(debouncedSearchQuery);
+  const { data: cities = [], isLoading, error, isFetching } = useSearchCities(debouncedSearchQuery);
 
   const handleSelectCity = (city: City) => {
     console.log('Selected city:', city);
