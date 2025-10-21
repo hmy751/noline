@@ -2,14 +2,14 @@
   "name": "@apps/server",
   "version": "1.0.0",
   "private": true,
-  "main": "src/index.ts",
-  "exports": {
-    ".": "./src/index.ts"
-  },
+  "main": "dist/index.js",
+  "type": "module",
   "scripts": {
-    "dev": "ts-node-dev src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js"
+    "dev": "tsx watch src/index.ts",
+    "build": "tsup",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
   },
   "keywords": [],
   "author": "",
@@ -19,7 +19,8 @@
   },
   "devDependencies": {
     "@types/node": "^20.14.12",
-    "ts-node-dev": "^2.0.0",
+    "tsup": "^8.0.1",
+    "tsx": "^4.7.0",
     "typescript": "^5.5.4"
   }
 }
