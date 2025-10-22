@@ -1,4 +1,5 @@
 import { pgTable, serial, integer, text, timestamp, varchar, decimal, pgEnum } from 'drizzle-orm/pg-core';
+import { ulid } from 'ulid';
 
 // Enums
 export const expenseCategoryEnum = pgEnum('expense_category', [
@@ -12,7 +13,9 @@ export const expenseCategoryEnum = pgEnum('expense_category', [
 
 // Users Table
 export const users = pgTable('users', {
-  id: serial('id').primaryKey(),
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => ulid()),
   email: varchar('email', { length: 255 }).notNull().unique(),
   password: text('password').notNull(),
   name: varchar('name', { length: 100 }).notNull(),
@@ -23,8 +26,10 @@ export const users = pgTable('users', {
 
 // Trips Table
 export const trips = pgTable('trips', {
-  id: serial('id').primaryKey(),
-  userId: integer('user_id').references(() => users.id, { onDelete: 'cascade' }), // nullable - 인증 추가 전까지 옵션
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => ulid()),
+  userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }), // nullable - 인증 추가 전까지 옵션
   name: varchar('name', { length: 200 }).notNull(),
   destination: varchar('destination', { length: 200 }).notNull(),
   country: varchar('country', { length: 100 }),
@@ -39,8 +44,10 @@ export const trips = pgTable('trips', {
 
 // Schedules Table
 export const schedules = pgTable('schedules', {
-  id: serial('id').primaryKey(),
-  tripId: integer('trip_id')
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => ulid()),
+  tripId: text('trip_id')
     .notNull()
     .references(() => trips.id, { onDelete: 'cascade' }),
   title: varchar('title', { length: 200 }).notNull(),
@@ -55,11 +62,13 @@ export const schedules = pgTable('schedules', {
 
 // Expenses Table
 export const expenses = pgTable('expenses', {
-  id: serial('id').primaryKey(),
-  tripId: integer('trip_id')
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => ulid()),
+  tripId: text('trip_id')
     .notNull()
     .references(() => trips.id, { onDelete: 'cascade' }),
-  scheduleId: integer('schedule_id').references(() => schedules.id, { onDelete: 'set null' }),
+  scheduleId: text('schedule_id').references(() => schedules.id, { onDelete: 'set null' }),
   title: varchar('title', { length: 200 }).notNull(),
   amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
   currency: varchar('currency', { length: 3 }).notNull().default('EUR'),
