@@ -3,6 +3,7 @@ import type { Request, Response } from 'express';
 
 import tripsRouter from './trips.js';
 import schedulesRouter from './schedules.js';
+import placesRouter from './places.js';
 
 const router = Router();
 
@@ -29,5 +30,8 @@ router.use('/trips', tripsRouter);
 
 // Schedule routes
 router.use('/schedules', schedulesRouter);
+
+// Places routes (Google Maps)
+router.use('/places', placesRouter);
 
 export default router;
