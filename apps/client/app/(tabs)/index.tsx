@@ -5,9 +5,23 @@ import { Pressable } from '@repo/ui';
 import { ChevronRight, Plus, MoreVertical, Edit3 } from 'lucide-react-native';
 import { useGetTrips } from '@/features/trip/current';
 import { selectMainTrip } from '@/features/trip/utils/selectMainTrip';
+import { EditTripDrawer, TripMenu } from '@/features/trip/update';
+import { useDeleteTrip } from '@/features/trip/current';
+import { useState } from 'react';
+import { Alert } from 'react-native';
+import type { TripData } from '@/features/trip/api';
 
 export default function HomeScreen() {
   const { data: allTrips, isLoading, isError } = useGetTrips();
+  const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
+  const [selectedTrip, setSelectedTrip] = useState<TripData | null>(null);
+  const [isTripMenuOpen, setIsTripMenuOpen] = useState(false);
+  const [editingOtherTrip, setEditingOtherTrip] = useState<TripData | null>(null);
+  const [buttonPosition, setButtonPosition] = useState<
+    { x: number; y: number; width: number; height: number } | undefined
+  >(undefined);
+
+  const { mutate: deleteTrip } = useDeleteTrip();
 
   // 날짜 포맷팅 함수
   const formatDate = (dateString: string | null) => {
@@ -34,6 +48,36 @@ export default function HomeScreen() {
 
   // 다른 여행들 (메인 여행 제외)
   const otherTrips = (allTrips || []).filter((trip) => trip.id !== mainTripData?.id);
+
+  // 다른 여행 편집 핸들러
+  const handleEditOtherTrip = (trip: TripData) => {
+    setEditingOtherTrip(trip);
+    setIsEditDrawerOpen(true);
+  };
+
+  // 다른 여행 삭제 핸들러
+  const handleDeleteOtherTrip = (trip: TripData) => {
+    Alert.alert('여행 삭제', `"${trip.name}" 여행을 삭제하시겠습니까?\n모든 일정과 경비도 함께 삭제됩니다.`, [
+      {
+        text: '취소',
+        style: 'cancel',
+      },
+      {
+        text: '삭제',
+        style: 'destructive',
+        onPress: () => {
+          deleteTrip(trip.id, {
+            onSuccess: () => {
+              Alert.alert('성공', '여행이 삭제되었습니다.');
+            },
+            onError: () => {
+              Alert.alert('오류', '여행 삭제에 실패했습니다.');
+            },
+          });
+        },
+      },
+    ]);
+  };
 
   const upcomingSchedules = [
     {
@@ -78,10 +122,10 @@ export default function HomeScreen() {
                 <TripCard {...mainTrip} />
                 {/* Edit Button */}
                 <Pressable
-                  className='absolute right-md top-md rounded-full bg-white/20 p-2xs'
+                  className='absolute right-sm top-sm rounded-full p-2xs'
                   onPress={() => {
-                    // TODO: 메인 여행 편집 모달 열기
-                    console.log('Edit main trip');
+                    setEditingOtherTrip(null); // 메인 여행 편집 시 다른 여행 초기화
+                    setIsEditDrawerOpen(true);
                   }}
                 >
                   <Edit3 size={16} color='white' strokeWidth={2} />
@@ -99,7 +143,10 @@ export default function HomeScreen() {
               <View className='flex-col gap-sm'>
                 <Text className='text-title-large text-foreground'>다른 여행</Text>
                 {otherTrips.map((trip) => (
-                  <View key={trip.id} className='flex-row items-center justify-between rounded-lg bg-card p-md'>
+                  <View
+                    key={trip.id}
+                    className='flex-row items-center justify-between rounded-lg bg-card p-md border border-card-border'
+                  >
                     <View className='flex-1'>
                       <Text className='text-body font-semibold text-foreground'>
                         {trip.destination}, {trip.country}
@@ -109,10 +156,15 @@ export default function HomeScreen() {
                       </Text>
                     </View>
                     <Pressable
+                      variant='ghost'
                       className='rounded-full p-2xs'
-                      onPress={() => {
-                        // TODO: 다른 여행 드롭다운 메뉴 열기
-                        console.log('Open trip menu for:', trip.id);
+                      onPress={(event) => {
+                        setSelectedTrip(trip);
+                        // 버튼 위치 측정
+                        event.currentTarget.measure((x, y, width, height, pageX, pageY) => {
+                          setButtonPosition({ x: pageX, y: pageY, width, height });
+                        });
+                        setIsTripMenuOpen(true);
                       }}
                     >
                       <MoreVertical size={20} color='#666' strokeWidth={2} />
@@ -158,6 +210,29 @@ export default function HomeScreen() {
           </Stack>
         </Container>
       </ScrollView>
+
+      {/* Edit Trip Drawer */}
+      <EditTripDrawer
+        isOpen={isEditDrawerOpen}
+        onClose={() => {
+          setIsEditDrawerOpen(false);
+          setEditingOtherTrip(null);
+        }}
+        trip={editingOtherTrip ? editingOtherTrip : mainTripData}
+      />
+
+      {/* Trip Menu for Other Trips */}
+      <TripMenu
+        isOpen={isTripMenuOpen}
+        onClose={() => {
+          setIsTripMenuOpen(false);
+          setSelectedTrip(null);
+          setButtonPosition(undefined);
+        }}
+        onEdit={() => selectedTrip && handleEditOtherTrip(selectedTrip)}
+        onDelete={() => selectedTrip && handleDeleteOtherTrip(selectedTrip)}
+        buttonPosition={buttonPosition}
+      />
     </View>
   );
 }

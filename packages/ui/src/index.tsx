@@ -37,3 +37,6 @@ export type { SelectTriggerProps } from './components/Select';
 
 export { Calendar } from './components/Calendar';
 export type { CalendarProps } from './components/Calendar';
+
+export { Drawer, DrawerHeader, DrawerFooter } from './components/Drawer';
+export type { DrawerProps, DrawerHeaderProps, DrawerFooterProps } from './components/Drawer';

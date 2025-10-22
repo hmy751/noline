@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { db, trips } from '../db/index.js';
-import { desc, sql } from 'drizzle-orm';
+import { desc, sql, eq, and } from 'drizzle-orm';
 
 const router = Router();
 
@@ -127,6 +127,159 @@ router.post('/', async (req: Request, res: Response) => {
       res.status(500).json({
         error: 'Internal server error',
         message: 'Failed to create trip',
+        details: 'Unknown error occurred',
+      });
+    }
+  }
+});
+
+// PATCH /api/trips/:id - 여행 수정
+router.patch('/:id', async (req: Request, res: Response) => {
+  try {
+    const tripId = parseInt(req.params.id);
+    const { name, destination, country, startDate, endDate } = req.body;
+
+    // TODO: 실제 인증 구현 후 userId 사용
+    const userId = 1; // 테스트용 userId
+
+    if (isNaN(tripId)) {
+      return res.status(400).json({
+        error: 'Invalid trip ID',
+        message: 'Trip ID must be a valid number',
+      });
+    }
+
+    // 여행 존재 여부 및 소유권 확인
+    const [existingTrip] = await db
+      .select()
+      .from(trips)
+      .where(and(eq(trips.id, tripId), eq(trips.userId, userId)));
+
+    if (!existingTrip) {
+      return res.status(404).json({
+        error: 'Not found',
+        message: 'Trip not found or you do not have permission to edit it',
+      });
+    }
+
+    // 업데이트할 필드 준비
+    const updateData: Partial<typeof trips.$inferInsert> = {
+      updatedAt: new Date(),
+    };
+
+    if (name !== undefined) updateData.name = name;
+    if (destination !== undefined) updateData.destination = destination;
+    if (country !== undefined) updateData.country = country;
+
+    if (startDate !== undefined) {
+      const start = new Date(startDate);
+      if (isNaN(start.getTime())) {
+        return res.status(400).json({
+          error: 'Invalid date format',
+          message: 'startDate must be a valid date',
+        });
+      }
+      updateData.startDate = start;
+    }
+
+    if (endDate !== undefined) {
+      const end = new Date(endDate);
+      if (isNaN(end.getTime())) {
+        return res.status(400).json({
+          error: 'Invalid date format',
+          message: 'endDate must be a valid date',
+        });
+      }
+      updateData.endDate = end;
+    }
+
+    // 날짜 범위 검증
+    if (updateData.startDate || updateData.endDate) {
+      const finalStart = updateData.startDate || existingTrip.startDate;
+      const finalEnd = updateData.endDate || existingTrip.endDate;
+
+      if (finalStart && finalEnd && new Date(finalStart) > new Date(finalEnd)) {
+        return res.status(400).json({
+          error: 'Invalid date range',
+          message: 'startDate must be before endDate',
+        });
+      }
+    }
+
+    // 여행 업데이트
+    const [updatedTrip] = await db.update(trips).set(updateData).where(eq(trips.id, tripId)).returning();
+
+    res.status(200).json({
+      success: true,
+      data: updatedTrip,
+    });
+  } catch (error) {
+    console.error('Error updating trip:', error);
+
+    if (error instanceof Error) {
+      res.status(500).json({
+        error: 'Internal server error',
+        message: 'Failed to update trip',
+        details: error.message,
+      });
+    } else {
+      res.status(500).json({
+        error: 'Internal server error',
+        message: 'Failed to update trip',
+        details: 'Unknown error occurred',
+      });
+    }
+  }
+});
+
+// DELETE /api/trips/:id - 여행 삭제
+router.delete('/:id', async (req: Request, res: Response) => {
+  try {
+    const tripId = parseInt(req.params.id);
+
+    // TODO: 실제 인증 구현 후 userId 사용
+    const userId = 1; // 테스트용 userId
+
+    if (isNaN(tripId)) {
+      return res.status(400).json({
+        error: 'Invalid trip ID',
+        message: 'Trip ID must be a valid number',
+      });
+    }
+
+    // 여행 존재 여부 및 소유권 확인
+    const [existingTrip] = await db
+      .select()
+      .from(trips)
+      .where(and(eq(trips.id, tripId), eq(trips.userId, userId)));
+
+    if (!existingTrip) {
+      return res.status(404).json({
+        error: 'Not found',
+        message: 'Trip not found or you do not have permission to delete it',
+      });
+    }
+
+    // 여행 삭제 (cascade로 연관된 schedules, expenses도 삭제됨)
+    await db.delete(trips).where(eq(trips.id, tripId));
+
+    res.status(200).json({
+      success: true,
+      message: 'Trip deleted successfully',
+    });
+  } catch (error) {
+    console.error('Error deleting trip:', error);
+
+    if (error instanceof Error) {
+      res.status(500).json({
+        error: 'Internal server error',
+        message: 'Failed to delete trip',
+        details: error.message,
+      });
+    } else {
+      res.status(500).json({
+        error: 'Internal server error',
+        message: 'Failed to delete trip',
         details: 'Unknown error occurred',
       });
     }

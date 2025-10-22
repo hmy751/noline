@@ -50,6 +50,24 @@ export type CreateTripResponse = {
   };
 };
 
+export type UpdateTripRequest = {
+  name?: string;
+  destination?: string;
+  country?: string;
+  startDate?: string;
+  endDate?: string;
+};
+
+export type UpdateTripResponse = {
+  success: boolean;
+  data: TripData;
+};
+
+export type DeleteTripResponse = {
+  success: boolean;
+  message: string;
+};
+
 // ========================================
 // Trip API Functions
 // ========================================
@@ -69,4 +87,23 @@ export const fetchAllTrips = async (): Promise<GetAllTripsResponse> => {
  */
 export const fetchCreateTrip = async (data: CreateTripRequest): Promise<CreateTripResponse> => {
   return axios.post('/api/trips', data) as Promise<CreateTripResponse>;
+};
+
+/**
+ * 여행 정보를 수정합니다.
+ * @param id - 여행 ID
+ * @param data - 수정할 여행 데이터
+ * @returns 수정된 여행 정보
+ */
+export const fetchUpdateTrip = async (id: number, data: UpdateTripRequest): Promise<UpdateTripResponse> => {
+  return axios.patch(`/api/trips/${id}`, data) as Promise<UpdateTripResponse>;
+};
+
+/**
+ * 여행을 삭제합니다.
+ * @param id - 여행 ID
+ * @returns 삭제 성공 메시지
+ */
+export const fetchDeleteTrip = async (id: number): Promise<DeleteTripResponse> => {
+  return axios.delete(`/api/trips/${id}`) as Promise<DeleteTripResponse>;
 };
