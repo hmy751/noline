@@ -1,15 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCreateSchedule } from '@/entities/schedule';
 import { createScheduleFormSchema, type CreateScheduleFormData } from './schema';
+import type { Location } from './types';
 
 type UseCreateScheduleFormProps = {
   tripId: string;
+  selectedLocation: Location | null;
   onSuccess?: () => void;
 };
 
-export const useCreateScheduleForm = ({ tripId, onSuccess }: UseCreateScheduleFormProps) => {
+export const useCreateScheduleForm = ({ tripId, selectedLocation, onSuccess }: UseCreateScheduleFormProps) => {
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [timePickerVisible, setTimePickerVisible] = useState(false);
 
@@ -24,6 +26,15 @@ export const useCreateScheduleForm = ({ tripId, onSuccess }: UseCreateScheduleFo
     },
     mode: 'onChange',
   });
+
+  // 장소 선택 시 폼 값 자동 설정
+  useEffect(() => {
+    if (selectedLocation) {
+      form.setValue('title', selectedLocation.name);
+      form.setValue('location', selectedLocation.name);
+      form.setValue('address', selectedLocation.address);
+    }
+  }, [selectedLocation, form]);
 
   const { mutate: createSchedule, isPending } = useCreateSchedule();
 
