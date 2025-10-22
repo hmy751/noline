@@ -93,7 +93,6 @@ export default function ExpensesScreen() {
 
       {/* Current Trip Selector - Sticky */}
       <TripSelector
-        defaultTrip={{ value: 'paris', label: '파리, 프랑스' }}
         onTripChange={(trip) => {
           console.log('Selected trip:', trip);
         }}

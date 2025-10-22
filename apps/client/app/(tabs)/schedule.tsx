@@ -96,8 +96,8 @@ export default function ScheduleScreen() {
 
       {/* Current Trip Selector - Sticky */}
       <TripSelector
-        defaultTrip={{ value: 'paris', label: '파리, 프랑스' }}
         onTripChange={(trip) => {
+          // TO DO 컨텍스트 또는 전역상태 정의
           console.log('Selected trip:', trip);
         }}
         className='border-b border-card-border bg-background px-md py-sm'
