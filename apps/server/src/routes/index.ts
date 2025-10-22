@@ -2,6 +2,7 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 
 import tripsRouter from './trips.js';
+import schedulesRouter from './schedules.js';
 
 const router = Router();
 
@@ -25,5 +26,8 @@ router.get('/', (req: Request, res: Response) => {
 
 // Trip routes
 router.use('/trips', tripsRouter);
+
+// Schedule routes
+router.use('/schedules', schedulesRouter);
 
 export default router;

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, Text, ScrollView } from 'react-native';
+import { router } from 'expo-router';
 import { Container, Stack, ScheduleCard, MobileHeader } from '@/shared/components';
 import { TripSelector } from '@/entities/trip';
 import { Pressable } from '@repo/ui';
@@ -21,6 +22,7 @@ interface ScheduleByDate {
 
 export default function ScheduleScreen() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
 
   // TODO: Replace with real data
   const schedulesByDate: ScheduleByDate[] = [
@@ -98,7 +100,7 @@ export default function ScheduleScreen() {
       {/* Current Trip Selector - Sticky */}
       <TripSelector
         onTripChange={(trip) => {
-          // TO DO 컨텍스트 또는 전역상태 정의
+          setSelectedTripId(trip.value);
           console.log('Selected trip:', trip);
         }}
         className='border-b border-card-border bg-background px-md py-sm'
@@ -124,8 +126,9 @@ export default function ScheduleScreen() {
                       variant='outline'
                       className='flex-row items-center gap-3xs rounded-md border border-card-border bg-card px-xs py-3xs active:bg-muted'
                       onPress={() => {
-                        // TODO: Open add schedule for this date
-                        console.log('Add schedule for', group.date);
+                        if (selectedTripId) {
+                          router.push(`/create-schedule?tripId=${selectedTripId}&date=${group.date}`);
+                        }
                       }}
                     >
                       <Text className='text-label text-foreground'>추가</Text>
