@@ -1,5 +1,5 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import { City, searchCities } from '@/features/trip/create/geonames.api';
+import { City, searchCities } from '@/features/trip/create-trip/geonames.api';
 
 export const cityQueryKeys = {
   base: ['cities'] as const,

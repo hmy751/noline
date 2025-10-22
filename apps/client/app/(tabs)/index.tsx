@@ -4,7 +4,7 @@ import { Container, Stack, ScheduleCard, MobileHeader } from '@/shared/component
 import { Pressable } from '@repo/ui';
 import { ChevronRight, Plus, MoreVertical, Edit3 } from 'lucide-react-native';
 import { useGetTrips, selectMainTrip, useDeleteTrip, TripCard, type TripData } from '@/entities/trip';
-import { EditTripDrawer, TripMenu } from '@/features/trip/update';
+import { EditTripDrawer, TripMenu } from '@/features/trip/update-trip';
 import { useState } from 'react';
 import { Alert } from 'react-native';
 
