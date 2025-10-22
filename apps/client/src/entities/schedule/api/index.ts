@@ -1,1 +1,1 @@
-export { fetchCreateSchedule } from './schedules';
+export { fetchSchedules, fetchCreateSchedule } from './schedules';
