@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View, Text, ScrollView } from 'react-native';
-import { Container, Stack, ScheduleCard, TripSelector, MobileHeader } from '@/shared/components';
+import { Container, Stack, ScheduleCard, MobileHeader } from '@/shared/components';
+import { TripSelector } from '@/entities/trip';
 import { Pressable } from '@repo/ui';
 import { Menu, Map, List } from 'lucide-react-native';
 

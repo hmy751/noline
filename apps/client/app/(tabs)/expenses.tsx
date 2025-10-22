@@ -1,5 +1,6 @@
 import { View, Text, ScrollView } from 'react-native';
-import { Container, Stack, ExpenseCard, TripSelector, MobileHeader } from '@/shared/components';
+import { Container, Stack, ExpenseCard, MobileHeader } from '@/shared/components';
+import { TripSelector } from '@/entities/trip';
 import { Pressable } from '@repo/ui';
 import { Camera } from 'lucide-react-native';
 
