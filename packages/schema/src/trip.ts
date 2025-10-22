@@ -47,8 +47,60 @@ export const updateTripSchema = z.object({
 });
 
 // ========================================
+// API Schemas (Client-side validation)
+// ========================================
+
+// API 응답 스키마
+// - 날짜: ISO string 형태로 오므로 string으로 유지 (클라이언트에서 필요시 변환)
+// - 위도/경도: DB decimal 타입이므로 string으로 반환
+// - id/userId: ULID string
+export const apiTripSchema = z.object({
+  id: z.string().ulid(),
+  userId: z.string().ulid().nullable(),
+  name: z.string(),
+  destination: z.string(),
+  country: z.string().nullable(),
+  latitude: z.string().nullable(),
+  longitude: z.string().nullable(),
+  cityId: z.number().nullable(),
+  startDate: z.string().nullable(), // ISO string
+  endDate: z.string().nullable(), // ISO string
+  createdAt: z.string(), // ISO string
+  updatedAt: z.string(), // ISO string
+  deletedAt: z.string().nullable().optional(), // ISO string
+  version: z.number().optional(),
+});
+
+export const getAllTripsResponseSchema = z.object({
+  success: z.literal(true),
+  data: z.array(apiTripSchema),
+});
+
+export const createTripResponseSchema = z.object({
+  success: z.literal(true),
+  data: apiTripSchema,
+});
+
+export const updateTripResponseSchema = z.object({
+  success: z.literal(true),
+  data: apiTripSchema,
+});
+
+export const deleteTripResponseSchema = z.object({
+  success: z.literal(true),
+  message: z.string(),
+});
+
+// ========================================
 // Types
 // ========================================
 export type Trip = z.infer<typeof tripSchema>;
 export type InsertTrip = z.infer<typeof insertTripSchema>;
 export type UpdateTrip = z.infer<typeof updateTripSchema>;
+export type ApiTrip = z.infer<typeof apiTripSchema>;
+
+// API Response Types
+export type GetAllTripsResponse = z.infer<typeof getAllTripsResponseSchema>;
+export type CreateTripResponse = z.infer<typeof createTripResponseSchema>;
+export type UpdateTripResponse = z.infer<typeof updateTripResponseSchema>;
+export type DeleteTripResponse = z.infer<typeof deleteTripResponseSchema>;

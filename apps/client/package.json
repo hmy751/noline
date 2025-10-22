@@ -12,6 +12,7 @@
   "dependencies": {
     "@babel/runtime": "^7.24.8",
     "@expo/metro-runtime": "^3.2.3",
+    "@hookform/resolvers": "^5.2.2",
     "@repo/schema": "workspace:*",
     "@repo/ui": "workspace:*",
     "@rn-primitives/portal": "^1.2.0",
@@ -30,7 +31,8 @@
     "react-native": "0.74.5",
     "react-native-screens": "^3.31.1",
     "react-native-svg": "^15.2.0",
-    "react-native-web": "^0.19.13"
+    "react-native-web": "^0.19.13",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

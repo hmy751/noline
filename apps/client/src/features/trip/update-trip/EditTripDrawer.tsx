@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
-import { View, Text, Alert } from 'react-native';
-import { Drawer, Pressable, Label } from '@repo/ui';
+import React, { useEffect } from 'react';
+import { View, Text, Alert, TouchableOpacity } from 'react-native';
+import { Controller, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Calendar } from 'lucide-react-native';
+import { Drawer, Pressable } from '@repo/ui';
 import DatePicker from '@/shared/components/DatePicker';
+import { Field } from '@/shared/components/Form';
 import { type TripData, useUpdateTrip, useDeleteTrip } from '@/entities/trip';
+import { tripEditFormSchema, type TripEditFormData } from './schema';
 
 export type EditTripDrawerProps = {
   isOpen: boolean;
@@ -15,13 +20,28 @@ export type EditTripDrawerProps = {
  * 날짜 수정 및 삭제 기능 제공
  */
 export const EditTripDrawer = ({ isOpen, onClose, trip }: EditTripDrawerProps) => {
-  const [startDate, setStartDate] = useState(trip?.startDate || '');
-  const [endDate, setEndDate] = useState(trip?.endDate || '');
-  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
-  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const { control, handleSubmit, setValue } = useForm<TripEditFormData>({
+    resolver: zodResolver(tripEditFormSchema),
+    defaultValues: {
+      startDate: trip?.startDate || '',
+      endDate: trip?.endDate || '',
+    },
+    mode: 'onChange',
+  });
+
+  const [currentPicker, setCurrentPicker] = React.useState<'start' | 'end' | null>(null);
+  const [pickerVisible, setPickerVisible] = React.useState(false);
 
   const { mutate: updateTrip, isPending: isUpdating } = useUpdateTrip();
   const { mutate: deleteTrip, isPending: isDeleting } = useDeleteTrip();
+
+  // trip이 변경되면 폼 값 업데이트
+  useEffect(() => {
+    if (trip) {
+      setValue('startDate', trip.startDate || '');
+      setValue('endDate', trip.endDate || '');
+    }
+  }, [trip, setValue]);
 
   // 날짜 포맷팅 함수
   const formatDate = (dateString: string | null) => {
@@ -30,22 +50,31 @@ export const EditTripDrawer = ({ isOpen, onClose, trip }: EditTripDrawerProps) =
     return `${date.getFullYear()}. ${date.getMonth() + 1}. ${date.getDate()}.`;
   };
 
-  // 저장 핸들러
-  const handleSave = () => {
-    if (!trip) return;
+  // 날짜 선택 핸들러
+  const handleShowPicker = (pickerType: 'start' | 'end') => {
+    setCurrentPicker(pickerType);
+    setPickerVisible(true);
+  };
 
-    // 날짜 유효성 검증
-    if (new Date(startDate) > new Date(endDate)) {
-      Alert.alert('오류', '시작 날짜는 종료 날짜보다 이전이어야 합니다.');
-      return;
+  const handleSelectDate = (date: string) => {
+    if (currentPicker === 'start') {
+      setValue('startDate', date, { shouldValidate: true });
+    } else {
+      setValue('endDate', date, { shouldValidate: true });
     }
+    setPickerVisible(false);
+  };
+
+  // 저장 핸들러 (유효성 검사는 zodResolver가 처리)
+  const onValid = (data: TripEditFormData) => {
+    if (!trip) return;
 
     updateTrip(
       {
         id: trip.id,
         data: {
-          startDate,
-          endDate,
+          startDate: data.startDate,
+          endDate: data.endDate,
         },
       },
       {
@@ -58,6 +87,10 @@ export const EditTripDrawer = ({ isOpen, onClose, trip }: EditTripDrawerProps) =
         },
       },
     );
+  };
+
+  const onInvalid = () => {
+    Alert.alert('오류', '입력한 정보를 확인해주세요.');
   };
 
   // 삭제 핸들러
@@ -87,14 +120,6 @@ export const EditTripDrawer = ({ isOpen, onClose, trip }: EditTripDrawerProps) =
     ]);
   };
 
-  // trip이 변경되면 날짜 업데이트
-  React.useEffect(() => {
-    if (trip) {
-      setStartDate(trip.startDate || '');
-      setEndDate(trip.endDate || '');
-    }
-  }, [trip]);
-
   if (!trip) return null;
 
   return (
@@ -121,30 +146,54 @@ export const EditTripDrawer = ({ isOpen, onClose, trip }: EditTripDrawerProps) =
             <Text className='text-title-medium text-foreground'>여행 기간</Text>
             <View className='flex-row gap-sm'>
               {/* 시작 날짜 */}
-              <View className='flex-1'>
-                <Label className='mb-2xs text-label text-muted-foreground'>시작일</Label>
-                <Pressable
-                  variant='outline'
-                  className='flex-row items-center justify-between rounded-lg border border-input bg-background px-md py-sm'
-                  onPress={() => setShowStartDatePicker(true)}
-                >
-                  <Text className='text-body text-muted-foreground'>{formatDate(startDate) || '연도. 월. 일.'}</Text>
-                  <Text className='text-body text-muted-foreground'>📅</Text>
-                </Pressable>
-              </View>
+              <Controller
+                control={control}
+                name='startDate'
+                render={({ field: { value }, fieldState: { error } }) => (
+                  <View className='flex-1'>
+                    <Field>
+                      <Field.Title>시작일</Field.Title>
+                      <Field.ElementsBox>
+                        <TouchableOpacity
+                          onPress={() => handleShowPicker('start')}
+                          className='h-11 flex-row items-center justify-between rounded-lg border border-input bg-background px-md'
+                        >
+                          <Text className='text-body text-muted-foreground'>
+                            {formatDate(value) || '연도. 월. 일.'}
+                          </Text>
+                          <Calendar size={16} className='text-muted-foreground' />
+                        </TouchableOpacity>
+                      </Field.ElementsBox>
+                      {error && <Field.Message>{error.message}</Field.Message>}
+                    </Field>
+                  </View>
+                )}
+              />
 
               {/* 종료 날짜 */}
-              <View className='flex-1'>
-                <Label className='mb-2xs text-label text-muted-foreground'>종료일</Label>
-                <Pressable
-                  variant='outline'
-                  className='flex-row items-center justify-between rounded-lg border border-input bg-background px-md py-sm'
-                  onPress={() => setShowEndDatePicker(true)}
-                >
-                  <Text className='text-body text-muted-foreground'>{formatDate(endDate) || '연도. 월. 일.'}</Text>
-                  <Text className='text-body text-muted-foreground'>📅</Text>
-                </Pressable>
-              </View>
+              <Controller
+                control={control}
+                name='endDate'
+                render={({ field: { value }, fieldState: { error } }) => (
+                  <View className='flex-1'>
+                    <Field>
+                      <Field.Title>종료일</Field.Title>
+                      <Field.ElementsBox>
+                        <TouchableOpacity
+                          onPress={() => handleShowPicker('end')}
+                          className='h-11 flex-row items-center justify-between rounded-lg border border-input bg-background px-md'
+                        >
+                          <Text className='text-body text-muted-foreground'>
+                            {formatDate(value) || '연도. 월. 일.'}
+                          </Text>
+                          <Calendar size={16} className='text-muted-foreground' />
+                        </TouchableOpacity>
+                      </Field.ElementsBox>
+                      {error && <Field.Message>{error.message}</Field.Message>}
+                    </Field>
+                  </View>
+                )}
+              />
             </View>
           </View>
 
@@ -154,7 +203,7 @@ export const EditTripDrawer = ({ isOpen, onClose, trip }: EditTripDrawerProps) =
             <Pressable
               variant='default'
               className='w-full rounded-lg bg-primary py-md'
-              onPress={handleSave}
+              onPress={handleSubmit(onValid, onInvalid)}
               disabled={isUpdating}
             >
               <Text className='text-body font-semibold text-primary-foreground text-center'>
@@ -186,25 +235,8 @@ export const EditTripDrawer = ({ isOpen, onClose, trip }: EditTripDrawerProps) =
         </View>
       </Drawer>
 
-      {/* 시작 날짜 선택 DatePicker */}
-      <DatePicker
-        visible={showStartDatePicker}
-        onClose={() => setShowStartDatePicker(false)}
-        onSelectDate={(date: string) => {
-          setStartDate(date);
-          setShowStartDatePicker(false);
-        }}
-      />
-
-      {/* 종료 날짜 선택 DatePicker */}
-      <DatePicker
-        visible={showEndDatePicker}
-        onClose={() => setShowEndDatePicker(false)}
-        onSelectDate={(date: string) => {
-          setEndDate(date);
-          setShowEndDatePicker(false);
-        }}
-      />
+      {/* 날짜 선택 DatePicker */}
+      <DatePicker visible={pickerVisible} onClose={() => setPickerVisible(false)} onSelectDate={handleSelectDate} />
     </>
   );
 };

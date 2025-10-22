@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Controller, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Calendar, CalendarDays, MapPin } from 'lucide-react-native';
-import { Pressable, Label } from '@repo/ui';
+import { Pressable } from '@repo/ui';
 import DatePicker from '@/shared/components/DatePicker/DatePicker';
+import { Field } from '@/shared/components/Form';
 import { type City } from './geonames.api';
+import { tripDateFormSchema, type TripDateFormData } from './schema';
 import { useCreateTrip } from '@/entities/trip';
 import { useRouter } from 'expo-router';
 
@@ -12,17 +15,13 @@ type TripDateFormProps = {
   city: City;
 };
 
-type TripFormData = {
-  startDate: string;
-  endDate: string;
-};
-
 export default function TripDateForm({ city }: TripDateFormProps) {
   const router = useRouter();
   const [pickerVisible, setPickerVisible] = useState(false);
   const [currentPicker, setCurrentPicker] = useState<'start' | 'end' | null>(null);
 
-  const { control, handleSubmit, setValue, watch } = useForm<TripFormData>({
+  const { control, handleSubmit, setValue, watch } = useForm<TripDateFormData>({
+    resolver: zodResolver(tripDateFormSchema),
     defaultValues: {
       startDate: '',
       endDate: '',
@@ -48,7 +47,7 @@ export default function TripDateForm({ city }: TripDateFormProps) {
     setPickerVisible(false);
   };
 
-  const onValid = (data: TripFormData) => {
+  const onValid = (data: TripDateFormData) => {
     createTrip(
       {
         // userId는 인증 추가 시 설정 예정
@@ -63,8 +62,7 @@ export default function TripDateForm({ city }: TripDateFormProps) {
       },
       {
         onSuccess: () => {
-          // 성공 시 홈 화면으로 이동 (feature-specific 로직)
-          router.push('/(tabs)');
+          router.replace('/(tabs)');
         },
       },
     );
@@ -91,48 +89,40 @@ export default function TripDateForm({ city }: TripDateFormProps) {
           <Controller
             control={control}
             name='startDate'
-            rules={{
-              required: '시작일을 선택해주세요',
-            }}
             render={({ field: { value }, fieldState: { error } }) => (
-              <View className='space-y-sm'>
-                <Label>시작일</Label>
-                <TouchableOpacity
-                  onPress={() => handleShowPicker('start')}
-                  className='h-11 flex-row items-center rounded-md border border-input bg-background px-4'
-                >
-                  <Calendar size={16} className='mr-sm text-muted-foreground' />
-                  <Text className='text-body text-muted-foreground'>{value || '시작일을 선택하세요'}</Text>
-                </TouchableOpacity>
-                {error && <Text className='text-label text-destructive'>{error.message}</Text>}
-              </View>
+              <Field>
+                <Field.Title>시작일</Field.Title>
+                <Field.ElementsBox>
+                  <TouchableOpacity
+                    onPress={() => handleShowPicker('start')}
+                    className='h-11 flex-row items-center rounded-md border border-input bg-background px-4'
+                  >
+                    <Calendar size={16} className='mr-sm text-muted-foreground' />
+                    <Text className='text-body text-muted-foreground'>{value || '시작일을 선택하세요'}</Text>
+                  </TouchableOpacity>
+                </Field.ElementsBox>
+                {error && <Field.Message>{error.message}</Field.Message>}
+              </Field>
             )}
           />
 
           <Controller
             control={control}
             name='endDate'
-            rules={{
-              required: '종료일을 선택해주세요',
-              validate: (value) => {
-                if (!startDate) return true;
-                const start = new Date(startDate);
-                const end = new Date(value);
-                return end >= start || '종료일은 시작일 이후여야 합니다';
-              },
-            }}
             render={({ field: { value }, fieldState: { error } }) => (
-              <View className='space-y-sm'>
-                <Label>종료일</Label>
-                <TouchableOpacity
-                  onPress={() => handleShowPicker('end')}
-                  className='h-11 flex-row items-center rounded-md border border-input bg-background px-4'
-                >
-                  <Calendar size={16} className='mr-sm text-muted-foreground' />
-                  <Text className='text-body text-muted-foreground'>{value || '종료일을 선택하세요'}</Text>
-                </TouchableOpacity>
-                {error && <Text className='text-label text-destructive'>{error.message}</Text>}
-              </View>
+              <Field>
+                <Field.Title>종료일</Field.Title>
+                <Field.ElementsBox>
+                  <TouchableOpacity
+                    onPress={() => handleShowPicker('end')}
+                    className='h-11 flex-row items-center rounded-md border border-input bg-background px-4'
+                  >
+                    <Calendar size={16} className='mr-sm text-muted-foreground' />
+                    <Text className='text-body text-muted-foreground'>{value || '종료일을 선택하세요'}</Text>
+                  </TouchableOpacity>
+                </Field.ElementsBox>
+                {error && <Field.Message>{error.message}</Field.Message>}
+              </Field>
             )}
           />
         </View>

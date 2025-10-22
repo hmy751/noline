@@ -7,7 +7,7 @@ export const useUpdateTrip = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: UpdateTripRequest }) => {
+    mutationFn: async ({ id, data }: { id: string; data: UpdateTripRequest }) => {
       const response = await fetchUpdateTrip(id, data);
       return response.data;
     },

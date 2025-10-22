@@ -6,7 +6,7 @@ export const useDeleteTrip = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: string) => {
       const response = await fetchDeleteTrip(id);
       return response;
     },
