@@ -1,4 +1,4 @@
-import { View } from 'react-native';
+import { View, ActivityIndicator, Text } from 'react-native';
 import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -13,6 +13,7 @@ import {
   ScheduleForm,
   type Location,
 } from '@/features/schedule/create-schedule';
+import { useGetTrips, type TripResponse } from '@/entities/trip';
 
 const STEPS = {
   SEARCH: 1, // 장소 검색 단계
@@ -24,6 +25,10 @@ export default function CreateScheduleScreen() {
   const tripId = params.tripId || '';
   const prefilledDate = params.date;
 
+  // Trip 정보 조회
+  const { data: tripsData, isLoading: isLoadingTrips } = useGetTrips();
+  const currentTrip = tripsData?.find((trip: TripResponse) => trip.id === tripId);
+
   // 단계 관리
   const { currentStep, goToNextStep, goToPrevStep } = useStep({
     initialStep: STEPS.SEARCH,
@@ -32,7 +37,16 @@ export default function CreateScheduleScreen() {
 
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
 
-  const { searchQuery, results, handleSearch, clearSearch } = useLocationSearch();
+  // 여행 도시 정보를 검색에 전달
+  const cityContext = currentTrip
+    ? {
+        cityName: currentTrip.destination,
+        latitude: currentTrip.latitude ? parseFloat(currentTrip.latitude) : undefined,
+        longitude: currentTrip.longitude ? parseFloat(currentTrip.longitude) : undefined,
+      }
+    : undefined;
+
+  const { searchQuery, results, handleSearch, clearSearch } = useLocationSearch(cityContext);
 
   const {
     form,
@@ -85,6 +99,23 @@ export default function CreateScheduleScreen() {
   const handleCancel = () => {
     handleClearLocation();
   };
+
+  // Trip 로딩 중
+  if (isLoadingTrips) {
+    return (
+      <Container className='flex-1 bg-background'>
+        <MobileHeader
+          title='새 일정 추가'
+          leftIcon={<ArrowLeft size={20} color='#1F1F1F' />}
+          onLeftPress={handleBackPress}
+        />
+        <View className='flex-1 items-center justify-center'>
+          <ActivityIndicator size='large' color='#228B22' />
+          <Text className='text-body text-muted-foreground mt-md'>여행 정보 불러오는 중...</Text>
+        </View>
+      </Container>
+    );
+  }
 
   return (
     <Container className='flex-1 bg-background'>

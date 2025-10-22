@@ -7,6 +7,7 @@ export { useGetTrips, useCreateTrip, useUpdateTrip, useDeleteTrip, tripQueryKeys
 // Model (Types)
 export type {
   TripData,
+  TripResponse,
   GetAllTripsResponse,
   CreateTripRequest,
   CreateTripResponse,

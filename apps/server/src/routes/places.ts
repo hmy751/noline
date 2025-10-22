@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { Client } from '@googlemaps/google-maps-services-js';
+import { placesSearchRequestSchema, placesSearchResponseSchema, placeDetailSchema } from '@repo/schema';
 import config from '../config/index.js';
 
 const router = Router();
@@ -17,13 +18,17 @@ const googleMapsClient = new Client({});
  */
 router.post('/search', async (req, res, next) => {
   try {
-    const { query, cityName, latitude, longitude, language = 'en' } = req.body;
+    // Request 검증
+    const validationResult = placesSearchRequestSchema.safeParse(req.body);
 
-    if (!query || typeof query !== 'string') {
+    if (!validationResult.success) {
       return res.status(400).json({
-        error: 'Query parameter is required',
+        error: 'Invalid request parameters',
+        details: validationResult.error.errors,
       });
     }
+
+    const { query, cityName, latitude, longitude, language } = validationResult.data;
 
     if (!config.googleMaps.placesApiKey) {
       return res.status(500).json({
@@ -31,9 +36,7 @@ router.post('/search', async (req, res, next) => {
       });
     }
 
-    // 지원 언어 검증
-    const supportedLanguages = ['ko', 'en', 'ja', 'zh', 'es', 'fr', 'de'];
-    const resultLanguage = supportedLanguages.includes(language) ? language : 'en';
+    const resultLanguage = language;
 
     // 검색 파라미터 구성
     const searchParams: any = {
@@ -67,7 +70,8 @@ router.post('/search', async (req, res, next) => {
       placeId: prediction.place_id,
     }));
 
-    res.json({
+    // 응답 데이터 구성
+    const responseData = {
       results: predictions,
       searchContext: {
         query,
@@ -75,7 +79,15 @@ router.post('/search', async (req, res, next) => {
         coordinates: latitude && longitude ? { latitude, longitude } : null,
         language: resultLanguage,
       },
-    });
+    };
+
+    // Response 검증 (개발 단계에서만)
+    const responseValidation = placesSearchResponseSchema.safeParse(responseData);
+    if (!responseValidation.success) {
+      console.error('Response validation error:', responseValidation.error);
+    }
+
+    res.json(responseData);
   } catch (error) {
     console.error('Places search error:', error);
     next(error);
@@ -137,17 +149,27 @@ router.get('/:placeId', async (req, res, next) => {
 
     // 응답 데이터 구성
     const placeDetail = {
-      id: place.place_id,
-      name: place.name,
-      address: place.formatted_address,
+      id: place.place_id || '',
+      name: place.name || '',
+      address: place.formatted_address || '',
       latitude: place.geometry.location.lat,
       longitude: place.geometry.location.lng,
-      placeId: place.place_id,
+      placeId: place.place_id || '',
       photoUrl,
       rating: place.rating,
     };
 
-    res.json(placeDetail);
+    // Response 검증
+    const responseValidation = placeDetailSchema.safeParse(placeDetail);
+    if (!responseValidation.success) {
+      console.error('Place detail validation error:', responseValidation.error);
+      return res.status(500).json({
+        error: 'Invalid place data received from Google',
+        details: responseValidation.error.errors,
+      });
+    }
+
+    res.json(responseValidation.data);
   } catch (error) {
     console.error('Place details error:', error);
     next(error);

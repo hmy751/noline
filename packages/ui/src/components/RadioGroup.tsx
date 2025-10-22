@@ -23,7 +23,7 @@ const RadioGroupItem = forwardRef<
       ref={ref}
       className={cn(
         'native:h-5 native:w-5 h-5 w-5 items-center justify-center rounded-full border-2 border-input',
-        props.checked && 'border-primary',
+        (props as any).checked && 'border-primary',
         'disabled:cursor-not-allowed disabled:opacity-50',
         className,
       )}

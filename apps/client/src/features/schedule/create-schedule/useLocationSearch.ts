@@ -1,41 +1,23 @@
 import { useState } from 'react';
+import { type PlacesSearchResponse, type PlaceDetail } from '@repo/schema';
+import fetcher from '@/shared/api/fetcher';
 import type { Location } from './types';
 
+type CityContext = {
+  cityName?: string;
+  latitude?: number;
+  longitude?: number;
+};
+
 /**
- * 장소 검색 훅 (Mock 데이터)
- * TODO: 실제 Google Maps API 연동 시 교체 예정
+ * 장소 검색 훅 (Google Places API)
  */
-export const useLocationSearch = () => {
+export const useLocationSearch = (cityContext?: CityContext) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState<Location[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
-  // Mock 데이터
-  const mockLocations: Location[] = [
-    {
-      id: '1',
-      name: '에펠타워',
-      address: 'Gyeongui-ro, Paju, Gyeonggi-do, South Korea',
-      latitude: 37.7749,
-      longitude: 126.7749,
-    },
-    {
-      id: '2',
-      name: '에펠하우스',
-      address: 'Mipyeong 11-gil, Yeosu, Jeollanam-do, South Korea',
-      latitude: 34.7604,
-      longitude: 127.6622,
-    },
-    {
-      id: '3',
-      name: '에펠조명랜드',
-      address: 'Sinwol-ro, Yeosu, Jeollanam-do, South Korea',
-      latitude: 34.7404,
-      longitude: 127.7422,
-    },
-  ];
-
-  const handleSearch = (query: string) => {
+  const handleSearch = async (query: string) => {
     setSearchQuery(query);
 
     if (!query.trim()) {
@@ -45,12 +27,57 @@ export const useLocationSearch = () => {
 
     setIsSearching(true);
 
-    // Mock 검색 (실제로는 API 호출)
-    setTimeout(() => {
-      const filtered = mockLocations.filter((location) => location.name.toLowerCase().includes(query.toLowerCase()));
-      setResults(filtered);
+    try {
+      // Google Places API 호출
+      const response = (await fetcher.post('/places/search', {
+        query: query.trim(),
+        cityName: cityContext?.cityName,
+        latitude: cityContext?.latitude,
+        longitude: cityContext?.longitude,
+        language: 'en', // 기본 영어 (필요시 설정 가능)
+      })) as PlacesSearchResponse;
+
+      // 서버 응답을 Location 타입으로 변환
+      // placeId를 받아서 상세 정보를 추가로 가져와야 함
+      const locations = await Promise.all(
+        response.results.map(async (result) => {
+          try {
+            // Place Details API로 좌표 정보 가져오기
+            const detailResponse = (await fetcher.get(`/places/${result.placeId}`, {
+              params: { language: 'en' },
+            })) as PlaceDetail;
+
+            return {
+              id: detailResponse.id,
+              name: detailResponse.name,
+              address: detailResponse.address,
+              latitude: detailResponse.latitude,
+              longitude: detailResponse.longitude,
+              placeId: detailResponse.placeId,
+              photoUrl: detailResponse.photoUrl,
+              rating: detailResponse.rating,
+            };
+          } catch (error) {
+            console.error('Failed to fetch place details:', error);
+            // 실패 시 기본값 사용
+            return {
+              id: result.id,
+              name: result.name,
+              address: result.address,
+              latitude: 0,
+              longitude: 0,
+            };
+          }
+        }),
+      );
+
+      setResults(locations);
+    } catch (error) {
+      console.error('Places search error:', error);
+      setResults([]);
+    } finally {
       setIsSearching(false);
-    }, 300);
+    }
   };
 
   const clearSearch = () => {
