@@ -1,7 +1,7 @@
 import axios from '@/shared/api/fetcher';
 import {
-  insertTripSchema,
-  updateTripSchema,
+  createTripRequestSchema,
+  updateTripRequestSchema,
   getAllTripsResponseSchema,
   createTripResponseSchema,
   updateTripResponseSchema,
@@ -43,7 +43,7 @@ export const fetchAllTrips = async (): Promise<GetAllTripsResponse> => {
  */
 export const fetchCreateTrip = async (data: CreateTripRequest): Promise<CreateTripResponse> => {
   try {
-    const validatedInput = insertTripSchema.parse(data);
+    const validatedInput = createTripRequestSchema.parse(data);
     const responseData = await axios.post('/api/trips', validatedInput);
 
     const validated = createTripResponseSchema.parse(responseData);
@@ -62,7 +62,7 @@ export const fetchCreateTrip = async (data: CreateTripRequest): Promise<CreateTr
  */
 export const fetchUpdateTrip = async (id: string, data: UpdateTripRequest): Promise<UpdateTripResponse> => {
   try {
-    const validatedInput = updateTripSchema.parse(data);
+    const validatedInput = updateTripRequestSchema.parse(data);
     const responseData = await axios.patch(`/api/trips/${id}`, validatedInput);
 
     const validated = updateTripResponseSchema.parse(responseData);

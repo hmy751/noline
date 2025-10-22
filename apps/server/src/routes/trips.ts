@@ -2,7 +2,7 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { db, trips } from '../db/index.js';
 import { desc, sql, eq, and } from 'drizzle-orm';
-import { insertTripSchema, updateTripSchema, tripSchema } from '@repo/schema';
+import { createTripRequestSchema, updateTripRequestSchema, tripSchema } from '@repo/schema';
 
 const router = Router();
 
@@ -82,7 +82,7 @@ router.get('/', async (req: Request, res: Response) => {
 router.post('/', async (req: Request, res: Response) => {
   try {
     // Zod로 요청 데이터 검증
-    const validationResult = insertTripSchema.safeParse(req.body);
+    const validationResult = createTripRequestSchema.safeParse(req.body);
 
     if (!validationResult.success) {
       return res.status(400).json({
@@ -186,7 +186,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
     const tripId = req.params.id;
     const userId = '01HZQ8K9X7M2N3P4Q5R6S7T8V9'; // 테스트용 ULID
 
-    const validationResult = updateTripSchema.safeParse(req.body);
+    const validationResult = updateTripRequestSchema.safeParse(req.body);
 
     if (!validationResult.success) {
       return res.status(400).json({

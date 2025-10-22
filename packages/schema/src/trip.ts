@@ -1,17 +1,52 @@
 import { z } from 'zod';
 
 // ========================================
-// Trip Schemas
+// 1. Base Field Definitions (재사용 가능한 필드 그룹)
 // ========================================
 
-// Select Schema (DB에서 조회한 데이터)
+/**
+ * 여행의 핵심 정보 필드
+ */
+const tripCoreFields = {
+  name: z.string().min(1, 'Name is required'),
+  destination: z.string().min(1, 'Destination is required'),
+  country: z.string().nullable().optional(),
+};
+
+/**
+ * 여행 위치 정보 필드
+ */
+const tripLocationFields = {
+  latitude: z.number().nullable().optional(),
+  longitude: z.number().nullable().optional(),
+  cityId: z.number().nullable().optional(),
+};
+
+/**
+ * 여행 날짜 필드 (API용 - ISO string)
+ */
+const tripDateFields = {
+  startDate: z.string().nullable().optional(),
+  endDate: z.string().nullable().optional(),
+};
+
+// ========================================
+// 2. Entity Schema (DB)
+// ========================================
+
+/**
+ * Trip Entity Schema (DB 데이터 구조)
+ * - 날짜: Date 타입
+ * - 위도/경도: string (decimal)
+ * - 서버 내부에서 DB 데이터 검증 시 사용
+ */
 export const tripSchema = z.object({
   id: z.string().ulid(),
   userId: z.string().ulid().nullable(), // 인증 추가 전까지 nullable
   name: z.string(),
   destination: z.string(),
-  country: z.string().nullable(), // Optional
-  latitude: z.string().nullable(),
+  country: z.string().nullable(),
+  latitude: z.string().nullable(), // DB decimal → string
   longitude: z.string().nullable(),
   cityId: z.number().nullable(),
   startDate: z.date().nullable(),
@@ -24,83 +59,96 @@ export const tripSchema = z.object({
   version: z.number().optional(),
 });
 
-// Insert Schema (여행 생성)
-export const insertTripSchema = z.object({
+// ========================================
+// 3. Request Schemas (API 요청)
+// ========================================
+
+/**
+ * 여행 생성 요청 스키마
+ * - 클라이언트 → 서버
+ * - 날짜: ISO string
+ * - 위도/경도: number (클라이언트에서 숫자로 전송)
+ */
+export const createTripRequestSchema = z.object({
   userId: z.string().ulid().optional(), // 테스트용: 서버에서 기본값 사용
-  name: z.string().min(1, 'Name is required'),
-  destination: z.string().min(1, 'Destination is required'),
-  country: z.string().optional(), // Optional
-  latitude: z.number().optional(),
-  longitude: z.number().optional(),
-  cityId: z.number().optional(),
-  startDate: z.string().nullable().optional(),
-  endDate: z.string().nullable().optional(),
+  ...tripCoreFields, // ⬅️ 상속: name, destination, country
+  ...tripLocationFields, // ⬅️ 상속: latitude, longitude, cityId
+  ...tripDateFields, // ⬅️ 상속: startDate, endDate
 });
 
-// Update Schema (여행 수정)
-export const updateTripSchema = z.object({
-  name: z.string().min(1).optional(),
-  destination: z.string().min(1).optional(),
-  country: z.string().optional(),
-  startDate: z.string().nullable().optional(),
-  endDate: z.string().nullable().optional(),
-});
+/**
+ * 여행 수정 요청 스키마
+ * - 클라이언트 → 서버
+ * - 모든 필드 optional (partial update)
+ */
+export const updateTripRequestSchema = z
+  .object({
+    ...tripCoreFields, // ⬅️ 상속
+    ...tripDateFields, // ⬅️ 상속
+  })
+  .partial(); // 모든 필드를 optional로
 
 // ========================================
-// API Schemas (Client-side validation)
+// 4. Response Schemas (API 응답)
 // ========================================
 
-// API 응답 스키마
-// - 날짜: ISO string 형태로 오므로 string으로 유지 (클라이언트에서 필요시 변환)
-// - 위도/경도: DB decimal 타입이므로 string으로 반환
-// - id/userId: ULID string
-export const apiTripSchema = z.object({
+/**
+ * Trip 응답 데이터 스키마
+ * - 서버 → 클라이언트
+ * - 날짜: ISO string
+ * - 위도/경도: string (DB decimal 반환값)
+ */
+export const tripResponseSchema = z.object({
   id: z.string().ulid(),
   userId: z.string().ulid().nullable(),
   name: z.string(),
   destination: z.string(),
   country: z.string().nullable(),
-  latitude: z.string().nullable(),
+  latitude: z.string().nullable(), // API 응답은 string
   longitude: z.string().nullable(),
   cityId: z.number().nullable(),
   startDate: z.string().nullable(), // ISO string
-  endDate: z.string().nullable(), // ISO string
+  endDate: z.string().nullable(),
   createdAt: z.string(), // ISO string
-  updatedAt: z.string(), // ISO string
-  deletedAt: z.string().nullable().optional(), // ISO string
+  updatedAt: z.string(),
+
+  // Phase 2: Local-First 필드 (선택적)
+  deletedAt: z.string().nullable().optional(),
   version: z.number().optional(),
 });
 
+/**
+ * 전체 여행 목록 조회 응답
+ * GET /api/trips
+ */
 export const getAllTripsResponseSchema = z.object({
   success: z.literal(true),
-  data: z.array(apiTripSchema),
+  data: z.array(tripResponseSchema),
 });
 
+/**
+ * 여행 생성 응답
+ * POST /api/trips
+ */
 export const createTripResponseSchema = z.object({
   success: z.literal(true),
-  data: apiTripSchema,
+  data: tripResponseSchema,
 });
 
+/**
+ * 여행 수정 응답
+ * PATCH /api/trips/:id
+ */
 export const updateTripResponseSchema = z.object({
   success: z.literal(true),
-  data: apiTripSchema,
+  data: tripResponseSchema,
 });
 
+/**
+ * 여행 삭제 응답
+ * DELETE /api/trips/:id
+ */
 export const deleteTripResponseSchema = z.object({
   success: z.literal(true),
   message: z.string(),
 });
-
-// ========================================
-// Types
-// ========================================
-export type Trip = z.infer<typeof tripSchema>;
-export type InsertTrip = z.infer<typeof insertTripSchema>;
-export type UpdateTrip = z.infer<typeof updateTripSchema>;
-export type ApiTrip = z.infer<typeof apiTripSchema>;
-
-// API Response Types
-export type GetAllTripsResponse = z.infer<typeof getAllTripsResponseSchema>;
-export type CreateTripResponse = z.infer<typeof createTripResponseSchema>;
-export type UpdateTripResponse = z.infer<typeof updateTripResponseSchema>;
-export type DeleteTripResponse = z.infer<typeof deleteTripResponseSchema>;
