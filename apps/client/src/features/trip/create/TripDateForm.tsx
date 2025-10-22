@@ -5,7 +5,8 @@ import { Calendar, CalendarDays, MapPin } from 'lucide-react-native';
 import { Pressable, Label } from '@repo/ui';
 import DatePicker from '@/shared/components/DatePicker/DatePicker';
 import { type City } from './geonames.api';
-import { useCreateTrip } from './useCreateTrip';
+import { useCreateTrip } from '@/entities/trip';
+import { useRouter } from 'expo-router';
 
 type TripDateFormProps = {
   city: City;
@@ -17,6 +18,7 @@ type TripFormData = {
 };
 
 export default function TripDateForm({ city }: TripDateFormProps) {
+  const router = useRouter();
   const [pickerVisible, setPickerVisible] = useState(false);
   const [currentPicker, setCurrentPicker] = useState<'start' | 'end' | null>(null);
 
@@ -47,17 +49,25 @@ export default function TripDateForm({ city }: TripDateFormProps) {
   };
 
   const onValid = (data: TripFormData) => {
-    createTrip({
-      // userId는 인증 추가 시 설정 예정
-      name: `${city.name} 여행`,
-      destination: city.name,
-      country: city.country,
-      latitude: city.latitude,
-      longitude: city.longitude,
-      cityId: city.id,
-      startDate: data.startDate,
-      endDate: data.endDate,
-    });
+    createTrip(
+      {
+        // userId는 인증 추가 시 설정 예정
+        name: `${city.name} 여행`,
+        destination: city.name,
+        country: city.country,
+        latitude: city.latitude,
+        longitude: city.longitude,
+        cityId: city.id,
+        startDate: data.startDate,
+        endDate: data.endDate,
+      },
+      {
+        onSuccess: () => {
+          // 성공 시 홈 화면으로 이동 (feature-specific 로직)
+          router.push('/(tabs)');
+        },
+      },
+    );
   };
 
   const onInvalid = () => {

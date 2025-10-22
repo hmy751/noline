@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Alert } from 'react-native';
 import { Drawer, Pressable, Label } from '@repo/ui';
 import DatePicker from '@/shared/components/DatePicker';
-import { TripData } from '../api';
-import { useUpdateTrip } from '../current/useUpdateTrip';
-import { useDeleteTrip } from '../current/useDeleteTrip';
+import { type TripData, useUpdateTrip, useDeleteTrip } from '@/entities/trip';
 
 export type EditTripDrawerProps = {
   isOpen: boolean;

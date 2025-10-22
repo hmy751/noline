@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
 import { Plane, ChevronDown, Check } from 'lucide-react-native';
 import { Select, Badge } from '@repo/ui';
-import { useGetTrips } from '@/features/trip/current';
-import { selectMainTrip } from '@/features/trip/utils/selectMainTrip';
-import type { TripData } from '@/features/trip/api';
+import { useGetTrips } from '../data';
+import { selectMainTrip } from '../utils';
+import type { TripData } from '../model';
 
 interface Trip {
   value: string;

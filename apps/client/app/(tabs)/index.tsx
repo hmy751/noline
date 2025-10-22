@@ -1,15 +1,12 @@
 import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
-import { Container, Stack, TripCard, ScheduleCard, MobileHeader } from '@/shared/components';
+import { Container, Stack, ScheduleCard, MobileHeader } from '@/shared/components';
 import { Pressable } from '@repo/ui';
 import { ChevronRight, Plus, MoreVertical, Edit3 } from 'lucide-react-native';
-import { useGetTrips } from '@/features/trip/current';
-import { selectMainTrip } from '@/features/trip/utils/selectMainTrip';
+import { useGetTrips, selectMainTrip, useDeleteTrip, TripCard, type TripData } from '@/entities/trip';
 import { EditTripDrawer, TripMenu } from '@/features/trip/update';
-import { useDeleteTrip } from '@/features/trip/current';
 import { useState } from 'react';
 import { Alert } from 'react-native';
-import type { TripData } from '@/features/trip/api';
 
 export default function HomeScreen() {
   const { data: allTrips, isLoading, isError } = useGetTrips();

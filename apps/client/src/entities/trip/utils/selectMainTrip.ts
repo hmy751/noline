@@ -1,4 +1,4 @@
-import { TripData } from '../api';
+import type { TripData } from '../model';
 
 /**
  * 메인 여행 선택 로직
