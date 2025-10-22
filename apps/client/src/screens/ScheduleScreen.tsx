@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { Container, Stack, ScheduleCard, MobileHeader } from '@/shared/components';
 import { TripSelector } from '@/entities/trip';
 import { useGetSchedules } from '@/entities/schedule';
+import { useGetTrips } from '@/entities/trip';
 import { Pressable } from '@repo/ui';
 import { Menu, Map, List } from 'lucide-react-native';
 
@@ -26,39 +27,60 @@ export default function ScheduleScreen() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
 
+  const { data: trips = [] } = useGetTrips();
   const { data: schedules = [], isLoading } = useGetSchedules(selectedTripId || '');
 
-  const schedulesByDate: ScheduleByDate[] = schedules.reduce((acc, schedule) => {
-    const scheduleDate = new Date(schedule.startTime);
-    const dateString = scheduleDate.toISOString().split('T')[0]; // YYYY-MM-DD
-    const time = scheduleDate.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+  // 선택된 여행 정보
+  const selectedTrip = trips.find((trip: { id: string }) => trip.id === selectedTripId);
 
-    const existingGroup = acc.find((group) => group.date === dateString);
+  // 여행 날짜 범위에서 모든 날짜 생성
+  const generateDateRange = (): string[] => {
+    if (!selectedTrip?.startDate || !selectedTrip?.endDate) return [];
 
-    if (existingGroup) {
-      existingGroup.schedules.push({
-        id: schedule.id,
-        time,
-        title: schedule.title,
-        location: schedule.location || '',
-      });
-    } else {
-      acc.push({
-        date: dateString,
-        dateLabel: dateString,
-        schedules: [
-          {
-            id: schedule.id,
-            time,
-            title: schedule.title,
-            location: schedule.location || '',
-          },
-        ],
-      });
+    const dates: string[] = [];
+    const start = new Date(selectedTrip.startDate);
+    const end = new Date(selectedTrip.endDate);
+
+    const current = new Date(start);
+    while (current <= end) {
+      dates.push(current.toISOString().split('T')[0]);
+      current.setDate(current.getDate() + 1);
     }
 
-    return acc;
-  }, [] as ScheduleByDate[]);
+    return dates;
+  };
+
+  const dateRange = generateDateRange();
+
+  // 날짜별로 일정 그룹화
+  const schedulesByDate: ScheduleByDate[] = dateRange.map((date) => {
+    const daySchedules = schedules
+      .filter((schedule) => {
+        const scheduleDate = new Date(schedule.startTime).toISOString().split('T')[0];
+        return scheduleDate === date;
+      })
+      .map((schedule) => {
+        const scheduleDate = new Date(schedule.startTime);
+        const time = scheduleDate.toLocaleTimeString('ko-KR', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+        });
+
+        return {
+          id: schedule.id,
+          time,
+          title: schedule.title,
+          location: schedule.location || '',
+        };
+      });
+
+    return {
+      date,
+      dateLabel: date,
+      schedules: daySchedules,
+    };
+  });
 
   return (
     <View className='flex-1 bg-background'>
@@ -105,25 +127,17 @@ export default function ScheduleScreen() {
       {viewMode === 'list' ? (
         <ScrollView className='flex-1'>
           <Container>
-            {isLoading ? (
+            {!selectedTrip ? (
+              <View className='flex-1 items-center justify-center py-xl'>
+                <Text className='text-body text-muted-foreground'>여행을 선택해주세요</Text>
+              </View>
+            ) : !selectedTrip.startDate || !selectedTrip.endDate ? (
+              <View className='flex-1 items-center justify-center py-xl'>
+                <Text className='text-body text-muted-foreground'>여행 날짜를 설정해주세요</Text>
+              </View>
+            ) : isLoading ? (
               <View className='flex-1 items-center justify-center py-xl'>
                 <Text className='text-body text-muted-foreground'>일정을 불러오는 중...</Text>
-              </View>
-            ) : schedulesByDate.length === 0 ? (
-              <View className='flex-1 items-center justify-center py-xl'>
-                <Text className='text-body text-muted-foreground'>등록된 일정이 없습니다</Text>
-                {selectedTripId && (
-                  <Pressable
-                    variant='default'
-                    className='mt-md'
-                    onPress={() => {
-                      const today = new Date().toISOString().split('T')[0];
-                      router.push(`/create-schedule?tripId=${selectedTripId}&date=${today}`);
-                    }}
-                  >
-                    첫 일정 추가하기
-                  </Pressable>
-                )}
               </View>
             ) : (
               <Stack direction='vertical' gap='md' className='py-sm'>
@@ -152,17 +166,23 @@ export default function ScheduleScreen() {
                     </View>
 
                     {/* Schedules for this date */}
-                    {group.schedules.map((schedule) => (
-                      <ScheduleCard
-                        key={schedule.id}
-                        date={group.dateLabel}
-                        {...schedule}
-                        onPress={() => {
-                          // TODO: Navigate to schedule detail
-                          console.log('Navigate to schedule detail:', schedule.id);
-                        }}
-                      />
-                    ))}
+                    {group.schedules.length > 0 ? (
+                      group.schedules.map((schedule) => (
+                        <ScheduleCard
+                          key={schedule.id}
+                          date={group.dateLabel}
+                          {...schedule}
+                          onPress={() => {
+                            // TODO: Navigate to schedule detail
+                            console.log('Navigate to schedule detail:', schedule.id);
+                          }}
+                        />
+                      ))
+                    ) : (
+                      <View className='rounded-lg border border-dashed border-card-border bg-muted/30 px-md py-lg'>
+                        <Text className='text-body text-center text-muted-foreground'>이 날의 일정을 추가해보세요</Text>
+                      </View>
+                    )}
                   </View>
                 ))}
               </Stack>
