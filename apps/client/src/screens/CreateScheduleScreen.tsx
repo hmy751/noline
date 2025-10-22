@@ -46,7 +46,7 @@ export default function CreateScheduleScreen() {
       }
     : undefined;
 
-  const { searchQuery, results, handleSearch, clearSearch } = useLocationSearch(cityContext);
+  const { searchQuery, results, isSearching, handleSearch, clearSearch } = useLocationSearch(cityContext);
 
   const {
     form,
@@ -135,9 +135,9 @@ export default function CreateScheduleScreen() {
       <View className='flex-1 relative'>
         <MapView locations={results} selectedLocation={selectedLocation} />
 
-        {/* 검색 결과 리스트 (검색 단계 + 결과 있을 때) */}
-        {currentStep === STEPS.SEARCH && results.length > 0 && (
-          <LocationSearchResults results={results} onSelectLocation={handleSelectLocation} />
+        {/* 검색 결과 리스트 (검색 단계 + 검색 중이거나 결과 있을 때) */}
+        {currentStep === STEPS.SEARCH && (isSearching || results.length > 0) && (
+          <LocationSearchResults results={results} onSelectLocation={handleSelectLocation} isSearching={isSearching} />
         )}
 
         {/* 일정 입력 폼 (폼 단계일 때) */}

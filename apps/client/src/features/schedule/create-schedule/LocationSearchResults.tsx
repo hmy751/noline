@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { MapPin } from 'lucide-react-native';
 import type { Location } from './types';
@@ -6,12 +6,27 @@ import type { Location } from './types';
 type LocationSearchResultsProps = {
   results: Location[];
   onSelectLocation: (location: Location) => void;
+  isSearching?: boolean;
 };
 
 /**
  * 검색 결과 리스트 컴포넌트
  */
-export function LocationSearchResults({ results, onSelectLocation }: LocationSearchResultsProps) {
+export function LocationSearchResults({ results, onSelectLocation, isSearching = false }: LocationSearchResultsProps) {
+  // 검색 중이면 로딩 표시
+  if (isSearching) {
+    return (
+      <View style={styles.container}>
+        <BlurView intensity={80} tint='light' style={styles.blurContainer}>
+          <View className='flex-row items-center justify-center px-md py-lg'>
+            <ActivityIndicator size='small' color='#228B22' />
+            <Text className='text-body text-muted-foreground ml-sm'>장소 검색 중...</Text>
+          </View>
+        </BlurView>
+      </View>
+    );
+  }
+
   if (results.length === 0) {
     return null;
   }
