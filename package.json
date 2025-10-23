@@ -6,9 +6,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "client": "pnpm --filter client",
-    "server": "pnpm --filter server",
-    "schema": "pnpm --filter schema",
+    "client": "pnpm --filter @apps/client",
+    "server": "pnpm --filter @apps/server",
+    "schema": "pnpm --filter @repo/schema",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "format": "prettier --write ."
   },
