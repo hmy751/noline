@@ -1,7 +1,8 @@
-import { View, Text, Animated, StyleSheet } from 'react-native';
-import { Search, MapPin } from 'lucide-react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { Search } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useRef } from 'react';
+import RNMapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import type { Location } from './types';
 
 type MapViewProps = {
@@ -16,32 +17,43 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 32,
   },
+  map: {
+    flex: 1,
+    width: '100%',
+  },
 });
 
 /**
- * 지도 컴포넌트 (Mock UI)
- * TODO: 실제 Google Maps 연동 시 교체 예정
+ * 실제 지도 컴포넌트 (react-native-maps)
  */
 export function MapView({ locations, selectedLocation }: MapViewProps) {
-  const bounceAnim = useRef(new Animated.Value(0)).current;
+  const mapRef = useRef<RNMapView>(null);
 
+  // 지도 영역 자동 조정
   useEffect(() => {
-    if (locations.length > 0 || selectedLocation) {
-      // Bounce 애니메이션
-      Animated.sequence([
-        Animated.timing(bounceAnim, {
-          toValue: -10,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.spring(bounceAnim, {
-          toValue: 0,
-          friction: 3,
-          useNativeDriver: true,
-        }),
-      ]).start();
+    if (mapRef.current) {
+      if (selectedLocation) {
+        // 선택된 장소로 포커스
+        mapRef.current.animateToRegion({
+          latitude: selectedLocation.latitude,
+          longitude: selectedLocation.longitude,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        });
+      } else if (locations.length > 0) {
+        // 여러 검색 결과가 있으면 모두 보이도록
+        mapRef.current.fitToCoordinates(
+          locations.map((loc) => ({
+            latitude: loc.latitude,
+            longitude: loc.longitude,
+          })),
+          {
+            edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+            animated: true,
+          },
+        );
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locations, selectedLocation]);
 
   // 빈 상태
@@ -64,35 +76,50 @@ export function MapView({ locations, selectedLocation }: MapViewProps) {
     );
   }
 
-  // 선택된 장소가 있을 때
-  if (selectedLocation) {
-    return (
-      <View className='flex-1 items-center justify-center bg-blue-50 relative'>
-        <Animated.View style={{ transform: [{ translateY: bounceAnim }] }}>
-          <MapPin size={80} color='#228B22' fill='#FFFFFF' strokeWidth={3} />
-        </Animated.View>
-      </View>
-    );
-  }
+  // 기본 중심 좌표 (선택된 장소 또는 첫 번째 검색 결과)
+  const centerLocation = selectedLocation || locations[0];
 
-  // 검색 결과들
   return (
-    <View className='flex-1 bg-blue-50 relative items-center justify-center'>
-      <View className='absolute top-1/4 left-1/4'>
-        <Animated.View style={{ transform: [{ translateY: bounceAnim }] }}>
-          <MapPin size={48} color='#228B22' fill='#FFFFFF' strokeWidth={2.5} />
-        </Animated.View>
-      </View>
-      <View className='absolute top-1/2 left-1/2'>
-        <Animated.View style={{ transform: [{ translateY: bounceAnim }] }}>
-          <MapPin size={48} color='#228B22' fill='#FFFFFF' strokeWidth={2.5} />
-        </Animated.View>
-      </View>
-      <View className='absolute top-1/3 right-1/4'>
-        <Animated.View style={{ transform: [{ translateY: bounceAnim }] }}>
-          <MapPin size={48} color='#228B22' fill='#FFFFFF' strokeWidth={2.5} />
-        </Animated.View>
-      </View>
-    </View>
+    <RNMapView
+      ref={mapRef}
+      provider={PROVIDER_GOOGLE}
+      style={styles.map}
+      initialRegion={{
+        latitude: centerLocation.latitude,
+        longitude: centerLocation.longitude,
+        latitudeDelta: 0.05,
+        longitudeDelta: 0.05,
+      }}
+      showsUserLocation
+      showsMyLocationButton
+    >
+      {/* 선택된 장소 마커 (큰 마커) */}
+      {selectedLocation && (
+        <Marker
+          coordinate={{
+            latitude: selectedLocation.latitude,
+            longitude: selectedLocation.longitude,
+          }}
+          title={selectedLocation.name}
+          description={selectedLocation.address}
+          pinColor='#228B22'
+        />
+      )}
+
+      {/* 검색 결과 마커들 (선택 전) */}
+      {!selectedLocation &&
+        locations.map((location, index) => (
+          <Marker
+            key={`${location.latitude}-${location.longitude}-${index}`}
+            coordinate={{
+              latitude: location.latitude,
+              longitude: location.longitude,
+            }}
+            title={location.name}
+            description={location.address}
+            pinColor='#228B22'
+          />
+        ))}
+    </RNMapView>
   );
 }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { router } from 'expo-router';
-import { Container, Stack, ScheduleCard, MobileHeader } from '@/shared/components';
+import { Container, Stack, ScheduleCard, MobileHeader, ScheduleMapView } from '@/shared/components';
 import { TripSelector } from '@/entities/trip';
 import { useGetSchedules } from '@/entities/schedule';
 import { useGetTrips, selectMainTrip } from '@/entities/trip';
@@ -26,18 +26,9 @@ interface ScheduleByDate {
 export default function ScheduleScreen() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
-  const [isMounted, setIsMounted] = useState(false);
 
   const { data: trips = [] } = useGetTrips();
   const { data: schedules = [], isLoading } = useGetSchedules(selectedTripId || '');
-
-  // Navigation context가 완전히 준비될 때까지 대기
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsMounted(true);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, []);
 
   // 메인 여행 자동 선택
   useEffect(() => {
@@ -210,10 +201,24 @@ export default function ScheduleScreen() {
           </Container>
         </ScrollView>
       ) : (
-        <View className='flex-1 items-center justify-center bg-muted'>
-          <Map size={48} color='hsl(120, 8%, 35%)' strokeWidth={1.5} />
-          <Text className='mt-sm text-title-medium text-muted-foreground'>지도 뷰 (구현 예정)</Text>
-        </View>
+        <ScheduleMapView
+          schedules={schedules.map((schedule) => ({
+            id: schedule.id,
+            title: schedule.title,
+            location: schedule.location || '',
+            latitude: schedule.latitude ? parseFloat(schedule.latitude) : undefined,
+            longitude: schedule.longitude ? parseFloat(schedule.longitude) : undefined,
+            time: new Date(schedule.startTime).toLocaleTimeString('ko-KR', {
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false,
+            }),
+          }))}
+          onSchedulePress={(scheduleId: string) => {
+            console.log('Navigate to schedule detail:', scheduleId);
+            // TODO: Navigate to schedule detail
+          }}
+        />
       )}
     </View>
   );

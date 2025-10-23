@@ -7,6 +7,8 @@ export type Schedule = {
   tripId: string;
   title: string;
   location: string | null;
+  latitude: string | null;
+  longitude: string | null;
   startTime: string; // ISO 8601 timestamp
   endTime: string | null; // ISO 8601 timestamp
   order: number;
@@ -19,6 +21,8 @@ export type CreateScheduleRequest = {
   tripId: string;
   title: string;
   location?: string;
+  latitude?: number;
+  longitude?: number;
   startTime: string; // ISO 8601 timestamp
   endTime?: string; // ISO 8601 timestamp
   order: number;
