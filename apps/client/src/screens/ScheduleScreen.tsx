@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { Container, Stack, ScheduleCard, MobileHeader } from '@/shared/components';
@@ -26,9 +26,18 @@ interface ScheduleByDate {
 export default function ScheduleScreen() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   const { data: trips = [] } = useGetTrips();
   const { data: schedules = [], isLoading } = useGetSchedules(selectedTripId || '');
+
+  // Navigation context가 완전히 준비될 때까지 대기
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsMounted(true);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   // 선택된 여행 정보
   const selectedTrip = trips.find((trip: { id: string }) => trip.id === selectedTripId);
@@ -115,13 +124,15 @@ export default function ScheduleScreen() {
       />
 
       {/* Current Trip Selector - Sticky */}
-      <TripSelector
-        onTripChange={(trip) => {
-          setSelectedTripId(trip.value);
-          console.log('Selected trip:', trip);
-        }}
-        className='border-b border-card-border bg-background px-md py-sm'
-      />
+      {isMounted && (
+        <TripSelector
+          onTripChange={(trip) => {
+            setSelectedTripId(trip.value);
+            console.log('Selected trip:', trip);
+          }}
+          className='border-b border-card-border bg-background px-md py-sm'
+        />
+      )}
 
       {/* Content */}
       {viewMode === 'list' ? (
