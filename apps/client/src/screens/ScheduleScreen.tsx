@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { Container, Stack, ScheduleCard, MobileHeader } from '@/shared/components';
-import { TripSelector } from '@/entities/trip';
+// import { TripSelector } from '@/entities/trip';
 import { useGetSchedules } from '@/entities/schedule';
-import { useGetTrips } from '@/entities/trip';
+import { useGetTrips, selectMainTrip } from '@/entities/trip';
 import { Pressable } from '@repo/ui';
 import { Menu, Map, List } from 'lucide-react-native';
 
@@ -38,6 +38,16 @@ export default function ScheduleScreen() {
     }, 100);
     return () => clearTimeout(timer);
   }, []);
+
+  // 메인 여행 자동 선택
+  useEffect(() => {
+    if (trips.length > 0 && !selectedTripId) {
+      const mainTrip = selectMainTrip(trips);
+      if (mainTrip) {
+        setSelectedTripId(mainTrip.id);
+      }
+    }
+  }, [trips, selectedTripId]);
 
   // 선택된 여행 정보
   const selectedTrip = trips.find((trip: { id: string }) => trip.id === selectedTripId);
@@ -124,15 +134,14 @@ export default function ScheduleScreen() {
       />
 
       {/* Current Trip Selector - Sticky */}
-      {isMounted && (
-        <TripSelector
-          onTripChange={(trip) => {
-            setSelectedTripId(trip.value);
-            console.log('Selected trip:', trip);
-          }}
-          className='border-b border-card-border bg-background px-md py-sm'
-        />
-      )}
+      {/* TODO: TripSelector - Reanimated 호환 문제로 임시 비활성화 */}
+      <View className='border-b border-card-border bg-background px-md py-sm'>
+        <Text className='text-body text-muted-foreground'>
+          {selectedTripId
+            ? `선택된 여행: ${trips.find((t) => t.id === selectedTripId)?.destination || '여행'}`
+            : '여행을 선택하세요'}
+        </Text>
+      </View>
 
       {/* Content */}
       {viewMode === 'list' ? (
