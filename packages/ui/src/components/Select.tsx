@@ -1,19 +1,61 @@
-import * as RNPSelect from '@rn-primitives/select';
-import { forwardRef } from 'react';
-import { StyleSheet } from 'react-native';
+import { forwardRef, createContext, useContext, useState, useCallback } from 'react';
+import { View, Text, Pressable, Modal, ScrollView, StyleSheet } from 'react-native';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/utils';
 
 /**
+ * Select Context
+ */
+interface SelectContextValue {
+  value?: { value: string; label: string };
+  onValueChange?: (value: { value: string; label: string } | undefined) => void;
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+}
+
+const SelectContext = createContext<SelectContextValue | undefined>(undefined);
+
+function useSelectContext() {
+  const context = useContext(SelectContext);
+  if (!context) {
+    throw new Error('Select components must be used within Select.Root');
+  }
+  return context;
+}
+
+/**
  * Select Root - Provides context and manages state
  */
-const SelectRoot = RNPSelect.Root;
+interface SelectRootProps {
+  value?: { value: string; label: string };
+  onValueChange?: (value: { value: string; label: string } | undefined) => void;
+  onOpenChange?: (open: boolean) => void;
+  children: React.ReactNode;
+}
+
+const SelectRoot = ({ value, onValueChange, onOpenChange, children }: SelectRootProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      setIsOpen(open);
+      onOpenChange?.(open);
+    },
+    [onOpenChange],
+  );
+
+  return (
+    <SelectContext.Provider value={{ value, onValueChange, isOpen, setIsOpen: handleOpenChange }}>
+      {children}
+    </SelectContext.Provider>
+  );
+};
 
 /**
  * Select Trigger - Button that opens the select
  */
 const selectTriggerVariants = cva(
-  'flex-row items-center justify-between rounded-xl border bg-background active:bg-muted transition-colors',
+  'flex-row items-center justify-between rounded-xl border bg-background active:bg-muted',
   {
     variants: {
       variant: {
@@ -33,89 +75,154 @@ const selectTriggerVariants = cva(
   },
 );
 
-export interface SelectTriggerProps
-  extends React.ComponentPropsWithoutRef<typeof RNPSelect.Trigger>,
-    VariantProps<typeof selectTriggerVariants> {}
+export interface SelectTriggerProps extends VariantProps<typeof selectTriggerVariants> {
+  className?: string;
+  children?: React.ReactNode;
+}
 
-const SelectTrigger = forwardRef<React.ElementRef<typeof RNPSelect.Trigger>, SelectTriggerProps>(
-  ({ className, variant, size, ...props }, ref) => {
-    return (
-      <RNPSelect.Trigger ref={ref} className={cn(selectTriggerVariants({ variant, size, className }))} {...props} />
-    );
-  },
-);
+const SelectTrigger = forwardRef<View, SelectTriggerProps>(({ className, variant, size, children }, ref) => {
+  const { setIsOpen } = useSelectContext();
+
+  return (
+    <Pressable onPress={() => setIsOpen(true)} className={cn(selectTriggerVariants({ variant, size, className }))}>
+      {children}
+    </Pressable>
+  );
+});
 
 SelectTrigger.displayName = 'Select.Trigger';
 
 /**
  * Select Value - Displays the selected value
  */
-const SelectValue = forwardRef<
-  React.ElementRef<typeof RNPSelect.Value>,
-  React.ComponentPropsWithoutRef<typeof RNPSelect.Value>
->(({ className, ...props }, ref) => {
-  return <RNPSelect.Value ref={ref} className={cn('text-body text-foreground', className)} {...props} />;
+interface SelectValueProps {
+  className?: string;
+  placeholder?: string;
+}
+
+const SelectValue = forwardRef<View, SelectValueProps>(({ className, placeholder }, ref) => {
+  const { value } = useSelectContext();
+
+  return (
+    <View ref={ref}>
+      <Text className={cn('text-body text-foreground', className)}>{value?.label || placeholder || '선택하세요'}</Text>
+    </View>
+  );
 });
 
 SelectValue.displayName = 'Select.Value';
 
 /**
- * Select Portal - Renders content in a portal
+ * Select Portal - Modal wrapper
  */
-const SelectPortal = RNPSelect.Portal;
+interface SelectPortalProps {
+  children: React.ReactNode;
+}
+
+const SelectPortal = ({ children }: SelectPortalProps) => {
+  const { isOpen, setIsOpen } = useSelectContext();
+
+  return (
+    <Modal visible={isOpen} transparent animationType='fade' onRequestClose={() => setIsOpen(false)}>
+      {children}
+    </Modal>
+  );
+};
 
 /**
  * Select Overlay - Background overlay
  */
-const SelectOverlay: React.ForwardRefExoticComponent<
-  React.ComponentPropsWithoutRef<typeof RNPSelect.Overlay> &
-    React.RefAttributes<React.ElementRef<typeof RNPSelect.Overlay>>
-> = forwardRef<React.ElementRef<typeof RNPSelect.Overlay>, React.ComponentPropsWithoutRef<typeof RNPSelect.Overlay>>(
-  ({ className, ...props }, ref) => {
-    return (
-      <RNPSelect.Overlay
-        ref={ref}
-        style={StyleSheet.absoluteFill}
-        className={cn('bg-black/50', className)}
-        {...props}
-      />
-    );
-  },
-);
+interface SelectOverlayProps {
+  className?: string;
+  children?: React.ReactNode;
+}
+
+const SelectOverlay = forwardRef<View, SelectOverlayProps>(({ className, children }, ref) => {
+  const { setIsOpen } = useSelectContext();
+
+  return (
+    <View ref={ref} style={StyleSheet.absoluteFill} className={cn('items-center justify-center', className)}>
+      {/* Background overlay - closes modal on press */}
+      <Pressable style={StyleSheet.absoluteFill} className='bg-black/50' onPress={() => setIsOpen(false)} />
+
+      {/* Content - doesn't close modal */}
+      {children}
+    </View>
+  );
+});
 
 SelectOverlay.displayName = 'Select.Overlay';
 
 /**
  * Select Content - Container for select items
  */
-const SelectContent: React.ForwardRefExoticComponent<
-  React.ComponentPropsWithoutRef<typeof RNPSelect.Content> &
-    React.RefAttributes<React.ElementRef<typeof RNPSelect.Content>>
-> = forwardRef<React.ElementRef<typeof RNPSelect.Content>, React.ComponentPropsWithoutRef<typeof RNPSelect.Content>>(
-  ({ className, children, ...props }, ref) => {
-    return (
-      <RNPSelect.Content ref={ref} className={cn('bg-card rounded-lg p-xs', className)} {...props}>
-        {children}
-      </RNPSelect.Content>
-    );
-  },
-);
+interface SelectContentProps {
+  className?: string;
+  children?: React.ReactNode;
+  sideOffset?: number;
+}
+
+const SelectContent = forwardRef<View, SelectContentProps>(({ className, children }, ref) => {
+  return (
+    <View ref={ref} className={cn('bg-card rounded-xl mx-md min-w-[300px] max-w-[400px]', className)}>
+      {children}
+    </View>
+  );
+});
 
 SelectContent.displayName = 'Select.Content';
 
 /**
  * Select Viewport - Scrollable area containing items
  */
-const SelectViewport = RNPSelect.Viewport;
+interface SelectViewportProps {
+  className?: string;
+  children?: React.ReactNode;
+}
+
+const SelectViewport = forwardRef<ScrollView, SelectViewportProps>(({ className, children }, ref) => {
+  return (
+    <ScrollView
+      ref={ref}
+      className={cn('py-xs px-xs', className)}
+      style={{ maxHeight: 400 }}
+      nestedScrollEnabled
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{ flexGrow: 0 }}
+    >
+      {children}
+    </ScrollView>
+  );
+});
+
+SelectViewport.displayName = 'Select.Viewport';
 
 /**
  * Select Item - Individual select option
  */
-const SelectItem = forwardRef<
-  React.ElementRef<typeof RNPSelect.Item>,
-  React.ComponentPropsWithoutRef<typeof RNPSelect.Item>
->(({ className, ...props }, ref) => {
-  return <RNPSelect.Item ref={ref} className={cn('w-full flex-row items-center px-sm py-xs', className)} {...props} />;
+interface SelectItemProps {
+  value: string;
+  label: string;
+  className?: string;
+  children?: React.ReactNode;
+}
+
+const SelectItem = forwardRef<View, SelectItemProps>(({ value, label, className, children }, ref) => {
+  const { value: selectedValue, onValueChange, setIsOpen } = useSelectContext();
+  const isSelected = selectedValue?.value === value;
+
+  const handlePress = () => {
+    onValueChange?.({ value, label });
+    setIsOpen(false);
+  };
+
+  return (
+    <Pressable onPress={handlePress}>
+      <View ref={ref} className={cn('w-full flex-row items-center px-sm py-xs rounded-md', className)}>
+        {children}
+      </View>
+    </Pressable>
+  );
 });
 
 SelectItem.displayName = 'Select.Item';
@@ -123,19 +230,35 @@ SelectItem.displayName = 'Select.Item';
 /**
  * Select Item Text - Text content of an item
  */
-const SelectItemText = RNPSelect.ItemText;
+interface SelectItemTextProps {
+  className?: string;
+  children?: React.ReactNode;
+}
+
+const SelectItemText = forwardRef<Text, SelectItemTextProps>(({ className, children }, ref) => {
+  return (
+    <Text ref={ref} className={cn('text-body text-foreground', className)}>
+      {children}
+    </Text>
+  );
+});
+
+SelectItemText.displayName = 'Select.ItemText';
 
 /**
  * Select Item Indicator - Shows selected state
  */
-const SelectItemIndicator: React.ForwardRefExoticComponent<
-  React.ComponentPropsWithoutRef<typeof RNPSelect.ItemIndicator> &
-    React.RefAttributes<React.ElementRef<typeof RNPSelect.ItemIndicator>>
-> = forwardRef<
-  React.ElementRef<typeof RNPSelect.ItemIndicator>,
-  React.ComponentPropsWithoutRef<typeof RNPSelect.ItemIndicator>
->(({ className, ...props }, ref) => {
-  return <RNPSelect.ItemIndicator ref={ref} className={cn('ml-auto', className)} {...props} />;
+interface SelectItemIndicatorProps {
+  className?: string;
+  children?: React.ReactNode;
+}
+
+const SelectItemIndicator = forwardRef<View, SelectItemIndicatorProps>(({ className, children }, ref) => {
+  return (
+    <View ref={ref} className={cn('ml-auto', className)}>
+      {children}
+    </View>
+  );
 });
 
 SelectItemIndicator.displayName = 'Select.ItemIndicator';
@@ -143,17 +266,34 @@ SelectItemIndicator.displayName = 'Select.ItemIndicator';
 /**
  * Select Group - Groups related items
  */
-const SelectGroup = RNPSelect.Group;
+interface SelectGroupProps {
+  className?: string;
+  children?: React.ReactNode;
+}
+
+const SelectGroup = forwardRef<View, SelectGroupProps>(({ className, children }, ref) => {
+  return (
+    <View ref={ref} className={cn('py-xs', className)}>
+      {children}
+    </View>
+  );
+});
+
+SelectGroup.displayName = 'Select.Group';
 
 /**
  * Select Label - Label for a group
  */
-const SelectLabel = forwardRef<
-  React.ElementRef<typeof RNPSelect.Label>,
-  React.ComponentPropsWithoutRef<typeof RNPSelect.Label>
->(({ className, ...props }, ref) => {
+interface SelectLabelProps {
+  className?: string;
+  children?: React.ReactNode;
+}
+
+const SelectLabel = forwardRef<Text, SelectLabelProps>(({ className, children }, ref) => {
   return (
-    <RNPSelect.Label ref={ref} className={cn('px-sm py-xs text-label text-muted-foreground', className)} {...props} />
+    <Text ref={ref} className={cn('px-sm py-xs text-label text-muted-foreground', className)}>
+      {children}
+    </Text>
   );
 });
 
@@ -162,11 +302,12 @@ SelectLabel.displayName = 'Select.Label';
 /**
  * Select Separator - Visual separator between items
  */
-const SelectSeparator = forwardRef<
-  React.ElementRef<typeof RNPSelect.Separator>,
-  React.ComponentPropsWithoutRef<typeof RNPSelect.Separator>
->(({ className, ...props }, ref) => {
-  return <RNPSelect.Separator ref={ref} className={cn('h-px bg-border', className)} {...props} />;
+interface SelectSeparatorProps {
+  className?: string;
+}
+
+const SelectSeparator = forwardRef<View, SelectSeparatorProps>(({ className }, ref) => {
+  return <View ref={ref} className={cn('h-px bg-border my-xs', className)} />;
 });
 
 SelectSeparator.displayName = 'Select.Separator';
@@ -174,10 +315,10 @@ SelectSeparator.displayName = 'Select.Separator';
 /**
  * Select - Compound Component
  *
- * Based on @rn-primitives/select with custom styling.
+ * Pure React Native implementation without external dependencies.
  *
  * @example
- * <Select defaultValue={{ value: 'apple', label: 'Apple' }}>
+ * <Select value={{ value: 'apple', label: 'Apple' }} onValueChange={handleChange}>
  *   <Select.Trigger>
  *     <Select.Value placeholder='Select...' />
  *   </Select.Trigger>

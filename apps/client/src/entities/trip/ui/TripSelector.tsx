@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { Plane, ChevronDown, Check } from 'lucide-react-native';
 import { Select, Badge } from '@repo/ui';
 import { useGetTrips } from '../data';
@@ -124,7 +124,7 @@ export function TripSelector({ defaultTrip, onTripChange, className = '' }: Trip
 
       <Select.Portal>
         <Select.Overlay>
-          <Select.Content className='w-full rounded-2xl bg-background shadow-lg' sideOffset={4}>
+          <Select.Content className='rounded-2xl bg-card shadow-lg' sideOffset={4}>
             <Select.Viewport>
               {trips.map((trip) => {
                 const isSelected = trip.value === selectedTrip.value;
@@ -133,15 +133,11 @@ export function TripSelector({ defaultTrip, onTripChange, className = '' }: Trip
                     key={trip.value}
                     value={trip.value}
                     label={trip.label}
-                    className={`flex-row items-center px-md py-sm active:bg-muted ${isSelected ? 'bg-muted' : ''}`}
+                    className={`flex-row items-center px-sm py-xs rounded-lg ${isSelected ? 'bg-muted' : ''}`}
                   >
-                    {isSelected ? (
-                      <Select.ItemIndicator className='mr-xs'>
-                        <Check size={18} color='hsl(142, 76%, 36%)' strokeWidth={2.5} />
-                      </Select.ItemIndicator>
-                    ) : (
-                      <View className='mr-xs w-[18px]' />
-                    )}
+                    <View className='w-[20px] items-center justify-center mr-xs'>
+                      {isSelected && <Check size={18} color='hsl(142, 76%, 36%)' strokeWidth={2.5} />}
+                    </View>
                     <Plane size={18} color='hsl(0, 0%, 12%)' strokeWidth={2} />
                     <Text className='ml-xs text-body text-foreground'>{trip.label}</Text>
                     {trip.isMain && (

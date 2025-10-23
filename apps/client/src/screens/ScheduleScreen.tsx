@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { Container, Stack, ScheduleCard, MobileHeader } from '@/shared/components';
-// import { TripSelector } from '@/entities/trip';
+import { TripSelector } from '@/entities/trip';
 import { useGetSchedules } from '@/entities/schedule';
 import { useGetTrips, selectMainTrip } from '@/entities/trip';
 import { Pressable } from '@repo/ui';
@@ -134,14 +134,14 @@ export default function ScheduleScreen() {
       />
 
       {/* Current Trip Selector - Sticky */}
-      {/* TODO: TripSelector - Reanimated 호환 문제로 임시 비활성화 */}
-      <View className='border-b border-card-border bg-background px-md py-sm'>
-        <Text className='text-body text-muted-foreground'>
-          {selectedTripId
-            ? `선택된 여행: ${trips.find((t) => t.id === selectedTripId)?.destination || '여행'}`
-            : '여행을 선택하세요'}
-        </Text>
-      </View>
+      <TripSelector
+        onTripChange={(trip) => {
+          if (trip) {
+            setSelectedTripId(trip.value);
+          }
+        }}
+        className='border-b border-card-border'
+      />
 
       {/* Content */}
       {viewMode === 'list' ? (
