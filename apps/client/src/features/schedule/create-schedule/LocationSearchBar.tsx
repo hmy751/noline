@@ -13,7 +13,7 @@ type LocationSearchBarProps = {
  */
 export function LocationSearchBar({ value, onChangeText, onClear, autoFocus = true }: LocationSearchBarProps) {
   return (
-    <View className='bg-background px-md pt-sm pb-sm border-b border-card-border'>
+    <View className='bg-background pt-sm pb-sm border-b border-card-border'>
       <View className='flex-row items-center h-11 rounded-lg border border-input bg-background px-sm'>
         <Search size={20} color='#808080' />
         <TextInput

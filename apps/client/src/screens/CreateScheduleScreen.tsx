@@ -103,22 +103,24 @@ export default function CreateScheduleScreen() {
   // Trip 로딩 중
   if (isLoadingTrips) {
     return (
-      <Container className='flex-1 bg-background'>
+      <View className='flex-1 bg-background'>
         <MobileHeader
           title='새 일정 추가'
           leftIcon={<ArrowLeft size={20} color='#1F1F1F' />}
           onLeftPress={handleBackPress}
         />
-        <View className='flex-1 items-center justify-center'>
-          <ActivityIndicator size='large' color='#228B22' />
-          <Text className='text-body text-muted-foreground mt-md'>여행 정보 불러오는 중...</Text>
-        </View>
-      </Container>
+        <Container>
+          <View className='flex-1 items-center justify-center'>
+            <ActivityIndicator size='large' color='#228B22' />
+            <Text className='text-body text-muted-foreground mt-md'>여행 정보 불러오는 중...</Text>
+          </View>
+        </Container>
+      </View>
     );
   }
 
   return (
-    <Container className='flex-1 bg-background'>
+    <View className='flex-1 bg-background'>
       {/* Header */}
       <MobileHeader
         title='새 일정 추가'
@@ -128,10 +130,12 @@ export default function CreateScheduleScreen() {
 
       {/* 검색창 (검색 단계에만 표시) */}
       {currentStep === STEPS.SEARCH && (
-        <LocationSearchBar value={searchQuery} onChangeText={handleSearch} onClear={clearSearch} autoFocus />
+        <Container>
+          <LocationSearchBar value={searchQuery} onChangeText={handleSearch} onClear={clearSearch} autoFocus />
+        </Container>
       )}
 
-      {/* 지도 영역 */}
+      {/* 지도 영역 + 결과/폼 */}
       <View className='flex-1 relative'>
         <MapView locations={results} selectedLocation={selectedLocation} />
 
@@ -172,6 +176,6 @@ export default function CreateScheduleScreen() {
           initialTime={watch('time') || '09:00'}
         />
       )}
-    </Container>
+    </View>
   );
 }

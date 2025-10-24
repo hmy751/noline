@@ -10,7 +10,7 @@ interface CitySearchBarProps {
 
 export function CitySearchBar({ searchQuery, setSearchQuery }: CitySearchBarProps) {
   return (
-    <View className='px-4 py-4'>
+    <View className='py-4'>
       <View className='relative w-full justify-center'>
         <View className='absolute left-4 z-10'>
           <Search size={20} color='hsl(0, 0%, 50%)' />

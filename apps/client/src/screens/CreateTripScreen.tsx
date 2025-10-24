@@ -7,6 +7,7 @@ import { useDebounce } from '@/shared/hooks/useDebounce';
 import { City } from '@/features/trip/create-trip/geonames.api';
 import { useSearchCities, CitySearchBar, CitySearchResults, TripDateForm } from '@/features/trip/create-trip';
 import { useStep } from '@/shared/hooks/useStep';
+import { View } from 'react-native';
 
 export default function CreateTripScreen() {
   const { currentStep, goToNextStep, goToPrevStep } = useStep({ maxStep: 2 });
@@ -39,7 +40,7 @@ export default function CreateTripScreen() {
   const headerBackAction = currentStep === 1 ? handleBackPress : handleBackToSearch;
 
   return (
-    <Container className='flex-1 bg-background'>
+    <View className='flex-1 bg-background'>
       {/* Header */}
       <MobileHeader
         title={headerTitle}
@@ -48,21 +49,23 @@ export default function CreateTripScreen() {
       />
 
       {/* Content */}
-      {currentStep === 1 ? (
-        <>
-          <CitySearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-          <CitySearchResults
-            cities={cities}
-            isLoading={isLoading}
-            isFetching={isFetching}
-            error={error}
-            debouncedSearchQuery={debouncedSearchQuery}
-            handleSelectCity={handleSelectCity}
-          />
-        </>
-      ) : (
-        selectedCity && <TripDateForm city={selectedCity} />
-      )}
-    </Container>
+      <Container>
+        {currentStep === 1 ? (
+          <View className='flex-1'>
+            <CitySearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+            <CitySearchResults
+              cities={cities}
+              isLoading={isLoading}
+              isFetching={isFetching}
+              error={error}
+              debouncedSearchQuery={debouncedSearchQuery}
+              handleSelectCity={handleSelectCity}
+            />
+          </View>
+        ) : (
+          selectedCity && <TripDateForm city={selectedCity} />
+        )}
+      </Container>
+    </View>
   );
 }

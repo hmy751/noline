@@ -77,7 +77,7 @@ export function CitySearchResults({
   };
 
   return (
-    <ScrollView className='flex-1 px-4' style={{ opacity: isFetching && !isLoading ? 0.6 : 1 }}>
+    <ScrollView className='flex-1' style={{ opacity: isFetching && !isLoading ? 0.6 : 1 }}>
       {renderContent()}
     </ScrollView>
   );
