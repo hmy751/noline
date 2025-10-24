@@ -46,6 +46,11 @@ const config = {
   cors: {
     origin: process.env.CORS_ORIGIN || 'http://localhost:8081',
   },
+
+  googleMaps: {
+    placesApiKey: process.env.GOOGLE_PLACES_API_KEY,
+    geoDirectionsApiKey: process.env.GOOGLE_GEO_DIRECTIONS_API_KEY,
+  },
 } as const;
 
 // Validate required environment variables

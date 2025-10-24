@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
-import { db, trips } from '../db/index.js';
+import { db, trips, schedules } from '../db/index.js';
 import { desc, sql, eq, and } from 'drizzle-orm';
 import { createTripRequestSchema, updateTripRequestSchema, tripSchema } from '@repo/schema';
 
@@ -340,6 +340,41 @@ router.delete('/:id', async (req: Request, res: Response) => {
       res.status(500).json({
         error: 'Internal server error',
         message: 'Failed to delete trip',
+        details: 'Unknown error occurred',
+      });
+    }
+  }
+});
+
+// GET /api/trips/:tripId/schedules - 여행의 일정 목록 조회
+router.get('/:tripId/schedules', async (req: Request, res: Response) => {
+  try {
+    const { tripId } = req.params;
+
+    // 여행에 속한 모든 일정 조회 (order 순으로 정렬)
+    const allSchedules = await db
+      .select()
+      .from(schedules)
+      .where(eq(schedules.tripId, tripId))
+      .orderBy(schedules.startTime, schedules.order);
+
+    res.status(200).json({
+      success: true,
+      data: allSchedules,
+    });
+  } catch (error) {
+    console.error('Error fetching schedules:', error);
+
+    if (error instanceof Error) {
+      res.status(500).json({
+        error: 'Internal server error',
+        message: 'Failed to fetch schedules',
+        details: error.message,
+      });
+    } else {
+      res.status(500).json({
+        error: 'Internal server error',
+        message: 'Failed to fetch schedules',
         details: 'Unknown error occurred',
       });
     }

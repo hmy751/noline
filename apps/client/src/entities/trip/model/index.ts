@@ -1,5 +1,6 @@
 export type {
   TripData,
+  TripResponse,
   GetAllTripsResponse,
   CreateTripRequest,
   CreateTripResponse,

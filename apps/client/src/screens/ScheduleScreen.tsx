@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, ScrollView } from 'react-native';
-import { Container, Stack, ScheduleCard, MobileHeader } from '@/shared/components';
+import { router } from 'expo-router';
+import { Container, Stack, ScheduleCard, MobileHeader, ScheduleMapView } from '@/shared/components';
 import { TripSelector } from '@/entities/trip';
+import { useGetSchedules } from '@/entities/schedule';
+import { useGetTrips, selectMainTrip } from '@/entities/trip';
 import { Pressable } from '@repo/ui';
 import { Menu, Map, List } from 'lucide-react-native';
 
@@ -11,6 +14,7 @@ interface ScheduleByDate {
   date: string;
   dateLabel: string;
   schedules: Array<{
+    id: string;
     time: string;
     title: string;
     location: string;
@@ -21,47 +25,72 @@ interface ScheduleByDate {
 
 export default function ScheduleScreen() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
 
-  // TODO: Replace with real data
-  const schedulesByDate: ScheduleByDate[] = [
-    {
-      date: '2025-03-15',
-      dateLabel: '2025-03-15',
-      schedules: [
-        {
-          time: '09:00',
-          title: '에펠탑 방문',
-          location: '에펠탑',
-        },
-        {
-          time: '14:00',
-          title: '센강 유람선',
-          location: '센강',
-        },
-        {
-          time: '19:00',
-          title: '상젤리제 거리 산책',
-          location: '상젤리제',
-        },
-      ],
-    },
-    {
-      date: '2025-03-16',
-      dateLabel: '2025-03-16',
-      schedules: [
-        {
-          time: '10:00',
-          title: '루브르 박물관',
-          location: '루브르',
-        },
-        {
-          time: '15:00',
-          title: '카페 런치',
-          location: '카페 런치',
-        },
-      ],
-    },
-  ];
+  const { data: trips = [] } = useGetTrips();
+  const { data: schedules = [], isLoading } = useGetSchedules(selectedTripId || '');
+
+  // 메인 여행 자동 선택
+  useEffect(() => {
+    if (trips.length > 0 && !selectedTripId) {
+      const mainTrip = selectMainTrip(trips);
+      if (mainTrip) {
+        setSelectedTripId(mainTrip.id);
+      }
+    }
+  }, [trips, selectedTripId]);
+
+  // 선택된 여행 정보
+  const selectedTrip = trips.find((trip: { id: string }) => trip.id === selectedTripId);
+
+  // 여행 날짜 범위에서 모든 날짜 생성
+  const generateDateRange = (): string[] => {
+    if (!selectedTrip?.startDate || !selectedTrip?.endDate) return [];
+
+    const dates: string[] = [];
+    const start = new Date(selectedTrip.startDate);
+    const end = new Date(selectedTrip.endDate);
+
+    const current = new Date(start);
+    while (current <= end) {
+      dates.push(current.toISOString().split('T')[0]);
+      current.setDate(current.getDate() + 1);
+    }
+
+    return dates;
+  };
+
+  const dateRange = generateDateRange();
+
+  // 날짜별로 일정 그룹화
+  const schedulesByDate: ScheduleByDate[] = dateRange.map((date) => {
+    const daySchedules = schedules
+      .filter((schedule) => {
+        const scheduleDate = new Date(schedule.startTime).toISOString().split('T')[0];
+        return scheduleDate === date;
+      })
+      .map((schedule) => {
+        const scheduleDate = new Date(schedule.startTime);
+        const time = scheduleDate.toLocaleTimeString('ko-KR', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+        });
+
+        return {
+          id: schedule.id,
+          time,
+          title: schedule.title,
+          location: schedule.location || '',
+        };
+      });
+
+    return {
+      date,
+      dateLabel: date,
+      schedules: daySchedules,
+    };
+  });
 
   return (
     <View className='flex-1 bg-background'>
@@ -98,62 +127,98 @@ export default function ScheduleScreen() {
       {/* Current Trip Selector - Sticky */}
       <TripSelector
         onTripChange={(trip) => {
-          // TO DO 컨텍스트 또는 전역상태 정의
-          console.log('Selected trip:', trip);
+          if (trip) {
+            setSelectedTripId(trip.value);
+          }
         }}
-        className='border-b border-card-border bg-background px-md py-sm'
+        className='border-b border-card-border'
       />
 
       {/* Content */}
       {viewMode === 'list' ? (
         <ScrollView className='flex-1'>
           <Container>
-            <Stack direction='vertical' gap='md' className='py-sm'>
-              {/* Schedule Groups by Date */}
-              {schedulesByDate.map((group) => (
-                <View key={group.date} className='flex-col gap-sm'>
-                  {/* Date Header with Count */}
-                  <View className='flex-row items-center justify-between'>
-                    <View className='flex-row items-center gap-2xs'>
-                      <Text className='text-title-large text-foreground'>{group.dateLabel}</Text>
-                      <View className='rounded-full bg-muted px-xs py-3xs'>
-                        <Text className='text-label text-foreground'>{group.schedules.length}개</Text>
+            {!selectedTrip ? (
+              <View className='flex-1 items-center justify-center py-xl'>
+                <Text className='text-body text-muted-foreground'>여행을 선택해주세요</Text>
+              </View>
+            ) : !selectedTrip.startDate || !selectedTrip.endDate ? (
+              <View className='flex-1 items-center justify-center py-xl'>
+                <Text className='text-body text-muted-foreground'>여행 날짜를 설정해주세요</Text>
+              </View>
+            ) : isLoading ? (
+              <View className='flex-1 items-center justify-center py-xl'>
+                <Text className='text-body text-muted-foreground'>일정을 불러오는 중...</Text>
+              </View>
+            ) : (
+              <Stack direction='vertical' gap='md' className='py-sm'>
+                {/* Schedule Groups by Date */}
+                {schedulesByDate.map((group) => (
+                  <View key={group.date} className='flex-col gap-sm'>
+                    {/* Date Header with Count */}
+                    <View className='flex-row items-center justify-between'>
+                      <View className='flex-row items-center gap-2xs'>
+                        <Text className='text-title-large text-foreground'>{group.dateLabel}</Text>
+                        <View className='rounded-full bg-muted px-xs py-3xs'>
+                          <Text className='text-label text-foreground'>{group.schedules.length}개</Text>
+                        </View>
                       </View>
+                      <Pressable
+                        variant='outline'
+                        className='flex-row items-center gap-3xs rounded-md border border-card-border bg-card px-xs py-3xs active:bg-muted'
+                        onPress={() => {
+                          if (selectedTripId) {
+                            router.push(`/create-schedule?tripId=${selectedTripId}&date=${group.date}`);
+                          }
+                        }}
+                      >
+                        <Text className='text-label text-foreground'>추가</Text>
+                      </Pressable>
                     </View>
-                    <Pressable
-                      variant='outline'
-                      className='flex-row items-center gap-3xs rounded-md border border-card-border bg-card px-xs py-3xs active:bg-muted'
-                      onPress={() => {
-                        // TODO: Open add schedule for this date
-                        console.log('Add schedule for', group.date);
-                      }}
-                    >
-                      <Text className='text-label text-foreground'>추가</Text>
-                    </Pressable>
-                  </View>
 
-                  {/* Schedules for this date */}
-                  {group.schedules.map((schedule, index) => (
-                    <ScheduleCard
-                      key={index}
-                      date={group.dateLabel}
-                      {...schedule}
-                      onPress={() => {
-                        // TODO: Navigate to schedule detail
-                        console.log('Navigate to schedule detail');
-                      }}
-                    />
-                  ))}
-                </View>
-              ))}
-            </Stack>
+                    {/* Schedules for this date */}
+                    {group.schedules.length > 0 ? (
+                      group.schedules.map((schedule) => (
+                        <ScheduleCard
+                          key={schedule.id}
+                          date={group.dateLabel}
+                          {...schedule}
+                          onPress={() => {
+                            // TODO: Navigate to schedule detail
+                            console.log('Navigate to schedule detail:', schedule.id);
+                          }}
+                        />
+                      ))
+                    ) : (
+                      <View className='rounded-lg border border-dashed border-card-border bg-muted/30 px-md py-lg'>
+                        <Text className='text-body text-center text-muted-foreground'>이 날의 일정을 추가해보세요</Text>
+                      </View>
+                    )}
+                  </View>
+                ))}
+              </Stack>
+            )}
           </Container>
         </ScrollView>
       ) : (
-        <View className='flex-1 items-center justify-center bg-muted'>
-          <Map size={48} color='hsl(120, 8%, 35%)' strokeWidth={1.5} />
-          <Text className='mt-sm text-title-medium text-muted-foreground'>지도 뷰 (구현 예정)</Text>
-        </View>
+        <ScheduleMapView
+          schedules={schedules.map((schedule) => ({
+            id: schedule.id,
+            title: schedule.title,
+            location: schedule.location || '',
+            latitude: schedule.latitude ? parseFloat(schedule.latitude) : undefined,
+            longitude: schedule.longitude ? parseFloat(schedule.longitude) : undefined,
+            time: new Date(schedule.startTime).toLocaleTimeString('ko-KR', {
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false,
+            }),
+          }))}
+          onSchedulePress={(scheduleId: string) => {
+            console.log('Navigate to schedule detail:', scheduleId);
+            // TODO: Navigate to schedule detail
+          }}
+        />
       )}
     </View>
   );
