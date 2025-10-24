@@ -7,6 +7,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { initializeDatabase } from '@/shared/db';
+import { SyncProvider } from '@/shared/services/sync/provider';
+import { NetworkOverrideProvider } from '@/shared/services/sync/NetworkOverrideContext';
 
 // Splash 화면을 수동으로 제어하기 위해 자동 숨김 방지
 SplashScreen.preventAutoHideAsync();
@@ -58,18 +60,22 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: {
-              backgroundColor: colorScheme === 'dark' ? '#1F1F1F' : '#FAFAFA',
-            },
-          }}
-        >
-          <Stack.Screen name='(tabs)' />
-        </Stack>
-        {/* Portal Host for Select and other portal-based components */}
-        <PortalHost />
+        <NetworkOverrideProvider>
+          <SyncProvider>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: {
+                  backgroundColor: colorScheme === 'dark' ? '#1F1F1F' : '#FAFAFA',
+                },
+              }}
+            >
+              <Stack.Screen name='(tabs)' />
+            </Stack>
+            {/* Portal Host for Select and other portal-based components */}
+            <PortalHost />
+          </SyncProvider>
+        </NetworkOverrideProvider>
       </QueryClientProvider>
     </SafeAreaProvider>
   );
