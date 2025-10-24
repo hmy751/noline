@@ -1,7 +1,7 @@
-import { ulid } from 'ulid';
+import * as Crypto from 'expo-crypto';
 
 /**
- * ULID 생성 함수
+ * ULID 생성 함수 (Expo Crypto 기반)
  *
  * ULID (Universally Unique Lexicographically Sortable Identifier)
  * - UUID보다 짧고 읽기 쉬움 (26자)
@@ -18,7 +18,28 @@ import { ulid } from 'ulid';
  * @returns ULID 문자열 (26자)
  */
 export function generateId(): string {
-  return ulid();
+  // Expo Crypto를 사용한 간단한 ULID 구현
+  const timestamp = Date.now();
+  const randomBytes = Crypto.getRandomBytes(16);
+
+  // Crockford's Base32 인코딩 (ULID 표준)
+  const ENCODING = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+
+  // 타임스탬프 부분 (10자)
+  let timestampStr = '';
+  let ts = timestamp;
+  for (let i = 0; i < 10; i++) {
+    timestampStr = ENCODING[ts % 32] + timestampStr;
+    ts = Math.floor(ts / 32);
+  }
+
+  // 랜덤 부분 (16자)
+  let randomStr = '';
+  for (let i = 0; i < 16; i++) {
+    randomStr += ENCODING[randomBytes[i] % 32];
+  }
+
+  return timestampStr + randomStr;
 }
 
 /**
@@ -28,7 +49,22 @@ export function generateId(): string {
  * @returns ULID 문자열
  */
 export function generateIdWithTimestamp(timestamp: number): string {
-  return ulid(timestamp);
+  const randomBytes = Crypto.getRandomBytes(16);
+  const ENCODING = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+
+  let timestampStr = '';
+  let ts = timestamp;
+  for (let i = 0; i < 10; i++) {
+    timestampStr = ENCODING[ts % 32] + timestampStr;
+    ts = Math.floor(ts / 32);
+  }
+
+  let randomStr = '';
+  for (let i = 0; i < 16; i++) {
+    randomStr += ENCODING[randomBytes[i] % 32];
+  }
+
+  return timestampStr + randomStr;
 }
 
 /**
