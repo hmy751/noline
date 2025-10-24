@@ -77,6 +77,11 @@ export default function CreateScheduleScreen() {
   }
 
   const handleBackPress = () => {
+    if (currentStep === STEPS.FORM) {
+      handleClearLocation();
+      return;
+    }
+
     if (router.canGoBack()) {
       router.back();
     } else {
@@ -86,7 +91,7 @@ export default function CreateScheduleScreen() {
 
   const handleSelectLocation = (location: Location) => {
     setSelectedLocation(location);
-    clearSearch();
+    // clearSearch(); // 검색 결과를 바로 지우지 않도록 주석 처리
     goToNextStep(); // 검색 → 폼 단계로 이동
   };
 
