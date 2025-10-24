@@ -2,7 +2,7 @@ import { View, ActivityIndicator, Text } from 'react-native';
 import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Container, MobileHeader, DatePicker, TimePicker } from '@/shared/components';
+import { MobileHeader, DatePicker, TimePicker } from '@/shared/components';
 import { useStep } from '@/shared/hooks/useStep';
 import {
   useCreateScheduleForm,
@@ -109,12 +109,10 @@ export default function CreateScheduleScreen() {
           leftIcon={<ArrowLeft size={20} color='#1F1F1F' />}
           onLeftPress={handleBackPress}
         />
-        <Container>
-          <View className='flex-1 items-center justify-center'>
-            <ActivityIndicator size='large' color='#228B22' />
-            <Text className='text-body text-muted-foreground mt-md'>여행 정보 불러오는 중...</Text>
-          </View>
-        </Container>
+        <View className='flex-1 items-center justify-center px-sm'>
+          <ActivityIndicator size='large' color='#228B22' />
+          <Text className='text-body text-muted-foreground mt-md'>여행 정보 불러오는 중...</Text>
+        </View>
       </View>
     );
   }
@@ -130,9 +128,7 @@ export default function CreateScheduleScreen() {
 
       {/* 검색창 (검색 단계에만 표시) */}
       {currentStep === STEPS.SEARCH && (
-        <Container>
-          <LocationSearchBar value={searchQuery} onChangeText={handleSearch} onClear={clearSearch} autoFocus />
-        </Container>
+        <LocationSearchBar value={searchQuery} onChangeText={handleSearch} onClear={clearSearch} autoFocus />
       )}
 
       {/* 지도 영역 + 결과/폼 */}
