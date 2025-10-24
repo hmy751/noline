@@ -6,9 +6,9 @@ import { z } from 'zod';
 
 // Select Schema (DB에서 조회한 데이터)
 export const scheduleSchema = z.object({
-  id: z.string().uuid(),
-  userId: z.string().uuid(),
-  tripId: z.string().uuid(),
+  id: z.string().ulid(),
+  userId: z.string().ulid(),
+  tripId: z.string().ulid(),
   title: z.string(),
   location: z.string(),
   address: z.string().nullable(),
@@ -26,8 +26,8 @@ export const scheduleSchema = z.object({
 
 // Insert Schema (일정 생성)
 export const insertScheduleSchema = z.object({
-  userId: z.string().uuid(),
-  tripId: z.string().uuid(),
+  userId: z.string().ulid(),
+  tripId: z.string().ulid(),
   title: z.string().min(1, 'Title is required'),
   location: z.string().min(1, 'Location is required'),
   address: z.string().nullable().optional(),
