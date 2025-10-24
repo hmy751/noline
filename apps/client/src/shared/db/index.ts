@@ -1,5 +1,5 @@
 import { drizzle } from 'drizzle-orm/expo-sqlite';
-import { openDatabaseSync } from 'expo-sqlite/next';
+import * as SQLite from 'expo-sqlite';
 import * as schema from './schema';
 
 /**
@@ -7,7 +7,7 @@ import * as schema from './schema';
  * - expo-sqlite를 사용한 로컬 DB
  * - DB 파일명: noline.db
  */
-const expoDb = openDatabaseSync('noline.db');
+const expoDb = SQLite.openDatabaseSync('noline.db');
 
 /**
  * Drizzle ORM 클라이언트
