@@ -1,5 +1,8 @@
 import syncApiClient from './api';
 import { getPendingTasks, deleteTask, updateTaskStatus } from './queue';
+import { getLastSyncedAt, setLastSyncedAt } from './storage';
+import { upsertTrips, upsertSchedules } from '@/shared/db/utils';
+import { queryClient } from '@/shared/lib/queryClient';
 
 /**
  * Push 동기화 엔진
@@ -72,6 +75,99 @@ export async function pushChanges(): Promise<void> {
 }
 
 /**
+ * Pull 동기화 엔진
+ *
+ * 서버의 최신 데이터를 로컬 DB에 반영
+ * - lastSyncedAt 이후 변경된 데이터만 가져옴 (증분 동기화)
+ * - Upsert로 로컬 DB 업데이트
+ * - React Query 캐시 무효화 → UI 자동 갱신
+ * - lastSyncedAt 업데이트
+ */
+export async function pullChanges(): Promise<void> {
+  try {
+    // 1. 마지막 동기화 시간 조회
+    const lastSyncedAt = await getLastSyncedAt();
+
+    console.log('📥 [Sync] Starting pull...', {
+      lastSyncedAt: lastSyncedAt?.toISOString() || 'Never synced (초기 동기화)',
+    });
+
+    // 2. 서버에서 데이터 가져오기
+    const response = await syncApiClient.get('/api/sync/pull', {
+      params: {
+        lastSyncedAt: lastSyncedAt?.toISOString(),
+      },
+    });
+
+    const { trips, schedules, serverTime } = response.data;
+
+    console.log('📥 [Sync] Received from server:', {
+      trips: trips?.length || 0,
+      schedules: schedules?.length || 0,
+      serverTime,
+    });
+
+    // 3. 로컬 DB에 Upsert
+    if (trips && trips.length > 0) {
+      await upsertTrips(trips);
+    }
+
+    if (schedules && schedules.length > 0) {
+      await upsertSchedules(schedules);
+    }
+
+    // 4. React Query 캐시 무효화 → UI 자동 갱신
+    queryClient.invalidateQueries({ queryKey: ['trip'] });
+    queryClient.invalidateQueries({ queryKey: ['schedule'] });
+
+    console.log('✅ [Sync] React Query cache invalidated');
+
+    // 5. 마지막 동기화 시간 업데이트
+    await setLastSyncedAt(new Date(serverTime));
+
+    console.log('✅ [Sync] Pull completed');
+  } catch (error) {
+    console.error('❌ [Sync] Pull failed:', error);
+    throw error;
+  }
+}
+
+/**
+ * 통합 동기화 (Push + Pull)
+ *
+ * 1. Push: 로컬 변경사항을 서버로 전송
+ * 2. Pull: 서버 최신 데이터를 로컬로 가져오기
+ *
+ * SyncProvider에서 자동으로 호출됨:
+ * - 앱 시작 시
+ * - 네트워크 복구 시
+ * - 주기적 동기화 (5분마다)
+ *
+ * push는 가볍기 때문에 pull과 같이 동작하는것으로 결정, 다만 순서는 지켜야 됨
+ *
+ * @example
+ * ```typescript
+ * await syncData();  // Push → Pull 순차 실행
+ * ```
+ */
+export async function syncData(): Promise<void> {
+  try {
+    console.log('🔄 [Sync] Starting full sync (Push + Pull)...');
+
+    // Push 먼저! (로컬 변경사항 전송)
+    await pushChanges();
+
+    // Pull 나중! (서버 최신 데이터 가져오기)
+    await pullChanges();
+
+    console.log('✅ [Sync] Full sync completed');
+  } catch (error) {
+    console.error('❌ [Sync] Full sync failed:', error);
+    throw error;
+  }
+}
+
+/**
  * 수동 동기화 트리거 (디버깅용)
  *
  * 사용자가 명시적으로 동기화를 실행할 때 사용
@@ -85,7 +181,7 @@ export async function triggerSync(): Promise<{ success: boolean; message: string
   try {
     console.log('🔄 [Sync] Manual sync triggered');
 
-    await pushChanges();
+    await syncData(); // Push + Pull
 
     return {
       success: true,
