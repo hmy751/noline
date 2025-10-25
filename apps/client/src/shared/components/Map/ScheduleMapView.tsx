@@ -47,21 +47,39 @@ export function ScheduleMapView({
     (s) => s.latitude && s.longitude && !isNaN(s.latitude) && !isNaN(s.longitude),
   );
 
-  // 지도 영역 자동 조정
+  // 지도 영역 자동 조정 (초기 로드 시에만)
   useEffect(() => {
-    if (mapRef.current && schedulesWithCoords.length > 0) {
+    if (mapRef.current && schedulesWithCoords.length > 0 && !selectedScheduleId) {
       mapRef.current.fitToCoordinates(
         schedulesWithCoords.map((s) => ({
           latitude: s.latitude!,
           longitude: s.longitude!,
         })),
         {
-          edgePadding: { top: 100, right: 50, bottom: 100, left: 50 },
+          edgePadding: { top: 100, right: 50, bottom: 300, left: 50 },
           animated: true,
         },
       );
     }
-  }, [schedulesWithCoords]);
+  }, [schedulesWithCoords, selectedScheduleId]);
+
+  // 선택된 일정의 마커로 지도 중앙 이동
+  useEffect(() => {
+    if (mapRef.current && selectedScheduleId) {
+      const selectedSchedule = schedulesWithCoords.find((s) => s.id === selectedScheduleId);
+      if (selectedSchedule?.latitude && selectedSchedule?.longitude) {
+        mapRef.current.animateToRegion(
+          {
+            latitude: selectedSchedule.latitude,
+            longitude: selectedSchedule.longitude,
+            latitudeDelta: 0.05,
+            longitudeDelta: 0.05,
+          },
+          500,
+        );
+      }
+    }
+  }, [selectedScheduleId, schedulesWithCoords]);
 
   // 좌표가 있는 일정이 없는 경우
   if (schedulesWithCoords.length === 0) {
