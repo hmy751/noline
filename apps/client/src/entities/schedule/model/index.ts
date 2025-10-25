@@ -1,1 +1,8 @@
-export type { Schedule, CreateScheduleRequest } from './types';
+export type {
+  Schedule,
+  ScheduleData,
+  ScheduleResponse,
+  GetAllSchedulesResponse,
+  CreateScheduleRequest,
+  CreateScheduleResponse,
+} from './types';

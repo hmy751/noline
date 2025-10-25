@@ -66,20 +66,12 @@ export default function ScheduleScreen() {
   const schedulesByDate: ScheduleByDate[] = dateRange.map((date) => {
     const daySchedules = schedules
       .filter((schedule) => {
-        const scheduleDate = new Date(schedule.startTime).toISOString().split('T')[0];
-        return scheduleDate === date;
+        return schedule.date === date;
       })
       .map((schedule) => {
-        const scheduleDate = new Date(schedule.startTime);
-        const time = scheduleDate.toLocaleTimeString('ko-KR', {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false,
-        });
-
         return {
           id: schedule.id,
-          time,
+          time: schedule.time,
           title: schedule.title,
           location: schedule.location || '',
         };
@@ -205,11 +197,7 @@ export default function ScheduleScreen() {
             location: schedule.location || '',
             latitude: schedule.latitude ? parseFloat(schedule.latitude) : undefined,
             longitude: schedule.longitude ? parseFloat(schedule.longitude) : undefined,
-            time: new Date(schedule.startTime).toLocaleTimeString('ko-KR', {
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: false,
-            }),
+            time: schedule.time,
           }))}
           onSchedulePress={(scheduleId: string) => router.push(`/schedules/${scheduleId}`)}
         />

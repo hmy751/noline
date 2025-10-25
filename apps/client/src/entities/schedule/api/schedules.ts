@@ -1,18 +1,42 @@
-import fetcher from '@/shared/api/fetcher';
-import type { Schedule, CreateScheduleRequest } from '../model/types';
+import axios from '@/shared/api/fetcher';
+import { createScheduleRequestSchema, getAllSchedulesResponseSchema, createScheduleResponseSchema } from '@repo/schema';
+import type { GetAllSchedulesResponse, CreateScheduleRequest, CreateScheduleResponse } from '../model';
+
+// ========================================
+// Schedule API Functions
+// ========================================
 
 /**
- * 여행의 일정 목록 조회
+ * 여행의 일정 목록을 조회합니다.
+ * @param tripId - 여행 ID
+ * @returns 일정 목록
  */
-export const fetchSchedules = async (tripId: string): Promise<Schedule[]> => {
-  const response = await fetcher.get<{ success: boolean; data: Schedule[] }>(`/api/trips/${tripId}/schedules`);
-  return response.data as unknown as Schedule[];
+export const fetchSchedules = async (tripId: string): Promise<GetAllSchedulesResponse> => {
+  try {
+    const data = await axios.get(`/api/trips/${tripId}/schedules`);
+
+    const validated = getAllSchedulesResponseSchema.parse(data);
+    return validated;
+  } catch (error) {
+    console.error('❌ error', error);
+    throw error;
+  }
 };
 
 /**
- * 일정 생성
+ * 새로운 일정을 생성합니다.
+ * @param data - 일정 생성 요청 데이터
+ * @returns 생성된 일정 정보
  */
-export const fetchCreateSchedule = async (data: CreateScheduleRequest): Promise<Schedule> => {
-  const response = await fetcher.post<{ success: boolean; data: Schedule }>('/api/schedules', data);
-  return response.data as unknown as Schedule;
+export const fetchCreateSchedule = async (data: CreateScheduleRequest): Promise<CreateScheduleResponse> => {
+  try {
+    const validatedInput = createScheduleRequestSchema.parse(data);
+    const responseData = await axios.post('/api/schedules', validatedInput);
+
+    const validated = createScheduleResponseSchema.parse(responseData);
+    return validated;
+  } catch (error) {
+    console.error('❌ error', error);
+    throw error;
+  }
 };

@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchCreateSchedule } from '../api';
 import { scheduleQueryKeys } from './useGetSchedules';
-import type { CreateScheduleRequest } from '../model/types';
+import type { CreateScheduleRequest } from '../model';
 
 /**
  * 일정 생성

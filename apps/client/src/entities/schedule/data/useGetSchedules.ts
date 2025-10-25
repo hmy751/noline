@@ -4,6 +4,7 @@ import { fetchSchedules } from '../api';
 export const scheduleQueryKeys = {
   base: ['schedule'] as const,
   list: (tripId: string) => [...scheduleQueryKeys.base, 'list', tripId] as const,
+  detail: (id: string) => [...scheduleQueryKeys.base, 'detail', id] as const,
 };
 
 /**
@@ -12,7 +13,10 @@ export const scheduleQueryKeys = {
 export const useGetSchedules = (tripId: string) => {
   return useQuery({
     queryKey: scheduleQueryKeys.list(tripId),
-    queryFn: () => fetchSchedules(tripId),
+    queryFn: async () => {
+      const response = await fetchSchedules(tripId);
+      return response.data; // response.data만 반환
+    },
     enabled: !!tripId,
   });
 };

@@ -47,17 +47,23 @@ export const schedules = pgTable('schedules', {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => ulid()),
+  userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }), // nullable - 인증 추가 전까지 옵션
   tripId: text('trip_id')
     .notNull()
     .references(() => trips.id, { onDelete: 'cascade' }),
-  title: varchar('title', { length: 200 }).notNull(),
-  location: text('location'),
-  startTime: timestamp('start_time').notNull(),
-  endTime: timestamp('end_time'),
-  order: integer('order').notNull(),
-  memo: text('memo'),
+  title: text('title').notNull(),
+  location: text('location').notNull(),
+  address: text('address'),
+  date: text('date').notNull(),
+  time: text('time').notNull(),
+  latitude: decimal('latitude', { precision: 10, scale: 7 }),
+  longitude: decimal('longitude', { precision: 10, scale: 7 }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
+
+  // Phase 2: Local-First 필드
+  deletedAt: timestamp('deleted_at'),
+  version: integer('version').notNull().default(1),
 });
 
 // Expenses Table

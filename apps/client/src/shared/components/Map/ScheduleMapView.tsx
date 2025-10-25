@@ -36,7 +36,9 @@ export function ScheduleMapView({ schedules, onSchedulePress }: ScheduleMapViewP
   const mapRef = useRef<RNMapView>(null);
 
   // 좌표가 있는 일정만 필터링
-  const schedulesWithCoords = schedules.filter((s) => s.latitude && s.longitude);
+  const schedulesWithCoords = schedules.filter(
+    (s) => s.latitude && s.longitude && !isNaN(s.latitude) && !isNaN(s.longitude),
+  );
 
   // 지도 영역 자동 조정
   useEffect(() => {
