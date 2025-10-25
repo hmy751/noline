@@ -57,16 +57,16 @@ export const useCreateScheduleForm = ({ tripId, selectedLocation, onSuccess }: U
   };
 
   const onValid = (data: CreateScheduleFormData) => {
-    // 날짜와 시간을 ISO 8601 timestamp로 변환
-    const startTime = new Date(`${data.date}T${data.time}:00.000Z`).toISOString();
-
     createSchedule(
       {
         tripId,
         title: data.title,
         location: data.location,
-        startTime,
-        order: 0, // TODO: order 계산 로직 추가
+        address: selectedLocation?.address || null,
+        date: data.date,
+        time: data.time,
+        latitude: selectedLocation?.latitude || null,
+        longitude: selectedLocation?.longitude || null,
       },
       {
         onSuccess: () => {

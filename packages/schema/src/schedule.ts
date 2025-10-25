@@ -6,9 +6,9 @@ import { z } from 'zod';
 
 // Select Schema (DB에서 조회한 데이터)
 export const scheduleSchema = z.object({
-  id: z.string().uuid(),
-  userId: z.string().uuid(),
-  tripId: z.string().uuid(),
+  id: z.string(),
+  userId: z.string().ulid().nullable(), // 인증 추가 전까지 nullable
+  tripId: z.string(),
   title: z.string(),
   location: z.string(),
   address: z.string().nullable(),
@@ -16,41 +16,54 @@ export const scheduleSchema = z.object({
   time: z.string(),
   latitude: z.string().nullable(),
   longitude: z.string().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
 
-  // Phase 2: Local-First 필드 (선택적)
-  deletedAt: z.date().nullable().optional(),
+  // Phase 2: Local-First 필드
+  deletedAt: z.string().nullable().optional(),
   version: z.number().optional(),
 });
 
 // Insert Schema (일정 생성)
-export const insertScheduleSchema = z.object({
-  userId: z.string().uuid(),
-  tripId: z.string().uuid(),
+export const createScheduleRequestSchema = z.object({
+  userId: z.string().optional(), // 인증 추가 전까지 선택적
+  tripId: z.string(),
   title: z.string().min(1, 'Title is required'),
   location: z.string().min(1, 'Location is required'),
   address: z.string().nullable().optional(),
   date: z.string().min(1, 'Date is required'),
   time: z.string().min(1, 'Time is required'),
-  latitude: z.string().nullable().optional(),
-  longitude: z.string().nullable().optional(),
+  latitude: z.number().nullable().optional(),
+  longitude: z.number().nullable().optional(),
 });
 
-// Update Schema (일정 수정)
-export const updateScheduleSchema = z.object({
-  title: z.string().min(1).optional(),
-  location: z.string().min(1).optional(),
-  address: z.string().nullable().optional(),
-  date: z.string().min(1).optional(),
-  time: z.string().min(1).optional(),
-  latitude: z.string().nullable().optional(),
-  longitude: z.string().nullable().optional(),
+// ========================================
+// Response Schemas
+// ========================================
+
+// 일정 단일 응답
+export const scheduleResponseSchema = z.object({
+  success: z.boolean(),
+  data: scheduleSchema,
+});
+
+// 일정 목록 조회 응답
+export const getAllSchedulesResponseSchema = z.object({
+  success: z.boolean(),
+  data: z.array(scheduleSchema),
+});
+
+// 일정 생성 응답
+export const createScheduleResponseSchema = z.object({
+  success: z.boolean(),
+  data: scheduleSchema,
 });
 
 // ========================================
 // Types
 // ========================================
 export type Schedule = z.infer<typeof scheduleSchema>;
-export type InsertSchedule = z.infer<typeof insertScheduleSchema>;
-export type UpdateSchedule = z.infer<typeof updateScheduleSchema>;
+export type CreateScheduleRequest = z.infer<typeof createScheduleRequestSchema>;
+export type ScheduleResponse = z.infer<typeof scheduleResponseSchema>;
+export type GetAllSchedulesResponse = z.infer<typeof getAllSchedulesResponseSchema>;
+export type CreateScheduleResponse = z.infer<typeof createScheduleResponseSchema>;

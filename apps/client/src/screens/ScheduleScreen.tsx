@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react';
-import { View, Text, ScrollView } from 'react-native';
-import { router } from 'expo-router';
-import { Container, Stack, ScheduleCard, MobileHeader, ScheduleMapView } from '@/shared/components';
+import { useState, useEffect, useMemo } from 'react';
+import { View } from 'react-native';
+import { MobileHeader } from '@/shared/components';
 import { TripSelector } from '@/entities/trip';
 import { useGetSchedules } from '@/entities/schedule';
 import { useGetTrips, selectMainTrip } from '@/entities/trip';
 import { Pressable } from '@repo/ui';
 import { Menu, Map, List } from 'lucide-react-native';
+import { ScheduleListView } from '@/features/schedule/schedule-list-view';
+import { ScheduleMapViewContainer } from '@/features/schedule/schedule-map-view';
 
 type ViewMode = 'list' | 'map';
 
@@ -20,6 +21,8 @@ interface ScheduleByDate {
     location: string;
     expense?: string;
     expenseCount?: number;
+    latitude?: number;
+    longitude?: number;
   }>;
 }
 
@@ -63,34 +66,30 @@ export default function ScheduleScreen() {
   const dateRange = generateDateRange();
 
   // 날짜별로 일정 그룹화
-  const schedulesByDate: ScheduleByDate[] = dateRange.map((date) => {
-    const daySchedules = schedules
-      .filter((schedule) => {
-        const scheduleDate = new Date(schedule.startTime).toISOString().split('T')[0];
-        return scheduleDate === date;
-      })
-      .map((schedule) => {
-        const scheduleDate = new Date(schedule.startTime);
-        const time = scheduleDate.toLocaleTimeString('ko-KR', {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false,
+  const schedulesByDate: ScheduleByDate[] = useMemo(() => {
+    return dateRange.map((date) => {
+      const daySchedules = schedules
+        .filter((schedule) => {
+          return schedule.date === date;
+        })
+        .map((schedule) => {
+          return {
+            id: schedule.id,
+            time: schedule.time,
+            title: schedule.title,
+            location: schedule.location || '',
+            latitude: schedule.latitude ? parseFloat(schedule.latitude) : undefined,
+            longitude: schedule.longitude ? parseFloat(schedule.longitude) : undefined,
+          };
         });
 
-        return {
-          id: schedule.id,
-          time,
-          title: schedule.title,
-          location: schedule.location || '',
-        };
-      });
-
-    return {
-      date,
-      dateLabel: date,
-      schedules: daySchedules,
-    };
-  });
+      return {
+        date,
+        dateLabel: date,
+        schedules: daySchedules,
+      };
+    });
+  }, [dateRange, schedules]);
 
   return (
     <View className='flex-1 bg-background'>
@@ -136,88 +135,18 @@ export default function ScheduleScreen() {
 
       {/* Content */}
       {viewMode === 'list' ? (
-        <ScrollView className='flex-1'>
-          <Container>
-            {!selectedTrip ? (
-              <View className='flex-1 items-center justify-center py-xl'>
-                <Text className='text-body text-muted-foreground'>여행을 선택해주세요</Text>
-              </View>
-            ) : !selectedTrip.startDate || !selectedTrip.endDate ? (
-              <View className='flex-1 items-center justify-center py-xl'>
-                <Text className='text-body text-muted-foreground'>여행 날짜를 설정해주세요</Text>
-              </View>
-            ) : isLoading ? (
-              <View className='flex-1 items-center justify-center py-xl'>
-                <Text className='text-body text-muted-foreground'>일정을 불러오는 중...</Text>
-              </View>
-            ) : (
-              <Stack direction='vertical' gap='md' className='py-sm'>
-                {/* Schedule Groups by Date */}
-                {schedulesByDate.map((group) => (
-                  <View key={group.date} className='flex-col gap-sm'>
-                    {/* Date Header with Count */}
-                    <View className='flex-row items-center justify-between'>
-                      <View className='flex-row items-center gap-2xs'>
-                        <Text className='text-title-large text-foreground'>{group.dateLabel}</Text>
-                        <View className='rounded-full bg-muted px-xs py-3xs'>
-                          <Text className='text-label text-foreground'>{group.schedules.length}개</Text>
-                        </View>
-                      </View>
-                      <Pressable
-                        variant='outline'
-                        className='flex-row items-center gap-3xs rounded-md border border-card-border bg-card px-xs py-3xs active:bg-muted'
-                        onPress={() => {
-                          if (selectedTripId) {
-                            router.push(`/create-schedule?tripId=${selectedTripId}&date=${group.date}`);
-                          }
-                        }}
-                      >
-                        <Text className='text-label text-foreground'>추가</Text>
-                      </Pressable>
-                    </View>
-
-                    {/* Schedules for this date */}
-                    {group.schedules.length > 0 ? (
-                      group.schedules.map((schedule) => (
-                        <ScheduleCard
-                          key={schedule.id}
-                          date={group.dateLabel}
-                          {...schedule}
-                          onPress={() => {
-                            // TODO: Navigate to schedule detail
-                            console.log('Navigate to schedule detail:', schedule.id);
-                          }}
-                        />
-                      ))
-                    ) : (
-                      <View className='rounded-lg border border-dashed border-card-border bg-muted/30 px-md py-lg'>
-                        <Text className='text-body text-center text-muted-foreground'>이 날의 일정을 추가해보세요</Text>
-                      </View>
-                    )}
-                  </View>
-                ))}
-              </Stack>
-            )}
-          </Container>
-        </ScrollView>
+        <ScheduleListView
+          schedulesByDate={schedulesByDate}
+          selectedTripId={selectedTripId}
+          isLoading={isLoading}
+          hasTrip={!!selectedTrip}
+          hasDates={!!(selectedTrip?.startDate && selectedTrip?.endDate)}
+        />
       ) : (
-        <ScheduleMapView
-          schedules={schedules.map((schedule) => ({
-            id: schedule.id,
-            title: schedule.title,
-            location: schedule.location || '',
-            latitude: schedule.latitude ? parseFloat(schedule.latitude) : undefined,
-            longitude: schedule.longitude ? parseFloat(schedule.longitude) : undefined,
-            time: new Date(schedule.startTime).toLocaleTimeString('ko-KR', {
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: false,
-            }),
-          }))}
-          onSchedulePress={(scheduleId: string) => {
-            console.log('Navigate to schedule detail:', scheduleId);
-            // TODO: Navigate to schedule detail
-          }}
+        <ScheduleMapViewContainer
+          dateRange={dateRange}
+          schedulesByDate={schedulesByDate}
+          initialDate={dateRange[0] || null}
         />
       )}
     </View>

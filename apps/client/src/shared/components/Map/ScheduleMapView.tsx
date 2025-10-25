@@ -1,6 +1,6 @@
 import { StyleSheet, View, Text } from 'react-native';
 import { useRef, useEffect } from 'react';
-import RNMapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import RNMapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 
 interface Schedule {
   id: string;
@@ -14,6 +14,8 @@ interface Schedule {
 interface ScheduleMapViewProps {
   schedules: Schedule[];
   onSchedulePress?: (scheduleId: string) => void;
+  selectedScheduleId?: string | null;
+  onMarkerPress?: (scheduleId: string) => void;
 }
 
 const styles = StyleSheet.create({
@@ -32,27 +34,52 @@ const styles = StyleSheet.create({
 /**
  * 일정 목록을 지도에 표시하는 컴포넌트
  */
-export function ScheduleMapView({ schedules, onSchedulePress }: ScheduleMapViewProps) {
+export function ScheduleMapView({
+  schedules,
+  onSchedulePress: _onSchedulePress,
+  selectedScheduleId,
+  onMarkerPress,
+}: ScheduleMapViewProps) {
   const mapRef = useRef<RNMapView>(null);
 
   // 좌표가 있는 일정만 필터링
-  const schedulesWithCoords = schedules.filter((s) => s.latitude && s.longitude);
+  const schedulesWithCoords = schedules.filter(
+    (s) => s.latitude && s.longitude && !isNaN(s.latitude) && !isNaN(s.longitude),
+  );
 
-  // 지도 영역 자동 조정
+  // 지도 영역 자동 조정 (초기 로드 시에만)
   useEffect(() => {
-    if (mapRef.current && schedulesWithCoords.length > 0) {
+    if (mapRef.current && schedulesWithCoords.length > 0 && !selectedScheduleId) {
       mapRef.current.fitToCoordinates(
         schedulesWithCoords.map((s) => ({
           latitude: s.latitude!,
           longitude: s.longitude!,
         })),
         {
-          edgePadding: { top: 100, right: 50, bottom: 100, left: 50 },
+          edgePadding: { top: 100, right: 50, bottom: 300, left: 50 },
           animated: true,
         },
       );
     }
-  }, [schedulesWithCoords]);
+  }, [schedulesWithCoords, selectedScheduleId]);
+
+  // 선택된 일정의 마커로 지도 중앙 이동
+  useEffect(() => {
+    if (mapRef.current && selectedScheduleId) {
+      const selectedSchedule = schedulesWithCoords.find((s) => s.id === selectedScheduleId);
+      if (selectedSchedule?.latitude && selectedSchedule?.longitude) {
+        mapRef.current.animateToRegion(
+          {
+            latitude: selectedSchedule.latitude,
+            longitude: selectedSchedule.longitude,
+            latitudeDelta: 0.05,
+            longitudeDelta: 0.05,
+          },
+          500,
+        );
+      }
+    }
+  }, [selectedScheduleId, schedulesWithCoords]);
 
   // 좌표가 있는 일정이 없는 경우
   if (schedulesWithCoords.length === 0) {
@@ -83,26 +110,60 @@ export function ScheduleMapView({ schedules, onSchedulePress }: ScheduleMapViewP
       showsUserLocation
       showsMyLocationButton
     >
-      {schedulesWithCoords.map((schedule, index) => (
-        <Marker
-          key={schedule.id}
-          coordinate={{
-            latitude: schedule.latitude!,
-            longitude: schedule.longitude!,
-          }}
-          title={schedule.title}
-          description={`${schedule.time} • ${schedule.location}`}
-          pinColor='#228B22'
-          onPress={() => onSchedulePress?.(schedule.id)}
-        >
-          {/* 커스텀 마커 (순서 번호 표시) */}
-          <View className='items-center'>
-            <View className='bg-primary rounded-full w-8 h-8 items-center justify-center border-2 border-white shadow-md'>
-              <Text className='text-label text-primary-foreground font-semibold'>{index + 1}</Text>
+      {/* 경로 선 (점선) */}
+      {schedulesWithCoords.length > 1 && (
+        <Polyline
+          coordinates={schedulesWithCoords.map((s) => ({
+            latitude: s.latitude!,
+            longitude: s.longitude!,
+          }))}
+          strokeColor='#228B22'
+          strokeWidth={3}
+          lineDashPattern={[10, 10]}
+        />
+      )}
+
+      {/* 마커들 */}
+      {schedulesWithCoords.map((schedule, index) => {
+        const isSelected = schedule.id === selectedScheduleId;
+        return (
+          <Marker
+            key={schedule.id}
+            coordinate={{
+              latitude: schedule.latitude!,
+              longitude: schedule.longitude!,
+            }}
+            title={schedule.title}
+            description={`${schedule.time} • ${schedule.location}`}
+            onPress={() => onMarkerPress?.(schedule.id)}
+            zIndex={isSelected ? 10 : 1}
+          >
+            {/* 커스텀 마커 (순서 번호 표시) */}
+            <View className='items-center'>
+              <View
+                className={`rounded-full border-2 border-white shadow-md ${
+                  isSelected ? 'h-10 w-10 bg-primary' : 'h-8 w-8 bg-primary/70'
+                }`}
+                style={{ justifyContent: 'center', alignItems: 'center' }}
+              >
+                <Text
+                  className={`font-semibold ${
+                    isSelected ? 'text-body text-primary-foreground' : 'text-label text-primary-foreground/80'
+                  }`}
+                >
+                  {index + 1}
+                </Text>
+              </View>
+              {isSelected && (
+                <View
+                  className='mt-1 h-2 w-2 rounded-full bg-primary'
+                  style={{ shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 2 }}
+                />
+              )}
             </View>
-          </View>
-        </Marker>
-      ))}
+          </Marker>
+        );
+      })}
     </RNMapView>
   );
 }

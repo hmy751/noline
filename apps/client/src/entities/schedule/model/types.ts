@@ -1,30 +1,34 @@
-/**
- * Schedule Entity Types
- */
+// ========================================
+// Schedule Types - Client-side types inferred from @repo/schema
+// ========================================
 
-export type Schedule = {
-  id: string;
-  tripId: string;
-  title: string;
-  location: string | null;
-  latitude: string | null;
-  longitude: string | null;
-  startTime: string; // ISO 8601 timestamp
-  endTime: string | null; // ISO 8601 timestamp
-  order: number;
-  memo: string | null;
-  createdAt: string;
-  updatedAt: string;
-};
+import { z } from 'zod';
+import {
+  scheduleSchema,
+  scheduleResponseSchema,
+  createScheduleRequestSchema,
+  getAllSchedulesResponseSchema,
+  createScheduleResponseSchema,
+} from '@repo/schema';
 
-export type CreateScheduleRequest = {
-  tripId: string;
-  title: string;
-  location?: string;
-  latitude?: number;
-  longitude?: number;
-  startTime: string; // ISO 8601 timestamp
-  endTime?: string; // ISO 8601 timestamp
-  order: number;
-  memo?: string;
-};
+// ========================================
+// Entity Type (DB)
+// ========================================
+export type Schedule = z.infer<typeof scheduleSchema>;
+
+// ========================================
+// Request Types (클라이언트 → 서버)
+// ========================================
+export type CreateScheduleRequest = z.infer<typeof createScheduleRequestSchema>;
+
+// ========================================
+// Response Types (서버 → 클라이언트)
+// ========================================
+export type ScheduleResponse = z.infer<typeof scheduleResponseSchema>;
+export type GetAllSchedulesResponse = z.infer<typeof getAllSchedulesResponseSchema>;
+export type CreateScheduleResponse = z.infer<typeof createScheduleResponseSchema>;
+
+// ========================================
+// Alias (backward compatibility)
+// ========================================
+export type ScheduleData = ScheduleResponse;

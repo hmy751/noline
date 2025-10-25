@@ -351,12 +351,12 @@ router.get('/:tripId/schedules', async (req: Request, res: Response) => {
   try {
     const { tripId } = req.params;
 
-    // 여행에 속한 모든 일정 조회 (order 순으로 정렬)
+    // 여행에 속한 모든 일정 조회 (날짜, 시간 순으로 정렬)
     const allSchedules = await db
       .select()
       .from(schedules)
       .where(eq(schedules.tripId, tripId))
-      .orderBy(schedules.startTime, schedules.order);
+      .orderBy(schedules.date, schedules.time);
 
     res.status(200).json({
       success: true,
