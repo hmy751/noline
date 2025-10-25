@@ -25,10 +25,13 @@ export const users = pgTable('users', {
 });
 
 // Trips Table
+// ✨ Echo 아키텍처: 혼합 모드 (ULID Hybrid Mode)
+// - 클라이언트가 ID 제공 시 → 그대로 사용 (Local-First)
+// - ID 없이 요청 시 → 서버에서 생성 (하위 호환성)
 export const trips = pgTable('trips', {
   id: text('id')
     .primaryKey()
-    .$defaultFn(() => ulid()),
+    .$defaultFn(() => ulid()), // ⬅️ Fallback: 클라이언트 ID 없을 때만 생성
   userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }), // nullable - 인증 추가 전까지 옵션
   name: varchar('name', { length: 200 }).notNull(),
   destination: varchar('destination', { length: 200 }).notNull(),
