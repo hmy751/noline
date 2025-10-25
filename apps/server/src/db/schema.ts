@@ -20,8 +20,9 @@ export const users = pgTable('users', {
   password: text('password').notNull(),
   name: varchar('name', { length: 100 }).notNull(),
   profileImageUrl: text('profile_image_url'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  // ✅ TIMESTAMPTZ: ISO 8601 with timezone 지원
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
 // Trips Table
@@ -39,10 +40,11 @@ export const trips = pgTable('trips', {
   latitude: decimal('latitude', { precision: 10, scale: 7 }),
   longitude: decimal('longitude', { precision: 10, scale: 7 }),
   cityId: integer('city_id'),
-  startDate: timestamp('start_date'),
-  endDate: timestamp('end_date'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  // ✅ TIMESTAMPTZ: ISO 8601 with timezone 지원
+  startDate: timestamp('start_date', { withTimezone: true }),
+  endDate: timestamp('end_date', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
 // Schedules Table
@@ -57,15 +59,17 @@ export const schedules = pgTable('schedules', {
   title: text('title').notNull(),
   location: text('location').notNull(),
   address: text('address'),
-  date: text('date').notNull(),
-  time: text('time').notNull(),
+
+  // ✅ date + time → scheduledAt (TIMESTAMPTZ)
+  scheduledAt: timestamp('scheduled_at', { withTimezone: true }).notNull(),
+
   latitude: decimal('latitude', { precision: 10, scale: 7 }),
   longitude: decimal('longitude', { precision: 10, scale: 7 }),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 
   // Phase 2: Local-First 필드
-  deletedAt: timestamp('deleted_at'),
+  deletedAt: timestamp('deleted_at', { withTimezone: true }),
   version: integer('version').notNull().default(1),
 });
 
@@ -82,11 +86,12 @@ export const expenses = pgTable('expenses', {
   amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
   currency: varchar('currency', { length: 3 }).notNull().default('EUR'),
   category: expenseCategoryEnum('category').notNull(),
-  date: timestamp('date').notNull(),
+  // ✅ TIMESTAMPTZ: ISO 8601 with timezone 지원
+  date: timestamp('date', { withTimezone: true }).notNull(),
   memo: text('memo'),
   isSynced: integer('is_synced').notNull().default(0), // 0: not synced, 1: synced
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
 // Types

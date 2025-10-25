@@ -20,7 +20,7 @@ router.post('/', async (req: Request, res: Response) => {
       });
     }
 
-    const { userId, tripId, title, location, address, date, time, latitude, longitude } = validationResult.data;
+    const { userId, tripId, title, location, address, scheduledAt, latitude, longitude } = validationResult.data;
 
     // 일정 생성
     const [newSchedule] = await db
@@ -31,8 +31,7 @@ router.post('/', async (req: Request, res: Response) => {
         title,
         location,
         address: address || null,
-        date,
-        time,
+        scheduledAt: new Date(scheduledAt), // ISO string → Date 객체
         latitude: latitude ? String(latitude) : null,
         longitude: longitude ? String(longitude) : null,
       })
@@ -41,8 +40,10 @@ router.post('/', async (req: Request, res: Response) => {
     // Zod로 응답 데이터 검증
     const validated = scheduleSchema.safeParse({
       ...newSchedule,
+      scheduledAt: newSchedule.scheduledAt.toISOString(),
       createdAt: newSchedule.createdAt.toISOString(),
       updatedAt: newSchedule.updatedAt.toISOString(),
+      deletedAt: newSchedule.deletedAt?.toISOString() || null,
     });
 
     if (!validated.success) {

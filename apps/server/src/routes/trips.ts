@@ -43,8 +43,10 @@ router.get('/', async (req: Request, res: Response) => {
     const validatedTrips = allTrips.map((trip) => {
       const validated = tripSchema.safeParse({
         ...trip,
-        createdAt: trip.createdAt,
-        updatedAt: trip.updatedAt,
+        startDate: trip.startDate?.toISOString() || null,
+        endDate: trip.endDate?.toISOString() || null,
+        createdAt: trip.createdAt.toISOString(),
+        updatedAt: trip.updatedAt.toISOString(),
       });
 
       if (!validated.success) {
@@ -136,8 +138,10 @@ router.post('/', async (req: Request, res: Response) => {
     // Zod로 응답 데이터 검증
     const validatedTrip = tripSchema.safeParse({
       ...newTrip,
-      createdAt: newTrip.createdAt,
-      updatedAt: newTrip.updatedAt,
+      startDate: newTrip.startDate?.toISOString() || null,
+      endDate: newTrip.endDate?.toISOString() || null,
+      createdAt: newTrip.createdAt.toISOString(),
+      updatedAt: newTrip.updatedAt.toISOString(),
     });
 
     if (!validatedTrip.success) {
@@ -271,8 +275,10 @@ router.patch('/:id', async (req: Request, res: Response) => {
     // Zod로 응답 데이터 검증
     const validatedTrip = tripSchema.safeParse({
       ...updatedTrip,
-      createdAt: updatedTrip.createdAt,
-      updatedAt: updatedTrip.updatedAt,
+      startDate: updatedTrip.startDate?.toISOString() || null,
+      endDate: updatedTrip.endDate?.toISOString() || null,
+      createdAt: updatedTrip.createdAt.toISOString(),
+      updatedAt: updatedTrip.updatedAt.toISOString(),
     });
 
     if (!validatedTrip.success) {
@@ -353,16 +359,25 @@ router.get('/:tripId/schedules', async (req: Request, res: Response) => {
   try {
     const { tripId } = req.params;
 
-    // 여행에 속한 모든 일정 조회 (날짜, 시간 순으로 정렬)
+    // 여행에 속한 모든 일정 조회 (scheduledAt 순으로 정렬)
     const allSchedules = await db
       .select()
       .from(schedules)
       .where(eq(schedules.tripId, tripId))
-      .orderBy(schedules.date, schedules.time);
+      .orderBy(schedules.scheduledAt);
+
+    // ISO string으로 변환
+    const validatedSchedules = allSchedules.map((schedule) => ({
+      ...schedule,
+      scheduledAt: schedule.scheduledAt.toISOString(),
+      createdAt: schedule.createdAt.toISOString(),
+      updatedAt: schedule.updatedAt.toISOString(),
+      deletedAt: schedule.deletedAt?.toISOString() || null,
+    }));
 
     res.status(200).json({
       success: true,
-      data: allSchedules,
+      data: validatedSchedules,
     });
   } catch (error) {
     console.error('Error fetching schedules:', error);
