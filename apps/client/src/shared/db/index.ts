@@ -81,6 +81,15 @@ export async function initializeDatabase() {
       );
     `);
 
+    // Sync Metadata 테이블 생성
+    expoDb.execSync(`
+      CREATE TABLE IF NOT EXISTS sync_metadata (
+        key TEXT PRIMARY KEY NOT NULL,
+        value TEXT NOT NULL,
+        updated_at INTEGER NOT NULL
+      );
+    `);
+
     // 인덱스 생성 (성능 최적화)
     expoDb.execSync(`
       CREATE INDEX IF NOT EXISTS idx_trips_user_id ON trips(user_id);
@@ -106,6 +115,7 @@ export async function initializeDatabase() {
 export async function resetDatabase() {
   console.log('🔄 Resetting database...');
 
+  expoDb.execSync(`DROP TABLE IF EXISTS sync_metadata;`);
   expoDb.execSync(`DROP TABLE IF EXISTS sync_queue;`);
   expoDb.execSync(`DROP TABLE IF EXISTS schedules;`);
   expoDb.execSync(`DROP TABLE IF EXISTS trips;`);

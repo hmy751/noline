@@ -80,6 +80,21 @@ export const syncQueue = sqliteTable('sync_queue', {
 });
 
 // ========================================
+// Sync Metadata Table (동기화 메타데이터)
+// ========================================
+
+/**
+ * 동기화 관련 메타데이터 저장
+ * - lastSyncedAt: 마지막 Pull 동기화 시간
+ * - 향후 다른 메타데이터 추가 가능
+ */
+export const syncMetadata = sqliteTable('sync_metadata', {
+  key: text('key').primaryKey(), // 'lastSyncedAt'
+  value: text('value').notNull(), // ISO string
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+});
+
+// ========================================
 // TypeScript Types
 // ========================================
 
@@ -91,3 +106,6 @@ export type NewSchedule = typeof schedules.$inferInsert;
 
 export type SyncQueueItem = typeof syncQueue.$inferSelect;
 export type NewSyncQueueItem = typeof syncQueue.$inferInsert;
+
+export type SyncMetadata = typeof syncMetadata.$inferSelect;
+export type NewSyncMetadata = typeof syncMetadata.$inferInsert;
