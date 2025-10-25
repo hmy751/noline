@@ -10,6 +10,7 @@ import { type City } from './geonames.api';
 import { tripDateFormSchema, type TripDateFormData } from './schema';
 import { useCreateTrip } from '@/entities/trip';
 import { useRouter } from 'expo-router';
+import { generateId } from '@/shared/services/id/ulid';
 
 type TripDateFormProps = {
   city: City;
@@ -50,6 +51,7 @@ export default function TripDateForm({ city }: TripDateFormProps) {
   const onValid = (data: TripDateFormData) => {
     createTrip(
       {
+        id: generateId(), // ✅ 외부에서 ID 생성
         // userId는 인증 추가 시 설정 예정
         name: `${city.name} 여행`,
         destination: city.name,
