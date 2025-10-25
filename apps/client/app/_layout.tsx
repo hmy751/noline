@@ -3,17 +3,16 @@ import { Stack } from 'expo-router';
 import { useColorScheme } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { PortalHost } from '@rn-primitives/portal';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { initializeDatabase } from '@/shared/db';
 import { SyncProvider } from '@/shared/services/sync/provider';
 import { NetworkOverrideProvider } from '@/features/debug';
+import { queryClient } from '@/shared/lib/queryClient';
 
 // Splash 화면을 수동으로 제어하기 위해 자동 숨김 방지
 SplashScreen.preventAutoHideAsync();
-
-const queryClient = new QueryClient();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
