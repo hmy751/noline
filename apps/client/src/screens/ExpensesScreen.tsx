@@ -1,79 +1,63 @@
 import { View, Text, ScrollView } from 'react-native';
 import { Container, Stack, ExpenseCard, MobileHeader } from '@/shared/components';
 import { TripSelector } from '@/entities/trip';
+import { useGetExpenses } from '@/entities/expense';
+import { useGetTrips } from '@/entities/trip';
 import { Pressable } from '@repo/ui';
 import { Camera } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useTripStore } from '@/shared/store';
+import { useMemo } from 'react';
 
 export default function ExpensesScreen() {
   const router = useRouter();
   const { selectedTripId } = useTripStore();
-  // TODO: Replace with real data
-  const expensesByDate = [
-    {
-      date: '2025-03-18',
-      dateLabel: '2025-03-18',
-      items: [
-        {
-          title: '공항 택시',
-          amount: '55.00',
-          currency: 'EUR',
-          category: '교통',
-          date: '2025-03-18',
-          hasReceipt: true,
-          isPending: false,
-        },
-        {
-          title: '베르사유 입장권',
-          amount: '20.00',
-          currency: 'EUR',
-          category: '관광',
-          date: '2025-03-18',
-          hasReceipt: true,
-          isPending: false,
-        },
-        {
-          title: '왕복 기차표',
-          amount: '14.00',
-          currency: 'EUR',
-          category: '교통',
-          date: '2025-03-18',
-          hasReceipt: true,
-          isPending: false,
-        },
-      ],
-    },
-    {
-      date: '2025-03-17',
-      dateLabel: '2025-03-17',
-      items: [
-        {
-          title: '초상화 그리기',
-          amount: '25.00',
-          currency: 'EUR',
-          category: '체험',
-          date: '2025-03-17',
-          hasReceipt: false,
-          isPending: false,
-        },
-        {
-          title: '돔 입장료',
-          amount: '8.00',
-          currency: 'EUR',
-          category: '관광',
-          date: '2025-03-17',
-          hasReceipt: true,
-          isPending: false,
-        },
-      ],
-    },
-  ];
 
-  const totalExpense = expensesByDate.reduce(
-    (acc, group) => acc + group.items.reduce((sum, item) => sum + parseFloat(item.amount), 0),
-    0,
-  );
+  // 여행 데이터 조회
+  const { data: trips = [] } = useGetTrips();
+  const selectedTrip = trips.find((trip) => trip.id === selectedTripId);
+
+  // 실제 경비 데이터 조회
+  const { data: expenses = [], isLoading } = useGetExpenses(selectedTripId ? { tripId: selectedTripId } : undefined);
+
+  // 여행 날짜 범위에서 모든 날짜 생성
+  const generateDateRange = (): string[] => {
+    if (!selectedTrip?.startDate || !selectedTrip?.endDate) return [];
+
+    const dates: string[] = [];
+    const start = new Date(selectedTrip.startDate);
+    const end = new Date(selectedTrip.endDate);
+
+    const current = new Date(start);
+    while (current <= end) {
+      dates.push(current.toISOString().split('T')[0]);
+      current.setDate(current.getDate() + 1);
+    }
+
+    return dates;
+  };
+
+  const dateRange = generateDateRange();
+
+  // 날짜별로 경비 매칭
+  const expensesByDate = useMemo(() => {
+    return dateRange
+      .map((date) => {
+        const dayExpenses = expenses.filter((expense) => expense.date === date);
+
+        return {
+          date,
+          dateLabel: date,
+          items: dayExpenses,
+        };
+      })
+      .reverse(); // 최신 날짜가 위로 오도록 역순
+  }, [dateRange, expenses]);
+
+  // 총 경비 계산
+  const totalExpense = useMemo(() => {
+    return expenses.reduce((sum, expense) => sum + parseFloat(expense.amount), 0);
+  }, [expenses]);
 
   return (
     <View className='flex-1 bg-background'>
@@ -105,48 +89,84 @@ export default function ExpensesScreen() {
             {/* Total Expense Card */}
             <View className='flex-col gap-3xs'>
               <Text className='text-label text-muted-foreground'>총 경비</Text>
-              <Text className='text-display-large text-primary'>EUR {totalExpense.toFixed(2)}</Text>
+              <Text className='text-display-large text-primary'>
+                {expenses.length > 0 ? `${expenses[0].currency} ${totalExpense.toFixed(2)}` : 'EUR 0.00'}
+              </Text>
             </View>
 
-            {/* Expense List by Date */}
-            {expensesByDate.map((group) => (
-              <View key={group.date} className='flex-col gap-sm'>
-                {/* Date Header */}
-                <View className='flex-row items-center justify-between'>
-                  <View className='flex-row items-center gap-2xs'>
-                    <Text className='text-title-large text-foreground'>{group.dateLabel}</Text>
-                    <View className='rounded-full bg-muted px-xs py-3xs'>
-                      <Text className='text-label text-foreground'>{group.items.length}개</Text>
-                    </View>
-                  </View>
-                  <Pressable
-                    variant='outline'
-                    className='flex-row items-center gap-3xs rounded-md border border-card-border bg-card px-xs py-3xs active:bg-muted'
-                    onPress={() => {
-                      if (selectedTripId) {
-                        router.push(`/create-expense?tripId=${selectedTripId}`);
-                      } else {
-                        console.log('여행을 먼저 선택해주세요');
-                      }
-                    }}
-                  >
-                    <Text className='text-label text-foreground'>추가</Text>
-                  </Pressable>
-                </View>
-
-                {/* Expense Cards */}
-                {group.items.map((expense, index) => (
-                  <ExpenseCard
-                    key={`${group.date}-${index}`}
-                    {...expense}
-                    onPress={() => {
-                      // TODO: Navigate to expense detail
-                      console.log('Navigate to expense detail');
-                    }}
-                  />
-                ))}
+            {/* Loading State */}
+            {isLoading && (
+              <View className='flex-1 items-center justify-center py-xl'>
+                <Text className='text-body text-muted-foreground'>경비를 불러오는 중...</Text>
               </View>
-            ))}
+            )}
+
+            {/* Empty State - 여행이 없거나 날짜가 없을 때 */}
+            {!isLoading && !selectedTrip && (
+              <View className='flex-1 items-center justify-center py-xl'>
+                <Text className='text-body text-muted-foreground'>여행을 선택해주세요</Text>
+              </View>
+            )}
+
+            {!isLoading && selectedTrip && dateRange.length === 0 && (
+              <View className='flex-1 items-center justify-center py-xl'>
+                <Text className='text-body text-muted-foreground'>여행 날짜를 설정해주세요</Text>
+              </View>
+            )}
+
+            {/* Expense List by Date - 날짜 범위가 있으면 항상 표시 */}
+            {!isLoading &&
+              dateRange.length > 0 &&
+              expensesByDate.map((group) => (
+                <View key={group.date} className='flex-col gap-sm'>
+                  {/* Date Header */}
+                  <View className='flex-row items-center justify-between'>
+                    <View className='flex-row items-center gap-2xs'>
+                      <Text className='text-title-large text-foreground'>{group.dateLabel}</Text>
+                      <View className='rounded-full bg-muted px-xs py-3xs'>
+                        <Text className='text-label text-foreground'>{group.items.length}개</Text>
+                      </View>
+                    </View>
+                    <Pressable
+                      variant='outline'
+                      className='flex-row items-center gap-3xs rounded-md border border-card-border bg-card px-xs py-3xs active:bg-muted'
+                      onPress={() => {
+                        if (selectedTripId) {
+                          router.push(`/create-expense?tripId=${selectedTripId}`);
+                        } else {
+                          console.log('여행을 먼저 선택해주세요');
+                        }
+                      }}
+                    >
+                      <Text className='text-label text-foreground'>추가</Text>
+                    </Pressable>
+                  </View>
+
+                  {/* Expense Cards or Empty State */}
+                  {group.items.length > 0 ? (
+                    group.items.map((expense) => (
+                      <ExpenseCard
+                        key={expense.id}
+                        title={expense.title}
+                        amount={expense.amount}
+                        currency={expense.currency}
+                        category={expense.category}
+                        date={expense.date}
+                        hasReceipt={expense.hasReceipt}
+                        isPending={false}
+                        onPress={() => {
+                          // TODO: Navigate to expense detail
+                          console.log('Navigate to expense detail:', expense.id);
+                        }}
+                      />
+                    ))
+                  ) : (
+                    <View className='rounded-lg border border-dashed border-card-border bg-muted/30 px-md py-lg'>
+                      <Text className='text-body text-center text-muted-foreground'>이 날의 경비를 추가해보세요</Text>
+                    </View>
+                  )}
+                </View>
+              ))}
           </Stack>
         </Container>
       </ScrollView>
