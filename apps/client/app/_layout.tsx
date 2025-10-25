@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { initializeDatabase } from '@/shared/db';
 import { SyncProvider } from '@/shared/services/sync/provider';
-import { NetworkOverrideProvider } from '@/shared/services/sync/NetworkOverrideContext';
+import { NetworkOverrideProvider } from '@/features/debug';
 
 // Splash 화면을 수동으로 제어하기 위해 자동 숨김 방지
 SplashScreen.preventAutoHideAsync();

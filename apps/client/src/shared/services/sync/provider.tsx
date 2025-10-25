@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useNetworkStatus } from '@/shared/hooks/useNetworkStatus';
-import { useNetworkOverride } from './NetworkOverrideContext';
+import { useNetworkOverride } from '@/features/debug';
 import { pushChanges } from './engine';
 
 /**
