@@ -1,7 +1,7 @@
 import syncApiClient from './api';
 import { getPendingTasks, deleteTask, updateTaskStatus } from './queue';
 import { getLastSyncedAt, setLastSyncedAt } from './storage';
-import { upsertTrips, upsertSchedules } from '@/shared/db/utils';
+import { upsertTrips, upsertSchedules, upsertExpenses } from '@/shared/db/utils';
 import { queryClient } from '@/shared/lib/queryClient';
 
 /**
@@ -41,6 +41,8 @@ export async function pushChanges(): Promise<void> {
           endpoint = '/api/trips';
         } else if (task.tableName === 'schedules') {
           endpoint = '/api/schedules';
+        } else if (task.tableName === 'expenses') {
+          endpoint = '/api/expenses';
         } else {
           throw new Error(`Unknown table: ${task.tableName}`);
         }
@@ -99,36 +101,47 @@ export async function pullChanges(): Promise<void> {
       },
     });
 
-    const { trips, schedules, serverTime } = response.data;
+    const { trips, schedules, expenses, serverTime } = response.data;
 
     console.log('📥 [Sync] Received from server:', {
       trips: trips?.length || 0,
       schedules: schedules?.length || 0,
+      expenses: expenses?.length || 0,
       serverTime,
     });
 
     // 3. 로컬 DB에 Upsert (ISO string 그대로 저장)
     if (trips && trips.length > 0) {
-      const normalizedTrips = trips.map((trip: any) => ({
+      const normalizedTrips = (trips as Array<Record<string, unknown>>).map((trip) => ({
         ...trip,
         // ✅ ISO string 그대로 저장 (TEXT 컬럼)
         version: trip.version ?? 1,
       }));
-      await upsertTrips(normalizedTrips);
+      await upsertTrips(normalizedTrips as never[]);
     }
 
     if (schedules && schedules.length > 0) {
-      const normalizedSchedules = schedules.map((schedule: any) => ({
+      const normalizedSchedules = (schedules as Array<Record<string, unknown>>).map((schedule) => ({
         ...schedule,
         // ✅ ISO string 그대로 저장 (TEXT 컬럼)
         version: schedule.version ?? 1,
       }));
-      await upsertSchedules(normalizedSchedules);
+      await upsertSchedules(normalizedSchedules as never[]);
+    }
+
+    if (expenses && expenses.length > 0) {
+      const normalizedExpenses = (expenses as Array<Record<string, unknown>>).map((expense) => ({
+        ...expense,
+        // ✅ ISO string 그대로 저장 (TEXT 컬럼)
+        version: expense.version ?? 1,
+      }));
+      await upsertExpenses(normalizedExpenses as never[]);
     }
 
     // 4. React Query 캐시 무효화 → UI 자동 갱신
     queryClient.invalidateQueries({ queryKey: ['trip'] });
     queryClient.invalidateQueries({ queryKey: ['schedule'] });
+    queryClient.invalidateQueries({ queryKey: ['expense'] });
 
     console.log('✅ [Sync] React Query cache invalidated');
 

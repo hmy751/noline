@@ -1,4 +1,4 @@
-import { db, trips, schedules, type Trip, type Schedule } from './index';
+import { db, trips, schedules, expenses, type Trip, type Schedule, type Expense } from './index';
 
 /**
  * 트랜잭션 헬퍼 함수
@@ -19,7 +19,7 @@ import { db, trips, schedules, type Trip, type Schedule } from './index';
  * ```
  */
 export async function withTransaction<T>(callback: () => Promise<T>): Promise<T> {
-  return db.transaction(async (tx) => {
+  return db.transaction(async (_tx) => {
     return await callback();
   });
 }
@@ -154,4 +154,61 @@ export async function upsertSchedules(records: Schedule[]): Promise<void> {
   }
 
   console.log(`✅ [Upsert] ${records.length} schedules upserted successfully`);
+}
+
+/**
+ * 경비 데이터 Upsert (Pull 동기화용)
+ *
+ * 서버에서 받은 경비 데이터를 로컬 DB에 반영
+ * - 존재하면 업데이트
+ * - 없으면 삽입
+ * - deletedAt이 있는 레코드도 그대로 저장 (Soft Delete 반영)
+ *
+ * @param records - 서버에서 받은 경비 데이터 배열
+ *
+ * @example
+ * ```ts
+ * const serverExpenses = await fetchFromServer();
+ * await upsertExpenses(serverExpenses);
+ * ```
+ */
+export async function upsertExpenses(records: Expense[]): Promise<void> {
+  if (records.length === 0) {
+    console.log('📭 [Upsert] No expenses to upsert');
+    return;
+  }
+
+  console.log(`📥 [Upsert] Upserting ${records.length} expenses...`);
+
+  for (const record of records) {
+    try {
+      await db
+        .insert(expenses)
+        .values(record)
+        .onConflictDoUpdate({
+          target: expenses.id,
+          set: {
+            userId: record.userId,
+            tripId: record.tripId,
+            scheduleId: record.scheduleId,
+            title: record.title,
+            amount: record.amount,
+            currency: record.currency,
+            category: record.category,
+            date: record.date, // ✅ ISO date string
+            hasReceipt: record.hasReceipt,
+            receiptUrl: record.receiptUrl,
+            updatedAt: record.updatedAt,
+            deletedAt: record.deletedAt, // ✨ Soft Delete 반영
+            version: record.version,
+            // createdAt은 업데이트 안 함 (불변)
+          },
+        });
+    } catch (error) {
+      console.error(`❌ [Upsert] Failed to upsert expense ${record.id}:`, error);
+      throw error;
+    }
+  }
+
+  console.log(`✅ [Upsert] ${records.length} expenses upserted successfully`);
 }
