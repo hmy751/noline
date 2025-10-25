@@ -78,6 +78,7 @@ export const expenses = pgTable('expenses', {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => ulid()),
+  userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }), // nullable - 인증 추가 전까지 옵션
   tripId: text('trip_id')
     .notNull()
     .references(() => trips.id, { onDelete: 'cascade' }),
@@ -85,13 +86,17 @@ export const expenses = pgTable('expenses', {
   title: varchar('title', { length: 200 }).notNull(),
   amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
   currency: varchar('currency', { length: 3 }).notNull().default('EUR'),
-  category: expenseCategoryEnum('category').notNull(),
+  category: text('category').notNull(), // enum 대신 text로 변경 (클라이언트와 일치)
   // ✅ TIMESTAMPTZ: ISO 8601 with timezone 지원
   date: timestamp('date', { withTimezone: true }).notNull(),
-  memo: text('memo'),
-  isSynced: integer('is_synced').notNull().default(0), // 0: not synced, 1: synced
+  hasReceipt: integer('has_receipt').notNull().default(0), // boolean → integer (SQLite 호환)
+  receiptUrl: text('receipt_url'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+
+  // Phase 2: Local-First 필드
+  deletedAt: timestamp('deleted_at', { withTimezone: true }),
+  version: integer('version').notNull().default(1),
 });
 
 // Types

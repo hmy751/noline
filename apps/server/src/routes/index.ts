@@ -3,6 +3,7 @@ import type { Request, Response } from 'express';
 
 import tripsRouter from './trips.js';
 import schedulesRouter from './schedules.js';
+import expensesRouter from './expenses.js';
 import placesRouter from './places.js';
 import syncRouter from './sync.js';
 
@@ -31,6 +32,9 @@ router.use('/trips', tripsRouter);
 
 // Schedule routes
 router.use('/schedules', schedulesRouter);
+
+// Expense routes
+router.use('/expenses', expensesRouter);
 
 // Places routes (Google Maps)
 router.use('/places', placesRouter);
