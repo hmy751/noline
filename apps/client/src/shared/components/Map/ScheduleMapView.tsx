@@ -14,6 +14,8 @@ interface Schedule {
 interface ScheduleMapViewProps {
   schedules: Schedule[];
   onSchedulePress?: (scheduleId: string) => void;
+  selectedScheduleId?: string | null;
+  onMarkerPress?: (scheduleId: string) => void;
 }
 
 const styles = StyleSheet.create({
@@ -32,7 +34,12 @@ const styles = StyleSheet.create({
 /**
  * 일정 목록을 지도에 표시하는 컴포넌트
  */
-export function ScheduleMapView({ schedules, onSchedulePress }: ScheduleMapViewProps) {
+export function ScheduleMapView({
+  schedules,
+  onSchedulePress: _onSchedulePress,
+  selectedScheduleId,
+  onMarkerPress,
+}: ScheduleMapViewProps) {
   const mapRef = useRef<RNMapView>(null);
 
   // 좌표가 있는 일정만 필터링
@@ -85,26 +92,46 @@ export function ScheduleMapView({ schedules, onSchedulePress }: ScheduleMapViewP
       showsUserLocation
       showsMyLocationButton
     >
-      {schedulesWithCoords.map((schedule, index) => (
-        <Marker
-          key={schedule.id}
-          coordinate={{
-            latitude: schedule.latitude!,
-            longitude: schedule.longitude!,
-          }}
-          title={schedule.title}
-          description={`${schedule.time} • ${schedule.location}`}
-          pinColor='#228B22'
-          onPress={() => onSchedulePress?.(schedule.id)}
-        >
-          {/* 커스텀 마커 (순서 번호 표시) */}
-          <View className='items-center'>
-            <View className='bg-primary rounded-full w-8 h-8 items-center justify-center border-2 border-white shadow-md'>
-              <Text className='text-label text-primary-foreground font-semibold'>{index + 1}</Text>
+      {schedulesWithCoords.map((schedule, index) => {
+        const isSelected = schedule.id === selectedScheduleId;
+        return (
+          <Marker
+            key={schedule.id}
+            coordinate={{
+              latitude: schedule.latitude!,
+              longitude: schedule.longitude!,
+            }}
+            title={schedule.title}
+            description={`${schedule.time} • ${schedule.location}`}
+            onPress={() => onMarkerPress?.(schedule.id)}
+            zIndex={isSelected ? 10 : 1}
+          >
+            {/* 커스텀 마커 (순서 번호 표시) */}
+            <View className='items-center'>
+              <View
+                className={`rounded-full border-2 border-white shadow-md ${
+                  isSelected ? 'h-10 w-10 bg-primary' : 'h-8 w-8 bg-primary/70'
+                }`}
+                style={{ justifyContent: 'center', alignItems: 'center' }}
+              >
+                <Text
+                  className={`font-semibold ${
+                    isSelected ? 'text-body text-primary-foreground' : 'text-label text-primary-foreground/80'
+                  }`}
+                >
+                  {index + 1}
+                </Text>
+              </View>
+              {isSelected && (
+                <View
+                  className='mt-1 h-2 w-2 rounded-full bg-primary'
+                  style={{ shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 2 }}
+                />
+              )}
             </View>
-          </View>
-        </Marker>
-      ))}
+          </Marker>
+        );
+      })}
     </RNMapView>
   );
 }

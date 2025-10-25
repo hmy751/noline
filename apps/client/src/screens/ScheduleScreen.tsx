@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { router } from 'expo-router';
-import { Container, Stack, ScheduleCard, MobileHeader, ScheduleMapView } from '@/shared/components';
+import { Container, Stack, ScheduleCard, MobileHeader, ScheduleMapView, MapScheduleCard } from '@/shared/components';
 import { TripSelector } from '@/entities/trip';
 import { useGetSchedules } from '@/entities/schedule';
 import { useGetTrips, selectMainTrip } from '@/entities/trip';
@@ -29,6 +29,8 @@ export default function ScheduleScreen() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedScheduleId, setSelectedScheduleId] = useState<string | null>(null);
+  const carouselRef = useRef<ScrollView>(null);
 
   const { data: trips = [] } = useGetTrips();
   const { data: schedules = [], isLoading } = useGetSchedules(selectedTripId || '');
@@ -73,30 +75,45 @@ export default function ScheduleScreen() {
   }, [dateRange, selectedDate]);
 
   // 날짜별로 일정 그룹화
-  const schedulesByDate: ScheduleByDate[] = dateRange.map((date) => {
-    const daySchedules = schedules
-      .filter((schedule) => {
-        return schedule.date === date;
-      })
-      .map((schedule) => {
-        return {
-          id: schedule.id,
-          time: schedule.time,
-          title: schedule.title,
-          location: schedule.location || '',
-          latitude: schedule.latitude ? parseFloat(schedule.latitude) : undefined,
-          longitude: schedule.longitude ? parseFloat(schedule.longitude) : undefined,
-        };
-      });
+  const schedulesByDate: ScheduleByDate[] = useMemo(() => {
+    return dateRange.map((date) => {
+      const daySchedules = schedules
+        .filter((schedule) => {
+          return schedule.date === date;
+        })
+        .map((schedule) => {
+          return {
+            id: schedule.id,
+            time: schedule.time,
+            title: schedule.title,
+            location: schedule.location || '',
+            latitude: schedule.latitude ? parseFloat(schedule.latitude) : undefined,
+            longitude: schedule.longitude ? parseFloat(schedule.longitude) : undefined,
+          };
+        });
 
-    return {
-      date,
-      dateLabel: date,
-      schedules: daySchedules,
-    };
-  });
+      return {
+        date,
+        dateLabel: date,
+        schedules: daySchedules,
+      };
+    });
+  }, [dateRange, schedules]);
 
-  const schedulesForMap = schedulesByDate.find((group) => group.date === selectedDate)?.schedules || [];
+  const schedulesForMap = useMemo(() => {
+    return schedulesByDate.find((group) => group.date === selectedDate)?.schedules || [];
+  }, [schedulesByDate, selectedDate]);
+
+  // 날짜 변경 시 캐러셀 초기화
+  useEffect(() => {
+    if (schedulesForMap.length > 0) {
+      setSelectedScheduleId(schedulesForMap[0].id);
+      carouselRef.current?.scrollTo({ x: 0, animated: false });
+    } else {
+      setSelectedScheduleId(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDate]);
 
   return (
     <View className='flex-1 bg-background'>
@@ -216,7 +233,17 @@ export default function ScheduleScreen() {
               time: schedule.time,
             }))}
             onSchedulePress={(scheduleId: string) => router.push(`/schedules/${scheduleId}`)}
+            selectedScheduleId={selectedScheduleId}
+            onMarkerPress={(scheduleId) => {
+              setSelectedScheduleId(scheduleId);
+              const index = schedulesForMap.findIndex((s) => s.id === scheduleId);
+              if (index > -1 && carouselRef.current) {
+                // 카드 너비 340px + gap 16px = 356px
+                carouselRef.current.scrollTo({ x: index * 356, animated: true });
+              }
+            }}
           />
+          {/* 날짜 선택 UI */}
           <View className='absolute left-0 right-0 top-0'>
             <ScrollView
               horizontal
@@ -242,6 +269,38 @@ export default function ScheduleScreen() {
               </View>
             </ScrollView>
           </View>
+          {/* 하단 카드 캐러셀 */}
+          {schedulesForMap.length > 0 && (
+            <View className='absolute bottom-0 left-0 right-0'>
+              <ScrollView
+                ref={carouselRef}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
+                snapToInterval={356}
+                decelerationRate='fast'
+                onMomentumScrollEnd={(event) => {
+                  const index = Math.round(event.nativeEvent.contentOffset.x / 356);
+                  if (schedulesForMap[index]) {
+                    setSelectedScheduleId(schedulesForMap[index].id);
+                  }
+                }}
+              >
+                {schedulesForMap.map((schedule, index) => (
+                  <View key={schedule.id} className='mr-sm'>
+                    <MapScheduleCard
+                      index={index}
+                      title={schedule.title}
+                      location={schedule.location}
+                      date={selectedDate || ''}
+                      time={schedule.time}
+                      onPressDetails={() => router.push(`/schedules/${schedule.id}`)}
+                    />
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+          )}
         </View>
       )}
     </View>
