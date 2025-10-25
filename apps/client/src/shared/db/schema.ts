@@ -63,6 +63,37 @@ export const schedules = sqliteTable('schedules', {
 });
 
 // ========================================
+// Expenses Table
+// ========================================
+
+/**
+ * 경비 테이블 (로컬 SQLite)
+ * - packages/schema의 expenseSchema를 기반으로 함
+ * - ✅ ISO 8601 datetime string 저장 (타임존 포함)
+ */
+export const expenses = sqliteTable('expenses', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  tripId: text('trip_id')
+    .notNull()
+    .references(() => trips.id, { onDelete: 'cascade' }), // FK 제약
+  scheduleId: text('schedule_id').references(() => schedules.id, { onDelete: 'set null' }),
+  title: text('title').notNull(),
+  amount: text('amount').notNull(), // Decimal을 문자열로 저장 (SQLite는 decimal 미지원)
+  currency: text('currency').notNull().default('EUR'),
+  category: text('category').notNull(),
+  date: text('date').notNull(), // ISO string (날짜만)
+  hasReceipt: integer('has_receipt', { mode: 'boolean' }).notNull().default(false),
+  receiptUrl: text('receipt_url'),
+  createdAt: text('created_at').notNull(), // ISO string
+  updatedAt: text('updated_at').notNull(), // ISO string
+
+  // Local-First 필드
+  deletedAt: text('deleted_at'), // ISO string
+  version: integer('version').default(1).notNull(),
+});
+
+// ========================================
 // Sync Queue Table (Outbox Pattern)
 // ========================================
 
@@ -73,7 +104,7 @@ export const schedules = sqliteTable('schedules', {
  */
 export const syncQueue = sqliteTable('sync_queue', {
   id: text('id').primaryKey(),
-  tableName: text('table_name').notNull(), // 'trips', 'schedules'
+  tableName: text('table_name').notNull(), // 'trips', 'schedules', 'expenses'
   recordId: text('record_id').notNull(), // 대상 레코드 ID
   action: text('action').notNull(), // 'CREATE', 'UPDATE', 'DELETE'
   payload: text('payload').notNull(), // JSON stringified
@@ -107,6 +138,9 @@ export type NewTrip = typeof trips.$inferInsert;
 
 export type Schedule = typeof schedules.$inferSelect;
 export type NewSchedule = typeof schedules.$inferInsert;
+
+export type Expense = typeof expenses.$inferSelect;
+export type NewExpense = typeof expenses.$inferInsert;
 
 export type SyncQueueItem = typeof syncQueue.$inferSelect;
 export type NewSyncQueueItem = typeof syncQueue.$inferInsert;
