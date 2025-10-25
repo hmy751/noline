@@ -37,10 +37,10 @@ const tripDateFields = {
 // ========================================
 
 /**
- * Trip Entity Schema (DB 데이터 구조)
- * - 날짜: Date 타입
+ * Trip Entity Schema (API 응답/로컬 DB용)
+ * - 날짜: ISO 8601 datetime string
  * - 위도/경도: string (decimal)
- * - 서버 내부에서 DB 데이터 검증 시 사용
+ * - API 응답 및 로컬 DB 저장 시 사용
  */
 export const tripSchema = z.object({
   id: z.string().ulid(),
@@ -51,13 +51,13 @@ export const tripSchema = z.object({
   latitude: z.string().nullable(), // DB decimal → string
   longitude: z.string().nullable(),
   cityId: z.number().nullable(),
-  startDate: z.date().nullable(),
-  endDate: z.date().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  startDate: z.string().datetime({ offset: true }),
+  endDate: z.string().datetime({ offset: true }),
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }),
 
   // Phase 2: Local-First 필드 (선택적)
-  deletedAt: z.date().nullable().optional(),
+  deletedAt: z.string().datetime({ offset: true }).nullable().optional(),
   version: z.number().optional(),
 });
 

@@ -18,11 +18,11 @@ export const scheduleSchema = z.object({
 
   latitude: z.string().nullable(),
   longitude: z.string().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }),
 
   // Phase 2: Local-First 필드
-  deletedAt: z.string().nullable().optional(),
+  deletedAt: z.string().datetime({ offset: true }).nullable().optional(),
   version: z.number().optional(),
 });
 

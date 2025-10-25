@@ -2,7 +2,7 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { db, schedules } from '../db/index.js';
 import { eq } from 'drizzle-orm';
-import { createScheduleRequestSchema, scheduleSchema } from '@repo/schema';
+import { createScheduleRequestSchema, scheduleResponseSchema } from '@repo/schema';
 
 const router = Router();
 
@@ -38,7 +38,7 @@ router.post('/', async (req: Request, res: Response) => {
       .returning();
 
     // Zod로 응답 데이터 검증
-    const validated = scheduleSchema.safeParse({
+    const validated = scheduleResponseSchema.safeParse({
       ...newSchedule,
       scheduledAt: newSchedule.scheduledAt.toISOString(),
       createdAt: newSchedule.createdAt.toISOString(),

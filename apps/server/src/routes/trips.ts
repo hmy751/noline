@@ -2,7 +2,7 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { db, trips, schedules } from '../db/index.js';
 import { desc, sql, eq, and } from 'drizzle-orm';
-import { createTripRequestSchema, updateTripRequestSchema, tripSchema } from '@repo/schema';
+import { createTripRequestSchema, updateTripRequestSchema, tripResponseSchema } from '@repo/schema';
 
 const router = Router();
 
@@ -41,7 +41,7 @@ router.get('/', async (req: Request, res: Response) => {
 
     // Zod로 응답 데이터 검증
     const validatedTrips = allTrips.map((trip) => {
-      const validated = tripSchema.safeParse({
+      const validated = tripResponseSchema.safeParse({
         ...trip,
         startDate: trip.startDate.toISOString(),
         endDate: trip.endDate.toISOString(),
@@ -133,7 +133,7 @@ router.post('/', async (req: Request, res: Response) => {
       .returning();
 
     // Zod로 응답 데이터 검증
-    const validatedTrip = tripSchema.safeParse({
+    const validatedTrip = tripResponseSchema.safeParse({
       ...newTrip,
       startDate: newTrip.startDate.toISOString(),
       endDate: newTrip.endDate.toISOString(),
@@ -270,7 +270,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
     const [updatedTrip] = await db.update(trips).set(updateData).where(eq(trips.id, tripId)).returning();
 
     // Zod로 응답 데이터 검증
-    const validatedTrip = tripSchema.safeParse({
+    const validatedTrip = tripResponseSchema.safeParse({
       ...updatedTrip,
       startDate: updatedTrip.startDate.toISOString(),
       endDate: updatedTrip.endDate.toISOString(),
