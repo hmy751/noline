@@ -10,9 +10,31 @@ import { initializeDatabase } from '@/shared/db';
 import { SyncProvider } from '@/shared/services/sync/provider';
 import { NetworkOverrideProvider } from '@/features/debug';
 import { queryClient } from '@/shared/lib/queryClient';
+import { useTripStore } from '@/shared/store';
+import { useGetTrips, selectMainTrip } from '@/entities/trip';
 
 // Splash 화면을 수동으로 제어하기 위해 자동 숨김 방지
 SplashScreen.preventAutoHideAsync();
+
+function InitializeMainTrip() {
+  const { setSelectedTripId } = useTripStore();
+  const { data: trips = [] } = useGetTrips();
+
+  useEffect(() => {
+    if (trips.length > 0) {
+      const mainTrip = selectMainTrip(trips);
+      if (mainTrip) {
+        setSelectedTripId(mainTrip.id);
+        console.log('✅ Main trip selected:', mainTrip.name);
+      } else {
+        setSelectedTripId(trips[0].id);
+        console.log('✅ First trip selected:', trips[0].name);
+      }
+    }
+  }, [trips, setSelectedTripId]);
+
+  return null;
+}
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -73,6 +95,7 @@ export default function RootLayout() {
             </Stack>
             {/* Portal Host for Select and other portal-based components */}
             <PortalHost />
+            <InitializeMainTrip />
           </SyncProvider>
         </NetworkOverrideProvider>
       </QueryClientProvider>

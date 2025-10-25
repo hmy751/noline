@@ -1,9 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { View } from 'react-native';
 import { MobileHeader } from '@/shared/components';
 import { TripSelector } from '@/entities/trip';
 import { useGetSchedules } from '@/entities/schedule';
-import { useGetTrips, selectMainTrip } from '@/entities/trip';
+import { useGetTrips } from '@/entities/trip';
+import { useTripStore } from '@/shared/store';
 import { Pressable } from '@repo/ui';
 import { Menu, Map, List } from 'lucide-react-native';
 import { ScheduleListView } from '@/features/schedule/schedule-list-view';
@@ -29,20 +30,10 @@ interface ScheduleByDate {
 
 export default function ScheduleScreen() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
-  const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
+  const { selectedTripId } = useTripStore();
 
   const { data: trips = [] } = useGetTrips();
   const { data: schedules = [], isLoading } = useGetSchedules(selectedTripId || '');
-
-  // 메인 여행 자동 선택
-  useEffect(() => {
-    if (trips.length > 0 && !selectedTripId) {
-      const mainTrip = selectMainTrip(trips);
-      if (mainTrip) {
-        setSelectedTripId(mainTrip.id);
-      }
-    }
-  }, [trips, selectedTripId]);
 
   // 선택된 여행 정보
   const selectedTrip = trips.find((trip: { id: string }) => trip.id === selectedTripId);
@@ -125,14 +116,7 @@ export default function ScheduleScreen() {
       />
 
       {/* Current Trip Selector - Sticky */}
-      <TripSelector
-        onTripChange={(trip) => {
-          if (trip) {
-            setSelectedTripId(trip.value);
-          }
-        }}
-        className='border-b border-card-border'
-      />
+      <TripSelector className='border-b border-card-border' />
 
       {/* Content */}
       {viewMode === 'list' ? (

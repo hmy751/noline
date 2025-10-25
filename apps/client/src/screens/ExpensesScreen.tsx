@@ -3,8 +3,12 @@ import { Container, Stack, ExpenseCard, MobileHeader } from '@/shared/components
 import { TripSelector } from '@/entities/trip';
 import { Pressable } from '@repo/ui';
 import { Camera } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
+import { useTripStore } from '@/shared/store';
 
 export default function ExpensesScreen() {
+  const router = useRouter();
+  const { selectedTripId } = useTripStore();
   // TODO: Replace with real data
   const expensesByDate = [
     {
@@ -93,12 +97,7 @@ export default function ExpensesScreen() {
       />
 
       {/* Current Trip Selector - Sticky */}
-      <TripSelector
-        onTripChange={(trip) => {
-          console.log('Selected trip:', trip);
-        }}
-        className='border-b border-card-border bg-background px-md py-sm'
-      />
+      <TripSelector className='border-b border-card-border bg-background px-md py-sm' />
 
       <ScrollView className='flex-1'>
         <Container>
@@ -124,8 +123,11 @@ export default function ExpensesScreen() {
                     variant='outline'
                     className='flex-row items-center gap-3xs rounded-md border border-card-border bg-card px-xs py-3xs active:bg-muted'
                     onPress={() => {
-                      // TODO: Open add expense for this date
-                      console.log('Add expense for', group.date);
+                      if (selectedTripId) {
+                        router.push(`/create-expense?tripId=${selectedTripId}`);
+                      } else {
+                        console.log('여행을 먼저 선택해주세요');
+                      }
                     }}
                   >
                     <Text className='text-label text-foreground'>추가</Text>
