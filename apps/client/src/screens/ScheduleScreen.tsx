@@ -20,12 +20,15 @@ interface ScheduleByDate {
     location: string;
     expense?: string;
     expenseCount?: number;
+    latitude?: number;
+    longitude?: number;
   }>;
 }
 
 export default function ScheduleScreen() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const { data: trips = [] } = useGetTrips();
   const { data: schedules = [], isLoading } = useGetSchedules(selectedTripId || '');
@@ -62,6 +65,13 @@ export default function ScheduleScreen() {
 
   const dateRange = generateDateRange();
 
+  // 최초 날짜 선택
+  useEffect(() => {
+    if (dateRange.length > 0 && !selectedDate) {
+      setSelectedDate(dateRange[0]);
+    }
+  }, [dateRange, selectedDate]);
+
   // 날짜별로 일정 그룹화
   const schedulesByDate: ScheduleByDate[] = dateRange.map((date) => {
     const daySchedules = schedules
@@ -74,6 +84,8 @@ export default function ScheduleScreen() {
           time: schedule.time,
           title: schedule.title,
           location: schedule.location || '',
+          latitude: schedule.latitude ? parseFloat(schedule.latitude) : undefined,
+          longitude: schedule.longitude ? parseFloat(schedule.longitude) : undefined,
         };
       });
 
@@ -83,6 +95,8 @@ export default function ScheduleScreen() {
       schedules: daySchedules,
     };
   });
+
+  const schedulesForMap = schedulesByDate.find((group) => group.date === selectedDate)?.schedules || [];
 
   return (
     <View className='flex-1 bg-background'>
@@ -121,6 +135,7 @@ export default function ScheduleScreen() {
         onTripChange={(trip) => {
           if (trip) {
             setSelectedTripId(trip.value);
+            setSelectedDate(null); // 여행 변경 시 날짜 선택 초기화
           }
         }}
         className='border-b border-card-border'
@@ -190,17 +205,44 @@ export default function ScheduleScreen() {
           </Container>
         </ScrollView>
       ) : (
-        <ScheduleMapView
-          schedules={schedules.map((schedule) => ({
-            id: schedule.id,
-            title: schedule.title,
-            location: schedule.location || '',
-            latitude: schedule.latitude ? parseFloat(schedule.latitude) : undefined,
-            longitude: schedule.longitude ? parseFloat(schedule.longitude) : undefined,
-            time: schedule.time,
-          }))}
-          onSchedulePress={(scheduleId: string) => router.push(`/schedules/${scheduleId}`)}
-        />
+        <View className='flex-1'>
+          <ScheduleMapView
+            schedules={schedulesForMap.map((schedule) => ({
+              id: schedule.id,
+              title: schedule.title,
+              location: schedule.location || '',
+              latitude: schedule.latitude,
+              longitude: schedule.longitude,
+              time: schedule.time,
+            }))}
+            onSchedulePress={(scheduleId: string) => router.push(`/schedules/${scheduleId}`)}
+          />
+          <View className='absolute left-0 right-0 top-0'>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 12 }}
+            >
+              <View className='flex-row gap-2xs'>
+                {dateRange.map((date) => (
+                  <Pressable
+                    key={date}
+                    className={`rounded-full px-xs py-3xs ${
+                      selectedDate === date ? 'bg-primary' : 'border border-white/20 bg-card/80 backdrop-blur-sm'
+                    }`}
+                    onPress={() => setSelectedDate(date)}
+                  >
+                    <Text
+                      className={`text-label ${selectedDate === date ? 'text-primary-foreground' : 'text-foreground'}`}
+                    >
+                      {date}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </ScrollView>
+          </View>
+        </View>
       )}
     </View>
   );
