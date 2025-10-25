@@ -24,10 +24,11 @@ const tripLocationFields = {
 
 /**
  * 여행 날짜 필드 (API용 - ISO string)
+ * ✅ ISO 8601 datetime with timezone
  */
 const tripDateFields = {
-  startDate: z.string().nullable().optional(),
-  endDate: z.string().nullable().optional(),
+  startDate: z.string().datetime({ offset: true }).nullable().optional(),
+  endDate: z.string().datetime({ offset: true }).nullable().optional(),
 };
 
 // ========================================
@@ -97,7 +98,7 @@ export const updateTripRequestSchema = z
 /**
  * Trip 응답 데이터 스키마
  * - 서버 → 클라이언트
- * - 날짜: ISO string
+ * - 날짜: ISO 8601 datetime with timezone
  * - 위도/경도: string (DB decimal 반환값)
  */
 export const tripResponseSchema = z.object({
@@ -109,13 +110,15 @@ export const tripResponseSchema = z.object({
   latitude: z.string().nullable(), // API 응답은 string
   longitude: z.string().nullable(),
   cityId: z.number().nullable(),
-  startDate: z.string().nullable(), // ISO string
-  endDate: z.string().nullable(),
-  createdAt: z.string(), // ISO string
-  updatedAt: z.string(),
+
+  // ✅ ISO 8601 datetime with timezone
+  startDate: z.string().datetime({ offset: true }),
+  endDate: z.string().datetime({ offset: true }),
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }),
 
   // Phase 2: Local-First 필드 (선택적)
-  deletedAt: z.string().nullable().optional(),
+  deletedAt: z.string().datetime({ offset: true }).nullable().optional(),
   version: z.number().optional(),
 });
 

@@ -12,8 +12,10 @@ export const scheduleSchema = z.object({
   title: z.string(),
   location: z.string(),
   address: z.string().nullable(),
-  date: z.string(),
-  time: z.string(),
+
+  // ✅ ISO 8601 datetime with timezone
+  scheduledAt: z.string().datetime({ offset: true }),
+
   latitude: z.string().nullable(),
   longitude: z.string().nullable(),
   createdAt: z.date(),
@@ -31,8 +33,13 @@ export const createScheduleRequestSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   location: z.string().min(1, 'Location is required'),
   address: z.string().nullable().optional(),
-  date: z.string().min(1, 'Date is required'),
-  time: z.string().min(1, 'Time is required'),
+
+  // ✅ ISO 8601 datetime with timezone (e.g., "2024-01-15T09:00:00+09:00")
+  scheduledAt: z.string().datetime({
+    offset: true,
+    message: 'Invalid datetime format. Use ISO 8601 format with timezone.',
+  }),
+
   latitude: z.number().nullable().optional(),
   longitude: z.number().nullable().optional(),
 });
