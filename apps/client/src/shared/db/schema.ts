@@ -7,7 +7,7 @@ import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 /**
  * 여행 테이블 (로컬 SQLite)
  * - packages/schema의 tripSchema를 기반으로 함
- * - SQLite는 Date 타입 없으므로 integer (Unix timestamp) 사용
+ * - ✅ ISO 8601 datetime string 저장 (타임존 포함)
  * - latitude/longitude는 text로 저장 (decimal 대응)
  */
 export const trips = sqliteTable('trips', {
@@ -19,13 +19,14 @@ export const trips = sqliteTable('trips', {
   latitude: text('latitude'),
   longitude: text('longitude'),
   cityId: integer('city_id'),
-  startDate: integer('start_date', { mode: 'timestamp' }), // Unix timestamp (ms)
-  endDate: integer('end_date', { mode: 'timestamp' }),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+  // ✅ ISO 8601 datetime string (e.g., "2024-01-15T09:00:00+09:00")
+  startDate: text('start_date'), // ISO string
+  endDate: text('end_date'), // ISO string
+  createdAt: text('created_at').notNull(), // ISO string
+  updatedAt: text('updated_at').notNull(), // ISO string
 
   // Local-First 필드
-  deletedAt: integer('deleted_at', { mode: 'timestamp' }),
+  deletedAt: text('deleted_at'), // ISO string
   version: integer('version').default(1).notNull(),
 });
 
@@ -36,6 +37,7 @@ export const trips = sqliteTable('trips', {
 /**
  * 일정 테이블 (로컬 SQLite)
  * - packages/schema의 scheduleSchema를 기반으로 함
+ * - ✅ ISO 8601 datetime string 저장 (타임존 포함)
  */
 export const schedules = sqliteTable('schedules', {
   id: text('id').primaryKey(),
@@ -46,15 +48,17 @@ export const schedules = sqliteTable('schedules', {
   title: text('title').notNull(),
   location: text('location').notNull(),
   address: text('address'),
-  date: text('date').notNull(), // YYYY-MM-DD 형식
-  time: text('time').notNull(), // HH:mm 형식
+
+  // ✅ date + time → scheduledAt (ISO 8601 datetime string)
+  scheduledAt: text('scheduled_at').notNull(), // ISO string
+
   latitude: text('latitude'),
   longitude: text('longitude'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+  createdAt: text('created_at').notNull(), // ISO string
+  updatedAt: text('updated_at').notNull(), // ISO string
 
   // Local-First 필드
-  deletedAt: integer('deleted_at', { mode: 'timestamp' }),
+  deletedAt: text('deleted_at'), // ISO string
   version: integer('version').default(1).notNull(),
 });
 
@@ -75,8 +79,8 @@ export const syncQueue = sqliteTable('sync_queue', {
   payload: text('payload').notNull(), // JSON stringified
   status: text('status').notNull().default('PENDING'), // 'PENDING', 'IN_PROGRESS', 'FAILED'
   retryCount: integer('retry_count').notNull().default(0),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }),
+  createdAt: text('created_at').notNull(), // ISO string
+  updatedAt: text('updated_at'), // ISO string
 });
 
 // ========================================
@@ -90,8 +94,8 @@ export const syncQueue = sqliteTable('sync_queue', {
  */
 export const syncMetadata = sqliteTable('sync_metadata', {
   key: text('key').primaryKey(), // 'lastSyncedAt'
-  value: text('value').notNull(), // ISO string
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+  value: text('value').notNull(), // ISO string or any value
+  updatedAt: text('updated_at').notNull(), // ISO string
 });
 
 // ========================================

@@ -25,27 +25,20 @@ export async function withTransaction<T>(callback: () => Promise<T>): Promise<T>
 }
 
 /**
- * 현재 타임스탬프 반환 (SQLite 호환)
- * - JavaScript Date를 Unix timestamp로 변환
+ * 현재 시간을 ISO string으로 반환
+ * - SQLite TEXT 필드에 저장
  */
-export function getCurrentTimestamp(): Date {
-  return new Date();
+export function getCurrentISOString(): string {
+  return new Date().toISOString();
 }
 
 /**
- * Date를 SQLite timestamp로 변환
+ * Date를 ISO string으로 변환
  */
-export function dateToTimestamp(date: Date | string | null): Date | null {
+export function dateToISOString(date: Date | string | null): string | null {
   if (!date) return null;
-  return typeof date === 'string' ? new Date(date) : date;
-}
-
-/**
- * SQLite timestamp를 ISO string으로 변환
- */
-export function timestampToISOString(timestamp: Date | null): string | null {
-  if (!timestamp) return null;
-  return timestamp.toISOString();
+  if (typeof date === 'string') return date; // 이미 ISO string
+  return date.toISOString();
 }
 
 // ========================================
@@ -145,8 +138,7 @@ export async function upsertSchedules(records: Schedule[]): Promise<void> {
             title: record.title,
             location: record.location,
             address: record.address,
-            date: record.date,
-            time: record.time,
+            scheduledAt: record.scheduledAt, // ✅ ISO string
             latitude: record.latitude,
             longitude: record.longitude,
             updatedAt: record.updatedAt,

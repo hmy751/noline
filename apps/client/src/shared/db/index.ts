@@ -36,11 +36,11 @@ export async function initializeDatabase() {
         latitude TEXT,
         longitude TEXT,
         city_id INTEGER,
-        start_date INTEGER,
-        end_date INTEGER,
-        created_at INTEGER NOT NULL,
-        updated_at INTEGER NOT NULL,
-        deleted_at INTEGER,
+        start_date TEXT,
+        end_date TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        deleted_at TEXT,
         version INTEGER NOT NULL DEFAULT 1
       );
     `);
@@ -54,13 +54,12 @@ export async function initializeDatabase() {
         title TEXT NOT NULL,
         location TEXT NOT NULL,
         address TEXT,
-        date TEXT NOT NULL,
-        time TEXT NOT NULL,
+        scheduled_at TEXT NOT NULL,
         latitude TEXT,
         longitude TEXT,
-        created_at INTEGER NOT NULL,
-        updated_at INTEGER NOT NULL,
-        deleted_at INTEGER,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        deleted_at TEXT,
         version INTEGER NOT NULL DEFAULT 1,
         FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE
       );
@@ -76,8 +75,8 @@ export async function initializeDatabase() {
         payload TEXT NOT NULL,
         status TEXT NOT NULL DEFAULT 'PENDING',
         retry_count INTEGER NOT NULL DEFAULT 0,
-        created_at INTEGER NOT NULL,
-        updated_at INTEGER
+        created_at TEXT NOT NULL,
+        updated_at TEXT
       );
     `);
 
@@ -86,7 +85,7 @@ export async function initializeDatabase() {
       CREATE TABLE IF NOT EXISTS sync_metadata (
         key TEXT PRIMARY KEY NOT NULL,
         value TEXT NOT NULL,
-        updated_at INTEGER NOT NULL
+        updated_at TEXT NOT NULL
       );
     `);
 
