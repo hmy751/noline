@@ -8,6 +8,7 @@ import { Pressable } from '@repo/ui';
 import { Menu, Map, List } from 'lucide-react-native';
 import { ScheduleListView } from '@/features/schedule/schedule-list-view';
 import { ScheduleMapViewContainer } from '@/features/schedule/schedule-map-view';
+import { formatISOToLocalDate, formatISOToLocalTime } from '@/shared/lib/datetime';
 
 type ViewMode = 'list' | 'map';
 
@@ -70,12 +71,12 @@ export default function ScheduleScreen() {
     return dateRange.map((date) => {
       const daySchedules = schedules
         .filter((schedule) => {
-          return schedule.date === date;
+          return formatISOToLocalDate(schedule.scheduledAt) === date;
         })
         .map((schedule) => {
           return {
             id: schedule.id,
-            time: schedule.time,
+            time: formatISOToLocalTime(schedule.scheduledAt),
             title: schedule.title,
             location: schedule.location || '',
             latitude: schedule.latitude ? parseFloat(schedule.latitude) : undefined,

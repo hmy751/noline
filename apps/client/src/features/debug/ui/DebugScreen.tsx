@@ -11,6 +11,7 @@ import { getSyncQueueStats } from '@/shared/services/sync/queue';
 import { triggerSync } from '@/shared/services/sync/engine';
 import { useNetworkOverride } from '../context/NetworkOverrideContext';
 import { useNetworkStatus } from '@/shared/hooks/useNetworkStatus';
+import { formatISOToLocalDateTime } from '@/shared/lib/datetime';
 
 export default function DebugScreen() {
   const [refreshing, setRefreshing] = useState(false);
@@ -233,7 +234,7 @@ export default function DebugScreen() {
                       <Text className='text-label text-muted-foreground'>ID: {schedule.id.substring(0, 8)}...</Text>
                       <Text className='text-body text-foreground font-semibold'>{schedule.title}</Text>
                       <Text className='text-label text-muted-foreground'>
-                        {schedule.date} {schedule.time}
+                        {formatISOToLocalDateTime(schedule.scheduledAt)}
                       </Text>
                       <Text className='text-label text-muted-foreground'>
                         Trip ID: {schedule.tripId.substring(0, 8)}...

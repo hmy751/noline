@@ -1,6 +1,7 @@
 import { db } from '@/shared/db';
 import { syncMetadata } from '@/shared/db/schema';
 import { eq } from 'drizzle-orm';
+import { getCurrentISOString } from '@/shared/db/utils';
 
 /**
  * 동기화 관련 메타데이터를 SQLite에 저장/조회
@@ -51,7 +52,7 @@ export async function getLastSyncedAt(): Promise<Date | null> {
  */
 export async function setLastSyncedAt(date: Date): Promise<void> {
   try {
-    const now = new Date();
+    const now = getCurrentISOString();
 
     // Upsert: 존재하면 업데이트, 없으면 삽입
     await db
