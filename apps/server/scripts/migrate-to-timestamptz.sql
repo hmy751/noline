@@ -41,18 +41,33 @@ DROP COLUMN time;
 CREATE INDEX IF NOT EXISTS idx_schedules_scheduled_at ON schedules(scheduled_at);
 CREATE INDEX IF NOT EXISTS idx_schedules_trip_scheduled ON schedules(trip_id, scheduled_at);
 
+-- 1-6. Schedules created_at, updated_at 변환
+ALTER TABLE schedules 
+ALTER COLUMN created_at TYPE TIMESTAMPTZ 
+  USING created_at AT TIME ZONE 'UTC';
+
+ALTER TABLE schedules 
+ALTER COLUMN updated_at TYPE TIMESTAMPTZ 
+  USING updated_at AT TIME ZONE 'UTC';
+
 -- ========================================
 -- 2. Trips 테이블 마이그레이션 (timestamp → timestamptz)
 -- ========================================
 
--- 2-1. 컬럼 타입 변경
+-- 2-1. 컬럼 타입 변경 + NOT NULL 제약 추가
 ALTER TABLE trips 
 ALTER COLUMN start_date TYPE TIMESTAMPTZ 
   USING start_date AT TIME ZONE 'UTC';
 
 ALTER TABLE trips 
+ALTER COLUMN start_date SET NOT NULL;
+
+ALTER TABLE trips 
 ALTER COLUMN end_date TYPE TIMESTAMPTZ 
   USING end_date AT TIME ZONE 'UTC';
+
+ALTER TABLE trips 
+ALTER COLUMN end_date SET NOT NULL;
 
 ALTER TABLE trips 
 ALTER COLUMN created_at TYPE TIMESTAMPTZ 

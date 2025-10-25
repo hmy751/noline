@@ -25,10 +25,11 @@ const tripLocationFields = {
 /**
  * 여행 날짜 필드 (API용 - ISO string)
  * ✅ ISO 8601 datetime with timezone
+ * ⚠️ 필수 필드
  */
 const tripDateFields = {
-  startDate: z.string().datetime({ offset: true }).nullable().optional(),
-  endDate: z.string().datetime({ offset: true }).nullable().optional(),
+  startDate: z.string().datetime({ offset: true, message: 'Start date is required in ISO 8601 format' }),
+  endDate: z.string().datetime({ offset: true, message: 'End date is required in ISO 8601 format' }),
 };
 
 // ========================================

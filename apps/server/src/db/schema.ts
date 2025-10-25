@@ -41,8 +41,8 @@ export const trips = pgTable('trips', {
   longitude: decimal('longitude', { precision: 10, scale: 7 }),
   cityId: integer('city_id'),
   // ✅ TIMESTAMPTZ: ISO 8601 with timezone 지원
-  startDate: timestamp('start_date', { withTimezone: true }),
-  endDate: timestamp('end_date', { withTimezone: true }),
+  startDate: timestamp('start_date', { withTimezone: true }).notNull(),
+  endDate: timestamp('end_date', { withTimezone: true }).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });

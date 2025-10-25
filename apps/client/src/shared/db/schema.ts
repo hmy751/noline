@@ -20,8 +20,8 @@ export const trips = sqliteTable('trips', {
   longitude: text('longitude'),
   cityId: integer('city_id'),
   // ✅ ISO 8601 datetime string (e.g., "2024-01-15T09:00:00+09:00")
-  startDate: text('start_date'), // ISO string
-  endDate: text('end_date'), // ISO string
+  startDate: text('start_date').notNull(), // ISO string - 필수
+  endDate: text('end_date').notNull(), // ISO string - 필수
   createdAt: text('created_at').notNull(), // ISO string
   updatedAt: text('updated_at').notNull(), // ISO string
 
