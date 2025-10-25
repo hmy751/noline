@@ -4,6 +4,7 @@ import type { Request, Response } from 'express';
 import tripsRouter from './trips.js';
 import schedulesRouter from './schedules.js';
 import placesRouter from './places.js';
+import syncRouter from './sync.js';
 
 const router = Router();
 
@@ -33,5 +34,8 @@ router.use('/schedules', schedulesRouter);
 
 // Places routes (Google Maps)
 router.use('/places', placesRouter);
+
+// Sync routes (Pull/Push)
+router.use('/sync', syncRouter);
 
 export default router;

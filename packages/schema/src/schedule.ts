@@ -16,8 +16,8 @@ export const scheduleSchema = z.object({
   time: z.string(),
   latitude: z.string().nullable(),
   longitude: z.string().nullable(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 
   // Phase 2: Local-First 필드
   deletedAt: z.string().nullable().optional(),

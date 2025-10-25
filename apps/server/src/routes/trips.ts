@@ -92,7 +92,7 @@ router.post('/', async (req: Request, res: Response) => {
       });
     }
 
-    const { userId, name, destination, country, latitude, longitude, cityId, startDate, endDate } =
+    const { id, userId, name, destination, country, latitude, longitude, cityId, startDate, endDate } =
       validationResult.data;
 
     // 날짜 검증
@@ -115,10 +115,12 @@ router.post('/', async (req: Request, res: Response) => {
       }
     }
 
+    // ✨ Echo 아키텍처: 클라이언트가 생성한 ID 사용 (Local-First)
     // 여행 생성 (도시 정보 포함)
     const [newTrip] = await db
       .insert(trips)
       .values({
+        id: id,
         userId: userId || '01HZQ8K9X7M2N3P4Q5R6S7T8V9', // 테스트용 ULID
         name,
         destination,

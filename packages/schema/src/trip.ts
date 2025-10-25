@@ -68,8 +68,10 @@ export const tripSchema = z.object({
  * - 클라이언트 → 서버
  * - 날짜: ISO string
  * - 위도/경도: number (클라이언트에서 숫자로 전송)
+ * - ✨ Echo 아키텍처: 클라이언트가 ID 생성 (Local-First)
  */
 export const createTripRequestSchema = z.object({
+  id: z.string().ulid(), // ✨ 클라이언트가 생성한 ULID
   userId: z.string().ulid().optional(), // 테스트용: 서버에서 기본값 사용
   ...tripCoreFields, // ⬅️ 상속: name, destination, country
   ...tripLocationFields, // ⬅️ 상속: latitude, longitude, cityId

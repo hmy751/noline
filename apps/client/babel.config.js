@@ -15,6 +15,7 @@ module.exports = function (api) {
           verbose: false,
         },
       ],
+      ['inline-import', { extensions: ['.sql'] }], // Drizzle SQL migrations
       'react-native-reanimated/plugin',
     ],
   };

@@ -4,3 +4,5 @@ export * from './trip';
 export * from './schedule';
 export * from './expense';
 export * from './places';
+export * from './sync-queue';
+export * from './sync';

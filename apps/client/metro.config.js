@@ -18,6 +18,9 @@ config.resolver.nodeModulesPaths = [
 
 config.resolver.symlinks = true;
 
+// Drizzle: SQL 파일 import 지원
+config.resolver.sourceExts.push('sql');
+
 module.exports = withNativeWind(config, {
   input: path.resolve(workspaceRoot, 'apps/client/styles/global.css'),
 });

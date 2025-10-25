@@ -2,7 +2,8 @@ import { View, Text, ScrollView } from 'react-native';
 import { Container, Stack, MobileHeader } from '@/shared/components';
 import { Avatar, AvatarFallback, Switch, Separator, Pressable } from '@repo/ui';
 import { useState } from 'react';
-import { User, Sun, Moon, Settings, Globe, Download, ChevronRight } from 'lucide-react-native';
+import { User, Sun, Moon, Settings, Globe, Download, ChevronRight, Bug } from 'lucide-react-native';
+import { router } from 'expo-router';
 
 export default function ProfileScreen() {
   const [darkMode, setDarkMode] = useState(false);
@@ -15,16 +16,18 @@ export default function ProfileScreen() {
   };
 
   const menuItems: Array<{
-    icon: 'sun' | 'moon' | 'settings' | 'globe' | 'download';
+    icon: 'sun' | 'moon' | 'settings' | 'globe' | 'download' | 'bug';
     label: string;
     hasSwitch: boolean;
     value?: boolean;
     onChange?: (value: boolean) => void;
+    onPress?: () => void;
   }> = [
     { icon: 'sun', label: '다크 모드', hasSwitch: true, value: darkMode, onChange: setDarkMode },
     { icon: 'settings', label: '설정', hasSwitch: false },
     { icon: 'globe', label: '언어 설정', hasSwitch: false },
     { icon: 'download', label: '오프라인 지도 관리', hasSwitch: false },
+    { icon: 'bug', label: '디버그 콘솔 (개발자)', hasSwitch: false, onPress: () => router.push('/debug') },
   ];
 
   const infoItems = [
@@ -67,7 +70,9 @@ export default function ProfileScreen() {
                       ? Settings
                       : item.icon === 'globe'
                         ? Globe
-                        : Download;
+                        : item.icon === 'bug'
+                          ? Bug
+                          : Download;
 
                 return (
                   <View key={item.label}>
@@ -76,7 +81,11 @@ export default function ProfileScreen() {
                       className='flex-row items-center justify-between p-sm'
                       onPress={() => {
                         if (!item.hasSwitch) {
-                          console.log('Menu item pressed:', item.label);
+                          if (item.onPress) {
+                            item.onPress();
+                          } else {
+                            console.log('Menu item pressed:', item.label);
+                          }
                         }
                       }}
                     >
