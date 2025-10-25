@@ -43,8 +43,8 @@ router.get('/', async (req: Request, res: Response) => {
     const validatedTrips = allTrips.map((trip) => {
       const validated = tripSchema.safeParse({
         ...trip,
-        startDate: trip.startDate?.toISOString() || null,
-        endDate: trip.endDate?.toISOString() || null,
+        startDate: trip.startDate.toISOString(),
+        endDate: trip.endDate.toISOString(),
         createdAt: trip.createdAt.toISOString(),
         updatedAt: trip.updatedAt.toISOString(),
       });
@@ -97,24 +97,21 @@ router.post('/', async (req: Request, res: Response) => {
     const { id, userId, name, destination, country, latitude, longitude, cityId, startDate, endDate } =
       validationResult.data;
 
-    // 날짜 검증
-    if (startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
+    const start = new Date(startDate);
+    const end = new Date(endDate);
 
-      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-        return res.status(400).json({
-          error: 'Invalid date format',
-          message: 'startDate and endDate must be valid dates',
-        });
-      }
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return res.status(400).json({
+        error: 'Invalid date format',
+        message: 'startDate and endDate must be valid dates',
+      });
+    }
 
-      if (start > end) {
-        return res.status(400).json({
-          error: 'Invalid date range',
-          message: 'startDate must be before endDate',
-        });
-      }
+    if (start > end) {
+      return res.status(400).json({
+        error: 'Invalid date range',
+        message: 'startDate must be before endDate',
+      });
     }
 
     // ✨ Echo 아키텍처: 클라이언트가 생성한 ID 사용 (Local-First)
@@ -130,16 +127,16 @@ router.post('/', async (req: Request, res: Response) => {
         latitude: latitude ? latitude.toString() : null,
         longitude: longitude ? longitude.toString() : null,
         cityId: cityId || null,
-        startDate: startDate ? new Date(startDate) : null,
-        endDate: endDate ? new Date(endDate) : null,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
       })
       .returning();
 
     // Zod로 응답 데이터 검증
     const validatedTrip = tripSchema.safeParse({
       ...newTrip,
-      startDate: newTrip.startDate?.toISOString() || null,
-      endDate: newTrip.endDate?.toISOString() || null,
+      startDate: newTrip.startDate.toISOString(),
+      endDate: newTrip.endDate.toISOString(),
       createdAt: newTrip.createdAt.toISOString(),
       updatedAt: newTrip.updatedAt.toISOString(),
     });
@@ -275,8 +272,8 @@ router.patch('/:id', async (req: Request, res: Response) => {
     // Zod로 응답 데이터 검증
     const validatedTrip = tripSchema.safeParse({
       ...updatedTrip,
-      startDate: updatedTrip.startDate?.toISOString() || null,
-      endDate: updatedTrip.endDate?.toISOString() || null,
+      startDate: updatedTrip.startDate.toISOString(),
+      endDate: updatedTrip.endDate.toISOString(),
       createdAt: updatedTrip.createdAt.toISOString(),
       updatedAt: updatedTrip.updatedAt.toISOString(),
     });
