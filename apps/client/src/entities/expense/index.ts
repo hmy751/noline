@@ -1,5 +1,18 @@
-// UI Components
-export * from './ui';
+// Model
+export type {
+  Expense,
+  CreateExpenseRequest,
+  UpdateExpenseRequest,
+  ExpenseResponse,
+  ExpenseData,
+  ExpenseCategory,
+  Currency,
+} from './model';
+export { EXPENSE_CATEGORIES, CURRENCIES, CURRENCY_SYMBOLS } from './model';
 
-// Types (from schema)
-export type { Expense, InsertExpense, UpdateExpense } from '@repo/schema';
+// Data Hooks
+export { useGetExpenses, expenseQueryKeys } from './data';
+export { useCreateExpense } from './data';
+
+// UI Components
+export { ExpenseCard } from './ui';
