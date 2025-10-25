@@ -238,8 +238,8 @@ export default function ScheduleScreen() {
               setSelectedScheduleId(scheduleId);
               const index = schedulesForMap.findIndex((s) => s.id === scheduleId);
               if (index > -1 && carouselRef.current) {
-                // 카드 너비 340px + gap 16px = 356px
-                carouselRef.current.scrollTo({ x: index * 356, animated: true });
+                // 카드 너비 330px + gap 16px = 346px
+                carouselRef.current.scrollTo({ x: index * 346, animated: true });
               }
             }}
           />
@@ -277,10 +277,10 @@ export default function ScheduleScreen() {
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
-                snapToInterval={356}
+                snapToInterval={346}
                 decelerationRate='fast'
                 onMomentumScrollEnd={(event) => {
-                  const index = Math.round(event.nativeEvent.contentOffset.x / 356);
+                  const index = Math.round(event.nativeEvent.contentOffset.x / 346);
                   if (schedulesForMap[index]) {
                     setSelectedScheduleId(schedulesForMap[index].id);
                   }

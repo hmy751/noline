@@ -1,6 +1,6 @@
 import { StyleSheet, View, Text } from 'react-native';
 import { useRef, useEffect } from 'react';
-import RNMapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import RNMapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 
 interface Schedule {
   id: string;
@@ -92,6 +92,20 @@ export function ScheduleMapView({
       showsUserLocation
       showsMyLocationButton
     >
+      {/* 경로 선 (점선) */}
+      {schedulesWithCoords.length > 1 && (
+        <Polyline
+          coordinates={schedulesWithCoords.map((s) => ({
+            latitude: s.latitude!,
+            longitude: s.longitude!,
+          }))}
+          strokeColor='#228B22'
+          strokeWidth={3}
+          lineDashPattern={[10, 10]}
+        />
+      )}
+
+      {/* 마커들 */}
       {schedulesWithCoords.map((schedule, index) => {
         const isSelected = schedule.id === selectedScheduleId;
         return (
