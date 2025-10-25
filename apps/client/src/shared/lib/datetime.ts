@@ -197,3 +197,20 @@ export function formatISOToRelative(isoString: string): string {
 export function getCurrentISOString(): string {
   return new Date().toISOString();
 }
+
+/**
+ * 날짜 문자열을 ISO datetime string으로 변환 (UTC 자정 기준)
+ *
+ * @param dateString - 날짜 문자열 ("2024-03-15" 형식)
+ * @returns ISO 8601 datetime string
+ *
+ * @example
+ * ```ts
+ * dateToISODateTime("2024-03-15");
+ * // → "2024-03-15T00:00:00.000Z"
+ * ```
+ */
+export function dateToISODateTime(dateString: string): string {
+  const date = new Date(dateString + 'T00:00:00.000Z'); // UTC 자정
+  return date.toISOString();
+}

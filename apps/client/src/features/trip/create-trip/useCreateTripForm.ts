@@ -6,6 +6,7 @@ import { useCreateTrip } from '@/entities/trip';
 import { useRouter } from 'expo-router';
 import { City } from './geonames.api';
 import { generateId } from '@/shared/services/id/ulid';
+import { dateToISODateTime } from '@/shared/lib/datetime';
 
 // Zod 스키마로 폼 검증 정의
 const tripFormSchema = z
@@ -74,8 +75,8 @@ export const useCreateTripForm = (city: City) => {
         latitude: city.latitude,
         longitude: city.longitude,
         cityId: city.id,
-        startDate: data.startDate,
-        endDate: data.endDate,
+        startDate: dateToISODateTime(data.startDate), // ✅ ISO datetime 변환
+        endDate: dateToISODateTime(data.endDate), // ✅ ISO datetime 변환
       },
       {
         onSuccess: () => {

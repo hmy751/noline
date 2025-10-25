@@ -11,6 +11,7 @@ import { tripDateFormSchema, type TripDateFormData } from './schema';
 import { useCreateTrip } from '@/entities/trip';
 import { useRouter } from 'expo-router';
 import { generateId } from '@/shared/services/id/ulid';
+import { dateToISODateTime } from '@/shared/lib/datetime';
 
 type TripDateFormProps = {
   city: City;
@@ -59,8 +60,8 @@ export default function TripDateForm({ city }: TripDateFormProps) {
         latitude: city.latitude,
         longitude: city.longitude,
         cityId: city.id,
-        startDate: data.startDate,
-        endDate: data.endDate,
+        startDate: dateToISODateTime(data.startDate), // ✅ ISO datetime 변환
+        endDate: dateToISODateTime(data.endDate), // ✅ ISO datetime 변환
       },
       {
         onSuccess: () => {

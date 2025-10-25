@@ -52,12 +52,29 @@ router.get('/pull', async (req: Request, res: Response) => {
       schedules: schedulesData.length,
     });
 
+    // ✅ Date 객체를 ISO string으로 변환
+    const tripsFormatted = tripsData.map((trip) => ({
+      ...trip,
+      startDate: trip.startDate.toISOString(),
+      endDate: trip.endDate.toISOString(),
+      createdAt: trip.createdAt.toISOString(),
+      updatedAt: trip.updatedAt.toISOString(),
+    }));
+
+    const schedulesFormatted = schedulesData.map((schedule) => ({
+      ...schedule,
+      scheduledAt: schedule.scheduledAt.toISOString(),
+      createdAt: schedule.createdAt.toISOString(),
+      updatedAt: schedule.updatedAt.toISOString(),
+      deletedAt: schedule.deletedAt?.toISOString() || null,
+    }));
+
     // 서버 시간 반환 (다음 동기화의 기준점)
     const serverTime = new Date().toISOString();
 
     res.status(200).json({
-      trips: tripsData,
-      schedules: schedulesData,
+      trips: tripsFormatted,
+      schedules: schedulesFormatted,
       serverTime,
     });
   } catch (error) {

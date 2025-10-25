@@ -8,6 +8,7 @@ import DatePicker from '@/shared/components/DatePicker';
 import { Field } from '@/shared/components/Form';
 import { type TripData, useUpdateTrip, useDeleteTrip } from '@/entities/trip';
 import { tripEditFormSchema, type TripEditFormData } from './schema';
+import { formatISOToLocalDate, dateToISODateTime } from '@/shared/lib/datetime';
 
 export type EditTripDrawerProps = {
   isOpen: boolean;
@@ -23,8 +24,8 @@ export const EditTripDrawer = ({ isOpen, onClose, trip }: EditTripDrawerProps) =
   const { control, handleSubmit, setValue } = useForm<TripEditFormData>({
     resolver: zodResolver(tripEditFormSchema),
     defaultValues: {
-      startDate: trip?.startDate || '',
-      endDate: trip?.endDate || '',
+      startDate: trip?.startDate ? formatISOToLocalDate(trip.startDate) : '', // ✅ ISO string → 날짜만
+      endDate: trip?.endDate ? formatISOToLocalDate(trip.endDate) : '',
     },
     mode: 'onChange',
   });
@@ -73,8 +74,8 @@ export const EditTripDrawer = ({ isOpen, onClose, trip }: EditTripDrawerProps) =
       {
         id: trip.id,
         data: {
-          startDate: data.startDate,
-          endDate: data.endDate,
+          startDate: dateToISODateTime(data.startDate), // ✅ ISO datetime 변환
+          endDate: dateToISODateTime(data.endDate), // ✅ ISO datetime 변환
         },
       },
       {

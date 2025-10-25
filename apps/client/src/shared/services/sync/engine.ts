@@ -107,13 +107,23 @@ export async function pullChanges(): Promise<void> {
       serverTime,
     });
 
-    // 3. 로컬 DB에 Upsert
+    // 3. 로컬 DB에 Upsert (ISO string 그대로 저장)
     if (trips && trips.length > 0) {
-      await upsertTrips(trips);
+      const normalizedTrips = trips.map((trip: any) => ({
+        ...trip,
+        // ✅ ISO string 그대로 저장 (TEXT 컬럼)
+        version: trip.version ?? 1,
+      }));
+      await upsertTrips(normalizedTrips);
     }
 
     if (schedules && schedules.length > 0) {
-      await upsertSchedules(schedules);
+      const normalizedSchedules = schedules.map((schedule: any) => ({
+        ...schedule,
+        // ✅ ISO string 그대로 저장 (TEXT 컬럼)
+        version: schedule.version ?? 1,
+      }));
+      await upsertSchedules(normalizedSchedules);
     }
 
     // 4. React Query 캐시 무효화 → UI 자동 갱신
