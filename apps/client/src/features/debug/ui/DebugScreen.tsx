@@ -197,7 +197,7 @@ export default function DebugScreen() {
               onPress={handleManualSync}
             >
               <Upload size={16} color='#228B22' />
-              <Text className='text-body text-primary font-semibold'>서버로 동기화 (Push)</Text>
+              <Text className='text-body text-primary font-semibold'>🔄 전체 동기화 (Push + Pull)</Text>
             </Pressable>
 
             <View className='rounded-lg bg-card p-md border border-card-border'>
