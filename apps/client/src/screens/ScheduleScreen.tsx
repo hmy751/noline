@@ -183,10 +183,7 @@ export default function ScheduleScreen() {
                           key={schedule.id}
                           date={group.dateLabel}
                           {...schedule}
-                          onPress={() => {
-                            // TODO: Navigate to schedule detail
-                            console.log('Navigate to schedule detail:', schedule.id);
-                          }}
+                          onPress={() => router.push(`/schedules/${schedule.id}`)}
                         />
                       ))
                     ) : (
@@ -214,10 +211,7 @@ export default function ScheduleScreen() {
               hour12: false,
             }),
           }))}
-          onSchedulePress={(scheduleId: string) => {
-            console.log('Navigate to schedule detail:', scheduleId);
-            // TODO: Navigate to schedule detail
-          }}
+          onSchedulePress={(scheduleId: string) => router.push(`/schedules/${scheduleId}`)}
         />
       )}
     </View>
