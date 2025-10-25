@@ -65,6 +65,29 @@ export async function initializeDatabase() {
       );
     `);
 
+    // Expenses 테이블 생성
+    expoDb.execSync(`
+      CREATE TABLE IF NOT EXISTS expenses (
+        id TEXT PRIMARY KEY NOT NULL,
+        user_id TEXT NOT NULL,
+        trip_id TEXT NOT NULL,
+        schedule_id TEXT,
+        title TEXT NOT NULL,
+        amount TEXT NOT NULL,
+        currency TEXT NOT NULL DEFAULT 'EUR',
+        category TEXT NOT NULL,
+        date TEXT NOT NULL,
+        has_receipt INTEGER NOT NULL DEFAULT 0,
+        receipt_url TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        deleted_at TEXT,
+        version INTEGER NOT NULL DEFAULT 1,
+        FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE,
+        FOREIGN KEY (schedule_id) REFERENCES schedules(id) ON DELETE SET NULL
+      );
+    `);
+
     // Sync Queue 테이블 생성
     expoDb.execSync(`
       CREATE TABLE IF NOT EXISTS sync_queue (
@@ -95,6 +118,9 @@ export async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_trips_deleted_at ON trips(deleted_at);
       CREATE INDEX IF NOT EXISTS idx_schedules_trip_id ON schedules(trip_id);
       CREATE INDEX IF NOT EXISTS idx_schedules_deleted_at ON schedules(deleted_at);
+      CREATE INDEX IF NOT EXISTS idx_expenses_trip_id ON expenses(trip_id);
+      CREATE INDEX IF NOT EXISTS idx_expenses_schedule_id ON expenses(schedule_id);
+      CREATE INDEX IF NOT EXISTS idx_expenses_deleted_at ON expenses(deleted_at);
       CREATE INDEX IF NOT EXISTS idx_sync_queue_status ON sync_queue(status);
       CREATE INDEX IF NOT EXISTS idx_sync_queue_created_at ON sync_queue(created_at);
     `);
@@ -116,6 +142,7 @@ export async function resetDatabase() {
 
   expoDb.execSync(`DROP TABLE IF EXISTS sync_metadata;`);
   expoDb.execSync(`DROP TABLE IF EXISTS sync_queue;`);
+  expoDb.execSync(`DROP TABLE IF EXISTS expenses;`);
   expoDb.execSync(`DROP TABLE IF EXISTS schedules;`);
   expoDb.execSync(`DROP TABLE IF EXISTS trips;`);
 
