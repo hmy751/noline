@@ -11,9 +11,10 @@ import { ExpenseForm, useCreateExpenseForm } from '@/features/expense/create-exp
  */
 export default function CreateExpenseScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ tripId: string; scheduleId?: string }>();
+  const params = useLocalSearchParams<{ tripId: string; date?: string; scheduleId?: string }>();
 
   const tripId = params.tripId;
+  const date = params.date; // ISO date string (YYYY-MM-DD)
   const scheduleId = params.scheduleId;
 
   if (!tripId) {
@@ -26,6 +27,7 @@ export default function CreateExpenseScreen() {
 
   const { form, isPending, onSubmit } = useCreateExpenseForm({
     tripId,
+    date,
     scheduleId,
   });
 

@@ -39,16 +39,22 @@ export default function ExpensesScreen() {
 
   const dateRange = generateDateRange();
 
-  // 날짜별로 경비 매칭
+  // 날짜별로 경비 매칭 (여행 기간 밖 경비도 포함)
   const expensesByDate = useMemo(() => {
-    return dateRange
+    // 모든 경비의 날짜 수집
+    const allDates = new Set([...dateRange, ...expenses.map((e) => e.date)]);
+    const sortedDates = Array.from(allDates).sort();
+
+    return sortedDates
       .map((date) => {
         const dayExpenses = expenses.filter((expense) => expense.date === date);
+        const isInTripRange = dateRange.includes(date);
 
         return {
           date,
           dateLabel: date,
           items: dayExpenses,
+          isInTripRange, // 여행 기간 내 날짜인지 표시
         };
       })
       .reverse(); // 최신 날짜가 위로 오도록 역순
@@ -108,15 +114,15 @@ export default function ExpensesScreen() {
               </View>
             )}
 
-            {!isLoading && selectedTrip && dateRange.length === 0 && (
+            {!isLoading && selectedTrip && expenses.length === 0 && (
               <View className='flex-1 items-center justify-center py-xl'>
-                <Text className='text-body text-muted-foreground'>여행 날짜를 설정해주세요</Text>
+                <Text className='text-body text-muted-foreground'>경비를 추가해보세요</Text>
               </View>
             )}
 
-            {/* Expense List by Date - 날짜 범위가 있으면 항상 표시 */}
+            {/* Expense List by Date - 경비가 있는 모든 날짜 표시 */}
             {!isLoading &&
-              dateRange.length > 0 &&
+              expensesByDate.length > 0 &&
               expensesByDate.map((group) => (
                 <View key={group.date} className='flex-col gap-sm'>
                   {/* Date Header */}
@@ -126,13 +132,18 @@ export default function ExpensesScreen() {
                       <View className='rounded-full bg-muted px-xs py-3xs'>
                         <Text className='text-label text-foreground'>{group.items.length}개</Text>
                       </View>
+                      {!group.isInTripRange && (
+                        <View className='rounded-full bg-destructive/10 px-xs py-3xs'>
+                          <Text className='text-label text-destructive'>여행 기간 외</Text>
+                        </View>
+                      )}
                     </View>
                     <Pressable
                       variant='outline'
                       className='flex-row items-center gap-3xs rounded-md border border-card-border bg-card px-xs py-3xs active:bg-muted'
                       onPress={() => {
                         if (selectedTripId) {
-                          router.push(`/create-expense?tripId=${selectedTripId}`);
+                          router.push(`/create-expense?tripId=${selectedTripId}&date=${group.date}`);
                         } else {
                           console.log('여행을 먼저 선택해주세요');
                         }

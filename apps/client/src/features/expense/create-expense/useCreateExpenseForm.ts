@@ -7,11 +7,12 @@ import { createExpenseFormSchema, type CreateExpenseFormData } from './schema';
 
 interface UseCreateExpenseFormProps {
   tripId: string;
+  date?: string; // 경비 날짜 (ISO date string, YYYY-MM-DD)
   scheduleId?: string;
   onSuccess?: () => void;
 }
 
-export const useCreateExpenseForm = ({ tripId, scheduleId, onSuccess }: UseCreateExpenseFormProps) => {
+export const useCreateExpenseForm = ({ tripId, date, scheduleId, onSuccess }: UseCreateExpenseFormProps) => {
   const router = useRouter();
 
   const form = useForm<CreateExpenseFormData>({
@@ -29,8 +30,8 @@ export const useCreateExpenseForm = ({ tripId, scheduleId, onSuccess }: UseCreat
   const { mutate: createExpense, isPending } = useCreateExpense();
 
   const onValid = (data: CreateExpenseFormData) => {
-    // 현재 날짜를 ISO date string으로 (YYYY-MM-DD)
-    const today = new Date().toISOString().split('T')[0];
+    // 날짜: 전달받은 날짜 또는 오늘 날짜
+    const expenseDate = date || new Date().toISOString().split('T')[0];
 
     createExpense(
       {
@@ -40,7 +41,7 @@ export const useCreateExpenseForm = ({ tripId, scheduleId, onSuccess }: UseCreat
         amount: data.amount,
         currency: data.currency,
         category: data.category,
-        date: today, // ✅ ISO date string
+        date: expenseDate, // ✅ 지정된 날짜 또는 오늘 날짜
         scheduleId: data.scheduleId || null,
         hasReceipt: false,
         receiptUrl: null,
