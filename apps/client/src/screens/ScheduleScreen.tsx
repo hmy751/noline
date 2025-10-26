@@ -10,6 +10,7 @@ import { Map, List } from 'lucide-react-native';
 import { ScheduleListView } from '@/features/schedule/schedule-list-view';
 import { ScheduleMapViewContainer } from '@/features/schedule/schedule-map-view';
 import { ScheduleMenu } from '@/features/schedule/schedule-menu';
+import { UpdateScheduleDrawer } from '@/features/schedule/update-schedule';
 import { formatISOToLocalDate, formatISOToLocalTime } from '@/shared/lib/datetime';
 
 type ViewMode = 'list' | 'map';
@@ -35,6 +36,7 @@ export default function ScheduleScreen() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const { selectedTripId } = useTripStore();
   const [isScheduleMenuOpen, setIsScheduleMenuOpen] = useState(false);
+  const [isUpdateDrawerOpen, setIsUpdateDrawerOpen] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState<{
     id: string;
     tripId: string;
@@ -98,7 +100,7 @@ export default function ScheduleScreen() {
   };
 
   const handleEditSchedule = () => {
-    Alert.alert('일정 수정', `"${selectedSchedule?.title}" 일정을 수정합니다. (구현 예정)`);
+    setIsUpdateDrawerOpen(true);
   };
 
   const handleDeleteSchedule = () => {
@@ -203,12 +205,31 @@ export default function ScheduleScreen() {
         isOpen={isScheduleMenuOpen}
         onClose={() => {
           setIsScheduleMenuOpen(false);
-          setSelectedSchedule(null);
           setButtonPosition(undefined);
+          // selectedSchedule는 드로어에서 사용하므로 여기서 초기화하지 않음
         }}
         onEdit={handleEditSchedule}
         onDelete={handleDeleteSchedule}
         buttonPosition={buttonPosition}
+      />
+
+      {/* Update Schedule Drawer */}
+      <UpdateScheduleDrawer
+        isOpen={isUpdateDrawerOpen}
+        onClose={() => {
+          setIsUpdateDrawerOpen(false);
+          setSelectedSchedule(null); // 드로어를 닫을 때 초기화
+        }}
+        scheduleData={
+          selectedSchedule
+            ? {
+                id: selectedSchedule.id,
+                title: selectedSchedule.title,
+                date: selectedSchedule.scheduledAt.split('T')[0],
+                time: selectedSchedule.time,
+              }
+            : null
+        }
       />
     </View>
   );
