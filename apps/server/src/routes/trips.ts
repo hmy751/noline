@@ -183,8 +183,8 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
-// PATCH /api/trips/:id - 여행 수정
-router.patch('/:id', async (req: Request, res: Response) => {
+// PUT /api/trips/:id - 여행 수정
+router.put('/:id', async (req: Request, res: Response) => {
   try {
     const tripId = req.params.id;
     const userId = '01HZQ8K9X7M2N3P4Q5R6S7T8V9'; // 테스트용 ULID
@@ -307,7 +307,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
   }
 });
 
-// DELETE /api/trips/:id - 여행 삭제 (Soft Delete)
+// DELETE /api/trips/:id - 여행 삭제
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const tripId = req.params.id; // ULID는 문자열

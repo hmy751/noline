@@ -201,16 +201,43 @@ export function getCurrentISOString(): string {
 /**
  * 날짜 문자열을 ISO datetime string으로 변환 (UTC 자정 기준)
  *
- * @param dateString - 날짜 문자열 ("2024-03-15" 형식)
+ * @param dateString - 날짜 문자열 ("2024-03-15" 형식 또는 ISO datetime)
  * @returns ISO 8601 datetime string
  *
  * @example
  * ```ts
  * dateToISODateTime("2024-03-15");
  * // → "2024-03-15T00:00:00.000Z"
+ *
+ * dateToISODateTime("2024-03-15T10:30:00.000Z");
+ * // → "2024-03-15T10:30:00.000Z" (이미 ISO datetime이면 그대로 반환)
  * ```
  */
 export function dateToISODateTime(dateString: string): string {
+  if (!dateString) {
+    throw new Error('dateString is required');
+  }
+
+  // 이미 ISO datetime 형식인 경우 (T 포함)
+  if (dateString.includes('T')) {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      throw new Error(`Invalid datetime string: ${dateString}`);
+    }
+    return date.toISOString();
+  }
+
+  // "YYYY-MM-DD" 형식인 경우
+  // YYYY-MM-DD 형식 검증
+  const dateOnlyRegex = /^\d{4}-\d{2}-\d{2}$/;
+  if (!dateOnlyRegex.test(dateString)) {
+    throw new Error(`Invalid date format: ${dateString}. Expected YYYY-MM-DD or ISO datetime`);
+  }
+
   const date = new Date(dateString + 'T00:00:00.000Z'); // UTC 자정
+  if (isNaN(date.getTime())) {
+    throw new Error(`Invalid date: ${dateString}`);
+  }
+
   return date.toISOString();
 }
