@@ -26,6 +26,7 @@ interface ScheduleListViewProps {
   isLoading: boolean;
   hasTrip: boolean;
   hasDates: boolean;
+  onScheduleMenuPress?: (schedule: Schedule, event: unknown) => void;
 }
 
 export function ScheduleListView({
@@ -34,6 +35,7 @@ export function ScheduleListView({
   isLoading,
   hasTrip,
   hasDates,
+  onScheduleMenuPress,
 }: ScheduleListViewProps) {
   if (!hasTrip) {
     return (
@@ -111,6 +113,7 @@ export function ScheduleListView({
                         `/schedules/${schedule.id}?tripId=${schedule.tripId}&scheduledAt=${encodeURIComponent(schedule.scheduledAt)}`,
                       )
                     }
+                    onMenuPress={(event) => onScheduleMenuPress?.(schedule, event)}
                   />
                 ))
               ) : (

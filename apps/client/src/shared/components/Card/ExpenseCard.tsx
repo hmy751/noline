@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity } from 'react-native';
-import { Card, Badge, cn } from '@repo/ui';
-import { MapPin, Camera, Clock } from 'lucide-react-native';
+import { Card, Badge, cn, Pressable } from '@repo/ui';
+import { MapPin, Camera, Clock, MoreVertical } from 'lucide-react-native';
 
 interface ExpenseCardProps {
   title: string;
@@ -13,6 +13,7 @@ interface ExpenseCardProps {
   isPending?: boolean;
   className?: string;
   onPress?: () => void;
+  onMenuPress?: (event: any) => void;
 }
 
 export function ExpenseCard({
@@ -26,23 +27,39 @@ export function ExpenseCard({
   isPending = false,
   className,
   onPress,
+  onMenuPress,
 }: ExpenseCardProps) {
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
-      <Card className={cn('p-sm flex-col gap-xs', className)}>
+      <Card className={cn('p-sm flex-col gap-xs relative', className)}>
         {/* Title and Amount */}
         <View className='flex-row items-start justify-between'>
-          <Text className='flex-1 text-title-medium text-foreground'>{title}</Text>
-          {isPending && (
-            <Badge variant='outline' className='ml-xs'>
-              <Clock size={10} color='hsl(45, 90%, 55%)' strokeWidth={2} />
-            </Badge>
-          )}
-          {hasReceipt && (
-            <Badge variant='outline' className='ml-xs'>
-              <Camera size={10} color='hsl(0, 0%, 12%)' strokeWidth={2} />
-            </Badge>
-          )}
+          <Text className='flex-1 text-title-medium text-foreground pr-8'>{title}</Text>
+          <View className='flex-row items-center gap-xs'>
+            {isPending && (
+              <Badge variant='outline'>
+                <Clock size={10} color='hsl(45, 90%, 55%)' strokeWidth={2} />
+              </Badge>
+            )}
+            {hasReceipt && (
+              <Badge variant='outline'>
+                <Camera size={10} color='hsl(0, 0%, 12%)' strokeWidth={2} />
+              </Badge>
+            )}
+            {/* Menu Button */}
+            {onMenuPress && (
+              <Pressable
+                variant='ghost'
+                className='rounded-full p-2xs'
+                onPress={(event) => {
+                  event.stopPropagation();
+                  onMenuPress(event);
+                }}
+              >
+                <MoreVertical size={20} color='#666' strokeWidth={2} />
+              </Pressable>
+            )}
+          </View>
         </View>
 
         <Text className='text-display-medium text-primary'>

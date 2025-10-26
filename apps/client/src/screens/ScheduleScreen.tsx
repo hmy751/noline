@@ -1,14 +1,15 @@
 import { useState, useMemo } from 'react';
-import { View } from 'react-native';
+import { View, Alert } from 'react-native';
 import { MobileHeader } from '@/shared/components';
 import { TripSelector } from '@/entities/trip';
 import { useGetSchedules } from '@/entities/schedule';
 import { useGetTrips } from '@/entities/trip';
 import { useTripStore } from '@/shared/store';
 import { Pressable } from '@repo/ui';
-import { Menu, Map, List } from 'lucide-react-native';
+import { Map, List } from 'lucide-react-native';
 import { ScheduleListView } from '@/features/schedule/schedule-list-view';
 import { ScheduleMapViewContainer } from '@/features/schedule/schedule-map-view';
+import { ScheduleMenu } from '@/features/schedule/schedule-menu';
 import { formatISOToLocalDate, formatISOToLocalTime } from '@/shared/lib/datetime';
 
 type ViewMode = 'list' | 'map';
@@ -33,6 +34,20 @@ interface ScheduleByDate {
 export default function ScheduleScreen() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const { selectedTripId } = useTripStore();
+  const [isScheduleMenuOpen, setIsScheduleMenuOpen] = useState(false);
+  const [selectedSchedule, setSelectedSchedule] = useState<{
+    id: string;
+    tripId: string;
+    scheduledAt: string;
+    time: string;
+    title: string;
+    location: string;
+    expense?: string;
+    expenseCount?: number;
+  } | null>(null);
+  const [buttonPosition, setButtonPosition] = useState<
+    { x: number; y: number; width: number; height: number } | undefined
+  >(undefined);
 
   const { data: trips = [] } = useGetTrips();
   const { data: schedules = [], isLoading } = useGetSchedules(selectedTripId || '');
@@ -58,6 +73,49 @@ export default function ScheduleScreen() {
   };
 
   const dateRange = generateDateRange();
+
+  // 일정 메뉴 핸들러
+  const handleScheduleMenuPress = (
+    schedule: {
+      id: string;
+      tripId: string;
+      scheduledAt: string;
+      time: string;
+      title: string;
+      location: string;
+      expense?: string;
+      expenseCount?: number;
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    event: any,
+  ) => {
+    setSelectedSchedule(schedule);
+    // 버튼 위치 측정
+    event.currentTarget.measure((x: number, y: number, width: number, height: number, pageX: number, pageY: number) => {
+      setButtonPosition({ x: pageX, y: pageY, width, height });
+    });
+    setIsScheduleMenuOpen(true);
+  };
+
+  const handleEditSchedule = () => {
+    Alert.alert('일정 수정', `"${selectedSchedule?.title}" 일정을 수정합니다. (구현 예정)`);
+  };
+
+  const handleDeleteSchedule = () => {
+    Alert.alert('일정 삭제', `"${selectedSchedule?.title}" 일정을 삭제하시겠습니까?`, [
+      {
+        text: '취소',
+        style: 'cancel',
+      },
+      {
+        text: '삭제',
+        style: 'destructive',
+        onPress: () => {
+          Alert.alert('성공', '일정이 삭제되었습니다. (구현 예정)');
+        },
+      },
+    ]);
+  };
 
   // 날짜별로 일정 그룹화
   const schedulesByDate: ScheduleByDate[] = useMemo(() => {
@@ -94,14 +152,14 @@ export default function ScheduleScreen() {
         title='일정'
         rightAction={
           <View className='flex-row items-center gap-2xs'>
-            <Pressable
+            {/* <Pressable
               variant='ghost'
               className='h-10 w-10 items-center justify-center rounded-full active:bg-muted'
               accessibilityRole='button'
               accessibilityLabel='메뉴 열기'
             >
               <Menu size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
-            </Pressable>
+            </Pressable> */}
             <Pressable
               variant='ghost'
               className='h-10 w-10 items-center justify-center rounded-full active:bg-muted'
@@ -130,6 +188,7 @@ export default function ScheduleScreen() {
           isLoading={isLoading}
           hasTrip={!!selectedTrip}
           hasDates={!!(selectedTrip?.startDate && selectedTrip?.endDate)}
+          onScheduleMenuPress={handleScheduleMenuPress}
         />
       ) : (
         <ScheduleMapViewContainer
@@ -138,6 +197,19 @@ export default function ScheduleScreen() {
           initialDate={dateRange[0] || null}
         />
       )}
+
+      {/* Schedule Menu */}
+      <ScheduleMenu
+        isOpen={isScheduleMenuOpen}
+        onClose={() => {
+          setIsScheduleMenuOpen(false);
+          setSelectedSchedule(null);
+          setButtonPosition(undefined);
+        }}
+        onEdit={handleEditSchedule}
+        onDelete={handleDeleteSchedule}
+        buttonPosition={buttonPosition}
+      />
     </View>
   );
 }
