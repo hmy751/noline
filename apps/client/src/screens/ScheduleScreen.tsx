@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { View, Alert } from 'react-native';
 import { MobileHeader } from '@/shared/components';
 import { TripSelector } from '@/entities/trip';
-import { useGetSchedules } from '@/entities/schedule';
+import { useGetSchedules, useDeleteSchedule } from '@/entities/schedule';
 import { useGetTrips } from '@/entities/trip';
 import { useTripStore } from '@/shared/store';
 import { Pressable } from '@repo/ui';
@@ -53,6 +53,7 @@ export default function ScheduleScreen() {
 
   const { data: trips = [] } = useGetTrips();
   const { data: schedules = [], isLoading } = useGetSchedules(selectedTripId || '');
+  const { mutate: deleteSchedule } = useDeleteSchedule();
 
   // 선택된 여행 정보
   const selectedTrip = trips.find((trip: { id: string }) => trip.id === selectedTripId);
@@ -104,19 +105,36 @@ export default function ScheduleScreen() {
   };
 
   const handleDeleteSchedule = () => {
-    Alert.alert('일정 삭제', `"${selectedSchedule?.title}" 일정을 삭제하시겠습니까?`, [
-      {
-        text: '취소',
-        style: 'cancel',
-      },
-      {
-        text: '삭제',
-        style: 'destructive',
-        onPress: () => {
-          Alert.alert('성공', '일정이 삭제되었습니다. (구현 예정)');
+    if (!selectedSchedule) return;
+
+    Alert.alert(
+      '일정 삭제',
+      `"${selectedSchedule.title}" 일정을 삭제하시겠습니까?`,
+      [
+        {
+          text: '취소',
+          style: 'cancel',
         },
-      },
-    ]);
+        {
+          text: '삭제',
+          style: 'destructive',
+          onPress: () => {
+            deleteSchedule(selectedSchedule.id, {
+              onSuccess: () => {
+                Alert.alert('성공', '일정이 삭제되었습니다.');
+                setIsScheduleMenuOpen(false);
+                setSelectedSchedule(null);
+                setButtonPosition(undefined);
+              },
+              onError: () => {
+                Alert.alert('오류', '일정 삭제에 실패했습니다.');
+              },
+            });
+          },
+        },
+      ],
+      { cancelable: true },
+    );
   };
 
   // 날짜별로 일정 그룹화
