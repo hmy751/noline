@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity } from 'react-native';
-import { Card, cn } from '@repo/ui';
-import { MapPin, Wallet } from 'lucide-react-native';
+import { Card, cn, Pressable } from '@repo/ui';
+import { MapPin, Wallet, MoreVertical } from 'lucide-react-native';
 
 interface ScheduleCardProps {
   date?: string;
@@ -12,6 +12,7 @@ interface ScheduleCardProps {
   currency?: string;
   className?: string;
   onPress?: () => void;
+  onMenuPress?: (event: any) => void;
 }
 
 export function ScheduleCard({
@@ -24,12 +25,27 @@ export function ScheduleCard({
   currency = 'EUR',
   className,
   onPress,
+  onMenuPress,
 }: ScheduleCardProps) {
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.95}>
-      <Card className={cn('p-sm flex-col gap-xs', className)}>
+      <Card className={cn('p-sm flex-col gap-xs relative', className)}>
+        {/* Menu Button */}
+        {onMenuPress && (
+          <Pressable
+            variant='ghost'
+            className='absolute right-xs top-xs rounded-full p-2xs z-10'
+            onPress={(event) => {
+              event.stopPropagation();
+              onMenuPress(event);
+            }}
+          >
+            <MoreVertical size={20} color='#666' strokeWidth={2} />
+          </Pressable>
+        )}
+
         {/* Title */}
-        <Text className='text-title-medium text-foreground'>{title}</Text>
+        <Text className='text-title-medium text-foreground pr-8'>{title}</Text>
 
         {/* Location */}
         <View className='flex-row items-center gap-3xs'>

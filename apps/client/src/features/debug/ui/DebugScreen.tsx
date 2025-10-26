@@ -4,18 +4,20 @@ import { Pressable } from '@repo/ui';
 import { MobileHeader, Container, Stack } from '@/shared/components';
 import { ArrowLeft, Database, Trash2, RefreshCw, Upload, Wifi, WifiOff, RotateCcw } from 'lucide-react-native';
 import { router } from 'expo-router';
-import { db, trips, schedules, syncQueue } from '@/shared/db';
-import type { Trip, Schedule, SyncQueueItem } from '@/shared/db/schema';
+import { db, trips, schedules, expenses, syncQueue } from '@/shared/db';
+import type { Trip, Schedule, Expense, SyncQueueItem } from '@/shared/db/schema';
 import { resetDatabase } from '@/shared/db';
 import { getSyncQueueStats } from '@/shared/services/sync/queue';
 import { triggerSync } from '@/shared/services/sync/engine';
 import { useNetworkOverride } from '../context/NetworkOverrideContext';
 import { useNetworkStatus } from '@/shared/hooks/useNetworkStatus';
+import { formatISOToLocalDateTime } from '@/shared/lib/datetime';
 
 export default function DebugScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [tripsData, setTripsData] = useState<Trip[]>([]);
   const [schedulesData, setSchedulesData] = useState<Schedule[]>([]);
+  const [expensesData, setExpensesData] = useState<Expense[]>([]);
   const [syncQueueData, setSyncQueueData] = useState<SyncQueueItem[]>([]);
   const [stats, setStats] = useState<{ pending: number; inProgress: number; failed: number; total: number } | null>(
     null,
@@ -34,6 +36,9 @@ export default function DebugScreen() {
 
       const schedulesResult = await db.select().from(schedules).all();
       setSchedulesData(schedulesResult);
+
+      const expensesResult = await db.select().from(expenses).all();
+      setExpensesData(expensesResult);
 
       const syncQueueResult = await db.select().from(syncQueue).all();
       setSyncQueueData(syncQueueResult);
@@ -109,6 +114,7 @@ export default function DebugScreen() {
               <View className='gap-2xs'>
                 <Text className='text-body text-foreground'>여행: {tripsData.length}개</Text>
                 <Text className='text-body text-foreground'>일정: {schedulesData.length}개</Text>
+                <Text className='text-body text-foreground'>경비: {expensesData.length}개</Text>
                 {stats && (
                   <>
                     <Text className='text-body text-foreground'>동기화 대기: {stats.pending}개</Text>
@@ -233,10 +239,41 @@ export default function DebugScreen() {
                       <Text className='text-label text-muted-foreground'>ID: {schedule.id.substring(0, 8)}...</Text>
                       <Text className='text-body text-foreground font-semibold'>{schedule.title}</Text>
                       <Text className='text-label text-muted-foreground'>
-                        {schedule.date} {schedule.time}
+                        {formatISOToLocalDateTime(schedule.scheduledAt)}
                       </Text>
                       <Text className='text-label text-muted-foreground'>
                         Trip ID: {schedule.tripId.substring(0, 8)}...
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </View>
+
+            <View className='rounded-lg bg-card p-md border border-card-border'>
+              <Text className='text-title-medium text-foreground mb-sm'>Expenses 테이블</Text>
+              {expensesData.length === 0 ? (
+                <Text className='text-body text-muted-foreground'>데이터가 없습니다.</Text>
+              ) : (
+                <View className='gap-xs'>
+                  {expensesData.map((expense) => (
+                    <View key={expense.id} className='p-xs rounded bg-muted border border-card-border'>
+                      <Text className='text-label text-muted-foreground'>ID: {expense.id.substring(0, 8)}...</Text>
+                      <Text className='text-body text-foreground font-semibold'>{expense.title}</Text>
+                      <Text className='text-label text-muted-foreground'>
+                        {expense.currency} {expense.amount} ({expense.category})
+                      </Text>
+                      <Text className='text-label text-muted-foreground'>Date: {expense.date}</Text>
+                      <Text className='text-label text-muted-foreground'>
+                        Trip ID: {expense.tripId.substring(0, 8)}...
+                      </Text>
+                      {expense.scheduleId && (
+                        <Text className='text-label text-muted-foreground'>
+                          Schedule ID: {expense.scheduleId.substring(0, 8)}...
+                        </Text>
+                      )}
+                      <Text className='text-label text-muted-foreground'>
+                        Version: {expense.version} | {expense.deletedAt ? ' (삭제됨)' : ' (활성)'}
                       </Text>
                     </View>
                   ))}

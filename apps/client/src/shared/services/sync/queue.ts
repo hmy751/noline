@@ -2,6 +2,7 @@ import { eq, and } from 'drizzle-orm';
 import { db } from '@/shared/db';
 import { syncQueue, type NewSyncQueueItem, type SyncQueueItem } from '@/shared/db/schema';
 import { generateId } from '../id/ulid';
+import { getCurrentISOString } from '@/shared/db/utils';
 
 /**
  * sync_queue에 작업 추가
@@ -37,7 +38,7 @@ export async function addToSyncQueue(
     payload: JSON.stringify(payload),
     status: 'PENDING',
     retryCount: 0,
-    createdAt: new Date(),
+    createdAt: getCurrentISOString(),
   };
 
   await db.insert(syncQueue).values(queueItem);
@@ -93,7 +94,7 @@ export async function updateTaskStatus(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const updateData: any = {
     status,
-    updatedAt: new Date(),
+    updatedAt: getCurrentISOString(),
   };
 
   if (retryCount !== undefined) {
@@ -168,7 +169,7 @@ export async function retryFailedTask(taskId: string): Promise<void> {
     .update(syncQueue)
     .set({
       status: 'PENDING',
-      updatedAt: new Date(),
+      updatedAt: getCurrentISOString(),
     })
     .where(eq(syncQueue.id, taskId));
 

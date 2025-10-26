@@ -5,6 +5,8 @@ import { Pressable } from '@repo/ui';
 
 interface Schedule {
   id: string;
+  tripId: string;
+  scheduledAt: string;
   time: string;
   title: string;
   location: string;
@@ -24,6 +26,7 @@ interface ScheduleListViewProps {
   isLoading: boolean;
   hasTrip: boolean;
   hasDates: boolean;
+  onScheduleMenuPress?: (schedule: Schedule, event: unknown) => void;
 }
 
 export function ScheduleListView({
@@ -32,6 +35,7 @@ export function ScheduleListView({
   isLoading,
   hasTrip,
   hasDates,
+  onScheduleMenuPress,
 }: ScheduleListViewProps) {
   if (!hasTrip) {
     return (
@@ -104,7 +108,12 @@ export function ScheduleListView({
                     key={schedule.id}
                     date={group.dateLabel}
                     {...schedule}
-                    onPress={() => router.push(`/schedules/${schedule.id}`)}
+                    onPress={() =>
+                      router.push(
+                        `/schedules/${schedule.id}?tripId=${schedule.tripId}&scheduledAt=${encodeURIComponent(schedule.scheduledAt)}`,
+                      )
+                    }
+                    onMenuPress={(event) => onScheduleMenuPress?.(schedule, event)}
                   />
                 ))
               ) : (

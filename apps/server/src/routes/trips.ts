@@ -2,7 +2,7 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { db, trips, schedules } from '../db/index.js';
 import { desc, sql, eq, and } from 'drizzle-orm';
-import { createTripRequestSchema, updateTripRequestSchema, tripSchema } from '@repo/schema';
+import { createTripRequestSchema, updateTripRequestSchema, tripResponseSchema } from '@repo/schema';
 
 const router = Router();
 
@@ -41,10 +41,12 @@ router.get('/', async (req: Request, res: Response) => {
 
     // Zod로 응답 데이터 검증
     const validatedTrips = allTrips.map((trip) => {
-      const validated = tripSchema.safeParse({
+      const validated = tripResponseSchema.safeParse({
         ...trip,
-        createdAt: trip.createdAt,
-        updatedAt: trip.updatedAt,
+        startDate: trip.startDate.toISOString(),
+        endDate: trip.endDate.toISOString(),
+        createdAt: trip.createdAt.toISOString(),
+        updatedAt: trip.updatedAt.toISOString(),
       });
 
       if (!validated.success) {
@@ -95,24 +97,21 @@ router.post('/', async (req: Request, res: Response) => {
     const { id, userId, name, destination, country, latitude, longitude, cityId, startDate, endDate } =
       validationResult.data;
 
-    // 날짜 검증
-    if (startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
+    const start = new Date(startDate);
+    const end = new Date(endDate);
 
-      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-        return res.status(400).json({
-          error: 'Invalid date format',
-          message: 'startDate and endDate must be valid dates',
-        });
-      }
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return res.status(400).json({
+        error: 'Invalid date format',
+        message: 'startDate and endDate must be valid dates',
+      });
+    }
 
-      if (start > end) {
-        return res.status(400).json({
-          error: 'Invalid date range',
-          message: 'startDate must be before endDate',
-        });
-      }
+    if (start > end) {
+      return res.status(400).json({
+        error: 'Invalid date range',
+        message: 'startDate must be before endDate',
+      });
     }
 
     // ✨ Echo 아키텍처: 클라이언트가 생성한 ID 사용 (Local-First)
@@ -128,16 +127,18 @@ router.post('/', async (req: Request, res: Response) => {
         latitude: latitude ? latitude.toString() : null,
         longitude: longitude ? longitude.toString() : null,
         cityId: cityId || null,
-        startDate: startDate ? new Date(startDate) : null,
-        endDate: endDate ? new Date(endDate) : null,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
       })
       .returning();
 
     // Zod로 응답 데이터 검증
-    const validatedTrip = tripSchema.safeParse({
+    const validatedTrip = tripResponseSchema.safeParse({
       ...newTrip,
-      createdAt: newTrip.createdAt,
-      updatedAt: newTrip.updatedAt,
+      startDate: newTrip.startDate.toISOString(),
+      endDate: newTrip.endDate.toISOString(),
+      createdAt: newTrip.createdAt.toISOString(),
+      updatedAt: newTrip.updatedAt.toISOString(),
     });
 
     if (!validatedTrip.success) {
@@ -182,8 +183,8 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
-// PATCH /api/trips/:id - 여행 수정
-router.patch('/:id', async (req: Request, res: Response) => {
+// PUT /api/trips/:id - 여행 수정
+router.put('/:id', async (req: Request, res: Response) => {
   try {
     const tripId = req.params.id;
     const userId = '01HZQ8K9X7M2N3P4Q5R6S7T8V9'; // 테스트용 ULID
@@ -216,6 +217,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
     // 업데이트할 필드 준비
     const updateData: any = {
       updatedAt: new Date(),
+      version: sql`${trips.version} + 1`, // ✅ version 증가 (Local-First)
     };
 
     if (name !== undefined) updateData.name = name;
@@ -269,10 +271,12 @@ router.patch('/:id', async (req: Request, res: Response) => {
     const [updatedTrip] = await db.update(trips).set(updateData).where(eq(trips.id, tripId)).returning();
 
     // Zod로 응답 데이터 검증
-    const validatedTrip = tripSchema.safeParse({
+    const validatedTrip = tripResponseSchema.safeParse({
       ...updatedTrip,
-      createdAt: updatedTrip.createdAt,
-      updatedAt: updatedTrip.updatedAt,
+      startDate: updatedTrip.startDate.toISOString(),
+      endDate: updatedTrip.endDate.toISOString(),
+      createdAt: updatedTrip.createdAt.toISOString(),
+      updatedAt: updatedTrip.updatedAt.toISOString(),
     });
 
     if (!validatedTrip.success) {
@@ -322,12 +326,25 @@ router.delete('/:id', async (req: Request, res: Response) => {
       });
     }
 
-    // 여행 삭제 (cascade로 연관된 schedules, expenses도 삭제됨)
-    await db.delete(trips).where(eq(trips.id, tripId));
+    // ✅ Soft Delete: deletedAt 설정 (Local-First)
+    // 다른 기기에 삭제가 전파되도록 함
+    const [deletedTrip] = await db
+      .update(trips)
+      .set({
+        deletedAt: new Date(),
+        updatedAt: new Date(),
+        version: sql`${trips.version} + 1`, // ✅ version 증가
+      })
+      .where(eq(trips.id, tripId))
+      .returning();
 
     res.status(200).json({
       success: true,
       message: 'Trip deleted successfully',
+      data: {
+        id: deletedTrip.id,
+        deletedAt: deletedTrip.deletedAt?.toISOString(),
+      },
     });
   } catch (error) {
     console.error('Error deleting trip:', error);
@@ -353,16 +370,25 @@ router.get('/:tripId/schedules', async (req: Request, res: Response) => {
   try {
     const { tripId } = req.params;
 
-    // 여행에 속한 모든 일정 조회 (날짜, 시간 순으로 정렬)
+    // 여행에 속한 모든 일정 조회 (scheduledAt 순으로 정렬)
     const allSchedules = await db
       .select()
       .from(schedules)
       .where(eq(schedules.tripId, tripId))
-      .orderBy(schedules.date, schedules.time);
+      .orderBy(schedules.scheduledAt);
+
+    // ISO string으로 변환
+    const validatedSchedules = allSchedules.map((schedule) => ({
+      ...schedule,
+      scheduledAt: schedule.scheduledAt.toISOString(),
+      createdAt: schedule.createdAt.toISOString(),
+      updatedAt: schedule.updatedAt.toISOString(),
+      deletedAt: schedule.deletedAt?.toISOString() || null,
+    }));
 
     res.status(200).json({
       success: true,
-      data: allSchedules,
+      data: validatedSchedules,
     });
   } catch (error) {
     console.error('Error fetching schedules:', error);

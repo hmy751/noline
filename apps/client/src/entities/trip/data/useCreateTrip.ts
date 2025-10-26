@@ -1,8 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { db, trips } from '@/shared/db';
-import { withTransaction } from '@/shared/db/utils';
+import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
-import { generateId } from '@/shared/services/id/ulid';
 import type { CreateTripRequest } from '../model';
 import { tripQueryKeys } from './useGetTrips';
 
@@ -28,13 +27,13 @@ export const useCreateTrip = () => {
 
   return useMutation({
     mutationFn: async (data: CreateTripRequest) => {
-      const id = generateId();
-      const now = new Date();
+      const id = data.id; // ✅ Echo 아키텍처: 외부에서 전달받은 ID 사용
+      const now = getCurrentISOString();
 
       // 사용자 ID (현재는 테스트용 고정값, 추후 인증 구현 시 실제 userId 사용)
       const userId = data.userId || '01HZQ8K9X7M2N3P4Q5R6S7T8V9';
 
-      // 로컬 DB에 저장할 데이터 준비
+      // 로컬 DB에 저장할 데이터 준비 (모두 ISO string)
       const newTrip = {
         id,
         userId,
@@ -44,10 +43,10 @@ export const useCreateTrip = () => {
         latitude: data.latitude?.toString() || null,
         longitude: data.longitude?.toString() || null,
         cityId: data.cityId || null,
-        startDate: data.startDate ? new Date(data.startDate) : null,
-        endDate: data.endDate ? new Date(data.endDate) : null,
-        createdAt: now,
-        updatedAt: now,
+        startDate: data.startDate, // ✅ ISO string
+        endDate: data.endDate, // ✅ ISO string
+        createdAt: now, // ✅ ISO string
+        updatedAt: now, // ✅ ISO string
         deletedAt: null,
         version: 1,
       };

@@ -24,10 +24,12 @@ const tripLocationFields = {
 
 /**
  * 여행 날짜 필드 (API용 - ISO string)
+ * ✅ ISO 8601 datetime with timezone
+ * ⚠️ 필수 필드
  */
 const tripDateFields = {
-  startDate: z.string().nullable().optional(),
-  endDate: z.string().nullable().optional(),
+  startDate: z.string().datetime({ offset: true, message: 'Start date is required in ISO 8601 format' }),
+  endDate: z.string().datetime({ offset: true, message: 'End date is required in ISO 8601 format' }),
 };
 
 // ========================================
@@ -35,10 +37,10 @@ const tripDateFields = {
 // ========================================
 
 /**
- * Trip Entity Schema (DB 데이터 구조)
- * - 날짜: Date 타입
+ * Trip Entity Schema (API 응답/로컬 DB용)
+ * - 날짜: ISO 8601 datetime string
  * - 위도/경도: string (decimal)
- * - 서버 내부에서 DB 데이터 검증 시 사용
+ * - API 응답 및 로컬 DB 저장 시 사용
  */
 export const tripSchema = z.object({
   id: z.string().ulid(),
@@ -49,13 +51,13 @@ export const tripSchema = z.object({
   latitude: z.string().nullable(), // DB decimal → string
   longitude: z.string().nullable(),
   cityId: z.number().nullable(),
-  startDate: z.date().nullable(),
-  endDate: z.date().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  startDate: z.string().datetime({ offset: true }),
+  endDate: z.string().datetime({ offset: true }),
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }),
 
   // Phase 2: Local-First 필드 (선택적)
-  deletedAt: z.date().nullable().optional(),
+  deletedAt: z.string().datetime({ offset: true }).nullable().optional(),
   version: z.number().optional(),
 });
 
@@ -97,7 +99,7 @@ export const updateTripRequestSchema = z
 /**
  * Trip 응답 데이터 스키마
  * - 서버 → 클라이언트
- * - 날짜: ISO string
+ * - 날짜: ISO 8601 datetime with timezone
  * - 위도/경도: string (DB decimal 반환값)
  */
 export const tripResponseSchema = z.object({
@@ -109,13 +111,15 @@ export const tripResponseSchema = z.object({
   latitude: z.string().nullable(), // API 응답은 string
   longitude: z.string().nullable(),
   cityId: z.number().nullable(),
-  startDate: z.string().nullable(), // ISO string
-  endDate: z.string().nullable(),
-  createdAt: z.string(), // ISO string
-  updatedAt: z.string(),
+
+  // ✅ ISO 8601 datetime with timezone
+  startDate: z.string().datetime({ offset: true }),
+  endDate: z.string().datetime({ offset: true }),
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }),
 
   // Phase 2: Local-First 필드 (선택적)
-  deletedAt: z.string().nullable().optional(),
+  deletedAt: z.string().datetime({ offset: true }).nullable().optional(),
   version: z.number().optional(),
 });
 

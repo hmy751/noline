@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text } from 'react-native';
 import { Plane, ChevronDown, Check } from 'lucide-react-native';
 import { Select, Badge } from '@repo/ui';
 import { useGetTrips } from '../data';
 import { selectMainTrip } from '../utils';
+import { useTripStore } from '@/shared/store';
 import type { TripData } from '../model';
 
 interface Trip {
@@ -13,8 +13,6 @@ interface Trip {
 }
 
 interface TripSelectorProps {
-  defaultTrip?: Trip;
-  onTripChange?: (trip: Trip) => void;
   className?: string;
 }
 
@@ -34,9 +32,9 @@ interface TripSelectorProps {
  *   onTripChange={(trip) => console.log('Selected:', trip)}
  * />
  */
-export function TripSelector({ defaultTrip, onTripChange, className = '' }: TripSelectorProps) {
-  const [selectedTrip, setSelectedTrip] = useState<Trip>(defaultTrip || { value: '', label: '여행을 선택하세요' });
-  const [isOpen, setIsOpen] = useState(false);
+export function TripSelector({ className = '' }: TripSelectorProps) {
+  // ✨ Zustand 전역 상태
+  const { selectedTripId, setSelectedTripId } = useTripStore();
 
   // 실제 여행 데이터 가져오기
   const { data: allTrips = [], isLoading } = useGetTrips();
@@ -56,31 +54,15 @@ export function TripSelector({ defaultTrip, onTripChange, className = '' }: Trip
   // 여행 목록 생성 (메인 여행 표시 포함)
   const trips: Trip[] = allTrips.map((tripData) => convertTripDataToTrip(tripData, tripData.id === mainTrip?.id));
 
-  // 초기 로드 시에만 메인 여행을 자동 선택
-  useEffect(() => {
-    if (allTrips.length > 0 && !selectedTrip.value) {
-      // 첫 로드 시에만 메인 여행을 선택
-      if (mainTrip) {
-        const mainTripConverted = convertTripDataToTrip(mainTrip, true);
-        setSelectedTrip(mainTripConverted);
-        onTripChange?.(mainTripConverted);
-      } else {
-        // 메인 여행이 없으면 첫 번째 여행 선택
-        const firstTrip = convertTripDataToTrip(allTrips[0], false);
-        setSelectedTrip(firstTrip);
-        onTripChange?.(firstTrip);
-      }
-    }
-  }, [allTrips, mainTrip, onTripChange, selectedTrip.value]);
+  // 선택된 여행 객체
+  const selectedTrip = trips.find((trip) => trip.value === selectedTripId) || {
+    value: '',
+    label: '여행을 선택하세요',
+  };
 
   const handleTripChange = (option: { value: string; label: string } | undefined) => {
     if (option) {
-      // 선택된 value로부터 해당하는 Trip 객체를 찾습니다
-      const selectedTripObject = trips.find((trip) => trip.value === option.value);
-      if (selectedTripObject) {
-        setSelectedTrip(selectedTripObject);
-        onTripChange?.(selectedTripObject);
-      }
+      setSelectedTripId(option.value);
     }
   };
 
@@ -106,9 +88,9 @@ export function TripSelector({ defaultTrip, onTripChange, className = '' }: Trip
   }
 
   return (
-    <Select value={selectedTrip} onValueChange={handleTripChange} onOpenChange={setIsOpen}>
+    <Select value={selectedTrip} onValueChange={handleTripChange}>
       <View className={className}>
-        <Select.Trigger className={isOpen ? 'border-2 border-[hsl(142,76%,36%)]' : ''} size='sm'>
+        <Select.Trigger size='sm'>
           <View className='flex-row items-center gap-xs'>
             <Plane size={18} color='hsl(0, 0%, 12%)' strokeWidth={2} />
             <Text className='text-body text-foreground'>{selectedTrip.label}</Text>

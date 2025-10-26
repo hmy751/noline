@@ -12,30 +12,43 @@ export const scheduleSchema = z.object({
   title: z.string(),
   location: z.string(),
   address: z.string().nullable(),
-  date: z.string(),
-  time: z.string(),
+
+  // ✅ ISO 8601 datetime with timezone
+  scheduledAt: z.string().datetime({ offset: true }),
+
   latitude: z.string().nullable(),
   longitude: z.string().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }),
 
   // Phase 2: Local-First 필드
-  deletedAt: z.string().nullable().optional(),
+  deletedAt: z.string().datetime({ offset: true }).nullable().optional(),
   version: z.number().optional(),
 });
 
 // Insert Schema (일정 생성)
 export const createScheduleRequestSchema = z.object({
+  id: z.string().ulid(), // ✅ Echo 아키텍처: 클라이언트가 생성한 ID
   userId: z.string().optional(), // 인증 추가 전까지 선택적
   tripId: z.string(),
   title: z.string().min(1, 'Title is required'),
   location: z.string().min(1, 'Location is required'),
   address: z.string().nullable().optional(),
-  date: z.string().min(1, 'Date is required'),
-  time: z.string().min(1, 'Time is required'),
+
+  // ✅ ISO 8601 datetime with timezone (e.g., "2024-01-15T09:00:00+09:00")
+  scheduledAt: z.string().datetime({
+    offset: true,
+    message: 'Invalid datetime format. Use ISO 8601 format with timezone.',
+  }),
+
   latitude: z.number().nullable().optional(),
   longitude: z.number().nullable().optional(),
 });
+
+// Update Schema (일정 수정) - partial update 지원
+export const updateScheduleRequestSchema = createScheduleRequestSchema
+  .omit({ userId: true, tripId: true }) // userId, tripId는 수정 불가
+  .partial(); // 모든 필드 optional
 
 // ========================================
 // Response Schemas
@@ -64,6 +77,7 @@ export const createScheduleResponseSchema = z.object({
 // ========================================
 export type Schedule = z.infer<typeof scheduleSchema>;
 export type CreateScheduleRequest = z.infer<typeof createScheduleRequestSchema>;
+export type UpdateScheduleRequest = z.infer<typeof updateScheduleRequestSchema>;
 export type ScheduleResponse = z.infer<typeof scheduleResponseSchema>;
 export type GetAllSchedulesResponse = z.infer<typeof getAllSchedulesResponseSchema>;
 export type CreateScheduleResponse = z.infer<typeof createScheduleResponseSchema>;

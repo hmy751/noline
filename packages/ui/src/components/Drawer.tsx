@@ -21,6 +21,7 @@ export type DrawerProps = {
   children: React.ReactNode;
   title?: string;
   showHandle?: boolean;
+  childrenOverlay?: React.ReactNode;
 };
 
 // ========================================
@@ -31,10 +32,10 @@ export type DrawerProps = {
  * Drawer (Bottom Sheet) 컴포넌트
  * 화면 하단에서 올라오는 모달 형태의 컴포넌트
  */
-export const Drawer = ({ isOpen, onClose, children, title, showHandle = true }: DrawerProps) => {
+export const Drawer = ({ isOpen, onClose, children, title, showHandle = true, childrenOverlay }: DrawerProps) => {
   return (
     <Modal visible={isOpen} transparent animationType='slide' onRequestClose={onClose} statusBarTranslucent>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className='flex-1'>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <TouchableWithoutFeedback onPress={onClose}>
           <View className='flex-1 justify-end bg-black/50'>
             <TouchableWithoutFeedback>
@@ -61,6 +62,9 @@ export const Drawer = ({ isOpen, onClose, children, title, showHandle = true }: 
             </TouchableWithoutFeedback>
           </View>
         </TouchableWithoutFeedback>
+
+        {/* Overlay for children (e.g., DatePicker) - KeyboardAvoidingView를 기준으로 화면 중앙 정렬 */}
+        {childrenOverlay}
       </KeyboardAvoidingView>
     </Modal>
   );

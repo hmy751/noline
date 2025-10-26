@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
-import { db, trips, schedules } from '../db/index.js';
+import { db, trips, schedules, expenses } from '../db/index.js';
 import { gte } from 'drizzle-orm';
 import {
   syncPullQuerySchema,
@@ -23,6 +23,7 @@ const router = Router();
  * {
  *   trips: Trip[],
  *   schedules: Schedule[],
+ *   expenses: Expense[],
  *   serverTime: string (ISO 8601)
  * }
  *
@@ -41,23 +42,53 @@ router.get('/pull', async (req: Request, res: Response) => {
     const sinceDate = lastSyncedAt ? new Date(lastSyncedAt as string) : new Date(0); // Epoch (1970-01-01) = 전체 데이터
 
     // updatedAt >= sinceDate인 모든 레코드 조회
-    const [tripsData, schedulesData] = await Promise.all([
+    const [tripsData, schedulesData, expensesData] = await Promise.all([
       db.select().from(trips).where(gte(trips.updatedAt, sinceDate)).orderBy(trips.updatedAt),
 
       db.select().from(schedules).where(gte(schedules.updatedAt, sinceDate)).orderBy(schedules.updatedAt),
+
+      db.select().from(expenses).where(gte(expenses.updatedAt, sinceDate)).orderBy(expenses.updatedAt),
     ]);
 
     console.log('📥 [Sync Pull] Sending data:', {
       trips: tripsData.length,
       schedules: schedulesData.length,
+      expenses: expensesData.length,
     });
+
+    // ✅ Date 객체를 ISO string으로 변환
+    const tripsFormatted = tripsData.map((trip) => ({
+      ...trip,
+      startDate: trip.startDate.toISOString(),
+      endDate: trip.endDate.toISOString(),
+      createdAt: trip.createdAt.toISOString(),
+      updatedAt: trip.updatedAt.toISOString(),
+    }));
+
+    const schedulesFormatted = schedulesData.map((schedule) => ({
+      ...schedule,
+      scheduledAt: schedule.scheduledAt.toISOString(),
+      createdAt: schedule.createdAt.toISOString(),
+      updatedAt: schedule.updatedAt.toISOString(),
+      deletedAt: schedule.deletedAt?.toISOString() || null,
+    }));
+
+    const expensesFormatted = expensesData.map((expense) => ({
+      ...expense,
+      hasReceipt: expense.hasReceipt === 1, // integer → boolean
+      date: expense.date.toISOString().split('T')[0], // Date → ISO date string
+      createdAt: expense.createdAt.toISOString(),
+      updatedAt: expense.updatedAt.toISOString(),
+      deletedAt: expense.deletedAt?.toISOString() || null,
+    }));
 
     // 서버 시간 반환 (다음 동기화의 기준점)
     const serverTime = new Date().toISOString();
 
     res.status(200).json({
-      trips: tripsData,
-      schedules: schedulesData,
+      trips: tripsFormatted,
+      schedules: schedulesFormatted,
+      expenses: expensesFormatted,
       serverTime,
     });
   } catch (error) {

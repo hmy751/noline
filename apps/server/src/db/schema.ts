@@ -20,8 +20,9 @@ export const users = pgTable('users', {
   password: text('password').notNull(),
   name: varchar('name', { length: 100 }).notNull(),
   profileImageUrl: text('profile_image_url'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  // ✅ TIMESTAMPTZ: ISO 8601 with timezone 지원
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 });
 
 // Trips Table
@@ -39,10 +40,15 @@ export const trips = pgTable('trips', {
   latitude: decimal('latitude', { precision: 10, scale: 7 }),
   longitude: decimal('longitude', { precision: 10, scale: 7 }),
   cityId: integer('city_id'),
-  startDate: timestamp('start_date'),
-  endDate: timestamp('end_date'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  // ✅ TIMESTAMPTZ: ISO 8601 with timezone 지원
+  startDate: timestamp('start_date', { withTimezone: true }).notNull(),
+  endDate: timestamp('end_date', { withTimezone: true }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+
+  // Phase 2: Local-First 필드
+  deletedAt: timestamp('deleted_at', { withTimezone: true }),
+  version: integer('version').notNull().default(1),
 });
 
 // Schedules Table
@@ -57,15 +63,17 @@ export const schedules = pgTable('schedules', {
   title: text('title').notNull(),
   location: text('location').notNull(),
   address: text('address'),
-  date: text('date').notNull(),
-  time: text('time').notNull(),
+
+  // ✅ date + time → scheduledAt (TIMESTAMPTZ)
+  scheduledAt: timestamp('scheduled_at', { withTimezone: true }).notNull(),
+
   latitude: decimal('latitude', { precision: 10, scale: 7 }),
   longitude: decimal('longitude', { precision: 10, scale: 7 }),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 
   // Phase 2: Local-First 필드
-  deletedAt: timestamp('deleted_at'),
+  deletedAt: timestamp('deleted_at', { withTimezone: true }),
   version: integer('version').notNull().default(1),
 });
 
@@ -74,6 +82,7 @@ export const expenses = pgTable('expenses', {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => ulid()),
+  userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }), // nullable - 인증 추가 전까지 옵션
   tripId: text('trip_id')
     .notNull()
     .references(() => trips.id, { onDelete: 'cascade' }),
@@ -81,12 +90,17 @@ export const expenses = pgTable('expenses', {
   title: varchar('title', { length: 200 }).notNull(),
   amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
   currency: varchar('currency', { length: 3 }).notNull().default('EUR'),
-  category: expenseCategoryEnum('category').notNull(),
-  date: timestamp('date').notNull(),
-  memo: text('memo'),
-  isSynced: integer('is_synced').notNull().default(0), // 0: not synced, 1: synced
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  category: text('category').notNull(), // enum 대신 text로 변경 (클라이언트와 일치)
+  // ✅ TIMESTAMPTZ: ISO 8601 with timezone 지원
+  date: timestamp('date', { withTimezone: true }).notNull(),
+  hasReceipt: integer('has_receipt').notNull().default(0), // boolean → integer (SQLite 호환)
+  receiptUrl: text('receipt_url'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+
+  // Phase 2: Local-First 필드
+  deletedAt: timestamp('deleted_at', { withTimezone: true }),
+  version: integer('version').notNull().default(1),
 });
 
 // Types

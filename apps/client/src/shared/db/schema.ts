@@ -7,7 +7,7 @@ import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 /**
  * 여행 테이블 (로컬 SQLite)
  * - packages/schema의 tripSchema를 기반으로 함
- * - SQLite는 Date 타입 없으므로 integer (Unix timestamp) 사용
+ * - ✅ ISO 8601 datetime string 저장 (타임존 포함)
  * - latitude/longitude는 text로 저장 (decimal 대응)
  */
 export const trips = sqliteTable('trips', {
@@ -19,13 +19,14 @@ export const trips = sqliteTable('trips', {
   latitude: text('latitude'),
   longitude: text('longitude'),
   cityId: integer('city_id'),
-  startDate: integer('start_date', { mode: 'timestamp' }), // Unix timestamp (ms)
-  endDate: integer('end_date', { mode: 'timestamp' }),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+  // ✅ ISO 8601 datetime string (e.g., "2024-01-15T09:00:00+09:00")
+  startDate: text('start_date').notNull(), // ISO string - 필수
+  endDate: text('end_date').notNull(), // ISO string - 필수
+  createdAt: text('created_at').notNull(), // ISO string
+  updatedAt: text('updated_at').notNull(), // ISO string
 
   // Local-First 필드
-  deletedAt: integer('deleted_at', { mode: 'timestamp' }),
+  deletedAt: text('deleted_at'), // ISO string
   version: integer('version').default(1).notNull(),
 });
 
@@ -36,6 +37,7 @@ export const trips = sqliteTable('trips', {
 /**
  * 일정 테이블 (로컬 SQLite)
  * - packages/schema의 scheduleSchema를 기반으로 함
+ * - ✅ ISO 8601 datetime string 저장 (타임존 포함)
  */
 export const schedules = sqliteTable('schedules', {
   id: text('id').primaryKey(),
@@ -46,15 +48,48 @@ export const schedules = sqliteTable('schedules', {
   title: text('title').notNull(),
   location: text('location').notNull(),
   address: text('address'),
-  date: text('date').notNull(), // YYYY-MM-DD 형식
-  time: text('time').notNull(), // HH:mm 형식
+
+  // ✅ date + time → scheduledAt (ISO 8601 datetime string)
+  scheduledAt: text('scheduled_at').notNull(), // ISO string
+
   latitude: text('latitude'),
   longitude: text('longitude'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+  createdAt: text('created_at').notNull(), // ISO string
+  updatedAt: text('updated_at').notNull(), // ISO string
 
   // Local-First 필드
-  deletedAt: integer('deleted_at', { mode: 'timestamp' }),
+  deletedAt: text('deleted_at'), // ISO string
+  version: integer('version').default(1).notNull(),
+});
+
+// ========================================
+// Expenses Table
+// ========================================
+
+/**
+ * 경비 테이블 (로컬 SQLite)
+ * - packages/schema의 expenseSchema를 기반으로 함
+ * - ✅ ISO 8601 datetime string 저장 (타임존 포함)
+ */
+export const expenses = sqliteTable('expenses', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  tripId: text('trip_id')
+    .notNull()
+    .references(() => trips.id, { onDelete: 'cascade' }), // FK 제약
+  scheduleId: text('schedule_id').references(() => schedules.id, { onDelete: 'set null' }),
+  title: text('title').notNull(),
+  amount: text('amount').notNull(), // Decimal을 문자열로 저장 (SQLite는 decimal 미지원)
+  currency: text('currency').notNull().default('EUR'),
+  category: text('category').notNull(),
+  date: text('date').notNull(), // ISO string (날짜만)
+  hasReceipt: integer('has_receipt', { mode: 'boolean' }).notNull().default(false),
+  receiptUrl: text('receipt_url'),
+  createdAt: text('created_at').notNull(), // ISO string
+  updatedAt: text('updated_at').notNull(), // ISO string
+
+  // Local-First 필드
+  deletedAt: text('deleted_at'), // ISO string
   version: integer('version').default(1).notNull(),
 });
 
@@ -69,14 +104,14 @@ export const schedules = sqliteTable('schedules', {
  */
 export const syncQueue = sqliteTable('sync_queue', {
   id: text('id').primaryKey(),
-  tableName: text('table_name').notNull(), // 'trips', 'schedules'
+  tableName: text('table_name').notNull(), // 'trips', 'schedules', 'expenses'
   recordId: text('record_id').notNull(), // 대상 레코드 ID
   action: text('action').notNull(), // 'CREATE', 'UPDATE', 'DELETE'
   payload: text('payload').notNull(), // JSON stringified
   status: text('status').notNull().default('PENDING'), // 'PENDING', 'IN_PROGRESS', 'FAILED'
   retryCount: integer('retry_count').notNull().default(0),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }),
+  createdAt: text('created_at').notNull(), // ISO string
+  updatedAt: text('updated_at'), // ISO string
 });
 
 // ========================================
@@ -90,8 +125,8 @@ export const syncQueue = sqliteTable('sync_queue', {
  */
 export const syncMetadata = sqliteTable('sync_metadata', {
   key: text('key').primaryKey(), // 'lastSyncedAt'
-  value: text('value').notNull(), // ISO string
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+  value: text('value').notNull(), // ISO string or any value
+  updatedAt: text('updated_at').notNull(), // ISO string
 });
 
 // ========================================
@@ -103,6 +138,9 @@ export type NewTrip = typeof trips.$inferInsert;
 
 export type Schedule = typeof schedules.$inferSelect;
 export type NewSchedule = typeof schedules.$inferInsert;
+
+export type Expense = typeof expenses.$inferSelect;
+export type NewExpense = typeof expenses.$inferInsert;
 
 export type SyncQueueItem = typeof syncQueue.$inferSelect;
 export type NewSyncQueueItem = typeof syncQueue.$inferInsert;

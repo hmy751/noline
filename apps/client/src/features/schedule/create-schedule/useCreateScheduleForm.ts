@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCreateSchedule } from '@/entities/schedule';
 import { createScheduleFormSchema, type CreateScheduleFormData } from './schema';
+import { combineDateTimeToISO } from '@/shared/lib/datetime';
 import type { Location } from './types';
 
 type UseCreateScheduleFormProps = {
@@ -57,14 +58,16 @@ export const useCreateScheduleForm = ({ tripId, selectedLocation, onSuccess }: U
   };
 
   const onValid = (data: CreateScheduleFormData) => {
+    // ✅ date + time → ISO string with timezone
+    const scheduledAt = combineDateTimeToISO(data.date, data.time);
+
     createSchedule(
       {
         tripId,
         title: data.title,
         location: data.location,
         address: selectedLocation?.address || null,
-        date: data.date,
-        time: data.time,
+        scheduledAt, // ISO string
         latitude: selectedLocation?.latitude || null,
         longitude: selectedLocation?.longitude || null,
       },
