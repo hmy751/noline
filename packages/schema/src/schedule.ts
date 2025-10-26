@@ -28,6 +28,7 @@ export const scheduleSchema = z.object({
 
 // Insert Schema (일정 생성)
 export const createScheduleRequestSchema = z.object({
+  id: z.string().ulid(), // ✅ Echo 아키텍처: 클라이언트가 생성한 ID
   userId: z.string().optional(), // 인증 추가 전까지 선택적
   tripId: z.string(),
   title: z.string().min(1, 'Title is required'),
