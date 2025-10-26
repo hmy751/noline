@@ -11,6 +11,7 @@ const tripCoreFields = {
   name: z.string().min(1, 'Name is required'),
   destination: z.string().min(1, 'Destination is required'),
   country: z.string().nullable().optional(),
+  baseCurrency: z.string().default('EUR'), // 여행 기본 통화
 };
 
 /**
@@ -48,6 +49,7 @@ export const tripSchema = z.object({
   name: z.string(),
   destination: z.string(),
   country: z.string().nullable(),
+  baseCurrency: z.string(), // 여행 기본 통화
   latitude: z.string().nullable(), // DB decimal → string
   longitude: z.string().nullable(),
   cityId: z.number().nullable(),
@@ -108,6 +110,7 @@ export const tripResponseSchema = z.object({
   name: z.string(),
   destination: z.string(),
   country: z.string().nullable(),
+  baseCurrency: z.string(), // 여행 기본 통화
   latitude: z.string().nullable(), // API 응답은 string
   longitude: z.string().nullable(),
   cityId: z.number().nullable(),

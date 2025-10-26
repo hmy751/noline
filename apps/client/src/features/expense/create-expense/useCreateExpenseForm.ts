@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import { useCreateExpense } from '@/entities/expense';
+import { useGetTrips } from '@/entities/trip';
 import { generateId } from '@/shared/services/id/ulid';
 import { dateToISODateTime } from '@/shared/lib/datetime';
 import { createExpenseFormSchema, type CreateExpenseFormData } from './schema';
@@ -16,6 +17,11 @@ interface UseCreateExpenseFormProps {
 export const useCreateExpenseForm = ({ tripId, date, scheduleId, onSuccess }: UseCreateExpenseFormProps) => {
   const router = useRouter();
 
+  // ✅ CURRENCY_POLICY: 여행의 baseCurrency를 경비 기본 통화로 사용
+  const { data: trips = [] } = useGetTrips();
+  const selectedTrip = trips.find((trip) => trip.id === tripId);
+  const defaultCurrency = selectedTrip?.baseCurrency || 'EUR';
+
   // ✅ TIME_ARCHITECTURE_GUIDE Pattern 2: Date → ISO datetime
   // "2024-03-15" → "2024-03-15T00:00:00.000Z"
   const defaultDate = date ? dateToISODateTime(date) : dateToISODateTime(new Date().toISOString().split('T')[0]);
@@ -25,7 +31,7 @@ export const useCreateExpenseForm = ({ tripId, date, scheduleId, onSuccess }: Us
     defaultValues: {
       title: '',
       amount: '',
-      currency: 'EUR',
+      currency: defaultCurrency, // ✅ 여행의 기본 통화 사용
       category: '',
       date: defaultDate, // ✅ ISO datetime string
       scheduleId: scheduleId || undefined,

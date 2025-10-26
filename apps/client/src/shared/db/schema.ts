@@ -16,6 +16,7 @@ export const trips = sqliteTable('trips', {
   name: text('name').notNull(),
   destination: text('destination').notNull(),
   country: text('country'),
+  baseCurrency: text('base_currency').notNull().default('EUR'), // 여행 기본 통화
   latitude: text('latitude'),
   longitude: text('longitude'),
   cityId: integer('city_id'),
