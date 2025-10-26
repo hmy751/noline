@@ -44,6 +44,11 @@ export const createScheduleRequestSchema = z.object({
   longitude: z.number().nullable().optional(),
 });
 
+// Update Schema (일정 수정) - partial update 지원
+export const updateScheduleRequestSchema = createScheduleRequestSchema
+  .omit({ userId: true, tripId: true }) // userId, tripId는 수정 불가
+  .partial(); // 모든 필드 optional
+
 // ========================================
 // Response Schemas
 // ========================================
@@ -71,6 +76,7 @@ export const createScheduleResponseSchema = z.object({
 // ========================================
 export type Schedule = z.infer<typeof scheduleSchema>;
 export type CreateScheduleRequest = z.infer<typeof createScheduleRequestSchema>;
+export type UpdateScheduleRequest = z.infer<typeof updateScheduleRequestSchema>;
 export type ScheduleResponse = z.infer<typeof scheduleResponseSchema>;
 export type GetAllSchedulesResponse = z.infer<typeof getAllSchedulesResponseSchema>;
 export type CreateScheduleResponse = z.infer<typeof createScheduleResponseSchema>;

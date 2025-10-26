@@ -18,6 +18,8 @@ interface ScheduleByDate {
   dateLabel: string;
   schedules: Array<{
     id: string;
+    tripId: string;
+    scheduledAt: string;
     time: string;
     title: string;
     location: string;
@@ -67,6 +69,8 @@ export default function ScheduleScreen() {
         .map((schedule) => {
           return {
             id: schedule.id,
+            tripId: schedule.tripId,
+            scheduledAt: schedule.scheduledAt,
             time: formatISOToLocalTime(schedule.scheduledAt),
             title: schedule.title,
             location: schedule.location || '',

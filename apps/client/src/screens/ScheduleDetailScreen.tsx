@@ -3,10 +3,14 @@ import { MapPin, Clock, Wallet, ChevronLeft } from 'lucide-react-native';
 import { Card, Pressable, Separator } from '@repo/ui';
 import { Container, Stack, MobileHeader } from '@/shared/components';
 import { ScheduleExpenseList } from '@/features/schedule/schedule-expense-list';
+import { formatISOToLocalDate } from '@/shared/lib/datetime';
+import { useRouter } from 'expo-router';
 import type { Expense } from '@/entities/expense';
 
 export interface ScheduleDetailScreenProps {
   scheduleId: string;
+  tripId: string;
+  scheduledAt: string; // ISO datetime string
   onBack: () => void;
 }
 
@@ -35,8 +39,10 @@ const MOCK_EXPENSES: Expense[] = [
     date: '2025-03-15',
     hasReceipt: true,
     receiptUrl: null,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    deletedAt: null,
+    version: 1,
   },
   {
     id: '2',
@@ -50,12 +56,16 @@ const MOCK_EXPENSES: Expense[] = [
     date: '2025-03-15',
     hasReceipt: false,
     receiptUrl: null,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    deletedAt: null,
+    version: 1,
   },
 ];
 
-export default function ScheduleDetailScreen({ scheduleId, onBack }: ScheduleDetailScreenProps) {
+export default function ScheduleDetailScreen({ scheduleId, tripId, scheduledAt, onBack }: ScheduleDetailScreenProps) {
+  const router = useRouter();
+
   // TODO: API 연동
   // const { data: schedule } = useGetScheduleById(scheduleId);
   // const { data: expenses = [] } = useGetExpensesByScheduleId(scheduleId);
@@ -68,9 +78,16 @@ export default function ScheduleDetailScreen({ scheduleId, onBack }: ScheduleDet
     console.log('Expense pressed:', expenseId);
   };
 
+  /**
+   * 일정에 경비 추가
+   * - 일정의 날짜를 자동으로 경비 날짜로 설정
+   * - tripId, scheduleId를 함께 전달
+   */
   const handleAddExpense = () => {
-    // TODO: 경비 추가 화면으로 이동
-    console.log('Add expense for schedule:', scheduleId);
+    // ✅ scheduledAt (ISO datetime)에서 날짜 부분만 추출 (YYYY-MM-DD)
+    const expenseDate = formatISOToLocalDate(scheduledAt);
+
+    router.push(`/create-expense?tripId=${tripId}&scheduleId=${scheduleId}&date=${expenseDate}`);
   };
 
   const handleShowOnMap = () => {

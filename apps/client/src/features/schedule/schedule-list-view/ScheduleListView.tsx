@@ -5,6 +5,8 @@ import { Pressable } from '@repo/ui';
 
 interface Schedule {
   id: string;
+  tripId: string;
+  scheduledAt: string;
   time: string;
   title: string;
   location: string;
@@ -104,7 +106,11 @@ export function ScheduleListView({
                     key={schedule.id}
                     date={group.dateLabel}
                     {...schedule}
-                    onPress={() => router.push(`/schedules/${schedule.id}`)}
+                    onPress={() =>
+                      router.push(
+                        `/schedules/${schedule.id}?tripId=${schedule.tripId}&scheduledAt=${encodeURIComponent(schedule.scheduledAt)}`,
+                      )
+                    }
                   />
                 ))
               ) : (

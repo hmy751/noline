@@ -2,8 +2,26 @@ import { useLocalSearchParams, router } from 'expo-router';
 import ScheduleDetailScreen from '@/screens/ScheduleDetailScreen';
 
 export default function ScheduleDetailRoute() {
-  const params = useLocalSearchParams();
-  const scheduleId = params.id as string;
+  const params = useLocalSearchParams<{
+    id: string;
+    tripId: string;
+    scheduledAt: string;
+  }>();
 
-  return <ScheduleDetailScreen scheduleId={scheduleId} onBack={() => router.back()} />;
+  const scheduleId = params.id;
+  const tripId = params.tripId;
+  const scheduledAt = params.scheduledAt;
+
+  if (!scheduleId || !tripId || !scheduledAt) {
+    return null;
+  }
+
+  return (
+    <ScheduleDetailScreen
+      scheduleId={scheduleId}
+      tripId={tripId}
+      scheduledAt={scheduledAt}
+      onBack={() => router.back()}
+    />
+  );
 }
