@@ -14,6 +14,7 @@ export { EXPENSE_CATEGORIES, CURRENCIES, CURRENCY_SYMBOLS } from './model';
 export { useGetExpenses, expenseQueryKeys } from './data';
 export { useCreateExpense } from './data';
 export { useUpdateExpense } from './data';
+export { useDeleteExpense } from './data';
 
 // UI Components
 export { ExpenseCard } from './ui';

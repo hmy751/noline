@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, Alert } from 'react-native';
 import { Container, Stack, ExpenseCard, MobileHeader } from '@/shared/components';
 import { TripSelector } from '@/entities/trip';
-import { useGetExpenses } from '@/entities/expense';
+import { useGetExpenses, useDeleteExpense } from '@/entities/expense';
 import { useGetTrips } from '@/entities/trip';
 import { Pressable } from '@repo/ui';
 import { useRouter } from 'expo-router';
@@ -21,6 +21,9 @@ export default function ExpensesScreen() {
   const [buttonPosition, setButtonPosition] = useState<
     { x: number; y: number; width: number; height: number } | undefined
   >(undefined);
+
+  // useDeleteExpense mutation hook
+  const { mutate: deleteExpense } = useDeleteExpense();
 
   // 여행 데이터 조회
   const { data: trips = [] } = useGetTrips();
@@ -94,7 +97,9 @@ export default function ExpensesScreen() {
   };
 
   const handleDeleteExpense = () => {
-    Alert.alert('경비 삭제', `"${selectedExpense?.title}" 경비를 삭제하시겠습니까?`, [
+    if (!selectedExpense) return;
+
+    Alert.alert('경비 삭제', `"${selectedExpense.title}" 경비를 삭제하시겠습니까?`, [
       {
         text: '취소',
         style: 'cancel',
@@ -103,8 +108,16 @@ export default function ExpensesScreen() {
         text: '삭제',
         style: 'destructive',
         onPress: () => {
-          // TODO: 삭제 로직 구현
-          Alert.alert('성공', '경비가 삭제되었습니다.');
+          // ✅ Local-First: 로컬 DB Soft Delete + sync_queue 기록
+          deleteExpense(selectedExpense.id, {
+            onSuccess: () => {
+              Alert.alert('성공', '경비가 삭제되었습니다.');
+              setSelectedExpense(null);
+            },
+            onError: () => {
+              Alert.alert('오류', '경비 삭제에 실패했습니다.');
+            },
+          });
         },
       },
     ]);
