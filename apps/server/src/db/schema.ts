@@ -45,6 +45,10 @@ export const trips = pgTable('trips', {
   endDate: timestamp('end_date', { withTimezone: true }).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+
+  // Phase 2: Local-First 필드
+  deletedAt: timestamp('deleted_at', { withTimezone: true }),
+  version: integer('version').notNull().default(1),
 });
 
 // Schedules Table

@@ -217,6 +217,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
     // 업데이트할 필드 준비
     const updateData: any = {
       updatedAt: new Date(),
+      version: sql`${trips.version} + 1`, // ✅ version 증가 (Local-First)
     };
 
     if (name !== undefined) updateData.name = name;
@@ -306,7 +307,7 @@ router.patch('/:id', async (req: Request, res: Response) => {
   }
 });
 
-// DELETE /api/trips/:id - 여행 삭제
+// DELETE /api/trips/:id - 여행 삭제 (Soft Delete)
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const tripId = req.params.id; // ULID는 문자열
@@ -325,12 +326,25 @@ router.delete('/:id', async (req: Request, res: Response) => {
       });
     }
 
-    // 여행 삭제 (cascade로 연관된 schedules, expenses도 삭제됨)
-    await db.delete(trips).where(eq(trips.id, tripId));
+    // ✅ Soft Delete: deletedAt 설정 (Local-First)
+    // 다른 기기에 삭제가 전파되도록 함
+    const [deletedTrip] = await db
+      .update(trips)
+      .set({
+        deletedAt: new Date(),
+        updatedAt: new Date(),
+        version: sql`${trips.version} + 1`, // ✅ version 증가
+      })
+      .where(eq(trips.id, tripId))
+      .returning();
 
     res.status(200).json({
       success: true,
       message: 'Trip deleted successfully',
+      data: {
+        id: deletedTrip.id,
+        deletedAt: deletedTrip.deletedAt?.toISOString(),
+      },
     });
   } catch (error) {
     console.error('Error deleting trip:', error);
