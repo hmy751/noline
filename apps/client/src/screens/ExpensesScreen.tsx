@@ -210,8 +210,7 @@ export default function ExpensesScreen() {
                         hasReceipt={expense.hasReceipt}
                         isPending={false}
                         onPress={() => {
-                          // TODO: Navigate to expense detail
-                          console.log('Navigate to expense detail:', expense.id);
+                          router.push(`/expense-detail/${expense.id}`);
                         }}
                         onMenuPress={(event) => handleExpenseMenuPress(expense, event)}
                       />
