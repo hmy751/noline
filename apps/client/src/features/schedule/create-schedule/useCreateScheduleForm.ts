@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useCreateSchedule } from '@/entities/schedule';
 import { createScheduleFormSchema, type CreateScheduleFormData } from './schema';
 import { combineDateTimeToISO } from '@/shared/lib/datetime';
+import { generateId } from '@/shared/services/id/ulid';
 import type { Location } from './types';
 
 type UseCreateScheduleFormProps = {
@@ -58,11 +59,15 @@ export const useCreateScheduleForm = ({ tripId, selectedLocation, onSuccess }: U
   };
 
   const onValid = (data: CreateScheduleFormData) => {
+    // ✅ Echo Protocol: Generate ULID on client
+    const id = generateId();
+
     // ✅ date + time → ISO string with timezone
     const scheduledAt = combineDateTimeToISO(data.date, data.time);
 
     createSchedule(
       {
+        id, // ✅ Echo: client-generated ID
         tripId,
         title: data.title,
         location: data.location,
