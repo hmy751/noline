@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { View, Alert } from 'react-native';
 import { MobileHeader } from '@/shared/components';
 import { TripSelector } from '@/entities/trip';
-import { useGetSchedules } from '@/entities/schedule';
+import { useGetSchedules, useDeleteSchedule } from '@/entities/schedule';
 import { useGetTrips } from '@/entities/trip';
 import { useTripStore } from '@/shared/store';
 import { Pressable } from '@repo/ui';
@@ -10,6 +10,7 @@ import { Map, List } from 'lucide-react-native';
 import { ScheduleListView } from '@/features/schedule/schedule-list-view';
 import { ScheduleMapViewContainer } from '@/features/schedule/schedule-map-view';
 import { ScheduleMenu } from '@/features/schedule/schedule-menu';
+import { UpdateScheduleDrawer } from '@/features/schedule/update-schedule';
 import { formatISOToLocalDate, formatISOToLocalTime } from '@/shared/lib/datetime';
 
 type ViewMode = 'list' | 'map';
@@ -35,6 +36,7 @@ export default function ScheduleScreen() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const { selectedTripId } = useTripStore();
   const [isScheduleMenuOpen, setIsScheduleMenuOpen] = useState(false);
+  const [isUpdateDrawerOpen, setIsUpdateDrawerOpen] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState<{
     id: string;
     tripId: string;
@@ -51,6 +53,7 @@ export default function ScheduleScreen() {
 
   const { data: trips = [] } = useGetTrips();
   const { data: schedules = [], isLoading } = useGetSchedules(selectedTripId || '');
+  const { mutate: deleteSchedule } = useDeleteSchedule();
 
   // 선택된 여행 정보
   const selectedTrip = trips.find((trip: { id: string }) => trip.id === selectedTripId);
@@ -98,23 +101,40 @@ export default function ScheduleScreen() {
   };
 
   const handleEditSchedule = () => {
-    Alert.alert('일정 수정', `"${selectedSchedule?.title}" 일정을 수정합니다. (구현 예정)`);
+    setIsUpdateDrawerOpen(true);
   };
 
   const handleDeleteSchedule = () => {
-    Alert.alert('일정 삭제', `"${selectedSchedule?.title}" 일정을 삭제하시겠습니까?`, [
-      {
-        text: '취소',
-        style: 'cancel',
-      },
-      {
-        text: '삭제',
-        style: 'destructive',
-        onPress: () => {
-          Alert.alert('성공', '일정이 삭제되었습니다. (구현 예정)');
+    if (!selectedSchedule) return;
+
+    Alert.alert(
+      '일정 삭제',
+      `"${selectedSchedule.title}" 일정을 삭제하시겠습니까?`,
+      [
+        {
+          text: '취소',
+          style: 'cancel',
         },
-      },
-    ]);
+        {
+          text: '삭제',
+          style: 'destructive',
+          onPress: () => {
+            deleteSchedule(selectedSchedule.id, {
+              onSuccess: () => {
+                Alert.alert('성공', '일정이 삭제되었습니다.');
+                setIsScheduleMenuOpen(false);
+                setSelectedSchedule(null);
+                setButtonPosition(undefined);
+              },
+              onError: () => {
+                Alert.alert('오류', '일정 삭제에 실패했습니다.');
+              },
+            });
+          },
+        },
+      ],
+      { cancelable: true },
+    );
   };
 
   // 날짜별로 일정 그룹화
@@ -203,12 +223,31 @@ export default function ScheduleScreen() {
         isOpen={isScheduleMenuOpen}
         onClose={() => {
           setIsScheduleMenuOpen(false);
-          setSelectedSchedule(null);
           setButtonPosition(undefined);
+          // selectedSchedule는 드로어에서 사용하므로 여기서 초기화하지 않음
         }}
         onEdit={handleEditSchedule}
         onDelete={handleDeleteSchedule}
         buttonPosition={buttonPosition}
+      />
+
+      {/* Update Schedule Drawer */}
+      <UpdateScheduleDrawer
+        isOpen={isUpdateDrawerOpen}
+        onClose={() => {
+          setIsUpdateDrawerOpen(false);
+          setSelectedSchedule(null); // 드로어를 닫을 때 초기화
+        }}
+        scheduleData={
+          selectedSchedule
+            ? {
+                id: selectedSchedule.id,
+                title: selectedSchedule.title,
+                date: formatISOToLocalDate(selectedSchedule.scheduledAt),
+                time: selectedSchedule.time,
+              }
+            : null
+        }
       />
     </View>
   );

@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { db, schedules } from '@/shared/db';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
-import { generateId } from '@/shared/services/id/ulid';
 import type { CreateScheduleRequest } from '../model';
 import { scheduleQueryKeys } from './useGetSchedules';
 
@@ -28,23 +27,24 @@ export const useCreateSchedule = () => {
 
   return useMutation({
     mutationFn: async (data: CreateScheduleRequest) => {
-      const id = generateId(); // ✅ Echo 아키텍처: 클라이언트에서 ID 생성
+      // ✅ Echo Protocol: Use client-provided ID
+      const { id, ...rest } = data;
       const now = getCurrentISOString();
 
       // 사용자 ID (현재는 테스트용 고정값, 추후 인증 구현 시 실제 userId 사용)
-      const userId = data.userId || '01HZQ8K9X7M2N3P4Q5R6S7T8V9';
+      const userId = rest.userId || '01HZQ8K9X7M2N3P4Q5R6S7T8V9';
 
       // 로컬 DB에 저장할 데이터 준비 (모두 ISO string)
       const newSchedule = {
-        id,
+        id, // ✅ Use provided ID
         userId,
-        tripId: data.tripId,
-        title: data.title,
-        location: data.location,
-        address: data.address || null,
-        scheduledAt: data.scheduledAt, // ✅ ISO string
-        latitude: data.latitude?.toString() || null,
-        longitude: data.longitude?.toString() || null,
+        tripId: rest.tripId,
+        title: rest.title,
+        location: rest.location,
+        address: rest.address || null,
+        scheduledAt: rest.scheduledAt, // ✅ ISO string
+        latitude: rest.latitude?.toString() || null,
+        longitude: rest.longitude?.toString() || null,
         createdAt: now, // ✅ ISO string
         updatedAt: now, // ✅ ISO string
         deletedAt: null,
@@ -60,17 +60,17 @@ export const useCreateSchedule = () => {
         await addToSyncQueue('schedules', id, 'CREATE', {
           id,
           userId,
-          tripId: data.tripId,
-          title: data.title,
-          location: data.location,
-          address: data.address,
-          scheduledAt: data.scheduledAt,
-          latitude: data.latitude,
-          longitude: data.longitude,
+          tripId: rest.tripId,
+          title: rest.title,
+          location: rest.location,
+          address: rest.address,
+          scheduledAt: rest.scheduledAt,
+          latitude: rest.latitude,
+          longitude: rest.longitude,
         });
       });
 
-      console.log(`✅ Schedule created locally: ${id} - ${data.title}`);
+      console.log(`✅ Schedule created locally: ${id} - ${rest.title}`);
 
       return newSchedule;
     },

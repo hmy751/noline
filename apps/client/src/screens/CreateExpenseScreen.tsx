@@ -2,6 +2,7 @@ import { View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MobileHeader } from '@/shared/components/Navigation';
 import { ExpenseForm, useCreateExpenseForm } from '@/features/expense/create-expense';
+import { ChevronLeft } from 'lucide-react-native';
 
 /**
  * 경비 생성 화면
@@ -20,7 +21,11 @@ export default function CreateExpenseScreen() {
   if (!tripId) {
     return (
       <View className='flex-1 bg-background items-center justify-center'>
-        <MobileHeader title='경비 추가' onBackPress={() => router.back()} />
+        <MobileHeader
+          title='경비 추가'
+          leftIcon={<ChevronLeft size={24} color='hsl(0, 0%, 12%)' />}
+          onLeftPress={() => router.back()}
+        />
       </View>
     );
   }
@@ -33,8 +38,18 @@ export default function CreateExpenseScreen() {
 
   return (
     <View className='flex-1 bg-background'>
-      <MobileHeader title='경비 추가' onBackPress={() => router.back()} />
-      <ExpenseForm form={form} onSubmit={onSubmit} onCancel={() => router.back()} isPending={isPending} />
+      <MobileHeader
+        title='경비 추가'
+        leftIcon={<ChevronLeft size={24} color='hsl(0, 0%, 12%)' />}
+        onLeftPress={() => router.back()}
+      />
+      <ExpenseForm
+        form={form}
+        tripId={tripId}
+        onSubmit={onSubmit}
+        onCancel={() => router.back()}
+        isPending={isPending}
+      />
     </View>
   );
 }

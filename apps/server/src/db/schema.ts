@@ -37,6 +37,7 @@ export const trips = pgTable('trips', {
   name: varchar('name', { length: 200 }).notNull(),
   destination: varchar('destination', { length: 200 }).notNull(),
   country: varchar('country', { length: 100 }),
+  baseCurrency: varchar('base_currency', { length: 10 }).notNull().default('EUR'), // 여행 기본 통화
   latitude: decimal('latitude', { precision: 10, scale: 7 }),
   longitude: decimal('longitude', { precision: 10, scale: 7 }),
   cityId: integer('city_id'),

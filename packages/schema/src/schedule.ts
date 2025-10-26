@@ -72,6 +72,12 @@ export const createScheduleResponseSchema = z.object({
   data: scheduleSchema,
 });
 
+// 일정 수정 응답
+export const updateScheduleResponseSchema = z.object({
+  success: z.boolean(),
+  data: scheduleSchema,
+});
+
 // ========================================
 // Types
 // ========================================
@@ -81,3 +87,4 @@ export type UpdateScheduleRequest = z.infer<typeof updateScheduleRequestSchema>;
 export type ScheduleResponse = z.infer<typeof scheduleResponseSchema>;
 export type GetAllSchedulesResponse = z.infer<typeof getAllSchedulesResponseSchema>;
 export type CreateScheduleResponse = z.infer<typeof createScheduleResponseSchema>;
+export type UpdateScheduleResponse = z.infer<typeof updateScheduleResponseSchema>;

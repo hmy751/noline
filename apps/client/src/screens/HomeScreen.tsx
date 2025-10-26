@@ -4,8 +4,10 @@ import { Container, Stack, ScheduleCard, MobileHeader } from '@/shared/component
 import { Pressable } from '@repo/ui';
 import { ChevronRight, Plus, MoreVertical, Edit3 } from 'lucide-react-native';
 import { useGetTrips, selectMainTrip, useDeleteTrip, TripCard, type TripData } from '@/entities/trip';
+import { useGetExpenses } from '@/entities/expense';
+import { groupExpensesByCurrency } from '@/shared/lib/currency';
 import { EditTripDrawer, TripMenu } from '@/features/trip/update-trip';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Alert } from 'react-native';
 
 export default function HomeScreen() {
@@ -30,6 +32,12 @@ export default function HomeScreen() {
   // 메인 여행 선택
   const mainTripData = selectMainTrip(allTrips || []);
 
+  // ✅ CURRENCY_POLICY: 메인 여행의 경비 조회
+  const { data: mainTripExpenses = [] } = useGetExpenses(mainTripData?.id ? { tripId: mainTripData.id } : undefined);
+
+  // ✅ CURRENCY_POLICY: 통화별 경비 그룹핑 (금액 기준 내림차순)
+  const expensesByCurrency = useMemo(() => groupExpensesByCurrency(mainTripExpenses), [mainTripExpenses]);
+
   // 메인 여행 데이터 변환
   const mainTrip = mainTripData
     ? {
@@ -38,8 +46,7 @@ export default function HomeScreen() {
         startDate: formatDate(mainTripData.startDate),
         endDate: formatDate(mainTripData.endDate),
         scheduleCount: 0, // TODO: 일정 개수 집계 API 추가 필요
-        totalExpense: '0.00', // TODO: 경비 합계 API 추가 필요
-        currency: 'EUR',
+        expensesByCurrency, // ✅ 통화별 경비 데이터 전달
       }
     : null;
 
@@ -179,8 +186,10 @@ export default function HomeScreen() {
                 router.push('/create-trip');
               }}
             >
-              <Plus size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
-              <Text className='text-body text-foreground'>새 여행 추가</Text>
+              <Plus size={20} color='#1F1F1F' strokeWidth={2} />
+              <Text className='text-body' style={{ color: '#1F1F1F' }}>
+                새 여행 추가
+              </Text>
             </Pressable>
 
             {/* Upcoming Schedule Section */}

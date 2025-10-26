@@ -1,11 +1,12 @@
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
 import { MapPin, Clock, Wallet, ChevronLeft } from 'lucide-react-native';
 import { Card, Pressable, Separator } from '@repo/ui';
 import { Container, Stack, MobileHeader } from '@/shared/components';
 import { ScheduleExpenseList } from '@/features/schedule/schedule-expense-list';
-import { formatISOToLocalDate } from '@/shared/lib/datetime';
+import { formatISOToLocalDate, formatISOToLocalTime } from '@/shared/lib/datetime';
 import { useRouter } from 'expo-router';
-import type { Expense } from '@/entities/expense';
+import { useGetScheduleById } from '@/entities/schedule/data';
+import { useGetExpenses } from '@/entities/expense/data';
 
 export interface ScheduleDetailScreenProps {
   scheduleId: string;
@@ -14,68 +15,25 @@ export interface ScheduleDetailScreenProps {
   onBack: () => void;
 }
 
-// TODO: API 연동 시 useGetScheduleById, useGetExpensesByScheduleId 등으로 대체
-const MOCK_SCHEDULE = {
-  id: '1',
-  title: '에펠탑 방문',
-  location: '에펠탑',
-  address: 'Champ de Mars, 5 Avenue Anatole France, 75007 Paris',
-  date: '2025-03-15',
-  time: '09:00',
-  totalExpense: '41.50',
-  expenseCount: 2,
-};
-
-const MOCK_EXPENSES: Expense[] = [
-  {
-    id: '1',
-    userId: 'user-1',
-    tripId: 'trip-1',
-    scheduleId: 'schedule-1',
-    title: '에펠탑 입장권',
-    amount: '26.00',
-    currency: 'EUR',
-    category: '관광',
-    date: '2025-03-15',
-    hasReceipt: true,
-    receiptUrl: null,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    deletedAt: null,
-    version: 1,
-  },
-  {
-    id: '2',
-    userId: 'user-1',
-    tripId: 'trip-1',
-    scheduleId: 'schedule-1',
-    title: '기념품',
-    amount: '15.50',
-    currency: 'EUR',
-    category: '쇼핑',
-    date: '2025-03-15',
-    hasReceipt: false,
-    receiptUrl: null,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    deletedAt: null,
-    version: 1,
-  },
-];
-
 export default function ScheduleDetailScreen({ scheduleId, tripId, scheduledAt, onBack }: ScheduleDetailScreenProps) {
   const router = useRouter();
 
-  // TODO: API 연동
-  // const { data: schedule } = useGetScheduleById(scheduleId);
-  // const { data: expenses = [] } = useGetExpensesByScheduleId(scheduleId);
+  // ✅ 로컬 DB에서 일정 상세 정보 조회
+  const { data: schedule, isLoading: isLoadingSchedule } = useGetScheduleById(scheduleId);
 
-  const schedule = MOCK_SCHEDULE;
-  const expenses = MOCK_EXPENSES;
+  // ✅ 로컬 DB에서 해당 일정의 경비 목록 조회
+  const { data: expenses = [], isLoading: isLoadingExpenses } = useGetExpenses({ scheduleId });
+
+  // ✅ 총 경비 계산
+  const totalExpense = expenses.reduce((sum, expense) => {
+    return sum + parseFloat(expense.amount || '0');
+  }, 0);
+
+  const isLoading = isLoadingSchedule || isLoadingExpenses;
 
   const handleExpensePress = (expenseId: string) => {
-    // TODO: 경비 상세 화면으로 이동
-    console.log('Expense pressed:', expenseId);
+    // ✅ 경비 상세 화면으로 이동
+    router.push(`/expense-detail/${expenseId}`);
   };
 
   /**
@@ -94,6 +52,42 @@ export default function ScheduleDetailScreen({ scheduleId, tripId, scheduledAt, 
     // TODO: 지도 화면으로 이동
     console.log('Show on map:', scheduleId);
   };
+
+  // ✅ 로딩 중일 때
+  if (isLoading) {
+    return (
+      <View className='flex-1 bg-background'>
+        <MobileHeader
+          title='일정 상세'
+          leftIcon={<ChevronLeft size={24} color='hsl(0, 0%, 12%)' strokeWidth={2} />}
+          onLeftPress={onBack}
+        />
+        <View className='flex-1 items-center justify-center'>
+          <ActivityIndicator size='large' color='hsl(120, 61%, 34%)' />
+        </View>
+      </View>
+    );
+  }
+
+  // ✅ 일정을 찾을 수 없을 때
+  if (!schedule) {
+    return (
+      <View className='flex-1 bg-background'>
+        <MobileHeader
+          title='일정 상세'
+          leftIcon={<ChevronLeft size={24} color='hsl(0, 0%, 12%)' strokeWidth={2} />}
+          onLeftPress={onBack}
+        />
+        <View className='flex-1 items-center justify-center p-md'>
+          <Text className='text-body text-muted-foreground'>일정을 찾을 수 없습니다.</Text>
+        </View>
+      </View>
+    );
+  }
+
+  // ✅ scheduledAt에서 날짜와 시간 추출
+  const scheduleDate = formatISOToLocalDate(schedule.scheduledAt);
+  const scheduleTime = formatISOToLocalTime(schedule.scheduledAt);
 
   return (
     <View className='flex-1 bg-background'>
@@ -117,7 +111,7 @@ export default function ScheduleDetailScreen({ scheduleId, tripId, scheduledAt, 
                 <MapPin size={16} color='hsl(120, 8%, 35%)' strokeWidth={2} className='mt-1' />
                 <View className='flex-1'>
                   <Text className='text-body text-foreground'>{schedule.location}</Text>
-                  <Text className='text-label text-muted-foreground'>{schedule.address}</Text>
+                  {schedule.address && <Text className='text-label text-muted-foreground'>{schedule.address}</Text>}
                 </View>
               </View>
 
@@ -126,10 +120,10 @@ export default function ScheduleDetailScreen({ scheduleId, tripId, scheduledAt, 
                 <Clock size={16} color='hsl(120, 8%, 35%)' strokeWidth={2} />
                 <View className='flex-row items-center gap-2xs'>
                   <View className='rounded bg-muted px-xs py-3xs'>
-                    <Text className='text-label text-foreground'>{schedule.date}</Text>
+                    <Text className='text-label text-foreground'>{scheduleDate}</Text>
                   </View>
                   <View className='rounded bg-muted px-xs py-3xs'>
-                    <Text className='text-label text-foreground'>{schedule.time}</Text>
+                    <Text className='text-label text-foreground'>{scheduleTime}</Text>
                   </View>
                 </View>
               </View>
@@ -144,8 +138,8 @@ export default function ScheduleDetailScreen({ scheduleId, tripId, scheduledAt, 
                   <Text className='text-label text-muted-foreground'>총 경비</Text>
                 </View>
                 <View className='flex-row items-center gap-2xs'>
-                  <Text className='text-display-medium text-primary'>EUR {schedule.totalExpense}</Text>
-                  <Text className='text-label text-muted-foreground'>({schedule.expenseCount}개)</Text>
+                  <Text className='text-display-medium text-primary'>EUR {totalExpense.toFixed(2)}</Text>
+                  <Text className='text-label text-muted-foreground'>({expenses.length}개)</Text>
                 </View>
               </View>
 

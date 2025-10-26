@@ -220,7 +220,7 @@ export const EditTripDrawer = ({ isOpen, onClose, trip }: EditTripDrawerProps) =
               onPress={handleSubmit(onValid, onInvalid)}
               disabled={isUpdating}
             >
-              <Text className='text-body font-semibold text-primary-foreground text-center'>
+              <Text className='text-body font-semibold text-center' style={{ color: '#F5FBF5' }}>
                 {isUpdating ? '저장 중...' : '저장'}
               </Text>
             </Pressable>
@@ -232,7 +232,7 @@ export const EditTripDrawer = ({ isOpen, onClose, trip }: EditTripDrawerProps) =
               onPress={handleDelete}
               disabled={isDeleting}
             >
-              <Text className='text-body font-semibold text-destructive-foreground text-center'>
+              <Text className='text-body font-semibold text-center' style={{ color: '#FBF5F5' }}>
                 {isDeleting ? '삭제 중...' : '삭제'}
               </Text>
             </Pressable>
@@ -243,7 +243,9 @@ export const EditTripDrawer = ({ isOpen, onClose, trip }: EditTripDrawerProps) =
               className='w-full rounded-lg border border-input bg-background py-md'
               onPress={onClose}
             >
-              <Text className='text-body font-semibold text-foreground text-center'>취소</Text>
+              <Text className='text-body font-semibold text-center' style={{ color: '#1F1F1F' }}>
+                취소
+              </Text>
             </Pressable>
           </View>
         </View>

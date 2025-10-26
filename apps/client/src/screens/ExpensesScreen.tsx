@@ -1,27 +1,30 @@
 import { View, Text, ScrollView, Alert } from 'react-native';
 import { Container, Stack, ExpenseCard, MobileHeader } from '@/shared/components';
 import { TripSelector } from '@/entities/trip';
-import { useGetExpenses } from '@/entities/expense';
+import { useGetExpenses, useDeleteExpense } from '@/entities/expense';
 import { useGetTrips } from '@/entities/trip';
 import { Pressable } from '@repo/ui';
-import { Camera } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useTripStore } from '@/shared/store';
 import { useMemo, useState } from 'react';
 import { ExpenseMenu } from '@/features/expense/expense-menu';
+import { UpdateExpenseDrawer } from '@/features/expense/update-expense';
+import { formatISOToLocalDate } from '@/shared/lib/datetime';
+import { groupExpensesByCurrency } from '@/shared/lib/currency';
+import type { Expense } from '@/entities/expense';
 
 export default function ExpensesScreen() {
   const router = useRouter();
   const { selectedTripId } = useTripStore();
   const [isExpenseMenuOpen, setIsExpenseMenuOpen] = useState(false);
-  const [selectedExpense, setSelectedExpense] = useState<{
-    id: string;
-    title: string;
-    [key: string]: unknown;
-  } | null>(null);
+  const [isUpdateDrawerOpen, setIsUpdateDrawerOpen] = useState(false);
+  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
   const [buttonPosition, setButtonPosition] = useState<
     { x: number; y: number; width: number; height: number } | undefined
   >(undefined);
+
+  // useDeleteExpense mutation hook
+  const { mutate: deleteExpense } = useDeleteExpense();
 
   // 여행 데이터 조회
   const { data: trips = [] } = useGetTrips();
@@ -51,13 +54,14 @@ export default function ExpensesScreen() {
 
   // 날짜별로 경비 매칭 (여행 기간 밖 경비도 포함)
   const expensesByDate = useMemo(() => {
-    // 모든 경비의 날짜 수집
-    const allDates = new Set([...dateRange, ...expenses.map((e) => e.date)]);
+    // ✅ TIME_ARCHITECTURE_GUIDE: ISO datetime → Local date
+    // expense.date: "2024-03-15T00:00:00.000Z" → "2024-03-15"
+    const allDates = new Set([...dateRange, ...expenses.map((e) => formatISOToLocalDate(e.date))]);
     const sortedDates = Array.from(allDates).sort();
 
-    return sortedDates
+    const dateGroups = sortedDates
       .map((date) => {
-        const dayExpenses = expenses.filter((expense) => expense.date === date);
+        const dayExpenses = expenses.filter((expense) => formatISOToLocalDate(expense.date) === date);
         const isInTripRange = dateRange.includes(date);
 
         return {
@@ -67,17 +71,21 @@ export default function ExpensesScreen() {
           isInTripRange, // 여행 기간 내 날짜인지 표시
         };
       })
-      .reverse(); // 최신 날짜가 위로 오도록 역순
+      .filter((group) => group.items.length > 0); // 경비가 있는 날짜만 표시
+
+    // 여행 기간 외 항목을 맨 위로, 나머지는 날짜 순서대로 정렬
+    const outsideTripRange = dateGroups.filter((group) => !group.isInTripRange);
+    const insideTripRange = dateGroups.filter((group) => group.isInTripRange);
+
+    return [...outsideTripRange, ...insideTripRange];
   }, [dateRange, expenses]);
 
-  // 총 경비 계산
-  const totalExpense = useMemo(() => {
-    return expenses.reduce((sum, expense) => sum + parseFloat(expense.amount), 0);
-  }, [expenses]);
+  // ✅ CURRENCY_POLICY: 통화별 경비 그룹핑 (금액 기준 내림차순)
+  const expensesByCurrency = useMemo(() => groupExpensesByCurrency(expenses), [expenses]);
 
   // 경비 메뉴 핸들러
   const handleExpenseMenuPress = (
-    expense: { id: string; title: string; [key: string]: unknown },
+    expense: Expense,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     event: any,
   ) => {
@@ -90,11 +98,13 @@ export default function ExpensesScreen() {
   };
 
   const handleEditExpense = () => {
-    Alert.alert('경비 수정', `"${selectedExpense?.title}" 경비를 수정합니다. (구현 예정)`);
+    setIsUpdateDrawerOpen(true);
   };
 
   const handleDeleteExpense = () => {
-    Alert.alert('경비 삭제', `"${selectedExpense?.title}" 경비를 삭제하시겠습니까?`, [
+    if (!selectedExpense) return;
+
+    Alert.alert('경비 삭제', `"${selectedExpense.title}" 경비를 삭제하시겠습니까?`, [
       {
         text: '취소',
         style: 'cancel',
@@ -103,7 +113,16 @@ export default function ExpensesScreen() {
         text: '삭제',
         style: 'destructive',
         onPress: () => {
-          Alert.alert('성공', '경비가 삭제되었습니다. (구현 예정)');
+          // ✅ Local-First: 로컬 DB Soft Delete + sync_queue 기록
+          deleteExpense(selectedExpense.id, {
+            onSuccess: () => {
+              Alert.alert('성공', '경비가 삭제되었습니다.');
+              setSelectedExpense(null);
+            },
+            onError: () => {
+              Alert.alert('오류', '경비 삭제에 실패했습니다.');
+            },
+          });
         },
       },
     ]);
@@ -136,12 +155,32 @@ export default function ExpensesScreen() {
       <ScrollView className='flex-1'>
         <Container>
           <Stack direction='vertical' gap='md' className='py-sm'>
-            {/* Total Expense Card */}
-            <View className='flex-col gap-3xs'>
-              <Text className='text-label text-muted-foreground'>총 경비</Text>
-              <Text className='text-display-large text-primary'>
-                {expenses.length > 0 ? `${expenses[0].currency} ${totalExpense.toFixed(2)}` : 'EUR 0.00'}
-              </Text>
+            {/* ✅ CURRENCY_POLICY: 통화별 경비 표시 */}
+            <View className='flex-col gap-sm rounded-lg bg-muted p-md'>
+              <Text className='text-label text-muted-foreground'>통화별 경비</Text>
+              {expensesByCurrency.length > 0 ? (
+                <View className='flex-col gap-xs'>
+                  {expensesByCurrency.map(({ currency, amount }) => (
+                    <View key={currency} className='flex-row items-baseline justify-between'>
+                      {/* 주 통화 (첫 번째)는 강조 */}
+                      <Text
+                        className={
+                          currency === expensesByCurrency[0].currency
+                            ? 'text-display-medium text-primary'
+                            : 'text-title-large text-foreground'
+                        }
+                      >
+                        {currency} {amount.toFixed(currency === 'KRW' || currency === 'JPY' ? 0 : 2)}
+                      </Text>
+                      {currency === expensesByCurrency[0].currency && (
+                        <Text className='text-label text-muted-foreground'>주 통화</Text>
+                      )}
+                    </View>
+                  ))}
+                </View>
+              ) : (
+                <Text className='text-display-medium text-muted-foreground'>EUR 0.00</Text>
+              )}
             </View>
 
             {/* Loading State */}
@@ -206,12 +245,11 @@ export default function ExpensesScreen() {
                         amount={expense.amount}
                         currency={expense.currency}
                         category={expense.category}
-                        date={expense.date}
+                        date={formatISOToLocalDate(expense.date)}
                         hasReceipt={expense.hasReceipt}
                         isPending={false}
                         onPress={() => {
-                          // TODO: Navigate to expense detail
-                          console.log('Navigate to expense detail:', expense.id);
+                          router.push(`/expense-detail/${expense.id}`);
                         }}
                         onMenuPress={(event) => handleExpenseMenuPress(expense, event)}
                       />
@@ -232,12 +270,34 @@ export default function ExpensesScreen() {
         isOpen={isExpenseMenuOpen}
         onClose={() => {
           setIsExpenseMenuOpen(false);
-          setSelectedExpense(null);
           setButtonPosition(undefined);
         }}
         onEdit={handleEditExpense}
         onDelete={handleDeleteExpense}
         buttonPosition={buttonPosition}
+      />
+
+      {/* Update Expense Drawer */}
+      <UpdateExpenseDrawer
+        isOpen={isUpdateDrawerOpen}
+        onClose={() => {
+          setIsUpdateDrawerOpen(false);
+          setSelectedExpense(null);
+        }}
+        expenseData={
+          selectedExpense
+            ? {
+                id: selectedExpense.id,
+                title: selectedExpense.title,
+                amount: selectedExpense.amount,
+                currency: selectedExpense.currency,
+                category: selectedExpense.category,
+                date: selectedExpense.date,
+                scheduleId: selectedExpense.scheduleId ?? undefined,
+                tripId: selectedExpense.tripId,
+              }
+            : null
+        }
       />
     </View>
   );
