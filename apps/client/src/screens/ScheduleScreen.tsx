@@ -225,7 +225,7 @@ export default function ScheduleScreen() {
             ? {
                 id: selectedSchedule.id,
                 title: selectedSchedule.title,
-                date: selectedSchedule.scheduledAt.split('T')[0],
+                date: formatISOToLocalDate(selectedSchedule.scheduledAt),
                 time: selectedSchedule.time,
               }
             : null
