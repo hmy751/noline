@@ -43,7 +43,13 @@ export default function CreateExpenseScreen() {
         leftIcon={<ChevronLeft size={24} color='hsl(0, 0%, 12%)' />}
         onLeftPress={() => router.back()}
       />
-      <ExpenseForm form={form} onSubmit={onSubmit} onCancel={() => router.back()} isPending={isPending} />
+      <ExpenseForm
+        form={form}
+        tripId={tripId}
+        onSubmit={onSubmit}
+        onCancel={() => router.back()}
+        isPending={isPending}
+      />
     </View>
   );
 }
