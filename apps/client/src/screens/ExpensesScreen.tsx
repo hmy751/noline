@@ -10,6 +10,7 @@ import { useMemo, useState } from 'react';
 import { ExpenseMenu } from '@/features/expense/expense-menu';
 import { UpdateExpenseDrawer } from '@/features/expense/update-expense';
 import { formatISOToLocalDate } from '@/shared/lib/datetime';
+import { groupExpensesByCurrency } from '@/shared/lib/currency';
 import type { Expense } from '@/entities/expense';
 
 export default function ExpensesScreen() {
@@ -79,10 +80,8 @@ export default function ExpensesScreen() {
     return [...outsideTripRange, ...insideTripRange];
   }, [dateRange, expenses]);
 
-  // 총 경비 계산
-  const totalExpense = useMemo(() => {
-    return expenses.reduce((sum, expense) => sum + parseFloat(expense.amount), 0);
-  }, [expenses]);
+  // ✅ CURRENCY_POLICY: 통화별 경비 그룹핑 (금액 기준 내림차순)
+  const expensesByCurrency = useMemo(() => groupExpensesByCurrency(expenses), [expenses]);
 
   // 경비 메뉴 핸들러
   const handleExpenseMenuPress = (
@@ -156,12 +155,32 @@ export default function ExpensesScreen() {
       <ScrollView className='flex-1'>
         <Container>
           <Stack direction='vertical' gap='md' className='py-sm'>
-            {/* Total Expense Card */}
-            <View className='flex-col gap-3xs'>
-              <Text className='text-label text-muted-foreground'>총 경비</Text>
-              <Text className='text-display-large text-primary'>
-                {expenses.length > 0 ? `${expenses[0].currency} ${totalExpense.toFixed(2)}` : 'EUR 0.00'}
-              </Text>
+            {/* ✅ CURRENCY_POLICY: 통화별 경비 표시 */}
+            <View className='flex-col gap-sm rounded-lg bg-muted p-md'>
+              <Text className='text-label text-muted-foreground'>통화별 경비</Text>
+              {expensesByCurrency.length > 0 ? (
+                <View className='flex-col gap-xs'>
+                  {expensesByCurrency.map(({ currency, amount }) => (
+                    <View key={currency} className='flex-row items-baseline justify-between'>
+                      {/* 주 통화 (첫 번째)는 강조 */}
+                      <Text
+                        className={
+                          currency === expensesByCurrency[0].currency
+                            ? 'text-display-medium text-primary'
+                            : 'text-title-large text-foreground'
+                        }
+                      >
+                        {currency} {amount.toFixed(currency === 'KRW' || currency === 'JPY' ? 0 : 2)}
+                      </Text>
+                      {currency === expensesByCurrency[0].currency && (
+                        <Text className='text-label text-muted-foreground'>주 통화</Text>
+                      )}
+                    </View>
+                  ))}
+                </View>
+              ) : (
+                <Text className='text-display-medium text-muted-foreground'>EUR 0.00</Text>
+              )}
             </View>
 
             {/* Loading State */}
