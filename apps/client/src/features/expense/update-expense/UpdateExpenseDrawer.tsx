@@ -7,6 +7,7 @@ import { Drawer, Pressable, Select } from '@repo/ui';
 import { DatePicker } from '@/shared/components';
 import { Field } from '@/shared/components/Form';
 import { EXPENSE_CATEGORIES, CURRENCIES, CURRENCY_SYMBOLS } from '@/entities/expense';
+import { useUpdateExpense } from '@/entities/expense/data/useUpdateExpense';
 import { formatISOToLocalDate, formatISOToLocalTime, dateToISODateTime } from '@/shared/lib/datetime';
 import { useGetSchedules } from '@/entities/schedule';
 import { expenseUpdateFormSchema, type ExpenseUpdateFormData } from './schema';
@@ -48,6 +49,9 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
   // Picker visibility state
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
+  // useUpdateExpense mutation hook
+  const { mutate: updateExpense, isPending } = useUpdateExpense();
+
   // 선택한 날짜 추적
   const selectedDate = watch('date');
 
@@ -83,14 +87,29 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
   const onValid = (data: ExpenseUpdateFormData) => {
     if (!expenseData) return;
 
-    // TODO: useUpdateExpense mutation hook 연동
-    console.log('Update expense:', {
-      id: expenseData.id,
-      data,
-    });
-
-    Alert.alert('성공', '경비가 수정되었습니다.');
-    onClose();
+    // ✅ Local-First: 로컬 DB 업데이트 + sync_queue 기록
+    updateExpense(
+      {
+        id: expenseData.id,
+        data: {
+          title: data.title,
+          amount: data.amount,
+          currency: data.currency,
+          category: data.category,
+          date: data.date,
+          scheduleId: data.scheduleId || null,
+        },
+      },
+      {
+        onSuccess: () => {
+          Alert.alert('성공', '경비가 수정되었습니다.');
+          onClose();
+        },
+        onError: () => {
+          Alert.alert('오류', '경비 수정에 실패했습니다.');
+        },
+      },
+    );
   };
 
   const onInvalid = () => {
@@ -377,12 +396,12 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
           {/* 버튼 영역 */}
           <View className='flex-row gap-sm mt-md'>
             <View className='flex-1'>
-              <Pressable variant='default' onPress={handleSubmit(onValid, onInvalid)}>
-                저장
+              <Pressable variant='default' onPress={handleSubmit(onValid, onInvalid)} disabled={isPending}>
+                {isPending ? '저장 중...' : '저장'}
               </Pressable>
             </View>
             <View className='flex-1'>
-              <Pressable variant='outline' onPress={onClose}>
+              <Pressable variant='outline' onPress={onClose} disabled={isPending}>
                 취소
               </Pressable>
             </View>
