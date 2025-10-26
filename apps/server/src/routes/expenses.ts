@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { db, expenses } from '../db/index.js';
-import { eq, and, isNull } from 'drizzle-orm';
+import { eq, and, isNull, sql } from 'drizzle-orm';
 import { createExpenseRequestSchema, updateExpenseRequestSchema, expenseResponseSchema } from '@repo/schema';
 
 const router = Router();
@@ -110,6 +110,7 @@ router.put('/:id', async (req: Request, res: Response) => {
         ...(updateData.receiptUrl !== undefined && { receiptUrl: updateData.receiptUrl }),
         ...(updateData.scheduleId !== undefined && { scheduleId: updateData.scheduleId }),
         updatedAt: new Date(),
+        version: sql`${expenses.version} + 1`, // ✅ version 증가 (Local-First)
       })
       .where(and(eq(expenses.id, id), isNull(expenses.deletedAt)))
       .returning();
@@ -170,6 +171,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
       .set({
         deletedAt: new Date(),
         updatedAt: new Date(),
+        version: sql`${expenses.version} + 1`, // ✅ version 증가 (Local-First)
       })
       .where(and(eq(expenses.id, id), isNull(expenses.deletedAt)))
       .returning();
