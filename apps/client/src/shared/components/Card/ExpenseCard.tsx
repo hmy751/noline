@@ -30,8 +30,8 @@ export function ExpenseCard({
   onMenuPress,
 }: ExpenseCardProps) {
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
-      <Card className={cn('p-sm flex-col gap-xs relative', className)}>
+    <TouchableOpacity onPress={onPress} activeOpacity={0.7} className='w-full'>
+      <Card className={cn('w-full p-sm flex-col gap-xs relative', className)}>
         {/* Title and Amount */}
         <View className='flex-row items-start justify-between'>
           <Text className='flex-1 text-title-medium text-foreground pr-8'>{title}</Text>

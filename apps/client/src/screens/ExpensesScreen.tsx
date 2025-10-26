@@ -58,7 +58,7 @@ export default function ExpensesScreen() {
     const allDates = new Set([...dateRange, ...expenses.map((e) => formatISOToLocalDate(e.date))]);
     const sortedDates = Array.from(allDates).sort();
 
-    return sortedDates
+    const dateGroups = sortedDates
       .map((date) => {
         const dayExpenses = expenses.filter((expense) => formatISOToLocalDate(expense.date) === date);
         const isInTripRange = dateRange.includes(date);
@@ -70,7 +70,13 @@ export default function ExpensesScreen() {
           isInTripRange, // 여행 기간 내 날짜인지 표시
         };
       })
-      .reverse(); // 최신 날짜가 위로 오도록 역순
+      .filter((group) => group.items.length > 0); // 경비가 있는 날짜만 표시
+
+    // 여행 기간 외 항목을 맨 위로, 나머지는 날짜 순서대로 정렬
+    const outsideTripRange = dateGroups.filter((group) => !group.isInTripRange);
+    const insideTripRange = dateGroups.filter((group) => group.isInTripRange);
+
+    return [...outsideTripRange, ...insideTripRange];
   }, [dateRange, expenses]);
 
   // 총 경비 계산

@@ -179,8 +179,10 @@ export default function HomeScreen() {
                 router.push('/create-trip');
               }}
             >
-              <Plus size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
-              <Text className='text-body text-foreground'>새 여행 추가</Text>
+              <Plus size={20} color='#1F1F1F' strokeWidth={2} />
+              <Text className='text-body' style={{ color: '#1F1F1F' }}>
+                새 여행 추가
+              </Text>
             </Pressable>
 
             {/* Upcoming Schedule Section */}

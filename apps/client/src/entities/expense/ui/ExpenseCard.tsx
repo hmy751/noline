@@ -48,13 +48,12 @@ export function ExpenseCard({
 
   return (
     <Pressable
-      variant='ghost'
       onPress={onPress}
-      className='rounded-lg border border-card-border bg-card p-sm active:bg-muted'
+      className='flex w-full rounded-lg border border-card-border bg-card p-md active:bg-muted'
     >
       <View className='flex-row items-start justify-between'>
         {/* Left Side */}
-        <View className='flex-1 gap-2xs'>
+        <View className='flex-1 gap-2xs pr-xs'>
           {/* Title */}
           <Text className='text-title-medium text-foreground'>{title}</Text>
 
@@ -64,9 +63,9 @@ export function ExpenseCard({
           </Text>
 
           {/* Category & Date */}
-          <View className='flex-row items-center gap-2xs'>
-            <View className='rounded px-xs py-3xs' style={{ backgroundColor: getCategoryColor(category) }}>
-              <Text className='text-label-small' style={{ color: getCategoryTextColor(category) }}>
+          <View className='flex-row items-center gap-2xs mt-xs'>
+            <View className='rounded-md px-xs py-3xs' style={{ backgroundColor: getCategoryColor(category) }}>
+              <Text className='text-label-small font-medium' style={{ color: getCategoryTextColor(category) }}>
                 {category}
               </Text>
             </View>
@@ -76,8 +75,8 @@ export function ExpenseCard({
 
         {/* Right Side - Receipt Icon */}
         {hasReceipt && (
-          <View className='ml-xs'>
-            <Receipt size={16} color='hsl(120, 8%, 35%)' strokeWidth={2} />
+          <View className='ml-xs mt-xs flex-shrink-0'>
+            <Receipt size={20} color='hsl(120, 8%, 35%)' strokeWidth={2} />
           </View>
         )}
       </View>
