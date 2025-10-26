@@ -12,8 +12,30 @@ LocaleConfig.defaultLocale = 'ko';
 
 export type CalendarProps = RNCProps;
 
-function Calendar({ ...props }: CalendarProps) {
-  return <RNC {...props} />;
+const defaultTheme = {
+  backgroundColor: 'transparent',
+  calendarBackground: 'transparent',
+  textSectionTitleColor: '#71717a', // zinc-500
+  selectedDayBackgroundColor: '#228B22',
+  selectedDayTextColor: '#ffffff',
+  todayTextColor: '#228B22',
+  dayTextColor: '#18181b', // zinc-900
+  textDisabledColor: '#d4d4d8', // zinc-300
+  dotColor: '#228B22',
+  selectedDotColor: '#ffffff',
+  arrowColor: '#228B22',
+  monthTextColor: '#18181b', // zinc-900
+  indicatorColor: '#228B22',
+  textDayFontWeight: '400' as const,
+  textMonthFontWeight: '600' as const,
+  textDayHeaderFontWeight: '500' as const,
+  textDayFontSize: 15,
+  textMonthFontSize: 17,
+  textDayHeaderFontSize: 13,
+};
+
+function Calendar({ theme, ...props }: CalendarProps) {
+  return <RNC theme={{ ...defaultTheme, ...theme }} style={{ borderRadius: 8 }} hideExtraDays={true} {...props} />;
 }
 
 export { Calendar };

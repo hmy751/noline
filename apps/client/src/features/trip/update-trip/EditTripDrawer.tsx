@@ -125,7 +125,20 @@ export const EditTripDrawer = ({ isOpen, onClose, trip }: EditTripDrawerProps) =
 
   return (
     <>
-      <Drawer isOpen={isOpen} onClose={onClose} title='여행 편집'>
+      <Drawer
+        isOpen={isOpen}
+        onClose={onClose}
+        title='여행 편집'
+        childrenOverlay={
+          pickerVisible ? (
+            <DatePicker
+              visible={pickerVisible}
+              onClose={() => setPickerVisible(false)}
+              onSelectDate={handleSelectDate}
+            />
+          ) : null
+        }
+      >
         <View className='gap-md'>
           {/* 여행 정보 표시 */}
           <View>
@@ -235,9 +248,6 @@ export const EditTripDrawer = ({ isOpen, onClose, trip }: EditTripDrawerProps) =
           </View>
         </View>
       </Drawer>
-
-      {/* 날짜 선택 DatePicker */}
-      <DatePicker visible={pickerVisible} onClose={() => setPickerVisible(false)} onSelectDate={handleSelectDate} />
     </>
   );
 };
