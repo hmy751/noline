@@ -3,8 +3,9 @@ import { Container, Stack, MobileHeader } from '@/shared/components';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useGetExpenses } from '@/entities/expense';
 import { useGetSchedules } from '@/entities/schedule';
-import { MapPin, Tag, Calendar, Receipt } from 'lucide-react-native';
+import { MapPin, Tag, Calendar, Receipt, ChevronLeft } from 'lucide-react-native';
 import { Badge } from '@repo/ui';
+import { formatISOToLocalDate } from '@/shared/lib/datetime';
 
 export default function ExpenseDetailScreen() {
   const router = useRouter();
@@ -15,7 +16,7 @@ export default function ExpenseDetailScreen() {
   const expense = expenses.find((e) => e.id === id);
 
   // 연결된 일정 조회 (scheduleId가 있는 경우)
-  const { data: schedules = [] } = useGetSchedules();
+  const { data: schedules = [] } = useGetSchedules(expense?.tripId || '');
   const linkedSchedule = expense?.scheduleId ? schedules.find((s) => s.id === expense.scheduleId) : null;
 
   // 카테고리별 배경색
@@ -48,7 +49,11 @@ export default function ExpenseDetailScreen() {
   if (isLoading) {
     return (
       <View className='flex-1 bg-background'>
-        <MobileHeader title='경비 상세' showBackButton onBackPress={() => router.back()} />
+        <MobileHeader
+          title='경비 상세'
+          leftIcon={<ChevronLeft size={24} color='hsl(0, 0%, 12%)' />}
+          onLeftPress={() => router.back()}
+        />
         <View className='flex-1 items-center justify-center'>
           <ActivityIndicator size='large' color='hsl(120, 61%, 34%)' />
         </View>
@@ -59,7 +64,11 @@ export default function ExpenseDetailScreen() {
   if (!expense) {
     return (
       <View className='flex-1 bg-background'>
-        <MobileHeader title='경비 상세' showBackButton onBackPress={() => router.back()} />
+        <MobileHeader
+          title='경비 상세'
+          leftIcon={<ChevronLeft size={24} color='hsl(0, 0%, 12%)' />}
+          onLeftPress={() => router.back()}
+        />
         <View className='flex-1 items-center justify-center'>
           <Text className='text-body text-muted-foreground'>경비를 찾을 수 없습니다.</Text>
         </View>
@@ -69,7 +78,11 @@ export default function ExpenseDetailScreen() {
 
   return (
     <View className='flex-1 bg-background'>
-      <MobileHeader title='경비 상세' showBackButton onBackPress={() => router.back()} />
+      <MobileHeader
+        title='경비 상세'
+        leftIcon={<ChevronLeft size={24} color='hsl(0, 0%, 12%)' />}
+        onLeftPress={() => router.back()}
+      />
 
       <ScrollView className='flex-1'>
         <Container>
@@ -110,7 +123,7 @@ export default function ExpenseDetailScreen() {
                     <Calendar size={16} color='hsl(120, 8%, 35%)' strokeWidth={2} />
                     <Text className='text-label text-muted-foreground'>날짜</Text>
                   </View>
-                  <Text className='text-body text-foreground'>{expense.date}</Text>
+                  <Text className='text-body text-foreground'>{formatISOToLocalDate(expense.date)}</Text>
                 </View>
 
                 {/* 영수증 */}

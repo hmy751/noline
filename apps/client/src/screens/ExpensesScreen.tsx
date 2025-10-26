@@ -4,11 +4,11 @@ import { TripSelector } from '@/entities/trip';
 import { useGetExpenses } from '@/entities/expense';
 import { useGetTrips } from '@/entities/trip';
 import { Pressable } from '@repo/ui';
-import { Camera } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useTripStore } from '@/shared/store';
 import { useMemo, useState } from 'react';
 import { ExpenseMenu } from '@/features/expense/expense-menu';
+import { formatISOToLocalDate } from '@/shared/lib/datetime';
 
 export default function ExpensesScreen() {
   const router = useRouter();
@@ -51,13 +51,14 @@ export default function ExpensesScreen() {
 
   // 날짜별로 경비 매칭 (여행 기간 밖 경비도 포함)
   const expensesByDate = useMemo(() => {
-    // 모든 경비의 날짜 수집
-    const allDates = new Set([...dateRange, ...expenses.map((e) => e.date)]);
+    // ✅ TIME_ARCHITECTURE_GUIDE: ISO datetime → Local date
+    // expense.date: "2024-03-15T00:00:00.000Z" → "2024-03-15"
+    const allDates = new Set([...dateRange, ...expenses.map((e) => formatISOToLocalDate(e.date))]);
     const sortedDates = Array.from(allDates).sort();
 
     return sortedDates
       .map((date) => {
-        const dayExpenses = expenses.filter((expense) => expense.date === date);
+        const dayExpenses = expenses.filter((expense) => formatISOToLocalDate(expense.date) === date);
         const isInTripRange = dateRange.includes(date);
 
         return {
@@ -206,7 +207,7 @@ export default function ExpensesScreen() {
                         amount={expense.amount}
                         currency={expense.currency}
                         category={expense.category}
-                        date={expense.date}
+                        date={formatISOToLocalDate(expense.date)}
                         hasReceipt={expense.hasReceipt}
                         isPending={false}
                         onPress={() => {

@@ -1,11 +1,14 @@
 import { View, Text, TextInput, ScrollView, StyleSheet } from 'react-native';
 import { Controller } from 'react-hook-form';
-import { Wallet, ChevronDown } from 'lucide-react-native';
+import { Wallet, ChevronDown, Calendar as CalendarIcon } from 'lucide-react-native';
 import { Pressable, Select } from '@repo/ui';
 import { Field } from '@/shared/components/Form';
+import { DatePicker } from '@/shared/components';
 import { EXPENSE_CATEGORIES, CURRENCIES, CURRENCY_SYMBOLS } from '@/entities/expense';
+import { formatISOToLocalDate, dateToISODateTime } from '@/shared/lib/datetime';
 import type { UseFormReturn } from 'react-hook-form';
 import type { CreateExpenseFormData } from './schema';
+import { useState } from 'react';
 
 type ExpenseFormProps = {
   form: UseFormReturn<CreateExpenseFormData>;
@@ -19,6 +22,7 @@ type ExpenseFormProps = {
  */
 export function ExpenseForm({ form, onSubmit, onCancel, isPending }: ExpenseFormProps) {
   const { control } = form;
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -154,6 +158,53 @@ export function ExpenseForm({ form, onSubmit, onCancel, isPending }: ExpenseForm
               {error && <Field.Message>{error.message}</Field.Message>}
             </Field>
           )}
+        />
+
+        {/* 날짜 */}
+        <Controller
+          control={control}
+          name='date'
+          render={({ field: { value, onChange }, fieldState: { error } }) => {
+            // ✅ TIME_ARCHITECTURE_GUIDE: ISO → Local Date for display
+            const displayDate = value ? formatISOToLocalDate(value) : '날짜 선택';
+
+            return (
+              <Field>
+                <Field.Title>날짜 *</Field.Title>
+                <Field.ElementsBox>
+                  <Pressable
+                    variant='outline'
+                    className='h-11 flex-row items-center justify-between px-sm'
+                    onPress={() => setIsDatePickerOpen(true)}
+                  >
+                    <View className='flex-row items-center gap-xs'>
+                      <CalendarIcon size={16} color='hsl(0, 0%, 45%)' />
+                      <Text className='text-body text-foreground'>{displayDate}</Text>
+                    </View>
+                  </Pressable>
+                </Field.ElementsBox>
+                {error && <Field.Message>{error.message}</Field.Message>}
+
+                {/* DatePicker Modal */}
+                <DatePicker
+                  visible={isDatePickerOpen}
+                  onClose={() => setIsDatePickerOpen(false)}
+                  onSelectDate={(dateString) => {
+                    // ✅ TIME_ARCHITECTURE_GUIDE: Date → ISO datetime
+                    // "2024-03-15" → "2024-03-15T00:00:00.000Z"
+                    onChange(dateToISODateTime(dateString));
+                    setIsDatePickerOpen(false);
+                  }}
+                  markedDates={{
+                    [displayDate]: {
+                      selected: true,
+                      selectedColor: 'hsl(120, 61%, 34%)',
+                    },
+                  }}
+                />
+              </Field>
+            );
+          }}
         />
 
         {/* 버튼 */}
