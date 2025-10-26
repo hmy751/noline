@@ -4,7 +4,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useGetExpenses } from '@/entities/expense';
 import { useGetSchedules } from '@/entities/schedule';
 import { MapPin, Tag, Calendar, Receipt, ChevronLeft } from 'lucide-react-native';
-import { Badge } from '@repo/ui';
 import { formatISOToLocalDate } from '@/shared/lib/datetime';
 
 export default function ExpenseDetailScreen() {

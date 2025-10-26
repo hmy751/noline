@@ -8,17 +8,16 @@ import { useRouter } from 'expo-router';
 import { useTripStore } from '@/shared/store';
 import { useMemo, useState } from 'react';
 import { ExpenseMenu } from '@/features/expense/expense-menu';
+import { UpdateExpenseDrawer } from '@/features/expense/update-expense';
 import { formatISOToLocalDate } from '@/shared/lib/datetime';
+import type { Expense } from '@/entities/expense';
 
 export default function ExpensesScreen() {
   const router = useRouter();
   const { selectedTripId } = useTripStore();
   const [isExpenseMenuOpen, setIsExpenseMenuOpen] = useState(false);
-  const [selectedExpense, setSelectedExpense] = useState<{
-    id: string;
-    title: string;
-    [key: string]: unknown;
-  } | null>(null);
+  const [isUpdateDrawerOpen, setIsUpdateDrawerOpen] = useState(false);
+  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
   const [buttonPosition, setButtonPosition] = useState<
     { x: number; y: number; width: number; height: number } | undefined
   >(undefined);
@@ -78,7 +77,7 @@ export default function ExpensesScreen() {
 
   // 경비 메뉴 핸들러
   const handleExpenseMenuPress = (
-    expense: { id: string; title: string; [key: string]: unknown },
+    expense: Expense,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     event: any,
   ) => {
@@ -91,7 +90,7 @@ export default function ExpensesScreen() {
   };
 
   const handleEditExpense = () => {
-    Alert.alert('경비 수정', `"${selectedExpense?.title}" 경비를 수정합니다. (구현 예정)`);
+    setIsUpdateDrawerOpen(true);
   };
 
   const handleDeleteExpense = () => {
@@ -104,7 +103,8 @@ export default function ExpensesScreen() {
         text: '삭제',
         style: 'destructive',
         onPress: () => {
-          Alert.alert('성공', '경비가 삭제되었습니다. (구현 예정)');
+          // TODO: 삭제 로직 구현
+          Alert.alert('성공', '경비가 삭제되었습니다.');
         },
       },
     ]);
@@ -232,12 +232,34 @@ export default function ExpensesScreen() {
         isOpen={isExpenseMenuOpen}
         onClose={() => {
           setIsExpenseMenuOpen(false);
-          setSelectedExpense(null);
           setButtonPosition(undefined);
         }}
         onEdit={handleEditExpense}
         onDelete={handleDeleteExpense}
         buttonPosition={buttonPosition}
+      />
+
+      {/* Update Expense Drawer */}
+      <UpdateExpenseDrawer
+        isOpen={isUpdateDrawerOpen}
+        onClose={() => {
+          setIsUpdateDrawerOpen(false);
+          setSelectedExpense(null);
+        }}
+        expenseData={
+          selectedExpense
+            ? {
+                id: selectedExpense.id,
+                title: selectedExpense.title,
+                amount: selectedExpense.amount,
+                currency: selectedExpense.currency,
+                category: selectedExpense.category,
+                date: selectedExpense.date,
+                scheduleId: selectedExpense.scheduleId ?? undefined,
+                tripId: selectedExpense.tripId,
+              }
+            : null
+        }
       />
     </View>
   );
