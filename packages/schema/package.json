@@ -13,6 +13,26 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
+    },
+    "./entities/*": {
+      "types": "./dist/entities/*.d.ts",
+      "import": "./dist/entities/*.mjs",
+      "require": "./dist/entities/*.js"
+    },
+    "./requests/*": {
+      "types": "./dist/requests/*.d.ts",
+      "import": "./dist/requests/*.mjs",
+      "require": "./dist/requests/*.js"
+    },
+    "./responses/*": {
+      "types": "./dist/responses/*.d.ts",
+      "import": "./dist/responses/*.mjs",
+      "require": "./dist/responses/*.js"
+    },
+    "./sync/*": {
+      "types": "./dist/sync/*.d.ts",
+      "import": "./dist/sync/*.mjs",
+      "require": "./dist/sync/*.js"
     }
   },
   "scripts": {
