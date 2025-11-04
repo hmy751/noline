@@ -1,12 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { db, trips } from '@/shared/db';
 import { isNull, desc } from 'drizzle-orm';
-
-// Query Key Factory
-export const tripQueryKeys = {
-  base: ['trip'] as const,
-  all: () => [...tripQueryKeys.base, 'all'] as const,
-};
+import { tripQueryKeys } from './keys';
 
 /**
  * 전체 여행을 조회하는 React Query 훅 (Local-First)

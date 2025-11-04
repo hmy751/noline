@@ -3,7 +3,7 @@ import { db, schedules } from '@/shared/db';
 import { eq, sql } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
-import { scheduleQueryKeys } from './useGetSchedules';
+import { scheduleQueryKeys } from './keys';
 
 /**
  * 일정 삭제 Mutation Hook (Local-First)

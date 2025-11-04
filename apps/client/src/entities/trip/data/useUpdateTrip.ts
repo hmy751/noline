@@ -4,7 +4,7 @@ import { eq, sql } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
 import type { UpdateTripRequest } from '../model';
-import { tripQueryKeys } from './useGetTrips';
+import { tripQueryKeys } from './keys';
 
 /**
  * 여행 수정 Mutation Hook (Local-First)

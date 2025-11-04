@@ -1,13 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { db, schedules } from '@/shared/db';
 import { isNull, eq, and } from 'drizzle-orm';
-
-export const scheduleQueryKeys = {
-  base: ['schedule'] as const,
-  list: (tripId: string) => [...scheduleQueryKeys.base, 'list', tripId] as const,
-  detail: (id: string) => [...scheduleQueryKeys.base, 'detail', id] as const,
-  all: () => [...scheduleQueryKeys.base, 'all'] as const,
-};
+import { scheduleQueryKeys } from './keys';
 
 /**
  * 여행의 일정 목록 조회 (Local-First)

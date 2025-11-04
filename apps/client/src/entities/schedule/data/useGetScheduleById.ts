@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { db, schedules } from '@/shared/db';
 import { and, eq, isNull } from 'drizzle-orm';
-import { scheduleQueryKeys } from './useGetSchedules';
+import { scheduleQueryKeys } from './keys';
 
 /**
  * 특정 일정 상세 정보 조회 (Local-First)

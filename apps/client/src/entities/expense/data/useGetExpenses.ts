@@ -1,14 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { db, expenses } from '@/shared/db';
 import { isNull, desc, eq, and } from 'drizzle-orm';
-
-// Query Key Factory
-export const expenseQueryKeys = {
-  base: ['expense'] as const,
-  all: () => [...expenseQueryKeys.base, 'all'] as const,
-  byTrip: (tripId: string) => [...expenseQueryKeys.base, 'trip', tripId] as const,
-  bySchedule: (scheduleId: string) => [...expenseQueryKeys.base, 'schedule', scheduleId] as const,
-};
+import { expenseQueryKeys } from './keys';
 
 /**
  * 전체 경비를 조회하는 React Query 훅 (Local-First)

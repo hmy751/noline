@@ -3,7 +3,7 @@ import { db, schedules } from '@/shared/db';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
 import type { CreateScheduleRequest } from '../model';
-import { scheduleQueryKeys } from './useGetSchedules';
+import { scheduleQueryKeys } from './keys';
 
 /**
  * 일정 생성 Mutation Hook (Local-First)

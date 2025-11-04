@@ -3,7 +3,7 @@ import { db, trips } from '@/shared/db';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
 import type { CreateTripRequest } from '../model';
-import { tripQueryKeys } from './useGetTrips';
+import { tripQueryKeys } from './keys';
 
 /**
  * 여행 생성 Mutation Hook (Local-First)

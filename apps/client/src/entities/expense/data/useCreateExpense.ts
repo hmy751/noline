@@ -3,7 +3,7 @@ import { db, expenses } from '@/shared/db';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
 import type { CreateExpenseRequest } from '../model';
-import { expenseQueryKeys } from './useGetExpenses';
+import { expenseQueryKeys } from './keys';
 
 /**
  * 경비 생성 Mutation Hook (Local-First)
