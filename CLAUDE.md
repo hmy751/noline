@@ -103,6 +103,12 @@
 - @repo/schema - Zod 스키마 (Source of Truth) ⭐
   └── 클라이언트-서버 공유 타입 계약
   └── 런타임 검증 + 타입 안전성
+  └── 구조:
+      ├── entities/   - 도메인 모델 (강제 계약)
+      ├── requests/   - API 요청 (확장 가능)
+      ├── responses/  - API 응답 (확장 가능)
+      ├── sync/       - 동기화 관련 스키마
+      └── shared/     - 공통 필드, Enum, 유틸
 - @repo/ui - shadcn/ui 기반 컴포넌트
   └── 순수 UI, 비즈니스 로직 없음
 - @repo/db - Prisma 스키마
@@ -137,6 +143,31 @@ pnpm typecheck    # 타입 체크
 - SQLite: TEXT 타입으로 저장
 - PostgreSQL: TIMESTAMPTZ 타입
 - 장점: 타임존 정보 포함, JSON 직렬화 안전, Zod 검증 가능
+
+## 📦 @repo/schema 계약 레벨
+
+### 계약(Contract) 관점
+
+| 레벨 | 스키마 타입 | 자유도 | 역할 |
+|------|------------|--------|------|
+| **필수** | Entity | ❌ 변경 불가 | 도메인 모델, 모두가 준수 |
+| **기본** | Request/Response | ✅ 확장 가능 | 기본 구조 제공, 필요시 extend |
+| **내부** | 각 앱 고유 스키마 | ✅ 완전 자유 | sync_queue 등 앱별 특화 |
+
+### 사용 예시
+
+```typescript
+// @repo/schema에서 import
+import { tripEntity, baseTripRequest } from '@repo/schema';
+
+// Entity는 그대로 사용 (계약 준수)
+export { tripEntity };
+
+// Request는 필요시 확장
+export const createTripRequest = baseTripRequest.extend({
+  localField: z.string(), // 앱 특화 필드 추가
+});
+```
 
 ## 📋 개발 가이드라인
 
