@@ -77,10 +77,13 @@ src/
 │
 ├── entities/            # 🔵 비즈니스 핵심층
 │   │                    # Trip, User, Expense 등 도메인 객체
-│   ├── trip/
+│   ├── trip/            # 예시: trip 엔티티
 │   │   ├── ui/         # TripCard, TripList
 │   │   ├── model/      # types, schemas
-│   │   └── api/        # getTripById, updateTrip
+│   │   ├── api/        # getTripById, updateTrip
+│   │   ├── data/       # Query keys, hooks
+│   │   └── utils/      # 엔티티 전용 유틸
+│   │                    # (필요시 추가 폴더 생성 가능)
 │   └── expense/
 │
 └── shared/              # 🔵 공용 라이브러리층

@@ -59,17 +59,16 @@
 
 ## 🏗 Architecture
 
-```
+### 기본 구조 (참고용)
+
+```plaintext
 packages/ui/
 ├── src/
 │   ├── components/           # UI 컴포넌트
-│   │   ├── button.tsx       # 버튼
-│   │   ├── input.tsx        # 입력 필드
-│   │   ├── card.tsx         # 카드 컨테이너
-│   │   ├── select.tsx       # 선택 박스
-│   │   ├── dialog.tsx       # 다이얼로그/모달
-│   │   ├── toast.tsx        # 토스트 알림
-│   │   └── skeleton.tsx     # 로딩 스켈레톤
+│   │   ├── Input.tsx        # 예: 입력 필드
+│   │   ├── Card.tsx         # 예: 카드 컨테이너
+│   │   ├── Select.tsx       # 예: 선택 박스
+│   │   └── ...              # 기타 컴포넌트들
 │   ├── lib/
 │   │   └── utils.ts         # 유틸리티 함수 (cn)
 │   └── index.ts             # 진입점 (exports)
@@ -77,24 +76,37 @@ packages/ui/
 └── tsconfig.json
 ```
 
+> 💡 **참고**: 컴포넌트 파일명은 예시이며, 실제 구현된 컴포넌트는 아래 "현재 구현된 컴포넌트" 섹션을 참조하세요.
+
 ## 🧩 Core Components
 
-### 주요 컴포넌트
+### 현재 구현된 컴포넌트 (계속 추가 중)
 
-| 컴포넌트   | Props                               | 용도            |
-| ---------- | ----------------------------------- | --------------- |
-| **Button** | variant, size, disabled             | 액션 버튼       |
-| **Input**  | type, error, helperText             | 텍스트 입력     |
-| **Card**   | CardHeader, CardContent, CardFooter | 콘텐츠 컨테이너 |
-| **Select** | value, onValueChange                | 옵션 선택       |
-| **Dialog** | open, onOpenChange                  | 모달 다이얼로그 |
-| **Toast**  | title, description, variant         | 알림 메시지     |
+**Form 관련:**
+- **Input** - 텍스트 입력
+- **Textarea** - 멀티라인 텍스트 입력
+- **Checkbox** - 체크박스
+- **Switch** - 토글 스위치
+- **RadioGroup** - 라디오 버튼 그룹
+- **Select** - 드롭다운 선택
+- **Label** - 폼 라벨
 
-### 컴포넌트 변형 (Variants)
+**Layout 관련:**
+- **Card** - 콘텐츠 컨테이너 (CardHeader, CardContent, CardFooter)
+- **Separator** - 구분선
+- **Drawer** - 하단 서랍 (Bottom Sheet)
 
-- **Button**: default, destructive, outline, ghost, link
-- **Toast**: default, success, destructive
-- **Size**: sm, default, lg
+**Media & Display:**
+- **Image** - 이미지 컴포넌트
+- **Avatar** - 프로필 아바타
+- **Badge** - 배지/태그
+
+**Interaction:**
+- **Pressable** - 터치 인터랙션 래퍼
+- **Calendar** - 날짜 선택 캘린더
+
+> 💡 **참고**: 컴포넌트는 프로젝트 요구사항에 따라 지속적으로 추가됩니다.
+> 각 컴포넌트의 상세 Props는 해당 파일을 참조하세요.
 
 ## 🎨 Styling System
 
