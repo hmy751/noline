@@ -31,8 +31,3 @@ export const deleteScheduleResponse = z.object({
   success: z.literal(true),
   message: z.string(),
 });
-
-// 타입 추출
-export type ScheduleResponse = z.infer<typeof scheduleResponse>;
-export type ScheduleListResponse = z.infer<typeof scheduleListResponse>;
-export type DeleteScheduleResponse = z.infer<typeof deleteScheduleResponse>;

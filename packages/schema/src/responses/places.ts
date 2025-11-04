@@ -37,8 +37,3 @@ export const placesSearchResponse = z.object({
   results: z.array(placeItemSchema),
   searchContext: searchContextSchema,
 });
-
-// 타입 추출
-export type PlaceItem = z.infer<typeof placeItemSchema>;
-export type SearchContext = z.infer<typeof searchContextSchema>;
-export type PlacesSearchResponse = z.infer<typeof placesSearchResponse>;

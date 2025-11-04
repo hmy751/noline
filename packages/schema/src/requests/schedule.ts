@@ -58,7 +58,3 @@ export const updateScheduleRequest = scheduleEntity
     latitude: z.number().nullable().optional(),
     longitude: z.number().nullable().optional(),
   });
-
-// 타입 추출
-export type CreateScheduleRequest = z.infer<typeof createScheduleRequest>;
-export type UpdateScheduleRequest = z.infer<typeof updateScheduleRequest>;

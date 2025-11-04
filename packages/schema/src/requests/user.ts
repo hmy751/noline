@@ -21,7 +21,3 @@ export const loginUserRequest = z.object({
   username: z.string().min(1, 'Username is required'),
   password: z.string().min(1, 'Password is required'),
 });
-
-// 타입 추출
-export type CreateUserRequest = z.infer<typeof createUserRequest>;
-export type LoginUserRequest = z.infer<typeof loginUserRequest>;

@@ -1,9 +1,25 @@
 import { useState } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import { type PlacesSearchResponse, type PlaceDetail } from '@repo/schema/responses/places';
+import { placesSearchResponse } from '@repo/schema/responses/places';
+import { z } from 'zod';
 import fetcher from '@/shared/api/fetcher';
 import { useDebounce } from '@/shared/hooks/useDebounce';
 import type { Location } from './types';
+
+// Infer types from schemas
+type PlacesSearchResponse = z.infer<typeof placesSearchResponse>;
+
+// PlaceDetail type - define based on actual API response structure
+type PlaceDetail = {
+  id: string;
+  name: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  placeId: string;
+  photoUrl?: string;
+  rating?: number;
+};
 
 type CityContext = {
   cityName?: string;

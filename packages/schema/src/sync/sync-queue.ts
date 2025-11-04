@@ -53,12 +53,3 @@ export const updateSyncQueueSchema = z
     updatedAt: z.string().datetime({ offset: true }).optional(),
   })
   .partial();
-
-// ========================================
-// Types
-// ========================================
-export type SyncQueue = z.infer<typeof syncQueueSchema>;
-export type InsertSyncQueue = z.infer<typeof insertSyncQueueSchema>;
-export type UpdateSyncQueue = z.infer<typeof updateSyncQueueSchema>;
-export type SyncStatus = z.infer<typeof syncStatusEnum>;
-export type SyncAction = z.infer<typeof syncActionEnum>;

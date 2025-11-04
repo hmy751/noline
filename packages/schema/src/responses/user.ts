@@ -25,7 +25,3 @@ export const loginUserResponse = z.object({
     token: z.string().optional(), // JWT token (Phase 2)
   }),
 });
-
-// 타입 추출
-export type CreateUserResponse = z.infer<typeof createUserResponse>;
-export type LoginUserResponse = z.infer<typeof loginUserResponse>;

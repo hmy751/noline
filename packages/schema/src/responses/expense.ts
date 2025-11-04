@@ -31,8 +31,3 @@ export const deleteExpenseResponse = z.object({
   success: z.literal(true),
   message: z.string(),
 });
-
-// 타입 추출
-export type ExpenseResponse = z.infer<typeof expenseResponse>;
-export type ExpenseListResponse = z.infer<typeof expenseListResponse>;
-export type DeleteExpenseResponse = z.infer<typeof deleteExpenseResponse>;

@@ -22,6 +22,3 @@ export const userEntity = z.object({
   username: z.string(),
   password: z.string(), // hashed password
 });
-
-// 타입 추출
-export type UserEntity = z.infer<typeof userEntity>;

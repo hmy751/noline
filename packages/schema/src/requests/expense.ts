@@ -53,7 +53,3 @@ export const updateExpenseRequest = expenseEntity
     receiptUrl: true,
   })
   .partial();
-
-// 타입 추출
-export type CreateExpenseRequest = z.infer<typeof createExpenseRequest>;
-export type UpdateExpenseRequest = z.infer<typeof updateExpenseRequest>;

@@ -31,6 +31,3 @@ export const expenseEntity = z.object({
   hasReceipt: z.boolean(),
   receiptUrl: z.string().nullable(),
 });
-
-// 타입 추출
-export type ExpenseEntity = z.infer<typeof expenseEntity>;

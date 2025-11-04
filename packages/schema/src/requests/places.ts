@@ -15,6 +15,3 @@ export const placesSearchRequest = z.object({
   longitude: z.number().optional(),
   language: z.enum(['ko', 'en', 'ja', 'zh', 'es', 'fr', 'de']).default('en'),
 });
-
-// 타입 추출
-export type PlacesSearchRequest = z.infer<typeof placesSearchRequest>;

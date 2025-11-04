@@ -59,7 +59,3 @@ export const updateTripRequest = tripEntity
     latitude: z.number().nullable().optional(),
     longitude: z.number().nullable().optional(),
   });
-
-// 타입 추출
-export type CreateTripRequest = z.infer<typeof createTripRequest>;
-export type UpdateTripRequest = z.infer<typeof updateTripRequest>;

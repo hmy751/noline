@@ -30,6 +30,3 @@ export const tripEntity = z.object({
   startDate: z.string().datetime({ offset: true }),
   endDate: z.string().datetime({ offset: true }),
 });
-
-// 타입 추출
-export type TripEntity = z.infer<typeof tripEntity>;

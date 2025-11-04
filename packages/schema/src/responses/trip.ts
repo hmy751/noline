@@ -31,8 +31,3 @@ export const deleteTripResponse = z.object({
   success: z.literal(true),
   message: z.string(),
 });
-
-// 타입 추출
-export type TripResponse = z.infer<typeof tripResponse>;
-export type TripListResponse = z.infer<typeof tripListResponse>;
-export type DeleteTripResponse = z.infer<typeof deleteTripResponse>;

@@ -68,12 +68,3 @@ export const syncPushResponseSchema = z.object({
   success: z.boolean(),
   message: z.string().optional(),
 });
-
-// ========================================
-// Types
-// ========================================
-
-export type SyncPullQuery = z.infer<typeof syncPullQuerySchema>;
-export type SyncPullResponse = z.infer<typeof syncPullResponseSchema>;
-export type SyncPushRequest = z.infer<typeof syncPushRequestSchema>;
-export type SyncPushResponse = z.infer<typeof syncPushResponseSchema>;

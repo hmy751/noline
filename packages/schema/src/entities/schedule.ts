@@ -28,6 +28,3 @@ export const scheduleEntity = z.object({
   latitude: z.string().nullable(), // DB decimal → string
   longitude: z.string().nullable(),
 });
-
-// 타입 추출
-export type ScheduleEntity = z.infer<typeof scheduleEntity>;
