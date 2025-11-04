@@ -2,7 +2,9 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { db, trips, schedules } from '../db/index.js';
 import { desc, sql, eq, and } from 'drizzle-orm';
-import { createTripRequestSchema, updateTripRequestSchema, tripResponseSchema } from '@repo/schema';
+import { createTripRequest, updateTripRequest } from '@repo/schema/requests/trip';
+import { tripEntity } from '@repo/schema/entities/trip';
+import { tripResponse } from '@repo/schema/responses/trip';
 
 const router = Router();
 
@@ -41,7 +43,7 @@ router.get('/', async (req: Request, res: Response) => {
 
     // Zod로 응답 데이터 검증
     const validatedTrips = allTrips.map((trip) => {
-      const validated = tripResponseSchema.safeParse({
+      const validated = tripEntity.safeParse({
         ...trip,
         startDate: trip.startDate.toISOString(),
         endDate: trip.endDate.toISOString(),
@@ -84,7 +86,7 @@ router.get('/', async (req: Request, res: Response) => {
 router.post('/', async (req: Request, res: Response) => {
   try {
     // Zod로 요청 데이터 검증
-    const validationResult = createTripRequestSchema.safeParse(req.body);
+    const validationResult = createTripRequest.safeParse(req.body);
 
     if (!validationResult.success) {
       return res.status(400).json({
@@ -133,12 +135,15 @@ router.post('/', async (req: Request, res: Response) => {
       .returning();
 
     // Zod로 응답 데이터 검증
-    const validatedTrip = tripResponseSchema.safeParse({
-      ...newTrip,
-      startDate: newTrip.startDate.toISOString(),
-      endDate: newTrip.endDate.toISOString(),
-      createdAt: newTrip.createdAt.toISOString(),
-      updatedAt: newTrip.updatedAt.toISOString(),
+    const validatedTrip = tripResponse.safeParse({
+      success: true,
+      data: {
+        ...newTrip,
+        startDate: newTrip.startDate.toISOString(),
+        endDate: newTrip.endDate.toISOString(),
+        createdAt: newTrip.createdAt.toISOString(),
+        updatedAt: newTrip.updatedAt.toISOString(),
+      },
     });
 
     if (!validatedTrip.success) {
@@ -152,10 +157,7 @@ router.post('/', async (req: Request, res: Response) => {
       });
     }
 
-    res.status(201).json({
-      success: true,
-      data: validatedTrip.data,
-    });
+    res.status(201).json(validatedTrip.data);
   } catch (error) {
     console.error('Error creating trip:', error);
 
@@ -189,7 +191,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const tripId = req.params.id;
     const userId = '01HZQ8K9X7M2N3P4Q5R6S7T8V9'; // 테스트용 ULID
 
-    const validationResult = updateTripRequestSchema.safeParse(req.body);
+    const validationResult = updateTripRequest.safeParse(req.body);
 
     if (!validationResult.success) {
       return res.status(400).json({
@@ -271,12 +273,15 @@ router.put('/:id', async (req: Request, res: Response) => {
     const [updatedTrip] = await db.update(trips).set(updateData).where(eq(trips.id, tripId)).returning();
 
     // Zod로 응답 데이터 검증
-    const validatedTrip = tripResponseSchema.safeParse({
-      ...updatedTrip,
-      startDate: updatedTrip.startDate.toISOString(),
-      endDate: updatedTrip.endDate.toISOString(),
-      createdAt: updatedTrip.createdAt.toISOString(),
-      updatedAt: updatedTrip.updatedAt.toISOString(),
+    const validatedTrip = tripResponse.safeParse({
+      success: true,
+      data: {
+        ...updatedTrip,
+        startDate: updatedTrip.startDate.toISOString(),
+        endDate: updatedTrip.endDate.toISOString(),
+        createdAt: updatedTrip.createdAt.toISOString(),
+        updatedAt: updatedTrip.updatedAt.toISOString(),
+      },
     });
 
     if (!validatedTrip.success) {
@@ -284,10 +289,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       throw new Error('Invalid trip data');
     }
 
-    res.status(200).json({
-      success: true,
-      data: validatedTrip.data,
-    });
+    res.status(200).json(validatedTrip.data);
   } catch (error) {
     console.error('Error updating trip:', error);
 

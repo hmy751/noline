@@ -3,36 +3,29 @@
 // ========================================
 
 import { z } from 'zod';
-import {
-  expenseSchema,
-  expenseResponseSchema,
-  createExpenseRequestSchema,
-  updateExpenseRequestSchema,
-  getAllExpensesResponseSchema,
-  createExpenseResponseSchema,
-  updateExpenseResponseSchema,
-  deleteExpenseResponseSchema,
-} from '@repo/schema';
+import { expenseEntity } from '@repo/schema/entities/expense';
+import { createExpenseRequest, updateExpenseRequest } from '@repo/schema/requests/expense';
+import { expenseResponse, expenseListResponse, deleteExpenseResponse } from '@repo/schema/responses/expense';
 
 // ========================================
 // Entity Type (DB)
 // ========================================
-export type Expense = z.infer<typeof expenseSchema>;
+export type Expense = z.infer<typeof expenseEntity>;
 
 // ========================================
 // Request Types (클라이언트 → 서버)
 // ========================================
-export type CreateExpenseRequest = z.infer<typeof createExpenseRequestSchema>;
-export type UpdateExpenseRequest = z.infer<typeof updateExpenseRequestSchema>;
+export type CreateExpenseRequest = z.infer<typeof createExpenseRequest>;
+export type UpdateExpenseRequest = z.infer<typeof updateExpenseRequest>;
 
 // ========================================
 // Response Types (서버 → 클라이언트)
 // ========================================
-export type ExpenseResponse = z.infer<typeof expenseResponseSchema>;
-export type GetAllExpensesResponse = z.infer<typeof getAllExpensesResponseSchema>;
-export type CreateExpenseResponse = z.infer<typeof createExpenseResponseSchema>;
-export type UpdateExpenseResponse = z.infer<typeof updateExpenseResponseSchema>;
-export type DeleteExpenseResponse = z.infer<typeof deleteExpenseResponseSchema>;
+export type ExpenseResponse = z.infer<typeof expenseResponse>['data'];
+export type GetAllExpensesResponse = z.infer<typeof expenseListResponse>;
+export type CreateExpenseResponse = z.infer<typeof expenseResponse>;
+export type UpdateExpenseResponse = z.infer<typeof expenseResponse>;
+export type DeleteExpenseResponse = z.infer<typeof deleteExpenseResponse>;
 
 // ========================================
 // Alias (backward compatibility)

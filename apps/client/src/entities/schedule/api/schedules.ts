@@ -1,5 +1,6 @@
 import axios from '@/shared/api/fetcher';
-import { createScheduleRequestSchema, getAllSchedulesResponseSchema, createScheduleResponseSchema } from '@repo/schema';
+import { createScheduleRequest } from '@repo/schema/requests/schedule';
+import { scheduleListResponse, scheduleResponse } from '@repo/schema/responses/schedule';
 import type { GetAllSchedulesResponse, CreateScheduleRequest, CreateScheduleResponse } from '../model';
 
 // ========================================
@@ -15,7 +16,7 @@ export const fetchSchedules = async (tripId: string): Promise<GetAllSchedulesRes
   try {
     const data = await axios.get(`/api/trips/${tripId}/schedules`);
 
-    const validated = getAllSchedulesResponseSchema.parse(data);
+    const validated = scheduleListResponse.parse(data);
     return validated;
   } catch (error) {
     console.error('❌ error', error);
@@ -30,10 +31,10 @@ export const fetchSchedules = async (tripId: string): Promise<GetAllSchedulesRes
  */
 export const fetchCreateSchedule = async (data: CreateScheduleRequest): Promise<CreateScheduleResponse> => {
   try {
-    const validatedInput = createScheduleRequestSchema.parse(data);
+    const validatedInput = createScheduleRequest.parse(data);
     const responseData = await axios.post('/api/schedules', validatedInput);
 
-    const validated = createScheduleResponseSchema.parse(responseData);
+    const validated = scheduleResponse.parse(responseData);
     return validated;
   } catch (error) {
     console.error('❌ error', error);

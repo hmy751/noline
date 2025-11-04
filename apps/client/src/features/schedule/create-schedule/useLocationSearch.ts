@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import { type PlacesSearchResponse, type PlaceDetail } from '@repo/schema';
+import { type PlacesSearchResponse, type PlaceDetail } from '@repo/schema/responses/places';
 import fetcher from '@/shared/api/fetcher';
 import { useDebounce } from '@/shared/hooks/useDebounce';
 import type { Location } from './types';

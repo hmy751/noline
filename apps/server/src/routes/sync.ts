@@ -7,7 +7,7 @@ import {
   syncPullResponseSchema,
   syncPushRequestSchema,
   syncPushResponseSchema,
-} from '@repo/schema';
+} from '@repo/schema/sync/sync-status';
 
 const router = Router();
 

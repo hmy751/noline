@@ -1,12 +1,6 @@
 import axios from '@/shared/api/fetcher';
-import {
-  createTripRequestSchema,
-  updateTripRequestSchema,
-  getAllTripsResponseSchema,
-  createTripResponseSchema,
-  updateTripResponseSchema,
-  deleteTripResponseSchema,
-} from '@repo/schema';
+import { createTripRequest, updateTripRequest } from '@repo/schema/requests/trip';
+import { tripResponse, tripListResponse, deleteTripResponse } from '@repo/schema/responses/trip';
 import type {
   GetAllTripsResponse,
   CreateTripRequest,
@@ -28,7 +22,7 @@ export const fetchAllTrips = async (): Promise<GetAllTripsResponse> => {
   try {
     const data = await axios.get('/api/trips');
 
-    const validated = getAllTripsResponseSchema.parse(data);
+    const validated = tripListResponse.parse(data);
     return validated;
   } catch (error) {
     console.error('❌ error', error);
@@ -43,10 +37,10 @@ export const fetchAllTrips = async (): Promise<GetAllTripsResponse> => {
  */
 export const fetchCreateTrip = async (data: CreateTripRequest): Promise<CreateTripResponse> => {
   try {
-    const validatedInput = createTripRequestSchema.parse(data);
+    const validatedInput = createTripRequest.parse(data);
     const responseData = await axios.post('/api/trips', validatedInput);
 
-    const validated = createTripResponseSchema.parse(responseData);
+    const validated = tripResponse.parse(responseData);
     return validated;
   } catch (error) {
     console.error('❌ error', error);
@@ -62,10 +56,10 @@ export const fetchCreateTrip = async (data: CreateTripRequest): Promise<CreateTr
  */
 export const fetchUpdateTrip = async (id: string, data: UpdateTripRequest): Promise<UpdateTripResponse> => {
   try {
-    const validatedInput = updateTripRequestSchema.parse(data);
+    const validatedInput = updateTripRequest.parse(data);
     const responseData = await axios.patch(`/api/trips/${id}`, validatedInput);
 
-    const validated = updateTripResponseSchema.parse(responseData);
+    const validated = tripResponse.parse(responseData);
     return validated;
   } catch (error) {
     console.error('❌ error', error);
@@ -82,7 +76,7 @@ export const fetchDeleteTrip = async (id: string): Promise<DeleteTripResponse> =
   try {
     const responseData = await axios.delete(`/api/trips/${id}`);
 
-    const validated = deleteTripResponseSchema.parse(responseData);
+    const validated = deleteTripResponse.parse(responseData);
     return validated;
   } catch (error) {
     console.error('❌ error', error);

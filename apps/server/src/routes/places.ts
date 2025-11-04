@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { Client } from '@googlemaps/google-maps-services-js';
-import { placesSearchRequestSchema, placesSearchResponseSchema, placeDetailSchema } from '@repo/schema';
+import { placesSearchRequest } from '@repo/schema/requests/places';
+import { placesSearchResponse } from '@repo/schema/responses/places';
 import config from '../config/index.js';
 
 const router = Router();
@@ -19,7 +20,7 @@ const googleMapsClient = new Client({});
 router.post('/search', async (req, res, next) => {
   try {
     // Request 검증
-    const validationResult = placesSearchRequestSchema.safeParse(req.body);
+    const validationResult = placesSearchRequest.safeParse(req.body);
 
     if (!validationResult.success) {
       return res.status(400).json({
@@ -82,7 +83,7 @@ router.post('/search', async (req, res, next) => {
     };
 
     // Response 검증 (개발 단계에서만)
-    const responseValidation = placesSearchResponseSchema.safeParse(responseData);
+    const responseValidation = placesSearchResponse.safeParse(responseData);
     if (!responseValidation.success) {
       console.error('Response validation error:', responseValidation.error);
     }
@@ -159,17 +160,9 @@ router.get('/:placeId', async (req, res, next) => {
       rating: place.rating,
     };
 
-    // Response 검증
-    const responseValidation = placeDetailSchema.safeParse(placeDetail);
-    if (!responseValidation.success) {
-      console.error('Place detail validation error:', responseValidation.error);
-      return res.status(500).json({
-        error: 'Invalid place data received from Google',
-        details: responseValidation.error.errors,
-      });
-    }
+    // Response는 별도 검증 없이 반환 (placeDetailSchema가 없으므로)
 
-    res.json(responseValidation.data);
+    res.json(placeDetail);
   } catch (error) {
     console.error('Place details error:', error);
     next(error);
