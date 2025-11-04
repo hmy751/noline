@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { db, schedules } from '@/shared/db';
-import { eq } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import { scheduleQueryKeys } from './useGetSchedules';
 
 /**
@@ -8,7 +8,7 @@ import { scheduleQueryKeys } from './useGetSchedules';
  *
  * 로컬 DB에서 단일 일정 조회
  * - scheduleId로 특정 일정 조회
- * - Soft Delete된 항목도 조회 (상세 화면에서 확인용)
+ * - Soft Delete된 항목은 제외
  *
  * @param scheduleId - 조회할 일정 ID
  *
@@ -21,8 +21,12 @@ export const useGetScheduleById = (scheduleId: string) => {
   return useQuery({
     queryKey: scheduleQueryKeys.detail(scheduleId),
     queryFn: async () => {
-      // 로컬 DB에서 조회
-      const schedule = await db.select().from(schedules).where(eq(schedules.id, scheduleId)).get(); // .get()은 단일 결과 반환
+      // 로컬 DB에서 조회 (Soft Delete 제외)
+      const schedule = await db
+        .select()
+        .from(schedules)
+        .where(and(isNull(schedules.deletedAt), eq(schedules.id, scheduleId)))
+        .get(); // .get()은 단일 결과 반환
 
       if (!schedule) {
         throw new Error(`Schedule not found: ${scheduleId}`);
