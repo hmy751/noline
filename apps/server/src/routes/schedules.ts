@@ -2,12 +2,8 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { db, schedules } from '../db/index.js';
 import { eq, and, sql, isNull } from 'drizzle-orm';
-import {
-  createScheduleRequestSchema,
-  createScheduleResponseSchema,
-  updateScheduleRequestSchema,
-  scheduleResponseSchema,
-} from '@repo/schema';
+import { createScheduleRequest, updateScheduleRequest } from '@repo/schema/requests/schedule';
+import { scheduleEntity } from '@repo/schema/entities/schedule';
 
 const router = Router();
 
@@ -15,7 +11,7 @@ const router = Router();
 router.post('/', async (req: Request, res: Response) => {
   try {
     // Zod로 요청 데이터 검증
-    const validationResult = createScheduleRequestSchema.safeParse(req.body);
+    const validationResult = createScheduleRequest.safeParse(req.body);
 
     if (!validationResult.success) {
       return res.status(400).json({
@@ -43,7 +39,7 @@ router.post('/', async (req: Request, res: Response) => {
       })
       .returning();
 
-    // Zod로 응답 전체 검증 (createScheduleResponseSchema 사용)
+    // Zod로 응답 전체 검증 (scheduleEntity 사용)
     const responseData = {
       success: true,
       data: {
@@ -55,7 +51,7 @@ router.post('/', async (req: Request, res: Response) => {
       },
     };
 
-    const validated = createScheduleResponseSchema.safeParse(responseData);
+    const validated = scheduleEntity.safeParse(responseData);
 
     if (!validated.success) {
       console.error('Schedule response validation error:', validated.error);
@@ -139,7 +135,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const userId = '01HZQ8K9X7M2N3P4Q5R6S7T8V9'; // TODO: 실제 인증 구현 후 userId 사용
 
     // Zod 검증
-    const validationResult = updateScheduleRequestSchema.safeParse(req.body);
+    const validationResult = updateScheduleRequest.safeParse(req.body);
 
     if (!validationResult.success) {
       return res.status(400).json({
@@ -209,7 +205,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     };
 
     // Zod 검증
-    const validated = scheduleResponseSchema.safeParse(responseData);
+    const validated = scheduleEntity.safeParse(responseData);
 
     if (!validated.success) {
       console.error('Schedule response validation error:', validated.error);

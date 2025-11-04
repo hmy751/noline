@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { tripSchema } from './trip';
-import { scheduleSchema } from './schedule';
+import { tripEntity } from '../entities/trip';
+import { scheduleEntity } from '../entities/schedule';
 
 // ========================================
 // Sync Pull Schemas
@@ -25,7 +25,7 @@ export const syncPullQuerySchema = z.object({
  */
 export const syncPullResponseSchema = z.object({
   trips: z.array(
-    tripSchema.extend({
+    tripEntity.extend({
       // DB Date → ISO string 변환
       createdAt: z.union([z.date(), z.string().datetime()]),
       updatedAt: z.union([z.date(), z.string().datetime()]),
@@ -35,7 +35,7 @@ export const syncPullResponseSchema = z.object({
     }),
   ),
   schedules: z.array(
-    scheduleSchema.extend({
+    scheduleEntity.extend({
       // DB Date → ISO string 변환
       createdAt: z.union([z.date(), z.string().datetime()]),
       updatedAt: z.union([z.date(), z.string().datetime()]),
@@ -68,12 +68,3 @@ export const syncPushResponseSchema = z.object({
   success: z.boolean(),
   message: z.string().optional(),
 });
-
-// ========================================
-// Types
-// ========================================
-
-export type SyncPullQuery = z.infer<typeof syncPullQuerySchema>;
-export type SyncPullResponse = z.infer<typeof syncPullResponseSchema>;
-export type SyncPushRequest = z.infer<typeof syncPushRequestSchema>;
-export type SyncPushResponse = z.infer<typeof syncPushResponseSchema>;

@@ -2,7 +2,8 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { db, expenses } from '../db/index.js';
 import { eq, and, isNull, sql } from 'drizzle-orm';
-import { createExpenseRequestSchema, updateExpenseRequestSchema, expenseResponseSchema } from '@repo/schema';
+import { createExpenseRequest, updateExpenseRequest } from '@repo/schema/requests/expense';
+import { expenseEntity } from '@repo/schema/entities/expense';
 
 const router = Router();
 
@@ -10,7 +11,7 @@ const router = Router();
 router.post('/', async (req: Request, res: Response) => {
   try {
     // Zod로 요청 데이터 검증
-    const validationResult = createExpenseRequestSchema.safeParse(req.body);
+    const validationResult = createExpenseRequest.safeParse(req.body);
 
     if (!validationResult.success) {
       return res.status(400).json({
@@ -42,7 +43,7 @@ router.post('/', async (req: Request, res: Response) => {
       .returning();
 
     // Zod로 응답 데이터 검증
-    const validated = expenseResponseSchema.safeParse({
+    const validated = expenseEntity.safeParse({
       ...newExpense,
       hasReceipt: newExpense.hasReceipt === 1, // integer → boolean
       date: newExpense.date.toISOString().split('T')[0], // Date → ISO date string
@@ -85,7 +86,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
     // Zod로 요청 데이터 검증
-    const validationResult = updateExpenseRequestSchema.safeParse(req.body);
+    const validationResult = updateExpenseRequest.safeParse(req.body);
 
     if (!validationResult.success) {
       return res.status(400).json({
@@ -123,7 +124,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     }
 
     // Zod로 응답 데이터 검증
-    const validated = expenseResponseSchema.safeParse({
+    const validated = expenseEntity.safeParse({
       ...updatedExpense,
       hasReceipt: updatedExpense.hasReceipt === 1,
       date: updatedExpense.date.toISOString().split('T')[0],

@@ -103,6 +103,13 @@
 - @repo/schema - Zod 스키마 (Source of Truth) ⭐
   └── 클라이언트-서버 공유 타입 계약
   └── 런타임 검증 + 타입 안전성
+  └── **정책**: schema만 export, 타입은 z.infer 사용
+  └── 구조:
+      ├── entities/   - 도메인 모델 (강제 계약)
+      ├── requests/   - API 요청 (확장 가능)
+      ├── responses/  - API 응답 (확장 가능)
+      ├── sync/       - 동기화 관련 스키마
+      └── shared/     - 공통 필드, Enum, 유틸
 - @repo/ui - shadcn/ui 기반 컴포넌트
   └── 순수 UI, 비즈니스 로직 없음
 - @repo/db - Prisma 스키마
@@ -138,7 +145,54 @@ pnpm typecheck    # 타입 체크
 - PostgreSQL: TIMESTAMPTZ 타입
 - 장점: 타임존 정보 포함, JSON 직렬화 안전, Zod 검증 가능
 
+## 📦 @repo/schema 계약 레벨
+
+### 계약(Contract) 관점
+
+| 레벨 | 스키마 타입 | 자유도 | 역할 |
+|------|------------|--------|------|
+| **필수** | Entity | ❌ 변경 불가 | 도메인 모델, 모두가 준수 |
+| **기본** | Request/Response | ✅ 확장 가능 | 기본 구조 제공, 필요시 extend |
+| **내부** | 각 앱 고유 스키마 | ✅ 완전 자유 | sync_queue 등 앱별 특화 |
+
+### 사용 예시
+
+```typescript
+// @repo/schema에서 import
+import { tripEntity, baseTripRequest } from '@repo/schema';
+
+// Entity는 그대로 사용 (계약 준수)
+export { tripEntity };
+
+// Request는 필요시 확장
+export const createTripRequest = baseTripRequest.extend({
+  localField: z.string(), // 앱 특화 필드 추가
+});
+```
+
 ## 📋 개발 가이드라인
+
+### @repo/schema 사용 규칙
+
+**정책: schema만 export, 타입은 z.infer 사용**
+
+```typescript
+// ❌ 잘못된 방법
+import { type User } from '@repo/schema/entities/user';
+
+// ✅ 올바른 방법
+import { userEntity } from '@repo/schema/entities/user';
+import { z } from 'zod';
+
+type User = z.infer<typeof userEntity>;
+```
+
+**이유**:
+- Schema가 Single Source of Truth (유일한 타입의 출처)
+- Schema와 타입의 완벽한 동기화 보장
+- 런타임 검증과 타입이 항상 일치
+
+**적용 범위**: entities, requests, responses, sync 모든 스키마
 
 ### 권장 패턴 (현재 아키텍처 기준)
 
