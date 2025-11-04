@@ -9,11 +9,11 @@ export const userSchema = z.object({
   id: z.string().uuid(),
   username: z.string(),
   password: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }),
 
   // Phase 2: Local-First 필드 (선택적)
-  deletedAt: z.date().nullable().optional(),
+  deletedAt: z.string().datetime({ offset: true }).nullable().optional(),
   version: z.number().optional(),
 });
 

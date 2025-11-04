@@ -27,8 +27,8 @@ export const syncQueueSchema = z.object({
   payload: z.string(), // JSON stringified 데이터
   status: syncStatusEnum.default('PENDING'),
   retryCount: z.number().int().default(0),
-  createdAt: z.date(),
-  updatedAt: z.date().optional(),
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }).optional(),
 });
 
 /**
@@ -50,7 +50,7 @@ export const updateSyncQueueSchema = z
   .object({
     status: syncStatusEnum.optional(),
     retryCount: z.number().int().optional(),
-    updatedAt: z.date().optional(),
+    updatedAt: z.string().datetime({ offset: true }).optional(),
   })
   .partial();
 
