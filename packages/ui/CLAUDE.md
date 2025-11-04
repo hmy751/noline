@@ -2,20 +2,21 @@
 
 > shadcn/ui 기반 React Native 컴포넌트 라이브러리
 
-## 📊 구현 레벨 가이드 (MVP vs Production)
+## 📚 Quick Navigation
 
-### 🟢 MVP Level (기본값)
+**프로젝트 이해 (처음 읽을 때):**
 
-- 필요한 atom 있으면 사용, 없으면 skip 가능
-- 기본 props만 구현
-- shared/components에 직접 구현 가능
+- [Root CLAUDE.md](../../CLAUDE.md) - 프로젝트 정체성, MVP vs Production 레벨
+- [FSD Architecture](../../.claude/architecture.md) - @repo/ui의 역할과 계층 구조
 
-### 🔴 Production Level
+**컴포넌트 개발시 참조:**
 
-- atom 레이어 완벽 구현
-- variant, size props 필수
-- forwardRef, displayName 포함
-- JSDoc 문서화
+- [Components Guide](../../.claude/components.md) - 컴포넌트 작성 상세 규칙
+- [TypeScript Guide](../../.claude/typescript.md) - TypeScript 패턴
+
+## 📋 Overview
+
+`@repo/ui`는 **비즈니스 로직 없는 순수 UI 컴포넌트** 라이브러리입니다.
 
 ## 🎯 컴포넌트 설계 철학
 
@@ -40,11 +41,6 @@
    - 기본: 콘텐츠에 맞춤
    - 필요시: width/height props로 제어
 
-## 📚 Overview
-
-`@repo/ui`는 Noline 프로젝트 전체에서 사용되는 디자인 시스템입니다.
-비즈니스 로직 없이 **순수한 UI 컴포넌트**만을 제공합니다.
-
 ### Atom vs Composition
 
 - **Atom (packages/ui)**: 원자 단위 컴포넌트 (Button, Input, Card shell)
@@ -56,6 +52,8 @@
 - **순수 UI**: 스타일과 기본 인터랙션만 포함
 - **재사용성**: 모든 프로젝트에서 사용 가능
 - **일관성**: 통일된 디자인 언어 제공
+
+> **상세 규칙**: [Components Guide](../../.claude/components.md) - 외부 margin 금지, forwardRef 사용 등
 
 ## 🏗 Architecture
 
@@ -83,6 +81,7 @@ packages/ui/
 ### 현재 구현된 컴포넌트 (계속 추가 중)
 
 **Form 관련:**
+
 - **Input** - 텍스트 입력
 - **Textarea** - 멀티라인 텍스트 입력
 - **Checkbox** - 체크박스
@@ -92,16 +91,19 @@ packages/ui/
 - **Label** - 폼 라벨
 
 **Layout 관련:**
+
 - **Card** - 콘텐츠 컨테이너 (CardHeader, CardContent, CardFooter)
 - **Separator** - 구분선
 - **Drawer** - 하단 서랍 (Bottom Sheet)
 
 **Media & Display:**
+
 - **Image** - 이미지 컴포넌트
 - **Avatar** - 프로필 아바타
 - **Badge** - 배지/태그
 
 **Interaction:**
+
 - **Pressable** - 터치 인터랙션 래퍼
 - **Calendar** - 날짜 선택 캘린더
 
@@ -212,8 +214,14 @@ describe('Button', () => {
 });
 ```
 
-## 📚 Related Files
+## 📚 Related Documents
 
-- [Root CLAUDE.md](/Users/hammyeong-yeon/Desktop/noline/CLAUDE.md) - 프로젝트 전체 가이드
-- [Client CLAUDE.md](/Users/hammyeong-yeon/Desktop/noline/apps/client/CLAUDE.md) - 클라이언트 가이드
-- [Design Guide](/Users/hammyeong-yeon/Desktop/noline/.cursor/rules/06-design-guide.md) - 디자인 가이드
+**다른 Workspace:**
+
+- [Client CLAUDE.md](../../apps/client/CLAUDE.md) - 클라이언트에서 @repo/ui 사용법
+
+**상세 구현 가이드:**
+
+- [Components Guide](../../.claude/components.md) - 컴포넌트 작성 규칙
+- [FSD Architecture](../../.claude/architecture.md) - @repo/ui의 계층적 역할
+- [TypeScript Guide](../../.claude/typescript.md) - Props 타입 정의

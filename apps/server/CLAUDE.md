@@ -1,28 +1,24 @@
 # 🚀 Noline Server Guide
 
-> Express + TypeScript 백엔드 서버 API 가이드
+> Express + TypeScript 백엔드 서버 API 구현 가이드
 
-## 📊 구현 레벨 가이드 (MVP vs Production)
+## 📚 Quick Navigation
 
-### 🟢 MVP Level (기본값)
-- 기본 try-catch 에러 처리
-- console.error 로깅
-- 기본 응답 형식
+**프로젝트 이해 (처음 읽을 때):**
 
-### 🔴 Production Level
-- 커스텀 에러 클래스
-- Winston 로깅
-- 완전한 에러 처리 시스템
-- 모니터링 통합
+- [Root CLAUDE.md](../../CLAUDE.md) - 프로젝트 정체성, 핵심 원칙, MVP vs Production 레벨
+- [Schema CLAUDE.md](../../packages/schema/CLAUDE.md) - @repo/schema 타입 계약
+- [Local Architecture](../../.claude/local-architecture.md) - Echo Protocol, sync_queue 상세
 
-## 🎯 Server Architecture
+**서버 구현시 참조:**
 
-### 핵심 원칙: Echo Protocol + @repo/schema
+- [API & Data Guide](../../.claude/api-data.md) - API 레이어 패턴
+- [Error Handling](../../.claude/error-handling.md) - 에러 처리 패턴
+- [TypeScript Guide](../../.claude/typescript.md) - TypeScript 규칙
 
-- **Echo Protocol**: 클라이언트가 생성한 ID를 그대로 수용
-- **@repo/schema**: 클라이언트와 동일한 타입 계약 공유
-- **검증**: Zod 스키마로 런타임 검증
-- **응답 형식**: `{ success: boolean, data: T }` 표준화
+## 🎯 Server-Specific Patterns
+
+이 문서는 **서버 구현에 특화된 패턴**을 다룹니다. Echo Protocol과 @repo/schema는 Root/Schema CLAUDE.md를 참조하세요.
 
 ## 📁 Project Structure
 
@@ -49,21 +45,37 @@ apps/server/
 
 ## 🕐 Time Management
 
+> **상세 가이드**: [time.md](../../.claude/time.md)
+
+**서버 핵심:**
+
 - **PostgreSQL**: `timestamp with timezone` 타입 사용
-- **형식**: ISO 8601 문자열과 자동 변환
-- **Drizzle**: `{ withTimezone: true }` 옵션
+- **Drizzle 옵션**: `{ withTimezone: true }`
+- **자동 변환**: ISO 8601 문자열 ↔ PostgreSQL TIMESTAMPTZ
+
+```typescript
+// Drizzle 스키마 정의
+export const trips = pgTable('trips', {
+  id: text('id').primaryKey(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
+  // ...
+});
+```
 
 ## 🗄 Database Schema (PostgreSQL)
 
 ### 테이블 구조
 
 **Echo Protocol 필드 (모든 테이블):**
+
 - `id`: text (ULID, 클라이언트 생성)
 - `updatedAt`: timestamp with timezone
 - `deletedAt`: timestamp with timezone (Soft Delete)
 - `version`: integer (충돌 해결용)
 
 **인덱스 전략:**
+
 - 동기화용: `updated_at WHERE deleted_at IS NULL`
 - 조회용: 외래키 필드들
 
@@ -71,19 +83,19 @@ apps/server/
 
 ### 기본 CRUD 패턴
 
-| Method | Path | 동작 |
-|--------|------|------|
-| POST | `/api/{resource}` | 생성 (클라이언트 ID 수용) |
-| GET | `/api/{resource}/:id` | 조회 |
-| PUT | `/api/{resource}/:id` | 수정 (version 증가) |
-| DELETE | `/api/{resource}/:id` | Soft Delete |
+| Method | Path                  | 동작                      |
+| ------ | --------------------- | ------------------------- |
+| POST   | `/api/{resource}`     | 생성 (클라이언트 ID 수용) |
+| GET    | `/api/{resource}/:id` | 조회                      |
+| PUT    | `/api/{resource}/:id` | 수정 (version 증가)       |
+| DELETE | `/api/{resource}/:id` | Soft Delete               |
 
 ### 동기화 엔드포인트
 
-| Method | Path | 동작 |
-|--------|------|------|
-| GET | `/api/sync/pull` | lastSyncedAt 이후 변경사항 조회 |
-| POST | `/api/sync/push` | 배치 작업 처리 (트랜잭션) |
+| Method | Path             | 동작                            |
+| ------ | ---------------- | ------------------------------- |
+| GET    | `/api/sync/pull` | lastSyncedAt 이후 변경사항 조회 |
+| POST   | `/api/sync/push` | 배치 작업 처리 (트랜잭션)       |
 
 ## 🔐 Authentication & Authorization
 
@@ -113,11 +125,13 @@ export async function authenticateToken(req, res, next) {
 ### 에러 처리 계층화
 
 **MVP Level:**
+
 - 기본 try-catch
 - console.error 로깅
 - 500 에러 응답
 
 **Production Level:**
+
 - 커스텀 에러 클래스 체계 (AppError 상속)
 - 에러 타입별 처리 (ValidationError, NotFoundError, ConflictError)
 - Winston 로깅
@@ -126,12 +140,14 @@ export async function authenticateToken(req, res, next) {
 ### 글로벌 에러 핸들러
 
 **처리 순서:**
+
 1. Zod 검증 에러 → 400 Bad Request
 2. DB 제약 조건 위반 → 409 Conflict
 3. 커스텀 에러 → 정의된 상태 코드
 4. 기타 → 500 Internal Server Error
 
 **에러 응답 형식:**
+
 ```json
 {
   "error": "에러 타입",
@@ -143,12 +159,14 @@ export async function authenticateToken(req, res, next) {
 ## 📋 개발 가이드라인
 
 ### 권장 패턴
+
 - **ID 처리**: 클라이언트 ID 그대로 수용 (Echo Protocol)
 - **트랜잭션**: 여러 테이블 작업시 트랜잭션 사용
 - **삭제**: Soft Delete (`deletedAt` 필드)
 - **검증**: @repo/schema로 입력 검증
 
 ### 주의 사항
+
 - **ID 생성**: 서버에서 ID 생성 피함
 - **삭제**: Hard Delete 피함 (데이터 복구 불가)
 - **블로킹**: 동기 작업으로 서버 블로킹 피함
@@ -175,8 +193,8 @@ export const logger = winston.createLogger({
   format: winston.format.json(),
   transports: [
     new winston.transports.File({ filename: 'error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'combined.log' })
-  ]
+    new winston.transports.File({ filename: 'combined.log' }),
+  ],
 });
 
 // 사용 예시
@@ -191,17 +209,20 @@ logger.error('Sync failed', { error: err.message });
 app.get('/health', async (req, res) => {
   try {
     // DB 연결 확인
-    await db.select({ count: sql`1` }).from(trips).limit(1);
+    await db
+      .select({ count: sql`1` })
+      .from(trips)
+      .limit(1);
 
     res.json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
-      uptime: process.uptime()
+      uptime: process.uptime(),
     });
   } catch (error) {
     res.status(503).json({
       status: 'unhealthy',
-      error: error.message
+      error: error.message,
     });
   }
 });
@@ -233,8 +254,15 @@ EXPOSE 3000
 CMD ["node", "dist/index.js"]
 ```
 
-## 📚 Related Files
+## 📚 Related Documents
 
-- [Root CLAUDE.md](/Users/hammyeong-yeon/Desktop/noline/CLAUDE.md) - 프로젝트 전체 가이드
-- [Client CLAUDE.md](/Users/hammyeong-yeon/Desktop/noline/apps/client/CLAUDE.md) - 클라이언트 가이드
-- [Backend Express Guide](/Users/hammyeong-yeon/Desktop/noline/.cursor/rules/03-backend-express-guide.md) - Express 상세 가이드
+**다른 Workspace:**
+
+- [Client CLAUDE.md](../client/CLAUDE.md) - 클라이언트 구현 가이드
+- [Schema CLAUDE.md](../../packages/schema/CLAUDE.md) - 타입 계약
+
+**상세 구현 가이드:**
+
+- [Local Architecture](../../.claude/local-architecture.md) - Echo Protocol, sync 엔드포인트 상세
+- [API & Data Guide](../../.claude/api-data.md) - API 레이어 패턴
+- [Error Handling](../../.claude/error-handling.md) - 에러 처리 시스템
