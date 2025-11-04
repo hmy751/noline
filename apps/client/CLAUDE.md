@@ -180,7 +180,7 @@ src/
 3. 성공시 queue에서 제거
 4. 실패시 재시도 카운트 증가
 
-**위치**: `shared/services/sync/push.ts`
+**구현**: `shared/services/sync/engine.ts`의 `pushChanges()` 함수
 
 ### Pull Sync (서버 → 로컬)
 
