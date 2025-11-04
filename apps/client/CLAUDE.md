@@ -1,97 +1,25 @@
 # 📱 Noline Client Guide
 
-> React Native (Expo) 클라이언트 애플리케이션 가이드
+> React Native (Expo) 클라이언트 애플리케이션 구현 가이드
 
-## 📊 구현 레벨 가이드 (MVP vs Production)
+## 📚 Quick Navigation
 
-### 🟢 MVP Level (기본값)
+**프로젝트 이해 (처음 읽을 때):**
 
-**목표**: 빠른 구현, 작동하는 코드
+- [Root CLAUDE.md](../../CLAUDE.md) - 프로젝트 정체성, 핵심 원칙, MVP vs Production 레벨
+- [Schema CLAUDE.md](../../packages/schema/CLAUDE.md) - @repo/schema 타입 계약 (Entity/Request/Response)
+- [FSD Architecture](../../.claude/architecture.md) - Feature-Sliced Design 상세 구조
 
-- 기존 구조 있으면 → 따른다
-- 기존 구조 없으면 → 유연하게 (스키마 skip 가능)
-- 기본 에러 처리 (try-catch, console.error)
+**클라이언트 구현시 참조:**
 
-### 🔴 Production Level
+- [Local Architecture](../../.claude/local-architecture.md) - Local-First 완전 가이드, Echo Protocol
+- [Time Guide](../../.claude/time.md) - 시간 처리 완전 가이드
+- [TypeScript Guide](../../.claude/typescript.md) - TypeScript 규칙
+- [API & Data Guide](../../.claude/api-data.md) - API 레이어 패턴
 
-**목표**: 완전한 베스트 프랙티스
+## 🎯 Client-Specific Patterns
 
-- 없으면 만들어서라도 완벽하게
-- @repo/schema 정의 필수
-- 완전한 에러 처리 시스템
-- JSDoc 문서화
-
-## 🎯 @repo/schema - Source of Truth
-
-### 핵심: 모든 타입의 중심
-
-```
-packages/schema/src/
-├── trip.ts      # 여행 스키마
-├── expense.ts   # 경비 스키마
-├── schedule.ts  # 일정 스키마
-├── user.ts      # 유저 스키마
-└── index.ts     # 통합 export
-```
-
-### 5가지 스키마 타입
-
-| 타입         | 용도             | 특징                                                  |
-| ------------ | ---------------- | ----------------------------------------------------- |
-| **Base**     | 전체 필드 정의   | 모든 필드 포함 (id, updatedAt, deletedAt, version 등) |
-| **Insert**   | 생성시 필요 필드 | 클라이언트가 ID 포함하여 생성                         |
-| **Update**   | 수정 가능 필드   | ID 제외, partial                                      |
-| **Request**  | API 요청 형식    | Insert와 동일 (Echo Protocol)                         |
-| **Response** | API 응답 형식    | `{ success, data }` 구조                              |
-
-## 🏗 FSD Architecture
-
-프로젝트는 Feature-Sliced Design 원칙을 따르며, 계층별 역할이 명확히 구분됩니다.
-
-### 계층 구조 및 의존성 규칙
-
-```
-@repo/ui → shared → entities → features → screens → app
-(하위 계층은 상위 계층에 의존할 수 없음)
-```
-
-### 📁 디렉토리별 역할
-
-```
-src/
-├── app/                 # 🔵 라우팅 연결층
-│   │                    # Expo Router 파일 기반 라우팅
-│   └── (tabs)/          # 탭 네비게이션 구조
-│
-├── screens/             # 🔵 화면 조립층
-│   │                    # features를 조합하여 완전한 화면 구성
-│   ├── home/
-│   ├── trips/
-│   └── settings/
-│
-├── features/            # 🔵 기능 구현층
-│   │                    # 사용자 상호작용 단위
-│   ├── create-trip/     # 여행 생성 기능
-│   ├── expense-form/    # 경비 입력 기능
-│   └── schedule-list/   # 일정 목록 기능
-│
-├── entities/            # 🔵 비즈니스 핵심층
-│   │                    # Trip, User, Expense 등 도메인 객체
-│   ├── trip/            # 예시: trip 엔티티
-│   │   ├── ui/         # TripCard, TripList
-│   │   ├── model/      # types, schemas
-│   │   ├── api/        # getTripById, updateTrip
-│   │   ├── data/       # Query keys, hooks
-│   │   └── utils/      # 엔티티 전용 유틸
-│   │                    # (필요시 추가 폴더 생성 가능)
-│   └── expense/
-│
-└── shared/              # 🔵 공용 라이브러리층
-    ├── components/      # 공용 UI (Header, Layout)
-    ├── db/             # SQLite + Drizzle 설정
-    ├── services/       # id 생성, sync 엔진
-    └── hooks/          # 공용 hooks
-```
+이 문서는 **클라이언트 구현에 특화된 패턴**을 다룹니다. 전체 아키텍처는 Root CLAUDE.md를 참조하세요.
 
 ## 🔄 Local-First Implementation
 
@@ -123,12 +51,22 @@ src/
 
 ## 🕐 Time Management
 
-### 핵심: ISO 8601 with Timezone
+> **상세 가이드**: [time.md](../../.claude/time.md)
 
-- **형식**: `"2024-03-15T14:30:00.000Z"`
-- **SQLite**: TEXT 타입으로 저장
+**클라이언트 핵심:**
+
+- **SQLite 저장**: TEXT 타입으로 ISO 8601 문자열 저장
+- **유틸리티 위치**: `shared/lib/date.ts`
 - **Zod 검증**: `z.string().datetime({ offset: true })`
-- **유틸리티**: `shared/lib/date.ts`에서 변환 함수 제공
+
+```typescript
+// 현재 시간을 ISO 8601로
+const now = new Date().toISOString(); // "2024-03-15T14:30:00.000Z"
+
+// 사용자 표시용 변환
+import { formatDateTime } from '@/shared/lib/date';
+formatDateTime(now); // "2024-03-15 14:30"
+```
 
 ## 🗄 Database Layer
 
@@ -312,8 +250,15 @@ npx expo start --clear
 - React Native Tools - 디버깅 지원
 - Expo Tools - Expo 명령어 지원
 
-## 📚 Related Files
+## 📚 Related Documents
 
-- [Root CLAUDE.md](/Users/hammyeong-yeon/Desktop/noline/CLAUDE.md) - 프로젝트 전체 가이드
-- [Server CLAUDE.md](/Users/hammyeong-yeon/Desktop/noline/apps/server/CLAUDE.md) - 서버 API 가이드
-- [UI CLAUDE.md](/Users/hammyeong-yeon/Desktop/noline/packages/ui/CLAUDE.md) - 컴포넌트 가이드
+**다른 Workspace:**
+
+- [Server CLAUDE.md](../server/CLAUDE.md) - 서버 API 구현 가이드
+- [UI CLAUDE.md](../../packages/ui/CLAUDE.md) - 컴포넌트 라이브러리
+
+**상세 구현 가이드:**
+
+- [Local Architecture](../../.claude/local-architecture.md) - sync_queue, withTransaction 상세
+- [Components Guide](../../.claude/components.md) - 컴포넌트 작성 규칙
+- [Error Handling](../../.claude/error-handling.md) - 에러 처리 패턴

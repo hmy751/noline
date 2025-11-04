@@ -16,15 +16,82 @@
 ```
 📁 Project Structure & Guides
 ├── 📄 CLAUDE.md (현재 파일) - 프로젝트 전체 가이드
+│
 ├── 📁 apps/
 │   ├── client/
 │   │   └── 📄 CLAUDE.md - React Native 클라이언트 가이드
 │   └── server/
 │       └── 📄 CLAUDE.md - Express 서버 API 가이드
-└── 📁 packages/
-    └── ui/
-        └── 📄 CLAUDE.md - UI 컴포넌트 라이브러리 가이드
+│
+├── 📁 packages/
+│   ├── schema/
+│   │   └── 📄 CLAUDE.md - @repo/schema 타입 계약 가이드
+│   └── ui/
+│       └── 📄 CLAUDE.md - UI 컴포넌트 라이브러리 가이드
+│
+└── 📁 .claude/
+    └── 📄 README.md - 상세 구현 가이드 인덱스
 ```
+
+### 📖 Documentation Navigation
+
+**CLAUDE.md 파일들** (Context - 빠른 참조):
+
+| 파일                                            | 역할                       | 언제 읽기          |
+| ----------------------------------------------- | -------------------------- | ------------------ |
+| [Root CLAUDE.md](./CLAUDE.md)                   | 프로젝트 정체성, 핵심 원칙 | 🔥 제일 먼저       |
+| [Client CLAUDE.md](./apps/client/CLAUDE.md)     | React Native 패턴          | Client 작업시      |
+| [Server CLAUDE.md](./apps/server/CLAUDE.md)     | Express API 패턴           | Server 작업시      |
+| [Schema CLAUDE.md](./packages/schema/CLAUDE.md) | @repo/schema 계약          | Entity 추가/변경시 |
+| [UI CLAUDE.md](./packages/ui/CLAUDE.md)         | 컴포넌트 철학              | UI 작업시          |
+
+**.claude/ 파일들** (Detail - 상세 가이드):
+
+자주 사용:
+
+- [typescript.md](./.claude/typescript.md) - TypeScript 전체 규칙
+- [architecture.md](./.claude/architecture.md) - FSD 상세 구조
+- [local-architecture.md](./.claude/local-architecture.md) - Local-First 완전 가이드
+- [time.md](./.claude/time.md) - 시간 처리 완전 가이드
+
+기능별:
+
+- [features/currency.md](./.claude/features/currency.md) - 통화 처리
+- [features/form.md](./.claude/features/form.md) - 폼 패턴
+- [features/local-first-impl.md](./.claude/features/local-first-impl.md) - Local-First 구현
+
+참조:
+
+- [references/prd.md](./.claude/references/prd.md) - 제품 기획서
+- [references/wireframe.md](./.claude/references/wireframe.md) - 디자인 스펙
+
+**전체 인덱스**: [.claude/README.md](./.claude/README.md)
+
+### 🎯 태스크별 가이드
+
+**"새 Entity 추가"**:
+
+1. [Schema CLAUDE.md](./packages/schema/CLAUDE.md) - Entity 정의
+2. [Client CLAUDE.md](./apps/client/CLAUDE.md) - 클라이언트 구현
+3. [local-architecture.md](./.claude/local-architecture.md) - sync_queue 패턴
+
+**"UI 컴포넌트 만들기"**:
+
+1. [UI CLAUDE.md](./packages/ui/CLAUDE.md) - 컴포넌트 철학
+2. [components.md](./.claude/components.md) - 상세 작성 규칙
+3. [typescript.md](./.claude/typescript.md) - TypeScript 패턴
+
+**"API 엔드포인트 추가"**:
+
+1. [Server CLAUDE.md](./apps/server/CLAUDE.md) - API 구조
+2. [Schema CLAUDE.md](./packages/schema/CLAUDE.md) - Request/Response 정의
+3. [api-data.md](./.claude/api-data.md) - API 레이어 패턴
+
+**"Sync 이슈 디버깅"**:
+
+1. [local-architecture.md](./.claude/local-architecture.md) - 전체 흐름
+2. [Client CLAUDE.md](./apps/client/CLAUDE.md) - withTransaction 패턴
+3. [Server CLAUDE.md](./apps/server/CLAUDE.md) - sync 엔드포인트
 
 ## 🎯 Development Principles
 
@@ -149,11 +216,11 @@ pnpm typecheck    # 타입 체크
 
 ### 계약(Contract) 관점
 
-| 레벨 | 스키마 타입 | 자유도 | 역할 |
-|------|------------|--------|------|
-| **필수** | Entity | ❌ 변경 불가 | 도메인 모델, 모두가 준수 |
-| **기본** | Request/Response | ✅ 확장 가능 | 기본 구조 제공, 필요시 extend |
-| **내부** | 각 앱 고유 스키마 | ✅ 완전 자유 | sync_queue 등 앱별 특화 |
+| 레벨     | 스키마 타입       | 자유도       | 역할                          |
+| -------- | ----------------- | ------------ | ----------------------------- |
+| **필수** | Entity            | ❌ 변경 불가 | 도메인 모델, 모두가 준수      |
+| **기본** | Request/Response  | ✅ 확장 가능 | 기본 구조 제공, 필요시 extend |
+| **내부** | 각 앱 고유 스키마 | ✅ 완전 자유 | sync_queue 등 앱별 특화       |
 
 ### 사용 예시
 
@@ -188,6 +255,7 @@ type User = z.infer<typeof userEntity>;
 ```
 
 **이유**:
+
 - Schema가 Single Source of Truth (유일한 타입의 출처)
 - Schema와 타입의 완벽한 동기화 보장
 - 런타임 검증과 타입이 항상 일치
@@ -196,26 +264,26 @@ type User = z.infer<typeof userEntity>;
 
 ### 권장 패턴 (현재 아키텍처 기준)
 
-| 영역 | 권장 방식 | 이유 |
-|------|-----------|------|
-| **트랜잭션** | `withTransaction()` 사용 | DB와 sync_queue 원자성 보장 |
-| **ID 생성** | 클라이언트에서 ULID | 오프라인 작동 |
-| **데이터 조회** | React Query + 로컬 DB | 오프라인 우선 |
-| **검증** | `@repo/schema` Zod 스키마 | 타입 안전성 |
-| **캐시 키** | Query Key Factory 패턴 | 일관성 |
-| **시간 형식** | ISO 8601 | 표준화 |
-| **삭제** | Soft Delete (`deletedAt`) | 복구 가능 |
-| **버전 관리** | Version 필드 | 충돌 해결 대비 |
+| 영역            | 권장 방식                 | 이유                        |
+| --------------- | ------------------------- | --------------------------- |
+| **트랜잭션**    | `withTransaction()` 사용  | DB와 sync_queue 원자성 보장 |
+| **ID 생성**     | 클라이언트에서 ULID       | 오프라인 작동               |
+| **데이터 조회** | React Query + 로컬 DB     | 오프라인 우선               |
+| **검증**        | `@repo/schema` Zod 스키마 | 타입 안전성                 |
+| **캐시 키**     | Query Key Factory 패턴    | 일관성                      |
+| **시간 형식**   | ISO 8601                  | 표준화                      |
+| **삭제**        | Soft Delete (`deletedAt`) | 복구 가능                   |
+| **버전 관리**   | Version 필드              | 충돌 해결 대비              |
 
 ### 주의 사항
 
-| 패턴 | 현재 제약 | 이유 |
-|------|-----------|------|
-| **UI 업데이트** | 서버 응답 대기 피함 | 로컬 우선 UX |
-| **API 호출** | sync_queue 경유 | 오프라인 보장 |
-| **ID 생성** | 서버 생성 피함 | Echo Protocol |
-| **타입 처리** | `as` 대신 타입 가드 | 타입 안전성 |
-| **컴포넌트** | 외부 margin 피함 | 재사용성 |
+| 패턴            | 현재 제약           | 이유          |
+| --------------- | ------------------- | ------------- |
+| **UI 업데이트** | 서버 응답 대기 피함 | 로컬 우선 UX  |
+| **API 호출**    | sync_queue 경유     | 오프라인 보장 |
+| **ID 생성**     | 서버 생성 피함      | Echo Protocol |
+| **타입 처리**   | `as` 대신 타입 가드 | 타입 안전성   |
+| **컴포넌트**    | 외부 margin 피함    | 재사용성      |
 
 ## 🔍 Implementation Status
 
@@ -241,9 +309,34 @@ type User = z.infer<typeof userEntity>;
 
 ## 📚 Related Documents
 
-- [PRD](/Users/hammyeong-yeon/Desktop/noline/.cursor/rules/PRD.md) - 제품 기획서
-- [Local Architecture Guide](/Users/hammyeong-yeon/Desktop/noline/.cursor/rules/LOCAL_ARCHITECTURE_GUIDE.md) - Local-First 상세 가이드
-- [Time Architecture Guide](/Users/hammyeong-yeon/Desktop/noline/.cursor/rules/TIME_ARCHITECTURE_GUIDE.md) - 시간 관리 가이드
+### Core Architecture
+
+- [Local Architecture Guide](./.claude/local-architecture.md) - Local-First 완전 가이드
+- [Time Architecture Guide](./.claude/time.md) - 시간 관리 완전 가이드
+- [FSD Architecture](./.claude/architecture.md) - 프로젝트 구조 상세
+
+### Implementation Guides
+
+- [TypeScript Guide](./.claude/typescript.md) - TypeScript 규칙
+- [API & Data Guide](./.claude/api-data.md) - API 레이어 패턴
+- [Components Guide](./.claude/components.md) - 컴포넌트 작성 규칙
+- [Error Handling](./.claude/error-handling.md) - 에러 처리 패턴
+
+### Feature Guides
+
+- [Currency Policy](./.claude/features/currency.md) - 통화 처리 정책
+- [Form Patterns](./.claude/features/form.md) - 폼 구현 패턴
+- [Local-First Implementation](./.claude/features/local-first-impl.md) - Local-First 구현 디테일
+
+### References
+
+- [PRD](./.claude/references/prd.md) - 제품 기획서
+- [Wireframe](./.claude/references/wireframe.md) - 디자인 스펙
+- [Image Best Practices](./.claude/references/images.md) - 이미지 최적화
+
+### Complete Index
+
+- [.claude/README.md](./.claude/README.md) - 전체 가이드 인덱스 및 태스크별 맵
 
 ## 🤝 Development Guidelines
 
