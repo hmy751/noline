@@ -8,13 +8,13 @@
 
 - [Root CLAUDE.md](../../CLAUDE.md) - 프로젝트 정체성, 핵심 원칙, MVP vs Production 레벨
 - [Schema CLAUDE.md](../../packages/schema/CLAUDE.md) - @repo/schema 타입 계약
-- [Local Architecture](../../.claude/local-architecture.md) - Echo Protocol, sync_queue 상세
+- [Local Architecture](../../.claude/core/local-architecture.md) - Echo Protocol, sync_queue 상세
 
 **서버 구현시 참조:**
 
-- [API & Data Guide](../../.claude/api-data.md) - API 레이어 패턴
-- [Error Handling](../../.claude/error-handling.md) - 에러 처리 패턴
-- [TypeScript Guide](../../.claude/typescript.md) - TypeScript 규칙
+- [API & Data Guide](../../.claude/core/api-data.md) - API 레이어 패턴
+- [Error Handling](../../.claude/core/error-handling.md) - 에러 처리 패턴
+- [TypeScript Guide](../../.claude/core/typescript.md) - TypeScript 규칙
 
 ## 🎯 Server-Specific Patterns
 
@@ -45,7 +45,7 @@ apps/server/
 
 ## 🕐 Time Management
 
-> **상세 가이드**: [time.md](../../.claude/time.md)
+> **상세 가이드**: [time.md](../../.claude/core/time.md)
 
 **서버 핵심:**
 
@@ -263,6 +263,6 @@ CMD ["node", "dist/index.js"]
 
 **상세 구현 가이드:**
 
-- [Local Architecture](../../.claude/local-architecture.md) - Echo Protocol, sync 엔드포인트 상세
-- [API & Data Guide](../../.claude/api-data.md) - API 레이어 패턴
-- [Error Handling](../../.claude/error-handling.md) - 에러 처리 시스템
+- [Local Architecture](../../.claude/core/local-architecture.md) - Echo Protocol, sync 엔드포인트 상세
+- [API & Data Guide](../../.claude/core/api-data.md) - API 레이어 패턴
+- [Error Handling](../../.claude/core/error-handling.md) - 에러 처리 시스템

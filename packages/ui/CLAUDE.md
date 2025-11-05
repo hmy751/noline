@@ -7,12 +7,12 @@
 **프로젝트 이해 (처음 읽을 때):**
 
 - [Root CLAUDE.md](../../CLAUDE.md) - 프로젝트 정체성, MVP vs Production 레벨
-- [FSD Architecture](../../.claude/architecture.md) - @repo/ui의 역할과 계층 구조
+- [FSD Architecture](../../.claude/core/architecture.md) - @repo/ui의 역할과 계층 구조
 
 **컴포넌트 개발시 참조:**
 
-- [Components Guide](../../.claude/components.md) - 컴포넌트 작성 상세 규칙
-- [TypeScript Guide](../../.claude/typescript.md) - TypeScript 패턴
+- [Components Guide](../../.claude/core/components.md) - 컴포넌트 작성 상세 규칙
+- [TypeScript Guide](../../.claude/core/typescript.md) - TypeScript 패턴
 
 ## 📋 Overview
 
@@ -53,7 +53,7 @@
 - **재사용성**: 모든 프로젝트에서 사용 가능
 - **일관성**: 통일된 디자인 언어 제공
 
-> **상세 규칙**: [Components Guide](../../.claude/components.md) - 외부 margin 금지, forwardRef 사용 등
+> **상세 규칙**: [Components Guide](../../.claude/core/components.md) - 외부 margin 금지, forwardRef 사용 등
 
 ## 🏗 Architecture
 
@@ -222,6 +222,6 @@ describe('Button', () => {
 
 **상세 구현 가이드:**
 
-- [Components Guide](../../.claude/components.md) - 컴포넌트 작성 규칙
-- [FSD Architecture](../../.claude/architecture.md) - @repo/ui의 계층적 역할
-- [TypeScript Guide](../../.claude/typescript.md) - Props 타입 정의
+- [Components Guide](../../.claude/core/components.md) - 컴포넌트 작성 규칙
+- [FSD Architecture](../../.claude/core/architecture.md) - @repo/ui의 계층적 역할
+- [TypeScript Guide](../../.claude/core/typescript.md) - Props 타입 정의

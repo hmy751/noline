@@ -8,14 +8,14 @@
 
 - [Root CLAUDE.md](../../CLAUDE.md) - 프로젝트 정체성, 핵심 원칙, MVP vs Production 레벨
 - [Schema CLAUDE.md](../../packages/schema/CLAUDE.md) - @repo/schema 타입 계약 (Entity/Request/Response)
-- [FSD Architecture](../../.claude/architecture.md) - Feature-Sliced Design 상세 구조
+- [FSD Architecture](../../.claude/core/architecture.md) - Feature-Sliced Design 상세 구조
 
 **클라이언트 구현시 참조:**
 
-- [Local Architecture](../../.claude/local-architecture.md) - Local-First 완전 가이드, Echo Protocol
-- [Time Guide](../../.claude/time.md) - 시간 처리 완전 가이드
-- [TypeScript Guide](../../.claude/typescript.md) - TypeScript 규칙
-- [API & Data Guide](../../.claude/api-data.md) - API 레이어 패턴
+- [Local Architecture](../../.claude/core/local-architecture.md) - Local-First 완전 가이드, Echo Protocol
+- [Time Guide](../../.claude/core/time.md) - 시간 처리 완전 가이드
+- [TypeScript Guide](../../.claude/core/typescript.md) - TypeScript 규칙
+- [API & Data Guide](../../.claude/core/api-data.md) - API 레이어 패턴
 
 ## 🎯 Client-Specific Patterns
 
@@ -51,7 +51,7 @@
 
 ## 🕐 Time Management
 
-> **상세 가이드**: [time.md](../../.claude/time.md)
+> **상세 가이드**: [time.md](../../.claude/core/time.md)
 
 **클라이언트 핵심:**
 
@@ -259,6 +259,6 @@ npx expo start --clear
 
 **상세 구현 가이드:**
 
-- [Local Architecture](../../.claude/local-architecture.md) - sync_queue, withTransaction 상세
-- [Components Guide](../../.claude/components.md) - 컴포넌트 작성 규칙
-- [Error Handling](../../.claude/error-handling.md) - 에러 처리 패턴
+- [Local Architecture](../../.claude/core/local-architecture.md) - sync_queue, withTransaction 상세
+- [Components Guide](../../.claude/core/components.md) - 컴포넌트 작성 규칙
+- [Error Handling](../../.claude/core/error-handling.md) - 에러 처리 패턴

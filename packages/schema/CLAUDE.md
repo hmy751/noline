@@ -446,9 +446,9 @@ res.json(validated);
 
 **Detail (상세 가이드):**
 
-- [TypeScript Guide](../../.claude/typescript.md) - TypeScript + Zod 패턴
-- [Local Architecture](../../.claude/local-architecture.md) - Echo Protocol + sync_queue
-- [API/Data Guide](../../.claude/api-data.md) - API 레이어 패턴
+- [TypeScript Guide](../../.claude/core/typescript.md) - TypeScript + Zod 패턴
+- [Local Architecture](../../.claude/core/local-architecture.md) - Echo Protocol + sync_queue
+- [API/Data Guide](../../.claude/core/api-data.md) - API 레이어 패턴
 
 ## ✅ Checklist: 새 Entity 추가시
 

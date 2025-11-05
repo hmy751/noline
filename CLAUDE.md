@@ -47,23 +47,27 @@
 
 **.claude/ 파일들** (Detail - 상세 가이드):
 
-자주 사용:
+핵심 가이드 (core/):
 
-- [typescript.md](./.claude/typescript.md) - TypeScript 전체 규칙
-- [architecture.md](./.claude/architecture.md) - FSD 상세 구조
-- [local-architecture.md](./.claude/local-architecture.md) - Local-First 완전 가이드
-- [time.md](./.claude/time.md) - 시간 처리 완전 가이드
+- [typescript.md](./.claude/core/typescript.md) - TypeScript 전체 규칙
+- [architecture.md](./.claude/core/architecture.md) - FSD 상세 구조
+- [local-architecture.md](./.claude/core/local-architecture.md) - Local-First 완전 가이드
+- [time.md](./.claude/core/time.md) - 시간 처리 완전 가이드
+- [api-data.md](./.claude/core/api-data.md) - API 레이어 패턴
+- [components.md](./.claude/core/components.md) - 컴포넌트 작성 규칙
+- [error-handling.md](./.claude/core/error-handling.md) - 에러 처리 패턴
 
-기능별:
+기능별 가이드 (features/):
 
 - [features/currency.md](./.claude/features/currency.md) - 통화 처리
 - [features/form.md](./.claude/features/form.md) - 폼 패턴
 - [features/local-first-impl.md](./.claude/features/local-first-impl.md) - Local-First 구현
 
-참조:
+참조 문서 (references/):
 
 - [references/prd.md](./.claude/references/prd.md) - 제품 기획서
 - [references/wireframe.md](./.claude/references/wireframe.md) - 디자인 스펙
+- [references/images.md](./.claude/references/images.md) - 이미지 최적화
 
 **전체 인덱스**: [.claude/README.md](./.claude/README.md)
 
@@ -73,23 +77,23 @@
 
 1. [Schema CLAUDE.md](./packages/schema/CLAUDE.md) - Entity 정의
 2. [Client CLAUDE.md](./apps/client/CLAUDE.md) - 클라이언트 구현
-3. [local-architecture.md](./.claude/local-architecture.md) - sync_queue 패턴
+3. [local-architecture.md](./.claude/core/local-architecture.md) - sync_queue 패턴
 
 **"UI 컴포넌트 만들기"**:
 
 1. [UI CLAUDE.md](./packages/ui/CLAUDE.md) - 컴포넌트 철학
-2. [components.md](./.claude/components.md) - 상세 작성 규칙
-3. [typescript.md](./.claude/typescript.md) - TypeScript 패턴
+2. [components.md](./.claude/core/components.md) - 상세 작성 규칙
+3. [typescript.md](./.claude/core/typescript.md) - TypeScript 패턴
 
 **"API 엔드포인트 추가"**:
 
 1. [Server CLAUDE.md](./apps/server/CLAUDE.md) - API 구조
 2. [Schema CLAUDE.md](./packages/schema/CLAUDE.md) - Request/Response 정의
-3. [api-data.md](./.claude/api-data.md) - API 레이어 패턴
+3. [api-data.md](./.claude/core/api-data.md) - API 레이어 패턴
 
 **"Sync 이슈 디버깅"**:
 
-1. [local-architecture.md](./.claude/local-architecture.md) - 전체 흐름
+1. [local-architecture.md](./.claude/core/local-architecture.md) - 전체 흐름
 2. [Client CLAUDE.md](./apps/client/CLAUDE.md) - withTransaction 패턴
 3. [Server CLAUDE.md](./apps/server/CLAUDE.md) - sync 엔드포인트
 
@@ -311,16 +315,16 @@ type User = z.infer<typeof userEntity>;
 
 ### Core Architecture
 
-- [Local Architecture Guide](./.claude/local-architecture.md) - Local-First 완전 가이드
-- [Time Architecture Guide](./.claude/time.md) - 시간 관리 완전 가이드
-- [FSD Architecture](./.claude/architecture.md) - 프로젝트 구조 상세
+- [Local Architecture Guide](./.claude/core/local-architecture.md) - Local-First 완전 가이드
+- [Time Architecture Guide](./.claude/core/time.md) - 시간 관리 완전 가이드
+- [FSD Architecture](./.claude/core/architecture.md) - 프로젝트 구조 상세
 
 ### Implementation Guides
 
-- [TypeScript Guide](./.claude/typescript.md) - TypeScript 규칙
-- [API & Data Guide](./.claude/api-data.md) - API 레이어 패턴
-- [Components Guide](./.claude/components.md) - 컴포넌트 작성 규칙
-- [Error Handling](./.claude/error-handling.md) - 에러 처리 패턴
+- [TypeScript Guide](./.claude/core/typescript.md) - TypeScript 규칙
+- [API & Data Guide](./.claude/core/api-data.md) - API 레이어 패턴
+- [Components Guide](./.claude/core/components.md) - 컴포넌트 작성 규칙
+- [Error Handling](./.claude/core/error-handling.md) - 에러 처리 패턴
 
 ### Feature Guides
 
