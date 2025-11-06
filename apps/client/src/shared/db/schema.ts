@@ -131,6 +131,44 @@ export const syncMetadata = sqliteTable('sync_metadata', {
 });
 
 // ========================================
+// Offline Cities Table (지도 메타데이터)
+// ========================================
+
+/**
+ * 오프라인 도시 지도 메타데이터 (클라이언트 전용)
+ * - 다운로드된 Mapbox 타일 추적
+ * - 참조 카운트로 삭제 관리 (여러 여행이 같은 도시 공유 가능)
+ * - 서버에 동기화되지 않음 (클라이언트 파일시스템 자산)
+ */
+export const offlineCities = sqliteTable('offline_cities', {
+  cityId: integer('city_id').primaryKey(), // GeoNames ID
+  cityName: text('city_name').notNull(),
+  country: text('country'),
+
+  // 지도 영역 (도시 중심 기준)
+  centerLatitude: text('center_latitude').notNull(),
+  centerLongitude: text('center_longitude').notNull(),
+  radiusKm: integer('radius_km').notNull().default(10), // 고정 반경 10km
+
+  // 다운로드 정보
+  downloadedAt: text('downloaded_at').notNull(), // ISO string
+  sizeBytes: integer('size_bytes').notNull(), // 저장 공간 (bytes)
+  tileCount: integer('tile_count'), // 타일 개수
+
+  // 참조 카운트 (중복 다운로드 방지)
+  referenceCount: integer('reference_count').notNull().default(1),
+
+  // Mapbox 메타데이터
+  mapboxRegionName: text('mapbox_region_name'), // Mapbox 오프라인 영역 이름
+  styleUrl: text('style_url').default('mapbox://styles/mapbox/streets-v11'),
+  minZoom: integer('min_zoom').default(10),
+  maxZoom: integer('max_zoom').default(16),
+
+  createdAt: text('created_at').notNull(), // ISO string
+  updatedAt: text('updated_at').notNull(), // ISO string
+});
+
+// ========================================
 // TypeScript Types
 // ========================================
 
@@ -148,3 +186,6 @@ export type NewSyncQueueItem = typeof syncQueue.$inferInsert;
 
 export type SyncMetadata = typeof syncMetadata.$inferSelect;
 export type NewSyncMetadata = typeof syncMetadata.$inferInsert;
+
+export type OfflineCity = typeof offlineCities.$inferSelect;
+export type NewOfflineCity = typeof offlineCities.$inferInsert;
