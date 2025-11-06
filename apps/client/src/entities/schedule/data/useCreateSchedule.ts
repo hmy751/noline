@@ -75,9 +75,12 @@ export const useCreateSchedule = () => {
       return newSchedule;
     },
     onSuccess: (_, variables) => {
-      // 캐시 무효화 - 해당 여행의 일정 목록 다시 조회
+      // 캐시 무효화 - 해당 여행의 일정 목록 및 카운트 다시 조회
       queryClient.invalidateQueries({
         queryKey: scheduleQueryKeys.list(variables.tripId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: scheduleQueryKeys.count(variables.tripId),
       });
     },
     onError: (error) => {

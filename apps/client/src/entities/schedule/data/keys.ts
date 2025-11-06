@@ -9,5 +9,6 @@ export const scheduleQueryKeys = {
   base: ['schedule'] as const,
   list: (tripId: string) => [...scheduleQueryKeys.base, 'list', tripId] as const,
   detail: (id: string) => [...scheduleQueryKeys.base, 'detail', id] as const,
+  count: (tripId: string) => [...scheduleQueryKeys.base, 'count', tripId] as const,
   all: () => [...scheduleQueryKeys.base, 'all'] as const,
 };
