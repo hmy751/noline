@@ -59,6 +59,7 @@
 
 기능별 가이드 (features/):
 
+- [features/subscription-system.md](./.claude/features/subscription-system.md) - 구독 시스템 (오프라인 준비)
 - [features/currency.md](./.claude/features/currency.md) - 통화 처리
 - [features/form.md](./.claude/features/form.md) - 폼 패턴
 - [features/local-first-impl.md](./.claude/features/local-first-impl.md) - Local-First 구현
@@ -142,6 +143,7 @@
 | **동기화**    | sync_queue (Outbox) | 트랜잭션 보장, MVP 단순성  | CRDT, Event Sourcing |
 | **충돌 해결** | Last-Write-Wins     | 초기 버전 단순성           | Vector Clock, CRDT   |
 | **상태 관리** | React Query         | 서버 상태 관리 최적화      | Zustand, Redux       |
+| **구독 시스템** | 선택적 구독 (Subscription) | 오프라인 지도 저장 공간 효율 | 전체 로컬, 개수 제한 |
 
 ## 🛠 Tech Stack
 
@@ -215,6 +217,56 @@ pnpm typecheck    # 타입 체크
 - SQLite: TEXT 타입으로 저장
 - PostgreSQL: TIMESTAMPTZ 타입
 - 장점: 타임존 정보 포함, JSON 직렬화 안전, Zod 검증 가능
+
+## 🚧 작업 예정 (Planned Features)
+
+### Offline 준비 시스템 (Offline-Prep)
+
+**상태**: 설계 완료, 구현 대기 중
+
+**목적**: 오프라인 지도 통합을 위한 선택적 데이터 동기화
+
+**핵심 철학**:
+
+> "구독 = 오프라인 보험, 비구독 = 온라인 전용"
+
+**주요 특징**:
+
+- **구독 여행**: 완전 오프라인 (Local-First 유지) - 최대 200MB
+- **비구독 여행**: 온라인 전용 (Server-First) - Metadata만 로컬
+- **저장 공간 효율화**: 동시에 1개 여행만 구독 가능
+- **자동 관리**: 여행 종료 + 7일 후 자동 구독 해제
+
+**아키텍처**:
+
+```text
+Entity Layer → Offline-Prep Router (구독 상태 확인)
+                ↓
+    ┌───────────┴───────────┐
+    │                       │
+[구독 여행]           [비구독 여행]
+    ↓                       ↓
+Local SQLite          Remote Server
+    ↓
+Sync Engine (백그라운드)
+```
+
+**예상 작업 기간**: 12-16일 (Phase 1-7)
+
+**현재 단계**: Open Questions 해결 중
+
+- [ ] 자동 구독 해제 기간 (7일 vs 3일 vs 14일)
+- [ ] 1-Trip 제한 충분성 검토
+- [ ] 구독 전환 UX (Pull 진행률 표시)
+- [ ] 비구독 편집 제한 정책 사용자 수용성
+
+**관련 문서**:
+
+- [Session: 아키텍처 설계](./.claude/sessions/2025-11-06-subscription-architecture-design.md) - 설계 논의 전체 과정
+- [Feature Guide: 구독 시스템](./.claude/features/subscription-system.md) - 구현 가이드
+- [local-architecture.md](./.claude/core/local-architecture.md) - Local-First 가이드
+
+---
 
 ## 📦 @repo/schema 계약 레벨
 

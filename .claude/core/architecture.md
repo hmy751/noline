@@ -74,9 +74,17 @@ noline/
   - 여러 화면과 기능에서 재사용되는 요소를 배치합니다.
   - `@repo/ui`의 컴포넌트를 조합하여 앱에 특화된 공용 컴포넌트를 만듭니다.
   - **중요**: 특정 비즈니스 데이터와 강하게 결합된 컴포넌트(예: 여행 정보를 표시하는 카드)는 `entities` 레이어에서 관리합니다.
+- **하위 디렉토리 구분**:
+  - `lib/`: 순수 함수 + 범용 유틸리티
+    - 예: `formatDate`, `formatCurrency`, `calculateDistance`
+    - 특징: Side effect 없음, 입력 → 출력 변환만 수행
+  - `services/`: Side effect OR 앱 특화 비즈니스 로직
+    - 예: `sync` (동기화 엔진), `offline-prep` (구독 시스템), `id` (ULID 생성)
+    - 특징: DB 접근, API 호출, 런타임 상태 관리 등 앱 전반의 복잡한 로직
 - **좋은 예시**:
   - `shared/components`: `MobileHeader`, `PageLayout`, `FormField`
-  - `shared/utils`: `formatDate`와 같은 헬퍼 함수
+  - `shared/lib`: `formatDate`와 같은 헬퍼 함수
+  - `shared/services`: `sync/engine.ts`, `offline-prep/router.ts`
   - `shared/api`: `axios` 인스턴스 설정 (`fetcher`)
 
 ### 3. src/entities - 비즈니스 핵심 (도메인 객체 🧠)

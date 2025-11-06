@@ -18,14 +18,21 @@
 │   └── error-handling.md
 │
 ├── features/              # ⚡ 기능별 가이드
+│   ├── subscription-system.md
 │   ├── currency.md
 │   ├── form.md
 │   └── local-first-impl.md
 │
-└── references/            # 📚 외부 스펙
-    ├── prd.md
-    ├── wireframe.md
-    └── images.md
+├── references/            # 📚 외부 스펙
+│   ├── prd.md
+│   ├── wireframe.md
+│   └── images.md
+│
+├── sessions/              # 📝 설계 논의 (개발 전)
+│   └── YYYY-MM-DD-[topic].md
+│
+└── decisions/             # 📋 결정 사항 (개발 후)
+    └── YYYY-MM-DD-[topic].md
 ```
 
 ---
@@ -34,15 +41,15 @@
 
 > 개발 시 자주 참조하는 기본 가이드
 
-| 파일                                                                 | 라인수 | 주제                          | 언제 읽기            |
-| -------------------------------------------------------------------- | ------ | ----------------------------- | -------------------- |
-| [typescript.md](./core/typescript.md)                                | ~270   | TypeScript 규칙, z.infer 패턴 | TS 에러, 타입 작성시 |
-| [architecture.md](./core/architecture.md)                            | ~290   | FSD 구조, 계층별 책임         | 파일 위치 고민시     |
-| [local-architecture.md](./core/local-architecture.md)                | ~1,865 | Local-First 완전 가이드       | Sync 작업시 필수     |
-| [time.md](./core/time.md)                                            | ~1,005 | 시간 처리 완전 가이드         | 날짜/시간 작업시     |
-| [api-data.md](./core/api-data.md)                                    | ~430   | API/Data 레이어 패턴          | API/Query 작업시     |
-| [components.md](./core/components.md)                                | ~680   | 컴포넌트 작성 가이드          | 컴포넌트 개발시      |
-| [error-handling.md](./core/error-handling.md)                        | ~470   | 에러 처리 패턴                | 에러 처리 구현시     |
+| 파일                                                  | 라인수 | 주제                          | 언제 읽기            |
+| ----------------------------------------------------- | ------ | ----------------------------- | -------------------- |
+| [typescript.md](./core/typescript.md)                 | ~270   | TypeScript 규칙, z.infer 패턴 | TS 에러, 타입 작성시 |
+| [architecture.md](./core/architecture.md)             | ~290   | FSD 구조, 계층별 책임         | 파일 위치 고민시     |
+| [local-architecture.md](./core/local-architecture.md) | ~1,865 | Local-First 완전 가이드       | Sync 작업시 필수     |
+| [time.md](./core/time.md)                             | ~1,005 | 시간 처리 완전 가이드         | 날짜/시간 작업시     |
+| [api-data.md](./core/api-data.md)                     | ~430   | API/Data 레이어 패턴          | API/Query 작업시     |
+| [components.md](./core/components.md)                 | ~680   | 컴포넌트 작성 가이드          | 컴포넌트 개발시      |
+| [error-handling.md](./core/error-handling.md)         | ~470   | 에러 처리 패턴                | 에러 처리 구현시     |
 
 ---
 
@@ -50,11 +57,12 @@
 
 > 특정 기능 구현 시 참조
 
-| 파일                                                           | 주제                    | 적용 대상      |
-| -------------------------------------------------------------- | ----------------------- | -------------- |
-| [features/currency.md](./features/currency.md)                 | 통화 처리 정책          | Expense 작업시 |
-| [features/form.md](./features/form.md)                         | 폼 구현 패턴            | 폼 작성시      |
-| [features/local-first-impl.md](./features/local-first-impl.md) | Local-First 구현 디테일 | Sync 구현시    |
+| 파일                                                                 | 주제                        | 적용 대상        |
+| -------------------------------------------------------------------- | --------------------------- | ---------------- |
+| [features/subscription-system.md](./features/subscription-system.md) | 구독 시스템 (오프라인 준비) | 구독 기능 작업시 |
+| [features/currency.md](./features/currency.md)                       | 통화 처리 정책              | Expense 작업시   |
+| [features/form.md](./features/form.md)                               | 폼 구현 패턴                | 폼 작성시        |
+| [features/local-first-impl.md](./features/local-first-impl.md)       | Local-First 구현 디테일     | Sync 구현시      |
 
 ---
 
@@ -133,8 +141,29 @@
 
 ---
 
+## 📝 Sessions & Decisions
+
+### Sessions (설계 논의 - 개발 전)
+
+논의 과정과 검토한 대안들을 기록:
+
+- [2025-11-06: 구독 아키텍처 설계](./sessions/2025-11-06-subscription-architecture-design.md)
+  - **초기 설계**: 3개 대안 비교 (Local-First 유지 vs 선택적 구독 vs 개수 제한)
+  - **단순화 결정**: temp_cache 제거로 복잡도 50% 감소
+  - **구현 명확화**: Sync Engine vs Offline-Prep 관계, 디렉토리 구조, 롤백 전략 분석
+
+### Decisions (최종 결정 - 개발 후)
+
+구현 완료 후 최종 결정 사항 기록 (/doc-save --decision):
+
+- _개발 완료 후 작성 예정_
+
+---
+
 ## 🔄 History
 
+- 2025-11-06: 구독 시스템 설계 문서 추가 (Session, Feature Guide)
+- 2025-11-06: sessions/, decisions/ 디렉토리 추가
 - 2025-11-05: 디렉토리 계층 구조 개선 (core/, features/, references/)
 - 2024-11-05: .cursor/rules에서 .claude/로 마이그레이션
 - 중복 제거 및 일관성 확보
