@@ -18,6 +18,9 @@ config.resolver.nodeModulesPaths = [
 
 config.resolver.symlinks = true;
 
+// Enable package exports 지원, @repo/schema 지원
+config.resolver.unstable_enablePackageExports = true;
+
 // Drizzle: SQL 파일 import 지원
 config.resolver.sourceExts.push('sql');
 
