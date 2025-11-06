@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { initializeDatabase } from '@/shared/db';
 import { SyncProvider } from '@/shared/services/sync/provider';
+import { useOfflineMapCleanup } from '@/shared/services/offline-map';
 import { NetworkOverrideProvider } from '@/features/debug';
 import { queryClient } from '@/shared/lib/queryClient';
 import { useTripStore } from '@/shared/store';
@@ -33,6 +34,11 @@ function InitializeMainTrip() {
     }
   }, [trips, setSelectedTripId]);
 
+  return null;
+}
+
+function OfflineMapCleanupTrigger() {
+  useOfflineMapCleanup();
   return null;
 }
 
@@ -96,6 +102,7 @@ export default function RootLayout() {
             {/* Portal Host for Select and other portal-based components */}
             <PortalHost />
             <InitializeMainTrip />
+            <OfflineMapCleanupTrigger />
           </SyncProvider>
         </NetworkOverrideProvider>
       </QueryClientProvider>
