@@ -10,7 +10,7 @@ export default {
   userInterfaceStyle: 'light',
   newArchEnabled: true,
   scheme: 'client',
-  plugins: ['expo-router'],
+  plugins: ['expo-router', '@rnmapbox/maps'],
   splash: {
     image: './assets/splash-icon.png',
     resizeMode: 'contain',
