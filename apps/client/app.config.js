@@ -8,9 +8,17 @@ export default {
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'light',
-  newArchEnabled: true,
+  newArchEnabled: false,
   scheme: 'client',
-  plugins: ['expo-router'],
+  plugins: [
+    'expo-router',
+    [
+      '@rnmapbox/maps/app.plugin.js',
+      {
+        RNMapboxMapsDownloadToken: process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN,
+      },
+    ],
+  ],
   splash: {
     image: './assets/splash-icon.png',
     resizeMode: 'contain',
@@ -27,6 +35,19 @@ export default {
     config: {
       googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY,
     },
+    infoPlist: {
+      NSAppTransportSecurity: {
+        NSAllowsArbitraryLoads: IS_DEV, // 개발 환경에서만 HTTP 허용
+        NSAllowsLocalNetworking: true,
+        NSExceptionDomains: {
+          // GeoNames API - secure.geonames.org 사용 (SSL 인증서 정상)
+          'secure.geonames.org': {
+            NSExceptionAllowsInsecureHTTPLoads: false,
+            NSIncludesSubdomains: true,
+          },
+        },
+      },
+    },
   },
   // --- Android 설정 ---
   android: {
@@ -42,5 +63,7 @@ export default {
         apiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY,
       },
     },
+    // 개발 환경에서 HTTP 허용
+    usesCleartextTraffic: IS_DEV,
   },
 };

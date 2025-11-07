@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCreateSchedule } from '@/entities/schedule';
+import { useCreateSchedule, useGetScheduleCount } from '@/entities/schedule';
+import { useDownloadOfflineMap } from '@/entities/offline-city';
 import { createScheduleFormSchema, type CreateScheduleFormData } from './schema';
 import { combineDateTimeToISO } from '@/shared/lib/datetime';
 import { generateId } from '@/shared/services/id/ulid';
@@ -39,6 +40,8 @@ export const useCreateScheduleForm = ({ tripId, selectedLocation, onSuccess }: U
   }, [selectedLocation, form]);
 
   const { mutate: createSchedule, isPending } = useCreateSchedule();
+  const { mutate: downloadOfflineMap } = useDownloadOfflineMap();
+  const { data: scheduleCount } = useGetScheduleCount(tripId);
 
   const handleShowDatePicker = () => {
     setDatePickerVisible(true);
@@ -65,6 +68,9 @@ export const useCreateScheduleForm = ({ tripId, selectedLocation, onSuccess }: U
     // ✅ date + time → ISO string with timezone
     const scheduledAt = combineDateTimeToISO(data.date, data.time);
 
+    // 첫 Schedule인지 확인
+    const isFirstSchedule = scheduleCount === 0;
+
     createSchedule(
       {
         id, // ✅ Echo: client-generated ID
@@ -78,6 +84,14 @@ export const useCreateScheduleForm = ({ tripId, selectedLocation, onSuccess }: U
       },
       {
         onSuccess: () => {
+          // 첫 Schedule이면 오프라인 지도 다운로드 트리거
+          if (isFirstSchedule) {
+            console.log('🗺️ First schedule created - triggering offline map download');
+            downloadOfflineMap({ tripId });
+          } else {
+            console.log('✅ Schedule created (not first, skip download)');
+          }
+
           form.reset();
           onSuccess?.();
         },

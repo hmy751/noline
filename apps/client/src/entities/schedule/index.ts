@@ -5,4 +5,11 @@ export type { Schedule, CreateScheduleRequest } from './model';
 export { fetchSchedules, fetchCreateSchedule } from './api';
 
 // Data (React Query Hooks)
-export { useGetSchedules, useCreateSchedule, useUpdateSchedule, useDeleteSchedule, scheduleQueryKeys } from './data';
+export {
+  useGetSchedules,
+  useGetScheduleCount,
+  useCreateSchedule,
+  useUpdateSchedule,
+  useDeleteSchedule,
+  scheduleQueryKeys,
+} from './data';

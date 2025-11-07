@@ -33,6 +33,7 @@ export async function initializeDatabase() {
         name TEXT NOT NULL,
         destination TEXT NOT NULL,
         country TEXT,
+        base_currency TEXT NOT NULL DEFAULT 'EUR',
         latitude TEXT,
         longitude TEXT,
         city_id INTEGER,
@@ -112,6 +113,28 @@ export async function initializeDatabase() {
       );
     `);
 
+    // Offline Cities 테이블 생성 (오프라인 지도 메타데이터)
+    expoDb.execSync(`
+      CREATE TABLE IF NOT EXISTS offline_cities (
+        city_id INTEGER PRIMARY KEY NOT NULL,
+        city_name TEXT NOT NULL,
+        country TEXT,
+        center_latitude TEXT NOT NULL,
+        center_longitude TEXT NOT NULL,
+        radius_km INTEGER NOT NULL DEFAULT 10,
+        downloaded_at TEXT NOT NULL,
+        size_bytes INTEGER NOT NULL,
+        tile_count INTEGER,
+        reference_count INTEGER NOT NULL DEFAULT 1,
+        mapbox_region_name TEXT,
+        style_url TEXT DEFAULT 'mapbox://styles/mapbox/streets-v11',
+        min_zoom INTEGER DEFAULT 10,
+        max_zoom INTEGER DEFAULT 16,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+    `);
+
     // 인덱스 생성 (성능 최적화)
     expoDb.execSync(`
       CREATE INDEX IF NOT EXISTS idx_trips_user_id ON trips(user_id);
@@ -140,6 +163,7 @@ export async function initializeDatabase() {
 export async function resetDatabase() {
   console.log('🔄 Resetting database...');
 
+  expoDb.execSync(`DROP TABLE IF EXISTS offline_cities;`);
   expoDb.execSync(`DROP TABLE IF EXISTS sync_metadata;`);
   expoDb.execSync(`DROP TABLE IF EXISTS sync_queue;`);
   expoDb.execSync(`DROP TABLE IF EXISTS expenses;`);

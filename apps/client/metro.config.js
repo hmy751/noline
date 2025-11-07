@@ -18,8 +18,23 @@ config.resolver.nodeModulesPaths = [
 
 config.resolver.symlinks = true;
 
+// Enable package exports 지원, @repo/schema 지원
+config.resolver.unstable_enablePackageExports = true;
+
 // Drizzle: SQL 파일 import 지원
 config.resolver.sourceExts.push('sql');
+
+// Web에서 Mapbox 모듈 제외 (웹 미지원)
+config.resolver.resolveRequest = (context, moduleName, platform) => {
+  if (platform === 'web' && moduleName === '@rnmapbox/maps') {
+    // 웹에서는 빈 모듈 반환
+    return {
+      type: 'empty',
+    };
+  }
+  // 기본 resolver 사용
+  return context.resolveRequest(context, moduleName, platform);
+};
 
 module.exports = withNativeWind(config, {
   input: path.resolve(workspaceRoot, 'apps/client/styles/global.css'),

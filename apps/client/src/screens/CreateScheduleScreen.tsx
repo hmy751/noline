@@ -2,14 +2,13 @@ import { View, ActivityIndicator, Text } from 'react-native';
 import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { MobileHeader, DatePicker, TimePicker } from '@/shared/components';
+import { MobileHeader, DatePicker, TimePicker, SmartMapView } from '@/shared/components';
 import { useStep } from '@/shared/hooks/useStep';
 import {
   useCreateScheduleForm,
   useLocationSearch,
   LocationSearchBar,
   LocationSearchResults,
-  MapView,
   ScheduleForm,
   type Location,
 } from '@/features/schedule/create-schedule';
@@ -138,7 +137,7 @@ export default function CreateScheduleScreen() {
 
       {/* 지도 영역 + 결과/폼 */}
       <View className='flex-1 relative'>
-        <MapView locations={results} selectedLocation={selectedLocation} />
+        <SmartMapView tripId={tripId} locations={results} selectedLocation={selectedLocation} />
 
         {/* 검색 결과 리스트 (검색 단계 + 검색 중이거나 결과 있을 때) */}
         {currentStep === STEPS.SEARCH && (isSearching || results.length > 0) && (

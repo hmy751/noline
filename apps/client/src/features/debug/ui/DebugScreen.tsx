@@ -4,8 +4,9 @@ import { Pressable } from '@repo/ui';
 import { MobileHeader, Container, Stack } from '@/shared/components';
 import { ArrowLeft, Database, Trash2, RefreshCw, Upload, Wifi, WifiOff, RotateCcw } from 'lucide-react-native';
 import { router } from 'expo-router';
-import { db, trips, schedules, expenses, syncQueue } from '@/shared/db';
-import type { Trip, Schedule, Expense, SyncQueueItem } from '@/shared/db/schema';
+import MapboxGL from '@rnmapbox/maps';
+import { db, trips, schedules, expenses, syncQueue, offlineCities } from '@/shared/db';
+import type { Trip, Schedule, Expense, SyncQueueItem, OfflineCity } from '@/shared/db/schema';
 import { resetDatabase } from '@/shared/db';
 import { getSyncQueueStats } from '@/shared/services/sync/queue';
 import { triggerSync } from '@/shared/services/sync/engine';
@@ -18,6 +19,7 @@ export default function DebugScreen() {
   const [tripsData, setTripsData] = useState<Trip[]>([]);
   const [schedulesData, setSchedulesData] = useState<Schedule[]>([]);
   const [expensesData, setExpensesData] = useState<Expense[]>([]);
+  const [offlineCitiesData, setOfflineCitiesData] = useState<OfflineCity[]>([]);
   const [syncQueueData, setSyncQueueData] = useState<SyncQueueItem[]>([]);
   const [stats, setStats] = useState<{ pending: number; inProgress: number; failed: number; total: number } | null>(
     null,
@@ -39,6 +41,9 @@ export default function DebugScreen() {
 
       const expensesResult = await db.select().from(expenses).all();
       setExpensesData(expensesResult);
+
+      const offlineCitiesResult = await db.select().from(offlineCities).all();
+      setOfflineCitiesData(offlineCitiesResult);
 
       const syncQueueResult = await db.select().from(syncQueue).all();
       setSyncQueueData(syncQueueResult);
@@ -69,6 +74,33 @@ export default function DebugScreen() {
           } catch (error) {
             console.error('❌ Failed to reset DB:', error);
             Alert.alert('❌ 실패', 'DB 초기화에 실패했습니다.');
+          }
+        },
+      },
+    ]);
+  };
+
+  const handleClearOfflineMaps = () => {
+    Alert.alert('⚠️ 오프라인 지도 삭제', 'Mapbox 네이티브 오프라인 팩을 모두 삭제합니다.\n계속하시겠습니까?', [
+      { text: '취소', style: 'cancel' },
+      {
+        text: '삭제',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            const packs = await MapboxGL.offlineManager.getPacks();
+            console.log(`🗑️ Deleting ${packs.length} offline packs...`);
+
+            for (const pack of packs) {
+              await MapboxGL.offlineManager.deletePack(pack.name);
+              console.log(`✅ Deleted pack: ${pack.name}`);
+            }
+
+            await loadData();
+            Alert.alert('✅ 성공', `${packs.length}개의 오프라인 지도를 삭제했습니다.`);
+          } catch (error) {
+            console.error('❌ Failed to clear offline maps:', error);
+            Alert.alert('❌ 실패', '오프라인 지도 삭제에 실패했습니다.');
           }
         },
       },
@@ -115,6 +147,7 @@ export default function DebugScreen() {
                 <Text className='text-body text-foreground'>여행: {tripsData.length}개</Text>
                 <Text className='text-body text-foreground'>일정: {schedulesData.length}개</Text>
                 <Text className='text-body text-foreground'>경비: {expensesData.length}개</Text>
+                <Text className='text-body text-foreground'>오프라인 지도: {offlineCitiesData.length}개</Text>
                 {stats && (
                   <>
                     <Text className='text-body text-foreground'>동기화 대기: {stats.pending}개</Text>
@@ -199,6 +232,15 @@ export default function DebugScreen() {
 
             <Pressable
               variant='outline'
+              className='flex-row items-center justify-center gap-xs py-sm rounded-lg border border-destructive'
+              onPress={handleClearOfflineMaps}
+            >
+              <Trash2 size={16} color='#BF4040' />
+              <Text className='text-body text-destructive'>🗺️ Mapbox 오프라인 팩 삭제</Text>
+            </Pressable>
+
+            <Pressable
+              variant='outline'
               className='flex-row items-center justify-center gap-xs py-sm rounded-lg border border-primary bg-primary/5'
               onPress={handleManualSync}
             >
@@ -274,6 +316,39 @@ export default function DebugScreen() {
                       )}
                       <Text className='text-label text-muted-foreground'>
                         Version: {expense.version} | {expense.deletedAt ? ' (삭제됨)' : ' (활성)'}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </View>
+
+            <View className='rounded-lg bg-card p-md border border-card-border'>
+              <Text className='text-title-medium text-foreground mb-sm'>Offline Cities 테이블</Text>
+              {offlineCitiesData.length === 0 ? (
+                <Text className='text-body text-muted-foreground'>다운로드된 오프라인 지도가 없습니다.</Text>
+              ) : (
+                <View className='gap-xs'>
+                  {offlineCitiesData.map((city) => (
+                    <View key={city.cityId} className='p-xs rounded bg-muted border border-card-border'>
+                      <Text className='text-label text-muted-foreground'>City ID: {city.cityId}</Text>
+                      <Text className='text-body text-foreground font-semibold'>
+                        {city.cityName}, {city.country}
+                      </Text>
+                      <Text className='text-label text-muted-foreground'>
+                        중심: {city.centerLatitude}, {city.centerLongitude}
+                      </Text>
+                      <Text className='text-label text-muted-foreground'>
+                        반경: {city.radiusKm}km | 크기: {(city.sizeBytes / 1024 / 1024).toFixed(2)}MB
+                      </Text>
+                      <Text className='text-label text-muted-foreground'>
+                        타일: {city.tileCount ?? 'N/A'}개 | 참조 횟수: {city.referenceCount}
+                      </Text>
+                      <Text className='text-label text-muted-foreground'>
+                        Zoom: {city.minZoom}-{city.maxZoom}
+                      </Text>
+                      <Text className='text-label text-muted-foreground'>
+                        다운로드: {formatISOToLocalDateTime(city.downloadedAt)}
                       </Text>
                     </View>
                   ))}
