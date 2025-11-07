@@ -27,6 +27,19 @@ export default {
     config: {
       googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY,
     },
+infoPlist: {
+      NSAppTransportSecurity: {
+        NSAllowsArbitraryLoads: IS_DEV, // 개발 환경에서만 HTTP 허용
+        NSAllowsLocalNetworking: true,
+        NSExceptionDomains: {
+          // GeoNames API - secure.geonames.org 사용 (SSL 인증서 정상)
+          'secure.geonames.org': {
+            NSExceptionAllowsInsecureHTTPLoads: false,
+            NSIncludesSubdomains: true,
+          },
+        },
+      },
+    },
   },
   // --- Android 설정 ---
   android: {
@@ -42,5 +55,7 @@ export default {
         apiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY,
       },
     },
+    // 개발 환경에서 HTTP 허용
+    usesCleartextTraffic: IS_DEV,
   },
 };
