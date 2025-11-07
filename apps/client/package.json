@@ -13,6 +13,7 @@
     "@babel/runtime": "^7.24.8",
     "@expo/metro-runtime": "^3.2.3",
     "@hookform/resolvers": "^5.2.2",
+    "@mapbox/polyline": "^1.2.1",
     "@react-native-community/netinfo": "^11.4.1",
     "@repo/schema": "workspace:*",
     "@repo/ui": "workspace:*",
