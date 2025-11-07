@@ -243,6 +243,7 @@ export default function ScheduleScreen() {
           selectedSchedule
             ? {
                 id: selectedSchedule.id,
+                tripId: selectedSchedule.tripId,
                 title: selectedSchedule.title,
                 date: formatISOToLocalDate(selectedSchedule.scheduledAt),
                 time: selectedSchedule.time,
