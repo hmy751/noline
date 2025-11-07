@@ -160,6 +160,92 @@ if (isFirstSchedule) {
 - [Feature Guide: Offline Map](../../.claude/features/offline-map.md)
 - [Session: 2025-11-07](../../.claude/sessions/2025-11-07-offline-map-implementation.md)
 
+## 🛣 Offline Routing
+
+> **상세 가이드**: [offline-routing.md](../../.claude/features/offline-routing.md)
+
+**핵심 패턴:**
+
+### 1. 3-Profile Auto-download
+
+일정 생성/수정 시 3가지 이동 수단의 경로를 모두 다운로드:
+
+```typescript
+// walking, cycling, driving-traffic 모두 다운로드
+const PROFILES: MapboxProfile[] = ['walking', 'cycling', 'driving-traffic'];
+
+for (const profile of PROFILES) {
+  const directions = await getDirections({ from, to, profile });
+  // polyline6 geometry를 SQLite에 저장
+}
+```
+
+**이유**: 사용자가 나중에 자유롭게 이동 수단 선택 가능
+
+### 2. Polyline6 압축
+
+**Mapbox Directions API → polyline6 문자열 → SQLite 저장**
+
+```typescript
+// API 응답
+{
+  geometry: "_p~iF~ps|U_ulLnnqC_mqNvxq`@", // polyline6 압축
+  distance: 1234, // meters
+  duration: 456,  // seconds
+}
+
+// 렌더링 시 디코딩
+import { decodePolyline } from '@/shared/lib/mapbox';
+const coords = decodePolyline(geometry); // [[lng, lat], ...]
+```
+
+**크기**: 200-500 bytes/경로 (매우 작음)
+
+### 3. Auto-download 시점
+
+| 시점               | 동작                 | 이유                         |
+| ------------------ | -------------------- | ---------------------------- |
+| Schedule 생성      | 전체 경로 다운로드   | 새 일정 추가 → 순서 재계산   |
+| Schedule 시간 수정 | 전체 경로 재다운로드 | 순서 변경 가능 → 경로 달라짐 |
+
+```typescript
+// features/schedule/create-schedule/useCreateScheduleForm.ts
+onSuccess: () => {
+  setTimeout(() => {
+    const allSchedules = [...schedules, newSchedule].sort(
+      (a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime(),
+    );
+
+    autoDownloadRoutes({ tripId, schedules: allSchedules });
+  }, 500); // React Query 캐시 업데이트 대기
+};
+```
+
+### 4. Saved vs Unsaved 경로
+
+| 상태   | 표시        | 색상   | 의미                   |
+| ------ | ----------- | ------ | ---------------------- |
+| 저장됨 | 실제 도로   | 초록색 | Mapbox API 경로 (신뢰) |
+| 미저장 | 직선 (점선) | 회색   | 임시 시각화 (참고용)   |
+
+**구현 위치:**
+
+- Entity: `entities/route/data/`
+- Service: `shared/services/directions/mapbox.ts`
+- Util: `shared/lib/mapbox.ts` (polyline 디코딩)
+- Component: `shared/components/Map/OfflineScheduleMapView.tsx`
+- DB Schema: `shared/db/schema.ts` (routes 테이블)
+
+**주요 이슈 & 해결:**
+
+1. **ULID 에러**: `ulid` → `generateId()` 사용 (React Native 호환)
+2. **아프리카 카메라**: `useMemo`로 initialCamera 계산 + `animationDuration: 0`
+3. **경로 미묘한 어긋남**: 도로 네트워크 스냅 특성 (데이터 이슈, 수용)
+
+**관련 문서:**
+
+- [Feature Guide: Offline Routing](../../.claude/features/offline-routing.md)
+
 ## 🔄 Sync Engine
 
 ### Push Sync (로컬 → 서버)
