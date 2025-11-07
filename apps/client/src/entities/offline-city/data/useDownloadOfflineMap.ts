@@ -82,11 +82,10 @@ export function useDownloadOfflineMap() {
       const latDelta = 0.09;
       const lngDelta = 0.09;
 
-      const bounds: [number, number, number, number] = [
-        centerLng - lngDelta, // west
-        centerLat - latDelta, // south
-        centerLng + lngDelta, // east
-        centerLat + latDelta, // north
+      // Mapbox bounds 형식: [[west, south], [east, north]]
+      const bounds: [[number, number], [number, number]] = [
+        [centerLng - lngDelta, centerLat - latDelta], // southwest
+        [centerLng + lngDelta, centerLat + latDelta], // northeast
       ];
 
       const styleURL = 'mapbox://styles/mapbox/streets-v11';
