@@ -90,17 +90,6 @@ export function OfflineScheduleMapView({
   // 저장된 경로 조회
   const { data: savedRoutes = [] } = useGetRoutes({ tripId });
 
-  // 디버깅: 저장된 경로 확인
-  useEffect(() => {
-    console.log(`📍 Saved routes count: ${savedRoutes.length}`);
-    console.log(`📍 Selected profile: ${selectedProfile}`);
-    savedRoutes.forEach((route) => {
-      console.log(
-        `  - ${route.fromScheduleId || 'accommodation'} → ${route.toScheduleId} (${route.profile}): ${route.distance}m`,
-      );
-    });
-  }, [savedRoutes, selectedProfile]);
-
   // 좌표가 있는 일정만 필터링
   const schedulesWithCoords = schedules.filter(
     (s) => s.latitude && s.longitude && !isNaN(s.latitude) && !isNaN(s.longitude),
@@ -126,7 +115,6 @@ export function OfflineScheduleMapView({
 
       if (savedRoute) {
         // 저장된 경로 - 실제 도로
-        console.log(`✅ Found saved route: accommodation → ${firstSchedule.id} (${selectedProfile})`);
         segments.push({
           id: `route-accommodation-${firstSchedule.id}`,
           type: 'saved',
@@ -136,7 +124,6 @@ export function OfflineScheduleMapView({
         });
       } else {
         // 미저장 경로 - 직선
-        console.log(`⚠️ No saved route: accommodation → ${firstSchedule.id} (${selectedProfile}), using straight line`);
         segments.push({
           id: `route-accommodation-${firstSchedule.id}`,
           type: 'straight',
@@ -165,7 +152,6 @@ export function OfflineScheduleMapView({
 
       if (savedRoute) {
         // 저장된 경로 - 실제 도로
-        console.log(`✅ Found saved route: ${currentSchedule.id} → ${nextSchedule.id} (${selectedProfile})`);
         segments.push({
           id: `route-${currentSchedule.id}-${nextSchedule.id}`,
           type: 'saved',
@@ -175,9 +161,6 @@ export function OfflineScheduleMapView({
         });
       } else {
         // 미저장 경로 - 직선
-        console.log(
-          `⚠️ No saved route: ${currentSchedule.id} → ${nextSchedule.id} (${selectedProfile}), using straight line`,
-        );
         segments.push({
           id: `route-${currentSchedule.id}-${nextSchedule.id}`,
           type: 'straight',

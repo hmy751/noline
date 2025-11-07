@@ -96,15 +96,12 @@ export const useCreateScheduleForm = ({ tripId, selectedLocation, onSuccess }: U
           }
 
           // 경로 자동 다운로드 (새 일정 포함)
-          // 주의: React Query 캐시 업데이트를 기다려야 함
           setTimeout(() => {
             const newSchedule = {
               id,
               latitude: selectedLocation?.latitude ? parseFloat(String(selectedLocation.latitude)) : undefined,
               longitude: selectedLocation?.longitude ? parseFloat(String(selectedLocation.longitude)) : undefined,
             };
-
-            console.log('📍 New schedule:', newSchedule);
 
             // scheduledAt 기준으로 정렬된 전체 일정 목록
             const allSchedules = [
@@ -122,10 +119,8 @@ export const useCreateScheduleForm = ({ tripId, selectedLocation, onSuccess }: U
               .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())
               .map(({ id: scheduleId, latitude, longitude }) => ({ id: scheduleId, latitude, longitude }));
 
-            console.log('🛣️ Auto-downloading routes for updated schedules:', allSchedules.length, 'schedules');
-            console.log('📍 All schedules:', JSON.stringify(allSchedules, null, 2));
             autoDownloadRoutes({ tripId, schedules: allSchedules });
-          }, 500); // 캐시 업데이트 대기
+          }, 500);
 
           form.reset();
           onSuccess?.();
