@@ -107,6 +107,59 @@ formatDateTime(now); // "2024-03-15 14:30"
 **동작**: 업데이트시 자동 증가
 **활용**: Last-Write-Wins 또는 Version Vector
 
+## 🗺 Offline Map Integration
+
+> **상세 가이드**: [offline-map.md](../../.claude/features/offline-map.md)
+
+**핵심 패턴:**
+
+### 1. Native Pack + DB Separation
+
+- **Native Layer**: Mapbox OfflineManager가 실제 지도 타일 관리 (60-200MB)
+- **SQLite Layer**: 메타데이터만 저장 (cityId, bounds, referenceCount 등)
+- **이유**: 관심사 분리, SQLite에 큰 바이너리 저장 피함
+
+### 2. referenceCount Pattern
+
+여러 Trip이 같은 도시를 공유할 때 중복 다운로드 방지:
+
+```typescript
+// 첫 Trip → referenceCount: 1
+// 두번째 Trip 같은 도시 → referenceCount: 2
+// Trip 삭제 → referenceCount--
+// referenceCount === 0 → 네이티브 팩 삭제
+```
+
+### 3. Auto-download Trigger
+
+**시점**: 첫 Schedule 생성 시 자동 다운로드
+
+```typescript
+// features/schedule/create-schedule/useCreateScheduleForm.ts
+const isFirstSchedule = schedules.length === 0;
+if (isFirstSchedule) {
+  downloadOfflineMap({ tripId });
+}
+```
+
+**구현 위치:**
+
+- Entity: `entities/offline-city/`
+- Service: `shared/services/offline-map/`
+- DB Schema: `shared/db/schema/offline-city.ts`
+
+**주요 이슈 & 해결:**
+
+1. **앱 크래시**: `MapboxGL.setAccessToken()` 런타임 초기화 필수 ([#3829](https://github.com/rnmapbox/maps/issues/3829))
+2. **Bounds 포맷**: 중첩 배열 `[[west, south], [east, north]]` 사용
+3. **중복 방지**: 다운로드 전 `getPacks()`로 네이티브 팩 존재 확인
+
+**관련 문서:**
+
+- [ADR-002: Mapbox 오프라인 지도](../../.claude/decisions/002-offline-map-integration.md)
+- [Feature Guide: Offline Map](../../.claude/features/offline-map.md)
+- [Session: 2025-11-07](../../.claude/sessions/2025-11-07-offline-map-implementation.md)
+
 ## 🔄 Sync Engine
 
 ### Push Sync (로컬 → 서버)
