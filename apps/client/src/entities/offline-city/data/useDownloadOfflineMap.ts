@@ -38,7 +38,7 @@ export function useDownloadOfflineMap() {
 
   return useMutation({
     mutationFn: async ({ tripId }: DownloadOfflineMapParams) => {
-      // 1. Trip의 cityId, cityName, coordinates 조회
+      // 1. Trip의 cityId, destination, coordinates 조회
       const trip = await db
         .select({
           cityId: trips.cityId,
@@ -92,44 +92,54 @@ export function useDownloadOfflineMap() {
       const minZoom = 10;
       const maxZoom = 16;
 
-      // Mapbox Offline Pack 생성
-      const progressListener = (offlineRegion: any, status: any) => {
-        console.log('[OfflineMap] Download progress:', {
-          percentage: status.percentage,
-          completedTileCount: status.completedTileCount,
-        });
-      };
-
-      const errorListener = (offlineRegion: any, error: any) => {
-        console.error('[OfflineMap] Download error:', error);
-        throw new Error(`오프라인 지도 다운로드 실패: ${error.message}`);
-      };
-
-      // Mapbox 오프라인 팩 다운로드
-      await MapboxGL.offlineManager.createPack(
-        {
-          name: regionName,
-          styleURL,
-          bounds,
-          minZoom,
-          maxZoom,
-        },
-        progressListener,
-        errorListener,
-      );
-
-      // 다운로드 완료 후 메타데이터 저장
-      const packs = await MapboxGL.offlineManager.getPacks();
-      const pack = packs.find((p) => p.name === regionName);
+      // 먼저 기존 팩이 네이티브에 있는지 확인
+      const existingPacks = await MapboxGL.offlineManager.getPacks();
+      let pack = existingPacks.find((p) => p.name === regionName);
 
       if (!pack) {
-        throw new Error('다운로드된 오프라인 팩을 찾을 수 없습니다.');
+        // 없으면 새로 다운로드
+        const progressListener = (offlineRegion: any, status: any) => {
+          console.log('[OfflineMap] Download progress:', {
+            percentage: status.percentage,
+            completedTileCount: status.completedTileCount,
+          });
+        };
+
+        const errorListener = (offlineRegion: any, error: any) => {
+          console.error('[OfflineMap] Download error:', error);
+          throw new Error(`오프라인 지도 다운로드 실패: ${error.message}`);
+        };
+
+        // Mapbox 오프라인 팩 다운로드
+        await MapboxGL.offlineManager.createPack(
+          {
+            name: regionName,
+            styleURL,
+            bounds,
+            minZoom,
+            maxZoom,
+          },
+          progressListener,
+          errorListener,
+        );
+
+        // 다운로드 완료 후 다시 조회
+        const packs = await MapboxGL.offlineManager.getPacks();
+        pack = packs.find((p) => p.name === regionName);
+
+        if (!pack) {
+          throw new Error('다운로드된 오프라인 팩을 찾을 수 없습니다.');
+        }
+
+        console.log('✅ New offline pack created:', regionName);
+      } else {
+        console.log('♻️ Reusing existing offline pack:', regionName);
       }
 
       const now = new Date().toISOString();
       const newOfflineCity: NewOfflineCity = {
         cityId: trip.cityId,
-        cityName: trip.cityName,
+        cityName: trip.destination,
         country: trip.country ?? null,
         centerLatitude: trip.latitude,
         centerLongitude: trip.longitude,
