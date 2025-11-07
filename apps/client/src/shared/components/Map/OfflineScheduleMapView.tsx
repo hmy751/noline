@@ -5,11 +5,12 @@
  * - 순서 번호 마커
  */
 
-import { StyleSheet, View, Text } from 'react-native';
-import { useRef, useEffect, useMemo } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import { useRef, useEffect, useMemo, useState } from 'react';
 import MapboxGL from '@rnmapbox/maps';
 import { useGetRoutes } from '@/entities/route';
 import { decodePolyline } from '@/shared/lib/mapbox';
+import type { MapboxProfile } from '@/shared/services/directions/mapbox';
 
 interface Schedule {
   id: string;
@@ -39,6 +40,35 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
     padding: 32,
   },
+  profileSelector: {
+    position: 'absolute',
+    top: 60, // 날짜 선택 UI 아래로 이동
+    right: 16,
+    flexDirection: 'row',
+    backgroundColor: 'white',
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  profileButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  profileButtonActive: {
+    backgroundColor: '#4CAF50',
+  },
+  profileButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#666',
+  },
+  profileButtonTextActive: {
+    color: 'white',
+  },
 });
 
 /**
@@ -54,8 +84,22 @@ export function OfflineScheduleMapView({
 }: OfflineScheduleMapViewProps) {
   const cameraRef = useRef<MapboxGL.Camera>(null);
 
+  // 이동 수단 선택 상태 (기본값: walking)
+  const [selectedProfile, setSelectedProfile] = useState<MapboxProfile>('walking');
+
   // 저장된 경로 조회
   const { data: savedRoutes = [] } = useGetRoutes({ tripId });
+
+  // 디버깅: 저장된 경로 확인
+  useEffect(() => {
+    console.log(`📍 Saved routes count: ${savedRoutes.length}`);
+    console.log(`📍 Selected profile: ${selectedProfile}`);
+    savedRoutes.forEach((route) => {
+      console.log(
+        `  - ${route.fromScheduleId || 'accommodation'} → ${route.toScheduleId} (${route.profile}): ${route.distance}m`,
+      );
+    });
+  }, [savedRoutes, selectedProfile]);
 
   // 좌표가 있는 일정만 필터링
   const schedulesWithCoords = schedules.filter(
@@ -76,10 +120,13 @@ export function OfflineScheduleMapView({
     // 1. 숙소 → 첫 일정 (있는 경우)
     if (accommodationCoords && schedulesWithCoords[0]) {
       const firstSchedule = schedulesWithCoords[0];
-      const savedRoute = savedRoutes.find((r) => r.fromScheduleId === null && r.toScheduleId === firstSchedule.id);
+      const savedRoute = savedRoutes.find(
+        (r) => r.fromScheduleId === null && r.toScheduleId === firstSchedule.id && r.profile === selectedProfile,
+      );
 
       if (savedRoute) {
         // 저장된 경로 - 실제 도로
+        console.log(`✅ Found saved route: accommodation → ${firstSchedule.id} (${selectedProfile})`);
         segments.push({
           id: `route-accommodation-${firstSchedule.id}`,
           type: 'saved',
@@ -89,6 +136,7 @@ export function OfflineScheduleMapView({
         });
       } else {
         // 미저장 경로 - 직선
+        console.log(`⚠️ No saved route: accommodation → ${firstSchedule.id} (${selectedProfile}), using straight line`);
         segments.push({
           id: `route-accommodation-${firstSchedule.id}`,
           type: 'straight',
@@ -109,11 +157,15 @@ export function OfflineScheduleMapView({
       const nextSchedule = schedulesWithCoords[i + 1];
 
       const savedRoute = savedRoutes.find(
-        (r) => r.fromScheduleId === currentSchedule.id && r.toScheduleId === nextSchedule.id,
+        (r) =>
+          r.fromScheduleId === currentSchedule.id &&
+          r.toScheduleId === nextSchedule.id &&
+          r.profile === selectedProfile,
       );
 
       if (savedRoute) {
         // 저장된 경로 - 실제 도로
+        console.log(`✅ Found saved route: ${currentSchedule.id} → ${nextSchedule.id} (${selectedProfile})`);
         segments.push({
           id: `route-${currentSchedule.id}-${nextSchedule.id}`,
           type: 'saved',
@@ -123,6 +175,9 @@ export function OfflineScheduleMapView({
         });
       } else {
         // 미저장 경로 - 직선
+        console.log(
+          `⚠️ No saved route: ${currentSchedule.id} → ${nextSchedule.id} (${selectedProfile}), using straight line`,
+        );
         segments.push({
           id: `route-${currentSchedule.id}-${nextSchedule.id}`,
           type: 'straight',
@@ -138,7 +193,7 @@ export function OfflineScheduleMapView({
     }
 
     return segments;
-  }, [schedulesWithCoords, savedRoutes, accommodationCoords]);
+  }, [schedulesWithCoords, savedRoutes, accommodationCoords, selectedProfile]);
 
   // 초기 카메라 설정
   const initialCamera = useMemo(() => {
@@ -191,6 +246,13 @@ export function OfflineScheduleMapView({
       </View>
     );
   }
+
+  // 이동 수단 라벨 매핑
+  const profileLabels: Record<MapboxProfile, string> = {
+    walking: '도보',
+    cycling: '자전거',
+    'driving-traffic': '자동차',
+  };
 
   return (
     <View style={styles.map}>
@@ -276,6 +338,21 @@ export function OfflineScheduleMapView({
           </MapboxGL.PointAnnotation>
         )}
       </MapboxGL.MapView>
+
+      {/* 이동 수단 선택 버튼 */}
+      <View style={styles.profileSelector}>
+        {(['walking', 'cycling', 'driving-traffic'] as MapboxProfile[]).map((profile) => (
+          <TouchableOpacity
+            key={profile}
+            style={[styles.profileButton, selectedProfile === profile && styles.profileButtonActive]}
+            onPress={() => setSelectedProfile(profile)}
+          >
+            <Text style={[styles.profileButtonText, selectedProfile === profile && styles.profileButtonTextActive]}>
+              {profileLabels[profile]}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
     </View>
   );
 }
