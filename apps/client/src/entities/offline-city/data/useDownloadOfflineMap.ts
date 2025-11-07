@@ -42,7 +42,7 @@ export function useDownloadOfflineMap() {
       const trip = await db
         .select({
           cityId: trips.cityId,
-          cityName: trips.cityName,
+          destination: trips.destination,
           latitude: trips.latitude,
           longitude: trips.longitude,
           country: trips.country,
