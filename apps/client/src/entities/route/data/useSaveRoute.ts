@@ -5,7 +5,7 @@
  */
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ulid } from 'ulid';
+import { generateId } from '@/shared/services/id/ulid';
 import { db, routes, type NewRoute } from '@/shared/db';
 import { getDirections, type MapboxProfile, type Coordinate } from '@/shared/services/directions';
 
@@ -37,7 +37,7 @@ export function useSaveRoute() {
       // 2. DB 저장
       const now = new Date().toISOString();
       const newRoute: NewRoute = {
-        id: ulid(),
+        id: generateId(),
         tripId,
         fromScheduleId: fromScheduleId || null,
         toScheduleId,
