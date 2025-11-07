@@ -135,6 +135,27 @@ export async function initializeDatabase() {
       );
     `);
 
+    // Routes 테이블 생성 (오프라인 경로 정보)
+    expoDb.execSync(`
+      CREATE TABLE IF NOT EXISTS routes (
+        id TEXT PRIMARY KEY NOT NULL,
+        trip_id TEXT NOT NULL,
+        from_schedule_id TEXT,
+        to_schedule_id TEXT NOT NULL,
+        profile TEXT NOT NULL,
+        geometry TEXT NOT NULL,
+        distance INTEGER NOT NULL,
+        duration INTEGER NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        deleted_at TEXT,
+        version INTEGER NOT NULL DEFAULT 1,
+        FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE,
+        FOREIGN KEY (from_schedule_id) REFERENCES schedules(id) ON DELETE CASCADE,
+        FOREIGN KEY (to_schedule_id) REFERENCES schedules(id) ON DELETE CASCADE
+      );
+    `);
+
     // 인덱스 생성 (성능 최적화)
     expoDb.execSync(`
       CREATE INDEX IF NOT EXISTS idx_trips_user_id ON trips(user_id);
@@ -146,6 +167,9 @@ export async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_expenses_deleted_at ON expenses(deleted_at);
       CREATE INDEX IF NOT EXISTS idx_sync_queue_status ON sync_queue(status);
       CREATE INDEX IF NOT EXISTS idx_sync_queue_created_at ON sync_queue(created_at);
+      CREATE INDEX IF NOT EXISTS idx_routes_trip_id ON routes(trip_id);
+      CREATE INDEX IF NOT EXISTS idx_routes_to_schedule_id ON routes(to_schedule_id);
+      CREATE INDEX IF NOT EXISTS idx_routes_deleted_at ON routes(deleted_at);
     `);
 
     console.log('✅ Local database initialized successfully');
@@ -163,6 +187,7 @@ export async function initializeDatabase() {
 export async function resetDatabase() {
   console.log('🔄 Resetting database...');
 
+  expoDb.execSync(`DROP TABLE IF EXISTS routes;`);
   expoDb.execSync(`DROP TABLE IF EXISTS offline_cities;`);
   expoDb.execSync(`DROP TABLE IF EXISTS sync_metadata;`);
   expoDb.execSync(`DROP TABLE IF EXISTS sync_queue;`);
