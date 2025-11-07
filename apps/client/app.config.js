@@ -8,9 +8,17 @@ export default {
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'light',
-  newArchEnabled: true,
+  newArchEnabled: false,
   scheme: 'client',
-  plugins: ['expo-router', '@rnmapbox/maps'],
+  plugins: [
+    'expo-router',
+    [
+      '@rnmapbox/maps/app.plugin.js',
+      {
+        RNMapboxMapsDownloadToken: process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN,
+      },
+    ],
+  ],
   splash: {
     image: './assets/splash-icon.png',
     resizeMode: 'contain',
@@ -27,7 +35,7 @@ export default {
     config: {
       googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY,
     },
-infoPlist: {
+    infoPlist: {
       NSAppTransportSecurity: {
         NSAllowsArbitraryLoads: IS_DEV, // 개발 환경에서만 HTTP 허용
         NSAllowsLocalNetworking: true,
