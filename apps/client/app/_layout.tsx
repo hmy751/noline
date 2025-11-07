@@ -6,6 +6,7 @@ import { PortalHost } from '@rn-primitives/portal';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
+import MapboxGL from '@rnmapbox/maps';
 import { initializeDatabase } from '@/shared/db';
 import { SyncProvider } from '@/shared/services/sync/provider';
 import { useOfflineMapCleanup } from '@/shared/services/offline-map';
@@ -16,6 +17,9 @@ import { useGetTrips, selectMainTrip } from '@/entities/trip';
 
 // Splash 화면을 수동으로 제어하기 위해 자동 숨김 방지
 SplashScreen.preventAutoHideAsync();
+
+// Mapbox 접근 토큰 설정 (런타임 초기화)
+MapboxGL.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN!);
 
 function InitializeMainTrip() {
   const { setSelectedTripId } = useTripStore();
