@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCreateSchedule, useGetScheduleCount } from '@/entities/schedule';
+import { useCreateSchedule, useGetScheduleCount, useGetSchedules } from '@/entities/schedule';
 import { useDownloadOfflineMap } from '@/entities/offline-city';
+import { useAutoDownloadRoutes } from '@/entities/route';
 import { createScheduleFormSchema, type CreateScheduleFormData } from './schema';
 import { combineDateTimeToISO } from '@/shared/lib/datetime';
 import { generateId } from '@/shared/services/id/ulid';
@@ -41,7 +42,9 @@ export const useCreateScheduleForm = ({ tripId, selectedLocation, onSuccess }: U
 
   const { mutate: createSchedule, isPending } = useCreateSchedule();
   const { mutate: downloadOfflineMap } = useDownloadOfflineMap();
+  const { mutate: autoDownloadRoutes } = useAutoDownloadRoutes();
   const { data: scheduleCount } = useGetScheduleCount(tripId);
+  const { data: schedules = [] } = useGetSchedules(tripId);
 
   const handleShowDatePicker = () => {
     setDatePickerVisible(true);
@@ -91,6 +94,33 @@ export const useCreateScheduleForm = ({ tripId, selectedLocation, onSuccess }: U
           } else {
             console.log('✅ Schedule created (not first, skip download)');
           }
+
+          // 경로 자동 다운로드 (새 일정 포함)
+          setTimeout(() => {
+            const newSchedule = {
+              id,
+              latitude: selectedLocation?.latitude ? parseFloat(String(selectedLocation.latitude)) : undefined,
+              longitude: selectedLocation?.longitude ? parseFloat(String(selectedLocation.longitude)) : undefined,
+            };
+
+            // scheduledAt 기준으로 정렬된 전체 일정 목록
+            const allSchedules = [
+              ...schedules.map((s) => ({
+                id: s.id,
+                latitude: s.latitude ? parseFloat(s.latitude) : undefined,
+                longitude: s.longitude ? parseFloat(s.longitude) : undefined,
+                scheduledAt: s.scheduledAt,
+              })),
+              {
+                ...newSchedule,
+                scheduledAt,
+              },
+            ]
+              .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())
+              .map(({ id: scheduleId, latitude, longitude }) => ({ id: scheduleId, latitude, longitude }));
+
+            autoDownloadRoutes({ tripId, schedules: allSchedules });
+          }, 500);
 
           form.reset();
           onSuccess?.();

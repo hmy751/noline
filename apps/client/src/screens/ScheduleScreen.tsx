@@ -212,6 +212,7 @@ export default function ScheduleScreen() {
         />
       ) : (
         <ScheduleMapViewContainer
+          tripId={selectedTripId || ''}
           dateRange={dateRange}
           schedulesByDate={schedulesByDate}
           initialDate={dateRange[0] || null}
@@ -242,6 +243,7 @@ export default function ScheduleScreen() {
           selectedSchedule
             ? {
                 id: selectedSchedule.id,
+                tripId: selectedSchedule.tripId,
                 title: selectedSchedule.title,
                 date: formatISOToLocalDate(selectedSchedule.scheduledAt),
                 time: selectedSchedule.time,

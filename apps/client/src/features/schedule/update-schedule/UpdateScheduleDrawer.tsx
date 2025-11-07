@@ -6,7 +6,8 @@ import { Calendar, Clock } from 'lucide-react-native';
 import { Drawer, Pressable } from '@repo/ui';
 import { DatePicker, TimePicker } from '@/shared/components';
 import { Field } from '@/shared/components/Form';
-import { useUpdateSchedule } from '@/entities/schedule';
+import { useUpdateSchedule, useGetSchedules } from '@/entities/schedule';
+import { useAutoDownloadRoutes } from '@/entities/route';
 import { scheduleUpdateFormSchema, type ScheduleUpdateFormData } from './schema';
 import { combineDateTimeToISO } from '@/shared/lib/datetime';
 
@@ -15,6 +16,7 @@ export type UpdateScheduleDrawerProps = {
   onClose: () => void;
   scheduleData?: {
     id: string;
+    tripId: string;
     title: string;
     date: string;
     time: string;
@@ -41,8 +43,10 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [timePickerVisible, setTimePickerVisible] = useState(false);
 
-  // useUpdateSchedule mutation hook
+  // Mutations and queries
   const { mutate: updateSchedule, isPending } = useUpdateSchedule();
+  const { mutate: autoDownloadRoutes } = useAutoDownloadRoutes();
+  const { data: schedules = [] } = useGetSchedules(scheduleData?.tripId || '');
 
   // scheduleData가 변경되면 폼 값 업데이트
   useEffect(() => {
@@ -84,6 +88,22 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
       {
         onSuccess: () => {
           Alert.alert('성공', '일정이 수정되었습니다.');
+
+          // 경로 재다운로드 (날짜/시간 변경으로 순서가 바뀔 수 있음)
+          setTimeout(() => {
+            const allSchedules = schedules
+              .map((s) => ({
+                id: s.id,
+                latitude: s.latitude ? parseFloat(s.latitude) : undefined,
+                longitude: s.longitude ? parseFloat(s.longitude) : undefined,
+                scheduledAt: s.id === scheduleData.id ? scheduledAt : s.scheduledAt,
+              }))
+              .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())
+              .map(({ id: scheduleId, latitude, longitude }) => ({ id: scheduleId, latitude, longitude }));
+
+            autoDownloadRoutes({ tripId: scheduleData.tripId, schedules: allSchedules });
+          }, 500);
+
           onClose();
         },
         onError: () => {

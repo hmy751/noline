@@ -19,6 +19,8 @@
 │
 ├── features/              # ⚡ 기능별 가이드
 │   ├── subscription-system.md
+│   ├── offline-map.md
+│   ├── offline-routing.md
 │   ├── currency.md
 │   ├── form.md
 │   └── local-first-impl.md
@@ -60,6 +62,8 @@
 | 파일                                                                 | 주제                        | 적용 대상        |
 | -------------------------------------------------------------------- | --------------------------- | ---------------- |
 | [features/subscription-system.md](./features/subscription-system.md) | 구독 시스템 (오프라인 준비) | 구독 기능 작업시 |
+| [features/offline-map.md](./features/offline-map.md)                 | 오프라인 지도 (Mapbox)      | 지도 기능 작업시 |
+| [features/offline-routing.md](./features/offline-routing.md)         | 오프라인 경로 (Directions)  | 경로 기능 작업시 |
 | [features/currency.md](./features/currency.md)                       | 통화 처리 정책              | Expense 작업시   |
 | [features/form.md](./features/form.md)                               | 폼 구현 패턴                | 폼 작성시        |
 | [features/local-first-impl.md](./features/local-first-impl.md)       | Local-First 구현 디테일     | Sync 구현시      |
@@ -131,6 +135,12 @@
 2. 📖 [UI CLAUDE.md](../packages/ui/CLAUDE.md) - Input 컴포넌트
 3. 📖 [typescript.md](./core/typescript.md) - Zod validation
 
+### "오프라인 지도/경로 작업"
+
+1. 📖 [features/offline-map.md](./features/offline-map.md) - 오프라인 지도 (Mapbox OfflineManager)
+2. 📖 [features/offline-routing.md](./features/offline-routing.md) - 오프라인 경로 (Directions API)
+3. 📖 [Client CLAUDE.md](../apps/client/CLAUDE.md) - 구현 패턴 요약
+
 ---
 
 ## 📌 참고사항
@@ -151,17 +161,30 @@
   - **초기 설계**: 3개 대안 비교 (Local-First 유지 vs 선택적 구독 vs 개수 제한)
   - **단순화 결정**: temp_cache 제거로 복잡도 50% 감소
   - **구현 명확화**: Sync Engine vs Offline-Prep 관계, 디렉토리 구조, 롤백 전략 분석
+- [2025-11-07: 오프라인 지도 구현](./sessions/2025-11-07-offline-map-implementation.md)
+  - **Mapbox 통합**: OfflineManager + SQLite 메타데이터 분리
+  - **이슈 해결**: 앱 크래시, bounds 포맷, 중복 팩 처리
+- [2025-11-08: 오프라인 라우팅 구현](./sessions/2025-11-08-offline-routing-implementation.md)
+  - **Directions API 통합**: Polyline6 압축 + 3-Profile 전략
+  - **이슈 해결**: ULID 에러, 카메라 초기화, UI 오버랩, 컴포넌트 통합
 
 ### Decisions (최종 결정 - 개발 후)
 
 구현 완료 후 최종 결정 사항 기록 (/doc-save --decision):
 
-- _개발 완료 후 작성 예정_
+- [002: Mapbox 오프라인 지도 통합](./decisions/002-offline-map-integration.md)
+  - **결정**: Mapbox OfflineManager + SQLite 메타데이터 분리
+  - **이유**: 관심사 분리, referenceCount 패턴으로 중복 방지
+- [003: Mapbox 오프라인 라우팅 통합](./decisions/003-offline-routing-integration.md)
+  - **결정**: Directions API v5 + Polyline6 압축 + 3-Profile 전략
+  - **이유**: 85% 압축률, 다중 교통수단, 오프라인 완전 지원
 
 ---
 
 ## 🔄 History
 
+- 2025-11-08: 오프라인 라우팅 기능 구현 완료 (Session, Feature Guide, ADR-003, Client CLAUDE 업데이트)
+- 2025-11-07: 오프라인 지도 구현 문서 추가 (Session, Feature Guide, ADR-002)
 - 2025-11-06: 구독 시스템 설계 문서 추가 (Session, Feature Guide)
 - 2025-11-06: sessions/, decisions/ 디렉토리 추가
 - 2025-11-05: 디렉토리 계층 구조 개선 (core/, features/, references/)

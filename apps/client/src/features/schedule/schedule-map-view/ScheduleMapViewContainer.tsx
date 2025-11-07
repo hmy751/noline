@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { router } from 'expo-router';
-import { ScheduleMapView, MapScheduleCard } from '@/shared/components';
+import { SmartScheduleMapView, MapScheduleCard } from '@/shared/components';
 import { Pressable } from '@repo/ui';
 
 interface Schedule {
@@ -14,12 +14,18 @@ interface Schedule {
 }
 
 interface ScheduleMapViewContainerProps {
+  tripId: string;
   dateRange: string[];
   schedulesByDate: Array<{ date: string; schedules: Schedule[] }>;
   initialDate: string | null;
 }
 
-export function ScheduleMapViewContainer({ dateRange, schedulesByDate, initialDate }: ScheduleMapViewContainerProps) {
+export function ScheduleMapViewContainer({
+  tripId,
+  dateRange,
+  schedulesByDate,
+  initialDate,
+}: ScheduleMapViewContainerProps) {
   const [selectedDate, setSelectedDate] = useState<string | null>(initialDate);
   const [selectedScheduleId, setSelectedScheduleId] = useState<string | null>(null);
   const carouselRef = useRef<ScrollView>(null);
@@ -46,7 +52,8 @@ export function ScheduleMapViewContainer({ dateRange, schedulesByDate, initialDa
 
   return (
     <View className='flex-1'>
-      <ScheduleMapView
+      <SmartScheduleMapView
+        tripId={tripId}
         schedules={schedulesForMap.map((schedule) => ({
           id: schedule.id,
           title: schedule.title,

@@ -169,6 +169,44 @@ export const offlineCities = sqliteTable('offline_cities', {
 });
 
 // ========================================
+// Routes Table (경로 정보)
+// ========================================
+
+/**
+ * 경로 테이블 (클라이언트 전용)
+ * - 오프라인 지도에서 실제 도로 경로 저장
+ * - Mapbox Directions API로 미리 계산된 경로
+ * - polyline6 압축 형식으로 저장 (효율적)
+ * - 서버에 동기화되지 않음 (클라이언트 UX 최적화)
+ */
+export const routes = sqliteTable('routes', {
+  id: text('id').primaryKey(),
+  tripId: text('trip_id')
+    .notNull()
+    .references(() => trips.id, { onDelete: 'cascade' }), // FK 제약
+
+  // 경로: 출발 → 도착
+  fromScheduleId: text('from_schedule_id').references(() => schedules.id, { onDelete: 'cascade' }), // nullable (숙소)
+  toScheduleId: text('to_schedule_id')
+    .notNull()
+    .references(() => schedules.id, { onDelete: 'cascade' }), // FK 제약
+
+  // 교통수단: walking | cycling | driving-traffic
+  profile: text('profile').notNull(), // Mapbox profile
+
+  // Mapbox Directions API 응답
+  geometry: text('geometry').notNull(), // polyline6 압축 문자열
+  distance: integer('distance').notNull(), // 미터 (meters)
+  duration: integer('duration').notNull(), // 초 (seconds)
+
+  // Echo Protocol 필드
+  createdAt: text('created_at').notNull(), // ISO string
+  updatedAt: text('updated_at').notNull(), // ISO string
+  deletedAt: text('deleted_at'), // ISO string
+  version: integer('version').default(1).notNull(),
+});
+
+// ========================================
 // TypeScript Types
 // ========================================
 
@@ -189,3 +227,6 @@ export type NewSyncMetadata = typeof syncMetadata.$inferInsert;
 
 export type OfflineCity = typeof offlineCities.$inferSelect;
 export type NewOfflineCity = typeof offlineCities.$inferInsert;
+
+export type Route = typeof routes.$inferSelect;
+export type NewRoute = typeof routes.$inferInsert;
