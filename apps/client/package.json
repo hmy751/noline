@@ -51,6 +51,7 @@
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "@repo/typescript-config": "workspace:*",
+    "@types/mapbox__polyline": "^1.0.5",
     "@types/react": "^18.2.79",
     "babel-plugin-inline-import": "^3.0.0",
     "babel-plugin-module-resolver": "^5.0.2",
