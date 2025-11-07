@@ -88,6 +88,8 @@ export const useCreateScheduleForm = ({ tripId, selectedLocation, onSuccess }: U
           if (isFirstSchedule) {
             console.log('🗺️ First schedule created - triggering offline map download');
             downloadOfflineMap({ tripId });
+          } else {
+            console.log('✅ Schedule created (not first, skip download)');
           }
 
           form.reset();
