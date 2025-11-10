@@ -303,7 +303,7 @@ af0e601 - refactor: apps/client, destination 필드 수정
 
 ### 단기 (Phase 2)
 
-- [ ] 구독 시스템 연동
+- [ ] 활성화 시스템 연동
 - [ ] 1-Trip 제한 적용
 - [ ] 자동 정리 고도화
 

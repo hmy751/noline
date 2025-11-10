@@ -59,14 +59,14 @@
 
 > 특정 기능 구현 시 참조
 
-| 파일                                                                 | 주제                        | 적용 대상        |
-| -------------------------------------------------------------------- | --------------------------- | ---------------- |
-| [features/subscription-system.md](./features/subscription-system.md) | 구독 시스템 (오프라인 준비) | 구독 기능 작업시 |
-| [features/offline-map.md](./features/offline-map.md)                 | 오프라인 지도 (Mapbox)      | 지도 기능 작업시 |
-| [features/offline-routing.md](./features/offline-routing.md)         | 오프라인 경로 (Directions)  | 경로 기능 작업시 |
-| [features/currency.md](./features/currency.md)                       | 통화 처리 정책              | Expense 작업시   |
-| [features/form.md](./features/form.md)                               | 폼 구현 패턴                | 폼 작성시        |
-| [features/local-first-impl.md](./features/local-first-impl.md)       | Local-First 구현 디테일     | Sync 구현시      |
+| 파일                                                             | 주제                          | 적용 대상          |
+| ---------------------------------------------------------------- | ----------------------------- | ------------------ |
+| [features/activation-system.md](./features/activation-system.md) | 활성화 시스템 (오프라인 준비) | 활성화 기능 작업시 |
+| [features/offline-map.md](./features/offline-map.md)             | 오프라인 지도 (Mapbox)        | 지도 기능 작업시   |
+| [features/offline-routing.md](./features/offline-routing.md)     | 오프라인 경로 (Directions)    | 경로 기능 작업시   |
+| [features/currency.md](./features/currency.md)                   | 통화 처리 정책                | Expense 작업시     |
+| [features/form.md](./features/form.md)                           | 폼 구현 패턴                  | 폼 작성시          |
+| [features/local-first-impl.md](./features/local-first-impl.md)   | Local-First 구현 디테일       | Sync 구현시        |
 
 ---
 
@@ -157,8 +157,8 @@
 
 논의 과정과 검토한 대안들을 기록:
 
-- [2025-11-06: 구독 아키텍처 설계](./sessions/2025-11-06-subscription-architecture-design.md)
-  - **초기 설계**: 3개 대안 비교 (Local-First 유지 vs 선택적 구독 vs 개수 제한)
+- [2025-11-06: 활성화 아키텍처 설계](./sessions/2025-11-06-activation-architecture-design.md)
+  - **초기 설계**: 3개 대안 비교 (Local-First 유지 vs 선택적 활성화 vs 개수 제한)
   - **단순화 결정**: temp_cache 제거로 복잡도 50% 감소
   - **구현 명확화**: Sync Engine vs Offline-Prep 관계, 디렉토리 구조, 롤백 전략 분석
 - [2025-11-07: 오프라인 지도 구현](./sessions/2025-11-07-offline-map-implementation.md)
@@ -185,7 +185,7 @@
 
 - 2025-11-08: 오프라인 라우팅 기능 구현 완료 (Session, Feature Guide, ADR-003, Client CLAUDE 업데이트)
 - 2025-11-07: 오프라인 지도 구현 문서 추가 (Session, Feature Guide, ADR-002)
-- 2025-11-06: 구독 시스템 설계 문서 추가 (Session, Feature Guide)
+- 2025-11-06: 활성화 시스템 설계 문서 추가 (Session, Feature Guide)
 - 2025-11-06: sessions/, decisions/ 디렉토리 추가
 - 2025-11-05: 디렉토리 계층 구조 개선 (core/, features/, references/)
 - 2024-11-05: .cursor/rules에서 .claude/로 마이그레이션

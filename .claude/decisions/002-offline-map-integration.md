@@ -343,7 +343,7 @@ const errorListener = (error) => {
 
 // 3. 저장 공간 부족
 // 향후: 다운로드 전 여유 공간 확인
-// 향후: 구독 시스템으로 1개 제한
+// 향후: 활성화 시스템으로 1개 제한
 ```
 
 ## 향후 작업
@@ -355,18 +355,18 @@ const errorListener = (error) => {
 - [x] 자동 다운로드
 - [x] referenceCount 관리
 
-### Phase 2: 구독 시스템 연동 (계획 중)
+### Phase 2: 활성화 시스템 연동 (계획 중)
 
 ```typescript
-// .claude/features/subscription-system.md 참조
+// .claude/features/activation-system.md 참조
 
-// 구독 여행: 완전 오프라인
+// 활성화 여행: 완전 오프라인
 if (trip.isSubscribed) {
   await downloadOfflineMap({ tripId });
   await pullFullData({ tripId }); // Schedule, Expense 전부
 }
 
-// 비구독 여행: 온라인 전용
+// 비활성화 여행: 온라인 전용
 else {
   // Metadata만 로컬, 오프라인 지도 없음
   await pullMetadata({ tripId });
@@ -375,7 +375,7 @@ else {
 // 1-Trip 제한
 const subscribedTrips = trips.filter((t) => t.isSubscribed);
 if (subscribedTrips.length >= 1) {
-  // 새 구독 전 기존 구독 해제 필요
+  // 새 활성화 전 기존 활성화 해제 필요
 }
 ```
 
@@ -394,7 +394,7 @@ if (subscribedTrips.length >= 1) {
 
 ## 관련 문서
 
-- [Subscription System](./../features/subscription-system.md) - 구독 시스템 설계
+- [Activation System](./../features/activation-system.md) - 활성화 시스템 설계
 - [Local Architecture](./../core/local-architecture.md) - Local-First 가이드
 - [Client CLAUDE.md](./../../apps/client/CLAUDE.md) - 클라이언트 패턴
 - [Session: 2025-11-07](./../sessions/2025-11-07-offline-map-implementation.md) - 구현 과정

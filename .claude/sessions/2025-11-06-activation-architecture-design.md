@@ -1,4 +1,4 @@
-# 구독 시스템 아키텍처 설계
+# 활성화 시스템 아키텍처 설계
 
 ## Metadata
 
@@ -35,7 +35,7 @@ Noline 프로젝트에 오프라인 지도 기능(Mapbox Offline) 통합 계획:
 
 ## Discussion Points
 
-### 1. 구독 개념 도입 필요성
+### 1. 활성화 개념 도입 필요성
 
 **핵심 질문**: "모든 여행을 로컬에 저장해야 하는가?"
 
@@ -53,34 +53,34 @@ Noline 프로젝트에 오프라인 지도 기능(Mapbox Offline) 통합 계획:
 
 여행 중 (오프라인)
   → 완벽한 오프라인 작동 필요
-  → 구독된 여행만 사용
+  → 활성화된 여행만 사용
 
 여행 종료 후 (복귀 1주일 후)
   → 온라인 환경 복귀
-  → 자동 구독 해제
+  → 자동 비활성화
   → 간단한 정리 작업
 ```
 
-**결론**: 구독 시스템 도입으로 사용자 제어 강화
+**결론**: 활성화 시스템 도입으로 사용자 제어 강화
 
 ---
 
 ### 2. 데이터 레이어 설계
 
-**검토한 질문**: "어떤 데이터를 항상 로컬에, 어떤 데이터를 구독 시에만?"
+**검토한 질문**: "어떤 데이터를 항상 로컬에, 어떤 데이터를 활성화 시에만?"
 
 **최종 2-Tier 아키텍처**:
 
 ```
 Tier 1: Metadata (항상 로컬, ~1MB for 100 trips)
   ├── 여행 ID, 목적지, 날짜
-  ├── 구독 상태 (subscribed: boolean)
+  ├── 활성화 상태 (activated: boolean)
   ├── 통계 (총 경비, 일정 개수)
   └── 썸네일
 
-목적: 빠른 목록 조회, 구독 상태 표시
+목적: 빠른 목록 조회, 활성화 상태 표시
 
-Tier 2: Full Data (구독 시만 로컬, ~10-200MB per trip)
+Tier 2: Full Data (활성화 시만 로컬, ~10-200MB per trip)
   ├── Schedules (전체)
   ├── Expenses (전체)
   ├── Places (전체)
@@ -92,13 +92,13 @@ Tier 2: Full Data (구독 시만 로컬, ~10-200MB per trip)
 **거부한 대안**:
 
 - 3-Tier (Metadata / Full Data / Assets 분리): 복잡도 과도
-- 1-Tier (모두 구독 시에만): Metadata 조회 불가
+- 1-Tier (모두 활성화 시에만): Metadata 조회 불가
 
 ---
 
-### 3. 비구독 여행 편집 정책
+### 3. 비활성화된 여행 편집 정책
 
-**핵심 논의**: "비구독 여행도 편집 가능해야 하는가?"
+**핵심 논의**: "비활성화된 여행도 편집 가능해야 하는가?"
 
 **초기 설계 (복잡)**:
 
@@ -129,22 +129,22 @@ function mergeData(serverData, tempCache) {
 - TTL, Cleanup Job 필요
 - 버전 충돌 해결 로직
 
-**사용자 피드백**: "구독을 위한 기능인데 비구독에 너무 많은 복잡도 투자"
+**사용자 피드백**: "활성화을 위한 기능인데 비활성에 너무 많은 복잡도 투자"
 
 **단순화 결정**:
 
 ```typescript
-// 비구독 여행 = 온라인 전용
-if (!subscribed) {
+// 비활성화된 여행 = 온라인 전용
+if (!activated) {
   if (!isOnline) {
-    throw new OfflineError('오프라인에서는 구독한 여행만 편집 가능');
+    throw new OfflineError('오프라인에서는 활성화한 여행만 편집 가능');
   }
   // 서버 직접 통신 (간단!)
   await api.post('/expenses', data);
 }
 
-// 구독 여행 = 완전 오프라인
-if (subscribed) {
+// 활성화된 여행 = 완전 오프라인
+if (activated) {
   // 기존 Local-First 로직 (변경 없음)
   await withTransaction(async () => {
     await db.insert(expenses).values(data);
@@ -159,7 +159,7 @@ if (subscribed) {
 - ❌ Merge 로직
 - ❌ 버전 충돌 감지
 - ❌ TTL 관리 및 Cleanup Job
-- ❌ Retry Queue (비구독용)
+- ❌ Retry Queue (비활성용)
 - ❌ Read-After-Write 일관성 처리
 
 ---
@@ -172,8 +172,8 @@ if (subscribed) {
 
 ```
 모든 여행 → 로컬 저장 (변경 없음)
-구독 여행만 → sync_queue 사용
-비구독 여행 → sync_queue 사용 안 함
+활성화된 여행만 → sync_queue 사용
+비활성화된 여행 → sync_queue 사용 안 함
 ```
 
 **장점**:
@@ -186,23 +186,23 @@ if (subscribed) {
 
 - 저장 공간 문제 해결 안 됨
 - 오프라인 지도 통합 불가능
-- 구독의 의미 불명확
+- 활성화의 의미 불명확
 
 **거부 이유**: 핵심 문제(저장 공간) 미해결
 
 ---
 
-### Option B: 선택적 구독 (초기 복잡 버전)
+### Option B: 선택적 활성화 (초기 복잡 버전)
 
-**아이디어**: 구독 여행만 로컬 저장, 비구독은 서버 조회 + temp_cache
+**아이디어**: 활성화된 여행만 로컬 저장, 비활성은 서버 조회 + temp_cache
 
 ```
-구독 여행:
+활성화된 여행:
   ├── 로컬 DB 저장
   ├── sync_queue 사용
   └── 완전 오프라인
 
-비구독 여행:
+비활성화된 여행:
   ├── 서버에서 조회
   ├── temp_cache로 Read-After-Write 보장
   ├── Merge 로직으로 일관성 유지
@@ -212,12 +212,12 @@ if (subscribed) {
 **장점**:
 
 - 저장 공간 효율적
-- 구독 여행 완벽한 오프라인
+- 활성화된 여행 완벽한 오프라인
 
 **단점**:
 
 - temp_cache 시스템 복잡도 높음 (엣지 케이스 21개)
-- 비구독 여행에 과도한 복잡도
+- 비활성화된 여행에 과도한 복잡도
 - Merge 로직 유지보수 부담
 - 버전 충돌 해결 어려움
 
@@ -253,34 +253,34 @@ if (subscribed) {
 
 ---
 
-### **Option B-Simplified: 선택적 구독 (단순화 버전)** ✅
+### **Option B-Simplified: 선택적 활성화 (단순화 버전)** ✅
 
 **최종 선택**
 
 **핵심 철학**:
 
-> "구독 = 오프라인 보험, 비구독 = 온라인 전용"
+> "활성화 = 오프라인 보험, 비활성 = 온라인 전용"
 
 **설계**:
 
 ```
-구독 여행:
+활성화된 여행:
   ├── 로컬 DB 저장
   ├── sync_queue 사용 (기존 로직)
   └── 완전 오프라인
 
-비구독 여행:
+비활성화된 여행:
   ├── Metadata만 로컬 (목록 표시용)
   ├── 서버 직접 통신
   └── 온라인 필수 (오프라인 시 에러)
 
-자동 구독 해제:
+자동 비활성화:
   └── 여행 종료일 + 7일 후
 ```
 
 **장점**:
 
-- ✅ 저장 공간 효율적 (구독 1개 = ~200MB 최대)
+- ✅ 저장 공간 효율적 (활성화 1개 = ~200MB 최대)
 - ✅ 명확한 UX ("오프라인 준비 = 편집 가능")
 - ✅ 복잡도 50% 감소 (엣지 케이스 21개 → 9개)
 - ✅ 구현 기간 50% 감소 (23-31일 → 12-16일)
@@ -288,7 +288,7 @@ if (subscribed) {
 
 **단점**:
 
-- ⚠️ 비구독 여행 오프라인 편집 불가
+- ⚠️ 비활성화된 여행 오프라인 편집 불가
 - ⚠️ 온라인 필수 (네트워크 의존성)
 
 **트레이드오프 판단**: 단점보다 장점이 큼
@@ -299,10 +299,10 @@ if (subscribed) {
 
 ### 1. Echo Protocol 유지
 
-**결정**: 구독 여부와 관계없이 클라이언트가 항상 ULID 생성
+**결정**: 활성화 여부와 관계없이 클라이언트가 항상 ULID 생성
 
 ```typescript
-// 비구독 여행도 클라이언트 ID 생성
+// 비활성화된 여행도 클라이언트 ID 생성
 const id = ulid();
 await api.post('/expenses', { id, ...data });
 
@@ -317,20 +317,20 @@ app.post('/expenses', (req, res) => {
 
 - 아키텍처 일관성
 - 오프라인 → 온라인 전환 시 충돌 방지
-- 향후 구독 전환 시 ID 충돌 없음
+- 향후 활성화 전환 시 ID 충돌 없음
 
 ---
 
 ### 2. 라우팅 레이어 패턴
 
-**결정**: 모든 CRUD 연산에 구독 상태 체크 레이어 추가
+**결정**: 모든 CRUD 연산에 활성화 상태 체크 레이어 추가
 
 ```typescript
 // 라우팅 레이어
 async function createExpense(data: CreateExpenseInput) {
   const metadata = await getTripMetadata(data.tripId);
 
-  if (metadata.subscribed) {
+  if (metadata.activated) {
     // Path A: Local-First
     return await withTransaction(async () => {
       const id = ulid();
@@ -341,7 +341,7 @@ async function createExpense(data: CreateExpenseInput) {
   } else {
     // Path B: Server-First
     if (!isOnline) {
-      throw new OfflineError('오프라인에서는 구독한 여행만 편집 가능');
+      throw new OfflineError('오프라인에서는 활성화한 여행만 편집 가능');
     }
     const id = ulid();
     await api.post('/expenses', { id, ...data });
@@ -350,12 +350,12 @@ async function createExpense(data: CreateExpenseInput) {
 }
 ```
 
-**성능 최적화**: React Query 캐시로 구독 상태 재사용
+**성능 최적화**: React Query 캐시로 활성화 상태 재사용
 
 ```typescript
-export function useSubscriptionStatus(tripId: string) {
+export function useActivationStatus(tripId: string) {
   return useQuery({
-    queryKey: ['subscription', 'status', tripId],
+    queryKey: ['activation', 'status', tripId],
     queryFn: () => getTripMetadata(tripId),
     staleTime: 5 * 60 * 1000, // 5분 캐시
   });
@@ -364,29 +364,29 @@ export function useSubscriptionStatus(tripId: string) {
 
 ---
 
-### 3. 자동 구독 해제 정책
+### 3. 자동 비활성화 정책
 
-**결정**: 여행 종료일 + 7일 후 자동 구독 해제
+**결정**: 여행 종료일 + 7일 후 자동 비활성화
 
 ```typescript
-// 구독 활성화 시 만료일 자동 설정
-async function subscribeTrip(tripId: string) {
+// 활성화하기 시 만료일 자동 설정
+async function activateTrip(tripId: string) {
   const trip = await api.get(`/trips/${tripId}`);
   const expiresAt = addDays(new Date(trip.endDate), 7);
 
-  await db.insert(tripSubscriptions).values({
+  await db.insert(tripActivations).values({
     tripId,
-    isSubscribed: true,
+    isActivated: true,
     expiresAt: expiresAt.toISOString(),
   });
 }
 
 // Background Job: 하루 1회
-async function autoUnsubscribeExpiredTrips() {
-  const expired = await db.select().from(tripSubscriptions).where(lt(tripSubscriptions.expiresAt, new Date())).all();
+async function autoUnactivateExpiredTrips() {
+  const expired = await db.select().from(tripActivations).where(lt(tripActivations.expiresAt, new Date())).all();
 
   for (const sub of expired) {
-    await unsubscribeTrip(sub.tripId);
+    await unactivateTrip(sub.tripId);
   }
 }
 ```
@@ -399,19 +399,19 @@ async function autoUnsubscribeExpiredTrips() {
 
 ---
 
-### 4. 1-Trip 구독 제한
+### 4. 1-Trip 활성화 제한
 
-**결정**: 동시에 1개 여행만 구독 가능
+**결정**: 동시에 1개 여행만 활성화 가능
 
 ```typescript
-async function subscribeTrip(tripId: string) {
-  const existing = await db.select().from(tripSubscriptions).where(eq(tripSubscriptions.isSubscribed, true)).get();
+async function activateTrip(tripId: string) {
+  const existing = await db.select().from(tripActivations).where(eq(tripActivations.isActivated, true)).get();
 
   if (existing && existing.tripId !== tripId) {
-    throw new ConflictError('이미 다른 여행이 구독 중입니다');
+    throw new ConflictError('이미 다른 여행이 활성화 중입니다');
   }
 
-  // ... 구독 로직
+  // ... 활성화 로직
 }
 ```
 
@@ -433,7 +433,7 @@ CREATE TABLE trip_metadata (
   destination TEXT NOT NULL,
   startDate TEXT NOT NULL,
   endDate TEXT NOT NULL,
-  subscribed BOOLEAN DEFAULT false,  -- 핵심 플래그
+  activated BOOLEAN DEFAULT false,  -- 핵심 플래그
   totalExpenses REAL DEFAULT 0,
   scheduleCount INTEGER DEFAULT 0,
   expenseCount INTEGER DEFAULT 0,
@@ -443,14 +443,14 @@ CREATE TABLE trip_metadata (
 );
 ```
 
-### trip_subscriptions
+### trip_activations
 
 ```sql
-CREATE TABLE trip_subscriptions (
+CREATE TABLE trip_activations (
   id TEXT PRIMARY KEY,
   tripId TEXT UNIQUE NOT NULL,
-  isSubscribed BOOLEAN DEFAULT false,
-  subscribedAt TEXT,
+  isActivated BOOLEAN DEFAULT false,
+  activatedAt TEXT,
   expiresAt TEXT,  -- 자동 해제 기준
   syncStatus TEXT, -- 'IN_PROGRESS', 'COMPLETED', 'FAILED'
   lastSyncAt TEXT,
@@ -472,30 +472,30 @@ CREATE TABLE trip_subscriptions (
 ### 유지되는 엣지 케이스
 
 1. ✅ Metadata/Full Data 불일치
-2. ✅ 구독 활성화 중단 (Pull 실패)
+2. ✅ 활성화하기 중단 (Pull 실패)
 3. ✅ 지도 다운로드 실패
 4. ✅ Pull 실패 시 부분 데이터 (트랜잭션 롤백)
-5. ✅ 구독 해제 후 정리 실패 (재시도)
+5. ✅ 비활성화 후 정리 실패 (재시도)
 6. ✅ 대량 데이터 Pull UI 블로킹 (배치 처리)
-7. ✅ 여러 기기 동시 구독 (DB Lock)
-8. ✅ 구독 활성화 중 데이터 수정 (Lock)
+7. ✅ 여러 기기 동시 활성화 (DB Lock)
+8. ✅ 활성화하기 중 데이터 수정 (Lock)
 9. ✅ 라우팅 레이어 성능 (React Query 캐시)
 
 ### 제거된 엣지 케이스 (12개)
 
 - ❌ temp_cache 관련 (8개): TTL 만료, Merge 충돌, 버전 충돌 등
 - ❌ 네트워크 전환 (3개): 플래핑, 타임아웃 vs 저장, 재시도
-- ❌ 비구독 편집 (1개): 오프라인 Read-After-Write
+- ❌ 비활성 편집 (1개): 오프라인 Read-After-Write
 
 ---
 
 ## Open Questions
 
-- [ ] **자동 구독 해제 기간**: 7일이 적절한가? (3일? 14일?)
+- [ ] **자동 비활성화 기간**: 7일이 적절한가? (3일? 14일?)
 - [ ] **1-Trip 제한**: 충분한가? 2-3개 허용 검토?
-- [ ] **구독 전환 UX**: Pull 진행률 표시 필요?
-- [ ] **비구독 편집 제한**: 온라인 필수 정책 사용자 수용 가능?
-- [ ] **지도 다운로드 타이밍**: 구독 활성화와 동시? 별도?
+- [ ] **활성화 전환 UX**: Pull 진행률 표시 필요?
+- [ ] **비활성 편집 제한**: 온라인 필수 정책 사용자 수용 가능?
+- [ ] **지도 다운로드 타이밍**: 활성화하기와 동시? 별도?
 
 ---
 
@@ -510,7 +510,7 @@ CREATE TABLE trip_subscriptions (
 | -------- | -------------- | -------- | -------- | --------- |
 | 1        | 스키마         | 3일      | 2일      | -1일      |
 | 2        | 라우팅 레이어  | 4일      | 3일      | -1일      |
-| 3        | 구독 관리      | 5일      | 4일      | -1일      |
+| 3        | 활성화 관리    | 5일      | 4일      | -1일      |
 | 4        | temp_cache     | 4일      | **0일**  | **-4일**  |
 | 5        | 기존 코드 통합 | 7일      | 5일      | -2일      |
 | 6        | 테스트         | 5일      | 3일      | -2일      |
@@ -534,7 +534,7 @@ CREATE TABLE trip_subscriptions (
 
 ### Phase 1 (2일)
 
-- [ ] trip_metadata, trip_subscriptions 스키마 생성
+- [ ] trip_metadata, trip_activations 스키마 생성
 - [ ] Drizzle 마이그레이션
 
 ### 개발 완료 후
@@ -558,17 +558,17 @@ CREATE TABLE trip_subscriptions (
 
 ### 구현 가이드 (작성 예정)
 
-- [.claude/features/subscription-system.md](../features/subscription-system.md) - 구독 시스템 구현 가이드
+- [.claude/features/activation-system.md](../features/activation-system.md) - 활성화 시스템 구현 가이드
 
 ---
 
 ## Conclusion
 
-구독 시스템 도입으로:
+활성화 시스템 도입으로:
 
 **문제 해결**:
 
-- ✅ 저장 공간 효율화 (구독 1개 = 최대 200MB)
+- ✅ 저장 공간 효율화 (활성화 1개 = 최대 200MB)
 - ✅ 오프라인 지도 통합 가능
 - ✅ 사용자 제어 강화
 
@@ -580,7 +580,7 @@ CREATE TABLE trip_subscriptions (
 
 **트레이드오프**:
 
-- ⚠️ 비구독 여행 온라인 필수
+- ⚠️ 비활성화된 여행 온라인 필수
 - ⚠️ Local-First 철학 부분 수정
 
 **최종 판단**: 트레이드오프 수용 가능, 진행 결정
@@ -612,20 +612,20 @@ CREATE TABLE trip_subscriptions (
 
 **비교 분석**:
 
-| 비교 | Sync Engine | Offline-Prep |
-|------|-------------|--------------|
-| **책임** | 로컬 ↔ 서버 동기화 | 데이터 소스 라우팅 |
-| **동작 시점** | 백그라운드 주기적 | Query/Mutation 시점 |
-| **트리거** | 타이머, 네트워크 복구 | 사용자 액션 (Query 호출) |
-| **판단 기준** | sync_queue 상태 | 여행 구독 상태 |
-| **데이터 흐름** | 로컬 → 서버, 서버 → 로컬 | 로컬 OR 원격 선택 |
-| **관련 개념** | sync_queue, push/pull | 구독 메타데이터, 라우팅 |
+| 비교            | Sync Engine              | Offline-Prep              |
+| --------------- | ------------------------ | ------------------------- |
+| **책임**        | 로컬 ↔ 서버 동기화      | 데이터 소스 라우팅        |
+| **동작 시점**   | 백그라운드 주기적        | Query/Mutation 시점       |
+| **트리거**      | 타이머, 네트워크 복구    | 사용자 액션 (Query 호출)  |
+| **판단 기준**   | sync_queue 상태          | 여행 활성화 상태          |
+| **데이터 흐름** | 로컬 → 서버, 서버 → 로컬 | 로컬 OR 원격 선택         |
+| **관련 개념**   | sync_queue, push/pull    | 활성화 메타데이터, 라우팅 |
 
 **결론**: **완전히 독립적인 두 계층**
 
 - Sync Engine: "로컬 DB와 서버를 언제 어떻게 동기화할까?"
 - Offline-Prep: "이 여행 데이터를 어디서 읽을까? (로컬 vs 서버)"
-- 관계: 독립적이지만 협력적 (구독 여행은 Offline-Prep → 로컬 → Sync 흐름)
+- 관계: 독립적이지만 협력적 (활성화된 여행은 Offline-Prep → 로컬 → Sync 흐름)
 
 **아키텍처 흐름**:
 
@@ -638,7 +638,7 @@ CREATE TABLE trip_subscriptions (
                       ↓
         ┌─────────────┴─────────────┐
         │                           │
-    [구독 여행]                [비구독 여행]
+    [활성화된 여행]                [비활성화된 여행]
         ↓                           ↓
   Local SQLite                 Remote Server
         ↓                           ✓ 끝
@@ -684,17 +684,17 @@ async function pushChanges() { /* DB 조회 → API 호출 → DB 삭제 */ }
 
 **구분 기준 명확화**:
 
-| | lib/ | services/ |
-|---|---|---|
-| **기준** | 순수 함수 + 범용 | Side effect OR 앱 특화 |
-| **예시** | `formatDate`, `formatCurrency` | `pushChanges`, `generateId`, `routeQuery` |
-| **재사용** | 다른 프로젝트 OK | 앱에 특화됨 |
-| **Side effect** | ❌ 없음 | ✅ 있음 (DB, API, 파일 등) |
+|                 | lib/                           | services/                                 |
+| --------------- | ------------------------------ | ----------------------------------------- |
+| **기준**        | 순수 함수 + 범용               | Side effect OR 앱 특화                    |
+| **예시**        | `formatDate`, `formatCurrency` | `pushChanges`, `generateId`, `routeQuery` |
+| **재사용**      | 다른 프로젝트 OK               | 앱에 특화됨                               |
+| **Side effect** | ❌ 없음                        | ✅ 있음 (DB, API, 파일 등)                |
 
 **Offline-Prep 판단**:
 
 - Side effect: ✅ (DB 조회, 네트워크 상태 확인)
-- 앱 특화: ✅ (Noline의 구독 시스템에 특화)
+- 앱 특화: ✅ (Noline의 활성화 시스템에 특화)
 - 결론: `services/offline-prep/` ✅
 
 ---
@@ -730,8 +730,8 @@ shared/services/
 │
 └── offline-prep/            # 📦 오프라인 준비 시스템
     ├── router.ts            # routeQuery, routeMutation (라우팅)
-    ├── metadata.ts          # getTripMetadata (구독 상태 조회)
-    └── manager.ts           # subscribe, unsubscribe (구독 관리 - 미래)
+    ├── metadata.ts          # getTripMetadata (활성화 상태 조회)
+    └── manager.ts           # activate, unactivate (활성화 관리 - 미래)
 ```
 
 **이유**:
@@ -752,21 +752,21 @@ shared/services/
 
 **변경이 필요한 파일** (13개):
 
-| 영역 | 파일 | 변경 타입 | 롤백 난이도 |
-|------|------|----------|------------|
-| Schema | `shared/db/schema.ts` | 테이블 추가 | 🟢 쉬움 (DROP TABLE) |
-| Service | `services/offline-prep/router.ts` | 신규 | 🟢 쉬움 (파일 삭제) |
-| Service | `services/offline-prep/metadata.ts` | 신규 | 🟢 쉬움 (파일 삭제) |
-| Entity (Trip) | `data/useGetTrips.ts` | 수정 | 🟡 중간 (Git revert) |
-| Entity (Trip) | `data/api/local.ts` | 신규 | 🟢 쉬움 (파일 삭제) |
-| Entity (Trip) | `data/api/remote.ts` | 신규 | 🟢 쉬움 (파일 삭제) |
-| Entity (Schedule) | 3개 파일 | 동일 | 동일 |
-| Entity (Expense) | 3개 파일 | 동일 | 동일 |
+| 영역              | 파일                                | 변경 타입   | 롤백 난이도          |
+| ----------------- | ----------------------------------- | ----------- | -------------------- |
+| Schema            | `shared/db/schema.ts`               | 테이블 추가 | 🟢 쉬움 (DROP TABLE) |
+| Service           | `services/offline-prep/router.ts`   | 신규        | 🟢 쉬움 (파일 삭제)  |
+| Service           | `services/offline-prep/metadata.ts` | 신규        | 🟢 쉬움 (파일 삭제)  |
+| Entity (Trip)     | `data/useGetTrips.ts`               | 수정        | 🟡 중간 (Git revert) |
+| Entity (Trip)     | `data/api/local.ts`                 | 신규        | 🟢 쉬움 (파일 삭제)  |
+| Entity (Trip)     | `data/api/remote.ts`                | 신규        | 🟢 쉬움 (파일 삭제)  |
+| Entity (Schedule) | 3개 파일                            | 동일        | 동일                 |
+| Entity (Expense)  | 3개 파일                            | 동일        | 동일                 |
 
 **변경이 불필요한 파일** (~50개):
 
 - Sync 엔진 (engine.ts, queue.ts, provider.tsx) → 영향 없음
-- Mutation Hook (useCreate*, useUpdate*, useDelete*) → 영향 없음
+- Mutation Hook (useCreate*, useUpdate*, useDelete\*) → 영향 없음
 - Screen, Feature 컴포넌트 → 영향 없음
 
 #### 롤백 시나리오
@@ -781,7 +781,7 @@ git revert <commit-hash>
 1. services/offline-prep/ 디렉토리 삭제
 2. entities/*/data/api/ 디렉토리 삭제
 3. entities/*/data/use*.ts 파일 원래대로 복구
-4. DB: DROP TABLE trip_subscriptions
+4. DB: DROP TABLE trip_activations
 ```
 
 **시나리오 2: Router만 무시** (30분 내)

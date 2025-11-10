@@ -914,13 +914,13 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
 
   // 앱이 포그라운드로 돌아올 때 동기화
   useEffect(() => {
-    const subscription = AppState.addEventListener('change', (state: AppStateStatus) => {
+    const activation = AppState.addEventListener('change', (state: AppStateStatus) => {
       if (state === 'active' && networkStatus === 'online') {
         syncData();
       }
     });
 
-    return () => subscription.remove();
+    return () => activation.remove();
   }, [networkStatus]);
 
   // 주기적 동기화 (5분마다)
@@ -1090,12 +1090,12 @@ await withTransaction(async () => {
   - 오프라인에서 "여행 생성 → 경비 생성" 순서가 깨지면 서버에서 외래키 에러 발생
   - `sync_queue`는 반드시 `createdAt` 기준 오름차순으로 처리 필요
 
-### 4. **구독 시스템 (Phase 3에서 구현)**
+### 4. **활성화 시스템 (Phase 3에서 구현)**
 
 ```typescript
-// sync_queue 추가 시 구독 여부 확인
+// sync_queue 추가 시 활성화 여부 확인
 if (!isSubscribed(tripId) && queueCount >= 10) {
-  showSubscriptionPrompt();
+  showActivationPrompt();
   return; // 더 이상 큐에 추가하지 않음
 }
 ```

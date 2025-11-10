@@ -59,7 +59,7 @@
 
 기능별 가이드 (features/):
 
-- [features/subscription-system.md](./.claude/features/subscription-system.md) - 구독 시스템 (오프라인 준비)
+- [features/activation-system.md](./.claude/features/activation-system.md) - 활성화 시스템 (오프라인 준비)
 - [features/currency.md](./.claude/features/currency.md) - 통화 처리
 - [features/form.md](./.claude/features/form.md) - 폼 패턴
 - [features/local-first-impl.md](./.claude/features/local-first-impl.md) - Local-First 구현
@@ -136,14 +136,14 @@
 
 ## 🏗 Architecture Decisions
 
-| 영역          | 현재 선택           | 이유                       | 대안                 |
-| ------------- | ------------------- | -------------------------- | -------------------- |
-| **ID 생성**   | ULID@Client         | 오프라인 작동, 시간순 정렬 | UUID, 서버생성       |
-| **로컬 DB**   | SQLite + Drizzle    | React Native 최적화        | Realm, WatermelonDB  |
-| **동기화**    | sync_queue (Outbox) | 트랜잭션 보장, MVP 단순성  | CRDT, Event Sourcing |
-| **충돌 해결** | Last-Write-Wins     | 초기 버전 단순성           | Vector Clock, CRDT   |
-| **상태 관리** | React Query         | 서버 상태 관리 최적화      | Zustand, Redux       |
-| **구독 시스템** | 선택적 구독 (Subscription) | 오프라인 지도 저장 공간 효율 | 전체 로컬, 개수 제한 |
+| 영역              | 현재 선택                  | 이유                         | 대안                 |
+| ----------------- | -------------------------- | ---------------------------- | -------------------- |
+| **ID 생성**       | ULID@Client                | 오프라인 작동, 시간순 정렬   | UUID, 서버생성       |
+| **로컬 DB**       | SQLite + Drizzle           | React Native 최적화          | Realm, WatermelonDB  |
+| **동기화**        | sync_queue (Outbox)        | 트랜잭션 보장, MVP 단순성    | CRDT, Event Sourcing |
+| **충돌 해결**     | Last-Write-Wins            | 초기 버전 단순성             | Vector Clock, CRDT   |
+| **상태 관리**     | React Query                | 서버 상태 관리 최적화        | Zustand, Redux       |
+| **활성화 시스템** | 선택적 활성화 (Activation) | 오프라인 지도 저장 공간 효율 | 전체 로컬, 개수 제한 |
 
 ## 🛠 Tech Stack
 
@@ -228,23 +228,23 @@ pnpm typecheck    # 타입 체크
 
 **핵심 철학**:
 
-> "구독 = 오프라인 보험, 비구독 = 온라인 전용"
+> "활성화 = 오프라인 보험, 비활성 = 온라인 전용"
 
 **주요 특징**:
 
-- **구독 여행**: 완전 오프라인 (Local-First 유지) - 최대 200MB
-- **비구독 여행**: 온라인 전용 (Server-First) - Metadata만 로컬
-- **저장 공간 효율화**: 동시에 1개 여행만 구독 가능
-- **자동 관리**: 여행 종료 + 7일 후 자동 구독 해제
+- **활성화된 여행**: 완전 오프라인 (Local-First 유지) - 최대 200MB
+- **비활성 여행**: 온라인 전용 (Server-First) - Metadata만 로컬
+- **저장 공간 효율화**: 동시에 1개 여행만 활성화 가능
+- **자동 관리**: 여행 종료 + 7일 후 자동 비활성화
 
 **아키텍처**:
 
 ```text
-Entity Layer → Offline-Prep Router (구독 상태 확인)
+Entity Layer → Offline-Prep Router (활성화 상태 확인)
                 ↓
     ┌───────────┴───────────┐
     │                       │
-[구독 여행]           [비구독 여행]
+[활성화된 여행]        [비활성 여행]
     ↓                       ↓
 Local SQLite          Remote Server
     ↓
@@ -255,15 +255,15 @@ Sync Engine (백그라운드)
 
 **현재 단계**: Open Questions 해결 중
 
-- [ ] 자동 구독 해제 기간 (7일 vs 3일 vs 14일)
+- [ ] 자동 비활성화 기간 (7일 vs 3일 vs 14일)
 - [ ] 1-Trip 제한 충분성 검토
-- [ ] 구독 전환 UX (Pull 진행률 표시)
-- [ ] 비구독 편집 제한 정책 사용자 수용성
+- [ ] 활성화 전환 UX (Pull 진행률 표시)
+- [ ] 비활성 편집 제한 정책 사용자 수용성
 
 **관련 문서**:
 
-- [Session: 아키텍처 설계](./.claude/sessions/2025-11-06-subscription-architecture-design.md) - 설계 논의 전체 과정
-- [Feature Guide: 구독 시스템](./.claude/features/subscription-system.md) - 구현 가이드
+- [Session: 아키텍처 설계](./.claude/sessions/2025-11-06-activation-architecture-design.md) - 설계 논의 전체 과정
+- [Feature Guide: 활성화 시스템](./.claude/features/activation-system.md) - 구현 가이드
 - [local-architecture.md](./.claude/core/local-architecture.md) - Local-First 가이드
 
 ---
@@ -355,7 +355,7 @@ type User = z.infer<typeof userEntity>;
 
 - [ ] Pull 동기화 (서버 → 로컬)
 - [ ] 충돌 해결 고도화
-- [ ] 오프라인 구독 시스템
+- [ ] 오프라인 활성화 시스템
 
 ### 📅 예정
 

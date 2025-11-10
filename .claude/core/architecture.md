@@ -79,7 +79,7 @@ noline/
     - 예: `formatDate`, `formatCurrency`, `calculateDistance`
     - 특징: Side effect 없음, 입력 → 출력 변환만 수행
   - `services/`: Side effect OR 앱 특화 비즈니스 로직
-    - 예: `sync` (동기화 엔진), `offline-prep` (구독 시스템), `id` (ULID 생성)
+    - 예: `sync` (동기화 엔진), `offline-prep` (활성화 시스템), `id` (ULID 생성)
     - 특징: DB 접근, API 호출, 런타임 상태 관리 등 앱 전반의 복잡한 로직
 - **좋은 예시**:
   - `shared/components`: `MobileHeader`, `PageLayout`, `FormField`
