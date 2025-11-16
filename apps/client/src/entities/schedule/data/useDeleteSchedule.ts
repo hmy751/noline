@@ -4,12 +4,16 @@ import { eq, sql } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
 import { scheduleQueryKeys } from './keys';
+import { routeMutation } from '@/shared/services/offline-prep';
+import axios from '@/shared/api/fetcher';
 
 /**
- * 일정 삭제 Mutation Hook (Local-First)
+ * 일정 삭제 Mutation Hook (Soft Delete)
  *
- * Soft Delete: deletedAt 설정 후, sync_queue에 기록
- * 네트워크 상태와 무관하게 즉시 삭제됨
+ * - 활성화된 여행: 로컬 DB Soft Delete + sync_queue
+ * - 비활성 여행: 서버 직접 호출 (오프라인시 에러)
+ *
+ * ✅ Soft Delete: deletedAt 필드를 현재 시간으로 설정
  *
  * @example
  * ```tsx
@@ -22,25 +26,47 @@ export const useDeleteSchedule = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      // 트랜잭션: Soft Delete + sync_queue 기록
-      await withTransaction(async () => {
-        // 1. Soft Delete (deletedAt 설정)
-        await db
-          .update(schedules)
-          .set({
-            deletedAt: getCurrentISOString(),
-            updatedAt: getCurrentISOString(),
-            version: sql`${schedules.version} + 1`, // version 증가
-          })
-          .where(eq(schedules.id, id));
+      // 1. schedule 조회하여 tripId 확인
+      const schedule = await db.select().from(schedules).where(eq(schedules.id, id)).get();
 
-        // 2. sync_queue에 기록 (서버 Push 대기)
-        await addToSyncQueue('schedules', id, 'DELETE', null);
+      if (!schedule) {
+        throw new Error(`Schedule not found: ${id}`);
+      }
+
+      const tripId = schedule.tripId;
+      const deletedAt = getCurrentISOString();
+
+      // 2. 라우팅 레이어 적용
+      return await routeMutation(tripId, {
+        // 로컬: 활성화된 여행
+        local: async () => {
+          await withTransaction(async () => {
+            // Soft Delete (deletedAt 설정)
+            await db
+              .update(schedules)
+              .set({
+                deletedAt,
+                updatedAt: deletedAt,
+                version: sql`${schedules.version} + 1`, // version 증가
+              })
+              .where(eq(schedules.id, id));
+
+            // sync_queue에 기록 (서버 Push 대기)
+            await addToSyncQueue('schedules', id, 'DELETE', null);
+          });
+
+          console.log(`✅ Schedule deleted locally (soft): ${id}`);
+          return { id };
+        },
+
+        // 원격: 비활성 여행
+        remote: async () => {
+          await axios.delete(`/schedules/${id}`);
+
+          console.log(`✅ Schedule deleted on server: ${id}`);
+          return { id };
+        },
       });
-
-      console.log(`✅ Schedule deleted locally (soft): ${id}`);
-
-      return { id };
     },
     onSuccess: () => {
       // 캐시 무효화 - 일정 목록 다시 조회

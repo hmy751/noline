@@ -4,6 +4,8 @@ import { eq, sql } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
 import { expenseQueryKeys } from './keys';
+import { routeMutation } from '@/shared/services/offline-prep';
+import axios from '@/shared/api/fetcher';
 
 /**
  * 경비 수정 요청 데이터 타입
@@ -20,10 +22,10 @@ export type UpdateExpenseRequest = {
 };
 
 /**
- * 경비 수정 Mutation Hook (Local-First)
+ * 경비 수정 Mutation Hook
  *
- * 로컬 DB 우선 업데이트 후, sync_queue에 기록
- * 네트워크 상태와 무관하게 즉시 업데이트됨
+ * - 활성화된 여행: 로컬 DB 업데이트 + sync_queue
+ * - 비활성 여행: 서버 직접 호출 (오프라인시 에러)
  *
  * @example
  * ```tsx
@@ -43,25 +45,46 @@ export const useUpdateExpense = () => {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: UpdateExpenseRequest }) => {
-      // 트랜잭션: 로컬 DB 업데이트 + sync_queue 기록
-      await withTransaction(async () => {
-        // 1. 로컬 DB 업데이트
-        await db
-          .update(expenses)
-          .set({
-            ...data,
-            updatedAt: getCurrentISOString(),
-            version: sql`${expenses.version} + 1`, // version 증가
-          })
-          .where(eq(expenses.id, id));
+      // 1. expense 조회하여 tripId 확인
+      const expense = await db.select().from(expenses).where(eq(expenses.id, id)).get();
 
-        // 2. sync_queue에 기록 (서버 Push 대기)
-        await addToSyncQueue('expenses', id, 'UPDATE', data);
+      if (!expense) {
+        throw new Error(`Expense not found: ${id}`);
+      }
+
+      const tripId = expense.tripId;
+
+      // 2. 라우팅 레이어 적용
+      return await routeMutation(tripId, {
+        // 로컬: 활성화된 여행
+        local: async () => {
+          await withTransaction(async () => {
+            // 로컬 DB 업데이트
+            await db
+              .update(expenses)
+              .set({
+                ...data,
+                updatedAt: getCurrentISOString(),
+                version: sql`${expenses.version} + 1`, // version 증가
+              })
+              .where(eq(expenses.id, id));
+
+            // sync_queue에 기록 (서버 Push 대기)
+            await addToSyncQueue('expenses', id, 'UPDATE', data);
+          });
+
+          console.log(`✅ Expense updated locally: ${id}`);
+          return { id, ...data };
+        },
+
+        // 원격: 비활성 여행
+        remote: async () => {
+          const response = await axios.put(`/expenses/${id}`, data);
+
+          console.log(`✅ Expense updated on server: ${id}`);
+          return response.data;
+        },
       });
-
-      console.log(`✅ Expense updated locally: ${id}`);
-
-      return { id, ...data };
     },
     onSuccess: () => {
       // 캐시 무효화 - 경비 목록 다시 조회
