@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
-import { db, trips, schedules } from '../db/index.js';
-import { desc, sql, eq, and } from 'drizzle-orm';
+import { db, trips, schedules, expenses } from '../db/index.js';
+import { desc, sql, eq, and, isNull } from 'drizzle-orm';
 import { createTripRequest, updateTripRequest } from '@repo/schema/requests/trip';
 import { tripEntity } from '@repo/schema/entities/trip';
 import { tripResponse } from '@repo/schema/responses/trip';
@@ -405,6 +405,166 @@ router.get('/:tripId/schedules', async (req: Request, res: Response) => {
       res.status(500).json({
         error: 'Internal server error',
         message: 'Failed to fetch schedules',
+        details: 'Unknown error occurred',
+      });
+    }
+  }
+});
+
+// POST /api/trips/:id/activate - 여행 활성화 (Pull 동기화)
+router.post('/:id/activate', async (req: Request, res: Response) => {
+  try {
+    const tripId = req.params.id;
+    const userId = '01HZQ8K9X7M2N3P4Q5R6S7T8V9'; // 테스트용 ULID
+
+    // 여행 존재 여부 및 소유권 확인
+    const [trip] = await db
+      .select()
+      .from(trips)
+      .where(and(eq(trips.id, tripId), eq(trips.userId, userId)));
+
+    if (!trip) {
+      return res.status(404).json({
+        error: 'Not found',
+        message: 'Trip not found or you do not have permission to access it',
+      });
+    }
+
+    // 여행의 모든 일정 조회 (Soft Delete 제외)
+    const tripSchedules = await db
+      .select({
+        id: schedules.id,
+        userId: schedules.userId,
+        tripId: schedules.tripId,
+        title: schedules.title,
+        location: schedules.location,
+        address: schedules.address,
+        scheduledAt: schedules.scheduledAt,
+        latitude: schedules.latitude,
+        longitude: schedules.longitude,
+        createdAt: schedules.createdAt,
+        updatedAt: schedules.updatedAt,
+        deletedAt: schedules.deletedAt,
+        version: schedules.version,
+      })
+      .from(schedules)
+      .where(and(eq(schedules.tripId, tripId), isNull(schedules.deletedAt)));
+
+    // 여행의 모든 경비 조회 (Soft Delete 제외)
+    const tripExpenses = await db
+      .select({
+        id: expenses.id,
+        userId: expenses.userId,
+        tripId: expenses.tripId,
+        scheduleId: expenses.scheduleId,
+        title: expenses.title,
+        amount: expenses.amount,
+        currency: expenses.currency,
+        category: expenses.category,
+        date: expenses.date,
+        hasReceipt: expenses.hasReceipt,
+        receiptUrl: expenses.receiptUrl,
+        createdAt: expenses.createdAt,
+        updatedAt: expenses.updatedAt,
+        deletedAt: expenses.deletedAt,
+        version: expenses.version,
+      })
+      .from(expenses)
+      .where(and(eq(expenses.tripId, tripId), isNull(expenses.deletedAt)));
+
+    // ISO string으로 변환
+    const validatedSchedules = tripSchedules.map((schedule) => ({
+      ...schedule,
+      scheduledAt: schedule.scheduledAt.toISOString(),
+      createdAt: schedule.createdAt.toISOString(),
+      updatedAt: schedule.updatedAt.toISOString(),
+      deletedAt: schedule.deletedAt?.toISOString() || null,
+    }));
+
+    const validatedExpenses = tripExpenses.map((expense) => ({
+      ...expense,
+      createdAt: expense.createdAt.toISOString(),
+      updatedAt: expense.updatedAt.toISOString(),
+      deletedAt: expense.deletedAt?.toISOString() || null,
+    }));
+
+    res.status(200).json({
+      success: true,
+      data: {
+        trip: {
+          ...trip,
+          startDate: trip.startDate.toISOString(),
+          endDate: trip.endDate.toISOString(),
+          createdAt: trip.createdAt.toISOString(),
+          updatedAt: trip.updatedAt.toISOString(),
+        },
+        schedules: validatedSchedules,
+        expenses: validatedExpenses,
+      },
+      message: `Trip activated successfully (${validatedSchedules.length} schedules, ${validatedExpenses.length} expenses)`,
+    });
+  } catch (error) {
+    console.error('Error activating trip:', error);
+
+    if (error instanceof Error) {
+      res.status(500).json({
+        error: 'Internal server error',
+        message: 'Failed to activate trip',
+        details: error.message,
+      });
+    } else {
+      res.status(500).json({
+        error: 'Internal server error',
+        message: 'Failed to activate trip',
+        details: 'Unknown error occurred',
+      });
+    }
+  }
+});
+
+// POST /api/trips/:id/deactivate - 여행 비활성화
+router.post('/:id/deactivate', async (req: Request, res: Response) => {
+  try {
+    const tripId = req.params.id;
+    const userId = '01HZQ8K9X7M2N3P4Q5R6S7T8V9'; // 테스트용 ULID
+
+    // 여행 존재 여부 및 소유권 확인
+    const [trip] = await db
+      .select()
+      .from(trips)
+      .where(and(eq(trips.id, tripId), eq(trips.userId, userId)));
+
+    if (!trip) {
+      return res.status(404).json({
+        error: 'Not found',
+        message: 'Trip not found or you do not have permission to access it',
+      });
+    }
+
+    // 비활성화는 클라이언트에서 처리 (로컬 DB 정리)
+    // 서버는 단순히 알림만 받음
+
+    res.status(200).json({
+      success: true,
+      data: {
+        tripId,
+        deactivatedAt: new Date().toISOString(),
+      },
+      message: 'Trip deactivation acknowledged',
+    });
+  } catch (error) {
+    console.error('Error deactivating trip:', error);
+
+    if (error instanceof Error) {
+      res.status(500).json({
+        error: 'Internal server error',
+        message: 'Failed to deactivate trip',
+        details: error.message,
+      });
+    } else {
+      res.status(500).json({
+        error: 'Internal server error',
+        message: 'Failed to deactivate trip',
         details: 'Unknown error occurred',
       });
     }
