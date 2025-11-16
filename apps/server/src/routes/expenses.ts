@@ -7,6 +7,68 @@ import { expenseEntity } from '@repo/schema/entities/expense';
 
 const router = Router();
 
+// GET /api/expenses - 경비 조회 (Query Parameter 방식)
+router.get('/', async (req: Request, res: Response) => {
+  try {
+    const { tripId, scheduleId } = req.query;
+
+    // 조건 구성
+    const conditions = [isNull(expenses.deletedAt)];
+
+    if (tripId) {
+      conditions.push(eq(expenses.tripId, tripId as string));
+    }
+
+    if (scheduleId) {
+      conditions.push(eq(expenses.scheduleId, scheduleId as string));
+    }
+
+    // 경비 목록 조회
+    const expenseList = await db
+      .select()
+      .from(expenses)
+      .where(and(...conditions))
+      .orderBy(sql`${expenses.createdAt} DESC`);
+
+    // Zod로 응답 데이터 검증
+    const validatedExpenses = expenseList.map((expense) => {
+      const validated = expenseEntity.safeParse({
+        ...expense,
+        hasReceipt: expense.hasReceipt === 1,
+        date: expense.date.toISOString().split('T')[0],
+        createdAt: expense.createdAt.toISOString(),
+        updatedAt: expense.updatedAt.toISOString(),
+        deletedAt: expense.deletedAt?.toISOString() || null,
+      });
+
+      if (!validated.success) {
+        console.error('Expense validation error:', validated.error);
+        throw new Error('Invalid expense data');
+      }
+
+      return validated.data;
+    });
+
+    res.status(200).json(validatedExpenses);
+  } catch (error) {
+    console.error('Error fetching expenses:', error);
+
+    if (error instanceof Error) {
+      res.status(500).json({
+        error: 'Internal server error',
+        message: 'Failed to fetch expenses',
+        details: error.message,
+      });
+    } else {
+      res.status(500).json({
+        error: 'Internal server error',
+        message: 'Failed to fetch expenses',
+        details: 'Unknown error occurred',
+      });
+    }
+  }
+});
+
 // POST /api/expenses - 경비 생성
 router.post('/', async (req: Request, res: Response) => {
   try {
