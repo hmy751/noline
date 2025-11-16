@@ -2,14 +2,18 @@ import { useQuery } from '@tanstack/react-query';
 import { db, schedules } from '@/shared/db';
 import { isNull, eq, and } from 'drizzle-orm';
 import { scheduleQueryKeys } from './keys';
+import { routeQuery } from '@/shared/services/offline-prep';
+import axios from '@/shared/api/fetcher';
 
 /**
- * 여행의 일정 목록 조회 (Local-First)
+ * 여행의 일정 목록 조회 (라우팅 레이어 적용)
  *
- * 로컬 DB에서 일정 목록 조회
+ * - 활성화된 여행: 로컬 DB 조회
+ * - 비활성 여행: 서버 API 조회 (온라인 필수)
  * - deletedAt이 null인 항목만 조회 (Soft Delete)
- * - tripId로 필터링
  * - scheduledAt 기준 오름차순 정렬 (시간순)
+ *
+ * @param tripId - 여행 ID (필수)
  *
  * @example
  * ```tsx
@@ -20,17 +24,27 @@ export const useGetSchedules = (tripId: string) => {
   return useQuery({
     queryKey: scheduleQueryKeys.list(tripId),
     queryFn: async () => {
-      // 로컬 DB에서 조회 (삭제되지 않은 항목만, tripId 필터)
-      const scheduleList = await db
-        .select()
-        .from(schedules)
-        .where(and(isNull(schedules.deletedAt), eq(schedules.tripId, tripId)))
-        .orderBy(schedules.scheduledAt) // 시간순 정렬
-        .all();
+      return await routeQuery(tripId, {
+        // 로컬: 로컬 DB 조회
+        local: async () => {
+          const scheduleList = await db
+            .select()
+            .from(schedules)
+            .where(and(isNull(schedules.deletedAt), eq(schedules.tripId, tripId)))
+            .orderBy(schedules.scheduledAt)
+            .all();
 
-      console.log(`📋 Schedules loaded from local DB: ${scheduleList.length} items`);
+          console.log(`📋 Schedules loaded from local DB: ${scheduleList.length} items`);
+          return scheduleList;
+        },
 
-      return scheduleList;
+        // 원격: 서버 API 호출 (Query Parameter)
+        remote: async () => {
+          const response = await axios.get(`/api/schedules?tripId=${tripId}`);
+          console.log(`📋 Schedules loaded from server: ${response.data.data.length} items`);
+          return response.data.data; // { success: true, data: [...] } 구조
+        },
+      });
     },
     enabled: !!tripId,
     staleTime: 5 * 60 * 1000, // 5분
