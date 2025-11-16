@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { db, trips, tripActivations } from '@/shared/db';
+import { db, trips, tripActivations, schedules as schedulesTable, expenses as expensesTable } from '@/shared/db';
 import { eq, sql } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import axios from '@/shared/api/fetcher';
@@ -97,10 +97,38 @@ export const useActivateTrip = () => {
           updatedAt: now,
         });
 
-        // TODO: 4-5. Pull된 데이터 로컬 DB에 저장
-        // - schedules 데이터 저장
-        // - expenses 데이터 저장
-        // - 기존 데이터와 충돌 해결 (Last-Write-Wins)
+        // 4-5. Pull된 데이터 로컬 DB에 저장 (Last-Write-Wins)
+        if (schedules.length > 0) {
+          for (const schedule of schedules) {
+            await db
+              .insert(schedulesTable)
+              .values(schedule)
+              .onConflictDoUpdate({
+                target: schedulesTable.id,
+                set: {
+                  ...schedule,
+                  updatedAt: schedule.updatedAt,
+                },
+              });
+          }
+          console.log(`💾 Saved ${schedules.length} schedules to local DB`);
+        }
+
+        if (expenses.length > 0) {
+          for (const expense of expenses) {
+            await db
+              .insert(expensesTable)
+              .values(expense)
+              .onConflictDoUpdate({
+                target: expensesTable.id,
+                set: {
+                  ...expense,
+                  updatedAt: expense.updatedAt,
+                },
+              });
+          }
+          console.log(`💾 Saved ${expenses.length} expenses to local DB`);
+        }
       });
 
       console.log(`✅ Trip activated: ${tripId} (${schedules.length} schedules, ${expenses.length} expenses)`);

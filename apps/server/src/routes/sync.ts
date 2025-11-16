@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { db, trips, schedules, expenses } from '../db/index.js';
-import { gte } from 'drizzle-orm';
+import { gte, inArray, and } from 'drizzle-orm';
 import {
   syncPullQuerySchema,
   syncPullResponseSchema,
@@ -18,36 +18,57 @@ const router = Router();
  *
  * Query Parameters:
  * - lastSyncedAt: ISO 8601 날짜 문자열 (선택, 없으면 전체 데이터)
+ * - activatedTripIds: 활성화된 여행 ID 배열 (쉼표로 구분, 선택)
  *
  * Response:
  * {
- *   trips: Trip[],
- *   schedules: Schedule[],
- *   expenses: Expense[],
+ *   trips: Trip[], // 모든 여행 메타데이터
+ *   schedules: Schedule[], // 활성화된 여행의 일정만
+ *   expenses: Expense[], // 활성화된 여행의 경비만
  *   serverTime: string (ISO 8601)
  * }
  *
  * @example
- * GET /api/sync/pull?lastSyncedAt=2025-10-24T10:00:00.000Z
+ * GET /api/sync/pull?lastSyncedAt=2025-10-24T10:00:00.000Z&activatedTripIds=trip1,trip2
  */
 router.get('/pull', async (req: Request, res: Response) => {
   try {
-    const { lastSyncedAt } = req.query;
+    const { lastSyncedAt, activatedTripIds } = req.query;
 
     console.log('📥 [Sync Pull] Request received:', {
       lastSyncedAt: lastSyncedAt || 'Not provided (full sync)',
+      activatedTripIds: activatedTripIds || 'None (metadata only)',
     });
 
     // lastSyncedAt이 있으면 증분 동기화, 없으면 전체 동기화
     const sinceDate = lastSyncedAt ? new Date(lastSyncedAt as string) : new Date(0); // Epoch (1970-01-01) = 전체 데이터
 
-    // updatedAt >= sinceDate인 모든 레코드 조회
+    // 활성화된 여행 ID 배열 파싱
+    const activatedIds = activatedTripIds ? (activatedTripIds as string).split(',').filter((id) => id.trim()) : [];
+
+    console.log('📥 [Sync Pull] Activated trip IDs:', activatedIds);
+
+    // updatedAt >= sinceDate인 레코드 조회
+    // - trips: 모든 여행 (메타데이터)
+    // - schedules/expenses: 활성화된 여행만
     const [tripsData, schedulesData, expensesData] = await Promise.all([
       db.select().from(trips).where(gte(trips.updatedAt, sinceDate)).orderBy(trips.updatedAt),
 
-      db.select().from(schedules).where(gte(schedules.updatedAt, sinceDate)).orderBy(schedules.updatedAt),
+      activatedIds.length > 0
+        ? db
+            .select()
+            .from(schedules)
+            .where(and(gte(schedules.updatedAt, sinceDate), inArray(schedules.tripId, activatedIds)))
+            .orderBy(schedules.updatedAt)
+        : Promise.resolve([]),
 
-      db.select().from(expenses).where(gte(expenses.updatedAt, sinceDate)).orderBy(expenses.updatedAt),
+      activatedIds.length > 0
+        ? db
+            .select()
+            .from(expenses)
+            .where(and(gte(expenses.updatedAt, sinceDate), inArray(expenses.tripId, activatedIds)))
+            .orderBy(expenses.updatedAt)
+        : Promise.resolve([]),
     ]);
 
     console.log('📥 [Sync Pull] Sending data:', {
