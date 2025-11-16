@@ -128,6 +128,57 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
+// GET /api/schedules/:id - 특정 일정 조회
+router.get('/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // 일정 조회 (Soft Delete 제외)
+    const [schedule] = await db
+      .select()
+      .from(schedules)
+      .where(and(eq(schedules.id, id), isNull(schedules.deletedAt)))
+      .limit(1);
+
+    if (!schedule) {
+      return res.status(404).json({
+        error: 'Not found',
+        message: 'Schedule not found',
+      });
+    }
+
+    // ISO string으로 변환
+    const validatedSchedule = {
+      ...schedule,
+      scheduledAt: schedule.scheduledAt.toISOString(),
+      createdAt: schedule.createdAt.toISOString(),
+      updatedAt: schedule.updatedAt.toISOString(),
+      deletedAt: schedule.deletedAt?.toISOString() || null,
+    };
+
+    res.status(200).json({
+      success: true,
+      data: validatedSchedule,
+    });
+  } catch (error) {
+    console.error('Error fetching schedule:', error);
+
+    if (error instanceof Error) {
+      res.status(500).json({
+        error: 'Internal server error',
+        message: 'Failed to fetch schedule',
+        details: error.message,
+      });
+    } else {
+      res.status(500).json({
+        error: 'Internal server error',
+        message: 'Failed to fetch schedule',
+        details: 'Unknown error occurred',
+      });
+    }
+  }
+});
+
 // PUT /api/schedules/:id - 일정 수정
 router.put('/:id', async (req: Request, res: Response) => {
   try {

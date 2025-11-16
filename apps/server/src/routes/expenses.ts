@@ -142,6 +142,63 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
+// GET /api/expenses/:id - 특정 경비 조회
+router.get('/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // 경비 조회 (Soft Delete 제외)
+    const [expense] = await db
+      .select()
+      .from(expenses)
+      .where(and(eq(expenses.id, id), isNull(expenses.deletedAt)))
+      .limit(1);
+
+    if (!expense) {
+      return res.status(404).json({
+        error: 'Not found',
+        message: 'Expense not found',
+      });
+    }
+
+    // Zod로 응답 데이터 검증
+    const validated = expenseEntity.safeParse({
+      ...expense,
+      hasReceipt: expense.hasReceipt === 1, // integer → boolean
+      date: expense.date.toISOString().split('T')[0], // Date → ISO date string
+      createdAt: expense.createdAt.toISOString(),
+      updatedAt: expense.updatedAt.toISOString(),
+      deletedAt: expense.deletedAt?.toISOString() || null,
+    });
+
+    if (!validated.success) {
+      console.error('Expense validation error:', validated.error);
+      throw new Error('Invalid expense data');
+    }
+
+    res.status(200).json({
+      success: true,
+      data: validated.data,
+    });
+  } catch (error) {
+    console.error('Error fetching expense:', error);
+
+    if (error instanceof Error) {
+      res.status(500).json({
+        error: 'Internal server error',
+        message: 'Failed to fetch expense',
+        details: error.message,
+      });
+    } else {
+      res.status(500).json({
+        error: 'Internal server error',
+        message: 'Failed to fetch expense',
+        details: 'Unknown error occurred',
+      });
+    }
+  }
+});
+
 // PUT /api/expenses/:id - 경비 수정
 router.put('/:id', async (req: Request, res: Response) => {
   try {
