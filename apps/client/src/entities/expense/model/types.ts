@@ -30,7 +30,8 @@ export type DeleteExpenseResponse = z.infer<typeof deleteExpenseResponse>;
 // ========================================
 // Alias (backward compatibility)
 // ========================================
-export type ExpenseData = ExpenseResponse;
+// ExpenseData는 로컬 DB에서 사용하는 expenseEntity 타입
+export type ExpenseData = Expense;
 
 // ========================================
 // UI Constants (클라이언트 전용)
