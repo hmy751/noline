@@ -27,7 +27,6 @@ export const useActivateTrip = () => {
   return useMutation({
     mutationFn: async (tripId: string) => {
       const now = getCurrentISOString();
-
       // 1. 여행 정보 조회
       const trip = await db.select().from(trips).where(eq(trips.id, tripId)).get();
 
@@ -43,7 +42,8 @@ export const useActivateTrip = () => {
 
       // 3. 서버에서 여행 데이터 Pull (일정, 경비 등)
       const response = await axios.post(`/api/trips/${tripId}/activate`);
-      const { schedules = [], expenses = [] } = response.data.data;
+
+      const { schedules = [], expenses = [] } = response.data;
 
       // 4. 트랜잭션: 로컬 DB 업데이트
       await withTransaction(async () => {

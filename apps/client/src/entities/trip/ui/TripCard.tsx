@@ -1,6 +1,7 @@
-import { View, Text, type ViewProps } from 'react-native';
+import { View, Text, type ViewProps, TouchableOpacity } from 'react-native';
 import { cn } from '@repo/ui';
-import { Calendar } from 'lucide-react-native';
+import { Calendar, Download } from 'lucide-react-native';
+import { ActivationBadge, type ActivationStatus } from './ActivationBadge';
 
 /**
  * ✅ CURRENCY_POLICY: 통화별 경비 그룹
@@ -18,6 +19,9 @@ interface TripCardProps extends ViewProps {
   scheduleCount?: number;
   // ✅ CURRENCY_POLICY: 통화별 경비 그룹 (주 통화 + 추가 통화)
   expensesByCurrency?: CurrencyGroup[];
+  // ✅ 활성화 시스템 관련
+  activationStatus?: ActivationStatus;
+  onActivatePress?: () => void;
   className?: string;
 }
 
@@ -28,6 +32,8 @@ export function TripCard({
   endDate,
   scheduleCount,
   expensesByCurrency = [],
+  activationStatus = 'online',
+  onActivatePress,
   className,
   ...props
 }: TripCardProps) {
@@ -48,9 +54,14 @@ export function TripCard({
       }}
       {...props}
     >
+      {/* Activation Badge - 우측 상단 */}
+      <View className='absolute right-md top-md z-10'>
+        <ActivationBadge status={activationStatus} />
+      </View>
+
       {/* Title and Date */}
       <View className='mb-md flex-col gap-2xs'>
-        <Text className='text-display-medium text-primary-foreground'>
+        <Text className='text-display-medium text-primary-foreground pr-24'>
           {destination}, {country}
         </Text>
         <View className='flex-row items-center gap-xs'>
@@ -91,6 +102,21 @@ export function TripCard({
           )}
         </View>
       </View>
+
+      {/* 활성화 버튼 - 비활성 상태일 때만 표시 */}
+      {activationStatus === 'online' && onActivatePress && (
+        <>
+          <View className='my-sm h-px bg-primary-foreground/20' />
+          <TouchableOpacity
+            onPress={onActivatePress}
+            className='flex-row items-center justify-center gap-sm rounded-lg bg-primary-foreground/10 py-sm'
+            activeOpacity={0.7}
+          >
+            <Download size={18} color='rgba(245, 251, 245, 0.9)' strokeWidth={2} />
+            <Text className='text-body-bold text-primary-foreground'>오프라인 준비하기</Text>
+          </TouchableOpacity>
+        </>
+      )}
     </View>
   );
 }

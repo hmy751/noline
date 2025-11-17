@@ -3,11 +3,21 @@ import { router } from 'expo-router';
 import { Container, Stack, ScheduleCard, MobileHeader } from '@/shared/components';
 import { Pressable } from '@repo/ui';
 import { ChevronRight, Plus, MoreVertical, Edit3 } from 'lucide-react-native';
-import { useGetTrips, selectMainTrip, useDeleteTrip, TripCard, type TripData } from '@/entities/trip';
-import { useGetExpenses } from '@/entities/expense';
+import {
+  useGetTrips,
+  selectMainTrip,
+  useDeleteTrip,
+  TripCard,
+  type TripData,
+  useActivateTrip,
+  ActivationProgressDrawer,
+  type ProgressItem,
+  type ActivationStatus,
+} from '@/entities/trip';
+import { useGetAllExpenses } from '@/entities/expense';
 import { groupExpensesByCurrency } from '@/shared/lib/currency';
 import { EditTripDrawer, TripMenu } from '@/features/trip/update-trip';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Alert } from 'react-native';
 
 export default function HomeScreen() {
@@ -20,7 +30,13 @@ export default function HomeScreen() {
     { x: number; y: number; width: number; height: number } | undefined
   >(undefined);
 
+  // 활성화 관련 상태
+  const [isActivationProgressOpen, setIsActivationProgressOpen] = useState(false);
+  const [activationProgress, setActivationProgress] = useState<ProgressItem[]>([]);
+  const [activatingTripName, setActivatingTripName] = useState('');
+
   const { mutate: deleteTrip } = useDeleteTrip();
+  const { mutate: activateTrip } = useActivateTrip();
 
   // 날짜 포맷팅 함수
   const formatDate = (dateString: string | null) => {
@@ -33,7 +49,7 @@ export default function HomeScreen() {
   const mainTripData = selectMainTrip(allTrips || []);
 
   // ✅ CURRENCY_POLICY: 메인 여행의 경비 조회
-  const { data: mainTripExpenses = [] } = useGetExpenses(mainTripData?.id ? { tripId: mainTripData.id } : undefined);
+  const { data: mainTripExpenses = [] } = useGetAllExpenses(mainTripData?.id ? { tripId: mainTripData.id } : undefined);
 
   // ✅ CURRENCY_POLICY: 통화별 경비 그룹핑 (금액 기준 내림차순)
   const expensesByCurrency = useMemo(() => groupExpensesByCurrency(mainTripExpenses), [mainTripExpenses]);
@@ -58,6 +74,124 @@ export default function HomeScreen() {
     setEditingOtherTrip(trip);
     setIsEditDrawerOpen(true);
   };
+
+  // 활성화 상태 가져오기
+  const getActivationStatus = (trip: TripData | null): ActivationStatus => {
+    if (!trip) return 'online';
+
+    // tripActivations에서 확인해야 하지만, 일단 activated 필드로 판단
+    if (trip.activated) {
+      // mapDownloaded 필드가 있다면 'ready', 없으면 'preparing'
+      // 여기서는 단순화를 위해 activated면 ready로 표시
+      return 'ready';
+    }
+    return 'online';
+  };
+
+  // 여행 활성화 핸들러
+  const handleActivateTrip = useCallback(
+    (tripId: string, tripName: string) => {
+      Alert.alert(
+        '오프라인 준비',
+        `"${tripName}" 여행을 오프라인에서 사용할 수 있도록 준비하시겠습니까?\n\n일정, 경비, 오프라인 지도를 다운로드합니다.`,
+        [
+          {
+            text: '취소',
+            style: 'cancel',
+          },
+          {
+            text: '준비하기',
+            onPress: () => {
+              setActivatingTripName(tripName);
+
+              // 초기 진행 상태 설정
+              const initialProgress: ProgressItem[] = [
+                { id: 'activate', label: '여행 활성화 중...', status: 'loading' },
+                { id: 'schedules', label: '일정 다운로드', status: 'pending' },
+                { id: 'expenses', label: '경비 다운로드', status: 'pending' },
+                { id: 'map', label: '오프라인 지도 준비', status: 'pending' },
+              ];
+
+              setActivationProgress(initialProgress);
+              setIsActivationProgressOpen(true);
+
+              // 활성화 실행
+              activateTrip(tripId, {
+                onSuccess: () => {
+                  // 순차적으로 상태 업데이트 시뮬레이션
+                  setTimeout(() => {
+                    setActivationProgress((prev) =>
+                      prev.map((item) => {
+                        console.log('🔥', prev);
+
+                        return item.id === 'activate'
+                          ? { ...item, status: 'success' as const, label: '여행 활성화 완료!' }
+                          : item;
+                      }),
+                    );
+                  }, 500);
+
+                  setTimeout(() => {
+                    setActivationProgress((prev) =>
+                      prev.map((item) => (item.id === 'schedules' ? { ...item, status: 'loading' as const } : item)),
+                    );
+                  }, 1000);
+
+                  setTimeout(() => {
+                    setActivationProgress((prev) =>
+                      prev.map((item) =>
+                        item.id === 'schedules'
+                          ? { ...item, status: 'success' as const, label: '일정 다운로드 완료!' }
+                          : item,
+                      ),
+                    );
+                    setActivationProgress((prev) =>
+                      prev.map((item) => (item.id === 'expenses' ? { ...item, status: 'loading' as const } : item)),
+                    );
+                  }, 2000);
+
+                  setTimeout(() => {
+                    setActivationProgress((prev) =>
+                      prev.map((item) =>
+                        item.id === 'expenses'
+                          ? { ...item, status: 'success' as const, label: '경비 다운로드 완료!' }
+                          : item,
+                      ),
+                    );
+                    setActivationProgress((prev) =>
+                      prev.map((item) => (item.id === 'map' ? { ...item, status: 'loading' as const } : item)),
+                    );
+                  }, 3000);
+
+                  setTimeout(() => {
+                    setActivationProgress((prev) =>
+                      prev.map((item) =>
+                        item.id === 'map'
+                          ? { ...item, status: 'success' as const, label: '오프라인 지도 준비 완료!' }
+                          : item,
+                      ),
+                    );
+                  }, 4500);
+                },
+                onError: (error) => {
+                  console.error('활성화 실패:', error);
+                  setActivationProgress((prev) =>
+                    prev.map((item) => {
+                      if (item.status === 'loading') {
+                        return { ...item, status: 'error' as const, error: '활성화에 실패했습니다.' };
+                      }
+                      return item;
+                    }),
+                  );
+                },
+              });
+            },
+          },
+        ],
+      );
+    },
+    [activateTrip],
+  );
 
   // 다른 여행 삭제 핸들러
   const handleDeleteOtherTrip = (trip: TripData) => {
@@ -121,9 +255,15 @@ export default function HomeScreen() {
                 <Text className='text-body text-muted-foreground text-center'>여행 정보를 불러올 수 없습니다.</Text>
               </View>
             )}
-            {!isLoading && !isError && mainTrip && (
+            {!isLoading && !isError && mainTrip && mainTripData && (
               <View className='relative'>
-                <TripCard {...mainTrip} />
+                <TripCard
+                  {...mainTrip}
+                  activationStatus={getActivationStatus(mainTripData)}
+                  onActivatePress={
+                    mainTripData.activated ? undefined : () => handleActivateTrip(mainTripData.id, mainTrip.destination)
+                  }
+                />
                 {/* Edit Button */}
                 <Pressable
                   className='absolute right-sm top-sm rounded-full p-2xs'
@@ -238,6 +378,14 @@ export default function HomeScreen() {
         onEdit={() => selectedTrip && handleEditOtherTrip(selectedTrip)}
         onDelete={() => selectedTrip && handleDeleteOtherTrip(selectedTrip)}
         buttonPosition={buttonPosition}
+      />
+
+      {/* Activation Progress Drawer */}
+      <ActivationProgressDrawer
+        isOpen={isActivationProgressOpen}
+        onClose={() => setIsActivationProgressOpen(false)}
+        title={`${activatingTripName} 오프라인 준비`}
+        items={activationProgress}
       />
     </View>
   );
