@@ -3,5 +3,6 @@
  * 오프라인 지도 관련 서비스
  */
 
-export { cleanupExpiredOfflineMaps } from './cleanup';
+export { cleanupExpiredOfflineMaps, cleanupOfflineMapForTrip } from './cleanup';
 export { useOfflineMapCleanup } from './useOfflineMapCleanup';
+export { downloadOfflineMapInBackground } from './download';

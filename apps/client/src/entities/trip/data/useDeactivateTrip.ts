@@ -4,6 +4,7 @@ import { eq, sql } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import axios from '@/shared/api/fetcher';
 import { tripQueryKeys } from './keys';
+import { cleanupOfflineMapForTrip } from '@/shared/services/offline-map';
 
 /**
  * 여행 비활성화 Mutation Hook
@@ -73,6 +74,16 @@ export const useDeactivateTrip = () => {
           console.log(`🗑️ Local data cleaned up for trip: ${tripId}`);
         }
       });
+
+      // 3-4. 오프라인 지도 정리 (선택적, 트랜잭션 외부에서 실행)
+      if (cleanupData) {
+        try {
+          await cleanupOfflineMapForTrip(tripId);
+        } catch (error) {
+          console.error(`⚠️ Failed to cleanup offline map (ignored):`, error);
+          // 지도 정리 실패해도 비활성화는 성공으로 처리
+        }
+      }
 
       // 4. 서버에 비활성화 알림 (선택적, 실패해도 무시)
       try {

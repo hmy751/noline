@@ -5,6 +5,7 @@ import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import axios from '@/shared/api/fetcher';
 import { tripQueryKeys } from './keys';
 import { ulid } from 'ulid';
+import { downloadOfflineMapInBackground } from '@/shared/services/offline-map/download';
 
 /**
  * 여행 활성화 Mutation Hook
@@ -132,6 +133,11 @@ export const useActivateTrip = () => {
       });
 
       console.log(`✅ Trip activated: ${tripId} (${schedules.length} schedules, ${expenses.length} expenses)`);
+
+      // 백그라운드로 오프라인 지도 다운로드 시작 (비동기, UI 블로킹 방지)
+      downloadOfflineMapInBackground(tripId).catch((error) => {
+        console.error('❌ Background map download failed:', error);
+      });
 
       return { tripId, alreadyActivated: false, schedules, expenses };
     },
