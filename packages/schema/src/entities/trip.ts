@@ -29,4 +29,7 @@ export const tripEntity = z.object({
   cityId: z.number().nullable(),
   startDate: z.string().datetime({ offset: true }),
   endDate: z.string().datetime({ offset: true }),
+
+  // 활성화 시스템 필드
+  activated: z.boolean().default(false),
 });
