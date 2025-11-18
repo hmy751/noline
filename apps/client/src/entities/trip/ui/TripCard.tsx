@@ -1,6 +1,6 @@
 import { View, Text, type ViewProps, TouchableOpacity } from 'react-native';
-import { cn } from '@repo/ui';
-import { Calendar, Download } from 'lucide-react-native';
+import { cn, Pressable } from '@repo/ui';
+import { Calendar, Download, Edit3 } from 'lucide-react-native';
 import { ActivationBadge, type ActivationStatus } from './ActivationBadge';
 
 /**
@@ -22,6 +22,7 @@ interface TripCardProps extends ViewProps {
   // ✅ 활성화 시스템 관련
   activationStatus?: ActivationStatus;
   onActivatePress?: () => void;
+  onEditPress?: () => void;
   className?: string;
 }
 
@@ -34,6 +35,7 @@ export function TripCard({
   expensesByCurrency = [],
   activationStatus = 'online',
   onActivatePress,
+  onEditPress,
   className,
   ...props
 }: TripCardProps) {
@@ -54,21 +56,29 @@ export function TripCard({
       }}
       {...props}
     >
-      {/* Activation Badge - 우측 상단 */}
-      <View className='absolute right-md top-md z-10'>
-        <ActivationBadge status={activationStatus} />
-      </View>
-
-      {/* Title and Date */}
-      <View className='mb-md flex-col gap-2xs'>
-        <Text className='text-display-medium text-primary-foreground pr-24'>
-          {destination}, {country}
-        </Text>
-        <View className='flex-row items-center gap-xs'>
-          <Calendar size={16} color='rgba(245, 251, 245, 0.9)' strokeWidth={2} />
-          <Text className='text-body text-primary-foreground/90'>
-            {startDate} - {endDate}
+      {/* Header Section */}
+      <View className='mb-md flex-row items-start justify-between'>
+        {/* Left: Title and Date */}
+        <View className='flex-col gap-2xs flex-1'>
+          <Text className='text-display-medium text-primary-foreground'>
+            {destination}, {country}
           </Text>
+          <View className='flex-row items-center gap-xs'>
+            <Calendar size={16} color='rgba(245, 251, 245, 0.9)' strokeWidth={2} />
+            <Text className='text-body text-primary-foreground/90'>
+              {startDate} - {endDate}
+            </Text>
+          </View>
+        </View>
+
+        {/* Right: Controls (편집 버튼 + 활성화 배지) */}
+        <View className='flex-col items-end gap-xs ml-sm'>
+          {onEditPress && (
+            <Pressable className='p-2xs' onPress={onEditPress}>
+              <Edit3 size={20} color='rgba(245, 251, 245, 0.9)' strokeWidth={1.5} />
+            </Pressable>
+          )}
+          <ActivationBadge status={activationStatus} />
         </View>
       </View>
 
