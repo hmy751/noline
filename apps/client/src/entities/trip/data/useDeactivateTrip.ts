@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { db, trips, tripActivations, schedules, expenses } from '@/shared/db';
-import { eq, sql } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import axios from '@/shared/api/fetcher';
 import { tripQueryKeys } from './keys';
@@ -9,9 +9,9 @@ import { cleanupOfflineMapForTrip } from '@/shared/services/offline-map';
 /**
  * 여행 비활성화 Mutation Hook
  *
- * - trips.activated = false 설정
- * - tripActivations 레코드 업데이트
+ * - tripActivations 레코드 업데이트 (isActivated = false)
  * - 로컬 데이터 정리 (선택적 - cleanupData 파라미터)
+ * - 오프라인 지도 삭제
  * - 서버에 비활성화 알림 (선택적)
  *
  * @example
@@ -34,25 +34,21 @@ export const useDeactivateTrip = () => {
         throw new Error(`Trip not found: ${tripId}`);
       }
 
-      // 2. 이미 비활성화된 경우 스킵
-      if (!trip.activated) {
+      // 2. 이미 비활성화된 경우 스킵 (tripActivations 테이블 확인)
+      const existingActivation = await db
+        .select()
+        .from(tripActivations)
+        .where(eq(tripActivations.tripId, tripId))
+        .get();
+
+      if (!existingActivation?.isActivated) {
         console.log(`✅ Trip already deactivated: ${tripId}`);
         return { tripId, alreadyDeactivated: true };
       }
 
       // 3. 트랜잭션: 로컬 DB 업데이트
       await withTransaction(async () => {
-        // 3-1. 여행 비활성화
-        await db
-          .update(trips)
-          .set({
-            activated: false,
-            updatedAt: now,
-            version: sql`${trips.version} + 1`,
-          })
-          .where(eq(trips.id, tripId));
-
-        // 3-2. 활성화 레코드 업데이트
+        // 3-1. 활성화 레코드 업데이트 (tripActivations만 사용)
         await db
           .update(tripActivations)
           .set({

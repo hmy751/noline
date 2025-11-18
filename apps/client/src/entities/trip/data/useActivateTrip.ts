@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { db, trips, tripActivations, schedules as schedulesTable, expenses as expensesTable } from '@/shared/db';
-import { eq, sql } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import axios from '@/shared/api/fetcher';
 import { tripQueryKeys } from './keys';
@@ -11,10 +11,10 @@ import { generateId } from '@/shared/services/id/ulid';
 /**
  * 여행 활성화 Mutation Hook
  *
- * - 서버에서 여행 데이터 Pull (일정, 경비 등)
- * - trips.activated = true 설정
- * - tripActivations 레코드 생성
+ * - 서버에서 모든 Trip 메타데이터 + 선택한 여행의 데이터 Pull (일정, 경비 등)
+ * - tripActivations 레코드 생성 (Single Source of Truth)
  * - 동시에 1개 여행만 활성화 가능 (기존 활성화된 여행 자동 비활성화)
+ * - 오프라인 지도 다운로드 백그라운드 실행
  *
  * @example
  * ```tsx
@@ -35,8 +35,14 @@ export const useActivateTrip = () => {
         throw new Error(`Trip not found: ${tripId}`);
       }
 
-      // 2. 이미 활성화된 경우 스킵
-      if (trip.activated) {
+      // 2. 이미 활성화된 경우 스킵 (tripActivations 테이블 확인)
+      const existingActivation = await db
+        .select()
+        .from(tripActivations)
+        .where(eq(tripActivations.tripId, tripId))
+        .get();
+
+      if (existingActivation?.isActivated) {
         console.log(`✅ Trip already activated: ${tripId}`);
         return { tripId, alreadyActivated: true };
       }
@@ -65,16 +71,7 @@ export const useActivateTrip = () => {
           console.log(`💾 Saved ${allTrips.length} trips to local DB`);
         }
 
-        // 4-2. 기존 활성화된 여행 비활성화 (1-Trip 제한)
-        await db
-          .update(trips)
-          .set({
-            activated: false,
-            updatedAt: now,
-          })
-          .where(eq(trips.activated, true));
-
-        // 4-3. 기존 활성화 레코드 비활성화
+        // 4-2. 기존 활성화 레코드 비활성화 (1-Trip 제한, tripActivations만 사용)
         await db
           .update(tripActivations)
           .set({
@@ -83,16 +80,6 @@ export const useActivateTrip = () => {
             updatedAt: now,
           })
           .where(eq(tripActivations.isActivated, true));
-
-        // 4-4. 현재 여행 활성화
-        await db
-          .update(trips)
-          .set({
-            activated: true,
-            updatedAt: now,
-            version: sql`${trips.version} + 1`,
-          })
-          .where(eq(trips.id, tripId));
 
         // 4-5. 활성화 레코드 생성
         const expiresAt = new Date(trip.endDate);

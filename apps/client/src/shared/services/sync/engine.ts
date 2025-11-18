@@ -3,7 +3,7 @@ import { getPendingTasks, deleteTask, updateTaskStatus } from './queue';
 import { getLastSyncedAt, setLastSyncedAt } from './storage';
 import { upsertTrips, upsertSchedules, upsertExpenses } from '@/shared/db/utils';
 import { queryClient } from '@/shared/lib/queryClient';
-import { db, trips } from '@/shared/db';
+import { db, tripActivations } from '@/shared/db';
 import { eq } from 'drizzle-orm';
 
 /**
@@ -92,9 +92,12 @@ export async function pullChanges(): Promise<void> {
     // 1. 마지막 동기화 시간 조회
     const lastSyncedAt = await getLastSyncedAt();
 
-    // 2. 활성화된 여행 ID 조회
-    const activatedTrips = await db.select({ id: trips.id }).from(trips).where(eq(trips.activated, true));
-    const activatedTripIds = activatedTrips.map((trip) => trip.id);
+    // 2. 활성화된 여행 ID 조회 (tripActivations 테이블 사용)
+    const activatedTrips = await db
+      .select({ tripId: tripActivations.tripId })
+      .from(tripActivations)
+      .where(eq(tripActivations.isActivated, true));
+    const activatedTripIds = activatedTrips.map((activation) => activation.tripId);
 
     console.log('📥 [Sync] Starting pull...', {
       lastSyncedAt: lastSyncedAt?.toISOString() || 'Never synced (초기 동기화)',

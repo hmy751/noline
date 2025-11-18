@@ -29,9 +29,6 @@ export const trips = sqliteTable('trips', {
   // Local-First 필드
   deletedAt: text('deleted_at'), // ISO string
   version: integer('version').default(1).notNull(),
-
-  // 활성화 시스템 필드
-  activated: integer('activated', { mode: 'boolean' }).notNull().default(false),
 });
 
 // ========================================
