@@ -4,7 +4,8 @@ import axios from 'axios';
 export interface City {
   id: number;
   name: string;
-  country: string;
+  country: string; // 국가명 (한글 또는 영어)
+  countryCode: string; // ISO 국가 코드 (KR, JP, US, etc.)
   latitude: number;
   longitude: number;
 }
@@ -13,6 +14,7 @@ interface Geoname {
   geonameId: number;
   name: string;
   countryName: string;
+  countryCode: string; // ISO 3166-1 alpha-2 (KR, JP, US, etc.)
   lat: string;
   lng: string;
   fcode: string;
@@ -57,6 +59,7 @@ export const searchCities = async (namePrefix: string): Promise<City[]> => {
       id: item.geonameId,
       name: item.name,
       country: item.countryName,
+      countryCode: item.countryCode,
       latitude: parseFloat(item.lat),
       longitude: parseFloat(item.lng),
     }));

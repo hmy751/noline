@@ -22,6 +22,7 @@ router.get('/', async (req: Request, res: Response) => {
         name: trips.name,
         destination: trips.destination,
         country: trips.country,
+        baseCurrency: trips.baseCurrency,
         latitude: trips.latitude,
         longitude: trips.longitude,
         cityId: trips.cityId,
@@ -96,7 +97,7 @@ router.post('/', async (req: Request, res: Response) => {
       });
     }
 
-    const { id, userId, name, destination, country, latitude, longitude, cityId, startDate, endDate } =
+    const { id, userId, name, destination, country, baseCurrency, latitude, longitude, cityId, startDate, endDate } =
       validationResult.data;
 
     const start = new Date(startDate);
@@ -126,6 +127,7 @@ router.post('/', async (req: Request, res: Response) => {
         name,
         destination,
         country: country || null,
+        baseCurrency: baseCurrency || 'USD', // 기본값: USD
         latitude: latitude ? latitude.toString() : null,
         longitude: longitude ? longitude.toString() : null,
         cityId: cityId || null,
@@ -201,7 +203,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       });
     }
 
-    const { name, destination, country, startDate, endDate } = validationResult.data;
+    const { name, destination, country, baseCurrency, startDate, endDate } = validationResult.data;
 
     // 여행 존재 여부 및 소유권 확인
     const [existingTrip] = await db
@@ -225,6 +227,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (name !== undefined) updateData.name = name;
     if (destination !== undefined) updateData.destination = destination;
     if (country !== undefined) updateData.country = country;
+    if (baseCurrency !== undefined) updateData.baseCurrency = baseCurrency;
 
     if (startDate !== undefined) {
       if (startDate === null) {
@@ -431,10 +434,7 @@ router.post('/:id/activate', async (req: Request, res: Response) => {
     }
 
     // 모든 Trip 조회 (활성화 시 모든 Trip 메타데이터 전송)
-    const allTrips = await db
-      .select()
-      .from(trips)
-      .where(eq(trips.userId, userId));
+    const allTrips = await db.select().from(trips).where(eq(trips.userId, userId));
 
     // 여행의 모든 일정 조회 (Soft Delete 제외)
     const tripSchedules = await db

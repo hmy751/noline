@@ -37,7 +37,15 @@ export const useUpdateTrip = () => {
         local: async () => {
           // 활성화된 Trip → 로컬 DB 수정 + sync_queue
           await withTransaction(async () => {
-            await db.update(trips).set({ ...data, updatedAt: getCurrentISOString(), version: sql`${trips.version} + 1` }).where(eq(trips.id, id));
+            // Convert latitude/longitude from number to string for DB
+            const dbData = {
+              ...data,
+              latitude: data.latitude?.toString() ?? null,
+              longitude: data.longitude?.toString() ?? null,
+              updatedAt: getCurrentISOString(),
+              version: sql`${trips.version} + 1`,
+            };
+            await db.update(trips).set(dbData).where(eq(trips.id, id));
             await addToSyncQueue('trips', id, 'UPDATE', data);
           });
           console.log(`✅ Trip updated locally: ${id}`);

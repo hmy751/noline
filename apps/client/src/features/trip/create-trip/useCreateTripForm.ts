@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router';
 import { City } from './geonames.api';
 import { generateId } from '@/shared/services/id/ulid';
 import { dateToISODateTime } from '@/shared/lib/datetime';
+import { getCurrencyByCountryCode } from '@/shared/lib/country-currency';
 
 // Zod 스키마로 폼 검증 정의
 const tripFormSchema = z
@@ -72,6 +73,7 @@ export const useCreateTripForm = (city: City) => {
         name: `${city.name} 여행`,
         destination: city.name,
         country: city.country,
+        baseCurrency: getCurrencyByCountryCode(city.countryCode),
         latitude: city.latitude,
         longitude: city.longitude,
         cityId: city.id,
