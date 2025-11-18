@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { db, expenses, schedules } from '@/shared/db';
 import { isNull, desc, eq, and } from 'drizzle-orm';
 import { expenseQueryKeys } from './keys';
-import { routeQuery } from '@/shared/services/offline-prep';
+import { routeChildQuery } from '@/shared/services/offline-prep/router';
 import axios from '@/shared/api/fetcher';
 
 /**
@@ -39,7 +39,7 @@ export const useGetScheduleExpenses = (scheduleId: string) => {
       const tripId = schedule.tripId;
 
       // 2. tripId로 라우팅 레이어 적용
-      return await routeQuery(tripId, {
+      return await routeChildQuery(tripId, {
         // 로컬: 로컬 DB 조회
         local: async () => {
           const conditions = [isNull(expenses.deletedAt), eq(expenses.scheduleId, scheduleId)];

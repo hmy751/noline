@@ -4,7 +4,7 @@ import { eq, sql } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
 import { scheduleQueryKeys } from './keys';
-import { routeMutation } from '@/shared/services/offline-prep';
+import { routeChildMutation } from '@/shared/services/offline-prep/router';
 import axios from '@/shared/api/fetcher';
 
 /**
@@ -49,7 +49,7 @@ export const useUpdateSchedule = () => {
         throw new Error(`Schedule not found: ${id}`);
       }
 
-      return await routeMutation(schedule.tripId, {
+      return await routeChildMutation(schedule.tripId, {
         // 로컬: 로컬 DB 업데이트 + sync_queue 기록
         local: async () => {
           // 트랜잭션: 로컬 DB 업데이트 + sync_queue 기록

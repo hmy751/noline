@@ -1,19 +1,28 @@
-import { db, trips } from '@/shared/db';
+import { db, trips, tripActivations } from '@/shared/db';
 import { eq } from 'drizzle-orm';
 
 /**
- * 여행의 활성화 상태 조회
- * - trips 테이블의 activated 필드 확인
- * - 라우팅 레이어에서 사용
+ * 특정 여행의 활성화 상태 조회
+ * - tripActivations 테이블 확인 (Single Source of Truth)
+ * - Schedule/Expense 라우팅에서 사용
  */
 export async function getTripActivationStatus(tripId: string): Promise<boolean> {
-  const trip = await db.select({ activated: trips.activated }).from(trips).where(eq(trips.id, tripId)).get();
+  const activation = await db.select().from(tripActivations).where(eq(tripActivations.tripId, tripId)).get();
 
-  if (!trip) {
-    throw new Error(`Trip not found: ${tripId}`);
-  }
+  // tripActivations에 레코드가 있으면 활성화
+  return !!activation;
+}
 
-  return trip.activated;
+/**
+ * 활성화된 여행이 하나라도 있는지 확인
+ * - tripActivations 테이블 확인
+ * - Trip 자체 라우팅에서 사용
+ */
+export async function hasAnyActivatedTrip(): Promise<boolean> {
+  const activation = await db.select().from(tripActivations).limit(1).all();
+
+  // tripActivations에 레코드가 하나라도 있으면 true
+  return activation.length > 0;
 }
 
 /**

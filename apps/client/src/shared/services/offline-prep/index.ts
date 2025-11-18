@@ -6,4 +6,4 @@
 
 export { OfflineError, isOfflineError, type OfflineErrorOptions } from './errors';
 export { getTripActivationStatus, getTripMetadata } from './metadata';
-export { routeQuery, routeMutation } from './router';
+export { routeTripQuery, routeChildQuery, routeTripMutation, routeChildMutation } from './router';

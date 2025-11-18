@@ -4,7 +4,7 @@ import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
 import type { CreateExpenseRequest } from '../model';
 import { expenseQueryKeys } from './keys';
-import { routeMutation } from '@/shared/services/offline-prep';
+import { routeChildMutation } from '@/shared/services/offline-prep/router';
 import axios from '@/shared/api/fetcher';
 
 /**
@@ -58,7 +58,7 @@ export const useCreateExpense = () => {
       };
 
       // 라우팅 레이어 적용
-      return await routeMutation(data.tripId, {
+      return await routeChildMutation(data.tripId, {
         // 로컬: 기존 로직 (트랜잭션)
         local: async () => {
           await withTransaction(async () => {

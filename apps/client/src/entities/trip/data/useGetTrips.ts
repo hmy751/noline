@@ -1,12 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 import { db, trips } from '@/shared/db';
 import { isNull, desc } from 'drizzle-orm';
+import { routeTripQuery } from '@/shared/services/offline-prep/router';
+import axios from '@/shared/api/fetcher';
 import { tripQueryKeys } from './keys';
 
 /**
- * 전체 여행을 조회하는 React Query 훅 (Local-First)
+ * 전체 여행을 조회하는 React Query 훅 (Router 적용)
  *
- * 로컬 DB에서 여행 목록 조회
+ * 활성화 여부에 따라 로컬/서버 분기:
+ * - 활성화된 Trip 있음: 로컬 DB 조회
+ * - 비활성 상태: 서버 API 조회
  * - deletedAt이 null인 항목만 조회 (Soft Delete)
  * - updatedAt 기준 내림차순 정렬
  *
@@ -19,19 +23,28 @@ export const useGetTrips = () => {
   return useQuery({
     queryKey: tripQueryKeys.all(),
     queryFn: async () => {
-      // 로컬 DB에서 조회 (삭제되지 않은 항목만)
-      const tripList = await db
-        .select()
-        .from(trips)
-        .where(isNull(trips.deletedAt))
-        .orderBy(desc(trips.updatedAt))
-        .all();
-
-      console.log(`📋 Trips loaded from local DB: ${tripList.length} items`);
-
-      return tripList;
+      // Router를 통한 Trip 조회 (활성화된 Trip이 있으면 local, 없으면 remote)
+      return await routeTripQuery({
+        local: async () => {
+          // 활성화된 Trip 있음 → 로컬 DB 조회
+          const tripList = await db
+            .select()
+            .from(trips)
+            .where(isNull(trips.deletedAt))
+            .orderBy(desc(trips.updatedAt))
+            .all();
+          console.log(`📋 Trips loaded from local DB: ${tripList.length} items`);
+          return tripList;
+        },
+        remote: async () => {
+          // 비활성 상태 → 서버 API 조회
+          const response = await axios.get('/api/trips');
+          console.log(`📋 Trips loaded from server: ${response.data.data.length} items`);
+          return response.data.data;
+        },
+      });
     },
-    staleTime: 5 * 60 * 1000, // 5분 (로컬 DB이지만 캐시 유지)
+    staleTime: 5 * 60 * 1000, // 5분
     gcTime: 10 * 60 * 1000, // 10분
   });
 };

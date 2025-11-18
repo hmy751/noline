@@ -430,6 +430,12 @@ router.post('/:id/activate', async (req: Request, res: Response) => {
       });
     }
 
+    // 모든 Trip 조회 (활성화 시 모든 Trip 메타데이터 전송)
+    const allTrips = await db
+      .select()
+      .from(trips)
+      .where(eq(trips.userId, userId));
+
     // 여행의 모든 일정 조회 (Soft Delete 제외)
     const tripSchedules = await db
       .select({
@@ -473,6 +479,14 @@ router.post('/:id/activate', async (req: Request, res: Response) => {
       .where(and(eq(expenses.tripId, tripId), isNull(expenses.deletedAt)));
 
     // ISO string으로 변환
+    const validatedTrips = allTrips.map((t) => ({
+      ...t,
+      startDate: t.startDate.toISOString(),
+      endDate: t.endDate.toISOString(),
+      createdAt: t.createdAt.toISOString(),
+      updatedAt: t.updatedAt.toISOString(),
+    }));
+
     const validatedSchedules = tripSchedules.map((schedule) => ({
       ...schedule,
       scheduledAt: schedule.scheduledAt.toISOString(),
@@ -491,17 +505,11 @@ router.post('/:id/activate', async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       data: {
-        trip: {
-          ...trip,
-          startDate: trip.startDate.toISOString(),
-          endDate: trip.endDate.toISOString(),
-          createdAt: trip.createdAt.toISOString(),
-          updatedAt: trip.updatedAt.toISOString(),
-        },
+        trips: validatedTrips,
         schedules: validatedSchedules,
         expenses: validatedExpenses,
       },
-      message: `Trip activated successfully (${validatedSchedules.length} schedules, ${validatedExpenses.length} expenses)`,
+      message: `Trip activated successfully (${validatedTrips.length} trips, ${validatedSchedules.length} schedules, ${validatedExpenses.length} expenses)`,
     });
   } catch (error) {
     console.error('Error activating trip:', error);

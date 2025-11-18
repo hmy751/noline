@@ -4,7 +4,7 @@ import { eq, sql } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
 import { expenseQueryKeys } from './keys';
-import { routeMutation } from '@/shared/services/offline-prep';
+import { routeChildMutation } from '@/shared/services/offline-prep/router';
 import axios from '@/shared/api/fetcher';
 
 /**
@@ -55,7 +55,7 @@ export const useUpdateExpense = () => {
       const tripId = expense.tripId;
 
       // 2. 라우팅 레이어 적용
-      return await routeMutation(tripId, {
+      return await routeChildMutation(tripId, {
         // 로컬: 활성화된 여행
         local: async () => {
           await withTransaction(async () => {

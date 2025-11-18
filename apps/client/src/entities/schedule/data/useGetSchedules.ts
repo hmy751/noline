@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { db, schedules } from '@/shared/db';
 import { isNull, eq, and } from 'drizzle-orm';
 import { scheduleQueryKeys } from './keys';
-import { routeQuery } from '@/shared/services/offline-prep';
+import { routeChildQuery } from '@/shared/services/offline-prep/router';
 import axios from '@/shared/api/fetcher';
 
 /**
@@ -24,7 +24,7 @@ export const useGetSchedules = (tripId: string) => {
   return useQuery({
     queryKey: scheduleQueryKeys.list(tripId),
     queryFn: async () => {
-      return await routeQuery(tripId, {
+      return await routeChildQuery(tripId, {
         // 로컬: 로컬 DB 조회
         local: async () => {
           const scheduleList = await db

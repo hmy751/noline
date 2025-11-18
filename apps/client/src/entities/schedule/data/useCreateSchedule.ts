@@ -4,7 +4,7 @@ import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
 import type { CreateScheduleRequest } from '../model';
 import { scheduleQueryKeys } from './keys';
-import { routeMutation } from '@/shared/services/offline-prep';
+import { routeChildMutation } from '@/shared/services/offline-prep/router';
 import axios from '@/shared/api/fetcher';
 
 /**
@@ -29,7 +29,7 @@ export const useCreateSchedule = () => {
 
   return useMutation({
     mutationFn: async (data: CreateScheduleRequest) => {
-      return await routeMutation(data.tripId, {
+      return await routeChildMutation(data.tripId, {
         // 로컬: 로컬 DB 저장 + sync_queue 기록
         local: async () => {
           // ✅ Echo Protocol: Use client-provided ID

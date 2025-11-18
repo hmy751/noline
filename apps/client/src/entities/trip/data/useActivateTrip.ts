@@ -6,6 +6,7 @@ import axios from '@/shared/api/fetcher';
 import { tripQueryKeys } from './keys';
 import { ulid } from 'ulid';
 import { downloadOfflineMapInBackground } from '@/shared/services/offline-map/download';
+import { generateId } from '@/shared/services/id/ulid';
 
 /**
  * 여행 활성화 Mutation Hook
@@ -40,14 +41,31 @@ export const useActivateTrip = () => {
         return { tripId, alreadyActivated: true };
       }
 
-      // 3. 서버에서 여행 데이터 Pull (일정, 경비 등)
+      // 3. 서버에서 여행 데이터 Pull (모든 Trip + 일정, 경비)
       const response = await axios.post(`/api/trips/${tripId}/activate`);
 
-      const { schedules = [], expenses = [] } = response.data;
+      const { trips: allTrips = [], schedules = [], expenses = [] } = response.data;
 
       // 4. 트랜잭션: 로컬 DB 업데이트
       await withTransaction(async () => {
-        // 4-1. 기존 활성화된 여행 비활성화 (1-Trip 제한)
+        // 4-1. 모든 Trip 메타데이터 저장 (upsert)
+        if (allTrips.length > 0) {
+          for (const tripData of allTrips) {
+            await db
+              .insert(trips)
+              .values(tripData)
+              .onConflictDoUpdate({
+                target: trips.id,
+                set: {
+                  ...tripData,
+                  updatedAt: tripData.updatedAt,
+                },
+              });
+          }
+          console.log(`💾 Saved ${allTrips.length} trips to local DB`);
+        }
+
+        // 4-2. 기존 활성화된 여행 비활성화 (1-Trip 제한)
         await db
           .update(trips)
           .set({
@@ -56,7 +74,7 @@ export const useActivateTrip = () => {
           })
           .where(eq(trips.activated, true));
 
-        // 4-2. 기존 활성화 레코드 비활성화
+        // 4-3. 기존 활성화 레코드 비활성화
         await db
           .update(tripActivations)
           .set({
@@ -66,7 +84,7 @@ export const useActivateTrip = () => {
           })
           .where(eq(tripActivations.isActivated, true));
 
-        // 4-3. 현재 여행 활성화
+        // 4-4. 현재 여행 활성화
         await db
           .update(trips)
           .set({
@@ -76,12 +94,12 @@ export const useActivateTrip = () => {
           })
           .where(eq(trips.id, tripId));
 
-        // 4-4. 활성화 레코드 생성
+        // 4-5. 활성화 레코드 생성
         const expiresAt = new Date(trip.endDate);
         expiresAt.setDate(expiresAt.getDate() + 7); // 여행 종료 + 7일
 
         await db.insert(tripActivations).values({
-          id: ulid(),
+          id: generateId(),
           tripId,
           userId: trip.userId,
           isActivated: true,
