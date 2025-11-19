@@ -363,3 +363,13 @@ git commit -m "fix: TripCard 제목 오타 수정"
 
 - `/doc-discuss` - 개발 전 논의 내용 정리
 - `/doc-save` - 문서 저장 및 자동 연결
+- `/doc-refactor` - 정책 일관성 검증 및 리팩토링
+
+## 다음 단계 제안
+
+검증 결과에 따른 다음 액션:
+
+- **Level 3-4 (DECISION)**: → `/doc-save --decision`로 진행
+- **Level 2 (CHANGELOG)**: → `/doc-save`로 진행
+- **Level 1 (Git commit)**: → `git commit -m "..."`로 충분
+- **정책 점검 필요시**: → `/doc-refactor`로 전체 검증

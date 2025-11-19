@@ -183,3 +183,12 @@ Claude: Session 파일 생성 → 논의 계속
 
 - `/check-docs` - 개발 완료 후 문서화 필요 여부 분석
 - `/doc-save` - 문서 저장 및 자동 연결
+- `/doc-refactor` - 정책 일관성 검증 및 리팩토링
+
+## 다음 단계 제안
+
+Session 파일 생성 후:
+
+- **개발 진행**: → 실제 구현 시작
+- **개발 완료 후**: → `/check-docs`로 문서화 필요도 확인
+- **결정 사항 확정시**: → `/doc-save --decision`으로 ADR 작성
