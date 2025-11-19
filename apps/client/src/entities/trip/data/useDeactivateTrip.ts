@@ -1,16 +1,19 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { db, trips, tripActivations, schedules, expenses } from '@/shared/db';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import axios from '@/shared/api/fetcher';
 import { tripQueryKeys } from './keys';
 import { cleanupOfflineMapForTrip } from '@/shared/services/offline-map';
+import { hasPendingTasksForTrip, getPendingTasksForTrip } from '@/shared/services/sync/queue';
 
 /**
  * 여행 비활성화 Mutation Hook
  *
  * - tripActivations 레코드 업데이트 (isActivated = false)
- * - 로컬 데이터 정리 (선택적 - cleanupData 파라미터)
+ * - sync_queue 체크: PENDING 항목이 있으면 cleanup 지연 (cleanupPending = true)
+ * - Soft delete 패턴: 로컬 데이터를 deletedAt으로 마킹 (Hard delete 없음)
+ * - Background job에서 cleanup 완료 (sync 완료 후)
  * - 오프라인 지도 삭제
  * - 서버에 비활성화 알림 (선택적)
  *
@@ -46,33 +49,61 @@ export const useDeactivateTrip = () => {
         return { tripId, alreadyDeactivated: true };
       }
 
-      // 3. 트랜잭션: 로컬 DB 업데이트
+      // 3. sync_queue 체크: PENDING 작업이 있는지 확인
+      const hasPending = await hasPendingTasksForTrip(tripId);
+
+      if (hasPending && cleanupData) {
+        const pendingTasks = await getPendingTasksForTrip(tripId);
+        console.log(`⏳ Sync queue has ${pendingTasks.length} pending tasks - deferring cleanup`);
+      }
+
+      // 4. 트랜잭션: 로컬 DB 업데이트
+      let cleanupExecuted = false;
+
       await withTransaction(async () => {
-        // 3-1. 활성화 레코드 업데이트 (tripActivations만 사용)
+        // 4-1. 활성화 레코드 업데이트 (tripActivations만 사용)
         await db
           .update(tripActivations)
           .set({
             isActivated: false,
             deactivatedAt: now,
-            cleanupPending: cleanupData,
+            // PENDING 작업이 있으면 cleanup 지연, 없으면 즉시 실행
+            cleanupPending: cleanupData && hasPending,
             updatedAt: now,
           })
           .where(eq(tripActivations.tripId, tripId));
 
-        // 3-3. 데이터 정리 (선택적)
-        if (cleanupData) {
-          // 여행의 일정 삭제
-          await db.delete(schedules).where(eq(schedules.tripId, tripId));
+        // 4-2. 데이터 정리 (선택적)
+        // PENDING 작업이 없으면 즉시 Soft delete 실행
+        if (cleanupData && !hasPending) {
+          // Soft delete: schedules
+          await db
+            .update(schedules)
+            .set({
+              deletedAt: now,
+              updatedAt: now,
+              version: sql`${schedules.version} + 1`,
+            })
+            .where(eq(schedules.tripId, tripId));
 
-          // 여행의 경비 삭제
-          await db.delete(expenses).where(eq(expenses.tripId, tripId));
+          // Soft delete: expenses
+          await db
+            .update(expenses)
+            .set({
+              deletedAt: now,
+              updatedAt: now,
+              version: sql`${expenses.version} + 1`,
+            })
+            .where(eq(expenses.tripId, tripId));
 
-          console.log(`🗑️ Local data cleaned up for trip: ${tripId}`);
+          cleanupExecuted = true;
+          console.log(`🗑️ Local data soft-deleted for trip: ${tripId}`);
         }
       });
 
-      // 3-4. 오프라인 지도 정리 (선택적, 트랜잭션 외부에서 실행)
-      if (cleanupData) {
+      // 4-3. 오프라인 지도 정리 (선택적, 트랜잭션 외부에서 실행)
+      // cleanup이 즉시 실행된 경우에만 지도도 삭제
+      if (cleanupData && cleanupExecuted) {
         try {
           await cleanupOfflineMapForTrip(tripId);
         } catch (error) {
@@ -81,7 +112,7 @@ export const useDeactivateTrip = () => {
         }
       }
 
-      // 4. 서버에 비활성화 알림 (선택적, 실패해도 무시)
+      // 5. 서버에 비활성화 알림 (선택적, 실패해도 무시)
       try {
         await axios.post(`/api/trips/${tripId}/deactivate`);
         console.log(`📤 Deactivation notified to server: ${tripId}`);
@@ -89,9 +120,15 @@ export const useDeactivateTrip = () => {
         console.warn(`⚠️ Failed to notify deactivation to server (ignored):`, error);
       }
 
-      console.log(`✅ Trip deactivated: ${tripId} (cleanup: ${cleanupData})`);
+      console.log(`✅ Trip deactivated: ${tripId} (cleanup: ${cleanupData}, executed: ${cleanupExecuted})`);
 
-      return { tripId, alreadyDeactivated: false, cleanupData };
+      return {
+        tripId,
+        alreadyDeactivated: false,
+        cleanupData,
+        cleanupExecuted,
+        cleanupPending: cleanupData && hasPending,
+      };
     },
     onSuccess: (data) => {
       // 캐시 무효화 - 여행 목록 및 활성화 상태 다시 조회

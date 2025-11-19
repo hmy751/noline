@@ -14,6 +14,7 @@ import { NetworkOverrideProvider } from '@/features/debug';
 import { queryClient } from '@/shared/lib/queryClient';
 import { useTripStore } from '@/shared/store';
 import { useGetTrips, selectMainTrip } from '@/entities/trip';
+import { processPendingCleanups } from '@/shared/services/sync/cleanup-job';
 
 // Splash 화면을 수동으로 제어하기 위해 자동 숨김 방지
 SplashScreen.preventAutoHideAsync();
@@ -43,6 +44,50 @@ function InitializeMainTrip() {
 
 function OfflineMapCleanupTrigger() {
   useOfflineMapCleanup();
+  return null;
+}
+
+/**
+ * Pending Cleanup 재시도 트리거
+ *
+ * 앱 시작 시 cleanupPending = true인 여행을 찾아서
+ * sync_queue가 비어있으면 cleanup 실행
+ *
+ * 실행 타이밍:
+ * - 앱 최초 시작 시 1회
+ * - DB 초기화 완료 후
+ * - SyncProvider 마운트 후 (네트워크 상태 확인 가능)
+ */
+function PendingCleanupTrigger() {
+  useEffect(() => {
+    const retryPendingCleanups = async () => {
+      try {
+        console.log('🧹 [App] Checking for pending cleanups on app start...');
+        const processedCount = await processPendingCleanups();
+
+        if (processedCount > 0) {
+          console.log(`✅ [App] Processed ${processedCount} pending cleanups on app start`);
+          // React Query 캐시 무효화
+          queryClient.invalidateQueries({ queryKey: ['trip'] });
+          queryClient.invalidateQueries({ queryKey: ['schedule'] });
+          queryClient.invalidateQueries({ queryKey: ['expense'] });
+        } else {
+          console.log('✅ [App] No pending cleanups found');
+        }
+      } catch (error) {
+        console.error('⚠️ [App] Failed to process pending cleanups on app start:', error);
+        // 실패해도 앱 시작은 계속 진행
+      }
+    };
+
+    // 약간의 지연 후 실행 (DB 초기화와 SyncProvider 준비 대기)
+    const timer = setTimeout(() => {
+      retryPendingCleanups();
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return null;
 }
 
@@ -107,6 +152,7 @@ export default function RootLayout() {
             <PortalHost />
             <InitializeMainTrip />
             <OfflineMapCleanupTrigger />
+            <PendingCleanupTrigger />
           </SyncProvider>
         </NetworkOverrideProvider>
       </QueryClientProvider>

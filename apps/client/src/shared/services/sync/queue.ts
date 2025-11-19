@@ -211,3 +211,66 @@ export async function getSyncQueueStats(): Promise<{
 
   return stats;
 }
+
+/**
+ * 특정 여행의 PENDING 작업 조회
+ *
+ * 여행 비활성화 전 동기화되지 않은 데이터 확인용
+ *
+ * @param tripId - 여행 ID
+ * @returns 해당 여행의 PENDING 상태 sync_queue 항목 배열
+ *
+ * @example
+ * ```ts
+ * const pendingTasks = await getPendingTasksForTrip(tripId);
+ * if (pendingTasks.length > 0) {
+ *   console.log('동기화 대기 중인 작업:', pendingTasks.length);
+ * }
+ * ```
+ */
+export async function getPendingTasksForTrip(tripId: string): Promise<SyncQueueItem[]> {
+  const tasks = await db
+    .select()
+    .from(syncQueue)
+    .where(eq(syncQueue.status, 'PENDING'))
+    .orderBy(syncQueue.createdAt)
+    .all();
+
+  // Trip 자체 또는 Child Entity (schedules, expenses) 필터링
+  return tasks.filter((task) => {
+    if (task.tableName === 'trips' && task.recordId === tripId) {
+      return true;
+    }
+    // Child entities의 경우 payload에서 tripId 확인
+    if (task.tableName === 'schedules' || task.tableName === 'expenses') {
+      try {
+        const payload = JSON.parse(task.payload);
+        return payload.tripId === tripId;
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  });
+}
+
+/**
+ * 특정 여행의 PENDING 작업 존재 여부 확인
+ *
+ * 여행 비활성화 가능 여부 판단용
+ *
+ * @param tripId - 여행 ID
+ * @returns PENDING 작업 존재 여부
+ *
+ * @example
+ * ```ts
+ * const hasPending = await hasPendingTasksForTrip(tripId);
+ * if (hasPending) {
+ *   // cleanup 지연 필요
+ * }
+ * ```
+ */
+export async function hasPendingTasksForTrip(tripId: string): Promise<boolean> {
+  const tasks = await getPendingTasksForTrip(tripId);
+  return tasks.length > 0;
+}
