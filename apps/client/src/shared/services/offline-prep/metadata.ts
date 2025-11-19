@@ -2,15 +2,34 @@ import { db, trips, tripActivations } from '@/shared/db';
 import { eq } from 'drizzle-orm';
 
 /**
- * 특정 여행의 활성화 상태 조회
+ * 특정 여행의 활성화 상태 조회 (boolean)
  * - tripActivations 테이블 확인 (Single Source of Truth)
  * - Schedule/Expense 라우팅에서 사용
  */
 export async function getTripActivationStatus(tripId: string): Promise<boolean> {
   const activation = await db.select().from(tripActivations).where(eq(tripActivations.tripId, tripId)).get();
 
-  // tripActivations에 레코드가 있으면 활성화
-  return !!activation;
+  // tripActivations에 레코드가 있고 isActivated가 true이면 활성화
+  return !!(activation && activation.isActivated);
+}
+
+/**
+ * 특정 여행의 활성화 상태 상세 조회
+ * - UI에서 배지 표시용
+ * @returns 'online' | 'preparing' | 'ready'
+ */
+export async function getTripActivationStatusDetail(tripId: string): Promise<'online' | 'preparing' | 'ready'> {
+  const activation = await db.select().from(tripActivations).where(eq(tripActivations.tripId, tripId)).get();
+
+  if (!activation || !activation.isActivated) {
+    return 'online';
+  }
+
+  if (activation.mapDownloaded) {
+    return 'ready';
+  }
+
+  return 'preparing';
 }
 
 /**

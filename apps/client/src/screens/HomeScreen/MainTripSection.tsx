@@ -1,8 +1,9 @@
 import { View, Text, ActivityIndicator } from 'react-native';
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { TripCard, type TripData, type ActivationStatus } from '@/entities/trip';
 import { useGetTripExpenses } from '@/entities/expense';
 import { groupExpensesByCurrency } from '@/shared/lib/currency';
+import { getTripActivationStatusDetail } from '@/shared/services/offline-prep/metadata';
 
 interface MainTripSectionProps {
   mainTripData: TripData | null;
@@ -30,6 +31,28 @@ export function MainTripSection({
   const { data: mainTripExpenses = [] } = useGetTripExpenses(mainTripData?.id ?? '');
   const expensesByCurrency = useMemo(() => groupExpensesByCurrency(mainTripExpenses), [mainTripExpenses]);
 
+  // ✅ 활성화 상태 조회 (service 레이어 사용)
+  const [activationStatus, setActivationStatus] = useState<ActivationStatus>('online');
+
+  useEffect(() => {
+    if (!mainTripData?.id) {
+      setActivationStatus('online');
+      return;
+    }
+
+    const checkActivationStatus = async () => {
+      try {
+        const status = await getTripActivationStatusDetail(mainTripData.id);
+        setActivationStatus(status);
+      } catch (error) {
+        console.error('❌ Failed to check activation status:', error);
+        setActivationStatus('online');
+      }
+    };
+
+    checkActivationStatus();
+  }, [mainTripData?.id]);
+
   // 메인 여행 데이터 변환
   const mainTrip = mainTripData
     ? {
@@ -41,19 +64,6 @@ export function MainTripSection({
         expensesByCurrency, // ✅ 통화별 경비 데이터 전달
       }
     : null;
-
-  // 활성화 상태 가져오기
-  const getActivationStatus = (trip: TripData | null): ActivationStatus => {
-    if (!trip) return 'online';
-
-    // tripActivations에서 확인해야 하지만, 일단 activated 필드로 판단
-    if (trip.activated) {
-      // mapDownloaded 필드가 있다면 'ready', 없으면 'preparing'
-      // 여기서는 단순화를 위해 activated면 ready로 표시
-      return 'ready';
-    }
-    return 'online';
-  };
 
   // 로딩 상태
   if (isLoading) {
@@ -86,9 +96,9 @@ export function MainTripSection({
   return (
     <TripCard
       {...mainTrip}
-      activationStatus={getActivationStatus(mainTripData)}
+      activationStatus={activationStatus}
       onActivatePress={
-        mainTripData.activated ? undefined : () => onActivatePress(mainTripData.id, mainTrip.destination)
+        activationStatus !== 'online' ? undefined : () => onActivatePress(mainTripData.id, mainTrip.destination)
       }
       onEditPress={onEditPress}
     />
