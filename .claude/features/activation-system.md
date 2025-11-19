@@ -62,55 +62,68 @@
 
 ## 📊 Schema
 
-### trip_metadata
+### trips (기존 테이블 - activated 필드 제거됨)
 
 ```typescript
-export const tripMetadata = sqliteTable('trip_metadata', {
+export const trips = sqliteTable('trips', {
   id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
   destination: text('destination').notNull(),
+  country: text('country'),
+  latitude: text('latitude'),
+  longitude: text('longitude'),
+  baseCurrency: text('base_currency').notNull(),
+  cityId: integer('city_id'),
   startDate: text('start_date').notNull(), // ISO 8601
   endDate: text('end_date').notNull(), // ISO 8601
-  activated: integer('activated', { mode: 'boolean' }).default(false),
 
-  // 통계 (서버에서 계산)
-  totalExpenses: real('total_expenses').default(0),
-  scheduleCount: integer('schedule_count').default(0),
-  expenseCount: integer('expense_count').default(0),
-
-  thumbnailUrl: text('thumbnail_url'),
+  // Local-First 필드
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
+  deletedAt: text('deleted_at'),
+  version: integer('version').default(1).notNull(),
+
+  // ❌ activated 필드 제거됨 (Commit #16)
+  // tripActivations 테이블이 Single Source of Truth
 });
 ```
 
-### trip_activations
+### trip_activations (활성화 상태 관리 - Single Source of Truth)
 
 ```typescript
-export const tripActivations = sqliteTable(
-  'trip_activations',
-  {
-    id: text('id').primaryKey(),
-    tripId: text('trip_id').notNull().unique(),
-    userId: text('user_id').notNull(),
+export const tripActivations = sqliteTable('trip_activations', {
+  id: text('id').primaryKey(),
+  tripId: text('trip_id')
+    .notNull()
+    .unique() // 여행당 1개 레코드만
+    .references(() => trips.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull(),
 
-    isActivated: integer('is_activated', { mode: 'boolean' }).default(false),
-    activatedAt: text('activated_at'),
-    deactivatedAt: text('deactivated_at'),
-    expiresAt: text('expires_at'), // 자동 해제 기준
+  // 활성화 상태
+  isActivated: integer('is_activated', { mode: 'boolean' }).notNull().default(true),
+  activatedAt: text('activated_at').notNull(), // ISO string
+  deactivatedAt: text('deactivated_at'), // ISO string
+  expiresAt: text('expires_at').notNull(), // ISO string (여행 종료 + 7일)
 
-    syncStatus: text('sync_status'), // 'IN_PROGRESS', 'COMPLETED', 'FAILED'
-    lastSyncAt: text('last_sync_at'),
+  // 동기화 상태
+  syncStatus: text('sync_status').notNull().default('PENDING'), // 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED'
+  lastSyncAt: text('last_sync_at'), // ISO string
+  syncProgress: integer('sync_progress').default(0), // 0-100 (%)
 
-    createdAt: text('created_at').notNull(),
-    updatedAt: text('updated_at').notNull(),
-  },
-  (table) => ({
-    // 동시에 1개만 활성화 가능
-    uniqueActiveActivation: unique()
-      .on(table.userId, table.isActivated)
-      .where(sql`${table.isActivated} = true`),
-  }),
-);
+  // 정리 상태
+  cleanupPending: integer('cleanup_pending', { mode: 'boolean' }).notNull().default(false),
+
+  // 데이터 다운로드 상태 (별도 추적)
+  dataDownloaded: integer('data_downloaded', { mode: 'boolean' }).notNull().default(false),
+  mapDownloaded: integer('map_downloaded', { mode: 'boolean' }).notNull().default(false),
+
+  // 저장 공간 추적
+  estimatedSize: integer('estimated_size'), // bytes
+  actualSize: integer('actual_size'), // bytes
+
+  createdAt: text('created_at').notNull(), // ISO string
+  updatedAt: text('updated_at').notNull(), // ISO string
+});
 ```
 
 ---
@@ -119,142 +132,230 @@ export const tripActivations = sqliteTable(
 
 모든 CRUD 연산은 활성화 상태에 따라 라우팅됩니다.
 
-### 패턴
+### 4개 Router 함수 (Trip vs Child 분리)
+
+**핵심 아이디어**: Trip 작업과 Schedule/Expense 작업은 의미적으로 다름
+
+| 작업 유형                    | 사용 함수                  | tripId 필요 | 체크 로직                         |
+| ---------------------------- | -------------------------- | ----------- | --------------------------------- |
+| Trip 조회 (GET /trips)       | `routeTripQuery`           | ❌ 불필요   | `hasAnyActivatedTrip()`           |
+| Trip 생성 (POST /trips)      | `routeTripMutation`        | ❌ 불필요   | `hasAnyActivatedTrip()`           |
+| Trip 수정 (PATCH /trips/:id) | `routeChildMutation`       | ✅ 필요     | `getTripActivationStatus(tripId)` |
+| Schedule/Expense 모든 작업   | `routeChildQuery/Mutation` | ✅ 필요     | `getTripActivationStatus(tripId)` |
+
+**왜 분리?**
+
+- **Trip 생성/조회**: 특정 Trip이 아니라 "활성화 기능 사용 여부"만 중요
+- **Trip/Schedule/Expense 수정**: 해당 Trip이 활성화되었는지 확인
+
+### Metadata 조회 함수
 
 ```typescript
-async function <operation>(tripId: string, data: any) {
-const metadata = await getTripMetadata(tripId);
+/**
+ * 특정 여행의 활성화 상태 조회 (boolean)
+ * - tripActivations 테이블 확인 (Single Source of Truth)
+ * - Schedule/Expense 라우팅에서 사용
+ */
+export async function getTripActivationStatus(tripId: string): Promise<boolean> {
+  const activation = await db.select().from(tripActivations).where(eq(tripActivations.tripId, tripId)).get();
 
-if (metadata.activated) {
-// Path A: Local-First (기존 로직)
-return await localOperation(data);
-} else {
-// Path B: Server-First (새 로직)
-return await serverOperation(data);
+  return !!(activation && activation.isActivated);
 }
+
+/**
+ * 활성화된 여행이 하나라도 있는지 확인
+ * - tripActivations 테이블 확인
+ * - Trip 자체 라우팅에서 사용
+ */
+export async function hasAnyActivatedTrip(): Promise<boolean> {
+  const activation = await db.select().from(tripActivations).limit(1).all();
+
+  return activation.length > 0;
+}
+
+/**
+ * 특정 여행의 활성화 상태 상세 조회
+ * - UI에서 배지 표시용
+ * @returns 'online' | 'preparing' | 'ready'
+ */
+export async function getTripActivationStatusDetail(tripId: string): Promise<'online' | 'preparing' | 'ready'> {
+  const activation = await db.select().from(tripActivations).where(eq(tripActivations.tripId, tripId)).get();
+
+  if (!activation || !activation.isActivated) {
+    return 'online';
+  }
+
+  if (activation.mapDownloaded) {
+    return 'ready';
+  }
+
+  return 'preparing';
 }
 ```
+
+### Router 패턴
+
+#### 1. Trip Query (tripId 불필요)
+
+```typescript
+export async function routeTripQuery<T>(operations: { local: () => Promise<T>; remote: () => Promise<T> }): Promise<T> {
+  const hasActivated = await hasAnyActivatedTrip();
+
+  if (hasActivated) {
+    // 활성화된 Trip 있음 → 로컬 DB 조회
+    return await operations.local();
+  } else {
+    // 비활성 상태 → 서버 조회 (온라인 필수)
+    const networkStatus = await getNetworkStatus();
+
+    if (networkStatus === 'offline') {
+      throw new OfflineError('오프라인에서는 활성화된 여행만 볼 수 있어요', {
+        action: 'ACTIVATE_PROMPT',
+      });
+    }
+
+    return await operations.remote();
+  }
+}
+```
+
+#### 2. Child Query (tripId 필요)
+
+```typescript
+export async function routeChildQuery<T>(
+  tripId: string,
+  operations: {
+    local: () => Promise<T>;
+    remote: () => Promise<T>;
+  },
+): Promise<T> {
+  const isActivated = await getTripActivationStatus(tripId);
+
+  if (isActivated) {
+    // 활성화된 Trip → 로컬 DB 조회
+    return await operations.local();
+  } else {
+    // 비활성 Trip → 서버 조회 (온라인 필수)
+    const networkStatus = await getNetworkStatus();
+
+    if (networkStatus === 'offline') {
+      throw new OfflineError('오프라인에서는 활성화된 여행만 볼 수 있어요', {
+        action: 'ACTIVATE_PROMPT',
+        tripId,
+      });
+    }
+
+    return await operations.remote();
+  }
+}
+```
+
+#### 3. Trip Mutation / Child Mutation
+
+동일한 패턴으로 `routeTripMutation`, `routeChildMutation` 구현
 
 ### 구현 예시
 
-#### CREATE
+#### CREATE (Child Mutation 사용)
 
 ```typescript
 export async function createExpense(data: CreateExpenseInput) {
-  const metadata = await getTripMetadata(data.tripId);
-
-  if (metadata.activated) {
-    // 활성화: 로컬 DB + sync_queue
-    return await withTransaction(async () => {
+  return await routeChildMutation(data.tripId, {
+    local: async () => {
+      // 활성화: 로컬 DB + sync_queue
+      return await withTransaction(async () => {
+        const id = ulid();
+        await db.insert(expenses).values({ id, ...data });
+        await db.insert(syncQueue).values({
+          entity: 'expense',
+          entityId: id,
+          action: 'CREATE',
+          payload: JSON.stringify({ id, ...data }),
+        });
+        return id;
+      });
+    },
+    remote: async () => {
+      // 비활성: 서버 직접 (Echo Protocol 유지)
       const id = ulid();
-      await db.insert(expenses).values({ id, ...data });
-      await db.insert(syncQueue).values({
-        entity: 'expense',
-        entityId: id,
-        action: 'CREATE',
-        payload: JSON.stringify({ id, ...data }),
-      });
+      await api.post('/expenses', { id, ...data });
       return id;
-    });
-  } else {
-    // 비활성: 서버 직접
-    const isOnline = await checkNetworkStatus();
-    if (!isOnline) {
-      throw new OfflineError('오프라인에서 추가하려면 이 여행을 활성화해주세요', {
-        action: 'ACTIVATE_PROMPT',
-        tripId: data.tripId,
-      });
-    }
-
-    const id = ulid(); // Echo Protocol 유지
-    await api.post('/expenses', { id, ...data });
-    return id;
-  }
+    },
+  });
 }
 ```
 
-#### READ
+#### READ (Child Query 사용)
 
 ```typescript
 export async function getExpenses(tripId: string) {
-  const metadata = await getTripMetadata(tripId);
-
-  if (metadata.activated) {
-    // 활성화: 로컬 DB
-    return await db.select().from(expenses).where(eq(expenses.tripId, tripId)).all();
-  } else {
-    // 비활성: 서버 조회
-    const isOnline = await checkNetworkStatus();
-    if (!isOnline) {
-      throw new OfflineError('오프라인에서는 활성화된 여행만 볼 수 있어요');
-    }
-
-    return await api.get(`/trips/${tripId}/expenses`);
-  }
+  return await routeChildQuery(tripId, {
+    local: async () => {
+      // 활성화: 로컬 DB
+      return await db.select().from(expenses).where(eq(expenses.tripId, tripId)).all();
+    },
+    remote: async () => {
+      // 비활성: 서버 조회
+      return await api.get(`/trips/${tripId}/expenses`);
+    },
+  });
 }
 ```
 
-#### UPDATE
+#### UPDATE (Child Mutation 사용)
 
 ```typescript
 export async function updateExpense(expenseId: string, data: UpdateExpenseInput) {
   const tripId = await getExpenseTripId(expenseId);
-  const metadata = await getTripMetadata(tripId);
 
-  if (metadata.activated) {
-    // 활성화: 로컬 DB + sync_queue
-    return await withTransaction(async () => {
-      await db.update(expenses).set(data).where(eq(expenses.id, expenseId));
+  return await routeChildMutation(tripId, {
+    local: async () => {
+      // 활성화: 로컬 DB + sync_queue
+      return await withTransaction(async () => {
+        await db.update(expenses).set(data).where(eq(expenses.id, expenseId));
 
-      await db.insert(syncQueue).values({
-        entity: 'expense',
-        entityId: expenseId,
-        action: 'UPDATE',
-        payload: JSON.stringify(data),
+        await db.insert(syncQueue).values({
+          entity: 'expense',
+          entityId: expenseId,
+          action: 'UPDATE',
+          payload: JSON.stringify(data),
+        });
       });
-    });
-  } else {
-    // 비활성: 서버 직접
-    const isOnline = await checkNetworkStatus();
-    if (!isOnline) {
-      throw new OfflineError('오프라인에서는 활성화된 여행만 수정할 수 있어요');
-    }
-
-    await api.patch(`/expenses/${expenseId}`, data);
-  }
+    },
+    remote: async () => {
+      // 비활성: 서버 직접
+      await api.patch(`/expenses/${expenseId}`, data);
+    },
+  });
 }
 ```
 
-#### DELETE (Soft Delete)
+#### DELETE (Child Mutation 사용 - Soft Delete)
 
 ```typescript
 export async function deleteExpense(expenseId: string) {
   const tripId = await getExpenseTripId(expenseId);
-  const metadata = await getTripMetadata(tripId);
-
   const deletedAt = new Date().toISOString();
 
-  if (metadata.activated) {
-    // 활성화: 로컬 Soft Delete + sync_queue
-    return await withTransaction(async () => {
-      await db.update(expenses).set({ deletedAt }).where(eq(expenses.id, expenseId));
+  return await routeChildMutation(tripId, {
+    local: async () => {
+      // 활성화: 로컬 Soft Delete + sync_queue
+      return await withTransaction(async () => {
+        await db.update(expenses).set({ deletedAt }).where(eq(expenses.id, expenseId));
 
-      await db.insert(syncQueue).values({
-        entity: 'expense',
-        entityId: expenseId,
-        action: 'DELETE',
-        payload: JSON.stringify({ deletedAt }),
+        await db.insert(syncQueue).values({
+          entity: 'expense',
+          entityId: expenseId,
+          action: 'DELETE',
+          payload: JSON.stringify({ deletedAt }),
+        });
       });
-    });
-  } else {
-    // 비활성: 서버 직접
-    const isOnline = await checkNetworkStatus();
-    if (!isOnline) {
-      throw new OfflineError('오프라인에서는 활성화된 여행만 삭제할 수 있어요');
-    }
-
-    await api.delete(`/expenses/${expenseId}`);
-  }
+    },
+    remote: async () => {
+      // 비활성: 서버 직접
+      await api.delete(`/expenses/${expenseId}`);
+    },
+  });
 }
 ```
 
@@ -296,31 +397,45 @@ export async function activateTrip(tripId: string) {
 
     // 5. 로컬 DB에 배치 삽입 (트랜잭션)
     await withTransaction(async () => {
-      // Trip
-      await db.insert(trips).values(fullData.trip);
+      // 5-1. 모든 Trip 메타데이터 저장 (404 버그 방지)
+      await upsertTrips(fullData.trips);
 
-      // Schedules (배치 처리 + 진행률)
-      const BATCH_SIZE = 100;
-      for (let i = 0; i < fullData.schedules.length; i += BATCH_SIZE) {
-        const batch = fullData.schedules.slice(i, i + BATCH_SIZE);
-        await db.insert(schedules).values(batch);
+      // 5-2. 기존 활성화 레코드 비활성화 (1-Trip 제한)
+      await db
+        .update(tripActivations)
+        .set({
+          isActivated: false,
+          deactivatedAt: now,
+          updatedAt: now,
+        })
+        .where(eq(tripActivations.isActivated, true));
 
-        // 진행률 업데이트
-        const progress = Math.min(100, ((i + BATCH_SIZE) / fullData.schedules.length) * 50);
-        await updateActivationProgress(tripId, progress);
+      // 5-3. 현재 여행 활성화 레코드 생성
+      const expiresAt = new Date(trip.endDate);
+      expiresAt.setDate(expiresAt.getDate() + 7); // 여행 종료 + 7일
 
-        await new Promise((resolve) => setTimeout(resolve, 10)); // UI 응답성
+      await db.insert(tripActivations).values({
+        id: ulid(),
+        tripId,
+        userId: trip.userId,
+        isActivated: true,
+        activatedAt: now,
+        deactivatedAt: null,
+        expiresAt: expiresAt.toISOString(),
+        syncStatus: 'IN_PROGRESS',
+        dataDownloaded: false,
+        mapDownloaded: false,
+        createdAt: now,
+        updatedAt: now,
+      });
+
+      // 5-4. Schedules/Expenses 저장 (배치 처리)
+      if (fullData.schedules?.length > 0) {
+        await upsertSchedules(fullData.schedules);
       }
 
-      // Expenses
-      for (let i = 0; i < fullData.expenses.length; i += BATCH_SIZE) {
-        const batch = fullData.expenses.slice(i, i + BATCH_SIZE);
-        await db.insert(expenses).values(batch);
-
-        const progress = 50 + Math.min(50, ((i + BATCH_SIZE) / fullData.expenses.length) * 50);
-        await updateActivationProgress(tripId, progress);
-
-        await new Promise((resolve) => setTimeout(resolve, 10));
+      if (fullData.expenses?.length > 0) {
+        await upsertExpenses(fullData.expenses);
       }
 
       // 6. 활성화 완료
@@ -328,12 +443,10 @@ export async function activateTrip(tripId: string) {
         .update(tripActivations)
         .set({
           syncStatus: 'COMPLETED',
+          dataDownloaded: true,
           lastSyncAt: new Date().toISOString(),
         })
         .where(eq(tripActivations.tripId, tripId));
-
-      // 7. Metadata 업데이트
-      await db.update(tripMetadata).set({ activated: true }).where(eq(tripMetadata.id, tripId));
     });
 
     // 8. 오프라인 지도 다운로드 (비동기, 별도)
@@ -356,22 +469,24 @@ export async function activateTrip(tripId: string) {
 ### 비활성화하기 (Deactivate)
 
 ```typescript
-export async function deactivateTrip(tripId: string) {
-  // 1. 활성화 상태 변경 (Mark for cleanup)
+export async function deactivateTrip(tripId: string, cleanupData: boolean = true) {
+  const now = new Date().toISOString();
+
+  // 1. 활성화 상태 변경
   await db
     .update(tripActivations)
     .set({
       isActivated: false,
-      deactivatedAt: new Date().toISOString(),
-      cleanupPending: true, // 정리 대기 플래그
+      deactivatedAt: now,
+      cleanupPending: cleanupData, // 데이터 정리 여부
+      updatedAt: now,
     })
     .where(eq(tripActivations.tripId, tripId));
 
-  // 2. Metadata 업데이트
-  await db.update(tripMetadata).set({ activated: false }).where(eq(tripMetadata.id, tripId));
-
-  // 3. 로컬 데이터 정리
-  await cleanupDeactivatedData(tripId);
+  // 2. 로컬 데이터 정리 (선택적)
+  if (cleanupData) {
+    await cleanupDeactivatedData(tripId);
+  }
 }
 
 async function cleanupDeactivatedData(tripId: string) {
@@ -445,49 +560,44 @@ async function retryPendingCleanups() {
 
 ### Activation Status Hook
 
+**실제 구현**: 직접 service 함수 호출, React Query Hook 불필요
+
 ```typescript
-export const activationKeys = {
-  status: (tripId: string) => ['activation', 'status', tripId] as const,
-};
+// ✅ 현재 구현 (apps/client/src/shared/services/offline-prep/metadata.ts)
+import { getTripActivationStatus, getTripActivationStatusDetail, hasAnyActivatedTrip } from '@/shared/services/offline-prep/metadata';
 
-export function useActivationStatus(tripId: string) {
-  return useQuery({
-    queryKey: activationKeys.status(tripId),
-    queryFn: async () => {
-      const metadata = await db.select().from(tripMetadata).where(eq(tripMetadata.id, tripId)).get();
-
-      return {
-        isActivated: metadata?.activated ?? false,
-        expiresAt: metadata?.expiresAt,
-      };
-    },
-    staleTime: 5 * 60 * 1000, // 5분 캐시 (성능 최적화)
-  });
-}
+// UI 컴포넌트에서 직접 사용
+const isActivated = await getTripActivationStatus(tripId); // boolean
+const status = await getTripActivationStatusDetail(tripId); // 'online' | 'preparing' | 'ready'
+const hasAny = await hasAnyActivatedTrip(); // boolean
 ```
+
+**왜 Hook이 아닌가?**
+
+- 활성화 상태는 tripActivations 테이블 단일 진실 공급원
+- UI 컴포넌트는 useEffect에서 직접 service 함수 호출
+- Trip/Expense/Schedule Hooks은 라우팅 레이어에서 자동 처리
 
 ### Data Hooks with Routing
 
 ```typescript
-export function useExpenses(tripId: string) {
-  const { data: activation } = useActivationStatus(tripId);
-  const isOnline = useNetworkStatus();
-
+// ✅ 현재 구현: Entity 레이어 Hook이 라우팅 자동 처리
+export function useGetTripExpenses(tripId: string) {
   return useQuery({
-    queryKey: ['expenses', tripId, { source: activation.isActivated ? 'local' : 'remote' }],
+    queryKey: expenseQueryKeys.byTrip(tripId),
     queryFn: async () => {
-      if (activation.isActivated) {
-        // Local
-        return await db.select().from(expenses).where(eq(expenses.tripId, tripId)).all();
-      } else {
-        // Remote
-        if (!isOnline) {
-          throw new OfflineError('오프라인에서는 활성화된 여행만 볼 수 있어요');
-        }
-        return await api.get(`/trips/${tripId}/expenses`);
-      }
+      // routeChildQuery가 자동으로 활성화 상태 확인 후 라우팅
+      return await routeChildQuery(tripId, {
+        local: async () => {
+          return await db.select().from(expenses).where(eq(expenses.tripId, tripId)).all();
+        },
+        remote: async () => {
+          const response = await axios.get(`/api/trips/${tripId}/expenses`);
+          return response.data;
+        },
+      });
     },
-    enabled: !!activation, // 활성화 상태 로드 후 실행
+    enabled: !!tripId,
   });
 }
 ```
@@ -496,42 +606,142 @@ export function useExpenses(tripId: string) {
 
 ## 🎨 UI Components
 
-### Activation Button
+### ActivationBadge (실제 구현)
+
+**파일**: [apps/client/src/entities/trip/ui/ActivationBadge.tsx](../../../apps/client/src/entities/trip/ui/ActivationBadge.tsx)
 
 ```tsx
-export function ActivateButton({ tripId }: { tripId: string }) {
-  const { data: activation } = useActivationStatus(tripId);
-  const activateMutation = useMutation({
-    mutationFn: () => activateTrip(tripId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: activationKeys.status(tripId) });
-    },
-  });
+// ✅ 현재 구현
+export type ActivationStatus = 'online' | 'ready' | 'preparing';
 
-  if (activation.isActivated) {
-    return (
-      <View>
-        <Text>오프라인 준비 완료</Text>
-        <Text>만료: {formatDate(activation.expiresAt)}</Text>
-      </View>
-    );
-  }
+export function ActivationBadge({ status }: { status: ActivationStatus }) {
+  const config = {
+    online: {
+      icon: WifiOff,
+      text: '온라인 전용',
+      bgColor: 'bg-secondary',
+      textColor: 'text-secondary-foreground',
+    },
+    ready: {
+      icon: CheckCircle,
+      text: '준비 완료',
+      bgColor: 'bg-success/10',
+      textColor: 'text-success',
+    },
+    preparing: {
+      icon: Download,
+      text: '준비 중',
+      bgColor: 'bg-warning/10',
+      textColor: 'text-warning',
+    },
+  };
+
+  const { icon: Icon, text, bgColor, textColor, iconColor } = config[status];
 
   return (
-    <Button onPress={() => activateMutation.mutate()} loading={activateMutation.isPending}>
-      오프라인 활성화하기
-    </Button>
+    <View className={cn('flex-row items-center gap-xs rounded-full px-sm py-2xs', bgColor)}>
+      <Icon size={14} color={iconColor} strokeWidth={2} />
+      <Text className={cn('text-label', textColor)}>{text}</Text>
+    </View>
   );
 }
 ```
 
-### Activation Progress
+### TripCard with Activation Buttons (실제 구현)
+
+**파일**: [apps/client/src/entities/trip/ui/TripCard.tsx](../../../apps/client/src/entities/trip/ui/TripCard.tsx)
 
 ```tsx
-export function ActivationProgress({ tripId }: { tripId: string }) {
-  const { data: progress } = useQuery({
-    queryKey: ['activation-progress', tripId],
-    queryFn: () => getActivationProgress(tripId),
+// ✅ 현재 구현
+export function TripCard({
+  destination,
+  activationStatus = 'online',
+  onActivatePress,
+  onDeactivatePress,
+  ...props
+}: TripCardProps) {
+  return (
+    <View className='rounded-xl bg-primary p-md'>
+      {/* Header with ActivationBadge */}
+      <View className='flex-row justify-between'>
+        <Text>{destination}</Text>
+        <ActivationBadge status={activationStatus} />
+      </View>
+
+      {/* 활성화 버튼 - 비활성 상태일 때만 표시 */}
+      {activationStatus === 'online' && onActivatePress && (
+        <TouchableOpacity onPress={onActivatePress}>
+          <Download size={18} />
+          <Text>오프라인 활성화</Text>
+        </TouchableOpacity>
+      )}
+
+      {/* 비활성화 버튼 - 활성 상태일 때만 표시 */}
+      {(activationStatus === 'preparing' || activationStatus === 'ready') && onDeactivatePress && (
+        <TouchableOpacity onPress={onDeactivatePress}>
+          <Trash2 size={18} />
+          <Text>오프라인 해제</Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+}
+```
+
+### MainTripSection (활성화 상태 조회 예시)
+
+**파일**: [apps/client/src/screens/HomeScreen/MainTripSection.tsx](../../../apps/client/src/screens/HomeScreen/MainTripSection.tsx)
+
+```tsx
+// ✅ 현재 구현
+export function MainTripSection({ mainTripData, onActivatePress }: MainTripSectionProps) {
+  const [activationStatus, setActivationStatus] = useState<ActivationStatus>('online');
+
+  useEffect(() => {
+    if (!mainTripData?.id) {
+      setActivationStatus('online');
+      return;
+    }
+
+    const checkActivationStatus = async () => {
+      try {
+        const status = await getTripActivationStatusDetail(mainTripData.id);
+        setActivationStatus(status);
+      } catch (error) {
+        console.error('❌ Failed to check activation status:', error);
+        setActivationStatus('online');
+      }
+    };
+
+    checkActivationStatus();
+  }, [mainTripData?.id]);
+
+  return (
+    <TripCard
+      {...mainTrip}
+      activationStatus={activationStatus}
+      onActivatePress={activationStatus !== 'online' ? undefined : () => onActivatePress(mainTripData.id, mainTrip.destination)}
+    />
+  );
+}
+```
+
+### Activation Progress Drawer
+
+**파일**: [apps/client/src/entities/trip/ui/ActivationProgressDrawer.tsx](../../../apps/client/src/entities/trip/ui/ActivationProgressDrawer.tsx)
+
+```tsx
+// ✅ 현재 구현
+export function ActivationProgressDrawer({
+  isOpen,
+  onClose,
+  tripName,
+  progress = 0,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  tripName: string;
+  progress?: number;
     refetchInterval: 500, // 0.5초마다 폴링
   });
 
@@ -694,14 +904,21 @@ for (let i = 0; i < schedules.length; i += BATCH_SIZE) {
 
 **문제**: 모든 CRUD에서 활성화 상태 체크 → 반복 쿼리
 
-**해결**: React Query 캐시
+**해결**: Router 함수 내부에서 1회만 조회
 
 ```typescript
-export function useActivationStatus(tripId: string) {
-return useQuery({
-queryKey: activationKeys.status(tripId),
-queryFn: async () => getTripMetadata(tripId),
-staleTime: 5 _ 60 _ 1000, // 5분 캐시
+// ✅ 현재 구현: Router 함수가 1회만 상태 확인
+export async function routeChildQuery<T>(tripId: string, operations: { local, remote }): Promise<T> {
+  const isActivated = await getTripActivationStatus(tripId); // 1회만 조회
+
+  if (isActivated) {
+    return await operations.local();
+  } else {
+    return await operations.remote();
+  }
+}
+
+// Entity Hook에서 호출 시 자동으로 상태 확인됨 (추가 조회 불필요)
 });
 }
 ```
@@ -766,64 +983,77 @@ async function checkExpiringActivations() {
 
 ## ✅ Implementation Checklist
 
-### Phase 1: 스키마 및 기본 구조 (2일)
+### Phase 1: 스키마 및 기본 구조 ✅ 완료 (2일)
 
-- [ ] `trip_metadata` 테이블 생성
-- [ ] `trip_activations` 테이블 생성
-- [ ] Drizzle 스키마 정의
-- [ ] 마이그레이션 파일 작성
-- [ ] UNIQUE constraint 추가
+- [x] `tripActivations` 테이블 생성 - Commit #1 (d071a02)
+- [x] Drizzle 스키마 정의 - Commit #1
+- [x] 인덱스 추가 - Commit #1
+- [x] trips.activated 필드 제거 - Commit #16 (7192fde)
 
-### Phase 2: 라우팅 레이어 (3일)
+### Phase 2: 라우팅 레이어 ✅ 완료 (3일)
 
-- [ ] `useActivationStatus` Hook 구현
-- [ ] `getExpenses` 라우팅 로직
-- [ ] `createExpense` 라우팅 로직
-- [ ] `updateExpense` 라우팅 로직
-- [ ] `deleteExpense` 라우팅 로직
-- [ ] 네트워크 상태 체크 유틸
+- [x] `getTripActivationStatus` 구현 - Commit #2 (773551a)
+- [x] `hasAnyActivatedTrip` 구현 - Commit #15 (9dd9e56)
+- [x] `getTripActivationStatusDetail` 구현 - Commit #21 (aec3699)
+- [x] `routeTripQuery/Mutation` 구현 - Commit #15 (9dd9e56)
+- [x] `routeChildQuery/Mutation` 구현 - Commit #15 (9dd9e56)
+- [x] 네트워크 상태 체크 유틸 - Commit #2 (773551a)
+- [x] OfflineError 클래스 - Commit #2 (773551a)
 
-### Phase 3: 활성화 관리 (4일)
+### Phase 3: 활성화 관리 ✅ 완료 (4일)
 
-- [ ] `activateTrip` 구현 (Pull 로직)
-- [ ] `deactivateTrip` 구현 (Cleanup 로직)
-- [ ] 배치 삽입 로직
-- [ ] 진행률 업데이트 로직
-- [ ] 1-Trip 제한 검증
-- [ ] syncStatus 관리
+- [x] `useActivateTrip` 구현 (Pull 로직) - Commit #6 (7fa2c99)
+- [x] `useDeactivateTrip` 구현 (Cleanup 로직) - Commit #6 (7fa2c99)
+- [x] 서버 데이터 Pull 로직 - Commit #7 (b649bc4)
+- [x] 모든 Trip 메타데이터 저장 (404 버그 해결) - Commit #15 (9dd9e56)
+- [x] 1-Trip 제한 구현 - Commit #15 (9dd9e56)
+- [x] syncStatus 관리 - Commit #6 (7fa2c99)
+- [x] 서버 API (activate/deactivate) - Commit #6 (7fa2c99)
 
-### Phase 4: 기존 코드 통합 (5일)
+### Phase 4: 기존 코드 통합 ✅ 완료 (5일)
 
-- [ ] Expense CRUD 라우팅 적용
-- [ ] Schedule CRUD 라우팅 적용
-- [ ] Trip 조회 로직 수정
-- [ ] React Query 캐시 키 정책 수정
-- [ ] UI 컴포넌트 활성화 상태 반영
+- [x] Trip CRUD 라우팅 적용 - Commit #15 (9dd9e56)
+- [x] Expense CRUD 라우팅 적용 - Commit #4, #8 (491380f, 9792ce2)
+- [x] Schedule CRUD 라우팅 적용 - Commit #5, #8 (e697059, 9792ce2)
+- [x] React Query 캐시 키 업데이트 - Commit #15
+- [x] UI 컴포넌트 활성화 상태 반영 - Commit #13 (e8d5253)
 
-### Phase 5: 테스트 및 최적화 (3일)
+### Phase 5: UI 컴포넌트 ✅ 완료 (3일)
 
-- [ ] 유닛 테스트 (라우팅 로직)
-- [ ] 통합 테스트 (활성화 플로우)
-- [ ] 엣지 케이스 테스트 (9개)
-- [ ] 성능 프로파일링
-- [ ] React Query 캐시 최적화
+- [x] ActivationBadge 구현 - Commit #13 (e8d5253)
+- [x] ActivationProgressDrawer 구현 - Commit #13 (e8d5253)
+- [x] TripCard 활성화 버튼 - Commit #13 (e8d5253)
+- [x] TripCard 비활성화 버튼 - Commit #22 (139d6d1)
+- [x] HomeScreen 구조 개선 - Commit #14 (af1b26b)
+- [x] MainTripSection 분리 - Commit #14 (af1b26b)
+- [x] Service 레이어 사용 - Commit #21 (aec3699)
 
-### Phase 6: 오프라인 지도 연동 (2일)
+### Phase 6: 오프라인 지도 연동 ⚠️ 부분 완료 (2일)
 
-- [ ] Mapbox 다운로드 API 통합
-- [ ] `mapDownloaded` 상태 관리
-- [ ] 지도 파일 삭제 로직
-- [ ] 재시도 로직
-- [ ] 저장 공간 표시 UI
+- [x] offline-map 서비스 재구조화 - Commit #10 (39c406d)
+- [x] downloadOfflineMapForTrip 구현 - Commit #10 (39c406d)
+- [x] cleanupOfflineMapForTrip 구현 - Commit #10 (39c406d)
+- [x] mapDownloaded 상태 관리 - Commit #10 (39c406d)
+- [ ] 지도 다운로드 재시도 로직 - ❌ 미구현
+- [ ] 저장 공간 표시 UI - ❌ 미구현
 
-### Phase 7: 자동화 및 Background Jobs (1일)
+### Phase 7: 자동화 및 Background Jobs ❌ 미구현 (1일)
 
-- [ ] 자동 비활성화 Job
+- [ ] 자동 비활성화 Job (여행 종료 + 7일)
 - [ ] 만료 알림 Job
 - [ ] 미완료 정리 재시도 Job
 - [ ] 앱 시작 시 복구 로직
 
-**총 예상 기간**: 12-16일
+### 추가 완료 사항 (예상 외)
+
+- [x] 통화 자동 설정 (ISO 국가 코드 기반) - Commit #17 (efe7408)
+- [x] 디버그 도구 확장 - Commit #18 (7ced40e)
+- [x] Schedule API Zod 검증 수정 - 현재 세션
+- [x] response.data 정합성 수정 - Commit #19, #20
+
+**실제 작업 기간**: 3일 4시간 (2025-11-16 ~ 2025-11-19, 22개 커밋)
+
+**남은 작업**: Phase 6 일부 + Phase 7 전체
 
 ---
 
@@ -853,7 +1083,23 @@ async function checkExpiringActivations() {
 ```typescript
 describe('Routing Layer', () => {
   it('활성화된 여행: 로컬 DB 사용', async () => {
-    const tripId = await createTrip({ activated: true });
+    const tripId = await createTrip();
+    // tripActivations 레코드 생성 (활성화)
+    await db.insert(tripActivations).values({
+      id: ulid(),
+      tripId,
+      userId: 'user1',
+      isActivated: true,
+      activatedAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      syncStatus: 'COMPLETED',
+      dataDownloaded: true,
+      mapDownloaded: false,
+      cleanupPending: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+
     const expenses = await getExpenses(tripId);
 
     expect(expenses).toBeDefined();
@@ -861,14 +1107,16 @@ describe('Routing Layer', () => {
   });
 
   it('비활성 + 오프라인: 에러', async () => {
-    const tripId = await createTrip({ activated: false });
+    const tripId = await createTrip();
+    // tripActivations 레코드 없음 (비활성)
     setNetworkStatus('offline');
 
     await expect(getExpenses(tripId)).rejects.toThrow(OfflineError);
   });
 
   it('비활성 + 온라인: 서버 조회', async () => {
-    const tripId = await createTrip({ activated: false });
+    const tripId = await createTrip();
+    // tripActivations 레코드 없음 (비활성)
     setNetworkStatus('online');
 
     const expenses = await getExpenses(tripId);
@@ -884,25 +1132,27 @@ describe('Routing Layer', () => {
 ```typescript
 describe('Activation Flow', () => {
   it('활성화 성공', async () => {
-    const tripId = await createTrip({ activated: false });
+    const tripId = await createTrip();
 
     await activateTrip(tripId);
 
-    const activation = await getActivation(tripId);
-    expect(activation.isActivated).toBe(true);
-    expect(activation.syncStatus).toBe('COMPLETED');
+    // tripActivations 확인 (Single Source of Truth)
+    const activation = await db.select().from(tripActivations).where(eq(tripActivations.tripId, tripId)).get();
+    expect(activation?.isActivated).toBe(true);
+    expect(activation?.syncStatus).toBe('COMPLETED');
 
     const localTrip = await db.select().from(trips).where(eq(trips.id, tripId)).get();
     expect(localTrip).toBeDefined();
   });
 
   it('활성화 실패 복구', async () => {
-    mockApi.get.mockRejectedValueOnce(new Error('Network Error'));
+    mockApi.post.mockRejectedValueOnce(new Error('Network Error'));
 
     await expect(activateTrip(tripId)).rejects.toThrow();
 
-    const activation = await getActivation(tripId);
-    expect(activation.syncStatus).toBe('FAILED');
+    // tripActivations 확인
+    const activation = await db.select().from(tripActivations).where(eq(tripActivations.tripId, tripId)).get();
+    expect(activation?.syncStatus).toBe('FAILED');
 
     const localTrip = await db.select().from(trips).where(eq(trips.id, tripId)).get();
     expect(localTrip).toBeUndefined(); // 롤백됨
