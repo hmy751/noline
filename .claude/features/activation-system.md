@@ -468,49 +468,243 @@ export async function activateTrip(tripId: string) {
 
 ### 비활성화하기 (Deactivate)
 
+> **⚠️ 중요**: 이번 업데이트(2025-11-20)로 3단계 삭제 시스템 도입
+
+#### 문제: sync_queue 무시로 인한 데이터 손실
+
+기존 구현은 비활성화 시 즉시 Hard delete를 실행하여, sync_queue에 PENDING 작업이 있어도 로컬 데이터를 삭제했습니다. 이로 인해:
+
+```text
+1. 오프라인에서 expense 생성 → sync_queue에 PENDING
+2. 네트워크 없음 (서버 미전송)
+3. 사용자가 비활성화 + cleanup 실행
+4. Hard delete → expense 삭제
+5. 네트워크 복구 → sync engine 시도
+6. ❌ 로컬 DB에 데이터 없음 → 서버 전송 실패
+7. 결과: 데이터 영구 손실 💀
+```
+
+#### 해결: 3단계 삭제 시스템
+
 ```typescript
-export async function deactivateTrip(tripId: string, cleanupData: boolean = true) {
-  const now = new Date().toISOString();
+/**
+ * Phase 1: 비활성화 (즉시, 사용자 대기 없음)
+ *
+ * - tripActivations 업데이트 (isActivated = false)
+ * - sync_queue 체크: PENDING 있으면 cleanup 지연
+ * - PENDING 없으면 즉시 Soft delete
+ */
+export const useDeactivateTrip = () => {
+  return useMutation({
+    mutationFn: async ({ tripId, cleanupData = false }: { tripId: string; cleanupData?: boolean }) => {
+      const now = getCurrentISOString();
 
-  // 1. 활성화 상태 변경
-  await db
-    .update(tripActivations)
-    .set({
-      isActivated: false,
-      deactivatedAt: now,
-      cleanupPending: cleanupData, // 데이터 정리 여부
-      updatedAt: now,
-    })
-    .where(eq(tripActivations.tripId, tripId));
+      // 1. sync_queue 체크: PENDING 작업이 있는지 확인
+      const hasPending = await hasPendingTasksForTrip(tripId);
 
-  // 2. 로컬 데이터 정리 (선택적)
-  if (cleanupData) {
-    await cleanupDeactivatedData(tripId);
+      if (hasPending && cleanupData) {
+        console.log(`⏳ Sync queue has pending tasks - deferring cleanup`);
+      }
+
+      // 2. 트랜잭션: 로컬 DB 업데이트
+      let cleanupExecuted = false;
+
+      await withTransaction(async () => {
+        // 2-1. 활성화 레코드 업데이트
+        await db.update(tripActivations).set({
+          isActivated: false,
+          deactivatedAt: now,
+          // PENDING 작업이 있으면 cleanup 지연, 없으면 즉시 실행
+          cleanupPending: cleanupData && hasPending,
+          updatedAt: now,
+        });
+
+        // 2-2. PENDING 없으면 즉시 Soft delete 실행
+        if (cleanupData && !hasPending) {
+          // Soft delete: schedules
+          await db.update(schedules).set({
+            deletedAt: now,
+            updatedAt: now,
+            version: sql`${schedules.version} + 1`,
+          });
+
+          // Soft delete: expenses
+          await db.update(expenses).set({
+            deletedAt: now,
+            updatedAt: now,
+            version: sql`${expenses.version} + 1`,
+          });
+
+          cleanupExecuted = true;
+        }
+      });
+
+      // 2-3. 오프라인 지도 정리 (cleanup 즉시 실행된 경우만)
+      if (cleanupData && cleanupExecuted) {
+        try {
+          await cleanupOfflineMapForTrip(tripId);
+        } catch (error) {
+          console.error(`⚠️ Failed to cleanup offline map (ignored):`, error);
+        }
+      }
+
+      return { tripId, cleanupExecuted, cleanupPending: cleanupData && hasPending };
+    },
+  });
+};
+
+/**
+ * Phase 2: Soft Delete (Background, Sync 완료 후)
+ *
+ * Background Sync (pushChanges) 완료 후 자동 실행
+ * cleanupPending = true인 여행을 찾아서 cleanup 실행
+ */
+export async function processPendingCleanups(): Promise<number> {
+  // 1. cleanupPending = true인 여행 조회
+  const pendingCleanups = await db.select().from(tripActivations).where(eq(tripActivations.cleanupPending, true)).all();
+
+  if (pendingCleanups.length === 0) {
+    return 0;
   }
+
+  let processedCount = 0;
+
+  // 2. 각 여행에 대해 cleanup 시도
+  for (const activation of pendingCleanups) {
+    const hasPending = await hasPendingTasksForTrip(activation.tripId);
+
+    if (!hasPending) {
+      // sync_queue 비었음 → Soft delete 실행
+      await withTransaction(async () => {
+        await db.update(schedules).set({
+          deletedAt: now,
+          version: sql`${schedules.version} + 1`,
+        });
+
+        await db.update(expenses).set({
+          deletedAt: now,
+          version: sql`${expenses.version} + 1`,
+        });
+
+        await db.update(tripActivations).set({ cleanupPending: false });
+      });
+
+      // 오프라인 지도 삭제
+      await cleanupOfflineMapForTrip(activation.tripId);
+
+      processedCount++;
+    }
+  }
+
+  // 3. Vacuum 실행 (7일 지난 Soft delete 레코드 Hard delete)
+  await vacuumDeletedRecords();
+
+  return processedCount;
 }
 
-async function cleanupDeactivatedData(tripId: string) {
-  try {
-    await withTransaction(async () => {
-      // 배치 삭제 (메모리 효율)
-      await db.delete(schedules).where(eq(schedules.tripId, tripId));
+/**
+ * Phase 3: Hard Delete (Vacuum, 7일 후)
+ *
+ * deletedAt이 설정된 지 7일 지난 레코드를
+ * 데이터베이스에서 완전히 제거하여 저장 공간 회수
+ */
+export async function vacuumDeletedRecords(): Promise<{ schedules: number; expenses: number }> {
+  const thresholdDate = new Date();
+  thresholdDate.setDate(thresholdDate.getDate() - 7);
+  const thresholdISO = thresholdDate.toISOString();
 
-      await db.delete(expenses).where(eq(expenses.tripId, tripId));
+  let schedulesDeleted = 0;
+  let expensesDeleted = 0;
 
-      await db.delete(trips).where(eq(trips.id, tripId));
+  await withTransaction(async () => {
+    // Hard delete: deletedAt < 7일 전
+    const schedulesToDelete = await db
+      .select({ id: schedules.id })
+      .from(schedules)
+      .where(and(isNotNull(schedules.deletedAt), lt(schedules.deletedAt, thresholdISO)))
+      .all();
 
-      // 정리 완료 마킹
-      await db.update(tripActivations).set({ cleanupPending: false }).where(eq(tripActivations.tripId, tripId));
-    });
+    if (schedulesToDelete.length > 0) {
+      await db.delete(schedules).where(and(isNotNull(schedules.deletedAt), lt(schedules.deletedAt, thresholdISO)));
+      schedulesDeleted = schedulesToDelete.length;
+    }
 
-    // 오프라인 지도 삭제 (비동기)
-    await deleteOfflineMap(tripId).catch(console.error);
-  } catch (error) {
-    console.error('Cleanup failed:', error);
-    // 실패해도 재시도 가능하도록 cleanupPending 유지
-  }
+    // Hard delete: expenses
+    const expensesToDelete = await db
+      .select({ id: expenses.id })
+      .from(expenses)
+      .where(and(isNotNull(expenses.deletedAt), lt(expenses.deletedAt, thresholdISO)))
+      .all();
+
+    if (expensesToDelete.length > 0) {
+      await db.delete(expenses).where(and(isNotNull(expenses.deletedAt), lt(expenses.deletedAt, thresholdISO)));
+      expensesDeleted = expensesToDelete.length;
+    }
+  });
+
+  return { schedules: schedulesDeleted, expenses: expensesDeleted };
 }
 ```
+
+#### 실행 시점
+
+```typescript
+// 1. Background Sync 완료 후 (engine.ts)
+export async function pushChanges(): Promise<void> {
+  // ... sync_queue 처리 ...
+
+  console.log(`✅ [Sync] Push completed`);
+
+  // Push 완료 후 자동으로 pending cleanup 처리
+  try {
+    const processedCount = await processPendingCleanups();
+    if (processedCount > 0) {
+      queryClient.invalidateQueries({ queryKey: ['trip'] });
+      queryClient.invalidateQueries({ queryKey: ['schedule'] });
+      queryClient.invalidateQueries({ queryKey: ['expense'] });
+    }
+  } catch (error) {
+    console.error('⚠️ Failed to process pending cleanups (ignored):', error);
+  }
+}
+
+// 2. 앱 시작 시 (_layout.tsx)
+function PendingCleanupTrigger() {
+  useEffect(() => {
+    const retryPendingCleanups = async () => {
+      try {
+        const processedCount = await processPendingCleanups();
+        if (processedCount > 0) {
+          queryClient.invalidateQueries({ queryKey: ['trip'] });
+          queryClient.invalidateQueries({ queryKey: ['schedule'] });
+          queryClient.invalidateQueries({ queryKey: ['expense'] });
+        }
+      } catch (error) {
+        console.error('⚠️ Failed to process pending cleanups:', error);
+      }
+    };
+
+    // 2초 지연 (DB 초기화 대기)
+    const timer = setTimeout(retryPendingCleanups, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return null;
+}
+```
+
+#### 핵심 포인트
+
+1. **사용자 대기 없음**: Phase 1은 즉시 완료 (0.1초)
+2. **데이터 안전성**: sync_queue PENDING 있으면 cleanup 지연
+3. **Soft Delete 패턴**: deletedAt 설정 (복구 가능)
+4. **Vacuum으로 저장 공간 회수**: 7일 후 Hard delete
+5. **Background Job**: 자동 처리, 사용자 개입 불필요
+
+#### 관련 문서
+
+- Decision: [`.claude/decisions/2025-11-20-deactivation-sync-queue-safety.md`](../.claude/decisions/2025-11-20-deactivation-sync-queue-safety.md)
+- Architecture: [selective-activation-architecture.md 패턴 6](../core/selective-activation-architecture.md#패턴-6-비활성화-시-sync_queue-무시로-인한-데이터-손실)
 
 ### 자동 비활성화
 
@@ -564,7 +758,11 @@ async function retryPendingCleanups() {
 
 ```typescript
 // ✅ 현재 구현 (apps/client/src/shared/services/offline-prep/metadata.ts)
-import { getTripActivationStatus, getTripActivationStatusDetail, hasAnyActivatedTrip } from '@/shared/services/offline-prep/metadata';
+import {
+  getTripActivationStatus,
+  getTripActivationStatusDetail,
+  hasAnyActivatedTrip,
+} from '@/shared/services/offline-prep/metadata';
 
 // UI 컴포넌트에서 직접 사용
 const isActivated = await getTripActivationStatus(tripId); // boolean
@@ -720,7 +918,9 @@ export function MainTripSection({ mainTripData, onActivatePress }: MainTripSecti
     <TripCard
       {...mainTrip}
       activationStatus={activationStatus}
-      onActivatePress={activationStatus !== 'online' ? undefined : () => onActivatePress(mainTripData.id, mainTrip.destination)}
+      onActivatePress={
+        activationStatus !== 'online' ? undefined : () => onActivatePress(mainTripData.id, mainTrip.destination)
+      }
     />
   );
 }
@@ -1066,7 +1266,7 @@ async function checkExpiringActivations() {
 ### Architecture
 
 - [CLAUDE.md](../../CLAUDE.md) - 프로젝트 가이드
-- [Local Architecture](../core/local-architecture.md) - Local-First 가이드
+- [Selective Activation Architecture](../core/selective-activation-architecture.md) - 활성화 기반 아키텍처 가이드
 - [Schema CLAUDE.md](../../packages/schema/CLAUDE.md) - Entity 스키마 규칙
 
 ### Implementation
@@ -1493,5 +1693,5 @@ git commit -m "feat: Apply offline-prep to Expense entity"
 
 - [Session: 아키텍처 설계](../sessions/2025-11-06-activation-architecture-design.md) - 설계 논의 전체 과정
 - [CLAUDE.md](../../CLAUDE.md) - 프로젝트 전체 가이드
-- [local-architecture.md](../core/local-architecture.md) - Local-First 완전 가이드
+- [selective-activation-architecture.md](../core/selective-activation-architecture.md) - Selective Activation 완전 가이드
 - [architecture.md](../core/architecture.md) - FSD 디렉토리 구조

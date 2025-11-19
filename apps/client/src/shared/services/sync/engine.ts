@@ -5,6 +5,7 @@ import { upsertTrips, upsertSchedules, upsertExpenses } from '@/shared/db/utils'
 import { queryClient } from '@/shared/lib/queryClient';
 import { db, tripActivations } from '@/shared/db';
 import { eq } from 'drizzle-orm';
+import { processPendingCleanups } from './cleanup-job';
 
 /**
  * Push 동기화 엔진
@@ -73,6 +74,22 @@ export async function pushChanges(): Promise<void> {
     }
 
     console.log(`✅ [Sync] Push completed`);
+
+    // 8. Push 완료 후 pending cleanup 처리
+    try {
+      console.log('🧹 [Sync] Checking for pending cleanups...');
+      const processedCount = await processPendingCleanups();
+      if (processedCount > 0) {
+        console.log(`✅ [Sync] Processed ${processedCount} pending cleanups`);
+        // React Query 캐시 무효화 (cleanup으로 deletedAt 업데이트됨)
+        queryClient.invalidateQueries({ queryKey: ['trip'] });
+        queryClient.invalidateQueries({ queryKey: ['schedule'] });
+        queryClient.invalidateQueries({ queryKey: ['expense'] });
+      }
+    } catch (error) {
+      console.error('⚠️ [Sync] Failed to process pending cleanups (ignored):', error);
+      // cleanup 실패해도 Push는 성공으로 처리
+    }
   } catch (error) {
     console.error('❌ [Sync] Push failed:', error);
   }

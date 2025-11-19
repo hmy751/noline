@@ -33,7 +33,7 @@ const policyDocuments = [
   // 상세 가이드
   '.claude/core/typescript.md',
   '.claude/core/architecture.md',
-  '.claude/core/local-architecture.md',
+  '.claude/core/selective-activation-architecture.md',
   '.claude/core/time.md',
   '.claude/core/api-data.md',
   '.claude/core/components.md',
@@ -81,7 +81,7 @@ const policies: PolicyRule[] = [
     filePatterns: ['apps/client/src/entities/**/*.ts'],
     keywords: ['withTransaction', 'sync_queue', 'transaction'],
     severity: 'high',
-    source: '.claude/core/local-architecture.md:234-289',
+    source: '.claude/core/selective-activation-architecture.md:234-289',
   },
   {
     name: 'ISO 8601 시간 형식',
@@ -97,7 +97,7 @@ const policies: PolicyRule[] = [
     filePatterns: ['apps/client/src/entities/**/*.ts', 'apps/server/src/routes/**/*.ts'],
     keywords: ['ulid', 'generateId', 'echo'],
     severity: 'critical',
-    source: '.claude/core/local-architecture.md:123-156',
+    source: '.claude/core/selective-activation-architecture.md:123-156',
   },
   {
     name: 'Soft Delete',
@@ -264,7 +264,7 @@ function recommendDocumentation(affectedPolicies: AffectedPolicy[]) {
 파일: apps/client/src/entities/expense/model/mutations.ts
 감지: withTransaction 사용
 정책: "DB + sync_queue 원자성 보장"
-출처: .claude/core/local-architecture.md:234-289
+출처: .claude/core/selective-activation-architecture.md:234-289
 
 변경 내용:
 
@@ -292,7 +292,7 @@ Decision에 포함할 내용:
 관련 정책 문서:
 
 - packages/schema/CLAUDE.md
-- .claude/core/local-architecture.md
+- .claude/core/selective-activation-architecture.md
 
 다음 단계: /doc-save --decision
 ```
@@ -363,3 +363,13 @@ git commit -m "fix: TripCard 제목 오타 수정"
 
 - `/doc-discuss` - 개발 전 논의 내용 정리
 - `/doc-save` - 문서 저장 및 자동 연결
+- `/doc-refactor` - 정책 일관성 검증 및 리팩토링
+
+## 다음 단계 제안
+
+검증 결과에 따른 다음 액션:
+
+- **Level 3-4 (DECISION)**: → `/doc-save --decision`로 진행
+- **Level 2 (CHANGELOG)**: → `/doc-save`로 진행
+- **Level 1 (Git commit)**: → `git commit -m "..."`로 충분
+- **정책 점검 필요시**: → `/doc-refactor`로 전체 검증

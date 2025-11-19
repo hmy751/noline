@@ -1,4 +1,7 @@
-# Noline - Local-First 아키텍처 실전 가이드
+# Noline - Selective Activation 아키텍처 실전 가이드
+
+> ⚠️ **중요**: 이 문서의 패턴들은 **활성화된 여행**에만 적용됩니다.
+> 비활성 여행은 [Offline-Prep Router](../../shared/services/offline-prep/router.ts)를 통해 서버로 직접 라우팅됩니다.
 
 ## 📖 목차
 
@@ -13,7 +16,15 @@
 
 ## 🏗 아키텍처 개요
 
-### Echo Protocol (Local-First 핵심 원칙)
+### Selective Activation Model
+
+**핵심 원칙**: "활성화 = 오프라인 보험, 비활성 = 온라인 전용"
+
+- **활성화된 여행**: Local-First (로컬 SQLite가 진실의 원천)
+- **비활성 여행**: Server-First (서버 API가 진실의 원천)
+- **Router**: 활성화 상태를 자동 판단하여 Local/Remote 분기
+
+### Echo Protocol (활성화된 여행 전용)
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -1508,6 +1519,163 @@ await withTransaction(async () => {
 
 ---
 
+### 패턴 6: 비활성화 시 sync_queue 무시로 인한 데이터 손실
+
+#### 증상
+
+```typescript
+// ❌ 문제 시나리오
+1. 오프라인에서 expense 생성 → sync_queue에 PENDING
+2. 네트워크 없음 (서버 미전송)
+3. 사용자가 여행 비활성화 + cleanup 실행
+4. Hard delete 즉시 실행 → expense 로컬 DB에서 삭제
+5. 네트워크 복구 → sync engine이 sync_queue 처리 시도
+6. ❌ 로컬 DB에 데이터 없음 → payload 못 읽음 → 404
+7. 결과: 데이터 영구 손실 💀
+```
+
+#### 원인
+
+- 비활성화 시 sync_queue 상태 확인 누락
+- Hard delete로 즉시 삭제하여 복구 불가
+- 원자성 보장 부재 (withTransaction 미사용)
+
+#### 해결: 3단계 삭제 시스템
+
+##### Phase 1: 비활성화 (즉시, 사용자 대기 없음)
+
+```typescript
+// 1. sync_queue 체크
+const hasPending = await hasPendingTasksForTrip(tripId);
+
+// 2. 트랜잭션으로 원자성 보장
+await withTransaction(async () => {
+  // 비활성화 설정
+  await db.update(tripActivations).set({
+    isActivated: false,
+    deactivatedAt: now,
+    cleanupPending: hasPending, // ← 지연 플래그
+  });
+
+  // PENDING 없으면 즉시 Soft delete
+  if (!hasPending) {
+    await db.update(schedules).set({ deletedAt: now });
+    await db.update(expenses).set({ deletedAt: now });
+  }
+});
+
+// 3. 오프라인 지도 삭제 (cleanup 즉시 실행된 경우만)
+if (!hasPending) {
+  await cleanupOfflineMapForTrip(tripId);
+}
+```
+
+##### Phase 2: Soft Delete (Background, Sync 완료 후)
+
+```typescript
+// Background Sync (pushChanges) 완료 후 자동 실행
+export async function processPendingCleanups(): Promise<number> {
+  // 1. cleanupPending = true인 여행 조회
+  const pendingCleanups = await db.select().from(tripActivations).where(eq(tripActivations.cleanupPending, true));
+
+  // 2. 각 여행에 대해 cleanup 시도
+  for (const activation of pendingCleanups) {
+    const hasPending = await hasPendingTasksForTrip(activation.tripId);
+
+    if (!hasPending) {
+      // sync_queue 비었음 → Soft delete 실행
+      await withTransaction(async () => {
+        await db.update(schedules).set({ deletedAt: now });
+        await db.update(expenses).set({ deletedAt: now });
+        await db.update(tripActivations).set({ cleanupPending: false });
+      });
+
+      // 오프라인 지도 삭제
+      await cleanupOfflineMapForTrip(activation.tripId);
+    }
+  }
+
+  return processedCount;
+}
+```
+
+##### Phase 3: Hard Delete (Vacuum, 7일 후)
+
+```typescript
+// 7일 지난 Soft delete 레코드 Hard delete
+export async function vacuumDeletedRecords(): Promise<{ schedules: number; expenses: number }> {
+  const thresholdDate = new Date();
+  thresholdDate.setDate(thresholdDate.getDate() - 7);
+
+  await withTransaction(async () => {
+    // deletedAt < 7일 전인 레코드 Hard delete
+    await db
+      .delete(schedules)
+      .where(and(isNotNull(schedules.deletedAt), lt(schedules.deletedAt, thresholdDate.toISOString())));
+
+    await db
+      .delete(expenses)
+      .where(and(isNotNull(expenses.deletedAt), lt(expenses.deletedAt, thresholdDate.toISOString())));
+  });
+
+  return { schedules: deletedCount, expenses: deletedCount };
+}
+```
+
+#### 핵심 패턴
+
+```typescript
+// ✅ 필수 Helper 함수
+import { hasPendingTasksForTrip, getPendingTasksForTrip } from '@/shared/services/sync/queue';
+
+// ✅ cleanupPending 플래그로 지연 제어
+cleanupPending: hasPending; // PENDING 있으면 true
+
+// ✅ Background Job에서 자동 처리
+// - pushChanges() 완료 후
+// - 앱 시작 시 (PendingCleanupTrigger)
+
+// ✅ Soft Delete 패턴 (withTransaction 필수!)
+await withTransaction(async () => {
+  await db.update(table).set({
+    deletedAt: now,
+    version: sql`${table.version} + 1`,
+  });
+});
+
+// ✅ Vacuum으로 저장 공간 회수
+// 7일 후 자동 Hard delete
+```
+
+#### 실행 시점
+
+```typescript
+1. processPendingCleanups() 자동 실행
+   - Background Sync 완료 후 (pushChanges)
+   - 앱 시작 시 (PendingCleanupTrigger, 2초 지연)
+
+2. vacuumDeletedRecords() 자동 실행
+   - processPendingCleanups() 완료 후 매번
+   - 7일 지난 레코드만 Hard delete
+
+3. forceCleanupTrip() 수동 실행
+   - 디버깅/긴급 상황용
+   - ⚠️ 주의: sync_queue 무시, 데이터 손실 가능
+```
+
+#### 트레이드오프
+
+- **복잡도 증가**: +428 lines (5 files)
+- **vs 안전성 확보**: 데이터 손실 방지, sync 완료 보장
+- **결론**: 복잡도는 수용 가능. **안전성이 더 중요**.
+
+#### 관련 문서
+
+- Decision: `.claude/decisions/2025-11-20-deactivation-sync-queue-safety.md`
+- Commit: f0b5039 (2025-11-20)
+
+---
+
 ## 🔍 디버깅 가이드
 
 ### 증상별 진단 플로우
@@ -1853,7 +2021,7 @@ deletedAt: expense.deletedAt?.toISOString() || null;
 
 ## 📚 추가 자료
 
-- [LOCAL_FIRST_IMPLEMENTATION.md](.cursor/rules/feature/LOCAL_FIRST_IMPLEMENTATION.md) - 상세 구현 가이드
+- [Activation System](../features/activation-system.md) - 활성화 시스템 완전 가이드
 - [Drizzle ORM 공식 문서](https://orm.drizzle.team/)
 - [React Query 공식 문서](https://tanstack.com/query/latest)
 - [Zod 공식 문서](https://zod.dev/)

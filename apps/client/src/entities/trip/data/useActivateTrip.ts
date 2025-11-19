@@ -4,7 +4,6 @@ import { eq } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import axios from '@/shared/api/fetcher';
 import { tripQueryKeys } from './keys';
-import { ulid } from 'ulid';
 import { downloadOfflineMapInBackground } from '@/shared/services/offline-map/download';
 import { generateId } from '@/shared/services/id/ulid';
 

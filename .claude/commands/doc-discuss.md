@@ -29,10 +29,10 @@
 ```typescript
 // 키워드 기반 문서 매칭
 const documentMap = {
-  Entity: ['packages/schema/CLAUDE.md', '.claude/core/local-architecture.md'],
+  Entity: ['packages/schema/CLAUDE.md', '.claude/core/selective-activation-architecture.md'],
   Component: ['packages/ui/CLAUDE.md', '.claude/core/components.md'],
   API: ['apps/server/CLAUDE.md', '.claude/core/api-data.md'],
-  Sync: ['.claude/core/local-architecture.md', '.claude/features/local-first-impl.md'],
+  Sync: ['.claude/core/selective-activation-architecture.md', '.claude/features/activation-system.md'],
   Time: ['.claude/core/time.md'],
   Form: ['.claude/features/form.md'],
   // ... 등등
@@ -126,7 +126,7 @@ YYYY-MM-DD
 관련 정책 문서:
 
 - packages/schema/CLAUDE.md - Entity 정의 규칙
-- .claude/core/local-architecture.md - sync_queue 패턴
+- .claude/core/selective-activation-architecture.md - sync_queue 패턴
 - .claude/references/images.md - 이미지 최적화
 
 📝 Session 저장 권장
@@ -183,3 +183,12 @@ Claude: Session 파일 생성 → 논의 계속
 
 - `/check-docs` - 개발 완료 후 문서화 필요 여부 분석
 - `/doc-save` - 문서 저장 및 자동 연결
+- `/doc-refactor` - 정책 일관성 검증 및 리팩토링
+
+## 다음 단계 제안
+
+Session 파일 생성 후:
+
+- **개발 진행**: → 실제 구현 시작
+- **개발 완료 후**: → `/check-docs`로 문서화 필요도 확인
+- **결정 사항 확정시**: → `/doc-save --decision`으로 ADR 작성

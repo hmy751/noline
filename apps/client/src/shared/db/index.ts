@@ -42,8 +42,7 @@ export async function initializeDatabase() {
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
         deleted_at TEXT,
-        version INTEGER NOT NULL DEFAULT 1,
-        activated INTEGER NOT NULL DEFAULT 0
+        version INTEGER NOT NULL DEFAULT 1
       );
     `);
 
@@ -195,7 +194,6 @@ export async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_routes_trip_id ON routes(trip_id);
       CREATE INDEX IF NOT EXISTS idx_routes_to_schedule_id ON routes(to_schedule_id);
       CREATE INDEX IF NOT EXISTS idx_routes_deleted_at ON routes(deleted_at);
-      CREATE INDEX IF NOT EXISTS idx_trips_activated ON trips(activated);
       CREATE INDEX IF NOT EXISTS idx_trip_activations_user_id ON trip_activations(user_id);
       CREATE INDEX IF NOT EXISTS idx_trip_activations_is_activated ON trip_activations(is_activated);
       CREATE INDEX IF NOT EXISTS idx_trip_activations_expires_at ON trip_activations(expires_at);

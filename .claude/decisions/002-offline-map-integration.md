@@ -395,7 +395,7 @@ if (subscribedTrips.length >= 1) {
 ## 관련 문서
 
 - [Activation System](./../features/activation-system.md) - 활성화 시스템 설계
-- [Local Architecture](./../core/local-architecture.md) - Local-First 가이드
+- [Selective Activation Architecture](./../core/selective-activation-architecture.md) - 활성화 기반 아키텍처 가이드
 - [Client CLAUDE.md](./../../apps/client/CLAUDE.md) - 클라이언트 패턴
 - [Session: 2025-11-07](./../sessions/2025-11-07-offline-map-implementation.md) - 구현 과정
 

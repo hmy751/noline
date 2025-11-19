@@ -45,21 +45,26 @@ COMMIT_HASH=$(git rev-parse --short HEAD)
 `.claude/CHANGELOG.md` 파일에 변경 사항 추가:
 
 ```markdown
-# Noline Project Changelog
+# 📝 CHANGELOG
 
-## [2024-11-05]
+## 2024-11
 
-### Expense 영수증 기능
-
+### 2024-11-05
+**[Feature]** 🟡 Expense 영수증 기능 추가
 - Expense Entity에 receiptUrl 필드 추가
 - withTransaction으로 원자성 보장
 - Commit: [a3f9b2c](../commits/a3f9b2c)
-- Related Decision: [2024-11-05-expense-receipt](./decisions/2024-11-05-expense-receipt.md)
-- Related Session: [2024-11-05-expense-receipt-design](./sessions/2024-11-05-expense-receipt-design.md)
+- Decision: [2024-11-05-expense-receipt](./decisions/2024-11-05-expense-receipt.md)
+- Session: [2024-11-05-expense-receipt-design](./sessions/2024-11-05-expense-receipt-design.md)
+
+### 2024-11-04
+**[Fix]** 🟢 동기화 버그 수정
+- Router 패턴 미사용으로 인한 404 에러 해결
+- 직접 db.select() 호출 제거
 
 ---
 
-## [2024-11-04]
+## 2024-10
 
 ...
 ```
@@ -148,7 +153,7 @@ export const expenseEntity = baseEntity.extend({
 ## Related Policies
 
 - @repo/schema 규칙: packages/schema/CLAUDE.md:67-89
-- withTransaction 패턴: .claude/core/local-architecture.md:234-289
+- withTransaction 패턴: .claude/core/selective-activation-architecture.md:234-289
 - 이미지 최적화: .claude/references/images.md
 
 ## Related Documents
@@ -402,6 +407,20 @@ Git (a3f9b2c) → CHANGELOG → Decision → CLAUDE.md
 └── (CLAUDE.md는 기존 위치에 업데이트)
 ```
 
+## 관련 명령어
+
+- `/check-docs` - 변경사항 기반 문서화 필요도 판단
+- `/doc-discuss` - 개발 전 논의 내용 정리
+- `/doc-refactor` - 정책 일관성 검증 및 리팩토링
+
+## 다음 단계 제안
+
+문서 저장 후 다음 액션:
+
+- **정책 일관성 확인 필요시**: → `/doc-refactor`로 전체 검증 (선택)
+- **추가 변경사항 있을 경우**: → `/check-docs`로 다시 확인
+- **모두 완료된 경우**: → `git add . && git commit`으로 마무리
+
 ## 주의사항
 
 - **Git commit 먼저**: 모든 문서화는 commit 이후
@@ -420,7 +439,7 @@ Git (a3f9b2c) → CHANGELOG → Decision → CLAUDE.md
 
 **80%는 Git commit만으로 충분**합니다!
 
-## 관련 명령어
+## 참고 명령어
 
 - `/doc-discuss` - 개발 전 논의 내용 정리
 - `/check-docs` - 문서화 필요 여부 분석
