@@ -1,6 +1,6 @@
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator, Alert } from 'react-native';
 import { useMemo, useState, useEffect } from 'react';
-import { TripCard, type TripData, type ActivationStatus } from '@/entities/trip';
+import { TripCard, type TripData, type ActivationStatus, useDeactivateTrip } from '@/entities/trip';
 import { useGetTripExpenses } from '@/entities/expense';
 import { groupExpensesByCurrency } from '@/shared/lib/currency';
 import { getTripActivationStatusDetail } from '@/shared/services/offline-prep/metadata';
@@ -31,6 +31,9 @@ export function MainTripSection({
   const { data: mainTripExpenses = [] } = useGetTripExpenses(mainTripData?.id ?? '');
   const expensesByCurrency = useMemo(() => groupExpensesByCurrency(mainTripExpenses), [mainTripExpenses]);
 
+  // 비활성화 mutation
+  const { mutate: deactivateTrip } = useDeactivateTrip();
+
   // ✅ 활성화 상태 조회 (service 레이어 사용)
   const [activationStatus, setActivationStatus] = useState<ActivationStatus>('online');
 
@@ -52,6 +55,39 @@ export function MainTripSection({
 
     checkActivationStatus();
   }, [mainTripData?.id]);
+
+  // 비활성화 핸들러
+  const handleDeactivate = () => {
+    if (!mainTripData) return;
+
+    Alert.alert(
+      '오프라인 해제',
+      `"${mainTripData.destination}" 여행을 오프라인 해제하시겠습니까?\n\n• 오프라인 지도 삭제\n• 로컬 일정/경비 데이터 삭제\n\n서버에 저장된 데이터는 유지됩니다.`,
+      [
+        {
+          text: '취소',
+          style: 'cancel',
+        },
+        {
+          text: '해제',
+          style: 'destructive',
+          onPress: () => {
+            deactivateTrip(
+              { tripId: mainTripData.id, cleanupData: true },
+              {
+                onSuccess: () => {
+                  Alert.alert('완료', '오프라인이 해제되었습니다.');
+                },
+                onError: () => {
+                  Alert.alert('오류', '오프라인 해제에 실패했습니다.');
+                },
+              },
+            );
+          },
+        },
+      ],
+    );
+  };
 
   // 메인 여행 데이터 변환
   const mainTrip = mainTripData
@@ -100,6 +136,7 @@ export function MainTripSection({
       onActivatePress={
         activationStatus !== 'online' ? undefined : () => onActivatePress(mainTripData.id, mainTrip.destination)
       }
+      onDeactivatePress={activationStatus !== 'online' ? handleDeactivate : undefined}
       onEditPress={onEditPress}
     />
   );

@@ -1,6 +1,6 @@
 import { View, Text, type ViewProps, TouchableOpacity } from 'react-native';
 import { cn, Pressable } from '@repo/ui';
-import { Calendar, Download, Edit3 } from 'lucide-react-native';
+import { Calendar, Download, Edit3, Trash2 } from 'lucide-react-native';
 import { ActivationBadge, type ActivationStatus } from './ActivationBadge';
 
 /**
@@ -22,6 +22,7 @@ interface TripCardProps extends ViewProps {
   // ✅ 활성화 시스템 관련
   activationStatus?: ActivationStatus;
   onActivatePress?: () => void;
+  onDeactivatePress?: () => void;
   onEditPress?: () => void;
   className?: string;
 }
@@ -35,6 +36,7 @@ export function TripCard({
   expensesByCurrency = [],
   activationStatus = 'online',
   onActivatePress,
+  onDeactivatePress,
   onEditPress,
   className,
   ...props
@@ -123,7 +125,22 @@ export function TripCard({
             activeOpacity={0.7}
           >
             <Download size={18} color='rgba(245, 251, 245, 0.9)' strokeWidth={2} />
-            <Text className='text-body-bold text-primary-foreground'>오프라인 준비하기</Text>
+            <Text className='text-body-bold text-primary-foreground'>오프라인 활성화</Text>
+          </TouchableOpacity>
+        </>
+      )}
+
+      {/* 비활성화 버튼 - 활성 상태(preparing/ready)일 때만 표시 */}
+      {(activationStatus === 'preparing' || activationStatus === 'ready') && onDeactivatePress && (
+        <>
+          <View className='my-sm h-px bg-primary-foreground/20' />
+          <TouchableOpacity
+            onPress={onDeactivatePress}
+            className='flex-row items-center justify-center gap-sm rounded-lg bg-destructive/20 py-sm'
+            activeOpacity={0.7}
+          >
+            <Trash2 size={18} color='rgba(245, 251, 245, 0.9)' strokeWidth={2} />
+            <Text className='text-body-bold text-primary-foreground'>오프라인 해제</Text>
           </TouchableOpacity>
         </>
       )}
