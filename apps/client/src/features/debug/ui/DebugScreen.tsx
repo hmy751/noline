@@ -2,11 +2,22 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, RefreshControl, Alert } from 'react-native';
 import { Pressable } from '@repo/ui';
 import { MobileHeader, Container, Stack } from '@/shared/components';
-import { ArrowLeft, Database, Trash2, RefreshCw, Upload, Wifi, WifiOff, RotateCcw } from 'lucide-react-native';
+import {
+  ArrowLeft,
+  Database,
+  Trash2,
+  RefreshCw,
+  Upload,
+  Wifi,
+  WifiOff,
+  RotateCcw,
+  Power,
+  PowerOff,
+} from 'lucide-react-native';
 import { router } from 'expo-router';
 import MapboxGL from '@rnmapbox/maps';
-import { db, trips, schedules, expenses, syncQueue, offlineCities } from '@/shared/db';
-import type { Trip, Schedule, Expense, SyncQueueItem, OfflineCity } from '@/shared/db/schema';
+import { db, trips, schedules, expenses, syncQueue, offlineCities, tripActivations } from '@/shared/db';
+import type { Trip, Schedule, Expense, SyncQueueItem, OfflineCity, TripActivation } from '@/shared/db/schema';
 import { resetDatabase } from '@/shared/db';
 import { getSyncQueueStats } from '@/shared/services/sync/queue';
 import { triggerSync } from '@/shared/services/sync/engine';
@@ -21,6 +32,7 @@ export default function DebugScreen() {
   const [expensesData, setExpensesData] = useState<Expense[]>([]);
   const [offlineCitiesData, setOfflineCitiesData] = useState<OfflineCity[]>([]);
   const [syncQueueData, setSyncQueueData] = useState<SyncQueueItem[]>([]);
+  const [tripActivationsData, setTripActivationsData] = useState<TripActivation[]>([]);
   const [stats, setStats] = useState<{ pending: number; inProgress: number; failed: number; total: number } | null>(
     null,
   );
@@ -47,6 +59,9 @@ export default function DebugScreen() {
 
       const syncQueueResult = await db.select().from(syncQueue).all();
       setSyncQueueData(syncQueueResult);
+
+      const tripActivationsResult = await db.select().from(tripActivations).all();
+      setTripActivationsData(tripActivationsResult);
 
       const statsResult = await getSyncQueueStats();
       setStats(statsResult);
@@ -123,6 +138,121 @@ export default function DebugScreen() {
     }
   };
 
+  const handleManualActivate = async (tripId: string, tripName: string) => {
+    Alert.alert('🟢 수동 활성화', `"${tripName}" 여행을 활성화하시겠습니까?`, [
+      { text: '취소', style: 'cancel' },
+      {
+        text: '활성화',
+        onPress: async () => {
+          try {
+            const { generateId } = await import('@/shared/services/id/ulid');
+            const { getCurrentISOString } = await import('@/shared/db/utils');
+            const { eq } = await import('drizzle-orm');
+
+            const now = getCurrentISOString();
+            const trip = tripsData.find((t) => t.id === tripId);
+
+            if (!trip) {
+              Alert.alert('❌ 오류', '여행을 찾을 수 없습니다.');
+              return;
+            }
+
+            // 기존 활성화 확인
+            const existing = await db.select().from(tripActivations).where(eq(tripActivations.tripId, tripId)).get();
+
+            if (existing) {
+              // 이미 활성화 레코드가 있으면 업데이트
+              await db
+                .update(tripActivations)
+                .set({
+                  isActivated: true,
+                  activatedAt: now,
+                  deactivatedAt: null,
+                  updatedAt: now,
+                })
+                .where(eq(tripActivations.tripId, tripId));
+            } else {
+              // 새 활성화 레코드 생성
+              const expiresAt = new Date(trip.endDate);
+              expiresAt.setDate(expiresAt.getDate() + 7);
+
+              await db.insert(tripActivations).values({
+                id: generateId(),
+                tripId,
+                userId: trip.userId,
+                isActivated: true,
+                activatedAt: now,
+                expiresAt: expiresAt.toISOString(),
+                syncStatus: 'PENDING',
+                createdAt: now,
+                updatedAt: now,
+              });
+            }
+
+            await loadData();
+            Alert.alert('✅ 성공', `"${tripName}" 여행이 활성화되었습니다.`);
+          } catch (error) {
+            console.error('❌ Failed to activate trip:', error);
+            Alert.alert('❌ 실패', '활성화에 실패했습니다.');
+          }
+        },
+      },
+    ]);
+  };
+
+  const handleManualDeactivate = async (tripId: string, tripName: string) => {
+    Alert.alert('🔴 수동 비활성화', `"${tripName}" 여행을 비활성화하시겠습니까?`, [
+      { text: '취소', style: 'cancel' },
+      {
+        text: '비활성화',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            const { getCurrentISOString } = await import('@/shared/db/utils');
+            const { eq } = await import('drizzle-orm');
+
+            const now = getCurrentISOString();
+
+            await db
+              .update(tripActivations)
+              .set({
+                isActivated: false,
+                deactivatedAt: now,
+                updatedAt: now,
+              })
+              .where(eq(tripActivations.tripId, tripId));
+
+            await loadData();
+            Alert.alert('✅ 성공', `"${tripName}" 여행이 비활성화되었습니다.`);
+          } catch (error) {
+            console.error('❌ Failed to deactivate trip:', error);
+            Alert.alert('❌ 실패', '비활성화에 실패했습니다.');
+          }
+        },
+      },
+    ]);
+  };
+
+  const handleClearAllActivations = () => {
+    Alert.alert('⚠️ 모든 활성화 초기화', 'tripActivations 테이블을 완전히 비우시겠습니까?', [
+      { text: '취소', style: 'cancel' },
+      {
+        text: '초기화',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await db.delete(tripActivations);
+            await loadData();
+            Alert.alert('✅ 성공', '모든 활성화가 초기화되었습니다.');
+          } catch (error) {
+            console.error('❌ Failed to clear activations:', error);
+            Alert.alert('❌ 실패', '초기화에 실패했습니다.');
+          }
+        },
+      },
+    ]);
+  };
+
   React.useEffect(() => {
     loadData();
   }, []);
@@ -147,6 +277,9 @@ export default function DebugScreen() {
                 <Text className='text-body text-foreground'>여행: {tripsData.length}개</Text>
                 <Text className='text-body text-foreground'>일정: {schedulesData.length}개</Text>
                 <Text className='text-body text-foreground'>경비: {expensesData.length}개</Text>
+                <Text className='text-body text-foreground'>
+                  활성화된 여행: {tripActivationsData.filter((a) => a.isActivated).length}개
+                </Text>
                 <Text className='text-body text-foreground'>오프라인 지도: {offlineCitiesData.length}개</Text>
                 {stats && (
                   <>
@@ -254,18 +387,44 @@ export default function DebugScreen() {
                 <Text className='text-body text-muted-foreground'>데이터가 없습니다.</Text>
               ) : (
                 <View className='gap-xs'>
-                  {tripsData.map((trip) => (
-                    <View key={trip.id} className='p-xs rounded bg-muted border border-card-border'>
-                      <Text className='text-label text-muted-foreground'>ID: {trip.id.substring(0, 8)}...</Text>
-                      <Text className='text-body text-foreground font-semibold'>{trip.name}</Text>
-                      <Text className='text-label text-muted-foreground'>
-                        {trip.destination}, {trip.country}
-                      </Text>
-                      <Text className='text-label text-muted-foreground'>
-                        Version: {trip.version} | {trip.deletedAt ? ' (삭제됨)' : ' (활성)'}
-                      </Text>
-                    </View>
-                  ))}
+                  {tripsData.map((trip) => {
+                    const activation = tripActivationsData.find((a) => a.tripId === trip.id);
+                    const isActivated = activation?.isActivated ?? false;
+
+                    return (
+                      <View key={trip.id} className='p-xs rounded bg-muted border border-card-border'>
+                        <Text className='text-label text-muted-foreground'>ID: {trip.id.substring(0, 8)}...</Text>
+                        <Text className='text-body text-foreground font-semibold'>{trip.name}</Text>
+                        <Text className='text-label text-muted-foreground'>
+                          {trip.destination}, {trip.country}
+                        </Text>
+                        <Text className='text-label text-muted-foreground'>
+                          Version: {trip.version} | {trip.deletedAt ? ' (삭제됨)' : ' (활성)'}
+                        </Text>
+                        <View className='flex-row gap-xs mt-xs'>
+                          {isActivated ? (
+                            <Pressable
+                              variant='outline'
+                              className='flex-1 flex-row items-center justify-center gap-xs py-xs rounded border border-destructive'
+                              onPress={() => handleManualDeactivate(trip.id, trip.name)}
+                            >
+                              <PowerOff size={12} color='#BF4040' />
+                              <Text className='text-label-small text-destructive'>비활성화</Text>
+                            </Pressable>
+                          ) : (
+                            <Pressable
+                              variant='outline'
+                              className='flex-1 flex-row items-center justify-center gap-xs py-xs rounded border border-primary'
+                              onPress={() => handleManualActivate(trip.id, trip.name)}
+                            >
+                              <Power size={12} color='#228B22' />
+                              <Text className='text-label-small text-primary'>활성화</Text>
+                            </Pressable>
+                          )}
+                        </View>
+                      </View>
+                    );
+                  })}
                 </View>
               )}
             </View>
@@ -352,6 +511,70 @@ export default function DebugScreen() {
                       </Text>
                     </View>
                   ))}
+                </View>
+              )}
+            </View>
+
+            <View className='rounded-lg bg-card p-md border border-card-border'>
+              <View className='flex-row items-center justify-between mb-sm'>
+                <Text className='text-title-medium text-foreground'>Trip Activations 테이블</Text>
+                {tripActivationsData.length > 0 && (
+                  <Pressable
+                    variant='outline'
+                    className='flex-row items-center gap-xs px-xs py-2xs rounded border border-destructive'
+                    onPress={handleClearAllActivations}
+                  >
+                    <Trash2 size={12} color='#BF4040' />
+                    <Text className='text-label-small text-destructive'>모두 초기화</Text>
+                  </Pressable>
+                )}
+              </View>
+              {tripActivationsData.length === 0 ? (
+                <Text className='text-body text-muted-foreground'>활성화된 여행이 없습니다.</Text>
+              ) : (
+                <View className='gap-xs'>
+                  {tripActivationsData.map((activation) => {
+                    const trip = tripsData.find((t) => t.id === activation.tripId);
+                    return (
+                      <View
+                        key={activation.id}
+                        className={`p-xs rounded border ${
+                          activation.isActivated ? 'bg-primary/10 border-primary' : 'bg-muted border-card-border'
+                        }`}
+                      >
+                        <Text className='text-label text-muted-foreground'>ID: {activation.id.substring(0, 8)}...</Text>
+                        {trip && <Text className='text-body text-foreground font-semibold'>{trip.name}</Text>}
+                        <Text className='text-label text-muted-foreground'>
+                          Trip ID: {activation.tripId.substring(0, 8)}...
+                        </Text>
+                        <Text
+                          className={`text-label font-semibold ${
+                            activation.isActivated ? 'text-primary' : 'text-muted-foreground'
+                          }`}
+                        >
+                          상태: {activation.isActivated ? '🟢 활성화됨' : '🔴 비활성'}
+                        </Text>
+                        <Text className='text-label text-muted-foreground'>
+                          동기화: {activation.syncStatus} ({activation.syncProgress}%)
+                        </Text>
+                        <Text className='text-label text-muted-foreground'>
+                          활성화: {formatISOToLocalDateTime(activation.activatedAt)}
+                        </Text>
+                        {activation.deactivatedAt && (
+                          <Text className='text-label text-muted-foreground'>
+                            비활성화: {formatISOToLocalDateTime(activation.deactivatedAt)}
+                          </Text>
+                        )}
+                        <Text className='text-label text-muted-foreground'>
+                          만료: {formatISOToLocalDateTime(activation.expiresAt)}
+                        </Text>
+                        <Text className='text-label text-muted-foreground'>
+                          데이터: {activation.dataDownloaded ? '✅' : '❌'} | 지도:{' '}
+                          {activation.mapDownloaded ? '✅' : '❌'}
+                        </Text>
+                      </View>
+                    );
+                  })}
                 </View>
               )}
             </View>

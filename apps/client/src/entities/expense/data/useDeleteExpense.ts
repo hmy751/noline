@@ -4,12 +4,14 @@ import { eq, sql } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
 import { expenseQueryKeys } from './keys';
+import { routeChildMutation } from '@/shared/services/offline-prep/router';
+import axios from '@/shared/api/fetcher';
 
 /**
- * 경비 삭제 Mutation Hook (Local-First, Soft Delete)
+ * 경비 삭제 Mutation Hook (Soft Delete)
  *
- * 로컬 DB에서 deletedAt 설정 후, sync_queue에 기록
- * 네트워크 상태와 무관하게 즉시 삭제됨 (UI에서 사라짐)
+ * - 활성화된 여행: 로컬 DB Soft Delete + sync_queue
+ * - 비활성 여행: 서버 직접 호출 (오프라인시 에러)
  *
  * ✅ Soft Delete: deletedAt 필드를 현재 시간으로 설정
  * ✅ Hard Delete가 아닌 논리 삭제로 데이터 복구 가능
@@ -25,25 +27,47 @@ export const useDeleteExpense = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      // 트랜잭션: 로컬 DB Soft Delete + sync_queue 기록
-      await withTransaction(async () => {
-        // 1. 로컬 DB에서 Soft Delete (deletedAt 설정)
-        await db
-          .update(expenses)
-          .set({
-            deletedAt: getCurrentISOString(),
-            updatedAt: getCurrentISOString(),
-            version: sql`${expenses.version} + 1`, // version 증가
-          })
-          .where(eq(expenses.id, id));
+      // 1. expense 조회하여 tripId 확인
+      const expense = await db.select().from(expenses).where(eq(expenses.id, id)).get();
 
-        // 2. sync_queue에 기록 (서버 Push 대기)
-        await addToSyncQueue('expenses', id, 'DELETE', null);
+      if (!expense) {
+        throw new Error(`Expense not found: ${id}`);
+      }
+
+      const tripId = expense.tripId;
+      const deletedAt = getCurrentISOString();
+
+      // 2. 라우팅 레이어 적용
+      return await routeChildMutation(tripId, {
+        // 로컬: 활성화된 여행
+        local: async () => {
+          await withTransaction(async () => {
+            // 로컬 DB에서 Soft Delete (deletedAt 설정)
+            await db
+              .update(expenses)
+              .set({
+                deletedAt,
+                updatedAt: deletedAt,
+                version: sql`${expenses.version} + 1`, // version 증가
+              })
+              .where(eq(expenses.id, id));
+
+            // sync_queue에 기록 (서버 Push 대기)
+            await addToSyncQueue('expenses', id, 'DELETE', null);
+          });
+
+          console.log(`✅ Expense deleted locally (Soft Delete): ${id}`);
+          return { id };
+        },
+
+        // 원격: 비활성 여행
+        remote: async () => {
+          await axios.delete(`/expenses/${id}`);
+
+          console.log(`✅ Expense deleted on server: ${id}`);
+          return { id };
+        },
       });
-
-      console.log(`✅ Expense deleted locally (Soft Delete): ${id}`);
-
-      return { id };
     },
     onSuccess: () => {
       // 캐시 무효화 - 경비 목록 다시 조회 (deletedAt이 null인 것만 조회)

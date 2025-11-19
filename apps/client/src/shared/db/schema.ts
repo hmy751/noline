@@ -230,3 +230,50 @@ export type NewOfflineCity = typeof offlineCities.$inferInsert;
 
 export type Route = typeof routes.$inferSelect;
 export type NewRoute = typeof routes.$inferInsert;
+
+// ========================================
+// Trip Activations Table (활성화 관리)
+// ========================================
+
+/**
+ * 여행 활성화 관리 테이블
+ * - 동시에 1개 여행만 활성화 가능 (UNIQUE constraint)
+ * - 활성화 상태 추적 및 자동 만료 관리
+ * - 동기화 진행률 추적
+ */
+export const tripActivations = sqliteTable('trip_activations', {
+  id: text('id').primaryKey(),
+  tripId: text('trip_id')
+    .notNull()
+    .unique() // 여행당 1개 레코드만
+    .references(() => trips.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull(),
+
+  // 활성화 상태
+  isActivated: integer('is_activated', { mode: 'boolean' }).notNull().default(true),
+  activatedAt: text('activated_at').notNull(), // ISO string
+  deactivatedAt: text('deactivated_at'), // ISO string
+  expiresAt: text('expires_at').notNull(), // ISO string (여행 종료 + 7일)
+
+  // 동기화 상태
+  syncStatus: text('sync_status').notNull().default('PENDING'), // 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED'
+  lastSyncAt: text('last_sync_at'), // ISO string
+  syncProgress: integer('sync_progress').default(0), // 0-100 (%)
+
+  // 정리 상태
+  cleanupPending: integer('cleanup_pending', { mode: 'boolean' }).notNull().default(false),
+
+  // 데이터 다운로드 상태 (별도 추적)
+  dataDownloaded: integer('data_downloaded', { mode: 'boolean' }).notNull().default(false),
+  mapDownloaded: integer('map_downloaded', { mode: 'boolean' }).notNull().default(false),
+
+  // 저장 공간 추적
+  estimatedSize: integer('estimated_size'), // bytes
+  actualSize: integer('actual_size'), // bytes
+
+  createdAt: text('created_at').notNull(), // ISO string
+  updatedAt: text('updated_at').notNull(), // ISO string
+});
+
+export type TripActivation = typeof tripActivations.$inferSelect;
+export type NewTripActivation = typeof tripActivations.$inferInsert;

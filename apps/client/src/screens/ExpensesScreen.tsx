@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, Alert } from 'react-native';
 import { Container, Stack, ExpenseCard, MobileHeader } from '@/shared/components';
 import { TripSelector } from '@/entities/trip';
-import { useGetExpenses, useDeleteExpense } from '@/entities/expense';
+import { useGetTripExpenses, useDeleteExpense } from '@/entities/expense';
 import { useGetTrips } from '@/entities/trip';
 import { Pressable } from '@repo/ui';
 import { useRouter } from 'expo-router';
@@ -30,8 +30,8 @@ export default function ExpensesScreen() {
   const { data: trips = [] } = useGetTrips();
   const selectedTrip = trips.find((trip) => trip.id === selectedTripId);
 
-  // 실제 경비 데이터 조회
-  const { data: expenses = [], isLoading } = useGetExpenses(selectedTripId ? { tripId: selectedTripId } : undefined);
+  // 실제 경비 데이터 조회 (tripId 필수)
+  const { data: expenses = [], isLoading } = useGetTripExpenses(selectedTripId || '');
 
   // 여행 날짜 범위에서 모든 날짜 생성
   const generateDateRange = (): string[] => {

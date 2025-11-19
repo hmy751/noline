@@ -11,10 +11,11 @@ export type {
 export { EXPENSE_CATEGORIES, CURRENCIES, CURRENCY_SYMBOLS } from './model';
 
 // Data Hooks
-export { useGetExpenses, expenseQueryKeys } from './data';
+export { useGetAllExpenses, expenseQueryKeys } from './data';
 export { useCreateExpense } from './data';
 export { useUpdateExpense } from './data';
 export { useDeleteExpense } from './data';
+export { useGetTripExpenses } from './data';
 
 // UI Components
 export { ExpenseCard } from './ui';

@@ -4,6 +4,8 @@ import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
 import type { CreateExpenseRequest } from '../model';
 import { expenseQueryKeys } from './keys';
+import { routeChildMutation } from '@/shared/services/offline-prep/router';
+import axios from '@/shared/api/fetcher';
 
 /**
  * 경비 생성 Mutation Hook (Local-First)
@@ -55,30 +57,54 @@ export const useCreateExpense = () => {
         version: 1,
       };
 
-      // 트랜잭션: 로컬 DB 저장 + sync_queue 기록
-      await withTransaction(async () => {
-        // 1. 로컬 DB에 저장
-        await db.insert(expenses).values(newExpense);
+      // 라우팅 레이어 적용
+      return await routeChildMutation(data.tripId, {
+        // 로컬: 기존 로직 (트랜잭션)
+        local: async () => {
+          await withTransaction(async () => {
+            // 1. 로컬 DB에 저장
+            await db.insert(expenses).values(newExpense);
 
-        // 2. sync_queue에 기록 (서버 Push 대기)
-        await addToSyncQueue('expenses', id, 'CREATE', {
-          id,
-          userId,
-          tripId: data.tripId,
-          scheduleId: data.scheduleId,
-          title: data.title,
-          amount: data.amount,
-          currency: data.currency,
-          category: data.category,
-          date: data.date,
-          hasReceipt: data.hasReceipt,
-          receiptUrl: data.receiptUrl,
-        });
+            // 2. sync_queue에 기록 (서버 Push 대기)
+            await addToSyncQueue('expenses', id, 'CREATE', {
+              id,
+              userId,
+              tripId: data.tripId,
+              scheduleId: data.scheduleId,
+              title: data.title,
+              amount: data.amount,
+              currency: data.currency,
+              category: data.category,
+              date: data.date,
+              hasReceipt: data.hasReceipt,
+              receiptUrl: data.receiptUrl,
+            });
+          });
+
+          console.log(`✅ Expense created locally: ${id} - ${data.title}`);
+          return newExpense;
+        },
+
+        // 원격: 서버 직접 호출
+        remote: async () => {
+          const response = await axios.post('/expenses', {
+            id,
+            userId,
+            tripId: data.tripId,
+            scheduleId: data.scheduleId,
+            title: data.title,
+            amount: data.amount,
+            currency: data.currency,
+            category: data.category,
+            date: data.date,
+            hasReceipt: data.hasReceipt,
+            receiptUrl: data.receiptUrl,
+          });
+
+          console.log(`✅ Expense created on server: ${id} - ${data.title}`);
+          return response.data;
+        },
       });
-
-      console.log(`✅ Expense created locally: ${id} - ${data.title}`);
-
-      return newExpense;
     },
     onSuccess: (_, variables) => {
       // 캐시 무효화 - 새 경비가 생성되었으므로 관련 목록 다시 조회

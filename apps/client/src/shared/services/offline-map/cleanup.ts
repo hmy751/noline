@@ -3,6 +3,7 @@
  * 여행 종료 후 7일이 지난 오프라인 지도 자동 삭제
  */
 
+import MapboxGL from '@rnmapbox/maps';
 import { eq, and, isNull, lt } from 'drizzle-orm';
 import { db } from '@/shared/db';
 import { trips, offlineCities } from '@/shared/db/schema';
@@ -121,5 +122,81 @@ async function decrementCityReference(cityId: number): Promise<void> {
       .run();
 
     console.log(`[OfflineMapCleanup] Updated reference count for ${offlineCity.cityName}: ${activeCount}`);
+  }
+}
+
+/**
+ * 특정 여행의 오프라인 지도 즉시 정리
+ * (여행 비활성화시 사용)
+ *
+ * @param tripId - 여행 ID
+ * @returns Promise<void>
+ */
+export async function cleanupOfflineMapForTrip(tripId: string): Promise<void> {
+  console.log(`🗑️ Starting offline map cleanup for trip: ${tripId}`);
+
+  // 1. Trip의 cityId 조회
+  const trip = await db
+    .select({
+      cityId: trips.cityId,
+    })
+    .from(trips)
+    .where(eq(trips.id, tripId))
+    .get();
+
+  if (!trip?.cityId) {
+    console.log(`⚠️ Trip has no cityId, skipping map cleanup: ${tripId}`);
+    return;
+  }
+
+  // 2. offlineCities에서 해당 도시 조회
+  const offlineCity = await db.select().from(offlineCities).where(eq(offlineCities.cityId, trip.cityId)).get();
+
+  if (!offlineCity) {
+    console.log(`⚠️ No offline map found for city: ${trip.cityId}`);
+    return;
+  }
+
+  // 3. 참조 카운트 감소
+  const newReferenceCount = offlineCity.referenceCount - 1;
+
+  if (newReferenceCount > 0) {
+    // 아직 다른 여행이 참조 중 - 카운트만 감소
+    await db
+      .update(offlineCities)
+      .set({
+        referenceCount: newReferenceCount,
+        updatedAt: new Date().toISOString(),
+      })
+      .where(eq(offlineCities.cityId, trip.cityId))
+      .run();
+
+    console.log(
+      `✅ Offline map reference count decreased: ${trip.cityId} (${offlineCity.referenceCount} -> ${newReferenceCount})`,
+    );
+    return;
+  }
+
+  // 4. 참조 카운트가 0이 되면 완전 삭제
+  try {
+    // 4-1. Mapbox 네이티브 팩 삭제
+    const regionName = offlineCity.mapboxRegionName;
+    const existingPacks = await MapboxGL.offlineManager.getPacks();
+    const pack = existingPacks.find((p) => p.name === regionName);
+
+    if (pack) {
+      await MapboxGL.offlineManager.deletePack(regionName);
+      console.log(`🗑️ Deleted Mapbox native pack: ${regionName}`);
+    } else {
+      console.log(`⚠️ Mapbox pack not found (may already be deleted): ${regionName}`);
+    }
+
+    // 4-2. DB에서 삭제
+    await db.delete(offlineCities).where(eq(offlineCities.cityId, trip.cityId)).run();
+
+    console.log(`✅ Offline map completely removed: ${trip.cityId}`);
+  } catch (error) {
+    console.error(`❌ Failed to delete offline map:`, error);
+    // 에러가 나도 계속 진행 (이미 삭제되었거나 다른 이유로 실패할 수 있음)
   }
 }

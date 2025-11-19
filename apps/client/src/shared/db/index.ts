@@ -42,7 +42,8 @@ export async function initializeDatabase() {
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
         deleted_at TEXT,
-        version INTEGER NOT NULL DEFAULT 1
+        version INTEGER NOT NULL DEFAULT 1,
+        activated INTEGER NOT NULL DEFAULT 0
       );
     `);
 
@@ -156,6 +157,30 @@ export async function initializeDatabase() {
       );
     `);
 
+    // Trip Activations 테이블 생성 (활성화 관리)
+    expoDb.execSync(`
+      CREATE TABLE IF NOT EXISTS trip_activations (
+        id TEXT PRIMARY KEY NOT NULL,
+        trip_id TEXT NOT NULL UNIQUE,
+        user_id TEXT NOT NULL,
+        is_activated INTEGER NOT NULL DEFAULT 1,
+        activated_at TEXT NOT NULL,
+        deactivated_at TEXT,
+        expires_at TEXT NOT NULL,
+        sync_status TEXT NOT NULL DEFAULT 'PENDING',
+        last_sync_at TEXT,
+        sync_progress INTEGER DEFAULT 0,
+        cleanup_pending INTEGER NOT NULL DEFAULT 0,
+        data_downloaded INTEGER NOT NULL DEFAULT 0,
+        map_downloaded INTEGER NOT NULL DEFAULT 0,
+        estimated_size INTEGER,
+        actual_size INTEGER,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE
+      );
+    `);
+
     // 인덱스 생성 (성능 최적화)
     expoDb.execSync(`
       CREATE INDEX IF NOT EXISTS idx_trips_user_id ON trips(user_id);
@@ -170,6 +195,10 @@ export async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_routes_trip_id ON routes(trip_id);
       CREATE INDEX IF NOT EXISTS idx_routes_to_schedule_id ON routes(to_schedule_id);
       CREATE INDEX IF NOT EXISTS idx_routes_deleted_at ON routes(deleted_at);
+      CREATE INDEX IF NOT EXISTS idx_trips_activated ON trips(activated);
+      CREATE INDEX IF NOT EXISTS idx_trip_activations_user_id ON trip_activations(user_id);
+      CREATE INDEX IF NOT EXISTS idx_trip_activations_is_activated ON trip_activations(is_activated);
+      CREATE INDEX IF NOT EXISTS idx_trip_activations_expires_at ON trip_activations(expires_at);
     `);
 
     console.log('✅ Local database initialized successfully');
@@ -187,6 +216,7 @@ export async function initializeDatabase() {
 export async function resetDatabase() {
   console.log('🔄 Resetting database...');
 
+  expoDb.execSync(`DROP TABLE IF EXISTS trip_activations;`);
   expoDb.execSync(`DROP TABLE IF EXISTS routes;`);
   expoDb.execSync(`DROP TABLE IF EXISTS offline_cities;`);
   expoDb.execSync(`DROP TABLE IF EXISTS sync_metadata;`);

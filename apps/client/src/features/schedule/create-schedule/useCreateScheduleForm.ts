@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCreateSchedule, useGetScheduleCount, useGetSchedules } from '@/entities/schedule';
-import { useDownloadOfflineMap } from '@/entities/offline-city';
+import { useCreateSchedule, useGetSchedules } from '@/entities/schedule';
 import { useAutoDownloadRoutes } from '@/entities/route';
 import { createScheduleFormSchema, type CreateScheduleFormData } from './schema';
 import { combineDateTimeToISO } from '@/shared/lib/datetime';
@@ -41,9 +40,7 @@ export const useCreateScheduleForm = ({ tripId, selectedLocation, onSuccess }: U
   }, [selectedLocation, form]);
 
   const { mutate: createSchedule, isPending } = useCreateSchedule();
-  const { mutate: downloadOfflineMap } = useDownloadOfflineMap();
   const { mutate: autoDownloadRoutes } = useAutoDownloadRoutes();
-  const { data: scheduleCount } = useGetScheduleCount(tripId);
   const { data: schedules = [] } = useGetSchedules(tripId);
 
   const handleShowDatePicker = () => {
@@ -71,9 +68,6 @@ export const useCreateScheduleForm = ({ tripId, selectedLocation, onSuccess }: U
     // ✅ date + time → ISO string with timezone
     const scheduledAt = combineDateTimeToISO(data.date, data.time);
 
-    // 첫 Schedule인지 확인
-    const isFirstSchedule = scheduleCount === 0;
-
     createSchedule(
       {
         id, // ✅ Echo: client-generated ID
@@ -87,13 +81,7 @@ export const useCreateScheduleForm = ({ tripId, selectedLocation, onSuccess }: U
       },
       {
         onSuccess: () => {
-          // 첫 Schedule이면 오프라인 지도 다운로드 트리거
-          if (isFirstSchedule) {
-            console.log('🗺️ First schedule created - triggering offline map download');
-            downloadOfflineMap({ tripId });
-          } else {
-            console.log('✅ Schedule created (not first, skip download)');
-          }
+          console.log('✅ Schedule created successfully');
 
           // 경로 자동 다운로드 (새 일정 포함)
           setTimeout(() => {

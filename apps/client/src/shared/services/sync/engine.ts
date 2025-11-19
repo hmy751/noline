@@ -3,6 +3,8 @@ import { getPendingTasks, deleteTask, updateTaskStatus } from './queue';
 import { getLastSyncedAt, setLastSyncedAt } from './storage';
 import { upsertTrips, upsertSchedules, upsertExpenses } from '@/shared/db/utils';
 import { queryClient } from '@/shared/lib/queryClient';
+import { db, tripActivations } from '@/shared/db';
+import { eq } from 'drizzle-orm';
 
 /**
  * Push 동기화 엔진
@@ -90,14 +92,23 @@ export async function pullChanges(): Promise<void> {
     // 1. 마지막 동기화 시간 조회
     const lastSyncedAt = await getLastSyncedAt();
 
+    // 2. 활성화된 여행 ID 조회 (tripActivations 테이블 사용)
+    const activatedTrips = await db
+      .select({ tripId: tripActivations.tripId })
+      .from(tripActivations)
+      .where(eq(tripActivations.isActivated, true));
+    const activatedTripIds = activatedTrips.map((activation) => activation.tripId);
+
     console.log('📥 [Sync] Starting pull...', {
       lastSyncedAt: lastSyncedAt?.toISOString() || 'Never synced (초기 동기화)',
+      activatedTripIds: activatedTripIds.length > 0 ? activatedTripIds : 'None (metadata only)',
     });
 
-    // 2. 서버에서 데이터 가져오기
+    // 3. 서버에서 데이터 가져오기
     const response = await syncApiClient.get('/api/sync/pull', {
       params: {
         lastSyncedAt: lastSyncedAt?.toISOString(),
+        activatedTripIds: activatedTripIds.length > 0 ? activatedTripIds.join(',') : undefined,
       },
     });
 

@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { tripEntity } from '../entities/trip';
+import { scheduleEntity } from '../entities/schedule';
+import { expenseEntity } from '../entities/expense';
 
 // ========================================
 // Trip Response Schemas (API 응답)
@@ -30,4 +32,20 @@ export const tripListResponse = z.object({
 export const deleteTripResponse = z.object({
   success: z.literal(true),
   message: z.string(),
+});
+
+/**
+ * 여행 활성화 응답
+ * POST /api/trips/:id/activate
+ *
+ * 활성화 시 모든 Trip 메타데이터 + 해당 Trip의 Schedule/Expense 반환
+ */
+export const activateTripResponse = z.object({
+  success: z.literal(true),
+  data: z.object({
+    trips: z.array(tripEntity), // 모든 Trip 메타데이터
+    schedules: z.array(scheduleEntity), // 활성화된 Trip의 Schedule
+    expenses: z.array(expenseEntity), // 활성화된 Trip의 Expense
+  }),
+  message: z.string().optional(),
 });

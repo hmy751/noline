@@ -3,14 +3,17 @@ import { db, trips } from '@/shared/db';
 import { eq, sql } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
+import { routeChildMutation } from '@/shared/services/offline-prep/router';
+import axios from '@/shared/api/fetcher';
 import type { UpdateTripRequest } from '../model';
 import { tripQueryKeys } from './keys';
 
 /**
- * 여행 수정 Mutation Hook (Local-First)
+ * 여행 수정 Mutation Hook (Router 적용)
  *
- * 로컬 DB 우선 업데이트 후, sync_queue에 기록
- * 네트워크 상태와 무관하게 즉시 업데이트됨
+ * 활성화 여부에 따라 로컬/서버 분기:
+ * - 활성화된 Trip: 로컬 DB 수정 + sync_queue
+ * - 비활성 Trip: 서버 직접 수정
  *
  * @example
  * ```tsx
@@ -29,25 +32,32 @@ export const useUpdateTrip = () => {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: UpdateTripRequest }) => {
-      // 트랜잭션: 로컬 DB 업데이트 + sync_queue 기록
-      await withTransaction(async () => {
-        // 1. 로컬 DB 업데이트
-        await db
-          .update(trips)
-          .set({
-            ...data,
-            updatedAt: getCurrentISOString(),
-            version: sql`${trips.version} + 1`, // version 증가
-          })
-          .where(eq(trips.id, id));
-
-        // 2. sync_queue에 기록 (서버 Push 대기)
-        await addToSyncQueue('trips', id, 'UPDATE', data);
+      // Router를 통한 Trip 수정 (해당 Trip이 활성화되어 있으면 local, 아니면 remote)
+      return await routeChildMutation(id, {
+        local: async () => {
+          // 활성화된 Trip → 로컬 DB 수정 + sync_queue
+          await withTransaction(async () => {
+            // Convert latitude/longitude from number to string for DB
+            const dbData = {
+              ...data,
+              latitude: data.latitude?.toString() ?? null,
+              longitude: data.longitude?.toString() ?? null,
+              updatedAt: getCurrentISOString(),
+              version: sql`${trips.version} + 1`,
+            };
+            await db.update(trips).set(dbData).where(eq(trips.id, id));
+            await addToSyncQueue('trips', id, 'UPDATE', data);
+          });
+          console.log(`✅ Trip updated locally: ${id}`);
+          return { id, ...data };
+        },
+        remote: async () => {
+          // 비활성 Trip → 서버 직접 수정
+          const response = await axios.put(`/api/trips/${id}`, data);
+          console.log(`✅ Trip updated on server: ${id}`);
+          return response.data.data;
+        },
       });
-
-      console.log(`✅ Trip updated locally: ${id}`);
-
-      return { id, ...data };
     },
     onSuccess: () => {
       // 캐시 무효화 - 여행 목록 다시 조회

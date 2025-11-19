@@ -30,4 +30,5 @@ export type DeleteTripResponse = z.infer<typeof deleteTripResponse>;
 // ========================================
 // Alias (backward compatibility)
 // ========================================
-export type TripData = TripResponse;
+// TripData는 로컬 DB에서 사용하는 tripEntity 타입
+export type TripData = Trip;

@@ -30,4 +30,5 @@ export type DeleteScheduleResponse = z.infer<typeof deleteScheduleResponse>;
 // ========================================
 // Alias (backward compatibility)
 // ========================================
-export type ScheduleData = ScheduleResponse;
+// ScheduleData는 로컬 DB에서 사용하는 scheduleEntity 타입
+export type ScheduleData = Schedule;

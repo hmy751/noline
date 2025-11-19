@@ -12,6 +12,7 @@ import { useCreateTrip } from '@/entities/trip';
 import { useRouter } from 'expo-router';
 import { generateId } from '@/shared/services/id/ulid';
 import { dateToISODateTime } from '@/shared/lib/datetime';
+import { getCurrencyByCountryCode } from '@/shared/lib/country-currency';
 
 type TripDateFormProps = {
   city: City;
@@ -57,6 +58,7 @@ export default function TripDateForm({ city }: TripDateFormProps) {
         name: `${city.name} 여행`,
         destination: city.name,
         country: city.country,
+        baseCurrency: getCurrencyByCountryCode(city.countryCode),
         latitude: city.latitude,
         longitude: city.longitude,
         cityId: city.id,

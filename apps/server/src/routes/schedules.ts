@@ -3,7 +3,7 @@ import type { Request, Response } from 'express';
 import { db, schedules } from '../db/index.js';
 import { eq, and, sql, isNull } from 'drizzle-orm';
 import { createScheduleRequest, updateScheduleRequest } from '@repo/schema/requests/schedule';
-import { scheduleEntity } from '@repo/schema/entities/schedule';
+import { scheduleResponse } from '@repo/schema/responses/schedule';
 
 const router = Router();
 
@@ -39,8 +39,8 @@ router.post('/', async (req: Request, res: Response) => {
       })
       .returning();
 
-    // Zod로 응답 전체 검증 (scheduleEntity 사용)
-    const responseData = {
+    // Zod로 응답 데이터 검증
+    const validatedSchedule = scheduleResponse.safeParse({
       success: true,
       data: {
         ...newSchedule,
@@ -49,16 +49,14 @@ router.post('/', async (req: Request, res: Response) => {
         updatedAt: newSchedule.updatedAt.toISOString(),
         deletedAt: newSchedule.deletedAt?.toISOString() || null,
       },
-    };
+    });
 
-    const validated = scheduleEntity.safeParse(responseData);
-
-    if (!validated.success) {
-      console.error('Schedule response validation error:', validated.error);
+    if (!validatedSchedule.success) {
+      console.error('Schedule response validation error:', validatedSchedule.error);
       throw new Error('Invalid schedule response data');
     }
 
-    res.status(201).json(validated.data);
+    res.status(201).json(validatedSchedule.data);
   } catch (error) {
     console.error('Error creating schedule:', error);
 
@@ -95,7 +93,6 @@ router.get('/', async (req: Request, res: Response) => {
     }
 
     const allSchedules = await queryBuilder.orderBy(schedules.scheduledAt);
-
     // ISO string으로 변환
     const validatedSchedules = allSchedules.map((schedule) => ({
       ...schedule,
@@ -122,6 +119,57 @@ router.get('/', async (req: Request, res: Response) => {
       res.status(500).json({
         error: 'Internal server error',
         message: 'Failed to fetch schedules',
+        details: 'Unknown error occurred',
+      });
+    }
+  }
+});
+
+// GET /api/schedules/:id - 특정 일정 조회
+router.get('/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // 일정 조회 (Soft Delete 제외)
+    const [schedule] = await db
+      .select()
+      .from(schedules)
+      .where(and(eq(schedules.id, id), isNull(schedules.deletedAt)))
+      .limit(1);
+
+    if (!schedule) {
+      return res.status(404).json({
+        error: 'Not found',
+        message: 'Schedule not found',
+      });
+    }
+
+    // ISO string으로 변환
+    const validatedSchedule = {
+      ...schedule,
+      scheduledAt: schedule.scheduledAt.toISOString(),
+      createdAt: schedule.createdAt.toISOString(),
+      updatedAt: schedule.updatedAt.toISOString(),
+      deletedAt: schedule.deletedAt?.toISOString() || null,
+    };
+
+    res.status(200).json({
+      success: true,
+      data: validatedSchedule,
+    });
+  } catch (error) {
+    console.error('Error fetching schedule:', error);
+
+    if (error instanceof Error) {
+      res.status(500).json({
+        error: 'Internal server error',
+        message: 'Failed to fetch schedule',
+        details: error.message,
+      });
+    } else {
+      res.status(500).json({
+        error: 'Internal server error',
+        message: 'Failed to fetch schedule',
         details: 'Unknown error occurred',
       });
     }
@@ -192,8 +240,8 @@ router.put('/:id', async (req: Request, res: Response) => {
       .where(eq(schedules.id, scheduleId))
       .returning();
 
-    // 응답 데이터 구성
-    const responseData = {
+    // Zod로 응답 데이터 검증
+    const validatedSchedule = scheduleResponse.safeParse({
       success: true,
       data: {
         ...updatedSchedule,
@@ -202,17 +250,14 @@ router.put('/:id', async (req: Request, res: Response) => {
         updatedAt: updatedSchedule.updatedAt.toISOString(),
         deletedAt: updatedSchedule.deletedAt?.toISOString() || null,
       },
-    };
+    });
 
-    // Zod 검증
-    const validated = scheduleEntity.safeParse(responseData);
-
-    if (!validated.success) {
-      console.error('Schedule response validation error:', validated.error);
+    if (!validatedSchedule.success) {
+      console.error('Schedule response validation error:', validatedSchedule.error);
       throw new Error('Invalid schedule response data');
     }
 
-    res.status(200).json(validated.data);
+    res.status(200).json(validatedSchedule.data);
   } catch (error) {
     console.error('Error updating schedule:', error);
 

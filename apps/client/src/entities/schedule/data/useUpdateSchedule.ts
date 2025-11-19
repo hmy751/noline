@@ -4,6 +4,8 @@ import { eq, sql } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
 import { scheduleQueryKeys } from './keys';
+import { routeChildMutation } from '@/shared/services/offline-prep/router';
+import axios from '@/shared/api/fetcher';
 
 /**
  * 일정 수정 요청 데이터 타입
@@ -18,10 +20,10 @@ export type UpdateScheduleRequest = {
 };
 
 /**
- * 일정 수정 Mutation Hook (Local-First)
+ * 일정 수정 Mutation Hook (라우팅 레이어 적용)
  *
- * 로컬 DB 우선 업데이트 후, sync_queue에 기록
- * 네트워크 상태와 무관하게 즉시 업데이트됨
+ * - 활성화된 여행: 로컬 DB 업데이트 + sync_queue 기록
+ * - 비활성 여행: 서버 API 직접 호출
  *
  * @example
  * ```tsx
@@ -40,25 +42,44 @@ export const useUpdateSchedule = () => {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: UpdateScheduleRequest }) => {
-      // 트랜잭션: 로컬 DB 업데이트 + sync_queue 기록
-      await withTransaction(async () => {
-        // 1. 로컬 DB 업데이트
-        await db
-          .update(schedules)
-          .set({
-            ...data,
-            updatedAt: getCurrentISOString(),
-            version: sql`${schedules.version} + 1`, // version 증가
-          })
-          .where(eq(schedules.id, id));
+      // 1. 일정의 tripId 조회 (라우팅을 위해 필요)
+      const schedule = await db.select({ tripId: schedules.tripId }).from(schedules).where(eq(schedules.id, id)).get();
 
-        // 2. sync_queue에 기록 (서버 Push 대기)
-        await addToSyncQueue('schedules', id, 'UPDATE', data);
+      if (!schedule) {
+        throw new Error(`Schedule not found: ${id}`);
+      }
+
+      return await routeChildMutation(schedule.tripId, {
+        // 로컬: 로컬 DB 업데이트 + sync_queue 기록
+        local: async () => {
+          // 트랜잭션: 로컬 DB 업데이트 + sync_queue 기록
+          await withTransaction(async () => {
+            // 1. 로컬 DB 업데이트
+            await db
+              .update(schedules)
+              .set({
+                ...data,
+                updatedAt: getCurrentISOString(),
+                version: sql`${schedules.version} + 1`, // version 증가
+              })
+              .where(eq(schedules.id, id));
+
+            // 2. sync_queue에 기록 (서버 Push 대기)
+            await addToSyncQueue('schedules', id, 'UPDATE', data);
+          });
+
+          console.log(`✅ Schedule updated locally: ${id}`);
+
+          return { id, ...data };
+        },
+
+        // 원격: 서버 API 직접 호출
+        remote: async () => {
+          const response = await axios.put(`/api/schedules/${id}`, data);
+          console.log(`✅ Schedule updated on server: ${id}`);
+          return response.data.data;
+        },
       });
-
-      console.log(`✅ Schedule updated locally: ${id}`);
-
-      return { id, ...data };
     },
     onSuccess: () => {
       // 캐시 무효화 - 일정 목록 다시 조회
