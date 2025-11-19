@@ -83,8 +83,9 @@ export const useCreateSchedule = () => {
         // 원격: 서버 API 직접 호출
         remote: async () => {
           const response = await axios.post('/api/schedules', data);
-          console.log(`✅ Schedule created on server: ${response.data.data.id}`);
-          return response.data.data;
+
+          console.log(`✅ Schedule created on server: ${response.data.id}`);
+          return response.data;
         },
       });
     },

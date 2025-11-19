@@ -41,8 +41,8 @@ export const useGetSchedules = (tripId: string) => {
         // 원격: 서버 API 호출 (Query Parameter)
         remote: async () => {
           const response = await axios.get(`/api/schedules?tripId=${tripId}`);
-          console.log(`📋 Schedules loaded from server: ${response.data.data.length} items`);
-          return response.data.data; // { success: true, data: [...] } 구조
+          console.log(`📋 Schedules loaded from server: ${response.data.length} items`);
+          return response.data;
         },
       });
     },
