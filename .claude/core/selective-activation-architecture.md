@@ -1,4 +1,7 @@
-# Noline - Local-First 아키텍처 실전 가이드
+# Noline - Selective Activation 아키텍처 실전 가이드
+
+> ⚠️ **중요**: 이 문서의 패턴들은 **활성화된 여행**에만 적용됩니다.
+> 비활성 여행은 [Offline-Prep Router](../../shared/services/offline-prep/router.ts)를 통해 서버로 직접 라우팅됩니다.
 
 ## 📖 목차
 
@@ -13,7 +16,15 @@
 
 ## 🏗 아키텍처 개요
 
-### Echo Protocol (Local-First 핵심 원칙)
+### Selective Activation Model
+
+**핵심 원칙**: "활성화 = 오프라인 보험, 비활성 = 온라인 전용"
+
+- **활성화된 여행**: Local-First (로컬 SQLite가 진실의 원천)
+- **비활성 여행**: Server-First (서버 API가 진실의 원천)
+- **Router**: 활성화 상태를 자동 판단하여 Local/Remote 분기
+
+### Echo Protocol (활성화된 여행 전용)
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -1853,7 +1864,7 @@ deletedAt: expense.deletedAt?.toISOString() || null;
 
 ## 📚 추가 자료
 
-- [LOCAL_FIRST_IMPLEMENTATION.md](.cursor/rules/feature/LOCAL_FIRST_IMPLEMENTATION.md) - 상세 구현 가이드
+- [Activation System](../features/activation-system.md) - 활성화 시스템 완전 가이드
 - [Drizzle ORM 공식 문서](https://orm.drizzle.team/)
 - [React Query 공식 문서](https://tanstack.com/query/latest)
 - [Zod 공식 문서](https://zod.dev/)

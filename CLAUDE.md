@@ -24,11 +24,11 @@
 
 **핵심 가이드** (반드시 읽기):
 
-| 문서                                                            | 깊이   | 라인수 | 언제          | 내용                  |
-| --------------------------------------------------------------- | ------ | ------ | ------------- | --------------------- |
-| [local-architecture.md](./.claude/core/local-architecture.md)   | 🔥🔥🔥 | ~1,865 | Sync 작업시   | Local-First 전체 흐름 |
-| [time.md](./.claude/core/time.md)                               | 🔥🔥   | ~1,005 | 날짜 작업시   | 시간 처리 완전 가이드 |
-| [activation-system.md](./.claude/features/activation-system.md) | 🔥🔥   | ~1,497 | 활성화 작업시 | Offline-Prep Router   |
+| 문서                                                                                  | 깊이   | 라인수 | 언제          | 내용                       |
+| ------------------------------------------------------------------------------------- | ------ | ------ | ------------- | -------------------------- |
+| [selective-activation-architecture.md](./.claude/core/selective-activation-architecture.md) | 🔥🔥🔥 | ~1,865 | Sync 작업시   | Selective Activation 가이드 |
+| [time.md](./.claude/core/time.md)                                                     | 🔥🔥   | ~1,005 | 날짜 작업시   | 시간 처리 완전 가이드       |
+| [activation-system.md](./.claude/features/activation-system.md)                       | 🔥🔥   | ~1,497 | 활성화 작업시 | Offline-Prep Router        |
 
 **작업별 가이드** (필요시 읽기):
 
@@ -91,10 +91,10 @@
 
 **Noline**은 오프라인 환경에서도 완벽하게 작동하는 여행 관리 모바일 앱입니다.
 
-- **Local-First Architecture**: 모든 데이터는 로컬 SQLite가 진실의 원천
+- **Selective Activation Architecture**: 활성화된 여행은 로컬 SQLite, 비활성 여행은 서버가 진실의 원천
 - **Echo Protocol**: 클라이언트가 ID (ULID) 생성하고 서버는 그대로 수용
 - **@repo/schema**: 클라이언트-서버 공유 타입 계약 (Source of Truth)
-- **Offline Subscription**: 여행 기간 동안 자동 동기화
+- **Offline-Prep System**: 선택적 여행 활성화로 오프라인 대비 (동시 1개 제한)
 
 ---
 
@@ -263,7 +263,7 @@ await routeTripMutation({
 **상세 가이드**:
 
 - [Schema CLAUDE.md](./packages/schema/CLAUDE.md) - 스키마 정의 상세
-- [local-architecture.md](./.claude/core/local-architecture.md) - 전체 아키텍처
+- [selective-activation-architecture.md](./.claude/core/selective-activation-architecture.md) - 전체 아키텍처
 
 </details>
 
@@ -324,7 +324,7 @@ console.log(status);
 
 **그래도 안 되면**:
 
-1. [local-architecture.md#debugging](./.claude/core/local-architecture.md#debugging) - 상세 디버깅 가이드
+1. [selective-activation-architecture.md#debugging](./.claude/core/selective-activation-architecture.md#debugging) - 상세 디버깅 가이드
 2. sync_queue 테이블 직접 확인
 3. withTransaction 사용 여부 재확인
 
@@ -715,7 +715,7 @@ Component → Router (활성화 체크) → Local SQLite
 Component → Router (활성화 체크) → Remote Server API
 ```
 
-**상세**: [local-architecture.md](./.claude/core/local-architecture.md)
+**상세**: [selective-activation-architecture.md](./.claude/core/selective-activation-architecture.md)
 
 ---
 
@@ -932,7 +932,7 @@ Sync Engine (백그라운드)
 
 - [Session: 아키텍처 설계](./.claude/sessions/2025-11-06-activation-architecture-design.md)
 - [Feature Guide](./.claude/features/activation-system.md)
-- [local-architecture.md](./.claude/core/local-architecture.md)
+- [selective-activation-architecture.md](./.claude/core/selective-activation-architecture.md)
 
 ---
 

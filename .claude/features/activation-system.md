@@ -1066,7 +1066,7 @@ async function checkExpiringActivations() {
 ### Architecture
 
 - [CLAUDE.md](../../CLAUDE.md) - 프로젝트 가이드
-- [Local Architecture](../core/local-architecture.md) - Local-First 가이드
+- [Selective Activation Architecture](../core/selective-activation-architecture.md) - 활성화 기반 아키텍처 가이드
 - [Schema CLAUDE.md](../../packages/schema/CLAUDE.md) - Entity 스키마 규칙
 
 ### Implementation
@@ -1493,5 +1493,5 @@ git commit -m "feat: Apply offline-prep to Expense entity"
 
 - [Session: 아키텍처 설계](../sessions/2025-11-06-activation-architecture-design.md) - 설계 논의 전체 과정
 - [CLAUDE.md](../../CLAUDE.md) - 프로젝트 전체 가이드
-- [local-architecture.md](../core/local-architecture.md) - Local-First 완전 가이드
+- [selective-activation-architecture.md](../core/selective-activation-architecture.md) - Selective Activation 완전 가이드
 - [architecture.md](../core/architecture.md) - FSD 디렉토리 구조

@@ -872,7 +872,7 @@ Profile: 3개
 ## 🔗 관련 문서
 
 - [Offline Map Feature](./offline-map.md) - 오프라인 지도 기능
-- [Local Architecture](../core/local-architecture.md) - Echo Protocol, Local-First 패턴
+- [Selective Activation Architecture](../core/selective-activation-architecture.md) - Echo Protocol, 활성화 패턴
 - [Client CLAUDE.md](../../apps/client/CLAUDE.md) - 클라이언트 가이드
 
 ## 📝 체크리스트

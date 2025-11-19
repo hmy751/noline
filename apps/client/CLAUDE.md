@@ -12,7 +12,7 @@
 
 **클라이언트 구현시 참조:**
 
-- [Local Architecture](../../.claude/core/local-architecture.md) - Local-First 완전 가이드, Echo Protocol
+- [Selective Activation Architecture](../../.claude/core/selective-activation-architecture.md) - 활성화 기반 아키텍처, Echo Protocol
 - [Time Guide](../../.claude/core/time.md) - 시간 처리 완전 가이드
 - [TypeScript Guide](../../.claude/core/typescript.md) - TypeScript 규칙
 - [API & Data Guide](../../.claude/core/api-data.md) - API 레이어 패턴
@@ -398,6 +398,6 @@ npx expo start --clear
 
 **상세 구현 가이드:**
 
-- [Local Architecture](../../.claude/core/local-architecture.md) - sync_queue, withTransaction 상세
+- [Selective Activation Architecture](../../.claude/core/selective-activation-architecture.md) - sync_queue, withTransaction 상세
 - [Components Guide](../../.claude/core/components.md) - 컴포넌트 작성 규칙
 - [Error Handling](../../.claude/core/error-handling.md) - 에러 처리 패턴

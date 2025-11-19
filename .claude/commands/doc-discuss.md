@@ -29,10 +29,10 @@
 ```typescript
 // 키워드 기반 문서 매칭
 const documentMap = {
-  Entity: ['packages/schema/CLAUDE.md', '.claude/core/local-architecture.md'],
+  Entity: ['packages/schema/CLAUDE.md', '.claude/core/selective-activation-architecture.md'],
   Component: ['packages/ui/CLAUDE.md', '.claude/core/components.md'],
   API: ['apps/server/CLAUDE.md', '.claude/core/api-data.md'],
-  Sync: ['.claude/core/local-architecture.md', '.claude/features/local-first-impl.md'],
+  Sync: ['.claude/core/selective-activation-architecture.md', '.claude/features/activation-system.md'],
   Time: ['.claude/core/time.md'],
   Form: ['.claude/features/form.md'],
   // ... 등등
@@ -126,7 +126,7 @@ YYYY-MM-DD
 관련 정책 문서:
 
 - packages/schema/CLAUDE.md - Entity 정의 규칙
-- .claude/core/local-architecture.md - sync_queue 패턴
+- .claude/core/selective-activation-architecture.md - sync_queue 패턴
 - .claude/references/images.md - 이미지 최적화
 
 📝 Session 저장 권장
