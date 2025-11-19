@@ -39,8 +39,10 @@ export const useGetTrips = () => {
         remote: async () => {
           // 비활성 상태 → 서버 API 조회
           const response = await axios.get('/api/trips');
-          console.log(`📋 Trips loaded from server: ${response.data.data.length} items`);
-          return response.data.data;
+
+          const tripList = Array.isArray(response.data) ? response.data : response.data.data;
+
+          return tripList;
         },
       });
     },
