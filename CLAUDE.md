@@ -24,11 +24,11 @@
 
 **핵심 가이드** (반드시 읽기):
 
-| 문서                                                                                  | 깊이   | 라인수 | 언제          | 내용                       |
-| ------------------------------------------------------------------------------------- | ------ | ------ | ------------- | -------------------------- |
+| 문서                                                                                        | 깊이   | 라인수 | 언제          | 내용                        |
+| ------------------------------------------------------------------------------------------- | ------ | ------ | ------------- | --------------------------- |
 | [selective-activation-architecture.md](./.claude/core/selective-activation-architecture.md) | 🔥🔥🔥 | ~1,865 | Sync 작업시   | Selective Activation 가이드 |
-| [time.md](./.claude/core/time.md)                                                     | 🔥🔥   | ~1,005 | 날짜 작업시   | 시간 처리 완전 가이드       |
-| [activation-system.md](./.claude/features/activation-system.md)                       | 🔥🔥   | ~1,497 | 활성화 작업시 | Offline-Prep Router        |
+| [time.md](./.claude/core/time.md)                                                           | 🔥🔥   | ~1,005 | 날짜 작업시   | 시간 처리 완전 가이드       |
+| [activation-system.md](./.claude/features/activation-system.md)                             | 🔥🔥   | ~1,497 | 활성화 작업시 | Offline-Prep Router         |
 
 **작업별 가이드** (필요시 읽기):
 
@@ -634,6 +634,53 @@ const id = generateId();
 
 // 💡 Why: React Native 환경에서 ulid 직접 사용 시 에러 가능
 ```
+
+### ❌ Pitfall 5: 비활성화 시 sync_queue 무시 (데이터 손실!)
+
+```typescript
+// ❌ Bad - 데이터 손실 위험
+await db.update(tripActivations).set({ isActivated: false });
+await db.delete(schedules).where(eq(schedules.tripId, tripId));
+await db.delete(expenses).where(eq(expenses.tripId, tripId));
+
+// 문제 시나리오:
+// 1. 오프라인에서 expense 생성 → sync_queue에 PENDING
+// 2. 비활성화 + cleanup → Hard delete 실행
+// 3. 네트워크 복구 → sync engine 시도
+// 4. ❌ 로컬 DB에 데이터 없음 → 서버 전송 실패
+// 5. 결과: 데이터 영구 손실 💀
+
+// ✅ Good - 3단계 삭제 시스템
+// Phase 1: sync_queue 체크
+const hasPending = await hasPendingTasksForTrip(tripId);
+
+await withTransaction(async () => {
+  await db.update(tripActivations).set({
+    isActivated: false,
+    cleanupPending: hasPending, // ← 지연 플래그
+  });
+
+  // PENDING 없으면 즉시 Soft delete
+  if (!hasPending) {
+    await db.update(schedules).set({ deletedAt: now });
+    await db.update(expenses).set({ deletedAt: now });
+  }
+});
+
+// Phase 2: Background Job이 sync 완료 후 Soft delete 실행
+// Phase 3: 7일 후 Vacuum이 Hard delete 실행
+```
+
+**핵심 포인트**:
+
+- `hasPendingTasksForTrip()` - sync_queue 체크 필수
+- `cleanupPending` 플래그 - 지연된 cleanup 제어
+- Soft Delete (deletedAt 설정) → Hard Delete 없음!
+- Background Job이 sync 완료 확인 후 cleanup
+
+**실제 버그 사례**: commit f0b5039 (2025-11-20) 전에는 sync_queue 체크 없이 즉시 Hard delete하여 데이터 손실 발생
+
+**상세**: [Decision: Deactivation Sync Queue Safety](./.claude/decisions/2025-11-20-deactivation-sync-queue-safety.md)
 
 ---
 

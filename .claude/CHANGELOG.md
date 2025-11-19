@@ -14,6 +14,26 @@
 
 ## 2025-11
 
+### 2025-11-20
+
+**[Feature]** 🟡 Deactivation Sync Queue Safety 구현
+
+- **문제**: 여행 비활성화 시 sync_queue PENDING 작업 무시로 데이터 손실 위험
+- **해결**: 3단계 삭제 시스템 구축
+  - Phase 1: 즉시 비활성화 (사용자 대기 없음)
+  - Phase 2: Soft delete (Sync 완료 후 Background Job)
+  - Phase 3: Hard delete (7일 후 Vacuum)
+- 새 파일: `cleanup-job.ts` (+265 lines)
+- 새 함수: `processPendingCleanups()`, `vacuumDeletedRecords()`, `forceCleanupTrip()`
+- Decision: `.claude/decisions/2025-11-20-deactivation-sync-queue-safety.md`
+- 관련 커밋: f0b5039 (5 files, +445/-17)
+
+**핵심 패턴 추가**:
+
+- `hasPendingTasksForTrip()` - sync_queue 체크
+- `cleanupPending` 플래그 - 지연된 cleanup 제어
+- Soft Delete 패턴 강화 (withTransaction 필수)
+
 ### 2025-11-19
 
 **[Docs]** 🟢 Documentation 리팩토링 시스템 구축
