@@ -69,6 +69,22 @@
 - **Context Preserved**: 간략화해도 맥락은 유지, 상세 링크 제공
 - **Always Updated**: 코드 변경 시 문서도 함께 업데이트
 
+### 문서 관리 Commands
+
+프로젝트의 정책과 문서 일관성을 유지하기 위한 commands:
+
+- **`/check-docs`** - Git commit 전, 변경사항 기반 문서화 필요도 판단
+- **`/doc-discuss`** - 새 기능 논의 시, Session 파일 생성 제안
+- **`/doc-save`** - 문서 저장 및 자동 연결 (Decision, CHANGELOG)
+- **`/doc-refactor`** - 정책 일관성 검증 및 리팩토링 (정기적)
+
+**핵심 문서**:
+
+- [CHANGELOG.md](./.claude/CHANGELOG.md) - 정책 진화 및 주요 변경사항 추적
+  - 정책 버전: v1.0 (Pure Local-First) → v2.0 (Selective Activation)
+  - Migration Guide 포함
+  - 모든 아키텍처 결정 기록
+
 ---
 
 ## 📌 Project Identity
@@ -947,42 +963,16 @@ pnpm lint         # Lint 검사
 
 ## 📝 Project History
 
-> **Latest**: 2025-11-19 - Documentation restructure (Progressive Disclosure)
+> **Latest**: 2025-11-19 - Documentation 리팩토링 시스템 구축
 
-<details>
-<summary>전체 변경 이력 보기</summary>
+**⚠️ History는 반드시 [CHANGELOG.md](./.claude/CHANGELOG.md)를 참조하세요**
 
-### 2025-11
+CHANGELOG.md에서 확인할 수 있는 내용:
 
-- **2025-11-19**: Root CLAUDE.md 재구조화
-  - Progressive Disclosure 패턴 적용 (30초 → 5분 → Deep Dive)
-  - Task-oriented 가이드 추가 (Most Common Tasks)
-  - "💡 Why" 맥락 추가 (실제 버그 사례, 사용 빈도 기반)
-  - .claude/README.md 통합 (Single Source)
-
-- **2025-11-16~19**: Offline 준비 시스템 (22 commits)
-  - tripActivations 테이블 추가 (Single Source of Truth)
-  - Offline-Prep Router 4개 함수 구현
-  - 활성화/비활성화 UI 완성
-  - trips.activated 필드 제거 (데이터 정합성)
-
-- **2025-11-08**: 오프라인 라우팅 구현
-  - Mapbox Directions API 통합
-  - Session, Feature Guide, ADR-003 추가
-
-- **2025-11-07**: 오프라인 지도 구현
-  - Mapbox OfflineManager 통합
-  - Session, Feature Guide, ADR-002 추가
-
-- **2025-11-06**: 활성화 시스템 설계
-  - Architecture session 문서화
-  - temp_cache 방식 폐기 → 선택적 활성화 (1개 제한) 결정
-
-- **2025-11-05**: .claude 디렉토리 재구조화
-  - core/, features/, references/ 분리
-  - .cursor/rules → .claude/ 마이그레이션
-
-</details>
+- 📅 전체 변경 이력 (날짜별 정리)
+- 🔄 정책 버전 관리 (v1.0 Pure Local-First → v2.0 Selective Activation)
+- 📖 Migration Guide (코드 변경 방법)
+- 📊 Statistics (커밋, 문서, ADR 수)
 
 ---
 
