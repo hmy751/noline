@@ -1,12 +1,13 @@
 import { View, Text, TextInput, ScrollView, StyleSheet } from 'react-native';
 import { Controller } from 'react-hook-form';
-import { Wallet, ChevronDown, Calendar as CalendarIcon, MapPin } from 'lucide-react-native';
+import { Wallet, ChevronDown, Calendar as CalendarIcon, MapPin, AlertCircle } from 'lucide-react-native';
 import { Pressable, Select } from '@repo/ui';
 import { Field } from '@/shared/components/Form';
 import { DatePicker } from '@/shared/components';
 import { EXPENSE_CATEGORIES, CURRENCIES, CURRENCY_SYMBOLS } from '@/entities/expense';
 import { formatISOToLocalDate, dateToISODateTime, formatISOToLocalTime } from '@/shared/lib/datetime';
 import { useGetSchedules } from '@/entities/schedule';
+import { useAppPolicy } from '@/shared/policy';
 import type { UseFormReturn } from 'react-hook-form';
 import type { CreateExpenseFormData } from './schema';
 import { useState, useMemo } from 'react';
@@ -25,12 +26,13 @@ type ExpenseFormProps = {
 export function ExpenseForm({ form, tripId, onSubmit, onCancel, isPending }: ExpenseFormProps) {
   const { control, watch } = form;
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const policy = useAppPolicy(tripId);
 
   // 선택한 날짜 추적
   const selectedDate = watch('date');
 
-  // 여행의 모든 일정 조회
-  const { data: schedules = [] } = useGetSchedules(tripId);
+  // 여행의 모든 일정 조회 (Policy에 따라 비활성화 가능)
+  const { data: schedules = [], isError: schedulesFetchError } = useGetSchedules(tripId);
 
   // 선택한 날짜의 일정만 필터링
   const schedulesOnSelectedDate = useMemo(() => {
@@ -233,6 +235,46 @@ export function ExpenseForm({ form, tripId, onSubmit, onCancel, isPending }: Exp
           name='scheduleId'
           render={({ field: { value, onChange }, fieldState: { error } }) => {
             const selectedSchedule = schedulesOnSelectedDate.find((s) => s.id === value);
+
+            // Schedule Read가 불가능한 경우 (offline_inactive)
+            if (!policy.schedule.read.allowed) {
+              return (
+                <Field>
+                  <Field.Title>연결된 일정 (선택)</Field.Title>
+                  <Field.ElementsBox>
+                    <View className='bg-yellow-50 border border-yellow-200 rounded-md px-sm py-sm'>
+                      <View className='flex-row items-start gap-xs'>
+                        <AlertCircle size={16} color='#D97706' />
+                        <View className='flex-1'>
+                          <Text className='text-small text-yellow-800'>
+                            오프라인 상태에서는 일정 연결 기능을 사용할 수 없습니다
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  </Field.ElementsBox>
+                </Field>
+              );
+            }
+
+            // Schedule Fetch 에러 처리
+            if (schedulesFetchError) {
+              return (
+                <Field>
+                  <Field.Title>연결된 일정 (선택)</Field.Title>
+                  <Field.ElementsBox>
+                    <View className='bg-red-50 border border-red-200 rounded-md px-sm py-sm'>
+                      <View className='flex-row items-start gap-xs'>
+                        <AlertCircle size={16} color='#DC2626' />
+                        <View className='flex-1'>
+                          <Text className='text-small text-red-800'>일정 목록을 불러오는데 실패했습니다</Text>
+                        </View>
+                      </View>
+                    </View>
+                  </Field.ElementsBox>
+                </Field>
+              );
+            }
 
             return (
               <Field>
