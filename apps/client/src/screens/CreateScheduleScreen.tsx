@@ -2,7 +2,7 @@ import { View, ActivityIndicator, Text } from 'react-native';
 import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { MobileHeader, DatePicker, TimePicker, SmartMapView } from '@/shared/components';
+import { MobileHeader, DatePicker, TimePicker, SmartMapView, PolicyErrorDisplay } from '@/shared/components';
 import { useStep } from '@/shared/hooks/useStep';
 import {
   useCreateScheduleForm,
@@ -135,10 +135,7 @@ export default function CreateScheduleScreen() {
           leftIcon={<ArrowLeft size={20} color='#1F1F1F' />}
           onLeftPress={handleBackPress}
         />
-        <View className='flex-1 items-center justify-center px-lg'>
-          <Text className='text-h3 text-foreground mb-sm'>일정을 추가할 수 없습니다</Text>
-          <Text className='text-body text-muted-foreground text-center'>{policy.schedule.create.reason}</Text>
-        </View>
+        <PolicyErrorDisplay permission={policy.schedule.create} variant='block' />
       </View>
     );
   }
@@ -160,9 +157,7 @@ export default function CreateScheduleScreen() {
 
       {/* ⚠️ Policy: manual-only mode 안내 메시지 */}
       {policy.schedule.create.mode === 'manual-only' && (
-        <View className='bg-yellow-50 px-md py-sm border-b border-yellow-200'>
-          <Text className='text-small text-yellow-800'>{policy.schedule.create.reason}</Text>
-        </View>
+        <PolicyErrorDisplay permission={policy.schedule.create} variant='banner' />
       )}
 
       {/* 지도 영역 + 결과/폼 */}

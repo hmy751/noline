@@ -6,3 +6,4 @@ export * from './DatePicker';
 export * from './TimePicker';
 export * from './Map';
 export * from './SmartMapView';
+export * from './ErrorBoundary';

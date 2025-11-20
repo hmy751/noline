@@ -3,7 +3,7 @@ import { Controller } from 'react-hook-form';
 import { Wallet, ChevronDown, Calendar as CalendarIcon, MapPin, AlertCircle } from 'lucide-react-native';
 import { Pressable, Select } from '@repo/ui';
 import { Field } from '@/shared/components/Form';
-import { DatePicker } from '@/shared/components';
+import { DatePicker, PolicyErrorDisplay } from '@/shared/components';
 import { EXPENSE_CATEGORIES, CURRENCIES, CURRENCY_SYMBOLS } from '@/entities/expense';
 import { formatISOToLocalDate, dateToISODateTime, formatISOToLocalTime } from '@/shared/lib/datetime';
 import { useGetSchedules } from '@/entities/schedule';
@@ -242,16 +242,7 @@ export function ExpenseForm({ form, tripId, onSubmit, onCancel, isPending }: Exp
                 <Field>
                   <Field.Title>연결된 일정 (선택)</Field.Title>
                   <Field.ElementsBox>
-                    <View className='bg-yellow-50 border border-yellow-200 rounded-md px-sm py-sm'>
-                      <View className='flex-row items-start gap-xs'>
-                        <AlertCircle size={16} color='#D97706' />
-                        <View className='flex-1'>
-                          <Text className='text-small text-yellow-800'>
-                            오프라인 상태에서는 일정 연결 기능을 사용할 수 없습니다
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
+                    <PolicyErrorDisplay permission={policy.schedule.read} variant='inline' />
                   </Field.ElementsBox>
                 </Field>
               );
@@ -263,13 +254,9 @@ export function ExpenseForm({ form, tripId, onSubmit, onCancel, isPending }: Exp
                 <Field>
                   <Field.Title>연결된 일정 (선택)</Field.Title>
                   <Field.ElementsBox>
-                    <View className='bg-red-50 border border-red-200 rounded-md px-sm py-sm'>
-                      <View className='flex-row items-start gap-xs'>
-                        <AlertCircle size={16} color='#DC2626' />
-                        <View className='flex-1'>
-                          <Text className='text-small text-red-800'>일정 목록을 불러오는데 실패했습니다</Text>
-                        </View>
-                      </View>
+                    <View className='bg-red-50 border border-red-200 rounded-md px-sm py-xs flex-row items-center'>
+                      <AlertCircle size={20} color='#DC2626' />
+                      <Text className='text-small text-red-800 ml-xs flex-1'>일정 목록을 불러오는데 실패했습니다</Text>
                     </View>
                   </Field.ElementsBox>
                 </Field>
