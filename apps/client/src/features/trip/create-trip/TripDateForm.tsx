@@ -13,6 +13,7 @@ import { useRouter } from 'expo-router';
 import { generateId } from '@/shared/services/id/ulid';
 import { dateToISODateTime } from '@/shared/lib/datetime';
 import { getCurrencyByCountryCode } from '@/shared/lib/country-currency';
+import { useNetworkStatus } from '@/shared/hooks/useNetworkStatus';
 
 type TripDateFormProps = {
   city: City;
@@ -22,6 +23,8 @@ export default function TripDateForm({ city }: TripDateFormProps) {
   const router = useRouter();
   const [pickerVisible, setPickerVisible] = useState(false);
   const [currentPicker, setCurrentPicker] = useState<'start' | 'end' | null>(null);
+  const networkStatus = useNetworkStatus();
+  const isOnline = networkStatus === 'online';
 
   const { control, handleSubmit, setValue, watch } = useForm<TripDateFormData>({
     resolver: zodResolver(tripDateFormSchema),
@@ -132,9 +135,16 @@ export default function TripDateForm({ city }: TripDateFormProps) {
           />
         </View>
 
-        <Pressable variant='default' onPress={handleSubmit(onValid, onInvalid)} disabled={isPending}>
+        <Pressable variant='default' onPress={handleSubmit(onValid, onInvalid)} disabled={isPending || !isOnline}>
           {isPending ? '생성 중...' : '여행 생성'}
         </Pressable>
+
+        {/* 오프라인 안내 */}
+        {!isOnline && (
+          <View className='mt-xs px-xs'>
+            <Text className='text-small text-center text-muted-foreground'>인터넷 연결이 필요합니다</Text>
+          </View>
+        )}
       </View>
       <DatePicker
         visible={pickerVisible}
