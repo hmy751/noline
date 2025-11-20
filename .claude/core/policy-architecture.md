@@ -1,11 +1,13 @@
 # Policy-Driven Architecture Guide
 
-> **📋 상태**: 설계 완료 - 구현 대기중
+> **📋 상태**: Phase 1 구현 완료 (CRUD-Centric Structure)
 > **버전**: v3.0
 > **작성일**: 2025-11-20
+> **최종 업데이트**: 2025-11-20
 > **구현 추적**: [v3.0-tracker.md](../.claude/implementation/v3.0-tracker.md) 및 문서 하단 체크리스트 참조
 
 > **핵심**: 비즈니스 로직을 코드에서 분리하여 중앙에서 관리하는 아키텍처 패턴
+> **구조**: CRUD-Centric (Operation-First) - 각 동작이 4가지 상태에서 어떻게 동작하는지 한눈에 파악
 
 ## 📋 목차
 
@@ -37,19 +39,20 @@ if (isOnline && isActivated) {
 Policy Layer 도입 후:
 
 ```typescript
-// ✅ Good: 정책에 따라 자동 결정
-const policy = useAppPolicy();
-if (!policy.createTrip.allowed) {
-  return <DisabledMessage reason={policy.createTrip.reason} />;
+// ✅ Good: 정책에 따라 자동 결정 (CRUD-Centric)
+const policy = useAppPolicy(tripId);
+if (!policy.schedule.create.allowed) {
+  return <DisabledMessage reason={policy.schedule.create.reason} />;
 }
 ```
 
 ### 핵심 원칙
 
 1. **Separation of Concerns**: 비즈니스 정책과 구현 로직 분리
-2. **Single Source of Truth**: 모든 정책은 POLICY_TABLE에서 관리
-3. **Type Safety**: TypeScript로 정책 타입 보장
-4. **Testability**: 정책을 독립적으로 테스트 가능
+2. **CRUD-Centric Structure**: 동작(Operation) 중심으로 4가지 상태를 한눈에 파악
+3. **Single Hook Design**: `useAppPolicy()` 하나로 모든 정책 제공
+4. **Type Safety**: TypeScript로 정책 타입 보장
+5. **Testability**: 정책을 독립적으로 테스트 가능
 
 ## Policy Layer 구조
 
@@ -57,14 +60,16 @@ if (!policy.createTrip.allowed) {
 
 ```
 shared/policy/
-├── constants.ts         # POLICY_TABLE 정의
-├── types.ts            # 타입 정의
-├── useAppPolicy.ts     # React Hook
+├── constants.ts         # CRUD-Centric Policy 정의 (TRIP/SCHEDULE/EXPENSE_POLICIES)
+├── types.ts            # CRUD-Centric 타입 정의
+├── useAppPolicy.ts     # 단일 Hook (PolicyKey 계산 포함)
+├── errors.ts           # PolicyError 클래스
+├── index.ts            # Clean exports
 └── __tests__/          # 테스트
     └── policy.test.ts
 ```
 
-### 타입 정의
+### 타입 정의 (CRUD-Centric)
 
 ```typescript
 // types.ts
@@ -72,148 +77,267 @@ export type NetworkStatus = 'online' | 'offline';
 export type ActivationStatus = 'active' | 'inactive';
 export type PolicyKey = `${NetworkStatus}_${ActivationStatus}`;
 
-export interface PolicyRule {
-  // Map 관련
+export type CRUDMode = 'full' | 'manual-only' | 'limited';
+
+export interface CRUDPermission {
+  allowed: boolean;
+  mode?: CRUDMode;
+  reason?: string;
+  validation?: {
+    required?: string[];
+    optional?: string[];
+    allowed?: string[];
+    blocked?: string[];
+    enforced?: Record<string, any>;
+  };
+}
+
+/**
+ * CRUD Operation Policies
+ * 각 CRUD 동작이 4가지 상태에서 어떻게 동작하는지 정의
+ */
+export interface CRUDOperationPolicies {
+  create: Record<PolicyKey, CRUDPermission>;
+  read: Record<PolicyKey, CRUDPermission>;
+  update: Record<PolicyKey, CRUDPermission>;
+  delete: Record<PolicyKey, CRUDPermission>;
+}
+
+export interface TripPolicies extends CRUDOperationPolicies {}
+export interface SchedulePolicies extends CRUDOperationPolicies {}
+export interface ExpensePolicies extends CRUDOperationPolicies {}
+
+export interface ServicePolicies {
   mapProvider: 'google' | 'mapbox' | 'none';
-  searchMode: 'api' | 'cache' | 'disabled';
-
-  // 생성 권한
-  createTrip: {
-    allowed: boolean;
-    reason?: string;
-  };
-  createSchedule: {
-    allowed: boolean;
-    mode: 'full' | 'manual-only' | 'disabled';
-    reason?: string;
-  };
-  createExpense: {
-    allowed: boolean;
-    mode: 'full' | 'manual-only' | 'disabled';
-    reason?: string;
-  };
-
-  // 수정/삭제 권한
-  updateAllowed: boolean;
-  deleteAllowed: boolean;
-
-  // 동기화 정책
-  syncStrategy: 'immediate' | 'background' | 'manual' | 'disabled';
-
-  // UI 힌트
+  searchMode: 'api' | 'disabled';
+  syncStrategy: 'immediate' | 'background' | 'disabled';
   uiMode: 'full' | 'limited' | 'readonly';
+}
+
+export interface AppPolicyContext {
+  trip: {
+    create: CRUDPermission;
+    read: CRUDPermission;
+    update: CRUDPermission;
+    delete: CRUDPermission;
+  };
+  schedule: {
+    create: CRUDPermission;
+    read: CRUDPermission;
+    update: CRUDPermission;
+    delete: CRUDPermission;
+  };
+  expense: {
+    create: CRUDPermission;
+    read: CRUDPermission;
+    update: CRUDPermission;
+    delete: CRUDPermission;
+  };
+  service: ServicePolicies;
 }
 ```
 
-### Policy Table 정의
+### Policy Table 정의 (CRUD-Centric)
 
 ```typescript
-// constants.ts
-export const POLICY_TABLE: Record<PolicyKey, PolicyRule> = {
+// constants.ts - CRUD-Centric Structure
+// 각 동작(Operation)이 4가지 상태에서 어떻게 동작하는지 한눈에 파악
+
+export const SCHEDULE_POLICIES: SchedulePolicies = {
+  /**
+   * Schedule 생성
+   * 오프라인 활성화: Manual Input 모드 (좌표 없이 생성 가능)
+   */
+  create: {
+    online_active: {
+      allowed: true,
+      mode: 'full',
+      validation: {
+        required: ['title', 'scheduledAt'],
+        optional: ['location', 'latitude', 'longitude'],
+      },
+    },
+    online_inactive: {
+      allowed: true,
+      mode: 'full',
+      validation: {
+        required: ['title', 'scheduledAt'],
+        optional: ['location', 'latitude', 'longitude'],
+      },
+    },
+    offline_active: {
+      allowed: true,
+      mode: 'manual-only',
+      reason: '장소 검색을 사용할 수 없어요. 직접 입력해주세요.',
+      validation: {
+        required: ['title', 'scheduledAt'],
+        optional: ['location'],
+        enforced: {
+          latitude: null,
+          longitude: null,
+        },
+      },
+    },
+    offline_inactive: {
+      allowed: false,
+      reason: '여행을 활성화해주세요',
+    },
+  },
+
+  /**
+   * Schedule 조회
+   */
+  read: {
+    online_active: { allowed: true, mode: 'full' },
+    online_inactive: { allowed: true, mode: 'full' },
+    offline_active: { allowed: true, mode: 'full' }, // Router가 로컬 DB 읽기
+    offline_inactive: {
+      allowed: true,
+      mode: 'full',
+      reason: '수정하려면 여행을 활성화해주세요',
+    },
+  },
+
+  /**
+   * Schedule 수정
+   */
+  update: {
+    online_active: { allowed: true, mode: 'full' },
+    online_inactive: { allowed: true, mode: 'full' },
+    offline_active: {
+      allowed: true,
+      mode: 'manual-only',
+      validation: {
+        allowed: ['title', 'scheduledAt', 'location'],
+        blocked: ['latitude', 'longitude'],
+      },
+    },
+    offline_inactive: {
+      allowed: false,
+      reason: '여행을 활성화해주세요',
+    },
+  },
+
+  /**
+   * Schedule 삭제
+   */
+  delete: {
+    online_active: { allowed: true, mode: 'full' },
+    online_inactive: { allowed: true, mode: 'full' },
+    offline_active: { allowed: true, mode: 'full' },
+    offline_inactive: {
+      allowed: false,
+      reason: '여행을 활성화해주세요',
+    },
+  },
+};
+
+// TRIP_POLICIES, EXPENSE_POLICIES도 동일한 구조
+// SERVICE_POLICIES는 별도 타입으로 관리
+export const SERVICE_POLICIES: Record<PolicyKey, ServicePolicies> = {
   online_active: {
     mapProvider: 'google',
     searchMode: 'api',
-    createTrip: { allowed: true },
-    createSchedule: { allowed: true, mode: 'full' },
-    createExpense: { allowed: true, mode: 'full' },
-    updateAllowed: true,
-    deleteAllowed: true,
     syncStrategy: 'immediate',
     uiMode: 'full',
   },
-
-  online_inactive: {
-    mapProvider: 'google',
-    searchMode: 'api',
-    createTrip: { allowed: true },
-    createSchedule: { allowed: true, mode: 'full' },
-    createExpense: { allowed: true, mode: 'full' },
-    updateAllowed: true,
-    deleteAllowed: true,
-    syncStrategy: 'immediate',
-    uiMode: 'full',
-  },
-
   offline_active: {
     mapProvider: 'mapbox',
     searchMode: 'disabled',
-    createTrip: {
-      allowed: false,
-      reason: '인터넷 연결이 필요합니다',
-    },
-    createSchedule: {
-      allowed: true,
-      mode: 'manual-only',
-      reason: '장소 검색 불가, 직접 입력만 가능',
-    },
-    createExpense: {
-      allowed: true,
-      mode: 'manual-only',
-    },
-    updateAllowed: true,
-    deleteAllowed: true,
     syncStrategy: 'background',
     uiMode: 'limited',
   },
-
-  offline_inactive: {
-    mapProvider: 'none',
-    searchMode: 'disabled',
-    createTrip: {
-      allowed: false,
-      reason: '인터넷 연결이 필요합니다',
-    },
-    createSchedule: {
-      allowed: false,
-      reason: '여행을 활성화해주세요',
-    },
-    createExpense: {
-      allowed: false,
-      reason: '여행을 활성화해주세요',
-    },
-    updateAllowed: false,
-    deleteAllowed: false,
-    syncStrategy: 'disabled',
-    uiMode: 'readonly',
-  },
+  // ...
 };
 ```
 
 ## 구현 가이드
 
-### useAppPolicy Hook
+### useAppPolicy Hook (단일 Hook, PolicyKey 계산 포함)
 
-```typescript
+````typescript
 // useAppPolicy.ts
+import { useState, useEffect } from 'react';
 import { useNetworkStatus } from '@/shared/hooks/useNetworkStatus';
-import { useHasAnyActivatedTrip } from '@/shared/hooks/useActivation';
-import { POLICY_TABLE } from './constants';
-import type { PolicyKey, PolicyRule } from './types';
+import { getTripActivationStatus } from '@/shared/services/offline-prep/metadata';
+import { TRIP_POLICIES, SCHEDULE_POLICIES, EXPENSE_POLICIES, SERVICE_POLICIES } from './constants';
+import type { PolicyKey, ActivationStatus, AppPolicyContext } from './types';
 
-export function useAppPolicy(tripId?: string): PolicyRule {
+/**
+ * 앱 전체 정책을 제공하는 단일 Hook
+ *
+ * @param tripId - 여행 ID (선택적, 제공시 해당 여행의 활성화 상태 체크)
+ * @returns AppPolicyContext - 모든 Entity의 CRUD 정책과 Service 정책
+ *
+ * @example
+ * ```tsx
+ * const policy = useAppPolicy(tripId);
+ *
+ * // Schedule 생성 체크
+ * if (!policy.schedule.create.allowed) {
+ *   return <DisabledMessage reason={policy.schedule.create.reason} />;
+ * }
+ *
+ * // Manual-only mode 체크
+ * if (policy.schedule.create.mode === 'manual-only') {
+ *   return <ManualInputForm />;
+ * }
+ *
+ * // Service 정책 체크
+ * if (policy.service.mapProvider === 'google') {
+ *   return <GoogleMapView />;
+ * }
+ * ```
+ */
+export function useAppPolicy(tripId?: string): AppPolicyContext {
   const networkStatus = useNetworkStatus();
-  const hasActivated = tripId ? useTripActivationStatus(tripId) : useHasAnyActivatedTrip();
+  const [activationStatus, setActivationStatus] = useState<ActivationStatus>('inactive');
 
-  const policyKey: PolicyKey = `${networkStatus}_${hasActivated ? 'active' : 'inactive'}`;
+  useEffect(() => {
+    if (!tripId) {
+      setActivationStatus('inactive');
+      return;
+    }
 
-  return POLICY_TABLE[policyKey];
+    getTripActivationStatus(tripId).then((isActivated) => {
+      setActivationStatus(isActivated ? 'active' : 'inactive');
+    });
+  }, [tripId]);
+
+  // PolicyKey 계산 (내부 로직)
+  const policyKey: PolicyKey = `${networkStatus}_${activationStatus}`;
+
+  // CRUD-Centric 구조로 반환
+  return {
+    trip: {
+      create: TRIP_POLICIES.create[policyKey],
+      read: TRIP_POLICIES.read[policyKey],
+      update: TRIP_POLICIES.update[policyKey],
+      delete: TRIP_POLICIES.delete[policyKey],
+    },
+    schedule: {
+      create: SCHEDULE_POLICIES.create[policyKey],
+      read: SCHEDULE_POLICIES.read[policyKey],
+      update: SCHEDULE_POLICIES.update[policyKey],
+      delete: SCHEDULE_POLICIES.delete[policyKey],
+    },
+    expense: {
+      create: EXPENSE_POLICIES.create[policyKey],
+      read: EXPENSE_POLICIES.read[policyKey],
+      update: EXPENSE_POLICIES.update[policyKey],
+      delete: EXPENSE_POLICIES.delete[policyKey],
+    },
+    service: SERVICE_POLICIES[policyKey],
+  };
 }
+````
 
-// 특정 기능만 체크
-export function useCanCreateTrip(): boolean {
-  const policy = useAppPolicy();
-  return policy.createTrip.allowed;
-}
+**설계 결정**:
 
-export function useCanCreateSchedule(tripId: string): {
-  allowed: boolean;
-  mode: string;
-  reason?: string;
-} {
-  const policy = useAppPolicy(tripId);
-  return policy.createSchedule;
-}
-```
+- ✅ 단일 Hook으로 통합 (`useAppPolicy`만 export)
+- ✅ PolicyKey 계산 로직 내장 (별도 Hook 불필요)
+- ✅ Entity별 Hook 제거 (`useSchedulePolicy` 등 불필요)
+- ✅ 이유: 간결함, 단일 진실 공급원, 명확한 API
 
 ## 사용 예시
 
@@ -221,14 +345,13 @@ export function useCanCreateSchedule(tripId: string): {
 
 ```typescript
 function CreateTripButton() {
-  const policy = useAppPolicy();
-  const { createTrip } = policy;
+  const policy = useAppPolicy(); // tripId 없음 - 전역 상태 체크
 
-  if (!createTrip.allowed) {
+  if (!policy.trip.create.allowed) {
     return (
       <Button disabled>
         <Text>새 여행 만들기</Text>
-        <Text style={styles.reason}>{createTrip.reason}</Text>
+        <Text style={styles.reason}>{policy.trip.create.reason}</Text>
       </Button>
     );
   }
@@ -247,7 +370,7 @@ function CreateTripButton() {
 function SmartMapView({ tripId, locations, selectedLocation }) {
   const policy = useAppPolicy(tripId);
 
-  switch(policy.mapProvider) {
+  switch(policy.service.mapProvider) {
     case 'google':
       return (
         <GoogleMapView
@@ -276,35 +399,47 @@ function SmartMapView({ tripId, locations, selectedLocation }) {
 }
 ```
 
-### 3. Schedule 생성 Form
+### 3. Schedule 생성 Form (실제 구현 예시)
 
 ```typescript
-function CreateScheduleForm({ tripId }) {
+function CreateScheduleScreen({ tripId }) {
   const policy = useAppPolicy(tripId);
-  const { createSchedule } = policy;
 
-  if (!createSchedule.allowed) {
+  // ✅ 생성 불가 시 화면 차단
+  if (!policy.schedule.create.allowed) {
     return (
-      <DisabledState message={createSchedule.reason} />
+      <View className='flex-1 bg-background'>
+        <MobileHeader title='새 일정 추가' />
+        <View className='flex-1 items-center justify-center px-lg'>
+          <Text className='text-h3'>일정을 추가할 수 없습니다</Text>
+          <Text className='text-body text-muted-foreground'>
+            {policy.schedule.create.reason}
+          </Text>
+        </View>
+      </View>
     );
   }
 
-  if (createSchedule.mode === 'manual-only') {
-    return (
-      <ManualScheduleInput
-        tripId={tripId}
-        hint="오프라인: 장소 검색 불가, 직접 입력해주세요"
-      />
-    );
-  }
-
-  // Full mode
   return (
-    <FullScheduleForm
-      tripId={tripId}
-      enableSearch={true}
-      enableMap={true}
-    />
+    <View className='flex-1 bg-background'>
+      <MobileHeader title='새 일정 추가' />
+
+      {/* ⚠️ Manual-only mode 안내 메시지 */}
+      {policy.schedule.create.mode === 'manual-only' && (
+        <View className='bg-yellow-50 px-md py-sm border-b border-yellow-200'>
+          <Text className='text-small text-yellow-800'>
+            {policy.schedule.create.reason}
+          </Text>
+        </View>
+      )}
+
+      {/* ✅ Full mode에서만 검색창 표시 */}
+      {policy.schedule.create.mode !== 'manual-only' && (
+        <LocationSearchBar />
+      )}
+
+      <ScheduleForm />
+    </View>
   );
 }
 ```
@@ -317,7 +452,7 @@ function ManualScheduleInput({ tripId }) {
   const createSchedule = useCreateSchedule();
 
   const handleSubmit = async (data: FormData) => {
-    if (policy.createSchedule.mode === 'manual-only') {
+    if (policy.schedule.create.mode === 'manual-only') {
       // 좌표 없이 저장
       await createSchedule.mutate({
         ...data,
@@ -359,7 +494,7 @@ function NetworkStatusBadge() {
 
   const getStatusText = () => {
     if (networkStatus === 'offline') {
-      return policy.uiMode === 'readonly'
+      return policy.service.uiMode === 'readonly'
         ? '오프라인 (읽기 전용)'
         : '오프라인 (제한된 기능)';
     }
@@ -376,59 +511,123 @@ function NetworkStatusBadge() {
 
 ## 확장 가이드
 
-### 새로운 Entity 추가시
+### 새로운 Entity 추가시 (CRUD-Centric)
 
-1. Policy Rule에 권한 추가:
+1. CRUD Operation Policies 인터페이스 정의:
 
 ```typescript
 // types.ts
-interface PolicyRule {
+export interface NewEntityPolicies extends CRUDOperationPolicies {}
+```
+
+2. Constants에 CRUD-Centric 정책 추가:
+
+```typescript
+// constants.ts
+export const NEW_ENTITY_POLICIES: NewEntityPolicies = {
+  create: {
+    online_active: { allowed: true, mode: 'full' },
+    online_inactive: { allowed: true, mode: 'full' },
+    offline_active: { allowed: true, mode: 'manual-only', reason: '...' },
+    offline_inactive: { allowed: false, reason: '여행을 활성화해주세요' },
+  },
+  read: {
+    /* 4개 상태 정의 */
+  },
+  update: {
+    /* 4개 상태 정의 */
+  },
+  delete: {
+    /* 4개 상태 정의 */
+  },
+};
+```
+
+3. AppPolicyContext에 추가:
+
+```typescript
+// types.ts
+export interface AppPolicyContext {
   // 기존...
-  createNewEntity: {
-    allowed: boolean;
-    mode: 'full' | 'manual-only' | 'disabled';
-    reason?: string;
+  newEntity: {
+    create: CRUDPermission;
+    read: CRUDPermission;
+    update: CRUDPermission;
+    delete: CRUDPermission;
   };
 }
 ```
 
-2. POLICY_TABLE 업데이트:
+4. useAppPolicy Hook에 통합:
 
 ```typescript
-// constants.ts
-'online_active': {
-  // 기존...
-  createNewEntity: { allowed: true, mode: 'full' }
+// useAppPolicy.ts
+export function useAppPolicy(tripId?: string): AppPolicyContext {
+  // ...
+  return {
+    // 기존...
+    newEntity: {
+      create: NEW_ENTITY_POLICIES.create[policyKey],
+      read: NEW_ENTITY_POLICIES.read[policyKey],
+      update: NEW_ENTITY_POLICIES.update[policyKey],
+      delete: NEW_ENTITY_POLICIES.delete[policyKey],
+    },
+  };
 }
 ```
 
-3. Hook 생성:
+**사용 예시**:
 
 ```typescript
-export function useCanCreateNewEntity(tripId: string) {
-  const policy = useAppPolicy(tripId);
-  return policy.createNewEntity;
+const policy = useAppPolicy(tripId);
+if (!policy.newEntity.create.allowed) {
+  return <DisabledMessage reason={policy.newEntity.create.reason} />;
 }
 ```
 
 ### 새로운 서비스 추가시
 
-1. Service Provider 추가:
+1. ServicePolicies 인터페이스에 추가:
 
 ```typescript
-interface PolicyRule {
+// types.ts
+export interface ServicePolicies {
   // 기존...
   weatherProvider: 'openweather' | 'cached' | 'none';
 }
 ```
 
-2. 컴포넌트에서 사용:
+2. SERVICE_POLICIES 상수에 4가지 상태 정의:
 
 ```typescript
-function WeatherWidget() {
-  const policy = useAppPolicy();
+// constants.ts
+export const SERVICE_POLICIES: Record<PolicyKey, ServicePolicies> = {
+  online_active: {
+    // 기존...
+    weatherProvider: 'openweather',
+  },
+  online_inactive: {
+    // 기존...
+    weatherProvider: 'openweather',
+  },
+  offline_active: {
+    // 기존...
+    weatherProvider: 'cached',
+  },
+  offline_inactive: {
+    // 기존...
+    weatherProvider: 'none',
+  },
+};
+```
 
-  switch(policy.weatherProvider) {
+3. 컴포넌트에서 사용:
+
+```typescript
+function WeatherWidget({ tripId }) {
+  const policy = useAppPolicy(tripId);
+
+  switch(policy.service.weatherProvider) {
     case 'openweather':
       return <LiveWeather />;
     case 'cached':
@@ -457,75 +656,115 @@ function WeatherWidget() {
 
 ### Q: 정책 변경이 필요한 경우?
 
-POLICY_TABLE의 값만 수정하면 됩니다:
+해당 Entity의 POLICIES 상수에서 값만 수정하면 됩니다:
 
 ```typescript
+// constants.ts
 // 예: 오프라인에서도 Trip 생성 허용하기
-'offline_active': {
-  createTrip: {
-    allowed: true,  // false → true
-    mode: 'manual-only'
-  }
-}
+export const TRIP_POLICIES: TripPolicies = {
+  create: {
+    // 기존...
+    offline_active: {
+      allowed: true, // ✅ false → true로 변경
+      mode: 'manual-only',
+      reason: '최소한의 정보만 입력해주세요',
+    },
+  },
+  // ...
+};
 ```
+
+**CRUD-Centric 장점**: 하나의 operation에 대한 4가지 상태를 한눈에 볼 수 있어서 정책 변경이 직관적
 
 ### Q: 테스트는 어떻게?
 
 ```typescript
 // __tests__/policy.test.ts
-describe('Policy Layer', () => {
-  it('온라인 활성화 상태에서 모든 기능 허용', () => {
-    const policy = POLICY_TABLE['online_active'];
-    expect(policy.createTrip.allowed).toBe(true);
-    expect(policy.mapProvider).toBe('google');
+describe('Policy Layer - CRUD-Centric', () => {
+  it('Schedule 생성: 온라인 활성화 상태에서 full mode', () => {
+    const policy = SCHEDULE_POLICIES.create['online_active'];
+    expect(policy.allowed).toBe(true);
+    expect(policy.mode).toBe('full');
   });
 
-  it('오프라인 비활성화 상태에서 읽기만 허용', () => {
-    const policy = POLICY_TABLE['offline_inactive'];
-    expect(policy.uiMode).toBe('readonly');
-    expect(policy.createSchedule.allowed).toBe(false);
+  it('Schedule 생성: 오프라인 활성화 상태에서 manual-only mode', () => {
+    const policy = SCHEDULE_POLICIES.create['offline_active'];
+    expect(policy.allowed).toBe(true);
+    expect(policy.mode).toBe('manual-only');
+    expect(policy.validation?.enforced).toEqual({
+      latitude: null,
+      longitude: null,
+    });
+  });
+
+  it('Schedule 생성: 오프라인 비활성화 상태에서 차단', () => {
+    const policy = SCHEDULE_POLICIES.create['offline_inactive'];
+    expect(policy.allowed).toBe(false);
+    expect(policy.reason).toBe('여행을 활성화해주세요');
   });
 });
 ```
 
 ### Q: Performance 고려사항?
 
-- Policy 조회는 O(1) (Object lookup)
-- Hook은 메모이제이션 적용
+- Policy 조회는 O(1) (Object lookup - CRUD-Centric 구조도 동일)
 - 네트워크 상태 변경시만 리렌더링
+- 활성화 상태는 useEffect로 비동기 조회 (초기 렌더링 블로킹 없음)
 
 ```typescript
-// 최적화된 Hook
-export const useAppPolicy = memo(
-  (tripId?: string) => {
-    // ... 구현
-  },
-  [tripId],
-);
+// useAppPolicy Hook (이미 최적화됨)
+export function useAppPolicy(tripId?: string): AppPolicyContext {
+  const networkStatus = useNetworkStatus(); // React Hook
+  const [activationStatus, setActivationStatus] = useState('inactive');
+
+  useEffect(() => {
+    // 비동기 조회 - 초기 렌더링 블로킹 안 함
+    if (!tripId) return;
+    getTripActivationStatus(tripId).then(setActivationStatus);
+  }, [tripId]);
+
+  // O(1) Policy 조회
+  const policyKey: PolicyKey = `${networkStatus}_${activationStatus}`;
+  return {
+    schedule: {
+      create: SCHEDULE_POLICIES.create[policyKey], // O(1)
+      // ...
+    },
+    // ...
+  };
+}
 ```
 
 ## 마이그레이션 체크리스트
 
 > **📋 구현 추적**: 상세한 구현 체크리스트는 [v3.0-tracker.md](../implementation/v3.0-tracker.md)를 참조하세요.
 
-**Phase 1: Policy Layer Core**
+**Phase 1: Policy Layer Core** ✅ 완료 (2025-11-20)
 
-- [ ] `shared/policy/` 디렉토리 생성
-- [ ] 타입 정의 (`types.ts`)
-- [ ] Policy Table 정의 (`constants.ts`)
-- [ ] Hook 구현 (`useAppPolicy.ts`)
+- [x] `shared/policy/` 디렉토리 생성
+- [x] CRUD-Centric 타입 정의 (`types.ts`)
+- [x] CRUD-Centric Policy 정의 (`constants.ts` - TRIP/SCHEDULE/EXPENSE_POLICIES)
+- [x] 단일 Hook 구현 (`useAppPolicy.ts` - PolicyKey 계산 내장)
+- [x] PolicyError 클래스 (`errors.ts`)
+- [x] Clean exports (`index.ts`)
+- [x] CreateScheduleScreen에 실제 적용 (3가지 패턴)
 
-**Phase 2-4: Service Layer & Manual Input**
+**리팩토링 이력**:
+
+- ❌ `usePolicyKey` 제거 → `useAppPolicy`에 통합
+- ❌ `useSchedulePolicy` 제거 → `useAppPolicy`로 통합
+- ✅ 최종: 단일 Hook (`useAppPolicy`)으로 모든 정책 제공
+
+**Phase 2-4: Service Layer & Manual Input** ⏳ 대기중
 
 - [ ] SmartMapView 마이그레이션
 - [ ] CreateTripButton 마이그레이션
-- [ ] CreateScheduleForm 마이그레이션
 - [ ] Manual Input 컴포넌트 추가
 
-**Phase 5: 완료**
+**Phase 5: 완료** ⏳ 대기중
 
 - [ ] 테스트 작성
-- [ ] 문서 업데이트
+- [x] 문서 업데이트 (policy-architecture.md 업데이트 완료)
 
 ## 참고 자료
 
