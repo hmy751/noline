@@ -14,7 +14,100 @@
 
 ## 2025-11
 
+### 2025-11-21
+
+**[Feature]** 🟡 v3.0 구현 완료 (90%) - Policy-Driven Extension
+
+> **관계**: v2.0 Selective Activation 기반 위에 Policy Layer 확장
+> **상태**: Phase 1~4 구현 완료, Phase 5 수동 테스트 남음
+> **추적**: [v3.0-tracker.md](./.claude/implementation/v3.0-tracker.md)
+
+**핵심 컨셉**: v2.0의 활성화 정책(active/inactive) + 네트워크 상태(online/offline) → **4-State Matrix**
+
+- **Phase 1-4 완료**: Policy Layer Core, Service Layer, Manual Input, 기존 코드 통합
+- **주요 컴포넌트**:
+  - `useAppPolicy`: 중앙 정책 조회 Hook
+  - `PolicyErrorDisplay`: 3 variants (banner, block, inline)
+  - `ManualScheduleForm` / `ManualExpenseForm`: 오프라인 입력
+  - `NetworkStatusIndicator`: 헤더 우측 네트워크 상태 (online/offline/unknown)
+  - `LocationSearchModal`: 장소 재검색
+
+- **통합 완료**:
+  - ExpenseForm: Policy 기반 일정 연결 제어
+  - TripDateForm: 네트워크 체크 간소화
+  - CreateScheduleScreen: PolicyErrorDisplay 적용
+  - SmartMapView: Policy 기반 지도 전환 (Mapbox ↔ Google Maps)
+
+- **제거**: OfflineIndicator (NetworkStatusIndicator로 통합)
+
+- **테스트 시나리오**: [v3.0-test-scenarios.md](./.claude/implementation/v3.0-test-scenarios.md)
+
+**Migration 완료**:
+
+```typescript
+// 이전: 산발적 에러 처리
+<View className='bg-yellow-50'><Text>에러 메시지</Text></View>
+
+// 현재: Policy 기반 표준화
+const policy = useAppPolicy(tripId);
+if (!policy.schedule.create.allowed) {
+  return <PolicyErrorDisplay permission={policy.schedule.create} variant='block' />;
+}
+```
+
+**v2.0과의 관계**:
+
+- v2.0 Router는 그대로 유지 (Data Layer에서 Local/Remote 분기)
+- v3.0 Policy는 추가 레이어 (4가지 상태별 동작 제어)
+- Service Layer는 Router 미사용, Policy만 확인
+
+---
+
 ### 2025-11-20
+
+**[Architecture Design]** 📋 v3.0 설계 완료 - Policy-Driven Architecture
+
+> **상태**: 설계 문서 작성 완료 → 구현 완료 (2025-11-21)
+> **추적**: [v3.0-tracker.md](./.claude/implementation/v3.0-tracker.md)
+
+- **설계 완료**: Data와 Service를 분리하여 각각 다른 정책 적용하는 아키텍처
+  - **Data Layer** (Trip/Schedule/Expense): Router 통한 Local-First 유지
+  - **Service Layer** (Map/Search/Directions): Network-First로 전환
+
+- **Policy Layer 설계**: 4가지 상태 매트릭스로 기능 제어
+  - `online_active`: 모든 기능 사용 가능
+  - `online_inactive`: 모든 기능 사용 가능
+  - `offline_active`: Trip 생성 차단, Schedule Manual Input 허용
+  - `offline_inactive`: 읽기 전용 모드
+
+- **Manual Input 설계**: 오프라인에서도 핵심 데이터 입력
+  - Schedule: 좌표 없이 생성 가능 (latitude/longitude nullable)
+  - Expense: 환율 정보 없이 생성 가능
+  - Trip: 정책적으로 차단 (메타데이터 필수)
+
+- **작성된 문서**:
+  - Decision: `.claude/decisions/2025-11-20-data-service-separation.md`
+  - Guide: `.claude/core/policy-architecture.md` (520줄)
+  - Feature: `.claude/features/manual-input.md` (568줄)
+
+- **해결 예정 문제**:
+  - ✅ (설계) 활성화 여행도 온라인에서 Google Maps 사용 가능
+  - ✅ (설계) 오프라인에서도 핵심 기능 유지
+  - ✅ (설계) 정책 변경이 Policy Table 수정만으로 가능
+
+**구현 시 Migration Guide**:
+
+```typescript
+// 현재: Router만으로 모든 것 제어
+if (활성화) return Local;
+
+// 구현 후: Data는 Router, Service는 Policy
+// Data Layer
+routeChildQuery({ local, remote });
+// Service Layer
+const policy = useAppPolicy();
+switch(policy.mapProvider) { ... }
+```
 
 **[Feature]** 🟡 Deactivation Sync Queue Safety 구현
 
@@ -33,6 +126,8 @@
 - `hasPendingTasksForTrip()` - sync_queue 체크
 - `cleanupPending` 플래그 - 지연된 cleanup 제어
 - Soft Delete 패턴 강화 (withTransaction 필수)
+
+---
 
 ### 2025-11-19
 

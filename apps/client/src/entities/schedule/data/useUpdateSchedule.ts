@@ -65,7 +65,13 @@ export const useUpdateSchedule = () => {
               .where(eq(schedules.id, id));
 
             // 2. sync_queue에 기록 (서버 Push 대기)
-            await addToSyncQueue('schedules', id, 'UPDATE', data);
+            // 서버 전송용 데이터 준비 (latitude/longitude를 number로 변환)
+            const syncData = {
+              ...data,
+              latitude: data.latitude ? parseFloat(data.latitude) : null,
+              longitude: data.longitude ? parseFloat(data.longitude) : null,
+            };
+            await addToSyncQueue('schedules', id, 'UPDATE', syncData);
           });
 
           console.log(`✅ Schedule updated locally: ${id}`);
@@ -75,7 +81,13 @@ export const useUpdateSchedule = () => {
 
         // 원격: 서버 API 직접 호출
         remote: async () => {
-          const response = await axios.put(`/api/schedules/${id}`, data);
+          // 서버 전송용 데이터 준비 (latitude/longitude를 number로 변환)
+          const serverData = {
+            ...data,
+            latitude: data.latitude ? parseFloat(data.latitude) : null,
+            longitude: data.longitude ? parseFloat(data.longitude) : null,
+          };
+          const response = await axios.put(`/api/schedules/${id}`, serverData);
           console.log(`✅ Schedule updated on server: ${id}`);
           return response.data.data;
         },

@@ -6,3 +6,4 @@ export { LocationSearchBar } from './LocationSearchBar';
 export { LocationSearchResults } from './LocationSearchResults';
 export { MapView } from './MapView';
 export { ScheduleForm } from './ScheduleForm';
+export { ManualScheduleForm } from './ManualScheduleForm';

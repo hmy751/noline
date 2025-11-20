@@ -17,8 +17,8 @@ export type UpdateExpenseRequest = {
   category?: string;
   date?: string; // ISO string
   scheduleId?: string | null;
-  hasReceipt?: boolean;
-  receiptUrl?: string | null;
+  hasReceipt?: boolean; // TODO: 영수증 업로드 기능 구현 예정
+  receiptUrl?: string | null; // TODO: 영수증 업로드 기능 구현 예정
 };
 
 /**
