@@ -1,5 +1,10 @@
 # Policy-Driven Architecture Guide
 
+> **📋 상태**: 설계 완료 - 구현 대기중
+> **버전**: v3.0
+> **작성일**: 2025-11-20
+> **구현 추적**: [v3.0-tracker.md](../.claude/implementation/v3.0-tracker.md) 및 문서 하단 체크리스트 참조
+
 > **핵심**: 비즈니스 로직을 코드에서 분리하여 중앙에서 관리하는 아키텍처 패턴
 
 ## 📋 목차
@@ -501,14 +506,24 @@ export const useAppPolicy = memo(
 
 ## 마이그레이션 체크리스트
 
+> **📋 구현 추적**: 상세한 구현 체크리스트는 [v3.0-tracker.md](../implementation/v3.0-tracker.md)를 참조하세요.
+
+**Phase 1: Policy Layer Core**
+
 - [ ] `shared/policy/` 디렉토리 생성
 - [ ] 타입 정의 (`types.ts`)
 - [ ] Policy Table 정의 (`constants.ts`)
 - [ ] Hook 구현 (`useAppPolicy.ts`)
+
+**Phase 2-4: Service Layer & Manual Input**
+
 - [ ] SmartMapView 마이그레이션
 - [ ] CreateTripButton 마이그레이션
 - [ ] CreateScheduleForm 마이그레이션
 - [ ] Manual Input 컴포넌트 추가
+
+**Phase 5: 완료**
+
 - [ ] 테스트 작성
 - [ ] 문서 업데이트
 

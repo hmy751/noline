@@ -93,20 +93,27 @@
 
 **Noline**은 오프라인 환경에서도 완벽하게 작동하는 여행 관리 모바일 앱입니다.
 
-### 핵심 아키텍처 (v3.0 - 2025.11)
+### 핵심 아키텍처 (v2.0 - 현재)
 
 - **Selective Activation (핵심!)**:
   - **철학**: "활성화 = 오프라인 대비(보험), 비활성 = 온라인 전용"
   - **활성화된 여행**: Local SQLite가 진실의 원천 → 오프라인 작동 보장
   - **비활성 여행**: Server API가 진실의 원천 → 온라인 전용, 저장공간 절약
   - **Router**: 활성화 상태에 따라 자동 분기 (동시 1개 여행만 활성화 가능)
+- **Echo Protocol**: 클라이언트가 ID (ULID) 생성하고 서버는 그대로 수용
+- **@repo/schema**: 클라이언트-서버 공유 타입 계약 (Source of Truth)
+- **Sync Queue Safety**: 3단계 삭제 시스템으로 데이터 손실 방지
+
+### 계획된 아키텍처 (v3.0 - 설계 완료, 구현 예정)
+
 - **Data/Service Layer 분리**:
   - **Data** (Trip/Schedule/Expense): Router 사용, 활성화 상태 기반 분기
   - **Service** (Map/Search): Network-First, Router 불필요
+  - 📋 **설계**: [data-service-separation.md](./.claude/decisions/2025-11-20-data-service-separation.md)
 - **Policy-Driven Architecture**: 중앙 Policy Layer로 기능 제어 (4가지 상태 매트릭스)
-- **Echo Protocol**: 클라이언트가 ID (ULID) 생성하고 서버는 그대로 수용
+  - 📋 **설계**: [policy-architecture.md](./.claude/core/policy-architecture.md)
 - **Manual Input Support**: 오프라인에서도 핵심 데이터 입력 가능 (좌표는 nullable)
-- **@repo/schema**: 클라이언트-서버 공유 타입 계약 (Source of Truth)
+  - 📋 **설계**: [manual-input.md](./.claude/features/manual-input.md)
 
 ---
 
@@ -162,8 +169,10 @@ type User = z.infer<typeof userEntity>;
 
 ---
 
-## 🏗️ Data/Service Layer 분리 (v3.0)
+## 🏗️ Data/Service Layer 분리 (v3.0 - 설계)
 
+> **📋 상태**: 설계 완료 - 구현 대기중
+>
 > **핵심**: Data는 소유권이 있고 동기화 필요, Service는 단순 조회
 
 ### Layer 구분
@@ -173,20 +182,20 @@ type User = z.infer<typeof userEntity>;
 | **Data**    | Trip, Schedule, Expense | Local-First   | ✅ 필수     | sync_queue 필요 |
 | **Service** | Map, Search, Directions | Network-First | ❌ 불필요   | 소유권 없음     |
 
-### Policy Layer (중앙 제어)
+### Policy Layer (중앙 제어) - 구현 예정
 
 ```typescript
-// 4가지 상태 매트릭스
+// 4가지 상태 매트릭스 (설계안)
 type PolicyKey = 'online_active' | 'online_inactive' | 'offline_active' | 'offline_inactive';
 
-// 사용 예시
+// 사용 예시 (구현 후)
 const policy = useAppPolicy();
 if (!policy.createTrip.allowed) {
   return <DisabledMessage reason={policy.createTrip.reason} />;
 }
 ```
 
-**상세**: [Policy Architecture](./.claude/core/policy-architecture.md)
+**상세**: [Policy Architecture (설계 문서)](./.claude/core/policy-architecture.md)
 
 ---
 
@@ -201,7 +210,7 @@ if (!policy.createTrip.allowed) {
 - **Router가 자동 분기** → 활성화 상태 체크, Local/Remote 자동 선택
 - **동시 1개만** → 저장공간 효율화 (오프라인 지도 200MB/여행)
 
-**Key**: Policy Layer가 기능 제어 (online/offline × active/inactive)
+**Key**: Router가 활성화 상태에 따라 자동 분기
 
 **Most Used Functions**:
 
