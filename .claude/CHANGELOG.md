@@ -14,11 +14,60 @@
 
 ## 2025-11
 
+### 2025-11-21
+
+**[Feature]** 🟡 v3.0 구현 완료 (90%) - Policy-Driven Extension
+
+> **관계**: v2.0 Selective Activation 기반 위에 Policy Layer 확장
+> **상태**: Phase 1~4 구현 완료, Phase 5 수동 테스트 남음
+> **추적**: [v3.0-tracker.md](./.claude/implementation/v3.0-tracker.md)
+
+**핵심 컨셉**: v2.0의 활성화 정책(active/inactive) + 네트워크 상태(online/offline) → **4-State Matrix**
+
+- **Phase 1-4 완료**: Policy Layer Core, Service Layer, Manual Input, 기존 코드 통합
+- **주요 컴포넌트**:
+  - `useAppPolicy`: 중앙 정책 조회 Hook
+  - `PolicyErrorDisplay`: 3 variants (banner, block, inline)
+  - `ManualScheduleForm` / `ManualExpenseForm`: 오프라인 입력
+  - `NetworkStatusIndicator`: 헤더 우측 네트워크 상태 (online/offline/unknown)
+  - `LocationSearchModal`: 장소 재검색
+
+- **통합 완료**:
+  - ExpenseForm: Policy 기반 일정 연결 제어
+  - TripDateForm: 네트워크 체크 간소화
+  - CreateScheduleScreen: PolicyErrorDisplay 적용
+  - SmartMapView: Policy 기반 지도 전환 (Mapbox ↔ Google Maps)
+
+- **제거**: OfflineIndicator (NetworkStatusIndicator로 통합)
+
+- **테스트 시나리오**: [v3.0-test-scenarios.md](./.claude/implementation/v3.0-test-scenarios.md)
+
+**Migration 완료**:
+
+```typescript
+// 이전: 산발적 에러 처리
+<View className='bg-yellow-50'><Text>에러 메시지</Text></View>
+
+// 현재: Policy 기반 표준화
+const policy = useAppPolicy(tripId);
+if (!policy.schedule.create.allowed) {
+  return <PolicyErrorDisplay permission={policy.schedule.create} variant='block' />;
+}
+```
+
+**v2.0과의 관계**:
+
+- v2.0 Router는 그대로 유지 (Data Layer에서 Local/Remote 분기)
+- v3.0 Policy는 추가 레이어 (4가지 상태별 동작 제어)
+- Service Layer는 Router 미사용, Policy만 확인
+
+---
+
 ### 2025-11-20
 
 **[Architecture Design]** 📋 v3.0 설계 완료 - Policy-Driven Architecture
 
-> **상태**: 설계 문서 작성 완료 - 코드 구현 대기중
+> **상태**: 설계 문서 작성 완료 → 구현 완료 (2025-11-21)
 > **추적**: [v3.0-tracker.md](./.claude/implementation/v3.0-tracker.md)
 
 - **설계 완료**: Data와 Service를 분리하여 각각 다른 정책 적용하는 아키텍처
