@@ -13,6 +13,7 @@ import {
   type Location,
 } from '@/features/schedule/create-schedule';
 import { useGetTrips, type TripResponse } from '@/entities/trip';
+import { useAppPolicy } from '@/shared/policy';
 
 const STEPS = {
   SEARCH: 1, // 장소 검색 단계
@@ -27,6 +28,9 @@ export default function CreateScheduleScreen() {
   // Trip 정보 조회
   const { data: tripsData, isLoading: isLoadingTrips } = useGetTrips();
   const currentTrip = tripsData?.find((trip: TripResponse) => trip.id === tripId);
+
+  // ✅ Policy 체크: 모든 정책 조회
+  const policy = useAppPolicy(tripId);
 
   // 단계 관리
   const { currentStep, goToNextStep, goToPrevStep } = useStep({
@@ -121,6 +125,23 @@ export default function CreateScheduleScreen() {
     );
   }
 
+  // ✅ Policy 체크: Schedule 생성이 허용되지 않는 경우
+  if (!policy.schedule.create.allowed) {
+    return (
+      <View className='flex-1 bg-background'>
+        <MobileHeader
+          title='새 일정 추가'
+          leftIcon={<ArrowLeft size={20} color='#1F1F1F' />}
+          onLeftPress={handleBackPress}
+        />
+        <View className='flex-1 items-center justify-center px-lg'>
+          <Text className='text-h3 text-foreground mb-sm'>일정을 추가할 수 없습니다</Text>
+          <Text className='text-body text-muted-foreground text-center'>{policy.schedule.create.reason}</Text>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View className='flex-1 bg-background'>
       {/* Header */}
@@ -131,8 +152,16 @@ export default function CreateScheduleScreen() {
       />
 
       {/* 검색창 (검색 단계에만 표시) */}
-      {currentStep === STEPS.SEARCH && (
+      {/* ⚠️ Policy: manual-only mode에서는 검색창 숨김 */}
+      {currentStep === STEPS.SEARCH && policy.schedule.create.mode !== 'manual-only' && (
         <LocationSearchBar value={searchQuery} onChangeText={handleSearch} onClear={clearSearch} autoFocus />
+      )}
+
+      {/* ⚠️ Policy: manual-only mode 안내 메시지 */}
+      {policy.schedule.create.mode === 'manual-only' && (
+        <View className='bg-yellow-50 px-md py-sm border-b border-yellow-200'>
+          <Text className='text-small text-yellow-800'>{policy.schedule.create.reason}</Text>
+        </View>
       )}
 
       {/* 지도 영역 + 결과/폼 */}
@@ -140,9 +169,16 @@ export default function CreateScheduleScreen() {
         <SmartMapView tripId={tripId} locations={results} selectedLocation={selectedLocation} />
 
         {/* 검색 결과 리스트 (검색 단계 + 검색 중이거나 결과 있을 때) */}
-        {currentStep === STEPS.SEARCH && (isSearching || results.length > 0) && (
-          <LocationSearchResults results={results} onSelectLocation={handleSelectLocation} isSearching={isSearching} />
-        )}
+        {/* ⚠️ Policy: manual-only mode에서는 검색 결과 숨김 */}
+        {currentStep === STEPS.SEARCH &&
+          policy.schedule.create.mode !== 'manual-only' &&
+          (isSearching || results.length > 0) && (
+            <LocationSearchResults
+              results={results}
+              onSelectLocation={handleSelectLocation}
+              isSearching={isSearching}
+            />
+          )}
 
         {/* 일정 입력 폼 (폼 단계일 때) */}
         {currentStep === STEPS.FORM && selectedLocation && (

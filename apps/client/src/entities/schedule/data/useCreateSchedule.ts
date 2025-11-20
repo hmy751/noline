@@ -13,9 +13,17 @@ import axios from '@/shared/api/fetcher';
  * - 활성화된 여행: 로컬 DB 저장 + sync_queue 기록
  * - 비활성 여행: 서버 API 직접 호출
  *
+ * ⚠️ 주의: Policy 체크는 컴포넌트에서 useAppPolicy()로 수행
+ *
  * @example
  * ```tsx
+ * const policy = useAppPolicy(tripId);
  * const { mutate, isPending } = useCreateSchedule();
+ *
+ * if (!policy.createSchedule.allowed) {
+ *   return <DisabledMessage reason={policy.createSchedule.reason} />;
+ * }
+ *
  * mutate({
  *   tripId: 'trip-id',
  *   title: 'Eiffel Tower Visit',
