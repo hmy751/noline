@@ -52,8 +52,8 @@ export const useCreateExpenseForm = ({ tripId, date, scheduleId, onSuccess }: Us
         category: data.category,
         date: data.date, // ✅ 폼에서 선택한 날짜
         scheduleId: data.scheduleId || null,
-        hasReceipt: false,
-        receiptUrl: null,
+        hasReceipt: false, // TODO: 영수증 업로드 기능 구현 예정
+        receiptUrl: null, // TODO: 영수증 업로드 기능 구현 예정
       },
       {
         onSuccess: () => {

@@ -21,8 +21,8 @@ export const createExpenseRequest = expenseEntity
     currency: true,
     category: true,
     date: true,
-    hasReceipt: true,
-    receiptUrl: true,
+    hasReceipt: true, // TODO: 영수증 업로드 기능 구현 전까지 항상 false
+    receiptUrl: true, // TODO: 영수증 업로드 기능 구현 전까지 항상 null
   })
   .extend({
     // 요청 시에는 userId를 optional로 (테스트용)
@@ -33,7 +33,8 @@ export const createExpenseRequest = expenseEntity
     currency: z.string().default('EUR'),
     category: z.string().min(1, 'Category is required'),
     date: z.string().min(1, 'Date is required'),
-    hasReceipt: z.boolean().default(false),
+    hasReceipt: z.boolean().default(false), // TODO: 영수증 업로드 기능 구현 시 활성화
+    receiptUrl: z.string().nullable().default(null), // TODO: 영수증 업로드 기능 구현 시 활성화
   });
 
 /**

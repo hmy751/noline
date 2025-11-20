@@ -49,8 +49,8 @@ export const useCreateExpense = () => {
         currency: data.currency || 'EUR',
         category: data.category,
         date: data.date, // ISO date string
-        hasReceipt: data.hasReceipt || false,
-        receiptUrl: data.receiptUrl || null,
+        hasReceipt: data.hasReceipt || false, // TODO: 영수증 업로드 기능 구현 예정
+        receiptUrl: data.receiptUrl || null, // TODO: 영수증 업로드 기능 구현 예정
         createdAt: now, // ✅ ISO string
         updatedAt: now, // ✅ ISO string
         deletedAt: null,
