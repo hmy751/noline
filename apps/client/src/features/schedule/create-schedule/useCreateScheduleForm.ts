@@ -7,6 +7,7 @@ import { createScheduleFormSchema, type CreateScheduleFormData } from './schema'
 import { combineDateTimeToISO } from '@/shared/lib/datetime';
 import { generateId } from '@/shared/services/id/ulid';
 import type { Location } from './types';
+import type { Schedule } from '@/shared/db/schema';
 
 type UseCreateScheduleFormProps = {
   tripId: string;
@@ -74,7 +75,7 @@ export const useCreateScheduleForm = ({ tripId, selectedLocation, onSuccess }: U
         tripId,
         title: data.title,
         location: data.location,
-        address: selectedLocation?.address || null,
+        address: data.address || selectedLocation?.address || null,
         scheduledAt, // ISO string
         latitude: selectedLocation?.latitude || null,
         longitude: selectedLocation?.longitude || null,
@@ -93,7 +94,7 @@ export const useCreateScheduleForm = ({ tripId, selectedLocation, onSuccess }: U
 
             // scheduledAt 기준으로 정렬된 전체 일정 목록
             const allSchedules = [
-              ...schedules.map((s) => ({
+              ...schedules.map((s: Schedule) => ({
                 id: s.id,
                 latitude: s.latitude ? parseFloat(s.latitude) : undefined,
                 longitude: s.longitude ? parseFloat(s.longitude) : undefined,

@@ -10,6 +10,7 @@ import {
   LocationSearchBar,
   LocationSearchResults,
   ScheduleForm,
+  ManualScheduleForm,
   type Location,
 } from '@/features/schedule/create-schedule';
 import { useGetTrips, type TripResponse } from '@/entities/trip';
@@ -27,7 +28,7 @@ export default function CreateScheduleScreen() {
 
   // Trip 정보 조회
   const { data: tripsData, isLoading: isLoadingTrips } = useGetTrips();
-  const currentTrip = tripsData?.find((trip: TripResponse) => trip.id === tripId);
+  const currentTrip = tripsData?.find((trip: TripResponse) => trip.data.id === tripId);
 
   // ✅ Policy 체크: 모든 정책 조회
   const policy = useAppPolicy(tripId);
@@ -192,10 +193,21 @@ export default function CreateScheduleScreen() {
             isPending={isPending}
           />
         )}
+
+        {/* Manual Input 폼 (manual-only 모드일 때) */}
+        {policy.schedule.create.mode === 'manual-only' && (
+          <ManualScheduleForm
+            form={form}
+            onShowTimePicker={handleShowTimePicker}
+            onSubmit={onSubmit}
+            onCancel={handleBackPress}
+            isPending={isPending}
+          />
+        )}
       </View>
 
-      {/* Date Picker (폼 단계에서만 활성) */}
-      {currentStep === STEPS.FORM && (
+      {/* Date Picker (폼 단계 또는 manual-only 모드에서 활성) */}
+      {(currentStep === STEPS.FORM || policy.schedule.create.mode === 'manual-only') && (
         <DatePicker
           visible={datePickerVisible}
           onClose={() => handleSelectDate(watch('date') || '')}
@@ -203,8 +215,8 @@ export default function CreateScheduleScreen() {
         />
       )}
 
-      {/* Time Picker (폼 단계에서만 활성) */}
-      {currentStep === STEPS.FORM && (
+      {/* Time Picker (폼 단계 또는 manual-only 모드에서 활성) */}
+      {(currentStep === STEPS.FORM || policy.schedule.create.mode === 'manual-only') && (
         <TimePicker
           visible={timePickerVisible}
           onClose={() => handleSelectTime(watch('time') || '09:00')}

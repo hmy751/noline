@@ -2,14 +2,18 @@ import { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Calendar, Clock } from 'lucide-react-native';
+import { Calendar, Clock, MapPin } from 'lucide-react-native';
 import { Drawer, Pressable } from '@repo/ui';
 import { DatePicker, TimePicker } from '@/shared/components';
 import { Field } from '@/shared/components/Form';
 import { useUpdateSchedule, useGetSchedules } from '@/entities/schedule';
 import { useAutoDownloadRoutes } from '@/entities/route';
+import { useAppPolicy } from '@/shared/policy';
 import { scheduleUpdateFormSchema, type ScheduleUpdateFormData } from './schema';
 import { combineDateTimeToISO } from '@/shared/lib/datetime';
+import { LocationSearchModal } from './LocationSearchModal';
+import type { Location } from '@/features/schedule/create-schedule';
+import type { Schedule } from '@/shared/db/schema';
 
 export type UpdateScheduleDrawerProps = {
   isOpen: boolean;
@@ -20,6 +24,10 @@ export type UpdateScheduleDrawerProps = {
     title: string;
     date: string;
     time: string;
+    location?: string;
+    address?: string | null;
+    latitude?: string | null;
+    longitude?: string | null;
   } | null;
 };
 
@@ -42,11 +50,18 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
   // Picker visibility state
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [timePickerVisible, setTimePickerVisible] = useState(false);
+  const [locationSearchVisible, setLocationSearchVisible] = useState(false);
+
+  // 선택된 장소 (재검색 시)
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
 
   // Mutations and queries
   const { mutate: updateSchedule, isPending } = useUpdateSchedule();
   const { mutate: autoDownloadRoutes } = useAutoDownloadRoutes();
   const { data: schedules = [] } = useGetSchedules(scheduleData?.tripId || '');
+
+  // Policy 체크
+  const policy = useAppPolicy(scheduleData?.tripId);
 
   // scheduleData가 변경되면 폼 값 업데이트
   useEffect(() => {
@@ -69,6 +84,11 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
     setTimePickerVisible(false);
   };
 
+  const handleLocationSelect = (location: Location) => {
+    setSelectedLocation(location);
+    setLocationSearchVisible(false);
+  };
+
   // 저장 핸들러 (유효성 검사는 zodResolver가 처리)
   const onValid = (data: ScheduleUpdateFormData) => {
     if (!scheduleData) return;
@@ -77,12 +97,23 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
     // "2024-03-15" + "14:30" → "2024-03-15T14:30:00.000Z"
     const scheduledAt = combineDateTimeToISO(data.date, data.time);
 
+    // 장소 재검색한 경우 location 정보 추가
+    const locationData = selectedLocation
+      ? {
+          location: selectedLocation.name,
+          address: selectedLocation.address,
+          latitude: String(selectedLocation.latitude),
+          longitude: String(selectedLocation.longitude),
+        }
+      : {};
+
     updateSchedule(
       {
         id: scheduleData.id,
         data: {
           title: data.title,
           scheduledAt, // ISO 8601 format
+          ...locationData,
         },
       },
       {
@@ -92,14 +123,27 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
           // 경로 재다운로드 (날짜/시간 변경으로 순서가 바뀔 수 있음)
           setTimeout(() => {
             const allSchedules = schedules
-              .map((s) => ({
+              .map((s: Schedule) => ({
                 id: s.id,
                 latitude: s.latitude ? parseFloat(s.latitude) : undefined,
                 longitude: s.longitude ? parseFloat(s.longitude) : undefined,
                 scheduledAt: s.id === scheduleData.id ? scheduledAt : s.scheduledAt,
               }))
-              .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())
-              .map(({ id: scheduleId, latitude, longitude }) => ({ id: scheduleId, latitude, longitude }));
+              .sort(
+                (a: { scheduledAt: string }, b: { scheduledAt: string }) =>
+                  new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime(),
+              )
+              .map(
+                ({
+                  id: scheduleId,
+                  latitude,
+                  longitude,
+                }: {
+                  id: string;
+                  latitude: number | undefined;
+                  longitude: number | undefined;
+                }) => ({ id: scheduleId, latitude, longitude }),
+              );
 
             autoDownloadRoutes({ tripId: scheduleData.tripId, schedules: allSchedules });
           }, 500);
@@ -198,6 +242,42 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
           )}
         />
 
+        {/* 장소 재검색 (좌표 없을 때만 표시) */}
+        {!scheduleData.latitude && scheduleData.location && (
+          <View className='bg-yellow-50 px-sm py-sm rounded-md border border-yellow-200'>
+            <View className='flex-row items-center justify-between'>
+              <View className='flex-1'>
+                <Text className='text-small font-medium text-yellow-800 mb-3xs'>⚠️ 좌표가 없습니다</Text>
+                <Text className='text-small text-yellow-700'>{scheduleData.location}</Text>
+              </View>
+              {policy.service.searchMode === 'api' && (
+                <TouchableOpacity
+                  className='ml-sm px-sm py-xs rounded-md bg-yellow-200'
+                  onPress={() => setLocationSearchVisible(true)}
+                >
+                  <View className='flex-row items-center gap-xs'>
+                    <MapPin size={14} color='#D97706' />
+                    <Text className='text-small font-medium text-yellow-800'>검색</Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+        )}
+
+        {/* 장소 재검색 결과 (선택한 경우) */}
+        {selectedLocation && (
+          <View className='bg-green-50 px-sm py-sm rounded-md border border-green-200'>
+            <View className='flex-row items-center'>
+              <MapPin size={16} color='#22C55E' />
+              <View className='flex-1 ml-xs'>
+                <Text className='text-small font-medium text-green-800'>{selectedLocation.name}</Text>
+                <Text className='text-small text-green-600'>{selectedLocation.address}</Text>
+              </View>
+            </View>
+          </View>
+        )}
+
         {/* 버튼 영역 */}
         <View className='flex-row gap-sm mt-md'>
           <View className='flex-1'>
@@ -229,6 +309,17 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
           onClose={() => setTimePickerVisible(false)}
           onSelectTime={handleTimeSelect}
           initialTime={scheduleData.time}
+        />
+      )}
+
+      {/* LocationSearch Modal */}
+      {locationSearchVisible && scheduleData && (
+        <LocationSearchModal
+          isOpen={locationSearchVisible}
+          onClose={() => setLocationSearchVisible(false)}
+          onSelectLocation={handleLocationSelect}
+          tripId={scheduleData.tripId}
+          initialQuery={scheduleData.location || ''}
         />
       )}
     </Drawer>

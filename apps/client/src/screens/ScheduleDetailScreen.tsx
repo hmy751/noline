@@ -19,13 +19,13 @@ export default function ScheduleDetailScreen({ scheduleId, tripId, scheduledAt, 
   const router = useRouter();
 
   // ✅ 로컬 DB에서 일정 상세 정보 조회
-  const { data: schedule, isLoading: isLoadingSchedule } = useGetScheduleById(scheduleId);
+  const { data: schedule, isLoading: isLoadingSchedule } = useGetScheduleById(scheduleId, tripId);
 
   // ✅ 일정의 경비 목록 조회 (라우팅 레이어 적용)
   const { data: expenses = [], isLoading: isLoadingExpenses } = useGetScheduleExpenses(scheduleId);
 
   // ✅ 총 경비 계산
-  const totalExpense = expenses.reduce((sum, expense) => {
+  const totalExpense = expenses.reduce((sum: number, expense: any) => {
     return sum + parseFloat(expense.amount || '0');
   }, 0);
 
