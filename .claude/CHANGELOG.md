@@ -16,6 +16,47 @@
 
 ### 2025-11-20
 
+**[Architecture]** 🔴 v3.0 - Data/Service Layer 분리 및 Policy-Driven Architecture
+
+- **핵심 변경**: Data와 Service를 분리하여 각각 다른 정책 적용
+  - **Data Layer** (Trip/Schedule/Expense): Router 통한 Local-First 유지
+  - **Service Layer** (Map/Search/Directions): Network-First로 전환
+
+- **Policy Layer 도입**: 4가지 상태 매트릭스로 기능 제어
+  - `online_active`: 모든 기능 사용 가능
+  - `online_inactive`: 모든 기능 사용 가능
+  - `offline_active`: Trip 생성 차단, Schedule Manual Input 허용
+  - `offline_inactive`: 읽기 전용 모드
+
+- **Manual Input 지원**: 오프라인에서도 핵심 데이터 입력
+  - Schedule: 좌표 없이 생성 가능 (latitude/longitude nullable)
+  - Expense: 환율 정보 없이 생성 가능
+  - Trip: 정책적으로 차단 (메타데이터 필수)
+
+- **새로운 문서**:
+  - Decision: `.claude/decisions/2025-11-20-data-service-separation.md`
+  - Guide: `.claude/core/policy-architecture.md`
+  - Feature: `.claude/features/manual-input.md`
+
+- **해결된 문제**:
+  - ✅ 활성화 여행도 온라인에서 Google Maps 사용 가능
+  - ✅ 오프라인에서도 핵심 기능 유지
+  - ✅ 정책 변경이 Policy Table 수정만으로 가능
+
+**Migration Guide**:
+
+```typescript
+// Before: Router만으로 모든 것 제어
+if (활성화) return Local;
+
+// After: Data는 Router, Service는 Policy
+// Data Layer
+routeChildQuery({ local, remote });
+// Service Layer
+const policy = useAppPolicy();
+switch(policy.mapProvider) { ... }
+```
+
 **[Feature]** 🟡 Deactivation Sync Queue Safety 구현
 
 - **문제**: 여행 비활성화 시 sync_queue PENDING 작업 무시로 데이터 손실 위험
@@ -33,6 +74,8 @@
 - `hasPendingTasksForTrip()` - sync_queue 체크
 - `cleanupPending` 플래그 - 지연된 cleanup 제어
 - Soft Delete 패턴 강화 (withTransaction 필수)
+
+---
 
 ### 2025-11-19
 

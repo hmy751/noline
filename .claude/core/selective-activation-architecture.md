@@ -1,7 +1,15 @@
 # Noline - Selective Activation 아키텍처 실전 가이드
 
-> ⚠️ **중요**: 이 문서의 패턴들은 **활성화된 여행**에만 적용됩니다.
-> 비활성 여행은 [Offline-Prep Router](../../shared/services/offline-prep/router.ts)를 통해 서버로 직접 라우팅됩니다.
+> ⚠️ **중요**: 이 문서는 **Data Layer**에만 적용됩니다.
+> Service Layer(Map/Search)는 [Policy Architecture](./policy-architecture.md)를 참조하세요.
+
+## 📌 v3.0 Update (2025-11)
+
+### Data/Service Layer 분리
+
+- **Data Layer** (Trip/Schedule/Expense): 이 문서의 Router 패턴 적용
+- **Service Layer** (Map/Search/Directions): Policy Layer로 제어, Router 불필요
+- **상세**: [Decision - Data/Service 분리](../decisions/2025-11-20-data-service-separation.md)
 
 ## 📖 목차
 
@@ -23,6 +31,11 @@
 - **활성화된 여행**: Local-First (로컬 SQLite가 진실의 원천)
 - **비활성 여행**: Server-First (서버 API가 진실의 원천)
 - **Router**: 활성화 상태를 자동 판단하여 Local/Remote 분기
+
+> 📌 **Router vs Policy 책임 구분**:
+>
+> - Router: 데이터를 **어디에** 저장할지 결정 (WHERE)
+> - Policy: 기능을 **사용할 수 있는지** 결정 (CAN)
 
 ### Echo Protocol (활성화된 여행 전용)
 
@@ -497,10 +510,17 @@ export function useGetExpenses(tripId: string) {
 - ULID 생성
 - 트랜잭션 + sync_queue
 
-**올바른 구현:**
+> ⚠️ **중요**: 아래 예시는 **활성화된 여행**의 로컬 저장 로직만을 보여줍니다.
+>
+> 실제 구현에서는 **Router 패턴**을 사용하여 활성화 상태에 따라 Local/Remote를 자동 분기해야 합니다.
+>
+> **Router 패턴 구현 예시**는 [Manual Input 가이드](../features/manual-input.md#4-데이터-저장-with-sync_queue) 참조
+
+**로컬 저장 패턴 (활성화된 여행 전용):**
 
 ```typescript
 // ✅ apps/client/src/features/create-expense-form/useCreateExpense.ts
+// 📌 이 예시는 "활성화된 여행"의 로컬 저장 부분만 표현 (Router의 local 콜백 내부)
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ulid } from 'ulid';
@@ -526,6 +546,7 @@ export function useCreateExpense() {
       });
 
       // 3. 원자적 트랜잭션 (핵심!)
+      // 📌 실제로는 routeChildMutation의 local 콜백 내부에서 실행됨
       await withTransaction(async () => {
         // 3-1. 로컬 DB 저장
         await db.insert(expenses).values({
@@ -557,10 +578,11 @@ export function useCreateExpense() {
 }
 ```
 
-**수정/삭제 패턴:**
+**수정/삭제 패턴 (활성화된 여행 전용):**
 
 ```typescript
 // ✅ Update
+// 📌 실제로는 routeChildMutation의 local 콜백 내부
 export function useUpdateExpense() {
   const queryClient = useQueryClient();
 
@@ -568,6 +590,7 @@ export function useUpdateExpense() {
     mutationFn: async ({ id, ...data }: UpdateExpense) => {
       const validated = updateExpenseSchema.parse(data);
 
+      // ... Router 패턴 생략 (실제로는 routeChildMutation 사용)
       await withTransaction(async () => {
         // version 증가 + updatedAt 갱신
         await db
@@ -581,6 +604,7 @@ export function useUpdateExpense() {
 
         await addToSyncQueue('expenses', id, 'UPDATE', validated);
       });
+      // ...
 
       return { id, ...validated };
     },
@@ -592,11 +616,13 @@ export function useUpdateExpense() {
 }
 
 // ✅ Delete (Soft Delete)
+// 📌 실제로는 routeChildMutation의 local 콜백 내부
 export function useDeleteExpense() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (id: string) => {
+      // ... Router 패턴 생략 (실제로는 routeChildMutation 사용)
       await withTransaction(async () => {
         // deletedAt 설정 (Soft Delete)
         await db
@@ -610,6 +636,7 @@ export function useDeleteExpense() {
 
         await addToSyncQueue('expenses', id, 'DELETE', null);
       });
+      // ...
     },
 
     onSuccess: () => {

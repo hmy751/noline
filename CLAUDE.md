@@ -26,9 +26,11 @@
 
 | 문서                                                                                        | 깊이   | 라인수 | 언제          | 내용                        |
 | ------------------------------------------------------------------------------------------- | ------ | ------ | ------------- | --------------------------- |
+| [policy-architecture.md](./.claude/core/policy-architecture.md)                             | 🔥🔥🔥 | ~500   | 정책 작업시   | Policy Layer 가이드 (v3.0)  |
 | [selective-activation-architecture.md](./.claude/core/selective-activation-architecture.md) | 🔥🔥🔥 | ~1,865 | Sync 작업시   | Selective Activation 가이드 |
 | [time.md](./.claude/core/time.md)                                                           | 🔥🔥   | ~1,005 | 날짜 작업시   | 시간 처리 완전 가이드       |
 | [activation-system.md](./.claude/features/activation-system.md)                             | 🔥🔥   | ~1,497 | 활성화 작업시 | Offline-Prep Router         |
+| [manual-input.md](./.claude/features/manual-input.md)                                       | 🔥🔥   | ~600   | 오프라인 입력 | Manual Input 가이드         |
 
 **작업별 가이드** (필요시 읽기):
 
@@ -91,10 +93,20 @@
 
 **Noline**은 오프라인 환경에서도 완벽하게 작동하는 여행 관리 모바일 앱입니다.
 
-- **Selective Activation Architecture**: 활성화된 여행은 로컬 SQLite, 비활성 여행은 서버가 진실의 원천
+### 핵심 아키텍처 (v3.0 - 2025.11)
+
+- **Selective Activation (핵심!)**:
+  - **철학**: "활성화 = 오프라인 대비(보험), 비활성 = 온라인 전용"
+  - **활성화된 여행**: Local SQLite가 진실의 원천 → 오프라인 작동 보장
+  - **비활성 여행**: Server API가 진실의 원천 → 온라인 전용, 저장공간 절약
+  - **Router**: 활성화 상태에 따라 자동 분기 (동시 1개 여행만 활성화 가능)
+- **Data/Service Layer 분리**:
+  - **Data** (Trip/Schedule/Expense): Router 사용, 활성화 상태 기반 분기
+  - **Service** (Map/Search): Network-First, Router 불필요
+- **Policy-Driven Architecture**: 중앙 Policy Layer로 기능 제어 (4가지 상태 매트릭스)
 - **Echo Protocol**: 클라이언트가 ID (ULID) 생성하고 서버는 그대로 수용
+- **Manual Input Support**: 오프라인에서도 핵심 데이터 입력 가능 (좌표는 nullable)
 - **@repo/schema**: 클라이언트-서버 공유 타입 계약 (Source of Truth)
-- **Offline-Prep System**: 선택적 여행 활성화로 오프라인 대비 (동시 1개 제한)
 
 ---
 
@@ -150,11 +162,46 @@ type User = z.infer<typeof userEntity>;
 
 ---
 
+## 🏗️ Data/Service Layer 분리 (v3.0)
+
+> **핵심**: Data는 소유권이 있고 동기화 필요, Service는 단순 조회
+
+### Layer 구분
+
+| Layer       | 대상                    | 정책          | Router 사용 | 이유            |
+| ----------- | ----------------------- | ------------- | ----------- | --------------- |
+| **Data**    | Trip, Schedule, Expense | Local-First   | ✅ 필수     | sync_queue 필요 |
+| **Service** | Map, Search, Directions | Network-First | ❌ 불필요   | 소유권 없음     |
+
+### Policy Layer (중앙 제어)
+
+```typescript
+// 4가지 상태 매트릭스
+type PolicyKey = 'online_active' | 'online_inactive' | 'offline_active' | 'offline_inactive';
+
+// 사용 예시
+const policy = useAppPolicy();
+if (!policy.createTrip.allowed) {
+  return <DisabledMessage reason={policy.createTrip.reason} />;
+}
+```
+
+**상세**: [Policy Architecture](./.claude/core/policy-architecture.md)
+
+---
+
 ## ⚡ Quick Start (30초 - Level 1)
 
 **What**: Local-First 여행 관리 모바일 앱
-**How**: 활성화된 여행은 로컬, 비활성은 서버로 자동 라우팅
-**Key**: Offline-Prep Router가 모든 데이터 흐름 제어
+
+**How**:
+
+- **활성화 = 오프라인 대비 (보험)** → 로컬 DB 저장, 완전 오프라인 작동
+- **비활성 = 온라인 전용** → 서버 API만 사용, 저장공간 절약
+- **Router가 자동 분기** → 활성화 상태 체크, Local/Remote 자동 선택
+- **동시 1개만** → 저장공간 효율화 (오프라인 지도 200MB/여행)
+
+**Key**: Policy Layer가 기능 제어 (online/offline × active/inactive)
 
 **Most Used Functions**:
 
@@ -1042,4 +1089,4 @@ CHANGELOG.md에서 확인할 수 있는 내용:
 
 ---
 
-**Last Updated**: 2025-11-19
+**Last Updated**: 2025-11-20
