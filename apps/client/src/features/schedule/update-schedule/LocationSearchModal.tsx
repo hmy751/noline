@@ -3,7 +3,7 @@ import { X } from 'lucide-react-native';
 import { useState } from 'react';
 import { LocationSearchBar, LocationSearchResults, type Location } from '@/features/schedule/create-schedule';
 import { useLocationSearch } from '@/features/schedule/create-schedule';
-import { SmartMapView } from '@/shared/components';
+import { PolicyBasedMapView } from '@/shared/components';
 
 type LocationSearchModalProps = {
   isOpen: boolean;
@@ -61,7 +61,7 @@ export function LocationSearchModal({
 
         {/* Map + Results */}
         <View className='flex-1 relative'>
-          <SmartMapView tripId={tripId} locations={results} selectedLocation={selectedLocation} />
+          <PolicyBasedMapView tripId={tripId} locations={results} selectedLocation={selectedLocation} />
 
           {(isSearching || results.length > 0) && (
             <LocationSearchResults results={results} onSelectLocation={handleSelect} isSearching={isSearching} />

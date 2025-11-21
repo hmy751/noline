@@ -1,6 +1,7 @@
 /**
- * SmartMapView Component
- * 오프라인 지도 여부에 따라 Mapbox vs react-native-maps 자동 선택
+ * PolicyBasedMapView Component
+ * 정책에 따라 Google Maps vs Mapbox 자동 선택
+ * Policy Layer (v3.0)의 service.mapProvider 정책을 따름
  */
 
 import { View, Text, StyleSheet } from 'react-native';
@@ -49,7 +50,7 @@ const styles = StyleSheet.create({
  *    - 'none': 지도 사용 불가 (offline_inactive)
  * 2. 빈 상태면 검색 유도 UI
  */
-export function SmartMapView({ tripId, locations, selectedLocation }: SmartMapViewProps) {
+export function PolicyBasedMapView({ tripId, locations, selectedLocation }: SmartMapViewProps) {
   const mapRef = useRef<RNMapView>(null);
 
   // Policy Layer로 지도 제공자 결정

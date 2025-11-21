@@ -1,22 +1,7 @@
 import { StyleSheet, View, Text } from 'react-native';
 import { useRef, useEffect } from 'react';
 import RNMapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
-
-interface Schedule {
-  id: string;
-  title: string;
-  location: string;
-  latitude?: number;
-  longitude?: number;
-  time: string;
-}
-
-interface ScheduleMapViewProps {
-  schedules: Schedule[];
-  onSchedulePress?: (scheduleId: string) => void;
-  selectedScheduleId?: string | null;
-  onMarkerPress?: (scheduleId: string) => void;
-}
+import type { ScheduleMapViewProps } from './types';
 
 const styles = StyleSheet.create({
   map: {
@@ -32,9 +17,13 @@ const styles = StyleSheet.create({
 });
 
 /**
- * 일정 목록을 지도에 표시하는 컴포넌트
+ * GoogleScheduleMapView - Google Maps를 사용한 일정 지도 표시
+ *
+ * 사용 시나리오:
+ * - online 상태에서 일정 위치를 Google Maps에 표시
+ * - 점선으로 경로 연결, 순서 번호 마커 표시
  */
-export function ScheduleMapView({
+export function GoogleScheduleMapView({
   schedules,
   onSchedulePress: _onSchedulePress,
   selectedScheduleId,

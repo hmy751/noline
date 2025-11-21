@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { router } from 'expo-router';
-import { SmartScheduleMapView, MapScheduleCard } from '@/shared/components';
+import { PolicyBasedScheduleMapView, MapScheduleCard } from '@/shared/components';
 import { Pressable } from '@repo/ui';
 
 interface Schedule {
@@ -52,7 +52,7 @@ export function ScheduleMapViewContainer({
 
   return (
     <View className='flex-1'>
-      <SmartScheduleMapView
+      <PolicyBasedScheduleMapView
         tripId={tripId}
         schedules={schedulesForMap.map((schedule) => ({
           id: schedule.id,

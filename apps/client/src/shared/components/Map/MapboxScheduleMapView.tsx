@@ -1,5 +1,8 @@
 /**
- * OfflineScheduleMapView - Mapbox 기반 오프라인 지도
+ * MapboxScheduleMapView - Mapbox 기반 오프라인 지도
+ *
+ * 사용 시나리오:
+ * - offline_active: 오프라인 활성화된 여행의 일정을 Mapbox 지도에 표시
  * - 실제 도로 경로 표시 (저장된 경로)
  * - 직선 경로 표시 (미저장 경로)
  * - 순서 번호 마커
@@ -11,23 +14,7 @@ import MapboxGL from '@rnmapbox/maps';
 import { useGetRoutes } from '@/entities/route';
 import { decodePolyline } from '@/shared/lib/mapbox';
 import type { MapboxProfile } from '@/shared/services/directions/mapbox';
-
-interface Schedule {
-  id: string;
-  title: string;
-  location: string;
-  latitude?: number;
-  longitude?: number;
-  time: string;
-}
-
-interface OfflineScheduleMapViewProps {
-  schedules: Schedule[];
-  tripId: string;
-  accommodationCoords?: { latitude: number; longitude: number };
-  onSchedulePress?: (scheduleId: string) => void;
-  selectedScheduleId?: string | null;
-}
+import type { ScheduleMapViewProps } from './types';
 
 const styles = StyleSheet.create({
   map: {
@@ -76,12 +63,12 @@ const styles = StyleSheet.create({
  * - 저장된 경로: 실제 도로 polyline (초록색 실선)
  * - 미저장 경로: 직선 (회색 점선)
  */
-export function OfflineScheduleMapView({
+export function MapboxScheduleMapView({
   schedules,
   tripId,
   accommodationCoords,
   selectedScheduleId,
-}: OfflineScheduleMapViewProps) {
+}: ScheduleMapViewProps) {
   const cameraRef = useRef<MapboxGL.Camera>(null);
 
   // 이동 수단 선택 상태 (기본값: walking)
