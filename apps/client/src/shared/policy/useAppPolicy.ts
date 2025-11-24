@@ -6,7 +6,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { useNetworkStatus } from '@/shared/hooks/useNetworkStatus';
+import { useNetworkStatus } from '@/shared/store/network';
 import { getTripActivationStatus } from '@/shared/services/offline-prep/metadata';
 import { TRIP_POLICIES, SCHEDULE_POLICIES, EXPENSE_POLICIES, SERVICE_POLICIES } from './constants';
 import type { CRUDPermission, ServiceConfig, PolicyKey, ActivationStatus } from './types';

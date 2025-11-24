@@ -10,7 +10,8 @@ import MapboxGL from '@rnmapbox/maps';
 import { initializeDatabase } from '@/shared/db';
 import { SyncProvider } from '@/shared/services/sync/provider';
 import { useOfflineMapCleanup } from '@/shared/services/offline-map';
-import { NetworkOverrideProvider } from '@/features/debug';
+
+import { networkStore } from '@/shared/store/network';
 import { queryClient } from '@/shared/lib/queryClient';
 import { useTripStore } from '@/shared/store';
 import { useGetTrips, selectMainTrip } from '@/entities/trip';
@@ -101,6 +102,9 @@ export default function RootLayout() {
       try {
         console.log('🚀 Preparing app...');
 
+        // 0. 네트워크 스토어 초기화
+        networkStore.init();
+
         // 1. 로컬 DB 초기화
         await initializeDatabase();
 
@@ -136,25 +140,23 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
-        <NetworkOverrideProvider>
-          <SyncProvider>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                contentStyle: {
-                  backgroundColor: colorScheme === 'dark' ? '#1F1F1F' : '#FAFAFA',
-                },
-              }}
-            >
-              <Stack.Screen name='(tabs)' />
-            </Stack>
-            {/* Portal Host for Select and other portal-based components */}
-            <PortalHost />
-            <InitializeMainTrip />
-            <OfflineMapCleanupTrigger />
-            <PendingCleanupTrigger />
-          </SyncProvider>
-        </NetworkOverrideProvider>
+        <SyncProvider>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              contentStyle: {
+                backgroundColor: colorScheme === 'dark' ? '#1F1F1F' : '#FAFAFA',
+              },
+            }}
+          >
+            <Stack.Screen name='(tabs)' />
+          </Stack>
+          {/* Portal Host for Select and other portal-based components */}
+          <PortalHost />
+          <InitializeMainTrip />
+          <OfflineMapCleanupTrigger />
+          <PendingCleanupTrigger />
+        </SyncProvider>
       </QueryClientProvider>
     </SafeAreaProvider>
   );

@@ -1,6 +1,6 @@
 import { getTripActivationStatus, hasAnyActivatedTrip } from './metadata';
 import { OfflineError } from './errors';
-import { getNetworkStatus } from '@/shared/hooks/useNetworkStatus';
+import { networkStore } from '@/shared/store/network';
 
 /**
  * 라우팅 레이어 - Trip 자체 Query 작업
@@ -19,7 +19,7 @@ export async function routeTripQuery<T>(operations: { local: () => Promise<T>; r
     return await operations.local();
   } else {
     // 비활성 상태 → 서버 조회 (온라인 필수)
-    const networkStatus = await getNetworkStatus();
+    const networkStatus = networkStore.status;
 
     if (networkStatus === 'offline') {
       throw new OfflineError('오프라인에서는 활성화된 여행만 볼 수 있어요', {
@@ -55,7 +55,7 @@ export async function routeChildQuery<T>(
     return await operations.local();
   } else {
     // 비활성 Trip → 서버 조회 (온라인 필수)
-    const networkStatus = await getNetworkStatus();
+    const networkStatus = networkStore.status;
 
     if (networkStatus === 'offline') {
       throw new OfflineError('오프라인에서는 활성화된 여행만 볼 수 있어요', {
@@ -88,7 +88,7 @@ export async function routeTripMutation<T>(operations: {
     return await operations.local();
   } else {
     // 비활성 상태 → 서버 직접 호출 (온라인 필수)
-    const networkStatus = await getNetworkStatus();
+    const networkStatus = networkStore.status;
 
     if (networkStatus === 'offline') {
       throw new OfflineError('오프라인에서는 활성화된 여행만 수정할 수 있어요', {
@@ -124,7 +124,7 @@ export async function routeChildMutation<T>(
     return await operations.local();
   } else {
     // 비활성 Trip → 서버 직접 호출 (온라인 필수)
-    const networkStatus = await getNetworkStatus();
+    const networkStatus = networkStore.status;
 
     if (networkStatus === 'offline') {
       throw new OfflineError('오프라인에서는 활성화된 여행만 수정할 수 있어요', {

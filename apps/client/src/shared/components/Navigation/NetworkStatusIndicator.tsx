@@ -1,6 +1,6 @@
 import { View, Text } from 'react-native';
 import { Wifi, WifiOff } from 'lucide-react-native';
-import { useNetworkStatus } from '@/shared/hooks/useNetworkStatus';
+import { useNetworkStatus } from '@/shared/store/network';
 
 /**
  * 네트워크 상태 인디케이터 (헤더 우측)
