@@ -61,7 +61,7 @@ export const useDeleteSchedule = () => {
 
         // 원격: 비활성 여행
         remote: async () => {
-          await axios.delete(`/schedules/${id}`);
+          await axios.delete(`/api/schedules/${id}`);
 
           console.log(`✅ Schedule deleted on server: ${id}`);
           return { id };

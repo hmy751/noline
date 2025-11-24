@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useRef, useState, useCallback } from 'react';
-import { useNetworkStatus } from '@/shared/hooks/useNetworkStatus';
-import { useNetworkOverride } from '@/features/debug';
+import { useNetworkStatus } from '@/shared/store/network';
 import { syncData } from './engine';
 
 /**
@@ -62,11 +61,8 @@ export function SyncProvider({
   enablePeriodicSync = false,
   syncInterval = 5 * 60 * 1000, // 5분
 }: SyncProviderProps) {
-  const realNetworkStatus = useNetworkStatus();
-  const { overrideStatus } = useNetworkOverride();
-
-  // Override가 있으면 Override 사용, 없으면 실제 네트워크 상태 사용
-  const networkStatus = overrideStatus ?? realNetworkStatus;
+  // useNetworkStatus가 이제 Override 상태까지 포함하여 반환함
+  const networkStatus = useNetworkStatus();
 
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);

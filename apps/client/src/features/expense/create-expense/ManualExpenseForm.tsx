@@ -20,14 +20,14 @@ type ManualExpenseFormProps = {
  * Manual Expense Form (오프라인 전용)
  *
  * 동작:
- * - 영수증 업로드 없이 기본 정보만 입력
- * - receiptUrl은 null로 저장
- * - 온라인 복구 시 영수증 업로드 가능
+ * - 일정 연결 없이 기본 정보만 입력
+ * - scheduleId는 null로 저장
+ * - 온라인 복구 시 일정 연결 가능
  *
  * 사용 시나리오:
  * - offline_active 상태 (policy.expense.create.mode === 'manual-only')
  * - 필수: title, amount, currency, category, date
- * - 선택: scheduleId (일정 연결)
+ * - 일정 연결 불가 (오프라인에서는 장소 정보 조회 불가)
  */
 export function ManualExpenseForm({ form, onSubmit, onCancel, isPending }: ManualExpenseFormProps) {
   const { control, watch } = form;
@@ -44,7 +44,7 @@ export function ManualExpenseForm({ form, onSubmit, onCancel, isPending }: Manua
           <View className='flex-1'>
             <Text className='text-small font-medium text-yellow-800 mb-3xs'>오프라인 모드</Text>
             <Text className='text-small text-yellow-700'>
-              영수증 업로드를 사용할 수 없어요. 온라인으로 복구되면 경비 수정에서 영수증을 업로드할 수 있습니다.
+              일정 연결을 사용할 수 없어요. 온라인으로 복구되면 경비 수정에서 일정을 연결할 수 있습니다.
             </Text>
           </View>
         </View>

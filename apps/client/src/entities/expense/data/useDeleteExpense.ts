@@ -62,7 +62,7 @@ export const useDeleteExpense = () => {
 
         // 원격: 비활성 여행
         remote: async () => {
-          await axios.delete(`/expenses/${id}`);
+          await axios.delete(`/api/expenses/${id}`);
 
           console.log(`✅ Expense deleted on server: ${id}`);
           return { id };

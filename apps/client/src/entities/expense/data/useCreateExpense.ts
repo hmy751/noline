@@ -87,7 +87,7 @@ export const useCreateExpense = () => {
 
         // 원격: 서버 직접 호출
         remote: async () => {
-          const response = await axios.post('/expenses', {
+          const response = await axios.post('/api/expenses', {
             id,
             userId,
             tripId: data.tripId,

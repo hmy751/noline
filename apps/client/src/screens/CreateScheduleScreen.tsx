@@ -2,7 +2,7 @@ import { View, ActivityIndicator, Text } from 'react-native';
 import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { MobileHeader, DatePicker, TimePicker, SmartMapView, PolicyErrorDisplay } from '@/shared/components';
+import { MobileHeader, DatePicker, TimePicker, PolicyBasedMapView, PolicyErrorDisplay } from '@/shared/components';
 import { useStep } from '@/shared/hooks/useStep';
 import {
   useCreateScheduleForm,
@@ -28,7 +28,7 @@ export default function CreateScheduleScreen() {
 
   // Trip 정보 조회
   const { data: tripsData, isLoading: isLoadingTrips } = useGetTrips();
-  const currentTrip = tripsData?.find((trip: TripResponse) => trip.data.id === tripId);
+  const currentTrip = tripsData?.find((trip: TripResponse) => trip.id === tripId);
 
   // ✅ Policy 체크: 모든 정책 조회
   const policy = useAppPolicy(tripId);
@@ -162,7 +162,7 @@ export default function CreateScheduleScreen() {
 
       {/* 지도 영역 + 결과/폼 */}
       <View className='flex-1 relative'>
-        <SmartMapView tripId={tripId} locations={results} selectedLocation={selectedLocation} />
+        <PolicyBasedMapView tripId={tripId} locations={results} selectedLocation={selectedLocation} />
 
         {/* 검색 결과 리스트 (검색 단계 + 검색 중이거나 결과 있을 때) */}
         {/* ⚠️ Policy: manual-only mode에서는 검색 결과 숨김 */}

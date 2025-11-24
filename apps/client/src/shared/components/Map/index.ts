@@ -1,3 +1,5 @@
-export { ScheduleMapView } from './ScheduleMapView';
-export { OfflineScheduleMapView } from './OfflineScheduleMapView';
-export { SmartScheduleMapView } from './SmartScheduleMapView';
+export { GoogleScheduleMapView } from './GoogleScheduleMapView';
+export { MapboxScheduleMapView } from './MapboxScheduleMapView';
+export { PolicyBasedScheduleMapView } from './PolicyBasedScheduleMapView';
+export { MapUnavailableView } from './MapUnavailableView';
+export type { ScheduleMapViewProps, MapViewProps, MapProvider } from './types';

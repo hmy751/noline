@@ -1,19 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, RefreshControl, Alert } from 'react-native';
-import { Pressable } from '@repo/ui';
+import { View, ScrollView, RefreshControl, Alert } from 'react-native';
 import { MobileHeader, Container, Stack } from '@/shared/components';
-import {
-  ArrowLeft,
-  Database,
-  Trash2,
-  RefreshCw,
-  Upload,
-  Wifi,
-  WifiOff,
-  RotateCcw,
-  Power,
-  PowerOff,
-} from 'lucide-react-native';
+import { ArrowLeft } from 'lucide-react-native';
 import { router } from 'expo-router';
 import MapboxGL from '@rnmapbox/maps';
 import { db, trips, schedules, expenses, syncQueue, offlineCities, tripActivations } from '@/shared/db';
@@ -21,12 +9,19 @@ import type { Trip, Schedule, Expense, SyncQueueItem, OfflineCity, TripActivatio
 import { resetDatabase } from '@/shared/db';
 import { getSyncQueueStats } from '@/shared/services/sync/queue';
 import { triggerSync } from '@/shared/services/sync/engine';
-import { useNetworkOverride } from '../context/NetworkOverrideContext';
-import { useNetworkStatus } from '@/shared/hooks/useNetworkStatus';
-import { formatISOToLocalDateTime } from '@/shared/lib/datetime';
+import { DashboardView } from './DashboardView';
+import { DataInspectorView } from './DataInspectorView';
+import { ToolsView } from './ToolsView';
+import { Pressable } from '@repo/ui';
+import { Text } from 'react-native';
+
+type ViewMode = 'dashboard' | 'inspector' | 'tools';
 
 export default function DebugScreen() {
   const [refreshing, setRefreshing] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>('dashboard');
+
+  // Data States
   const [tripsData, setTripsData] = useState<Trip[]>([]);
   const [schedulesData, setSchedulesData] = useState<Schedule[]>([]);
   const [expensesData, setExpensesData] = useState<Expense[]>([]);
@@ -36,10 +31,6 @@ export default function DebugScreen() {
   const [stats, setStats] = useState<{ pending: number; inProgress: number; failed: number; total: number } | null>(
     null,
   );
-
-  const { overrideStatus, setOverrideOnline, setOverrideOffline, clearOverride } = useNetworkOverride();
-  const realNetworkStatus = useNetworkStatus();
-  const effectiveStatus = overrideStatus ?? realNetworkStatus;
 
   const loadData = async () => {
     try {
@@ -96,30 +87,39 @@ export default function DebugScreen() {
   };
 
   const handleClearOfflineMaps = () => {
-    Alert.alert('⚠️ 오프라인 지도 삭제', 'Mapbox 네이티브 오프라인 팩을 모두 삭제합니다.\n계속하시겠습니까?', [
-      { text: '취소', style: 'cancel' },
-      {
-        text: '삭제',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            const packs = await MapboxGL.offlineManager.getPacks();
-            console.log(`🗑️ Deleting ${packs.length} offline packs...`);
+    Alert.alert(
+      '⚠️ 오프라인 지도 완전 삭제',
+      'Mapbox 네이티브 오프라인 팩과 DB의 offlineCities 레코드를 모두 삭제합니다.\n계속하시겠습니까?',
+      [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '삭제',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // 1. Mapbox 네이티브 오프라인 팩 삭제
+              const packs = await MapboxGL.offlineManager.getPacks();
+              console.log(`🗑️ Deleting ${packs.length} offline packs...`);
 
-            for (const pack of packs) {
-              await MapboxGL.offlineManager.deletePack(pack.name);
-              console.log(`✅ Deleted pack: ${pack.name}`);
+              for (const pack of packs) {
+                await MapboxGL.offlineManager.deletePack(pack.name);
+                console.log(`✅ Deleted pack: ${pack.name}`);
+              }
+
+              // 2. DB의 offlineCities 테이블 비우기
+              await db.delete(offlineCities);
+              console.log('✅ Cleared offlineCities table');
+
+              await loadData();
+              Alert.alert('✅ 성공', `${packs.length}개의 오프라인 지도와 DB 레코드를 모두 삭제했습니다.`);
+            } catch (error) {
+              console.error('❌ Failed to clear offline maps:', error);
+              Alert.alert('❌ 실패', '오프라인 지도 삭제에 실패했습니다.');
             }
-
-            await loadData();
-            Alert.alert('✅ 성공', `${packs.length}개의 오프라인 지도를 삭제했습니다.`);
-          } catch (error) {
-            console.error('❌ Failed to clear offline maps:', error);
-            Alert.alert('❌ 실패', '오프라인 지도 삭제에 실패했습니다.');
-          }
+          },
         },
-      },
-    ]);
+      ],
+    );
   };
 
   const handleManualSync = async () => {
@@ -234,23 +234,40 @@ export default function DebugScreen() {
   };
 
   const handleClearAllActivations = () => {
-    Alert.alert('⚠️ 모든 활성화 초기화', 'tripActivations 테이블을 완전히 비우시겠습니까?', [
-      { text: '취소', style: 'cancel' },
-      {
-        text: '초기화',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await db.delete(tripActivations);
-            await loadData();
-            Alert.alert('✅ 성공', '모든 활성화가 초기화되었습니다.');
-          } catch (error) {
-            console.error('❌ Failed to clear activations:', error);
-            Alert.alert('❌ 실패', '초기화에 실패했습니다.');
-          }
+    Alert.alert(
+      '⚠️ 활성화 데이터 완전 삭제',
+      'tripActivations 테이블과 모든 로컬 여행 데이터(trips, schedules, expenses)를 삭제합니다.\n계속하시겠습니까?',
+      [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '초기화',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // 1. tripActivations 테이블 비우기
+              await db.delete(tripActivations);
+              console.log('✅ Cleared tripActivations table');
+
+              // 2. 로컬 여행 데이터 삭제
+              await db.delete(trips);
+              console.log('✅ Cleared trips table');
+
+              await db.delete(schedules);
+              console.log('✅ Cleared schedules table');
+
+              await db.delete(expenses);
+              console.log('✅ Cleared expenses table');
+
+              await loadData();
+              Alert.alert('✅ 성공', '모든 활성화 정보와 로컬 여행 데이터가 삭제되었습니다.');
+            } catch (error) {
+              console.error('❌ Failed to clear activations:', error);
+              Alert.alert('❌ 실패', '초기화에 실패했습니다.');
+            }
+          },
         },
-      },
-    ]);
+      ],
+    );
   };
 
   React.useEffect(() => {
@@ -265,363 +282,67 @@ export default function DebugScreen() {
         onLeftPress={() => router.back()}
       />
 
+      <View className='px-md py-sm bg-background'>
+        <View className='flex-row p-1 bg-muted rounded-lg'>
+          {(['dashboard', 'inspector', 'tools'] as const).map((mode) => (
+            <Pressable
+              key={mode}
+              variant='ghost'
+              className={`flex-1 py-xs items-center rounded-md ${
+                viewMode === mode ? 'bg-background shadow-sm' : 'bg-transparent'
+              }`}
+              onPress={() => setViewMode(mode)}
+            >
+              <Text
+                className={`text-label font-semibold ${
+                  viewMode === mode ? 'text-foreground' : 'text-muted-foreground'
+                }`}
+              >
+                {mode === 'dashboard' ? '대시보드' : mode === 'inspector' ? '데이터' : '도구'}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+      </View>
+
       <ScrollView className='flex-1' refreshControl={<RefreshControl refreshing={refreshing} onRefresh={loadData} />}>
         <Container>
           <Stack direction='vertical' gap='md' className='py-sm'>
-            <View className='rounded-lg bg-card p-md border border-card-border'>
-              <View className='flex-row items-center gap-xs mb-sm'>
-                <Database size={20} color='#228B22' />
-                <Text className='text-title-medium text-foreground'>DB 통계</Text>
-              </View>
-              <View className='gap-2xs'>
-                <Text className='text-body text-foreground'>여행: {tripsData.length}개</Text>
-                <Text className='text-body text-foreground'>일정: {schedulesData.length}개</Text>
-                <Text className='text-body text-foreground'>경비: {expensesData.length}개</Text>
-                <Text className='text-body text-foreground'>
-                  활성화된 여행: {tripActivationsData.filter((a) => a.isActivated).length}개
-                </Text>
-                <Text className='text-body text-foreground'>오프라인 지도: {offlineCitiesData.length}개</Text>
-                {stats && (
-                  <>
-                    <Text className='text-body text-foreground'>동기화 대기: {stats.pending}개</Text>
-                    <Text className='text-body text-foreground'>동기화 실패: {stats.failed}개</Text>
-                    <Text className='text-body text-foreground'>진행 중: {stats.inProgress}개</Text>
-                  </>
-                )}
-              </View>
-            </View>
-
-            <View className='rounded-lg bg-card p-md border border-card-border'>
-              <View className='flex-row items-center gap-xs mb-sm'>
-                {effectiveStatus === 'online' ? (
-                  <Wifi size={20} color='#228B22' />
-                ) : (
-                  <WifiOff size={20} color='#BF4040' />
-                )}
-                <Text className='text-title-medium text-foreground'>네트워크 상태</Text>
-              </View>
-              <View className='gap-2xs mb-sm'>
-                <Text className='text-body text-foreground'>
-                  현재 상태:{' '}
-                  <Text
-                    className={
-                      effectiveStatus === 'online' ? 'text-primary font-semibold' : 'text-destructive font-semibold'
-                    }
-                  >
-                    {effectiveStatus === 'online' ? '🟢 온라인' : '🔴 오프라인'}
-                  </Text>
-                </Text>
-                <Text className='text-label text-muted-foreground'>실제 네트워크: {realNetworkStatus}</Text>
-                {overrideStatus && (
-                  <Text className='text-label text-muted-foreground'>⚠️ 강제 설정: {overrideStatus}</Text>
-                )}
-              </View>
-              <View className='flex-row gap-xs'>
-                <Pressable
-                  variant='outline'
-                  className='flex-1 flex-row items-center justify-center gap-xs py-xs rounded-lg border border-primary'
-                  onPress={setOverrideOnline}
-                >
-                  <Wifi size={14} color='#228B22' />
-                  <Text className='text-label text-primary'>온라인</Text>
-                </Pressable>
-                <Pressable
-                  variant='outline'
-                  className='flex-1 flex-row items-center justify-center gap-xs py-xs rounded-lg border border-destructive'
-                  onPress={setOverrideOffline}
-                >
-                  <WifiOff size={14} color='#BF4040' />
-                  <Text className='text-label text-destructive'>오프라인</Text>
-                </Pressable>
-                <Pressable
-                  variant='outline'
-                  className='flex-1 flex-row items-center justify-center gap-xs py-xs rounded-lg border border-card-border'
-                  onPress={clearOverride}
-                >
-                  <RotateCcw size={14} color='#666' />
-                  <Text className='text-label text-muted-foreground'>실제</Text>
-                </Pressable>
-              </View>
-            </View>
-
-            <View className='flex-row gap-sm'>
-              <Pressable
-                variant='outline'
-                className='flex-1 flex-row items-center justify-center gap-xs py-sm rounded-lg border border-card-border'
-                onPress={loadData}
-              >
-                <RefreshCw size={16} color='#228B22' />
-                <Text className='text-body text-primary'>새로고침</Text>
-              </Pressable>
-              <Pressable
-                variant='outline'
-                className='flex-1 flex-row items-center justify-center gap-xs py-sm rounded-lg border border-destructive'
-                onPress={handleResetDatabase}
-              >
-                <Trash2 size={16} color='#BF4040' />
-                <Text className='text-body text-destructive'>DB 초기화</Text>
-              </Pressable>
-            </View>
-
-            <Pressable
-              variant='outline'
-              className='flex-row items-center justify-center gap-xs py-sm rounded-lg border border-destructive'
-              onPress={handleClearOfflineMaps}
-            >
-              <Trash2 size={16} color='#BF4040' />
-              <Text className='text-body text-destructive'>🗺️ Mapbox 오프라인 팩 삭제</Text>
-            </Pressable>
-
-            <Pressable
-              variant='outline'
-              className='flex-row items-center justify-center gap-xs py-sm rounded-lg border border-primary bg-primary/5'
-              onPress={handleManualSync}
-            >
-              <Upload size={16} color='#228B22' />
-              <Text className='text-body text-primary font-semibold'>🔄 전체 동기화 (Push + Pull)</Text>
-            </Pressable>
-
-            <View className='rounded-lg bg-card p-md border border-card-border'>
-              <Text className='text-title-medium text-foreground mb-sm'>Trips 테이블</Text>
-              {tripsData.length === 0 ? (
-                <Text className='text-body text-muted-foreground'>데이터가 없습니다.</Text>
-              ) : (
-                <View className='gap-xs'>
-                  {tripsData.map((trip) => {
-                    const activation = tripActivationsData.find((a) => a.tripId === trip.id);
-                    const isActivated = activation?.isActivated ?? false;
-
-                    return (
-                      <View key={trip.id} className='p-xs rounded bg-muted border border-card-border'>
-                        <Text className='text-label text-muted-foreground'>ID: {trip.id.substring(0, 8)}...</Text>
-                        <Text className='text-body text-foreground font-semibold'>{trip.name}</Text>
-                        <Text className='text-label text-muted-foreground'>
-                          {trip.destination}, {trip.country}
-                        </Text>
-                        <Text className='text-label text-muted-foreground'>
-                          Version: {trip.version} | {trip.deletedAt ? ' (삭제됨)' : ' (활성)'}
-                        </Text>
-                        <View className='flex-row gap-xs mt-xs'>
-                          {isActivated ? (
-                            <Pressable
-                              variant='outline'
-                              className='flex-1 flex-row items-center justify-center gap-xs py-xs rounded border border-destructive'
-                              onPress={() => handleManualDeactivate(trip.id, trip.name)}
-                            >
-                              <PowerOff size={12} color='#BF4040' />
-                              <Text className='text-label-small text-destructive'>비활성화</Text>
-                            </Pressable>
-                          ) : (
-                            <Pressable
-                              variant='outline'
-                              className='flex-1 flex-row items-center justify-center gap-xs py-xs rounded border border-primary'
-                              onPress={() => handleManualActivate(trip.id, trip.name)}
-                            >
-                              <Power size={12} color='#228B22' />
-                              <Text className='text-label-small text-primary'>활성화</Text>
-                            </Pressable>
-                          )}
-                        </View>
-                      </View>
-                    );
-                  })}
-                </View>
-              )}
-            </View>
-
-            <View className='rounded-lg bg-card p-md border border-card-border'>
-              <Text className='text-title-medium text-foreground mb-sm'>Schedules 테이블</Text>
-              {schedulesData.length === 0 ? (
-                <Text className='text-body text-muted-foreground'>데이터가 없습니다.</Text>
-              ) : (
-                <View className='gap-xs'>
-                  {schedulesData.map((schedule) => (
-                    <View key={schedule.id} className='p-xs rounded bg-muted border border-card-border'>
-                      <Text className='text-label text-muted-foreground'>ID: {schedule.id.substring(0, 8)}...</Text>
-                      <Text className='text-body text-foreground font-semibold'>{schedule.title}</Text>
-                      <Text className='text-label text-muted-foreground'>
-                        {formatISOToLocalDateTime(schedule.scheduledAt)}
-                      </Text>
-                      <Text className='text-label text-muted-foreground'>
-                        Trip ID: {schedule.tripId.substring(0, 8)}...
-                      </Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-            </View>
-
-            <View className='rounded-lg bg-card p-md border border-card-border'>
-              <Text className='text-title-medium text-foreground mb-sm'>Expenses 테이블</Text>
-              {expensesData.length === 0 ? (
-                <Text className='text-body text-muted-foreground'>데이터가 없습니다.</Text>
-              ) : (
-                <View className='gap-xs'>
-                  {expensesData.map((expense) => (
-                    <View key={expense.id} className='p-xs rounded bg-muted border border-card-border'>
-                      <Text className='text-label text-muted-foreground'>ID: {expense.id.substring(0, 8)}...</Text>
-                      <Text className='text-body text-foreground font-semibold'>{expense.title}</Text>
-                      <Text className='text-label text-muted-foreground'>
-                        {expense.currency} {expense.amount} ({expense.category})
-                      </Text>
-                      <Text className='text-label text-muted-foreground'>Date: {expense.date}</Text>
-                      <Text className='text-label text-muted-foreground'>
-                        Trip ID: {expense.tripId.substring(0, 8)}...
-                      </Text>
-                      {expense.scheduleId && (
-                        <Text className='text-label text-muted-foreground'>
-                          Schedule ID: {expense.scheduleId.substring(0, 8)}...
-                        </Text>
-                      )}
-                      <Text className='text-label text-muted-foreground'>
-                        Version: {expense.version} | {expense.deletedAt ? ' (삭제됨)' : ' (활성)'}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-            </View>
-
-            <View className='rounded-lg bg-card p-md border border-card-border'>
-              <Text className='text-title-medium text-foreground mb-sm'>Offline Cities 테이블</Text>
-              {offlineCitiesData.length === 0 ? (
-                <Text className='text-body text-muted-foreground'>다운로드된 오프라인 지도가 없습니다.</Text>
-              ) : (
-                <View className='gap-xs'>
-                  {offlineCitiesData.map((city) => (
-                    <View key={city.cityId} className='p-xs rounded bg-muted border border-card-border'>
-                      <Text className='text-label text-muted-foreground'>City ID: {city.cityId}</Text>
-                      <Text className='text-body text-foreground font-semibold'>
-                        {city.cityName}, {city.country}
-                      </Text>
-                      <Text className='text-label text-muted-foreground'>
-                        중심: {city.centerLatitude}, {city.centerLongitude}
-                      </Text>
-                      <Text className='text-label text-muted-foreground'>
-                        반경: {city.radiusKm}km | 크기: {(city.sizeBytes / 1024 / 1024).toFixed(2)}MB
-                      </Text>
-                      <Text className='text-label text-muted-foreground'>
-                        타일: {city.tileCount ?? 'N/A'}개 | 참조 횟수: {city.referenceCount}
-                      </Text>
-                      <Text className='text-label text-muted-foreground'>
-                        Zoom: {city.minZoom}-{city.maxZoom}
-                      </Text>
-                      <Text className='text-label text-muted-foreground'>
-                        다운로드: {formatISOToLocalDateTime(city.downloadedAt)}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-            </View>
-
-            <View className='rounded-lg bg-card p-md border border-card-border'>
-              <View className='flex-row items-center justify-between mb-sm'>
-                <Text className='text-title-medium text-foreground'>Trip Activations 테이블</Text>
-                {tripActivationsData.length > 0 && (
-                  <Pressable
-                    variant='outline'
-                    className='flex-row items-center gap-xs px-xs py-2xs rounded border border-destructive'
-                    onPress={handleClearAllActivations}
-                  >
-                    <Trash2 size={12} color='#BF4040' />
-                    <Text className='text-label-small text-destructive'>모두 초기화</Text>
-                  </Pressable>
-                )}
-              </View>
-              {tripActivationsData.length === 0 ? (
-                <Text className='text-body text-muted-foreground'>활성화된 여행이 없습니다.</Text>
-              ) : (
-                <View className='gap-xs'>
-                  {tripActivationsData.map((activation) => {
-                    const trip = tripsData.find((t) => t.id === activation.tripId);
-                    return (
-                      <View
-                        key={activation.id}
-                        className={`p-xs rounded border ${
-                          activation.isActivated ? 'bg-primary/10 border-primary' : 'bg-muted border-card-border'
-                        }`}
-                      >
-                        <Text className='text-label text-muted-foreground'>ID: {activation.id.substring(0, 8)}...</Text>
-                        {trip && <Text className='text-body text-foreground font-semibold'>{trip.name}</Text>}
-                        <Text className='text-label text-muted-foreground'>
-                          Trip ID: {activation.tripId.substring(0, 8)}...
-                        </Text>
-                        <Text
-                          className={`text-label font-semibold ${
-                            activation.isActivated ? 'text-primary' : 'text-muted-foreground'
-                          }`}
-                        >
-                          상태: {activation.isActivated ? '🟢 활성화됨' : '🔴 비활성'}
-                        </Text>
-                        <Text className='text-label text-muted-foreground'>
-                          동기화: {activation.syncStatus} ({activation.syncProgress}%)
-                        </Text>
-                        <Text className='text-label text-muted-foreground'>
-                          활성화: {formatISOToLocalDateTime(activation.activatedAt)}
-                        </Text>
-                        {activation.deactivatedAt && (
-                          <Text className='text-label text-muted-foreground'>
-                            비활성화: {formatISOToLocalDateTime(activation.deactivatedAt)}
-                          </Text>
-                        )}
-                        <Text className='text-label text-muted-foreground'>
-                          만료: {formatISOToLocalDateTime(activation.expiresAt)}
-                        </Text>
-                        <Text className='text-label text-muted-foreground'>
-                          데이터: {activation.dataDownloaded ? '✅' : '❌'} | 지도:{' '}
-                          {activation.mapDownloaded ? '✅' : '❌'}
-                        </Text>
-                      </View>
-                    );
-                  })}
-                </View>
-              )}
-            </View>
-
-            <View className='rounded-lg bg-card p-md border border-card-border'>
-              <Text className='text-title-medium text-foreground mb-sm'>Sync Queue 테이블</Text>
-              {syncQueueData.length === 0 ? (
-                <Text className='text-body text-muted-foreground'>동기화 대기 중인 작업이 없습니다.</Text>
-              ) : (
-                <View className='gap-xs'>
-                  {syncQueueData.map((task) => (
-                    <View
-                      key={task.id}
-                      className={`p-xs rounded border ${
-                        task.status === 'PENDING'
-                          ? 'bg-accent border-primary'
-                          : task.status === 'FAILED'
-                            ? 'bg-destructive/10 border-destructive'
-                            : 'bg-muted border-card-border'
-                      }`}
-                    >
-                      <Text className='text-label text-muted-foreground'>ID: {task.id.substring(0, 8)}...</Text>
-                      <Text className='text-body text-foreground font-semibold'>
-                        {task.action} {task.tableName}
-                      </Text>
-                      <Text className='text-label text-muted-foreground'>
-                        Record ID: {task.recordId.substring(0, 8)}...
-                      </Text>
-                      <Text
-                        className={`text-label font-semibold ${
-                          task.status === 'PENDING'
-                            ? 'text-primary'
-                            : task.status === 'FAILED'
-                              ? 'text-destructive'
-                              : 'text-muted-foreground'
-                        }`}
-                      >
-                        Status: {task.status} (재시도: {task.retryCount})
-                      </Text>
-                      <Text className='text-label-small text-muted-foreground mt-xs' numberOfLines={3}>
-                        {task.payload}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-            </View>
+            {viewMode === 'dashboard' && (
+              <DashboardView
+                stats={stats}
+                counts={{
+                  trips: tripsData.length,
+                  schedules: schedulesData.length,
+                  expenses: expensesData.length,
+                  activations: tripActivationsData.filter((a) => a.isActivated).length,
+                  offlineCities: offlineCitiesData.length,
+                }}
+                onRefresh={loadData}
+                onManualSync={handleManualSync}
+              />
+            )}
+            {viewMode === 'inspector' && (
+              <DataInspectorView
+                data={{
+                  trips: tripsData,
+                  schedules: schedulesData,
+                  expenses: expensesData,
+                  activations: tripActivationsData,
+                  offlineCities: offlineCitiesData,
+                  syncQueue: syncQueueData,
+                }}
+                onActivateTrip={handleManualActivate}
+                onDeactivateTrip={handleManualDeactivate}
+              />
+            )}
+            {viewMode === 'tools' && (
+              <ToolsView
+                onResetDatabase={handleResetDatabase}
+                onClearOfflineMaps={handleClearOfflineMaps}
+                onClearActivations={handleClearAllActivations}
+              />
+            )}
           </Stack>
         </Container>
       </ScrollView>

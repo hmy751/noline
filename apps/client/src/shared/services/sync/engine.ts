@@ -116,9 +116,16 @@ export async function pullChanges(): Promise<void> {
       .where(eq(tripActivations.isActivated, true));
     const activatedTripIds = activatedTrips.map((activation) => activation.tripId);
 
+    // ✅ 활성화된 여행이 없으면 Pull 건너뛰기
+    // (비활성 상태에서는 로컬 DB에 데이터를 저장하지 않음)
+    if (activatedTripIds.length === 0) {
+      console.log('⏭️ [Sync] Skipping pull: No activated trips');
+      return;
+    }
+
     console.log('📥 [Sync] Starting pull...', {
       lastSyncedAt: lastSyncedAt?.toISOString() || 'Never synced (초기 동기화)',
-      activatedTripIds: activatedTripIds.length > 0 ? activatedTripIds : 'None (metadata only)',
+      activatedTripIds,
     });
 
     // 3. 서버에서 데이터 가져오기

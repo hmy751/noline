@@ -5,5 +5,5 @@ export * from './Form';
 export * from './DatePicker';
 export * from './TimePicker';
 export * from './Map';
-export * from './SmartMapView';
+export * from './PolicyBasedMapView';
 export * from './ErrorBoundary';

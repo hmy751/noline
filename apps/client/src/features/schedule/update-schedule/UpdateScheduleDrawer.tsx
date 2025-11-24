@@ -63,12 +63,13 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
   // Policy 체크
   const policy = useAppPolicy(scheduleData?.tripId);
 
-  // scheduleData가 변경되면 폼 값 업데이트
+  // scheduleData가 변경되면 폼 값 및 상태 초기화
   useEffect(() => {
     if (scheduleData) {
       setValue('title', scheduleData.title);
       setValue('date', scheduleData.date);
       setValue('time', scheduleData.time);
+      setSelectedLocation(null); // 장소 재검색 결과 초기화
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scheduleData?.id]);

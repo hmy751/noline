@@ -79,7 +79,7 @@ export const useUpdateExpense = () => {
 
         // 원격: 비활성 여행
         remote: async () => {
-          const response = await axios.put(`/expenses/${id}`, data);
+          const response = await axios.put(`/api/expenses/${id}`, data);
 
           console.log(`✅ Expense updated on server: ${id}`);
           return response.data;

@@ -13,7 +13,7 @@ import { useRouter } from 'expo-router';
 import { generateId } from '@/shared/services/id/ulid';
 import { dateToISODateTime } from '@/shared/lib/datetime';
 import { getCurrencyByCountryCode } from '@/shared/lib/country-currency';
-import { useNetworkStatus } from '@/shared/hooks/useNetworkStatus';
+import { useNetworkStatus } from '@/shared/store/network';
 
 type TripDateFormProps = {
   city: City;

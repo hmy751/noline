@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { router } from 'expo-router';
-import { SmartScheduleMapView, MapScheduleCard } from '@/shared/components';
+import { PolicyBasedScheduleMapView, MapScheduleCard } from '@/shared/components';
 import { Pressable } from '@repo/ui';
 
 interface Schedule {
@@ -9,8 +9,8 @@ interface Schedule {
   time: string;
   title: string;
   location: string;
-  latitude?: number;
-  longitude?: number;
+  latitude?: string | null;
+  longitude?: string | null;
 }
 
 interface ScheduleMapViewContainerProps {
@@ -52,16 +52,18 @@ export function ScheduleMapViewContainer({
 
   return (
     <View className='flex-1'>
-      <SmartScheduleMapView
+      <PolicyBasedScheduleMapView
         tripId={tripId}
-        schedules={schedulesForMap.map((schedule) => ({
-          id: schedule.id,
-          title: schedule.title,
-          location: schedule.location || '',
-          latitude: schedule.latitude,
-          longitude: schedule.longitude,
-          time: schedule.time,
-        }))}
+        schedules={schedulesForMap
+          .filter((schedule) => schedule.latitude && schedule.longitude)
+          .map((schedule) => ({
+            id: schedule.id,
+            title: schedule.title,
+            location: schedule.location || '',
+            latitude: parseFloat(schedule.latitude!),
+            longitude: parseFloat(schedule.longitude!),
+            time: schedule.time,
+          }))}
         onSchedulePress={(scheduleId: string) => router.push(`/schedules/${scheduleId}`)}
         selectedScheduleId={selectedScheduleId}
         onMarkerPress={(scheduleId) => {
