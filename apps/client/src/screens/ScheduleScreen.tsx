@@ -25,10 +25,11 @@ interface ScheduleByDate {
     time: string;
     title: string;
     location: string;
-    expense?: string;
-    expenseCount?: number;
+    address?: string | null;
     latitude?: string | null;
     longitude?: string | null;
+    expense?: string;
+    expenseCount?: number;
   }>;
 }
 
@@ -44,6 +45,9 @@ export default function ScheduleScreen() {
     time: string;
     title: string;
     location: string;
+    address?: string | null;
+    latitude?: string | null;
+    longitude?: string | null;
     expense?: string;
     expenseCount?: number;
   } | null>(null);
@@ -86,6 +90,9 @@ export default function ScheduleScreen() {
       time: string;
       title: string;
       location: string;
+      address?: string | null;
+      latitude?: string | null;
+      longitude?: string | null;
       expense?: string;
       expenseCount?: number;
     },
@@ -152,6 +159,7 @@ export default function ScheduleScreen() {
             time: formatISOToLocalTime(schedule.scheduledAt),
             title: schedule.title,
             location: schedule.location || '',
+            address: schedule.address,
             latitude: schedule.latitude,
             longitude: schedule.longitude,
           };
@@ -247,6 +255,10 @@ export default function ScheduleScreen() {
                 title: selectedSchedule.title,
                 date: formatISOToLocalDate(selectedSchedule.scheduledAt),
                 time: selectedSchedule.time,
+                location: selectedSchedule.location,
+                address: selectedSchedule.address,
+                latitude: selectedSchedule.latitude,
+                longitude: selectedSchedule.longitude,
               }
             : null
         }

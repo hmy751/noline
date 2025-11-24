@@ -1,4 +1,4 @@
-import { View, Modal, StyleSheet } from 'react-native';
+import { View, Text, Modal, StyleSheet } from 'react-native';
 import { X } from 'lucide-react-native';
 import { useState } from 'react';
 import { LocationSearchBar, LocationSearchResults, type Location } from '@/features/schedule/create-schedule';
@@ -49,7 +49,9 @@ export function LocationSearchModal({
         <View className='flex-row items-center justify-between px-md py-sm border-b border-border'>
           <View className='flex-1' />
           <View className='absolute left-0 right-0 items-center pointer-events-none'>
-            <View className='text-title-medium text-foreground'>장소 검색</View>
+            <View className='text-title-medium text-foreground'>
+              <Text>장소 검색</Text>
+            </View>
           </View>
           <View className='w-10 h-10 items-center justify-center' onTouchEnd={onClose}>
             <X size={24} color='#1F1F1F' />

@@ -10,6 +10,7 @@ interface Schedule {
   time: string;
   title: string;
   location: string;
+  address?: string | null;
   latitude?: string | null;
   longitude?: string | null;
   expense?: string;
