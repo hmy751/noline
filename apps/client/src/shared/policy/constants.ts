@@ -239,7 +239,7 @@ export const EXPENSE_POLICIES: ExpensePolicies = {
   /**
    * Expense 생성
    *
-   * 오프라인 활성화: Manual Input 모드 (영수증 업로드 불가)
+   * 오프라인 활성화: Manual Input 모드 (일정 연결 제한)
    */
   create: {
     online_active: {
@@ -261,6 +261,7 @@ export const EXPENSE_POLICIES: ExpensePolicies = {
     offline_active: {
       allowed: true,
       mode: 'manual-only',
+      reason: '오프라인에서는 일정을 연결할 수 없어요. 직접 입력해주세요.',
       validation: {
         required: ['title', 'amount', 'currency', 'category', 'date'],
         optional: ['scheduleId'],
@@ -312,6 +313,7 @@ export const EXPENSE_POLICIES: ExpensePolicies = {
     offline_active: {
       allowed: true,
       mode: 'manual-only',
+      reason: '오프라인에서는 일정을 연결할 수 없어요.',
       validation: {
         allowed: ['title', 'amount', 'currency', 'category', 'date'],
         blocked: ['receiptUrl'],
