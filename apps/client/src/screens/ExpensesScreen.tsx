@@ -59,19 +59,18 @@ export default function ExpensesScreen() {
     const allDates = new Set([...dateRange, ...expenses.map((e) => formatISOToLocalDate(e.date))]);
     const sortedDates = Array.from(allDates).sort();
 
-    const dateGroups = sortedDates
-      .map((date) => {
-        const dayExpenses = expenses.filter((expense) => formatISOToLocalDate(expense.date) === date);
-        const isInTripRange = dateRange.includes(date);
+    // 모든 날짜 표시
+    const dateGroups = sortedDates.map((date) => {
+      const dayExpenses = expenses.filter((expense) => formatISOToLocalDate(expense.date) === date);
+      const isInTripRange = dateRange.includes(date);
 
-        return {
-          date,
-          dateLabel: date,
-          items: dayExpenses,
-          isInTripRange, // 여행 기간 내 날짜인지 표시
-        };
-      })
-      .filter((group) => group.items.length > 0); // 경비가 있는 날짜만 표시
+      return {
+        date,
+        dateLabel: date,
+        items: dayExpenses,
+        isInTripRange, // 여행 기간 내 날짜인지 표시
+      };
+    });
 
     // 여행 기간 외 항목을 맨 위로, 나머지는 날짜 순서대로 정렬
     const outsideTripRange = dateGroups.filter((group) => !group.isInTripRange);
@@ -197,7 +196,7 @@ export default function ExpensesScreen() {
               </View>
             )}
 
-            {!isLoading && selectedTrip && expenses.length === 0 && (
+            {!isLoading && selectedTrip && expensesByDate.length === 0 && (
               <View className='flex-1 items-center justify-center py-xl'>
                 <Text className='text-body text-muted-foreground'>경비를 추가해보세요</Text>
               </View>

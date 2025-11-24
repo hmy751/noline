@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
 import { Container, Stack, MobileHeader } from '@/shared/components';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useGetExpenses } from '@/entities/expense';
+import { useGetAllExpenses } from '@/entities/expense';
 import { useGetSchedules } from '@/entities/schedule';
 import { MapPin, Tag, Calendar, Receipt, ChevronLeft } from 'lucide-react-native';
 import { formatISOToLocalDate } from '@/shared/lib/datetime';
@@ -11,7 +11,7 @@ export default function ExpenseDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
 
   // 경비 데이터 조회
-  const { data: expenses = [], isLoading } = useGetExpenses();
+  const { data: expenses = [], isLoading } = useGetAllExpenses();
   const expense = expenses.find((e) => e.id === id);
 
   // 연결된 일정 조회 (scheduleId가 있는 경우)
