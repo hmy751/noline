@@ -42,10 +42,10 @@ export const useGetScheduleById = (scheduleId: string, tripId: string) => {
 
         // 원격: 비활성 여행
         remote: async () => {
-          const response = await axios.get(`/schedules/${scheduleId}`);
+          const response = await axios.get(`/api/schedules/${scheduleId}`);
 
           console.log(`📋 Schedule loaded from server: ${scheduleId}`);
-          return response.data.data;
+          return response.data;
         },
       });
     },
