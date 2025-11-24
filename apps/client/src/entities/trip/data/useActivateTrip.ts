@@ -6,6 +6,7 @@ import axios from '@/shared/api/fetcher';
 import { tripQueryKeys } from './keys';
 import { downloadOfflineMapInBackground } from '@/shared/services/offline-map/download';
 import { generateId } from '@/shared/services/id/ulid';
+import type { Trip } from '../model/types';
 
 /**
  * 여행 활성화 Mutation Hook
@@ -27,29 +28,26 @@ export const useActivateTrip = () => {
   return useMutation({
     mutationFn: async (tripId: string) => {
       const now = getCurrentISOString();
-      // 1. 여행 정보 조회
-      const trip = await db.select().from(trips).where(eq(trips.id, tripId)).get();
 
-      if (!trip) {
-        throw new Error(`Trip not found: ${tripId}`);
-      }
-
-      // 2. 이미 활성화된 경우 스킵 (tripActivations 테이블 확인)
-      const existingActivation = await db
-        .select()
-        .from(tripActivations)
-        .where(eq(tripActivations.tripId, tripId))
-        .get();
+      // 1. 이미 활성화된 경우 스킵 (tripActivations 테이블 확인)
+      const existingActivation = db.select().from(tripActivations).where(eq(tripActivations.tripId, tripId)).get();
 
       if (existingActivation?.isActivated) {
         console.log(`✅ Trip already activated: ${tripId}`);
         return { tripId, alreadyActivated: true };
       }
 
-      // 3. 서버에서 여행 데이터 Pull (모든 Trip + 일정, 경비)
+      // 2. 서버에서 여행 데이터 Pull (모든 Trip + 일정, 경비)
       const response = await axios.post(`/api/trips/${tripId}/activate`);
 
       const { trips: allTrips = [], schedules = [], expenses = [] } = response.data;
+
+      // 3. 활성화하려는 여행 정보 찾기 (서버 응답에서)
+      const trip = allTrips.find((t: Trip) => t.id === tripId);
+
+      if (!trip) {
+        throw new Error(`Trip not found in server response: ${tripId}`);
+      }
 
       // 4. 트랜잭션: 로컬 DB 업데이트
       await withTransaction(async () => {
