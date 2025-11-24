@@ -79,12 +79,22 @@ noline/
     - 예: `formatDate`, `formatCurrency`, `calculateDistance`
     - 특징: Side effect 없음, 입력 → 출력 변환만 수행
   - `services/`: Side effect OR 앱 특화 비즈니스 로직
-    - 예: `sync` (동기화 엔진), `offline-prep` (활성화 시스템), `id` (ULID 생성)
-    - 특징: DB 접근, API 호출, 런타임 상태 관리 등 앱 전반의 복잡한 로직
+    - 예: `sync` (동기화 엔진), `offline-prep` (활성화 시스템)
+    - 특징: DB 접근, API 호출, 작업을 **수행**하는 로직
+  - `store/`: 전역 상태 관리 (Zustand)
+    - 예: `network` (네트워크 상태), `useTripStore` (선택된 여행 ID)
+    - 특징: 런타임 상태를 **보유**하고 **변경**함
+    - 구분: Services는 "로직 실행", Store는 "상태 보유"
+  - `policy/`: 비즈니스 규칙 (독립 카테고리)
+    - 예: `useAppPolicy` (CRUD 권한 정책)
+    - 특징: 4-State Matrix 기반 권한 규칙 제공
+    - 중요도: 충분히 중요하여 독립 카테고리로 존재
 - **좋은 예시**:
   - `shared/components`: `MobileHeader`, `PageLayout`, `FormField`
   - `shared/lib`: `formatDate`와 같은 헬퍼 함수
   - `shared/services`: `sync/engine.ts`, `offline-prep/router.ts`
+  - `shared/store`: `network.ts`, `useTripStore.ts`
+  - `shared/policy`: `useAppPolicy.ts`, `constants.ts`
   - `shared/api`: `axios` 인스턴스 설정 (`fetcher`)
 
 ### 3. src/entities - 비즈니스 핵심 (도메인 객체 🧠)

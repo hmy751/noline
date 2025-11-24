@@ -14,6 +14,63 @@
 
 ## 2025-11
 
+### 2025-11-24
+
+**[Architecture]** 🟡 Store 계층 재정의 및 상태 관리 최적화
+
+> **관련 커밋**: 65028a9, ef5d0b9, f0f39c4
+> **Decision**: `.claude/decisions/2025-11-24-store-layer-refinement.md`
+
+**핵심 변경사항**:
+
+1. **Network Service → Store 마이그레이션**
+   - `shared/services/network/` 제거
+   - `shared/store/network.ts` 생성 (Zustand 사용)
+   - Hook 통합: `useNetworkStatus`, `useNetworkControl`
+   - 중복 제거: `getNetworkStatus()` → `networkStore.status`
+
+2. **Store vs Services 기준 명확화**
+   - **Store**: 상태 보유 (Network status, UI state)
+   - **Services**: 로직 실행 (Sync, Offline-prep)
+   - **Policy**: 비즈니스 규칙 (독립 카테고리)
+
+3. **Policy 성능 최적화**
+   - `useState` + `useEffect` → React Query 전환
+   - 활성화 상태 캐싱 (5분 staleTime)
+   - `useMemo`로 불필요한 리렌더링 방지
+
+**파일 변경**:
+
+- 신규: `shared/store/network.ts` (+118 lines)
+- 제거: `shared/services/network/` (3 files, -170 lines)
+- 최적화: `shared/policy/useAppPolicy.ts` (React Query 도입)
+- 수정: `entities/trip/data/useActivateTrip.ts` (upsert 패턴)
+
+**Migration 패턴**:
+
+```typescript
+// Before: 파편화된 구조
+import { useNetworkStatus } from '@/shared/services/network/hooks';
+import { getNetworkStatus } from '@/shared/services/network';
+
+// After: 통합 구조
+import { useNetworkStatus, networkStore } from '@/shared/store/network';
+const status = networkStore.status; // 동기 접근
+```
+
+**Breaking Changes**:
+
+- ❌ `getNetworkStatus()` 함수 제거 → `networkStore.status` 사용
+- ❌ `NetworkOverrideContext` 제거 → `useNetworkControl()` 사용
+
+**성능 개선**:
+
+- ✅ Policy DB 조회 캐싱 (중복 방지)
+- ✅ Network Hook 통합 (파일 수 감소)
+- ✅ useMemo로 객체 재생성 방지
+
+---
+
 ### 2025-11-21
 
 **[Feature]** 🟡 v3.0 구현 완료 (90%) - Policy-Driven Extension
