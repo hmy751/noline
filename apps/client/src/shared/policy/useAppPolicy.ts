@@ -5,7 +5,8 @@
  * 여러 Entity 정책을 동시에 체크해야 할 때 사용
  */
 
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useNetworkStatus } from '@/shared/store/network';
 import { getTripActivationStatus } from '@/shared/services/offline-prep/metadata';
 import { TRIP_POLICIES, SCHEDULE_POLICIES, EXPENSE_POLICIES, SERVICE_POLICIES } from './constants';
@@ -65,43 +66,44 @@ export interface AppPolicyContext {
  */
 export function useAppPolicy(tripId?: string): AppPolicyContext {
   const networkStatus = useNetworkStatus();
-  const [activationStatus, setActivationStatus] = useState<ActivationStatus>('inactive');
 
-  useEffect(() => {
-    // tripId가 없으면 항상 inactive
-    if (!tripId) {
-      setActivationStatus('inactive');
-      return;
-    }
+  // React Query로 활성화 상태 캐싱
+  const { data: isActivated = false } = useQuery({
+    queryKey: ['tripActivation', tripId],
+    queryFn: () => getTripActivationStatus(tripId!),
+    enabled: !!tripId, // tripId가 있을 때만 조회
+    staleTime: 5 * 60 * 1000, // 5분간 fresh 상태 유지
+  });
 
-    // tripId가 있으면 활성화 상태 확인
-    getTripActivationStatus(tripId).then((isActivated) => {
-      setActivationStatus(isActivated ? 'active' : 'inactive');
-    });
-  }, [tripId]);
+  // Activation Status 계산
+  const activationStatus: ActivationStatus = tripId && isActivated ? 'active' : 'inactive';
 
   // PolicyKey 계산: "online_active" | "offline_inactive" 등
   const policyKey: PolicyKey = `${networkStatus}_${activationStatus}`;
 
-  return {
-    trip: {
-      create: TRIP_POLICIES.create[policyKey],
-      read: TRIP_POLICIES.read[policyKey],
-      update: TRIP_POLICIES.update[policyKey],
-      delete: TRIP_POLICIES.delete[policyKey],
-    },
-    schedule: {
-      create: SCHEDULE_POLICIES.create[policyKey],
-      read: SCHEDULE_POLICIES.read[policyKey],
-      update: SCHEDULE_POLICIES.update[policyKey],
-      delete: SCHEDULE_POLICIES.delete[policyKey],
-    },
-    expense: {
-      create: EXPENSE_POLICIES.create[policyKey],
-      read: EXPENSE_POLICIES.read[policyKey],
-      update: EXPENSE_POLICIES.update[policyKey],
-      delete: EXPENSE_POLICIES.delete[policyKey],
-    },
-    service: SERVICE_POLICIES[policyKey],
-  };
+  // useMemo로 불필요한 객체 재생성 방지
+  return useMemo(
+    () => ({
+      trip: {
+        create: TRIP_POLICIES.create[policyKey],
+        read: TRIP_POLICIES.read[policyKey],
+        update: TRIP_POLICIES.update[policyKey],
+        delete: TRIP_POLICIES.delete[policyKey],
+      },
+      schedule: {
+        create: SCHEDULE_POLICIES.create[policyKey],
+        read: SCHEDULE_POLICIES.read[policyKey],
+        update: SCHEDULE_POLICIES.update[policyKey],
+        delete: SCHEDULE_POLICIES.delete[policyKey],
+      },
+      expense: {
+        create: EXPENSE_POLICIES.create[policyKey],
+        read: EXPENSE_POLICIES.read[policyKey],
+        update: EXPENSE_POLICIES.update[policyKey],
+        delete: EXPENSE_POLICIES.delete[policyKey],
+      },
+      service: SERVICE_POLICIES[policyKey],
+    }),
+    [policyKey],
+  );
 }
