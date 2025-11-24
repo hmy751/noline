@@ -9,8 +9,8 @@ interface Schedule {
   time: string;
   title: string;
   location: string;
-  latitude?: number;
-  longitude?: number;
+  latitude?: string | null;
+  longitude?: string | null;
 }
 
 interface ScheduleMapViewContainerProps {
@@ -54,14 +54,16 @@ export function ScheduleMapViewContainer({
     <View className='flex-1'>
       <PolicyBasedScheduleMapView
         tripId={tripId}
-        schedules={schedulesForMap.map((schedule) => ({
-          id: schedule.id,
-          title: schedule.title,
-          location: schedule.location || '',
-          latitude: schedule.latitude,
-          longitude: schedule.longitude,
-          time: schedule.time,
-        }))}
+        schedules={schedulesForMap
+          .filter((schedule) => schedule.latitude && schedule.longitude)
+          .map((schedule) => ({
+            id: schedule.id,
+            title: schedule.title,
+            location: schedule.location || '',
+            latitude: parseFloat(schedule.latitude!),
+            longitude: parseFloat(schedule.longitude!),
+            time: schedule.time,
+          }))}
         onSchedulePress={(scheduleId: string) => router.push(`/schedules/${scheduleId}`)}
         selectedScheduleId={selectedScheduleId}
         onMarkerPress={(scheduleId) => {

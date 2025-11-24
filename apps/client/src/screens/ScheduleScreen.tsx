@@ -27,8 +27,8 @@ interface ScheduleByDate {
     location: string;
     expense?: string;
     expenseCount?: number;
-    latitude?: number;
-    longitude?: number;
+    latitude?: string | null;
+    longitude?: string | null;
   }>;
 }
 
@@ -152,8 +152,8 @@ export default function ScheduleScreen() {
             time: formatISOToLocalTime(schedule.scheduledAt),
             title: schedule.title,
             location: schedule.location || '',
-            latitude: schedule.latitude ? parseFloat(schedule.latitude) : undefined,
-            longitude: schedule.longitude ? parseFloat(schedule.longitude) : undefined,
+            latitude: schedule.latitude,
+            longitude: schedule.longitude,
           };
         });
 
