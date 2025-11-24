@@ -80,27 +80,43 @@ export const useActivateTrip = () => {
           })
           .where(eq(tripActivations.isActivated, true));
 
-        // 4-5. 활성화 레코드 생성
+        // 4-5. 활성화 레코드 생성 또는 업데이트 (upsert)
         const expiresAt = new Date(trip.endDate);
         expiresAt.setDate(expiresAt.getDate() + 7); // 여행 종료 + 7일
 
-        await db.insert(tripActivations).values({
-          id: generateId(),
-          tripId,
-          userId: trip.userId,
-          isActivated: true,
-          activatedAt: now,
-          deactivatedAt: null,
-          expiresAt: expiresAt.toISOString(),
-          syncStatus: 'COMPLETED',
-          lastSyncAt: now,
-          syncProgress: 100,
-          dataDownloaded: true,
-          mapDownloaded: false, // 지도는 별도 다운로드
-          cleanupPending: false,
-          createdAt: now,
-          updatedAt: now,
-        });
+        await db
+          .insert(tripActivations)
+          .values({
+            id: generateId(),
+            tripId,
+            userId: trip.userId,
+            isActivated: true,
+            activatedAt: now,
+            deactivatedAt: null,
+            expiresAt: expiresAt.toISOString(),
+            syncStatus: 'COMPLETED',
+            lastSyncAt: now,
+            syncProgress: 100,
+            dataDownloaded: true,
+            mapDownloaded: false, // 지도는 별도 다운로드
+            cleanupPending: false,
+            createdAt: now,
+            updatedAt: now,
+          })
+          .onConflictDoUpdate({
+            target: tripActivations.tripId,
+            set: {
+              isActivated: true,
+              activatedAt: now,
+              deactivatedAt: null,
+              expiresAt: expiresAt.toISOString(),
+              syncStatus: 'COMPLETED',
+              lastSyncAt: now,
+              syncProgress: 100,
+              dataDownloaded: true,
+              updatedAt: now,
+            },
+          });
 
         // 4-5. Pull된 데이터 로컬 DB에 저장 (Last-Write-Wins)
         if (schedules.length > 0) {
