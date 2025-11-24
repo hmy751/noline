@@ -87,30 +87,39 @@ export default function DebugScreen() {
   };
 
   const handleClearOfflineMaps = () => {
-    Alert.alert('⚠️ 오프라인 지도 삭제', 'Mapbox 네이티브 오프라인 팩을 모두 삭제합니다.\n계속하시겠습니까?', [
-      { text: '취소', style: 'cancel' },
-      {
-        text: '삭제',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            const packs = await MapboxGL.offlineManager.getPacks();
-            console.log(`🗑️ Deleting ${packs.length} offline packs...`);
+    Alert.alert(
+      '⚠️ 오프라인 지도 완전 삭제',
+      'Mapbox 네이티브 오프라인 팩과 DB의 offlineCities 레코드를 모두 삭제합니다.\n계속하시겠습니까?',
+      [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '삭제',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // 1. Mapbox 네이티브 오프라인 팩 삭제
+              const packs = await MapboxGL.offlineManager.getPacks();
+              console.log(`🗑️ Deleting ${packs.length} offline packs...`);
 
-            for (const pack of packs) {
-              await MapboxGL.offlineManager.deletePack(pack.name);
-              console.log(`✅ Deleted pack: ${pack.name}`);
+              for (const pack of packs) {
+                await MapboxGL.offlineManager.deletePack(pack.name);
+                console.log(`✅ Deleted pack: ${pack.name}`);
+              }
+
+              // 2. DB의 offlineCities 테이블 비우기
+              await db.delete(offlineCities);
+              console.log('✅ Cleared offlineCities table');
+
+              await loadData();
+              Alert.alert('✅ 성공', `${packs.length}개의 오프라인 지도와 DB 레코드를 모두 삭제했습니다.`);
+            } catch (error) {
+              console.error('❌ Failed to clear offline maps:', error);
+              Alert.alert('❌ 실패', '오프라인 지도 삭제에 실패했습니다.');
             }
-
-            await loadData();
-            Alert.alert('✅ 성공', `${packs.length}개의 오프라인 지도를 삭제했습니다.`);
-          } catch (error) {
-            console.error('❌ Failed to clear offline maps:', error);
-            Alert.alert('❌ 실패', '오프라인 지도 삭제에 실패했습니다.');
-          }
+          },
         },
-      },
-    ]);
+      ],
+    );
   };
 
   const handleManualSync = async () => {
@@ -225,23 +234,40 @@ export default function DebugScreen() {
   };
 
   const handleClearAllActivations = () => {
-    Alert.alert('⚠️ 모든 활성화 초기화', 'tripActivations 테이블을 완전히 비우시겠습니까?', [
-      { text: '취소', style: 'cancel' },
-      {
-        text: '초기화',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await db.delete(tripActivations);
-            await loadData();
-            Alert.alert('✅ 성공', '모든 활성화가 초기화되었습니다.');
-          } catch (error) {
-            console.error('❌ Failed to clear activations:', error);
-            Alert.alert('❌ 실패', '초기화에 실패했습니다.');
-          }
+    Alert.alert(
+      '⚠️ 활성화 데이터 완전 삭제',
+      'tripActivations 테이블과 모든 로컬 여행 데이터(trips, schedules, expenses)를 삭제합니다.\n계속하시겠습니까?',
+      [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '초기화',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // 1. tripActivations 테이블 비우기
+              await db.delete(tripActivations);
+              console.log('✅ Cleared tripActivations table');
+
+              // 2. 로컬 여행 데이터 삭제
+              await db.delete(trips);
+              console.log('✅ Cleared trips table');
+
+              await db.delete(schedules);
+              console.log('✅ Cleared schedules table');
+
+              await db.delete(expenses);
+              console.log('✅ Cleared expenses table');
+
+              await loadData();
+              Alert.alert('✅ 성공', '모든 활성화 정보와 로컬 여행 데이터가 삭제되었습니다.');
+            } catch (error) {
+              console.error('❌ Failed to clear activations:', error);
+              Alert.alert('❌ 실패', '초기화에 실패했습니다.');
+            }
+          },
         },
-      },
-    ]);
+      ],
+    );
   };
 
   React.useEffect(() => {

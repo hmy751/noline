@@ -30,7 +30,7 @@ export function ToolsView({ onResetDatabase, onClearOfflineMaps, onClearActivati
             onPress={onClearOfflineMaps}
           >
             <Trash2 size={16} color='#BF4040' />
-            <Text className='text-body text-destructive'>Mapbox 오프라인 팩 삭제</Text>
+            <Text className='text-body text-destructive'>오프라인 지도 완전 삭제 (팩 + DB)</Text>
           </Pressable>
 
           <Pressable
@@ -39,7 +39,7 @@ export function ToolsView({ onResetDatabase, onClearOfflineMaps, onClearActivati
             onPress={onClearActivations}
           >
             <Trash2 size={16} color='#BF4040' />
-            <Text className='text-body text-destructive'>모두 초기화 (여행 활성화 정보)</Text>
+            <Text className='text-body text-destructive'>활성화 데이터 완전 삭제 (활성화 + 로컬 여행)</Text>
           </Pressable>
         </View>
       </View>
