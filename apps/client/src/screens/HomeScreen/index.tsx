@@ -7,8 +7,13 @@ import { useActivateTrip, ActivationProgressDrawer, type ProgressItem } from '@/
 import { TripsSection } from './TripsSection';
 import { useState, useCallback } from 'react';
 import { Alert } from 'react-native';
+import { useNetworkStatus } from '@/shared/store/network';
 
 export default function HomeScreen() {
+  // 네트워크 상태
+  const networkStatus = useNetworkStatus();
+  const isOnline = networkStatus === 'online';
+
   // 활성화 관련 상태
   const [isActivationProgressOpen, setIsActivationProgressOpen] = useState(false);
   const [activationProgress, setActivationProgress] = useState<ProgressItem[]>([]);
@@ -156,6 +161,10 @@ export default function HomeScreen() {
               variant='outline'
               className='flex-row items-center justify-center gap-2xs rounded-lg border border-card-border bg-card py-md active:bg-muted'
               onPress={() => {
+                if (!isOnline) {
+                  Alert.alert('인터넷 연결 필요', '여행을 추가하려면 인터넷 연결이 필요합니다.');
+                  return;
+                }
                 router.push('/create-trip');
               }}
             >
