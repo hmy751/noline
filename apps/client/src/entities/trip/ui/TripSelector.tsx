@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { View, Text } from 'react-native';
 import { Plane, ChevronDown, Check } from 'lucide-react-native';
-import { Select, Badge } from '@repo/ui';
+import { Badge, Drawer, Pressable } from '@repo/ui';
 import { useGetTrips } from '../data';
 import { selectMainTrip } from '../utils';
 import { useTripStore } from '@/shared/store';
@@ -35,6 +36,7 @@ interface TripSelectorProps {
 export function TripSelector({ className = '' }: TripSelectorProps) {
   // ✨ Zustand 전역 상태
   const { selectedTripId, setSelectedTripId } = useTripStore();
+  const [isOpen, setIsOpen] = useState(false);
 
   // 실제 여행 데이터 가져오기
   const { data: allTrips = [], isLoading } = useGetTrips();
@@ -60,10 +62,9 @@ export function TripSelector({ className = '' }: TripSelectorProps) {
     label: '여행을 선택하세요',
   };
 
-  const handleTripChange = (option: { value: string; label: string } | undefined) => {
-    if (option) {
-      setSelectedTripId(option.value);
-    }
+  const handleTripChange = (trip: Trip) => {
+    setSelectedTripId(trip.value);
+    setIsOpen(false);
   };
 
   // 로딩 중이거나 여행이 없을 때
@@ -88,52 +89,62 @@ export function TripSelector({ className = '' }: TripSelectorProps) {
   }
 
   return (
-    <Select value={selectedTrip} onValueChange={handleTripChange}>
+    <>
       <View className={className}>
-        <Select.Trigger size='sm'>
-          <View className='flex-row items-center gap-xs'>
-            <Plane size={18} color='hsl(0, 0%, 12%)' strokeWidth={2} />
-            <Text className='text-body text-foreground'>{selectedTrip.label}</Text>
-            {selectedTrip.isMain && (
-              <Badge variant='secondary' className='ml-xs'>
-                <Text className='text-label-small text-muted-foreground'>메인 여행</Text>
-              </Badge>
-            )}
+        <Pressable variant='outline' size='md' onPress={() => setIsOpen(true)} className='w-full h-auto py-xs px-sm'>
+          <View className='w-full flex-row items-center justify-between'>
+            <View className='flex-row items-center gap-xs'>
+              <Plane size={18} color='hsl(0, 0%, 12%)' strokeWidth={2} />
+              <Text className='text-body text-foreground'>{selectedTrip.label}</Text>
+              {selectedTrip.isMain && (
+                <Badge variant='secondary' className='ml-xs'>
+                  <Text className='text-label-small text-muted-foreground'>메인 여행</Text>
+                </Badge>
+              )}
+            </View>
+            <ChevronDown size={16} color='hsl(0, 0%, 45%)' strokeWidth={2} />
           </View>
-          <ChevronDown size={16} color='hsl(0, 0%, 45%)' strokeWidth={2} />
-        </Select.Trigger>
+        </Pressable>
       </View>
 
-      <Select.Portal>
-        <Select.Overlay>
-          <Select.Content className='rounded-2xl bg-card shadow-lg' sideOffset={4}>
-            <Select.Viewport>
-              {trips.map((trip) => {
-                const isSelected = trip.value === selectedTrip.value;
-                return (
-                  <Select.Item
-                    key={trip.value}
-                    value={trip.value}
-                    label={trip.label}
-                    className={`flex-row items-center px-sm py-xs rounded-lg ${isSelected ? 'bg-muted' : ''}`}
-                  >
-                    <View className='w-[20px] items-center justify-center mr-xs'>
-                      {isSelected && <Check size={18} color='hsl(142, 76%, 36%)' strokeWidth={2.5} />}
-                    </View>
-                    <Plane size={18} color='hsl(0, 0%, 12%)' strokeWidth={2} />
-                    <Text className='ml-xs text-body text-foreground'>{trip.label}</Text>
+      <Drawer isOpen={isOpen} onClose={() => setIsOpen(false)} title='여행 선택'>
+        <View className='flex-col gap-sm pb-xl'>
+          {trips.map((trip) => {
+            const isSelected = trip.value === selectedTrip.value;
+            return (
+              <Pressable
+                key={trip.value}
+                variant='ghost'
+                size='lg'
+                onPress={() => handleTripChange(trip)}
+                className={`w-full h-auto py-sm px-md justify-start ${isSelected ? 'bg-muted' : ''}`}
+              >
+                <View className='w-full flex-row items-center'>
+                  <View className='mr-sm items-center justify-center w-5'>
+                    {isSelected ? (
+                      <Check size={20} color='hsl(142, 76%, 36%)' strokeWidth={2.5} />
+                    ) : (
+                      <Plane size={20} color='hsl(0, 0%, 45%)' strokeWidth={2} />
+                    )}
+                  </View>
+                  <View className='flex-1 flex-row items-center'>
+                    <Text
+                      className={`text-body-large ${isSelected ? 'font-medium text-foreground' : 'text-muted-foreground'}`}
+                    >
+                      {trip.label}
+                    </Text>
                     {trip.isMain && (
-                      <Badge variant='secondary' className='ml-xs'>
+                      <Badge variant='secondary' className='ml-sm'>
                         <Text className='text-label-small text-muted-foreground'>메인</Text>
                       </Badge>
                     )}
-                  </Select.Item>
-                );
-              })}
-            </Select.Viewport>
-          </Select.Content>
-        </Select.Overlay>
-      </Select.Portal>
-    </Select>
+                  </View>
+                </View>
+              </Pressable>
+            );
+          })}
+        </View>
+      </Drawer>
+    </>
   );
 }
