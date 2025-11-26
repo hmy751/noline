@@ -5,6 +5,7 @@ import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import apiClient from '@/shared/api/fetcher';
 import { tripQueryKeys } from './keys';
 import { downloadOfflineMapInBackground } from '@/shared/services/offline-map/download';
+import { downloadRoutesForSchedules } from '@/shared/services/directions/route-downloader';
 import { generateId } from '@/shared/services/id/ulid';
 import type { Trip } from '../model/types';
 
@@ -155,6 +156,11 @@ export const useActivateTrip = () => {
       // 백그라운드로 오프라인 지도 다운로드 시작 (비동기, UI 블로킹 방지)
       downloadOfflineMapInBackground(tripId).catch((error) => {
         console.error('❌ Background map download failed:', error);
+      });
+
+      // 백그라운드로 경로 다운로드 (Mapbox Directions API)
+      downloadRoutesForSchedules({ tripId, schedules }).catch((error) => {
+        console.error('❌ Background route download failed:', error);
       });
 
       return { tripId, alreadyActivated: false, schedules, expenses };

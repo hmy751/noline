@@ -28,6 +28,7 @@ export function ScheduleExpenseList({ expenses, onExpensePress }: ScheduleExpens
           category={expense.category}
           hasReceipt={expense.hasReceipt}
           isPending={false}
+          showArrow={true}
           onPress={() => onExpensePress?.(expense.id)}
         />
       ))}

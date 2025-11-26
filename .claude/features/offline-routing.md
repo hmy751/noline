@@ -9,6 +9,7 @@
 **핵심 기능**:
 
 - 일정 생성/수정 시 자동 경로 다운로드 (3가지 이동 수단)
+- **여행 활성화 시 전체 경로 일괄 다운로드** (2025-11-27 추가)
 - Mapbox Directions API → polyline6 압축 → SQLite 저장
 - 사용자가 이동 수단 선택 (도보/자전거/자동차)
 - 저장된 경로는 실제 도로 표시, 미저장은 직선 표시
@@ -16,6 +17,8 @@
 ## 🏗 아키텍처
 
 ### 데이터 흐름
+
+#### 트리거 1: Schedule 생성/수정 시
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -67,6 +70,35 @@
 └─────────────────────────────────────────────────────┘
 ```
 
+#### 트리거 2: 여행 활성화 시 (2025-11-27 추가)
+
+```
+┌─────────────────────────────────────────────────────┐
+│ 1. User: 여행 활성화 버튼 클릭                        │
+└────────────────┬────────────────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────────────────┐
+│ 2. useActivateTrip (Mutation)                       │
+│    - 서버에서 Trip/Schedule/Expense Pull             │
+│    - tripActivations 레코드 생성                     │
+│    - 백그라운드 작업 시작:                            │
+│      ├─ downloadOfflineMapInBackground()            │
+│      └─ downloadRoutesForSchedules() ⭐ 신규        │
+└────────────────┬────────────────────────────────────┘
+                 │
+                 ▼
+┌─────────────────────────────────────────────────────┐
+│ 3. downloadRoutesForSchedules (Utility)             │
+│    - route-downloader.ts (재사용 가능 함수)          │
+│    - 좌표 있는 일정만 필터링                         │
+│    - For 3 profiles (walking/cycling/driving):      │
+│      └─ 일정 → 일정 (순차)                           │
+│    - Mapbox Directions API 호출                     │
+│    - SQLite routes 테이블 저장                       │
+└─────────────────────────────────────────────────────┘
+```
+
 ### 파일 구조
 
 ```
@@ -87,9 +119,11 @@ apps/client/src/
 │   │   └── schema.ts                   # routes 테이블 정의
 │   ├── services/directions/
 │   │   ├── mapbox.ts                   # Mapbox Directions API ⭐
+│   │   ├── route-downloader.ts         # 재사용 가능 다운로드 함수 ⭐ (신규)
 │   │   └── index.ts
 │   ├── lib/
-│   │   └── mapbox.ts                   # decodePolyline() 유틸 ⭐
+│   │   ├── mapbox.ts                   # decodePolyline() 유틸 ⭐
+│   │   └── external-map.ts             # Google Maps 길찾기 유틸 (신규)
 │   └── components/Map/
 │       └── OfflineScheduleMapView.tsx  # 경로 렌더링 컴포넌트 ⭐
 ```

@@ -14,6 +14,46 @@
 
 ## 2025-11
 
+### 2025-11-27
+
+**[Feature]** 🟢 Google Maps 길찾기 연동 및 경로 다운로드 개선
+
+> **브랜치**: `feature/google-route`
+> **변경**: 7개 파일 (+368 / -43)
+
+**핵심 변경사항**:
+
+1. **Google Maps 길찾기 버튼** (온라인 모드)
+   - `external-map.ts` 유틸리티 생성
+   - Policy 기반 버튼 표시/숨김 (`mapProvider === 'google'`)
+   - 이전 일정 → 현재 일정 길찾기 지원
+   - 첫 번째 일정은 현위치에서 출발
+
+2. **여행 활성화 시 경로 자동 다운로드**
+   - `route-downloader.ts` 유틸리티 생성 (재사용 가능)
+   - `useActivateTrip`에서 백그라운드 다운로드 호출
+   - 기존: Schedule 생성/수정 시만 → 활성화 시에도 추가
+
+3. **활성화/비활성화 UI 즉시 반영**
+   - `refreshKey` 패턴으로 MainTripSection 상태 갱신
+   - Optimistic Update 적용
+   - 실패 시 상태 복구
+
+**신규 파일**:
+
+- `apps/client/src/shared/lib/external-map.ts`
+- `apps/client/src/shared/services/directions/route-downloader.ts`
+
+**수정 파일**:
+
+- `MapScheduleCard.tsx` - 길찾기 버튼 추가
+- `ScheduleMapViewContainer.tsx` - 좌표 파싱, 카드 데이터 전달
+- `useActivateTrip.ts` - 경로 다운로드 호출 추가
+- `MainTripSection.tsx` - refreshKey, Optimistic Update
+- `TripsSection.tsx` - refreshKey 상태 관리
+
+---
+
 ### 2025-11-26
 
 **[Architecture]** 🟡 Entity Architecture Refactoring - Type System 정립

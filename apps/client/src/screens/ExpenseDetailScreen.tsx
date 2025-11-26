@@ -153,15 +153,23 @@ export default function ExpenseDetailScreen() {
                     });
                   }}
                 >
-                  <View className='flex-row items-center justify-between rounded-lg border border-card-border bg-card p-md'>
-                    <View className='flex-col gap-2xs'>
-                      <Text className='text-title-medium text-foreground'>{linkedSchedule.title}</Text>
-                      <View className='flex-row items-center gap-2xs'>
+                  <View className='w-full rounded-lg border border-card-border bg-card p-sm relative'>
+                    {/* Arrow Icon - Absolute Positioned (Right Center) */}
+                    <View className='absolute right-sm top-1/2 -translate-y-1/2 z-0'>
+                      <ChevronLeft size={20} color='hsl(0, 0%, 80%)' style={{ transform: [{ rotate: '180deg' }] }} />
+                    </View>
+
+                    <View className='flex-col gap-xs pr-8'>
+                      <Text className='text-title-medium text-foreground' numberOfLines={1}>
+                        {linkedSchedule.title}
+                      </Text>
+                      <View className='flex-row items-center gap-3xs'>
                         <MapPin size={14} color='hsl(120, 8%, 35%)' strokeWidth={2} />
-                        <Text className='text-body text-muted-foreground'>{linkedSchedule.location}</Text>
+                        <Text className='text-body text-muted-foreground' numberOfLines={1}>
+                          {linkedSchedule.location}
+                        </Text>
                       </View>
                     </View>
-                    <ChevronLeft size={20} color='hsl(0, 0%, 80%)' style={{ transform: [{ rotate: '180deg' }] }} />
                   </View>
                 </TouchableOpacity>
               </View>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { PolicyBasedScheduleMapView, MapScheduleCard } from '@/shared/components';
@@ -20,6 +20,15 @@ interface ScheduleMapViewContainerProps {
   initialDate: string | null;
 }
 
+// 좌표 파싱 헬퍼
+const parseCoordinate = (schedule: Schedule) => {
+  if (!schedule.latitude || !schedule.longitude) return null;
+  return {
+    latitude: parseFloat(schedule.latitude),
+    longitude: parseFloat(schedule.longitude),
+  };
+};
+
 export function ScheduleMapViewContainer({
   tripId,
   dateRange,
@@ -38,7 +47,10 @@ export function ScheduleMapViewContainer({
   }, [dateRange, selectedDate]);
 
   // 선택된 날짜의 일정 목록
-  const schedulesForMap = schedulesByDate.find((group) => group.date === selectedDate)?.schedules || [];
+  const schedulesForMap = useMemo(
+    () => schedulesByDate.find((group) => group.date === selectedDate)?.schedules || [],
+    [schedulesByDate, selectedDate],
+  );
 
   // 날짜 변경 시 캐러셀 초기화
   useEffect(() => {
@@ -118,18 +130,32 @@ export function ScheduleMapViewContainer({
               }
             }}
           >
-            {schedulesForMap.map((schedule, index) => (
-              <View key={schedule.id} className='mr-sm'>
-                <MapScheduleCard
-                  index={index}
-                  title={schedule.title}
-                  location={schedule.location}
-                  date={selectedDate || ''}
-                  time={schedule.time}
-                  onPressDetails={() => router.push(`/schedules/${schedule.id}`)}
-                />
-              </View>
-            ))}
+            {schedulesForMap.map((schedule, index) => {
+              const prevSchedule = index > 0 ? schedulesForMap[index - 1] : null;
+
+              return (
+                <View key={schedule.id} className='mr-sm'>
+                  <MapScheduleCard
+                    tripId={tripId}
+                    index={index}
+                    title={schedule.title}
+                    location={schedule.location}
+                    date={selectedDate || ''}
+                    time={schedule.time}
+                    coordinate={parseCoordinate(schedule)}
+                    previousSchedule={
+                      prevSchedule
+                        ? {
+                            title: prevSchedule.title,
+                            coordinate: parseCoordinate(prevSchedule),
+                          }
+                        : null
+                    }
+                    onPressDetails={() => router.push(`/schedules/${schedule.id}`)}
+                  />
+                </View>
+              );
+            })}
           </ScrollView>
         </View>
       )}
