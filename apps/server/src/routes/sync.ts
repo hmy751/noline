@@ -106,12 +106,29 @@ router.get('/pull', async (req: Request, res: Response) => {
     // 서버 시간 반환 (다음 동기화의 기준점)
     const serverTime = new Date().toISOString();
 
-    res.status(200).json({
-      trips: tripsFormatted,
-      schedules: schedulesFormatted,
-      expenses: expensesFormatted,
-      serverTime,
-    });
+    // 정책: { success, data } 구조로 응답
+    const response = {
+      success: true as const,
+      data: {
+        trips: tripsFormatted,
+        schedules: schedulesFormatted,
+        expenses: expensesFormatted,
+        serverTime,
+      },
+    };
+
+    // Zod로 응답 데이터 검증
+    const validatedResponse = syncPullResponseSchema.safeParse(response);
+
+    if (!validatedResponse.success) {
+      console.error('❌ [Sync Pull] Response validation error:', validatedResponse.error);
+      return res.status(500).json({
+        error: 'Internal validation error',
+        message: 'Response validation failed',
+      });
+    }
+
+    res.status(200).json(validatedResponse.data);
   } catch (error) {
     console.error('❌ [Sync Pull] Error:', error);
 

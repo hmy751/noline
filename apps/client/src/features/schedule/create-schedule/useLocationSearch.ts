@@ -46,10 +46,10 @@ const searchPlaces = async (query: string, cityContext?: CityContext): Promise<L
     language: 'en', // 기본 영어 (필요시 설정 가능)
   })) as PlacesSearchResponse;
 
-  // 서버 응답을 Location 타입으로 변환
+  // 서버 응답을 Location 타입으로 변환 (정책: { success, data } 구조)
   // placeId를 받아서 상세 정보를 추가로 가져와야 함
   const locations = await Promise.all(
-    response.results.map(async (result: PlacesSearchResponse['results'][0]) => {
+    response.data.results.map(async (result: PlacesSearchResponse['data']['results'][0]) => {
       try {
         // Place Details API로 좌표 정보 가져오기
         // Query string으로 language 전달

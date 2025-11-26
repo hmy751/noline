@@ -6,20 +6,10 @@ import { addToSyncQueue } from '@/shared/services/sync/queue';
 import { expenseQueryKeys } from './keys';
 import { routeChildMutation } from '@/shared/services/offline-prep/router';
 import axios from '@/shared/api/fetcher';
+import type { UpdateExpenseRequest } from '../model/types';
 
-/**
- * 경비 수정 요청 데이터 타입
- */
-export type UpdateExpenseRequest = {
-  title?: string;
-  amount?: string;
-  currency?: string;
-  category?: string;
-  date?: string; // ISO string
-  scheduleId?: string | null;
-  hasReceipt?: boolean; // TODO: 영수증 업로드 기능 구현 예정
-  receiptUrl?: string | null; // TODO: 영수증 업로드 기능 구현 예정
-};
+// Re-export for backward compatibility
+export type { UpdateExpenseRequest };
 
 /**
  * 경비 수정 Mutation Hook

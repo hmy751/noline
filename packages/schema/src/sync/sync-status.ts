@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { tripEntity } from '../entities/trip';
 import { scheduleEntity } from '../entities/schedule';
+import { expenseEntity } from '../entities/expense';
 
 // ========================================
 // Sync Pull Schemas
@@ -16,14 +17,15 @@ export const syncPullQuerySchema = z.object({
 });
 
 /**
- * Pull 응답 데이터 스키마
+ * Sync Pull 내부 데이터 스키마 (data 필드)
  *
  * 서버 → 클라이언트
  * - trips: updatedAt >= lastSyncedAt인 여행 목록
  * - schedules: updatedAt >= lastSyncedAt인 일정 목록
+ * - expenses: updatedAt >= lastSyncedAt인 경비 목록
  * - serverTime: 다음 동기화의 기준 시간
  */
-export const syncPullResponseSchema = z.object({
+export const syncPullDataSchema = z.object({
   trips: z.array(
     tripEntity.extend({
       // DB Date → ISO string 변환
@@ -42,7 +44,23 @@ export const syncPullResponseSchema = z.object({
       deletedAt: z.union([z.date(), z.string().datetime()]).nullable().optional(),
     }),
   ),
+  expenses: z.array(
+    expenseEntity.extend({
+      // DB Date → ISO string 변환
+      createdAt: z.union([z.date(), z.string().datetime()]),
+      updatedAt: z.union([z.date(), z.string().datetime()]),
+      deletedAt: z.union([z.date(), z.string().datetime()]).nullable().optional(),
+    }),
+  ),
   serverTime: z.string().datetime(), // ISO 8601
+});
+
+/**
+ * Sync Pull 응답 스키마 (정책: { success, data } 구조)
+ */
+export const syncPullResponseSchema = z.object({
+  success: z.literal(true),
+  data: syncPullDataSchema,
 });
 
 // ========================================

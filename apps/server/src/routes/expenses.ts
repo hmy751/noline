@@ -4,6 +4,7 @@ import { db, expenses } from '../db/index.js';
 import { eq, and, isNull, sql } from 'drizzle-orm';
 import { createExpenseRequest, updateExpenseRequest } from '@repo/schema/requests/expense';
 import { expenseEntity } from '@repo/schema/entities/expense';
+import { expenseListResponse, expenseResponse } from '@repo/schema/responses/expense';
 
 const router = Router();
 
@@ -49,7 +50,19 @@ router.get('/', async (req: Request, res: Response) => {
       return validated.data;
     });
 
-    res.status(200).json(validatedExpenses);
+    // 정책: 전체 응답 구조 검증
+    const response = { success: true as const, data: validatedExpenses };
+    const validatedResponse = expenseListResponse.safeParse(response);
+
+    if (!validatedResponse.success) {
+      console.error('Response validation error:', validatedResponse.error);
+      return res.status(500).json({
+        error: 'Internal validation error',
+        message: 'Response validation failed',
+      });
+    }
+
+    res.status(200).json(validatedResponse.data);
   } catch (error) {
     console.error('Error fetching expenses:', error);
 
@@ -176,10 +189,19 @@ router.get('/:id', async (req: Request, res: Response) => {
       throw new Error('Invalid expense data');
     }
 
-    res.status(200).json({
-      success: true,
-      data: validated.data,
-    });
+    // 정책: 전체 응답 구조 검증
+    const response = { success: true as const, data: validated.data };
+    const validatedResponse = expenseResponse.safeParse(response);
+
+    if (!validatedResponse.success) {
+      console.error('Response validation error:', validatedResponse.error);
+      return res.status(500).json({
+        error: 'Internal validation error',
+        message: 'Response validation failed',
+      });
+    }
+
+    res.status(200).json(validatedResponse.data);
   } catch (error) {
     console.error('Error fetching expense:', error);
 
@@ -303,9 +325,13 @@ router.delete('/:id', async (req: Request, res: Response) => {
       });
     }
 
+    // 정책: 모든 API 응답은 { success, data } 구조를 따른다
     res.json({
       success: true,
-      message: 'Expense deleted successfully',
+      data: {
+        id: deletedExpense.id,
+        deletedAt: deletedExpense.deletedAt?.toISOString(),
+      },
     });
   } catch (error) {
     console.error('Error deleting expense:', error);

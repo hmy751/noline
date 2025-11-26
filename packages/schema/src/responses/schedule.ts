@@ -26,8 +26,13 @@ export const scheduleListResponse = z.object({
 /**
  * 일정 삭제 응답
  * DELETE /api/schedules/:id
+ *
+ * 정책: 모든 API 응답은 { success, data } 구조를 따른다
  */
 export const deleteScheduleResponse = z.object({
   success: z.literal(true),
-  message: z.string(),
+  data: z.object({
+    id: z.string().ulid(),
+    deletedAt: z.string().datetime({ offset: true }),
+  }),
 });
