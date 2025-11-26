@@ -206,7 +206,7 @@ export default function ScheduleScreen() {
       />
 
       {/* Current Trip Selector - Sticky */}
-      <TripSelector className='border-b border-card-border' />
+      <TripSelector className='border-b border-card-border bg-background px-md py-sm' />
 
       {/* Content */}
       {viewMode === 'list' ? (
