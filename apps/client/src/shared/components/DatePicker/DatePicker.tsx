@@ -11,17 +11,15 @@ export default function DatePicker({ visible = true, onClose, onSelectDate, ...p
   return (
     <Drawer isOpen={visible} onClose={onClose} title='날짜 선택'>
       {/* Calendar */}
-      <View className='px-xs'>
-        <Calendar
-          onDayPress={(day) => {
-            onSelectDate(day.dateString);
-          }}
-          {...props}
-        />
-      </View>
+      <Calendar
+        onDayPress={(day) => {
+          onSelectDate(day.dateString);
+        }}
+        {...props}
+      />
 
       {/* Footer Button */}
-      <View className='px-sm pb-xl pt-md'>
+      <View className='pt-lg pb-xl'>
         <Pressable variant='default' onPress={onClose} className='w-full'>
           확인
         </Pressable>
