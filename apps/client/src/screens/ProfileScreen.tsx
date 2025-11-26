@@ -78,7 +78,6 @@ export default function ProfileScreen() {
                   <View key={item.label}>
                     <Pressable
                       variant='ghost'
-                      className='flex-row items-center justify-between p-sm'
                       onPress={() => {
                         if (!item.hasSwitch) {
                           if (item.onPress) {
@@ -89,15 +88,17 @@ export default function ProfileScreen() {
                         }
                       }}
                     >
-                      <View className='flex-row items-center gap-xs'>
-                        <IconComponent size={18} color='hsl(0, 0%, 12%)' strokeWidth={2} />
-                        <Text className='text-body text-foreground'>{item.label}</Text>
+                      <View className='w-full flex-row items-center justify-between px-sm'>
+                        <View className='flex-row items-center gap-xs'>
+                          <IconComponent size={18} color='hsl(0, 0%, 12%)' strokeWidth={2} />
+                          <Text className='text-body text-foreground'>{item.label}</Text>
+                        </View>
+                        {item.hasSwitch && item.value !== undefined && item.onChange ? (
+                          <Switch checked={item.value} onCheckedChange={item.onChange} />
+                        ) : !item.hasSwitch ? (
+                          <ChevronRight size={18} color='hsl(120, 8%, 35%)' strokeWidth={2} />
+                        ) : null}
                       </View>
-                      {item.hasSwitch && item.value !== undefined && item.onChange ? (
-                        <Switch checked={item.value} onCheckedChange={item.onChange} />
-                      ) : !item.hasSwitch ? (
-                        <ChevronRight size={18} color='hsl(120, 8%, 35%)' strokeWidth={2} />
-                      ) : null}
                     </Pressable>
                     {index < menuItems.length - 1 && <Separator />}
                   </View>
@@ -121,12 +122,11 @@ export default function ProfileScreen() {
             {/* Logout Button */}
             <Pressable
               variant='outline'
-              className='rounded-xl bg-card p-sm'
               onPress={() => {
                 console.log('Logout pressed');
               }}
             >
-              <Text className='text-center text-body text-foreground'>로그아웃</Text>
+              로그아웃
             </Pressable>
           </Stack>
         </Container>
