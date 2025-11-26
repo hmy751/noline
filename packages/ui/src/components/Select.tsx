@@ -113,7 +113,7 @@ const SelectValue = forwardRef<View, SelectValueProps>(({ className, placeholder
 SelectValue.displayName = 'Select.Value';
 
 /**
- * Select Portal - Modal wrapper
+ * Select Portal - Modal wrapper (Drawer style - bottom sheet)
  */
 interface SelectPortalProps {
   children: React.ReactNode;
@@ -123,14 +123,14 @@ const SelectPortal = ({ children }: SelectPortalProps) => {
   const { isOpen, setIsOpen } = useSelectContext();
 
   return (
-    <Modal visible={isOpen} transparent animationType='fade' onRequestClose={() => setIsOpen(false)}>
+    <Modal visible={isOpen} transparent animationType='slide' onRequestClose={() => setIsOpen(false)} statusBarTranslucent>
       {children}
     </Modal>
   );
 };
 
 /**
- * Select Overlay - Background overlay
+ * Select Overlay - Background overlay (Drawer style)
  */
 interface SelectOverlayProps {
   className?: string;
@@ -141,7 +141,7 @@ const SelectOverlay = forwardRef<View, SelectOverlayProps>(({ className, childre
   const { setIsOpen } = useSelectContext();
 
   return (
-    <View ref={ref} style={StyleSheet.absoluteFill} className={cn('items-center justify-center', className)}>
+    <View ref={ref} style={StyleSheet.absoluteFill} className={cn('justify-end', className)}>
       {/* Background overlay - closes modal on press */}
       <Pressable style={StyleSheet.absoluteFill} className='bg-black/50' onPress={() => setIsOpen(false)} />
 
@@ -154,17 +154,29 @@ const SelectOverlay = forwardRef<View, SelectOverlayProps>(({ className, childre
 SelectOverlay.displayName = 'Select.Overlay';
 
 /**
- * Select Content - Container for select items
+ * Select Content - Container for select items (Drawer style)
  */
 interface SelectContentProps {
   className?: string;
   children?: React.ReactNode;
-  sideOffset?: number;
+  title?: string;
 }
 
-const SelectContent = forwardRef<View, SelectContentProps>(({ className, children }, ref) => {
+const SelectContent = forwardRef<View, SelectContentProps>(({ className, children, title }, ref) => {
   return (
-    <View ref={ref} className={cn('bg-card rounded-xl mx-md min-w-[300px] max-w-[400px]', className)}>
+    <View ref={ref} className={cn('bg-card rounded-t-2xl w-full max-h-[70vh]', className)}>
+      {/* Handle */}
+      <View className='items-center py-2xs'>
+        <View className='w-10 h-1 rounded-full bg-border' />
+      </View>
+
+      {/* Header */}
+      {title && (
+        <View className='px-sm pt-xs pb-sm border-b border-card-border'>
+          <Text className='text-title-large text-foreground'>{title}</Text>
+        </View>
+      )}
+
       {children}
     </View>
   );
@@ -184,11 +196,11 @@ const SelectViewport = forwardRef<ScrollView, SelectViewportProps>(({ className,
   return (
     <ScrollView
       ref={ref}
-      className={cn('py-xs px-xs', className)}
-      style={{ maxHeight: 400 }}
+      className={cn('py-sm px-sm', className)}
       nestedScrollEnabled
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ flexGrow: 0 }}
+      contentContainerStyle={{ flexGrow: 0, paddingBottom: 24 }}
+      bounces={false}
     >
       {children}
     </ScrollView>
@@ -218,7 +230,14 @@ const SelectItem = forwardRef<View, SelectItemProps>(({ value, label, className,
 
   return (
     <Pressable onPress={handlePress}>
-      <View ref={ref} className={cn('w-full flex-row items-center px-sm py-xs rounded-md', className)}>
+      <View
+        ref={ref}
+        className={cn(
+          'w-full flex-row items-center px-md py-sm rounded-xl',
+          isSelected && 'bg-muted',
+          className,
+        )}
+      >
         {children}
       </View>
     </Pressable>
