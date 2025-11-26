@@ -61,8 +61,9 @@ export default function HomeScreen() {
               </View>
             </Pressable>
 
+            {/* To do 상황에 따른 UI 제공으로 추후 수정하기 */}
             {/* Upcoming Schedule Section */}
-            <View className='flex-col gap-sm'>
+            {/* <View className='flex-col gap-sm'>
               <View className='flex-row items-center justify-between'>
                 <Text className='text-title-large text-foreground'>다가오는 일정</Text>
                 <Pressable variant='ghost' className='flex-row items-center gap-3xs'>
@@ -81,7 +82,7 @@ export default function HomeScreen() {
                   }}
                 />
               ))}
-            </View>
+            </View> */}
           </Stack>
         </Container>
       </ScrollView>
