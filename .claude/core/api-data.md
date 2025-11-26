@@ -95,15 +95,17 @@ const { data } = useQuery({
      • Request/Response 스키마
      • z.infer로 타입 추론
 
-2. API 함수
-   - shared/api/ 에 작성
-   - Zod 런타임 검증
-   - 상세 에러 처리
-   - fetcher 사용
+2. Entity 5단계 레이어 구조 (2025-11)
+   - entities/{entity}/model/ - 타입 정의 (z.infer로 추출)
+   - entities/{entity}/api/ - Remote API 함수
+   - entities/{entity}/lib/ - Local DataSource (SQLite)
+   - entities/{entity}/repository/ - Router 패턴 (Local/Remote 분기)
+   - entities/{entity}/data/ - Query keys + React Query hooks
+   - index.ts - model/data만 public export
 
 3. React Query hook
-   - entities/{entity}/data/ 에 API와 함께 위치
-   - queryKey 관리
+   - Repository 함수 사용 (직접 DB/API 접근 금지)
+   - queryKey Factory 패턴
    - onError, onSuccess
    - staleTime, gcTime 설정
 
@@ -111,7 +113,7 @@ const { data } = useQuery({
    - JSDoc 주석
    - 사용 예시
 
-📌 핵심: "완전한 타입 안전성과 계층 분리"
+📌 핵심: "완전한 타입 안전성과 5단계 계층 분리"
 ```
 
 **예시**:
@@ -156,7 +158,7 @@ export const useGetUserInfo = () => {
 
 ---
 
-## 🏗️ 3계층 아키텍처
+## 🏗️ 5단계 레이어 아키텍처 (2025-11)
 
 ```
 ┌─────────────────┐
@@ -164,16 +166,29 @@ export const useGetUserInfo = () => {
 └────────┬────────┘
          │
 ┌────────▼────────┐
-│  data/ (Hooks)  │ ← 엔티티와 결합된 데이터 훅 (entities/**/data)
+│  data/ (Hooks)  │ ← Query keys + React Query hooks
 └────────┬────────┘
          │
 ┌────────▼────────┐
-│  api/ (API)     │ ← fetcher 사용, Zod 검증 (shared/api 또는 entities/**/api)
+│  repository/    │ ← Router로 Local/Remote 분기
 └────────┬────────┘
          │
-┌────────▼────────┐
-│     fetcher     │ ← HTTP 클라이언트 (shared/api)
-└─────────────────┘
+    ┌────┴────┐
+    ↓         ↓
+┌───────┐ ┌───────┐
+│ lib/  │ │ api/  │ ← Local DB / Remote Server
+└───┬───┘ └───┬───┘
+    │         │
+    ↓         ↓
+┌───────┐ ┌───────┐
+│SQLite │ │Server │
+└───────┘ └───────┘
+```
+
+**타입 흐름:**
+
+```text
+@repo/schema (Zod) → model (z.infer) → repository → data hooks → components
 ```
 
 ## ✅ API 함수 작성 (api/)

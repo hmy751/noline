@@ -105,18 +105,28 @@ noline/
   - 엔티티의 데이터 모델, 타입, 유효성 검사 스키마 등을 관리합니다.
   - 해당 엔티티를 관리하기 위한 API 함수를 포함할 수 있습니다.
 - **폴더 구조 (확장 가능)**:
+  - `model/` - 데이터 모델, 타입 (z.infer로 @repo/schema에서 추출)
+  - `api/` - Remote API 호출 함수 (Server 통신)
+  - `lib/` - Local DataSource (SQLite 직접 접근, withTransaction 사용)
+  - `repository/` - Router 패턴 (활성화 상태 기반 Local/Remote 분기)
+  - `data/` - Query keys, React Query hooks (Repository 사용)
   - `ui/` - UI 컴포넌트 (예: TripCard.tsx)
-  - `model/` - 데이터 모델, 타입, 스키마 (예: trip.schema.ts)
-  - `api/` - API 호출 함수 (예: getTrip.ts)
-  - `data/` - Query keys, 데이터 hooks (예: keys.ts, useTripQuery.ts)
   - `utils/` - 엔티티 전용 유틸리티 함수
   - 필요에 따라 추가 폴더 생성 가능
+- **타입 흐름**:
+
+  ```text
+  @repo/schema (Zod) → model (z.infer) → repository → data hooks → components
+  ```
+
 - **좋은 예시**:
-  - `entities/trip/ui/TripCard.tsx` (@repo/ui의 Card를 셸로 사용)
-  - `entities/trip/model/trip.schema.ts`
-  - `entities/trip/api/getTrip.ts`
+  - `entities/trip/model/index.ts` (타입 export)
+  - `entities/trip/api/trips.ts` (fetchAllTrips, fetchCreateTrip 등)
+  - `entities/trip/lib/trip-local.ts` (getTripsLocal, createTripLocal 등)
+  - `entities/trip/repository/trip-repository.ts` (TripRepository.getAll 등)
   - `entities/trip/data/keys.ts` (Query Key Factory)
-  - `entities/trip/utils/formatTripDate.ts`
+  - `entities/trip/data/useGetTrips.ts` (React Query hook)
+  - `entities/trip/ui/TripCard.tsx` (@repo/ui의 Card를 셸로 사용)
 
 ### 4. src/features - 기능 구현 (가전제품 📺)
 

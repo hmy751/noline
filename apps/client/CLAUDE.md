@@ -38,16 +38,22 @@
 - 역할: DB 작업과 sync_queue를 하나의 트랜잭션으로 묶음
 - 보장: 둘 다 성공하거나 둘 다 실패 (원자성)
 
-### 데이터 흐름
+### 데이터 흐름 (5단계 레이어 구조)
 
-| 단계               | 동작                     | 책임          |
-| ------------------ | ------------------------ | ------------- |
-| 1. User Action     | 버튼 클릭, 폼 제출       | UI Component  |
-| 2. Validation      | Zod 스키마 검증          | Feature Layer |
-| 3. ID Generation   | ULID 생성                | Service Layer |
-| 4. Local Save      | SQLite 저장 + sync_queue | DB Layer      |
-| 5. UI Update       | React Query 캐시 무효화  | State Layer   |
-| 6. Background Sync | 네트워크 가능시 Push     | Sync Engine   |
+| 단계               | 동작                          | 책임             |
+| ------------------ | ----------------------------- | ---------------- |
+| 1. User Action     | 버튼 클릭, 폼 제출            | UI Component     |
+| 2. Data Hook       | React Query hook 호출         | Entity/data      |
+| 3. Repository      | 활성화 상태 기반 분기 (Router) | Entity/repository |
+| 4. DataSource      | Local(lib) 또는 Remote(api)   | Entity/lib, api  |
+| 5. UI Update       | React Query 캐시 무효화       | State Layer      |
+| 6. Background Sync | 네트워크 가능시 Push          | Sync Engine      |
+
+**타입 흐름:**
+
+```text
+@repo/schema (Zod) → model (z.infer) → repository → data hooks → components
+```
 
 ## 🕐 Time Management
 
@@ -83,6 +89,41 @@ formatDateTime(now); // "2024-03-15 14:30"
 - `updatedAt`: ISO 8601 문자열
 - `deletedAt`: Soft Delete용
 - `version`: 충돌 해결용
+
+## 🏗 Entity 5단계 레이어 구조 (2025-11)
+
+**위치**: `entities/{entity}/`
+
+```text
+entities/expense/
+├── model/          # 타입 정의 (z.infer로 @repo/schema에서 추출)
+├── api/            # Remote API 호출 함수
+├── lib/            # Local DataSource (SQLite, withTransaction)
+├── repository/     # Router 패턴 (Local/Remote 분기)
+├── data/           # Query keys, React Query hooks
+└── index.ts        # Public API (model/data만 export)
+```
+
+**레이어별 역할:**
+
+| 레이어     | 역할                              | import 가능 대상           |
+| ---------- | --------------------------------- | -------------------------- |
+| model      | 타입 정의                         | @repo/schema               |
+| api        | Remote Server 통신                | model, @/shared/api        |
+| lib        | Local SQLite 접근                 | model, @/shared/db         |
+| repository | Router로 Local/Remote 분기        | model, api, lib, Router    |
+| data       | Query keys, React Query hooks     | model, repository          |
+
+**외부 노출 (index.ts):**
+
+```typescript
+// ✅ Public API - 외부에서 import 가능
+export type { Expense } from './model';
+export { useGetExpenses, useCreateExpense, expenseQueryKeys } from './data';
+
+// ❌ Internal - 외부 노출 금지
+// api/, lib/, repository/는 캡슐화
+```
 
 ## 🔑 Query Key Factory Pattern
 

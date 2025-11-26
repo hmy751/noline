@@ -278,9 +278,15 @@ generateId();  // ✅ ulid() wrapper
 <details>
 <summary><strong>전체 체크리스트 (5분)</strong></summary>
 
-**읽기 순서**: 처음이면 전체, 익숙하면 Step 3만
+**읽기 순서**: 처음이면 전체, 익숙하면 Step 4(Repository)부터
 
-#### Step 1: Schema 정의
+**레이어 구조**:
+
+```text
+@repo/schema → model/ → api/ → lib/ → repository/ → data/ → components
+```
+
+#### Step 1: Schema 정의 (@repo/schema)
 
 ```typescript
 // packages/schema/src/entities/newEntity.ts
@@ -292,51 +298,89 @@ export const newEntitySchema = z.object({
 // 💡 Why: @repo/schema가 클라이언트-서버 타입 계약의 Single Source of Truth
 ```
 
-#### Step 2: Query Keys Factory (놓치기 쉬움!)
+#### Step 2: Model 타입 추출 (entities/\*/model)
+
+```typescript
+// entities/newEntity/model/index.ts
+import { newEntitySchema } from '@repo/schema';
+import { z } from 'zod';
+
+export type NewEntity = z.infer<typeof newEntitySchema>;
+
+// 💡 Why: z.infer로 타입 추출하여 Schema와 동기화 보장
+```
+
+#### Step 3: API & Local DataSource 구현
+
+```typescript
+// entities/newEntity/api/newEntity.ts (Remote)
+export const fetchAllNewEntities = async () => {
+  const response = await apiClient.get('/newEntities');
+  return response.data;
+};
+
+// entities/newEntity/lib/newEntity-local.ts (Local)
+export const getNewEntitiesLocal = async () => {
+  return await db.select().from(newEntities).where(isNull(newEntities.deletedAt)).all();
+};
+
+export const createNewEntityLocal = async (data: CreateNewEntityRequest) => {
+  await withTransaction(async () => {
+    await db.insert(newEntities).values(data);
+    await addToSyncQueue('newEntities', data.id, 'CREATE', data);
+  });
+};
+
+// 💡 Why: Local은 withTransaction으로 DB+sync_queue 원자성 보장
+```
+
+#### Step 4: Repository 패턴 (가장 중요!)
+
+```typescript
+// entities/newEntity/repository/newEntity-repository.ts
+import { routeTripQuery, routeTripMutation } from '@/shared/services/offline-prep/router';
+import * as NewEntityApi from '../api/newEntity';
+import * as NewEntityLocal from '../lib/newEntity-local';
+
+export const NewEntityRepository = {
+  getAll: async () => {
+    return await routeTripQuery({
+      local: () => NewEntityLocal.getNewEntitiesLocal(),
+      remote: async () => {
+        const response = await NewEntityApi.fetchAllNewEntities();
+        return response.data;
+      },
+    });
+  },
+  create: async (data: CreateNewEntityRequest) => {
+    return await routeTripMutation({
+      local: () => NewEntityLocal.createNewEntityLocal(data),
+      remote: () => NewEntityApi.fetchCreateNewEntity(data),
+    });
+  },
+};
+
+// 💡 Why: Repository가 Router를 캡슐화하여 Data Hook은 단순하게 유지
+```
+
+#### Step 5: Data Hooks (React Query)
 
 ```typescript
 // entities/newEntity/data/keys.ts
 export const newEntityQueryKeys = {
   base: ['newEntity'] as const,
   all: () => [...newEntityQueryKeys.base, 'all'] as const,
-  byId: (id: string) => [...newEntityQueryKeys.base, id] as const,
 };
 
-// 💡 Why: React Query 캐시 무효화에 필수. 없으면 UI 업데이트 안 됨
-```
+// entities/newEntity/data/useGetNewEntities.ts
+export const useGetNewEntities = () => {
+  return useQuery({
+    queryKey: newEntityQueryKeys.all(),
+    queryFn: () => NewEntityRepository.getAll(),
+  });
+};
 
-#### Step 3: Router 사용 (가장 중요!)
-
-```typescript
-import { routeTripQuery, routeTripMutation } from '@/shared/services/offline-prep/router';
-
-// ✅ 올바른 패턴
-await routeTripQuery({
-  local: () => db.select().from(newEntity),
-  remote: () => api.get('/newEntity'),
-});
-
-// ❌ 흔한 실수 - Router 미사용
-const data = await db.select().from(newEntity);
-// 문제: 활성화 체크 누락 → 활성화된 여행이 오프라인에서 데이터 못 찾음
-```
-
-#### Step 4: Mutation with Transaction
-
-```typescript
-import { withTransaction } from '@/shared/db/utils';
-
-await routeTripMutation({
-  local: () =>
-    withTransaction(async () => {
-      await db.insert(newEntity).values(data);
-      await addToSyncQueue('newEntity', id, 'CREATE', data);
-    }),
-  remote: () => api.post('/newEntity', data),
-});
-
-// 💡 Why: DB와 sync_queue 둘 다 성공 or 둘 다 실패. 원자성 보장
-// 실제 버그 사례: DB 성공 + sync_queue 실패 → 서버 동기화 안 됨
+// 💡 Why: Data Hook은 Repository만 호출, Router/Transaction 신경 안 씀
 ```
 
 **디버깅 팁**:
@@ -347,6 +391,7 @@ await routeTripMutation({
 **상세 가이드**:
 
 - [Schema CLAUDE.md](./packages/schema/CLAUDE.md) - 스키마 정의 상세
+- [architecture.md](./.claude/core/architecture.md) - Entity 폴더 구조
 - [selective-activation-architecture.md](./.claude/core/selective-activation-architecture.md) - 전체 아키텍처
 
 </details>

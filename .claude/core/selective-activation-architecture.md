@@ -424,50 +424,100 @@ export type NewExpense = typeof expenses.$inferInsert;
 
 ---
 
-### 3. Entity Data Layer - 데이터 조회 훅
+### 3. Entity Layer - 5단계 레이어 구조 (2025-11 리팩토링)
 
-**위치:** `apps/client/src/entities/xxx/data/`
+**위치:** `apps/client/src/entities/xxx/`
 
-**역할:**
+**레이어 구조:**
 
-- React Query 훅 제공 (useGetXxx)
-- **로컬 DB에서만 조회** (Local-First!)
-- Query Key 관리
+```text
+entities/expense/
+├── model/          # 타입 정의 (z.infer로 @repo/schema에서 추출)
+├── api/            # Remote API 호출 함수
+├── lib/            # Local DataSource (SQLite, withTransaction)
+├── repository/     # Router 패턴 (Local/Remote 분기)
+├── data/           # Query keys, React Query hooks (Repository 사용)
+└── index.ts        # Public API (model/data만 export)
+```
 
-**올바른 구현 (Local-First):**
+**레이어별 역할:**
+
+| 레이어       | 역할                                    | 예시                          |
+| ------------ | --------------------------------------- | ----------------------------- |
+| model        | 타입 정의 (z.infer로 추출)              | `type Expense = z.infer<...>` |
+| api          | Remote Server 통신                      | `fetchExpenses(tripId)`       |
+| lib          | Local SQLite 접근, withTransaction 사용 | `getLocalExpenses(tripId)`    |
+| repository   | Router로 활성화 상태 기반 분기          | `routeChildQuery({ local, remote })` |
+| data         | Query keys, React Query hooks           | `useGetExpenses(tripId)`      |
+
+**타입 흐름:**
+
+```text
+@repo/schema (Zod) → model (z.infer) → repository → data hooks → components
+```
+
+**올바른 구현 (5단계 레이어 구조):**
 
 ```typescript
-// ✅ apps/client/src/entities/expense/data/useGetExpenses.ts
+// ✅ Step 1: model/index.ts - 타입 정의
+import { expenseEntity } from '@repo/schema';
+import { z } from 'zod';
 
-import { useQuery } from '@tanstack/react-query';
+export type Expense = z.infer<typeof expenseEntity>;
+
+// ✅ Step 2: lib/expense.ts - Local DataSource
 import { db } from '@/shared/db';
 import { expenses } from '@/shared/db/schema';
 import { eq, isNull, and } from 'drizzle-orm';
 
-// Query Key Factory
+export async function getLocalExpenses(tripId: string) {
+  return db.select()
+    .from(expenses)
+    .where(and(isNull(expenses.deletedAt), eq(expenses.tripId, tripId)))
+    .orderBy(expenses.spentAt)
+    .all();
+}
+
+// ✅ Step 3: api/expense.ts - Remote API
+import { fetcher } from '@/shared/api';
+
+export async function fetchExpenses(tripId: string) {
+  return fetcher.get<Expense[]>(`/api/trips/${tripId}/expenses`);
+}
+
+// ✅ Step 4: repository/expense.ts - Router 패턴
+import { routeChildQuery } from '@/shared/services/offline-prep/router';
+import { getLocalExpenses } from '../lib/expense';
+import { fetchExpenses } from '../api/expense';
+
+export function getExpenses(tripId: string) {
+  return routeChildQuery({
+    tripId,
+    local: () => getLocalExpenses(tripId),
+    remote: () => fetchExpenses(tripId),
+  });
+}
+
+// ✅ Step 5: data/useGetExpenses.ts - React Query Hook
+import { useQuery } from '@tanstack/react-query';
+import { expenseQueryKeys } from './keys';
+import { getExpenses } from '../repository/expense';
+
+export function useGetExpenses(tripId: string) {
+  return useQuery({
+    queryKey: expenseQueryKeys.byTrip(tripId),
+    queryFn: () => getExpenses(tripId),
+    staleTime: Infinity,
+  });
+}
+
+// Query Key Factory (data/keys.ts)
 export const expenseQueryKeys = {
   base: ['expenses'] as const,
   all: () => [...expenseQueryKeys.base, 'all'] as const,
   byTrip: (tripId: string) => [...expenseQueryKeys.base, 'trip', tripId] as const,
   bySchedule: (scheduleId: string) => [...expenseQueryKeys.base, 'schedule', scheduleId] as const,
 };
-
-export function useGetExpenses(tripId?: string) {
-  return useQuery({
-    queryKey: tripId ? expenseQueryKeys.byTrip(tripId) : expenseQueryKeys.all(),
-    queryFn: async () => {
-      // ✅ 로컬 DB 조회 (Soft Delete 제외)
-      let query = db.select().from(expenses).where(isNull(expenses.deletedAt)).orderBy(expenses.spentAt);
-
-      if (tripId) {
-        query = query.where(and(isNull(expenses.deletedAt), eq(expenses.tripId, tripId)));
-      }
-
-      return await query.all();
-    },
-    staleTime: Infinity, // 로컬 DB는 항상 최신
-  });
-}
 ```
 
 **잘못된 구현 (Server-First):**
@@ -489,11 +539,18 @@ export function useGetExpenses(tripId: string) {
 **체크리스트:**
 
 ```typescript
-□ API 호출 없음 (fetchXxx 사용 금지)
-□ db.select().from(xxx) 사용
-□ isNull(xxx.deletedAt) 필터 적용
+# 5단계 레이어 구조 체크리스트
+□ model/ - @repo/schema에서 z.infer로 타입 추출
+□ api/ - Remote API 함수 (fetcher 사용)
+□ lib/ - Local DB 함수 (isNull(deletedAt) 필터 적용)
+□ repository/ - routeChildQuery/routeChildMutation 사용
+□ data/ - Query Key Factory + React Query hooks
+□ index.ts - model/data만 export (내부 레이어 캡슐화)
+
+# Data Hook 체크리스트
+□ Repository 함수 사용 (직접 DB/API 접근 금지)
 □ Query Key Factory 사용
-□ staleTime: Infinity 설정 (로컬 DB)
+□ staleTime 설정
 ```
 
 ---
