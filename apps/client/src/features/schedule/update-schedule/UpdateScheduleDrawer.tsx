@@ -103,8 +103,8 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
       ? {
           location: selectedLocation.name,
           address: selectedLocation.address,
-          latitude: String(selectedLocation.latitude),
-          longitude: String(selectedLocation.longitude),
+          latitude: selectedLocation.latitude,
+          longitude: selectedLocation.longitude,
         }
       : {};
 

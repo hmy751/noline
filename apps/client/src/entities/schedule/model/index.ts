@@ -5,4 +5,7 @@ export type {
   GetAllSchedulesResponse,
   CreateScheduleRequest,
   CreateScheduleResponse,
+  UpdateScheduleRequest,
+  UpdateScheduleResponse,
+  DeleteScheduleResponse,
 } from './types';

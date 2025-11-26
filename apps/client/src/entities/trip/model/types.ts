@@ -20,12 +20,13 @@ export type UpdateTripRequest = z.infer<typeof updateTripRequest>;
 
 // ========================================
 // Response Types (서버 → 클라이언트)
+// - wrapper({ success, data })에서 data만 추출하여 순수 Entity 타입으로 사용
 // ========================================
-export type TripResponse = z.infer<typeof tripResponse>;
+export type TripResponse = z.infer<typeof tripResponse>['data'];
 export type GetAllTripsResponse = z.infer<typeof tripListResponse>;
-export type CreateTripResponse = z.infer<typeof tripResponse>;
-export type UpdateTripResponse = z.infer<typeof tripResponse>;
-export type DeleteTripResponse = z.infer<typeof deleteTripResponse>;
+export type CreateTripResponse = z.infer<typeof tripResponse>['data'];
+export type UpdateTripResponse = z.infer<typeof tripResponse>['data'];
+export type DeleteTripResponse = z.infer<typeof deleteTripResponse>['data'];
 
 // ========================================
 // Alias (backward compatibility)
