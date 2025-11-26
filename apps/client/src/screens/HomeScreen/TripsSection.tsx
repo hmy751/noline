@@ -85,6 +85,7 @@ export function TripsSection({ onMainTripDataChange }: TripsSectionProps) {
         { id: 'activate', label: '여행 활성화 중...', status: 'loading' },
         { id: 'schedules', label: '일정 다운로드', status: 'pending' },
         { id: 'expenses', label: '경비 다운로드', status: 'pending' },
+        { id: 'routes', label: '경로 다운로드', status: 'pending' },
         { id: 'map', label: '오프라인 지도 준비', status: 'pending' },
       ];
 
@@ -129,9 +130,20 @@ export function TripsSection({ onMainTripDataChange }: TripsSectionProps) {
               ),
             );
             setActivationProgress((prev) =>
-              prev.map((item) => (item.id === 'map' ? { ...item, status: 'loading' as const } : item)),
+              prev.map((item) => (item.id === 'routes' ? { ...item, status: 'loading' as const } : item)),
             );
           }, 3000);
+
+          setTimeout(() => {
+            setActivationProgress((prev) =>
+              prev.map((item) =>
+                item.id === 'routes' ? { ...item, status: 'success' as const, label: '경로 다운로드 완료!' } : item,
+              ),
+            );
+            setActivationProgress((prev) =>
+              prev.map((item) => (item.id === 'map' ? { ...item, status: 'loading' as const } : item)),
+            );
+          }, 4000);
 
           setTimeout(() => {
             setActivationProgress((prev) =>
@@ -141,7 +153,7 @@ export function TripsSection({ onMainTripDataChange }: TripsSectionProps) {
             );
             // 활성화 완료 후 상태 업데이트
             setActivatedTripId(tripId);
-          }, 4500);
+          }, 5500);
         },
         onError: (error) => {
           console.error('활성화 실패:', error);
