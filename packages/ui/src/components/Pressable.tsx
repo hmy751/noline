@@ -19,6 +19,7 @@ const pressableVariants = cva(
         md: 'h-[44px] px-4',
         lg: 'h-[48px] px-6',
         icon: 'h-[40px] w-[40px]',
+        auto: '', // 높이 자동 (카드 등 콘텐츠 기반)
       },
     },
     defaultVariants: {
@@ -52,6 +53,7 @@ export const Pressable = forwardRef<React.ElementRef<typeof RNPressable>, Pressa
       md: 14,
       lg: 16,
       icon: 14,
+      auto: 14,
     };
 
     const textColor = textColorMap[variant ?? 'default'];

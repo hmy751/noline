@@ -49,6 +49,7 @@ export function ExpenseCard({
   return (
     <Pressable
       onPress={onPress}
+      size='auto'
       className='flex w-full rounded-lg border border-card-border bg-card p-md active:bg-muted'
     >
       <View className='flex-row items-start justify-between'>
@@ -58,7 +59,12 @@ export function ExpenseCard({
           <Text className='text-title-medium text-foreground'>{title}</Text>
 
           {/* Amount */}
-          <Text className='text-display-medium text-primary'>
+          <Text
+            className='text-display-medium text-primary'
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.7}
+          >
             {currency} {amount}
           </Text>
 
