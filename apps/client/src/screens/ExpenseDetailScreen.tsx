@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Container, Stack, MobileHeader } from '@/shared/components';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useGetAllExpenses } from '@/entities/expense';
@@ -140,15 +140,30 @@ export default function ExpenseDetailScreen() {
             {linkedSchedule && (
               <View className='flex-col gap-xs'>
                 <Text className='text-title-medium text-foreground'>연결된 일정</Text>
-                <View className='rounded-lg border border-card-border bg-muted/30 p-md'>
-                  <View className='flex-col gap-2xs'>
-                    <Text className='text-title-medium text-foreground'>{linkedSchedule.title}</Text>
-                    <View className='flex-row items-center gap-2xs'>
-                      <MapPin size={14} color='hsl(120, 8%, 35%)' strokeWidth={2} />
-                      <Text className='text-body text-muted-foreground'>{linkedSchedule.location}</Text>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={() => {
+                    router.push({
+                      pathname: '/(tabs)/schedules/[id]',
+                      params: {
+                        id: linkedSchedule.id,
+                        tripId: linkedSchedule.tripId,
+                        scheduledAt: linkedSchedule.scheduledAt,
+                      },
+                    });
+                  }}
+                >
+                  <View className='flex-row items-center justify-between rounded-lg border border-card-border bg-card p-md'>
+                    <View className='flex-col gap-2xs'>
+                      <Text className='text-title-medium text-foreground'>{linkedSchedule.title}</Text>
+                      <View className='flex-row items-center gap-2xs'>
+                        <MapPin size={14} color='hsl(120, 8%, 35%)' strokeWidth={2} />
+                        <Text className='text-body text-muted-foreground'>{linkedSchedule.location}</Text>
+                      </View>
                     </View>
+                    <ChevronLeft size={20} color='hsl(0, 0%, 80%)' style={{ transform: [{ rotate: '180deg' }] }} />
                   </View>
-                </View>
+                </TouchableOpacity>
               </View>
             )}
           </Stack>

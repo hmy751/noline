@@ -244,7 +244,6 @@ export default function ExpensesScreen() {
                         amount={expense.amount}
                         currency={expense.currency}
                         category={expense.category}
-                        date={formatISOToLocalDate(expense.date)}
                         hasReceipt={expense.hasReceipt}
                         isPending={false}
                         onPress={() => {

@@ -1,6 +1,6 @@
 import { View, Text } from 'react-native';
-import { Stack } from '@/shared/components';
-import { ExpenseCard, type Expense } from '@/entities/expense';
+import { Stack, ExpenseCard } from '@/shared/components';
+import { type Expense } from '@/entities/expense';
 import { formatISOToLocalDate } from '@/shared/lib/datetime';
 
 export interface ScheduleExpenseListProps {
@@ -22,13 +22,12 @@ export function ScheduleExpenseList({ expenses, onExpensePress }: ScheduleExpens
       {expenses.map((expense) => (
         <ExpenseCard
           key={expense.id}
-          id={expense.id}
           title={expense.title}
           amount={expense.amount}
           currency={expense.currency}
           category={expense.category}
-          date={formatISOToLocalDate(expense.date)}
           hasReceipt={expense.hasReceipt}
+          isPending={false}
           onPress={() => onExpensePress?.(expense.id)}
         />
       ))}
