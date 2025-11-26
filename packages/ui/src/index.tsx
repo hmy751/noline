@@ -40,3 +40,6 @@ export type { CalendarProps } from './components/Calendar';
 
 export { Drawer, DrawerHeader, DrawerFooter } from './components/Drawer';
 export type { DrawerProps, DrawerHeaderProps, DrawerFooterProps } from './components/Drawer';
+
+export { DropdownMenu, DropdownMenuItem } from './components/DropdownMenu';
+export type { DropdownMenuProps, DropdownMenuItemProps, DropdownMenuPosition } from './components/DropdownMenu';

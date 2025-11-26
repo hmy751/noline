@@ -1,5 +1,4 @@
-import React, { useRef } from 'react';
-import { Modal, Text, TouchableOpacity, Pressable } from 'react-native';
+import { DropdownMenu, DropdownMenuItem, type DropdownMenuPosition } from '@repo/ui';
 import { Edit2, Trash2 } from 'lucide-react-native';
 
 export type ExpenseMenuProps = {
@@ -7,56 +6,38 @@ export type ExpenseMenuProps = {
   onClose: () => void;
   onEdit: () => void;
   onDelete: () => void;
-  buttonPosition?: { x: number; y: number; width: number; height: number };
+  buttonPosition?: DropdownMenuPosition;
 };
 
 /**
  * 경비 편집/삭제를 위한 드롭다운 메뉴
  */
 export const ExpenseMenu = ({ isOpen, onClose, onEdit, onDelete, buttonPosition }: ExpenseMenuProps) => {
-  const lastPositionRef = useRef(buttonPosition);
+  const handleEdit = () => {
+    onEdit();
+    onClose();
+  };
 
-  if (buttonPosition) {
-    lastPositionRef.current = buttonPosition;
-  }
-
-  const position = buttonPosition ?? lastPositionRef.current;
+  const handleDelete = () => {
+    onDelete();
+    onClose();
+  };
 
   return (
-    <Modal visible={isOpen} transparent animationType='fade' onRequestClose={onClose}>
-      <Pressable className='flex-1' onPress={onClose}>
-        <Pressable
-          className='absolute bg-card rounded-lg w-48 overflow-hidden shadow-lg border border-card-border'
-          style={{
-            top: position?.y ? position.y + 40 : 200,
-            right: 16,
-          }}
-        >
-          {/* 수정 버튼 */}
-          <TouchableOpacity
-            className='flex-row items-center gap-sm p-md border-b border-card-border active:bg-muted'
-            onPress={() => {
-              onEdit();
-              onClose();
-            }}
-          >
-            <Edit2 size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
-            <Text className='text-body text-foreground'>수정</Text>
-          </TouchableOpacity>
+    <DropdownMenu isOpen={isOpen} onClose={onClose} position={buttonPosition}>
+      <DropdownMenuItem
+        onPress={handleEdit}
+        icon={<Edit2 size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />}
+        label='수정'
+      />
 
-          {/* 삭제 버튼 */}
-          <TouchableOpacity
-            className='flex-row items-center gap-sm p-md active:bg-muted'
-            onPress={() => {
-              onDelete();
-              onClose();
-            }}
-          >
-            <Trash2 size={20} color='hsl(0, 75%, 50%)' strokeWidth={2} />
-            <Text className='text-body text-destructive'>삭제</Text>
-          </TouchableOpacity>
-        </Pressable>
-      </Pressable>
-    </Modal>
+      <DropdownMenuItem
+        onPress={handleDelete}
+        icon={<Trash2 size={20} color='hsl(0, 75%, 50%)' strokeWidth={2} />}
+        label='삭제'
+        variant='destructive'
+        showBorder={false}
+      />
+    </DropdownMenu>
   );
 };
