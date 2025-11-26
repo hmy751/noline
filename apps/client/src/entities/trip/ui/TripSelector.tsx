@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { View, Text } from 'react-native';
 import { Plane, ChevronDown, Check, WifiOff } from 'lucide-react-native';
 import { Badge, Drawer, Pressable } from '@repo/ui';
 import { useGetTrips } from '../data';
+import { useGetActiveTrip } from '../data/useGetTripActivation';
 import { selectMainTrip } from '../utils';
 import { useTripStore } from '@/shared/store';
-import { getActivatedTripInfo } from '@/shared/services/offline-prep/metadata';
 import type { TripData } from '../model';
 
 interface Trip {
@@ -45,18 +45,14 @@ export function TripSelector({ className = '' }: TripSelectorProps) {
   const { data: allTrips = [], isLoading } = useGetTrips();
   const mainTrip = selectMainTrip(allTrips);
 
-  // 활성화된 여행 정보 (동시에 1개만 활성화 가능)
-  const [activatedTrip, setActivatedTrip] = useState<{ tripId: string; status: 'preparing' | 'ready' } | null>(null);
-
-  // 활성화된 여행 조회 (단일 조회)
-  useEffect(() => {
-    const checkActivatedTrip = async () => {
-      const info = await getActivatedTripInfo();
-      setActivatedTrip(info);
-    };
-
-    checkActivatedTrip();
-  }, [allTrips]);
+  // 활성화된 여행 정보 (React Query로 관리 - 캐시 무효화 시 자동 갱신)
+  const { data: activeTrip } = useGetActiveTrip();
+  const activatedTrip = activeTrip
+    ? {
+        tripId: activeTrip.tripId,
+        status: (activeTrip.mapDownloaded ? 'ready' : 'preparing') as 'preparing' | 'ready',
+      }
+    : null;
 
   // TripData를 Trip 형태로 변환하는 함수
   const convertTripDataToTrip = (tripData: TripData, isMain: boolean = false): Trip => {

@@ -4,6 +4,9 @@ import { eq, sql } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import apiClient from '@/shared/api/fetcher';
 import { tripQueryKeys } from './keys';
+import { scheduleQueryKeys } from '@/entities/schedule/data/keys';
+import { expenseQueryKeys } from '@/entities/expense/data/keys';
+import { routeQueryKeys } from '@/entities/route/data/keys';
 import { cleanupOfflineMapForTrip } from '@/shared/services/offline-map';
 import { hasPendingTasksForTrip, getPendingTasksForTrip } from '@/shared/services/sync/queue';
 
@@ -132,11 +135,14 @@ export const useDeactivateTrip = () => {
     },
     onSuccess: (data) => {
       // 캐시 무효화 - 여행 목록 및 활성화 상태 다시 조회
-      queryClient.invalidateQueries({
-        queryKey: tripQueryKeys.base,
-      });
+      queryClient.invalidateQueries({ queryKey: tripQueryKeys.base });
+      queryClient.invalidateQueries({ queryKey: tripQueryKeys.activeTrip() });
 
+      // 정리된 데이터 반영 (Soft delete된 Schedule, Expense, Route)
       if (!data.alreadyDeactivated) {
+        queryClient.invalidateQueries({ queryKey: scheduleQueryKeys.base });
+        queryClient.invalidateQueries({ queryKey: expenseQueryKeys.base });
+        queryClient.invalidateQueries({ queryKey: routeQueryKeys.base });
         console.log(`✅ Trip deactivation completed: ${data.tripId}`);
       }
     },

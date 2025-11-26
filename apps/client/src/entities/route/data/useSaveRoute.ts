@@ -8,6 +8,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { generateId } from '@/shared/services/id/ulid';
 import { db, routes, type NewRoute } from '@/shared/db';
 import { getDirections, type MapboxProfile, type Coordinate } from '@/shared/services/directions';
+import { routeQueryKeys } from './keys';
 
 interface SaveRouteParams {
   tripId: string;
@@ -59,8 +60,8 @@ export function useSaveRoute() {
     },
     onSuccess: (_, variables) => {
       // 캐시 무효화
-      queryClient.invalidateQueries({ queryKey: ['routes', 'trip', variables.tripId] });
-      queryClient.invalidateQueries({ queryKey: ['routes', 'to', variables.toScheduleId] });
+      queryClient.invalidateQueries({ queryKey: routeQueryKeys.byTrip(variables.tripId) });
+      queryClient.invalidateQueries({ queryKey: routeQueryKeys.toSchedule(variables.toScheduleId) });
     },
   });
 }

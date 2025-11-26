@@ -4,6 +4,9 @@ import { eq } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import apiClient from '@/shared/api/fetcher';
 import { tripQueryKeys } from './keys';
+import { scheduleQueryKeys } from '@/entities/schedule/data/keys';
+import { expenseQueryKeys } from '@/entities/expense/data/keys';
+import { routeQueryKeys } from '@/entities/route/data/keys';
 import { downloadOfflineMapInBackground } from '@/shared/services/offline-map/download';
 import { downloadRoutesForSchedules } from '@/shared/services/directions/route-downloader';
 import { generateId } from '@/shared/services/id/ulid';
@@ -167,11 +170,14 @@ export const useActivateTrip = () => {
     },
     onSuccess: (data) => {
       // 캐시 무효화 - 여행 목록 및 활성화 상태 다시 조회
-      queryClient.invalidateQueries({
-        queryKey: tripQueryKeys.base,
-      });
+      queryClient.invalidateQueries({ queryKey: tripQueryKeys.base });
+      queryClient.invalidateQueries({ queryKey: tripQueryKeys.activeTrip() });
 
+      // Pull된 데이터 반영 (Schedule, Expense, Route)
       if (!data.alreadyActivated) {
+        queryClient.invalidateQueries({ queryKey: scheduleQueryKeys.list(data.tripId) });
+        queryClient.invalidateQueries({ queryKey: expenseQueryKeys.byTrip(data.tripId) });
+        queryClient.invalidateQueries({ queryKey: routeQueryKeys.byTrip(data.tripId) });
         console.log(`✅ Trip activation completed: ${data.tripId}`);
       }
     },

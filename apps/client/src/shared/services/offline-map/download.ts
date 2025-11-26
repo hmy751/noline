@@ -9,6 +9,7 @@ import MapboxGL from '@rnmapbox/maps';
 import { eq } from 'drizzle-orm';
 import { db, offlineCities, trips, tripActivations } from '@/shared/db';
 import type { NewOfflineCity } from '@/shared/db/schema';
+import { queryClient } from '@/shared/lib/queryClient';
 
 /**
  * 백그라운드로 오프라인 지도 다운로드 시작
@@ -160,6 +161,10 @@ export async function downloadOfflineMapInBackground(tripId: string): Promise<vo
     })
     .where(eq(tripActivations.tripId, tripId))
     .run();
+
+  // ✅ UI 갱신 요청 (활성화 상태 및 오프라인 지도 목록)
+  queryClient.invalidateQueries({ queryKey: ['trip'] });
+  queryClient.invalidateQueries({ queryKey: ['offline-city'] });
 
   console.log(`✅ Offline map download completed for trip: ${tripId}`);
 }

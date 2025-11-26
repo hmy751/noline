@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ScheduleRepository } from '../repository/schedule-repository';
 import type { CreateScheduleRequest } from '../model';
 import { scheduleQueryKeys } from './keys';
+import { routeQueryKeys } from '@/entities/route/data/keys';
 
 /**
  * 일정 생성 Mutation Hook
@@ -40,6 +41,10 @@ export const useCreateSchedule = () => {
       });
       queryClient.invalidateQueries({
         queryKey: scheduleQueryKeys.count(variables.tripId),
+      });
+      // Route 캐시 무효화 (경로 재계산 필요)
+      queryClient.invalidateQueries({
+        queryKey: routeQueryKeys.byTrip(variables.tripId),
       });
     },
     onError: (error) => {

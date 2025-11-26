@@ -7,6 +7,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { eq, and, isNull } from 'drizzle-orm';
 import { db, routes, type Route } from '@/shared/db';
+import { routeQueryKeys } from './keys';
 
 /**
  * 여행의 모든 경로 조회 (Soft Delete 제외)
@@ -15,7 +16,7 @@ import { db, routes, type Route } from '@/shared/db';
  */
 export function useGetRoutes({ tripId }: { tripId: string }) {
   return useQuery({
-    queryKey: ['routes', 'trip', tripId],
+    queryKey: routeQueryKeys.byTrip(tripId),
     queryFn: async (): Promise<Route[]> => {
       console.log('📍 Fetching routes for trip:', tripId);
 
@@ -38,7 +39,7 @@ export function useGetRoutes({ tripId }: { tripId: string }) {
  */
 export function useGetRouteToSchedule({ scheduleId }: { scheduleId: string }) {
   return useQuery({
-    queryKey: ['routes', 'to', scheduleId],
+    queryKey: routeQueryKeys.toSchedule(scheduleId),
     queryFn: async (): Promise<Route | undefined> => {
       const result = await db
         .select()

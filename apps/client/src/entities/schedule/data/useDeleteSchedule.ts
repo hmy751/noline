@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ScheduleRepository } from '../repository/schedule-repository';
 import { scheduleQueryKeys } from './keys';
+import { routeQueryKeys } from '@/entities/route/data/keys';
+import { expenseQueryKeys } from '@/entities/expense/data/keys';
 
 /**
  * 일정 삭제 Mutation Hook (Soft Delete)
@@ -21,6 +23,14 @@ export const useDeleteSchedule = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: scheduleQueryKeys.base,
+      });
+      // Route 캐시 무효화 (경로 재계산 필요)
+      queryClient.invalidateQueries({
+        queryKey: routeQueryKeys.base,
+      });
+      // 연관 Expense 캐시 무효화
+      queryClient.invalidateQueries({
+        queryKey: expenseQueryKeys.base,
       });
     },
     onError: (error) => {

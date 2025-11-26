@@ -7,6 +7,8 @@ import MapboxGL from '@rnmapbox/maps';
 import { eq, and, isNull, lt } from 'drizzle-orm';
 import { db } from '@/shared/db';
 import { trips, offlineCities } from '@/shared/db/schema';
+import { queryClient } from '@/shared/lib/queryClient';
+import { offlineCityKeys } from '@/entities/offline-city/data/keys';
 
 /**
  * 오프라인 지도 자동 정리
@@ -106,6 +108,9 @@ async function decrementCityReference(cityId: number): Promise<void> {
       // 여기서는 DB만 삭제
       await db.delete(offlineCities).where(eq(offlineCities.cityId, cityId)).run();
 
+      // ✅ UI 갱신 요청
+      queryClient.invalidateQueries({ queryKey: offlineCityKeys.all() });
+
       console.log(`[OfflineMapCleanup] ✅ Deleted offline map for ${offlineCity.cityName} (${cityId})`);
     } catch (error) {
       console.error(`[OfflineMapCleanup] ❌ Failed to delete city ${cityId}:`, error);
@@ -181,18 +186,23 @@ export async function cleanupOfflineMapForTrip(tripId: string): Promise<void> {
   try {
     // 4-1. Mapbox 네이티브 팩 삭제
     const regionName = offlineCity.mapboxRegionName;
-    const existingPacks = await MapboxGL.offlineManager.getPacks();
-    const pack = existingPacks.find((p) => p.name === regionName);
+    if (regionName) {
+      const existingPacks = await MapboxGL.offlineManager.getPacks();
+      const pack = existingPacks.find((p) => p.name === regionName);
 
-    if (pack) {
-      await MapboxGL.offlineManager.deletePack(regionName);
-      console.log(`🗑️ Deleted Mapbox native pack: ${regionName}`);
-    } else {
-      console.log(`⚠️ Mapbox pack not found (may already be deleted): ${regionName}`);
+      if (pack) {
+        await MapboxGL.offlineManager.deletePack(regionName);
+        console.log(`🗑️ Deleted Mapbox native pack: ${regionName}`);
+      } else {
+        console.log(`⚠️ Mapbox pack not found (may already be deleted): ${regionName}`);
+      }
     }
 
     // 4-2. DB에서 삭제
     await db.delete(offlineCities).where(eq(offlineCities.cityId, trip.cityId)).run();
+
+    // ✅ UI 갱신 요청
+    queryClient.invalidateQueries({ queryKey: offlineCityKeys.all() });
 
     console.log(`✅ Offline map completely removed: ${trip.cityId}`);
   } catch (error) {
