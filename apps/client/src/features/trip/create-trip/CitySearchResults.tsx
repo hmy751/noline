@@ -61,19 +61,23 @@ export function CitySearchResults({
       );
     }
 
-    return cities.map((city) => (
-      <TouchableOpacity
-        key={city.id}
-        className='flex-row items-center p-4 border-b border-gray-200'
-        onPress={() => handleSelectCity(city)}
-      >
-        <MapPin size={20} color='hsl(0, 0%, 50%)' className='mr-4' />
-        <View>
-          <Text className='text-body-large text-foreground'>{city.name}</Text>
-          <Text className='text-body text-muted-foreground'>{city.country}</Text>
-        </View>
-      </TouchableOpacity>
-    ));
+    return (
+      <View className='py-sm'>
+        {cities.map((city) => (
+          <TouchableOpacity
+            key={city.id}
+            className='flex-row items-center px-md py-md border-b border-border'
+            onPress={() => handleSelectCity(city)}
+          >
+            <MapPin size={20} color='hsl(0, 0%, 50%)' />
+            <View className='ml-sm'>
+              <Text className='text-body-large text-foreground'>{city.name}</Text>
+              <Text className='text-body text-muted-foreground'>{city.country}</Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </View>
+    );
   };
 
   return (

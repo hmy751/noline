@@ -1,5 +1,4 @@
-import React from 'react';
-import { Modal, View, Text, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import { DropdownMenu, DropdownMenuItem, type DropdownMenuPosition } from '@repo/ui';
 import { Edit2, Trash2, Download, WifiOff } from 'lucide-react-native';
 
 export type TripMenuProps = {
@@ -10,7 +9,7 @@ export type TripMenuProps = {
   onActivate?: () => void;
   onDeactivate?: () => void;
   isActivated?: boolean;
-  buttonPosition?: { x: number; y: number; width: number; height: number };
+  buttonPosition?: DropdownMenuPosition;
 };
 
 /**
@@ -26,72 +25,58 @@ export const TripMenu = ({
   isActivated,
   buttonPosition,
 }: TripMenuProps) => {
+  const handleEdit = () => {
+    onEdit();
+    onClose();
+  };
+
+  const handleDelete = () => {
+    onDelete();
+    onClose();
+  };
+
+  const handleActivate = () => {
+    onActivate?.();
+    onClose();
+  };
+
+  const handleDeactivate = () => {
+    onDeactivate?.();
+    onClose();
+  };
+
   return (
-    <Modal visible={isOpen} transparent animationType='fade' onRequestClose={onClose}>
-      <TouchableWithoutFeedback onPress={onClose}>
-        <View className='flex-1'>
-          <TouchableWithoutFeedback>
-            <View
-              className='absolute bg-card rounded-lg w-48 overflow-hidden shadow-lg border border-card-border'
-              style={{
-                top: buttonPosition?.y ? buttonPosition.y + 40 : 200,
-                right: 16,
-              }}
-            >
-              {/* 활성화/비활성화 버튼 */}
-              {onActivate && !isActivated && (
-                <TouchableOpacity
-                  className='flex-row items-center gap-sm p-md border-b border-card-border active:bg-muted'
-                  onPress={() => {
-                    onActivate();
-                    onClose();
-                  }}
-                >
-                  <Download size={20} color='hsl(120, 61%, 34%)' strokeWidth={2} />
-                  <Text className='text-body text-foreground'>오프라인 활성화</Text>
-                </TouchableOpacity>
-              )}
+    <DropdownMenu isOpen={isOpen} onClose={onClose} position={buttonPosition}>
+      {onActivate && !isActivated && (
+        <DropdownMenuItem
+          onPress={handleActivate}
+          icon={<Download size={20} color='hsl(120, 61%, 34%)' strokeWidth={2} />}
+          label='오프라인 활성화'
+        />
+      )}
 
-              {onDeactivate && isActivated && (
-                <TouchableOpacity
-                  className='flex-row items-center gap-sm p-md border-b border-card-border active:bg-muted'
-                  onPress={() => {
-                    onDeactivate();
-                    onClose();
-                  }}
-                >
-                  <WifiOff size={20} color='hsl(25, 95%, 53%)' strokeWidth={2} />
-                  <Text className='text-body text-orange-600'>오프라인 해제</Text>
-                </TouchableOpacity>
-              )}
+      {onDeactivate && isActivated && (
+        <DropdownMenuItem
+          onPress={handleDeactivate}
+          icon={<WifiOff size={20} color='hsl(25, 95%, 53%)' strokeWidth={2} />}
+          label='오프라인 해제'
+          className='text-orange-600'
+        />
+      )}
 
-              {/* 수정 버튼 */}
-              <TouchableOpacity
-                className='flex-row items-center gap-sm p-md border-b border-card-border active:bg-muted'
-                onPress={() => {
-                  onEdit();
-                  onClose();
-                }}
-              >
-                <Edit2 size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
-                <Text className='text-body text-foreground'>수정</Text>
-              </TouchableOpacity>
+      <DropdownMenuItem
+        onPress={handleEdit}
+        icon={<Edit2 size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />}
+        label='수정'
+      />
 
-              {/* 삭제 버튼 */}
-              <TouchableOpacity
-                className='flex-row items-center gap-sm p-md active:bg-muted'
-                onPress={() => {
-                  onDelete();
-                  onClose();
-                }}
-              >
-                <Trash2 size={20} color='hsl(0, 75%, 50%)' strokeWidth={2} />
-                <Text className='text-body text-destructive'>삭제</Text>
-              </TouchableOpacity>
-            </View>
-          </TouchableWithoutFeedback>
-        </View>
-      </TouchableWithoutFeedback>
-    </Modal>
+      <DropdownMenuItem
+        onPress={handleDelete}
+        icon={<Trash2 size={20} color='hsl(0, 75%, 50%)' strokeWidth={2} />}
+        label='삭제'
+        variant='destructive'
+        showBorder={false}
+      />
+    </DropdownMenu>
   );
 };

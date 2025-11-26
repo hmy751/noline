@@ -55,7 +55,7 @@ export const Drawer = ({ isOpen, onClose, children, title, showHandle = true, ch
                 )}
 
                 {/* Content */}
-                <ScrollView className='px-sm py-md' showsVerticalScrollIndicator={false} bounces={false}>
+                <ScrollView className='px-sm pt-lg pb-md' showsVerticalScrollIndicator={false} bounces={false}>
                   {children}
                 </ScrollView>
               </View>

@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, Switch, Separator, Pressable } from '@repo/ui';
 import { useState } from 'react';
 import { User, Sun, Moon, Settings, Globe, Download, ChevronRight, Bug } from 'lucide-react-native';
 import { router } from 'expo-router';
+import { useStorageStats } from '@/features/profile/hooks/useStorageStats';
 
 export default function ProfileScreen() {
   const [darkMode, setDarkMode] = useState(false);
@@ -15,6 +16,8 @@ export default function ProfileScreen() {
     initials: '여',
   };
 
+  const { stats } = useStorageStats();
+
   const menuItems: Array<{
     icon: 'sun' | 'moon' | 'settings' | 'globe' | 'download' | 'bug';
     label: string;
@@ -23,16 +26,26 @@ export default function ProfileScreen() {
     onChange?: (value: boolean) => void;
     onPress?: () => void;
   }> = [
-    { icon: 'sun', label: '다크 모드', hasSwitch: true, value: darkMode, onChange: setDarkMode },
-    { icon: 'settings', label: '설정', hasSwitch: false },
-    { icon: 'globe', label: '언어 설정', hasSwitch: false },
-    { icon: 'download', label: '오프라인 지도 관리', hasSwitch: false },
-    { icon: 'bug', label: '디버그 콘솔 (개발자)', hasSwitch: false, onPress: () => router.push('/debug') },
+    // { icon: 'sun', label: '다크 모드', hasSwitch: true, value: darkMode, onChange: setDarkMode },
+    // { icon: 'settings', label: '설정', hasSwitch: false },
+    // { icon: 'globe', label: '언어 설정', hasSwitch: false },
+    // { icon: 'download', label: '오프라인 지도 관리', hasSwitch: false },
+    ...(__DEV__
+      ? [
+          {
+            icon: 'bug' as const,
+            label: '디버그 콘솔 (개발자)',
+            hasSwitch: false,
+            onPress: () => router.push('/debug'),
+          },
+        ]
+      : []),
   ];
 
   const infoItems = [
     { label: '앱 버전', value: '1.0.0' },
-    { label: '저장된 데이터', value: '2.4 MB' },
+    { label: '저장된 데이터', value: stats.dbSize },
+    { label: '오프라인 지도', value: stats.mapPackSize },
   ];
 
   return (

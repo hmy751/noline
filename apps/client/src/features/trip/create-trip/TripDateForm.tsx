@@ -82,14 +82,14 @@ export default function TripDateForm({ city }: TripDateFormProps) {
 
   return (
     <>
-      <View className='p-md gap-lg'>
-        <View className='flex-row items-center space-x-xs'>
-          <MapPin size={20} className='text-foreground' />
-          <Text className='text-title-large'>{city.name}</Text>
+      <View className='p-md gap-xl'>
+        <View className='flex-row items-center gap-xs'>
+          <MapPin size={24} className='text-foreground' />
+          <Text className='text-title-large font-semibold'>{city.name}</Text>
         </View>
 
-        <View className='gap-md'>
-          <View className='flex-row items-center space-x-xs'>
+        <View className='gap-lg'>
+          <View className='flex-row items-center gap-xs pb-xs'>
             <CalendarDays size={20} className='text-muted-foreground' />
             <Text className='text-title-medium text-muted-foreground'>여행 일정</Text>
           </View>
@@ -103,9 +103,9 @@ export default function TripDateForm({ city }: TripDateFormProps) {
                 <Field.ElementsBox>
                   <TouchableOpacity
                     onPress={() => handleShowPicker('start')}
-                    className='h-11 flex-row items-center rounded-md border border-input bg-background px-4'
+                    className='h-11 flex-row items-center gap-sm rounded-md border border-input bg-background px-4'
                   >
-                    <Calendar size={16} className='mr-sm text-muted-foreground' />
+                    <Calendar size={16} color='hsl(0, 0%, 45%)' />
                     <Text className='text-body text-muted-foreground'>{value || '시작일을 선택하세요'}</Text>
                   </TouchableOpacity>
                 </Field.ElementsBox>
@@ -123,9 +123,9 @@ export default function TripDateForm({ city }: TripDateFormProps) {
                 <Field.ElementsBox>
                   <TouchableOpacity
                     onPress={() => handleShowPicker('end')}
-                    className='h-11 flex-row items-center rounded-md border border-input bg-background px-4'
+                    className='h-11 flex-row items-center gap-sm rounded-md border border-input bg-background px-4'
                   >
-                    <Calendar size={16} className='mr-sm text-muted-foreground' />
+                    <Calendar size={16} color='hsl(0, 0%, 45%)' />
                     <Text className='text-body text-muted-foreground'>{value || '종료일을 선택하세요'}</Text>
                   </TouchableOpacity>
                 </Field.ElementsBox>
