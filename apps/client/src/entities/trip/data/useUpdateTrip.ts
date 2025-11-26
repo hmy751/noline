@@ -4,7 +4,7 @@ import { eq, sql } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
 import { routeChildMutation } from '@/shared/services/offline-prep/router';
-import axios from '@/shared/api/fetcher';
+import apiClient from '@/shared/api/fetcher';
 import type { UpdateTripRequest } from '../model';
 import { tripQueryKeys } from './keys';
 
@@ -53,7 +53,7 @@ export const useUpdateTrip = () => {
         },
         remote: async () => {
           // 비활성 Trip → 서버 직접 수정
-          const response = await axios.put(`/api/trips/${id}`, data);
+          const response = await apiClient.put(`/api/trips/${id}`, data);
           console.log(`✅ Trip updated on server: ${id}`);
           return response.data.data;
         },

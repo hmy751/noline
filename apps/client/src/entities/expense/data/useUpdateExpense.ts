@@ -5,7 +5,7 @@ import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
 import { expenseQueryKeys } from './keys';
 import { routeChildMutation } from '@/shared/services/offline-prep/router';
-import axios from '@/shared/api/fetcher';
+import apiClient from '@/shared/api/fetcher';
 import type { UpdateExpenseRequest } from '../model/types';
 
 // Re-export for backward compatibility
@@ -69,7 +69,7 @@ export const useUpdateExpense = () => {
 
         // 원격: 비활성 여행
         remote: async () => {
-          const response = await axios.put(`/api/expenses/${id}`, data);
+          const response = await apiClient.put(`/api/expenses/${id}`, data);
 
           console.log(`✅ Expense updated on server: ${id}`);
           return response.data;

@@ -3,7 +3,7 @@ import { db, trips } from '@/shared/db';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
 import { routeTripMutation } from '@/shared/services/offline-prep/router';
-import axios from '@/shared/api/fetcher';
+import apiClient from '@/shared/api/fetcher';
 import type { CreateTripRequest } from '../model';
 import { tripQueryKeys } from './keys';
 
@@ -81,7 +81,7 @@ export const useCreateTrip = () => {
         },
         remote: async () => {
           // 비활성 상태 → 서버 직접 생성
-          const response = await axios.post('/api/trips', {
+          const response = await apiClient.post('/api/trips', {
             id,
             userId,
             name: data.name,

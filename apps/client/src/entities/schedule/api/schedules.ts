@@ -1,4 +1,4 @@
-import axios from '@/shared/api/fetcher';
+import apiClient from '@/shared/api/fetcher';
 import { createScheduleRequest } from '@repo/schema/requests/schedule';
 import { scheduleListResponse, scheduleResponse } from '@repo/schema/responses/schedule';
 import type { GetAllSchedulesResponse, CreateScheduleRequest, CreateScheduleResponse } from '../model';
@@ -14,7 +14,7 @@ import type { GetAllSchedulesResponse, CreateScheduleRequest, CreateScheduleResp
  */
 export const fetchSchedules = async (tripId: string): Promise<GetAllSchedulesResponse> => {
   try {
-    const data = await axios.get(`/api/trips/${tripId}/schedules`);
+    const data = await apiClient.get(`/api/trips/${tripId}/schedules`);
 
     const validated = scheduleListResponse.parse(data);
     return validated;
@@ -32,7 +32,7 @@ export const fetchSchedules = async (tripId: string): Promise<GetAllSchedulesRes
 export const fetchCreateSchedule = async (data: CreateScheduleRequest): Promise<CreateScheduleResponse> => {
   try {
     const validatedInput = createScheduleRequest.parse(data);
-    const responseData = await axios.post('/api/schedules', validatedInput);
+    const responseData = await apiClient.post('/api/schedules', validatedInput);
 
     const validated = scheduleResponse.parse(responseData);
     return validated;

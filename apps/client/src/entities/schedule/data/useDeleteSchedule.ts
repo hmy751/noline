@@ -5,7 +5,7 @@ import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
 import { scheduleQueryKeys } from './keys';
 import { routeChildMutation } from '@/shared/services/offline-prep/router';
-import axios from '@/shared/api/fetcher';
+import apiClient from '@/shared/api/fetcher';
 
 /**
  * 일정 삭제 Mutation Hook (Soft Delete)
@@ -61,7 +61,7 @@ export const useDeleteSchedule = () => {
 
         // 원격: 비활성 여행
         remote: async () => {
-          await axios.delete(`/api/schedules/${id}`);
+          await apiClient.delete(`/api/schedules/${id}`);
 
           console.log(`✅ Schedule deleted on server: ${id}`);
           return { id };

@@ -61,6 +61,6 @@ const createAxiosInstance = (): AxiosInstance => {
   return instance;
 };
 
-const axios = createAxiosInstance();
+const apiClient = createAxiosInstance();
 
-export default axios;
+export default apiClient;

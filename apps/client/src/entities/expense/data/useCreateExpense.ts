@@ -5,7 +5,7 @@ import { addToSyncQueue } from '@/shared/services/sync/queue';
 import type { CreateExpenseRequest } from '../model';
 import { expenseQueryKeys } from './keys';
 import { routeChildMutation } from '@/shared/services/offline-prep/router';
-import axios from '@/shared/api/fetcher';
+import apiClient from '@/shared/api/fetcher';
 
 /**
  * 경비 생성 Mutation Hook (Local-First)
@@ -87,7 +87,7 @@ export const useCreateExpense = () => {
 
         // 원격: 서버 직접 호출
         remote: async () => {
-          const response = await axios.post('/api/expenses', {
+          const response = await apiClient.post('/api/expenses', {
             id,
             userId,
             tripId: data.tripId,

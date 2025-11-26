@@ -5,7 +5,7 @@ import { addToSyncQueue } from '@/shared/services/sync/queue';
 import type { CreateScheduleRequest } from '../model';
 import { scheduleQueryKeys } from './keys';
 import { routeChildMutation } from '@/shared/services/offline-prep/router';
-import axios from '@/shared/api/fetcher';
+import apiClient from '@/shared/api/fetcher';
 
 /**
  * 일정 생성 Mutation Hook (라우팅 레이어 적용)
@@ -90,7 +90,7 @@ export const useCreateSchedule = () => {
 
         // 원격: 서버 API 직접 호출
         remote: async () => {
-          const response = await axios.post('/api/schedules', data);
+          const response = await apiClient.post('/api/schedules', data);
 
           console.log(`✅ Schedule created on server: ${response.data.id}`);
           return response.data;

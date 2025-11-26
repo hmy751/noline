@@ -3,7 +3,7 @@ import { db, expenses } from '@/shared/db';
 import { isNull, desc, eq, and } from 'drizzle-orm';
 import { expenseQueryKeys } from './keys';
 import { routeChildQuery } from '@/shared/services/offline-prep/router';
-import axios from '@/shared/api/fetcher';
+import apiClient from '@/shared/api/fetcher';
 
 /**
  * 여행별 경비 조회 Hook (라우팅 레이어 적용)
@@ -42,7 +42,7 @@ export const useGetTripExpenses = (tripId: string) => {
 
         // 원격: 서버 API 호출 (Query Parameter)
         remote: async () => {
-          const response = await axios.get(`/api/expenses?tripId=${tripId}`);
+          const response = await apiClient.get(`/api/expenses?tripId=${tripId}`);
           console.log(`📋 Trip expenses loaded from server: ${response.data.length} items`);
           return response.data;
         },

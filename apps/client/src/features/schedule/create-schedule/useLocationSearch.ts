@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { placesSearchResponse } from '@repo/schema/responses/places';
 import { z } from 'zod';
-import fetcher from '@/shared/api/fetcher';
+import apiClient from '@/shared/api/fetcher';
 import { useDebounce } from '@/shared/hooks/useDebounce';
 import type { Location } from './types';
 
@@ -38,7 +38,7 @@ export const placeQueryKeys = {
  */
 const searchPlaces = async (query: string, cityContext?: CityContext): Promise<Location[]> => {
   // Google Places API 호출
-  const response = (await fetcher.post('/api/places/search', {
+  const response = (await apiClient.post('/api/places/search', {
     query: query.trim(),
     cityName: cityContext?.cityName,
     latitude: cityContext?.latitude,
@@ -53,7 +53,7 @@ const searchPlaces = async (query: string, cityContext?: CityContext): Promise<L
       try {
         // Place Details API로 좌표 정보 가져오기
         // Query string으로 language 전달
-        const detailResponse = (await fetcher.get(`/api/places/${result.placeId}?language=en`)) as PlaceDetail;
+        const detailResponse = (await apiClient.get(`/api/places/${result.placeId}?language=en`)) as PlaceDetail;
 
         return {
           id: detailResponse.id,

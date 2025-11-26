@@ -1,4 +1,4 @@
-import axios from '@/shared/api/fetcher';
+import apiClient from '@/shared/api/fetcher';
 import { createTripRequest, updateTripRequest } from '@repo/schema/requests/trip';
 import { tripResponse, tripListResponse, deleteTripResponse } from '@repo/schema/responses/trip';
 import type {
@@ -20,7 +20,7 @@ import type {
  */
 export const fetchAllTrips = async (): Promise<GetAllTripsResponse> => {
   try {
-    const data = await axios.get('/api/trips');
+    const data = await apiClient.get('/api/trips');
 
     const validated = tripListResponse.parse(data);
     return validated;
@@ -38,7 +38,7 @@ export const fetchAllTrips = async (): Promise<GetAllTripsResponse> => {
 export const fetchCreateTrip = async (data: CreateTripRequest): Promise<CreateTripResponse> => {
   try {
     const validatedInput = createTripRequest.parse(data);
-    const responseData = await axios.post('/api/trips', validatedInput);
+    const responseData = await apiClient.post('/api/trips', validatedInput);
 
     const validated = tripResponse.parse(responseData);
     return validated;
@@ -57,7 +57,7 @@ export const fetchCreateTrip = async (data: CreateTripRequest): Promise<CreateTr
 export const fetchUpdateTrip = async (id: string, data: UpdateTripRequest): Promise<UpdateTripResponse> => {
   try {
     const validatedInput = updateTripRequest.parse(data);
-    const responseData = await axios.patch(`/api/trips/${id}`, validatedInput);
+    const responseData = await apiClient.patch(`/api/trips/${id}`, validatedInput);
 
     const validated = tripResponse.parse(responseData);
     return validated;
@@ -74,7 +74,7 @@ export const fetchUpdateTrip = async (id: string, data: UpdateTripRequest): Prom
  */
 export const fetchDeleteTrip = async (id: string): Promise<DeleteTripResponse> => {
   try {
-    const responseData = await axios.delete(`/api/trips/${id}`);
+    const responseData = await apiClient.delete(`/api/trips/${id}`);
 
     const validated = deleteTripResponse.parse(responseData);
     return validated;

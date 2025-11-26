@@ -5,7 +5,7 @@ import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
 import { scheduleQueryKeys } from './keys';
 import { routeChildMutation } from '@/shared/services/offline-prep/router';
-import axios from '@/shared/api/fetcher';
+import apiClient from '@/shared/api/fetcher';
 
 /**
  * 일정 수정 요청 데이터 타입
@@ -87,7 +87,7 @@ export const useUpdateSchedule = () => {
             latitude: data.latitude ? parseFloat(data.latitude) : null,
             longitude: data.longitude ? parseFloat(data.longitude) : null,
           };
-          const response = await axios.put(`/api/schedules/${id}`, serverData);
+          const response = await apiClient.put(`/api/schedules/${id}`, serverData);
           console.log(`✅ Schedule updated on server: ${id}`);
           return response.data.data;
         },

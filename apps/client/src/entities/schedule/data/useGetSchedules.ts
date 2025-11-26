@@ -3,7 +3,7 @@ import { db, schedules } from '@/shared/db';
 import { isNull, eq, and } from 'drizzle-orm';
 import { scheduleQueryKeys } from './keys';
 import { routeChildQuery } from '@/shared/services/offline-prep/router';
-import axios from '@/shared/api/fetcher';
+import apiClient from '@/shared/api/fetcher';
 
 /**
  * 여행의 일정 목록 조회 (라우팅 레이어 적용)
@@ -40,7 +40,7 @@ export const useGetSchedules = (tripId: string) => {
 
         // 원격: 서버 API 호출 (Query Parameter)
         remote: async () => {
-          const response = await axios.get(`/api/schedules?tripId=${tripId}`);
+          const response = await apiClient.get(`/api/schedules?tripId=${tripId}`);
           console.log(`📋 Schedules loaded from server: ${response.data.length} items`);
           return response.data;
         },

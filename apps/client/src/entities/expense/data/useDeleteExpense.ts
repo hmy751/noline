@@ -5,7 +5,7 @@ import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
 import { expenseQueryKeys } from './keys';
 import { routeChildMutation } from '@/shared/services/offline-prep/router';
-import axios from '@/shared/api/fetcher';
+import apiClient from '@/shared/api/fetcher';
 
 /**
  * 경비 삭제 Mutation Hook (Soft Delete)
@@ -62,7 +62,7 @@ export const useDeleteExpense = () => {
 
         // 원격: 비활성 여행
         remote: async () => {
-          await axios.delete(`/api/expenses/${id}`);
+          await apiClient.delete(`/api/expenses/${id}`);
 
           console.log(`✅ Expense deleted on server: ${id}`);
           return { id };

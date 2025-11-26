@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { db, trips } from '@/shared/db';
 import { isNull, desc } from 'drizzle-orm';
 import { routeTripQuery } from '@/shared/services/offline-prep/router';
-import axios from '@/shared/api/fetcher';
+import apiClient from '@/shared/api/fetcher';
 import { tripQueryKeys } from './keys';
 
 /**
@@ -38,7 +38,7 @@ export const useGetTrips = () => {
         },
         remote: async () => {
           // 비활성 상태 → 서버 API 조회
-          const response = await axios.get('/api/trips');
+          const response = await apiClient.get('/api/trips');
 
           const tripList = Array.isArray(response.data) ? response.data : response.data.data;
 

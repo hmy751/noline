@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { db, trips, tripActivations, schedules as schedulesTable, expenses as expensesTable } from '@/shared/db';
 import { eq } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
-import axios from '@/shared/api/fetcher';
+import apiClient from '@/shared/api/fetcher';
 import { tripQueryKeys } from './keys';
 import { downloadOfflineMapInBackground } from '@/shared/services/offline-map/download';
 import { generateId } from '@/shared/services/id/ulid';
@@ -38,7 +38,7 @@ export const useActivateTrip = () => {
       }
 
       // 2. 서버에서 여행 데이터 Pull (모든 Trip + 일정, 경비)
-      const response = await axios.post(`/api/trips/${tripId}/activate`);
+      const response = await apiClient.post(`/api/trips/${tripId}/activate`);
 
       const { trips: allTrips = [], schedules = [], expenses = [] } = response.data;
 
