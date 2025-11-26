@@ -34,6 +34,8 @@ export function TripsSection({ onMainTripDataChange }: TripsSectionProps) {
 
   // 활성화 상태 관리
   const [activatedTripId, setActivatedTripId] = useState<string | null>(null);
+  // MainTripSection 상태 갱신용 키
+  const [activationRefreshKey, setActivationRefreshKey] = useState(0);
 
   // 활성화 진행 상태 관리
   const [isActivationProgressOpen, setIsActivationProgressOpen] = useState(false);
@@ -153,6 +155,8 @@ export function TripsSection({ onMainTripDataChange }: TripsSectionProps) {
             );
             // 활성화 완료 후 상태 업데이트
             setActivatedTripId(tripId);
+            // MainTripSection 상태 갱신 트리거
+            setActivationRefreshKey((prev) => prev + 1);
           }, 5500);
         },
         onError: (error) => {
@@ -196,10 +200,12 @@ export function TripsSection({ onMainTripDataChange }: TripsSectionProps) {
               onPress: () => {
                 // 기존 여행 비활성화 후 새 여행 활성화
                 deactivateTrip(
-                  { tripId: activatedTripId },
+                  { tripId: activatedTripId, cleanupData: true },
                   {
                     onSuccess: () => {
-                      // 비활성화 성공 후 새 여행 활성화
+                      // UI 즉시 업데이트 후 새 여행 활성화
+                      setActivatedTripId(null);
+                      setActivationRefreshKey((prev) => prev + 1);
                       proceedWithActivation(tripId, tripName);
                     },
                     onError: () => {
@@ -279,7 +285,7 @@ export function TripsSection({ onMainTripDataChange }: TripsSectionProps) {
 
   // 다른 여행 비활성화 핸들러
   const handleDeactivateOtherTrip = (trip: TripData) => {
-    Alert.alert('오프라인 해제', `"${trip.name}" 여행의 오프라인 데이터를 삭제하시겠습니까?`, [
+    Alert.alert('오프라인 해제', `"${trip.destination}" 여행의 오프라인 데이터를 삭제하시겠습니까?`, [
       {
         text: '취소',
         style: 'cancel',
@@ -288,14 +294,21 @@ export function TripsSection({ onMainTripDataChange }: TripsSectionProps) {
         text: '해제',
         style: 'destructive',
         onPress: () => {
+          // UI 즉시 업데이트
+          setActivatedTripId(null);
+          // MainTripSection 상태 갱신 트리거
+          setActivationRefreshKey((prev) => prev + 1);
+
           deactivateTrip(
-            { tripId: trip.id },
+            { tripId: trip.id, cleanupData: true },
             {
               onSuccess: () => {
-                setActivatedTripId(null);
                 Alert.alert('성공', '오프라인 데이터가 삭제되었습니다.');
               },
               onError: () => {
+                // 실패 시 상태 복구
+                setActivatedTripId(trip.id);
+                setActivationRefreshKey((prev) => prev + 1);
                 Alert.alert('오류', '오프라인 해제에 실패했습니다.');
               },
             },
@@ -317,6 +330,7 @@ export function TripsSection({ onMainTripDataChange }: TripsSectionProps) {
           setIsEditDrawerOpen(true);
         }}
         onActivatePress={handleActivateTrip}
+        refreshKey={activationRefreshKey}
       />
 
       {/* Other Trips Section */}

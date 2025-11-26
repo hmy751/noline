@@ -1,5 +1,5 @@
 import { View, Text, ActivityIndicator, Alert } from 'react-native';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { TripCard, type TripData, type ActivationStatus, useDeactivateTrip } from '@/entities/trip';
 import { useGetTripExpenses } from '@/entities/expense';
 import { groupExpensesByCurrency } from '@/shared/lib/currency';
@@ -11,6 +11,8 @@ interface MainTripSectionProps {
   isError: boolean;
   onEditPress: () => void;
   onActivatePress: (tripId: string, tripName: string) => void;
+  /** 외부에서 상태 갱신을 트리거하기 위한 키 */
+  refreshKey?: number;
 }
 
 export function MainTripSection({
@@ -19,6 +21,7 @@ export function MainTripSection({
   isError,
   onEditPress,
   onActivatePress,
+  refreshKey,
 }: MainTripSectionProps) {
   // 날짜 포맷팅 함수
   const formatDate = (dateString: string | null) => {
@@ -37,24 +40,26 @@ export function MainTripSection({
   // ✅ 활성화 상태 조회 (service 레이어 사용)
   const [activationStatus, setActivationStatus] = useState<ActivationStatus>('online');
 
-  useEffect(() => {
+  // 활성화 상태 확인 함수
+  const checkActivationStatus = useCallback(async () => {
     if (!mainTripData?.id) {
       setActivationStatus('online');
       return;
     }
 
-    const checkActivationStatus = async () => {
-      try {
-        const status = await getTripActivationStatusDetail(mainTripData.id);
-        setActivationStatus(status);
-      } catch (error) {
-        console.error('❌ Failed to check activation status:', error);
-        setActivationStatus('online');
-      }
-    };
-
-    checkActivationStatus();
+    try {
+      const status = await getTripActivationStatusDetail(mainTripData.id);
+      setActivationStatus(status);
+    } catch (error) {
+      console.error('❌ Failed to check activation status:', error);
+      setActivationStatus('online');
+    }
   }, [mainTripData?.id]);
+
+  // mainTripData 또는 refreshKey 변경 시 상태 확인
+  useEffect(() => {
+    checkActivationStatus();
+  }, [checkActivationStatus, refreshKey]);
 
   // 비활성화 핸들러
   const handleDeactivate = () => {
@@ -72,6 +77,9 @@ export function MainTripSection({
           text: '해제',
           style: 'destructive',
           onPress: () => {
+            // UI 즉시 업데이트 (Optimistic Update)
+            setActivationStatus('online');
+
             deactivateTrip(
               { tripId: mainTripData.id, cleanupData: true },
               {
@@ -79,6 +87,8 @@ export function MainTripSection({
                   Alert.alert('완료', '오프라인이 해제되었습니다.');
                 },
                 onError: () => {
+                  // 실패 시 상태 다시 확인
+                  checkActivationStatus();
                   Alert.alert('오류', '오프라인 해제에 실패했습니다.');
                 },
               },
