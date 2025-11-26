@@ -1,16 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
-import { Plane, ChevronDown, Check } from 'lucide-react-native';
+import { Plane, ChevronDown, Check, WifiOff } from 'lucide-react-native';
 import { Badge, Drawer, Pressable } from '@repo/ui';
 import { useGetTrips } from '../data';
 import { selectMainTrip } from '../utils';
 import { useTripStore } from '@/shared/store';
+import { getActivatedTripInfo } from '@/shared/services/offline-prep/metadata';
 import type { TripData } from '../model';
 
 interface Trip {
   value: string;
   label: string;
   isMain?: boolean;
+  isActivated?: boolean;
+  activationStatus?: 'preparing' | 'ready';
 }
 
 interface TripSelectorProps {
@@ -42,14 +45,30 @@ export function TripSelector({ className = '' }: TripSelectorProps) {
   const { data: allTrips = [], isLoading } = useGetTrips();
   const mainTrip = selectMainTrip(allTrips);
 
+  // 활성화된 여행 정보 (동시에 1개만 활성화 가능)
+  const [activatedTrip, setActivatedTrip] = useState<{ tripId: string; status: 'preparing' | 'ready' } | null>(null);
+
+  // 활성화된 여행 조회 (단일 조회)
+  useEffect(() => {
+    const checkActivatedTrip = async () => {
+      const info = await getActivatedTripInfo();
+      setActivatedTrip(info);
+    };
+
+    checkActivatedTrip();
+  }, [allTrips]);
+
   // TripData를 Trip 형태로 변환하는 함수
   const convertTripDataToTrip = (tripData: TripData, isMain: boolean = false): Trip => {
     const label = tripData.country ? `${tripData.destination}, ${tripData.country}` : tripData.destination;
+    const isActivated = activatedTrip?.tripId === tripData.id;
 
     return {
       value: tripData.id.toString(),
       label,
       isMain,
+      isActivated,
+      activationStatus: isActivated ? activatedTrip?.status : undefined,
     };
   };
 
@@ -98,7 +117,13 @@ export function TripSelector({ className = '' }: TripSelectorProps) {
               <Text className='text-body text-foreground'>{selectedTrip.label}</Text>
               {selectedTrip.isMain && (
                 <Badge variant='secondary' className='ml-xs'>
-                  <Text className='text-label-small text-muted-foreground'>메인 여행</Text>
+                  <Text className='text-label-small text-muted-foreground'>메인</Text>
+                </Badge>
+              )}
+              {selectedTrip.isActivated && (
+                <Badge variant='default' className='ml-xs flex-row items-center gap-0.5 bg-emerald-100'>
+                  <WifiOff size={10} color='hsl(142, 76%, 36%)' strokeWidth={2} />
+                  <Text className='text-label-small text-emerald-700'>활성화</Text>
                 </Badge>
               )}
             </View>
@@ -136,6 +161,12 @@ export function TripSelector({ className = '' }: TripSelectorProps) {
                     {trip.isMain && (
                       <Badge variant='secondary' className='ml-sm'>
                         <Text className='text-label-small text-muted-foreground'>메인</Text>
+                      </Badge>
+                    )}
+                    {trip.isActivated && (
+                      <Badge variant='default' className='ml-xs flex-row items-center gap-0.5 bg-emerald-100'>
+                        <WifiOff size={10} color='hsl(142, 76%, 36%)' strokeWidth={2} />
+                        <Text className='text-label-small text-emerald-700'>활성화</Text>
                       </Badge>
                     )}
                   </View>

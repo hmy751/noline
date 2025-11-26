@@ -45,6 +45,30 @@ export async function hasAnyActivatedTrip(): Promise<boolean> {
 }
 
 /**
+ * 현재 활성화된 여행 정보 조회
+ * - 동시에 1개 여행만 활성화 가능하므로 단일 조회
+ * - TripSelector 등 UI에서 활성화 뱃지 표시용
+ * @returns { tripId, status } | null
+ */
+export async function getActivatedTripInfo(): Promise<{
+  tripId: string;
+  status: 'preparing' | 'ready';
+} | null> {
+  // tripActivations 테이블에서 isActivated = true인 레코드 조회
+  const activations = db.select().from(tripActivations).all();
+  const activation = activations.find((a) => a.isActivated);
+
+  if (!activation) {
+    return null;
+  }
+
+  return {
+    tripId: activation.tripId,
+    status: activation.mapDownloaded ? 'ready' : 'preparing',
+  };
+}
+
+/**
  * 여행 메타데이터 조회 (activated 포함)
  * - 전체 Trip 정보가 필요한 경우 사용
  */
