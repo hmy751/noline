@@ -10,6 +10,7 @@ import { db } from '@/shared/db';
 import { routes } from '@/shared/db/schema';
 import { getDirections, type MapboxProfile } from '@/shared/services/directions/mapbox';
 import type { NewRoute } from '@/shared/db/schema';
+import { routeQueryKeys } from './keys';
 
 interface Schedule {
   id: string;
@@ -122,7 +123,7 @@ export function useAutoDownloadRoutes() {
     },
     onSuccess: (_, variables) => {
       // 경로 캐시 무효화
-      queryClient.invalidateQueries({ queryKey: ['routes', 'trip', variables.tripId] });
+      queryClient.invalidateQueries({ queryKey: routeQueryKeys.byTrip(variables.tripId) });
       console.log(`✅ Downloaded ${_.downloaded} routes for trip ${variables.tripId}`);
     },
     onError: (error) => {

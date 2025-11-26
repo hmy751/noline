@@ -8,6 +8,8 @@
 import { generateId } from '@/shared/services/id/ulid';
 import { db } from '@/shared/db';
 import { routes } from '@/shared/db/schema';
+import { queryClient } from '@/shared/lib/queryClient';
+import { routeQueryKeys } from '@/entities/route/data/keys';
 import { getDirections, type MapboxProfile } from './mapbox';
 import type { NewRoute } from '@/shared/db/schema';
 
@@ -128,6 +130,10 @@ export async function downloadRoutesForSchedules({
   // 3. DB에 일괄 저장
   if (newRoutes.length > 0) {
     await db.insert(routes).values(newRoutes).run();
+    
+    // ✅ UI 갱신 요청 (지도 경로 표시)
+    queryClient.invalidateQueries({ queryKey: routeQueryKeys.byTrip(tripId) });
+    
     console.log(`✅ Downloaded ${newRoutes.length} routes for trip ${tripId}`);
   }
 
