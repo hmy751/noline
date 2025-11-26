@@ -45,7 +45,6 @@ export default function HomeScreen() {
             {/* Add New Trip Button */}
             <Pressable
               variant='outline'
-              className='flex-row items-center justify-center gap-2xs rounded-lg border border-card-border bg-card py-md active:bg-muted'
               onPress={() => {
                 if (!isOnline) {
                   Alert.alert('인터넷 연결 필요', '여행을 추가하려면 인터넷 연결이 필요합니다.');
@@ -54,10 +53,12 @@ export default function HomeScreen() {
                 router.push('/create-trip');
               }}
             >
-              <Plus size={20} color='#1F1F1F' strokeWidth={2} />
-              <Text className='text-body' style={{ color: '#1F1F1F' }}>
-                새 여행 추가
-              </Text>
+              <View className='flex-row items-center justify-center gap-2xs'>
+                <Plus size={20} color='#1F1F1F' strokeWidth={2} />
+                <Text className='text-body' style={{ color: '#1F1F1F' }}>
+                  새 여행 추가
+                </Text>
+              </View>
             </Pressable>
 
             {/* Upcoming Schedule Section */}
