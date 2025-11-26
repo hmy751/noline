@@ -136,7 +136,8 @@ export async function pullChanges(): Promise<void> {
       },
     });
 
-    const { trips, schedules, expenses, serverTime } = response.data;
+    // 정책: 서버 응답은 { success, data } 구조
+    const { trips, schedules, expenses, serverTime } = response.data.data;
 
     console.log('📥 [Sync] Received from server:', {
       trips: trips?.length || 0,

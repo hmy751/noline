@@ -14,6 +14,90 @@
 
 ## 2025-11
 
+### 2025-11-26
+
+**[Architecture]** 🟡 Entity Architecture Refactoring - Type System 정립
+
+> **브랜치**: `refactor/type-system`
+> **변경**: 49개 파일 (1,232 추가 / 880 삭제)
+
+**핵심 변경사항**:
+
+1. **Entity 레이어 구조 정립**
+   - Trip/Schedule/Expense Entity에 새 레이어 적용
+   - `model/` → `api/` → `lib/` → `repository/` → `data/`
+
+2. **새 레이어 추가**
+   - `lib/*-local.ts`: Local DataSource (SQLite 직접 접근, withTransaction 사용)
+   - `repository/*-repository.ts`: Router 패턴 (Local/Remote 분기)
+
+3. **타입 흐름 정립**
+
+   ```text
+   @repo/schema (Zod - Single Source of Truth)
+       ↓ z.infer
+   entities/*/model (타입 추출)
+       ↓
+   entities/*/repository (Router 패턴)
+       ↓
+   entities/*/data (React Query Hooks)
+       ↓
+   features/* (Components)
+   ```
+
+4. **타입 Import 통일**
+   - `@/shared/db/schema` 직접 참조 제거 (debug 제외)
+   - 컴포넌트에서 `@/entities/*`로 타입 import 통일
+
+**주요 개선**:
+
+- ✅ `useGetScheduleExpenses` export 추가 (`expense/index.ts`)
+- ✅ `any` 타입 → 명시적 `Expense` 타입으로 수정 (`ScheduleDetailScreen.tsx`)
+- ✅ `Schedule` 타입 import 경로 수정 (`useCreateScheduleForm.ts`, `UpdateScheduleDrawer.tsx`)
+- ✅ `@repo/schema` Response 타입 일관성 확보
+
+**영향 파일**:
+
+- 신규: `lib/trip-local.ts`, `lib/schedule-local.ts`, `lib/expense-local.ts`
+- 신규: `repository/trip-repository.ts`, `repository/schedule-repository.ts`, `repository/expense-repository.ts`
+- 수정: 모든 Entity data hooks (Repository 사용으로 리팩토링)
+- 수정: `packages/schema/src/responses/*.ts` (타입 일관성)
+- 수정: `apps/server/src/routes/*.ts` (응답 형식 통일)
+
+**Migration 패턴**:
+
+```typescript
+// Before: 컴포넌트에서 DB 스키마 직접 import
+import type { Schedule } from '@/shared/db/schema';
+
+// After: Entity에서 타입 import
+import { type Schedule } from '@/entities/schedule';
+```
+
+```typescript
+// Before: Data Hook에서 직접 DB/API 호출
+const trips = await db.select().from(trips);
+
+// After: Repository 패턴 사용
+const trips = await TripRepository.getAll();
+```
+
+**정책 준수 확인**:
+
+- ✅ `@repo/schema` 규칙: schema만 export, 타입은 z.infer 사용
+- ✅ `withTransaction` 패턴: lib/local에서 DB+sync_queue 원자성 보장
+- ✅ Router 패턴: Repository에서 활성화 상태 기반 Local/Remote 분기
+
+**문서 업데이트**:
+
+- `CLAUDE.md` - "Add New Entity" 가이드 5단계로 확장
+- `.claude/core/architecture.md` - Entity 폴더 구조 (lib/, repository/ 추가)
+- `.claude/core/api-data.md` - 5단계 레이어 아키텍처 다이어그램, Production 체크리스트
+- `.claude/core/selective-activation-architecture.md` - Entity Layer 구조 및 구현 예시
+- `apps/client/CLAUDE.md` - Entity 5단계 레이어 구조 섹션 추가
+
+---
+
 ### 2025-11-24
 
 **[Architecture]** 🟡 Store 계층 재정의 및 상태 관리 최적화

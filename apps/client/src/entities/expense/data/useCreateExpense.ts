@@ -1,17 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { db, expenses } from '@/shared/db';
-import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
-import { addToSyncQueue } from '@/shared/services/sync/queue';
+import { ExpenseRepository } from '../repository/expense-repository';
 import type { CreateExpenseRequest } from '../model';
 import { expenseQueryKeys } from './keys';
-import { routeChildMutation } from '@/shared/services/offline-prep/router';
-import axios from '@/shared/api/fetcher';
 
 /**
- * 경비 생성 Mutation Hook (Local-First)
+ * 경비 생성 Mutation Hook
  *
- * 로컬 DB 우선 저장 후, sync_queue에 기록
- * 네트워크 상태와 무관하게 즉시 저장됨
+ * - Repository를 통해 활성화 상태에 따라 Local/Remote 자동 분기
+ * - Echo Protocol: 외부에서 ID 생성하여 전달
  *
  * @example
  * ```tsx
@@ -31,95 +27,18 @@ export const useCreateExpense = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: CreateExpenseRequest) => {
-      const id = data.id; // ✅ Echo 아키텍처: 외부에서 전달받은 ID 사용
-      const now = getCurrentISOString();
-
-      // 사용자 ID (현재는 테스트용 고정값, 추후 인증 구현 시 실제 userId 사용)
-      const userId = data.userId || '01HZQ8K9X7M2N3P4Q5R6S7T8V9';
-
-      // 로컬 DB에 저장할 데이터 준비 (모두 ISO string)
-      const newExpense = {
-        id,
-        userId,
-        tripId: data.tripId,
-        scheduleId: data.scheduleId || null,
-        title: data.title,
-        amount: data.amount,
-        currency: data.currency || 'EUR',
-        category: data.category,
-        date: data.date, // ISO date string
-        hasReceipt: data.hasReceipt || false, // TODO: 영수증 업로드 기능 구현 예정
-        receiptUrl: data.receiptUrl || null, // TODO: 영수증 업로드 기능 구현 예정
-        createdAt: now, // ✅ ISO string
-        updatedAt: now, // ✅ ISO string
-        deletedAt: null,
-        version: 1,
-      };
-
-      // 라우팅 레이어 적용
-      return await routeChildMutation(data.tripId, {
-        // 로컬: 기존 로직 (트랜잭션)
-        local: async () => {
-          await withTransaction(async () => {
-            // 1. 로컬 DB에 저장
-            await db.insert(expenses).values(newExpense);
-
-            // 2. sync_queue에 기록 (서버 Push 대기)
-            await addToSyncQueue('expenses', id, 'CREATE', {
-              id,
-              userId,
-              tripId: data.tripId,
-              scheduleId: data.scheduleId,
-              title: data.title,
-              amount: data.amount,
-              currency: data.currency,
-              category: data.category,
-              date: data.date,
-              hasReceipt: data.hasReceipt,
-              receiptUrl: data.receiptUrl,
-            });
-          });
-
-          console.log(`✅ Expense created locally: ${id} - ${data.title}`);
-          return newExpense;
-        },
-
-        // 원격: 서버 직접 호출
-        remote: async () => {
-          const response = await axios.post('/api/expenses', {
-            id,
-            userId,
-            tripId: data.tripId,
-            scheduleId: data.scheduleId,
-            title: data.title,
-            amount: data.amount,
-            currency: data.currency,
-            category: data.category,
-            date: data.date,
-            hasReceipt: data.hasReceipt,
-            receiptUrl: data.receiptUrl,
-          });
-
-          console.log(`✅ Expense created on server: ${id} - ${data.title}`);
-          return response.data;
-        },
-      });
-    },
+    mutationFn: (data: CreateExpenseRequest) => ExpenseRepository.create(data),
     onSuccess: (_, variables) => {
-      // 캐시 무효화 - 새 경비가 생성되었으므로 관련 목록 다시 조회
       queryClient.invalidateQueries({
         queryKey: expenseQueryKeys.all(),
       });
 
-      // 특정 여행의 경비 목록도 무효화
       if (variables.tripId) {
         queryClient.invalidateQueries({
           queryKey: expenseQueryKeys.byTrip(variables.tripId),
         });
       }
 
-      // 특정 일정의 경비 목록도 무효화
       if (variables.scheduleId) {
         queryClient.invalidateQueries({
           queryKey: expenseQueryKeys.bySchedule(variables.scheduleId),

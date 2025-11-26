@@ -1,15 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { db, trips } from '@/shared/db';
-import { eq, sql } from 'drizzle-orm';
-import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
-import { addToSyncQueue } from '@/shared/services/sync/queue';
+import { TripRepository } from '../repository/trip-repository';
 import { tripQueryKeys } from './keys';
 
 /**
- * 여행 삭제 Mutation Hook (Local-First)
+ * 여행 삭제 Mutation Hook
  *
- * Soft Delete: deletedAt 설정 후, sync_queue에 기록
- * 네트워크 상태와 무관하게 즉시 삭제됨
+ * - Repository를 통해 활성화 상태에 따라 Local/Remote 자동 분기
+ * - Soft Delete: deletedAt 설정
  *
  * @example
  * ```tsx
@@ -21,29 +18,8 @@ export const useDeleteTrip = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: string) => {
-      // 트랜잭션: Soft Delete + sync_queue 기록
-      await withTransaction(async () => {
-        // 1. Soft Delete (deletedAt 설정)
-        await db
-          .update(trips)
-          .set({
-            deletedAt: getCurrentISOString(),
-            updatedAt: getCurrentISOString(),
-            version: sql`${trips.version} + 1`, // version 증가
-          })
-          .where(eq(trips.id, id));
-
-        // 2. sync_queue에 기록 (서버 Push 대기)
-        await addToSyncQueue('trips', id, 'DELETE', null);
-      });
-
-      console.log(`✅ Trip deleted locally (soft): ${id}`);
-
-      return { id };
-    },
+    mutationFn: (id: string) => TripRepository.delete(id),
     onSuccess: () => {
-      // 캐시 무효화 - 여행 목록 다시 조회
       queryClient.invalidateQueries({
         queryKey: tripQueryKeys.all(),
       });

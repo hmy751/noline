@@ -4,7 +4,9 @@ import { db, trips, schedules, expenses } from '../db/index.js';
 import { desc, sql, eq, and, isNull } from 'drizzle-orm';
 import { createTripRequest, updateTripRequest } from '@repo/schema/requests/trip';
 import { tripEntity } from '@repo/schema/entities/trip';
-import { tripResponse } from '@repo/schema/responses/trip';
+import { tripResponse, tripListResponse } from '@repo/schema/responses/trip';
+import { scheduleEntity } from '@repo/schema/entities/schedule';
+import { scheduleListResponse } from '@repo/schema/responses/schedule';
 
 const router = Router();
 
@@ -60,10 +62,19 @@ router.get('/', async (req: Request, res: Response) => {
       return validated.data;
     });
 
-    res.status(200).json({
-      success: true,
-      data: validatedTrips,
-    });
+    // 정책: 전체 응답 구조 검증
+    const response = { success: true as const, data: validatedTrips };
+    const validatedResponse = tripListResponse.safeParse(response);
+
+    if (!validatedResponse.success) {
+      console.error('Response validation error:', validatedResponse.error);
+      return res.status(500).json({
+        error: 'Internal validation error',
+        message: 'Response validation failed',
+      });
+    }
+
+    res.status(200).json(validatedResponse.data);
   } catch (error) {
     console.error('Error fetching trips:', error);
 
@@ -343,9 +354,9 @@ router.delete('/:id', async (req: Request, res: Response) => {
       .where(eq(trips.id, tripId))
       .returning();
 
+    // 정책: 모든 API 응답은 { success, data } 구조를 따른다
     res.status(200).json({
       success: true,
-      message: 'Trip deleted successfully',
       data: {
         id: deletedTrip.id,
         deletedAt: deletedTrip.deletedAt?.toISOString(),
@@ -382,19 +393,37 @@ router.get('/:tripId/schedules', async (req: Request, res: Response) => {
       .where(eq(schedules.tripId, tripId))
       .orderBy(schedules.scheduledAt);
 
-    // ISO string으로 변환
-    const validatedSchedules = allSchedules.map((schedule) => ({
-      ...schedule,
-      scheduledAt: schedule.scheduledAt.toISOString(),
-      createdAt: schedule.createdAt.toISOString(),
-      updatedAt: schedule.updatedAt.toISOString(),
-      deletedAt: schedule.deletedAt?.toISOString() || null,
-    }));
+    // ISO string으로 변환 및 Entity 검증
+    const validatedSchedules = allSchedules.map((schedule) => {
+      const validated = scheduleEntity.safeParse({
+        ...schedule,
+        scheduledAt: schedule.scheduledAt.toISOString(),
+        createdAt: schedule.createdAt.toISOString(),
+        updatedAt: schedule.updatedAt.toISOString(),
+        deletedAt: schedule.deletedAt?.toISOString() || null,
+      });
 
-    res.status(200).json({
-      success: true,
-      data: validatedSchedules,
+      if (!validated.success) {
+        console.error('Schedule validation error:', validated.error);
+        throw new Error('Invalid schedule data');
+      }
+
+      return validated.data;
     });
+
+    // 정책: 전체 응답 구조 검증
+    const response = { success: true as const, data: validatedSchedules };
+    const validatedResponse = scheduleListResponse.safeParse(response);
+
+    if (!validatedResponse.success) {
+      console.error('Response validation error:', validatedResponse.error);
+      return res.status(500).json({
+        error: 'Internal validation error',
+        message: 'Response validation failed',
+      });
+    }
+
+    res.status(200).json(validatedResponse.data);
   } catch (error) {
     console.error('Error fetching schedules:', error);
 

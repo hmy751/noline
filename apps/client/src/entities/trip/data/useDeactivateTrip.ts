@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { db, trips, tripActivations, schedules, expenses } from '@/shared/db';
 import { eq, sql } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
-import axios from '@/shared/api/fetcher';
+import apiClient from '@/shared/api/fetcher';
 import { tripQueryKeys } from './keys';
 import { cleanupOfflineMapForTrip } from '@/shared/services/offline-map';
 import { hasPendingTasksForTrip, getPendingTasksForTrip } from '@/shared/services/sync/queue';
@@ -114,7 +114,7 @@ export const useDeactivateTrip = () => {
 
       // 5. 서버에 비활성화 알림 (선택적, 실패해도 무시)
       try {
-        await axios.post(`/api/trips/${tripId}/deactivate`);
+        await apiClient.post(`/api/trips/${tripId}/deactivate`);
         console.log(`📤 Deactivation notified to server: ${tripId}`);
       } catch (error) {
         console.warn(`⚠️ Failed to notify deactivation to server (ignored):`, error);

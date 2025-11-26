@@ -6,14 +6,13 @@ import { Calendar, Clock, MapPin } from 'lucide-react-native';
 import { Drawer, Pressable } from '@repo/ui';
 import { DatePicker, TimePicker } from '@/shared/components';
 import { Field } from '@/shared/components/Form';
-import { useUpdateSchedule, useGetSchedules } from '@/entities/schedule';
+import { useUpdateSchedule, useGetSchedules, type Schedule } from '@/entities/schedule';
 import { useAutoDownloadRoutes } from '@/entities/route';
 import { useAppPolicy } from '@/shared/policy';
 import { scheduleUpdateFormSchema, type ScheduleUpdateFormData } from './schema';
 import { combineDateTimeToISO } from '@/shared/lib/datetime';
 import { LocationSearchModal } from './LocationSearchModal';
 import type { Location } from '@/features/schedule/create-schedule';
-import type { Schedule } from '@/shared/db/schema';
 
 export type UpdateScheduleDrawerProps = {
   isOpen: boolean;
@@ -103,8 +102,8 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
       ? {
           location: selectedLocation.name,
           address: selectedLocation.address,
-          latitude: String(selectedLocation.latitude),
-          longitude: String(selectedLocation.longitude),
+          latitude: selectedLocation.latitude,
+          longitude: selectedLocation.longitude,
         }
       : {};
 

@@ -71,24 +71,31 @@ router.post('/search', async (req, res, next) => {
       placeId: prediction.place_id,
     }));
 
-    // 응답 데이터 구성
+    // 응답 데이터 구성 (정책: { success, data } 구조)
     const responseData = {
-      results: predictions,
-      searchContext: {
-        query,
-        cityName: cityName || null,
-        coordinates: latitude && longitude ? { latitude, longitude } : null,
-        language: resultLanguage,
+      success: true as const,
+      data: {
+        results: predictions,
+        searchContext: {
+          query,
+          cityName: cityName || null,
+          coordinates: latitude && longitude ? { latitude, longitude } : null,
+          language: resultLanguage,
+        },
       },
     };
 
-    // Response 검증 (개발 단계에서만)
+    // Response 검증
     const responseValidation = placesSearchResponse.safeParse(responseData);
     if (!responseValidation.success) {
       console.error('Response validation error:', responseValidation.error);
+      return res.status(500).json({
+        error: 'Internal validation error',
+        message: 'Response validation failed',
+      });
     }
 
-    res.json(responseData);
+    res.json(responseValidation.data);
   } catch (error) {
     console.error('Places search error:', error);
     next(error);

@@ -27,7 +27,9 @@ export const expenseEntity = z.object({
   amount: z.string(), // DB decimal → string
   currency: z.string(),
   category: z.string(),
-  date: z.string(), // ISO date string (e.g., "2024-03-15")
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, {
+    message: 'Date must be in YYYY-MM-DD format',
+  }), // ISO date string (e.g., "2024-03-15")
   hasReceipt: z.boolean(),
   receiptUrl: z.string().nullable(),
 });

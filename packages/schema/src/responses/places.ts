@@ -32,8 +32,13 @@ const searchContextSchema = z.object({
 /**
  * 장소 검색 응답 스키마
  * POST /api/places/search
+ *
+ * 정책: 모든 API 응답은 { success, data } 구조를 따른다
  */
 export const placesSearchResponse = z.object({
-  results: z.array(placeItemSchema),
-  searchContext: searchContextSchema,
+  success: z.literal(true),
+  data: z.object({
+    results: z.array(placeItemSchema),
+    searchContext: searchContextSchema,
+  }),
 });

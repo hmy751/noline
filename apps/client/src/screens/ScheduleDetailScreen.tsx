@@ -6,7 +6,7 @@ import { ScheduleExpenseList } from '@/features/schedule/schedule-expense-list';
 import { formatISOToLocalDate, formatISOToLocalTime } from '@/shared/lib/datetime';
 import { useRouter } from 'expo-router';
 import { useGetScheduleById } from '@/entities/schedule/data';
-import { useGetScheduleExpenses } from '@/entities/expense/data';
+import { useGetScheduleExpenses, type Expense } from '@/entities/expense';
 
 export interface ScheduleDetailScreenProps {
   scheduleId: string;
@@ -25,7 +25,7 @@ export default function ScheduleDetailScreen({ scheduleId, tripId, scheduledAt, 
   const { data: expenses = [], isLoading: isLoadingExpenses } = useGetScheduleExpenses(scheduleId);
 
   // ✅ 총 경비 계산
-  const totalExpense = expenses.reduce((sum: number, expense: any) => {
+  const totalExpense = expenses.reduce((sum: number, expense: Expense) => {
     return sum + parseFloat(expense.amount || '0');
   }, 0);
 

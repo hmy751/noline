@@ -4,5 +4,4 @@ export { useGetScheduleExpenses } from './useGetScheduleExpenses';
 export { useGetAllExpenses } from './useGetAllExpenses';
 export { useCreateExpense } from './useCreateExpense';
 export { useUpdateExpense } from './useUpdateExpense';
-export type { UpdateExpenseRequest } from './useUpdateExpense';
 export { useDeleteExpense } from './useDeleteExpense';
