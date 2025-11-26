@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Card, Badge, cn, Pressable } from '@repo/ui';
-import { MapPin, Camera, Clock, MoreVertical } from 'lucide-react-native';
+import { MapPin, Camera, Clock, MoreVertical, ChevronLeft } from 'lucide-react-native';
 
 interface ExpenseCardProps {
   title: string;
@@ -11,6 +11,7 @@ interface ExpenseCardProps {
   date?: string;
   hasReceipt?: boolean;
   isPending?: boolean;
+  showArrow?: boolean;
   className?: string;
   onPress?: () => void;
   onMenuPress?: (event: unknown) => void;
@@ -25,6 +26,7 @@ export function ExpenseCard({
   date,
   hasReceipt = false,
   isPending = false,
+  showArrow = false,
   className,
   onPress,
   onMenuPress,
@@ -45,6 +47,13 @@ export function ExpenseCard({
             >
               <MoreVertical size={20} color='hsl(120, 8%, 35%)' strokeWidth={2} />
             </Pressable>
+          </View>
+        )}
+
+        {/* Arrow Icon - Absolute Positioned (Right Center) */}
+        {showArrow && (
+          <View className='absolute right-sm top-1/2 -translate-y-1/2 z-0'>
+            <ChevronLeft size={20} color='hsl(0, 0%, 80%)' style={{ transform: [{ rotate: '180deg' }] }} />
           </View>
         )}
 
