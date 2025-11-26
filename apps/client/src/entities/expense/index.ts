@@ -16,6 +16,7 @@ export { useCreateExpense } from './data';
 export { useUpdateExpense } from './data';
 export { useDeleteExpense } from './data';
 export { useGetTripExpenses } from './data';
+export { useGetScheduleExpenses } from './data';
 
 // UI Components
 export { ExpenseCard } from './ui';

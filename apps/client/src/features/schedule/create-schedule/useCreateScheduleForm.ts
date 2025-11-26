@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCreateSchedule, useGetSchedules } from '@/entities/schedule';
+import { useCreateSchedule, useGetSchedules, type Schedule } from '@/entities/schedule';
 import { useAutoDownloadRoutes } from '@/entities/route';
 import { createScheduleFormSchema, type CreateScheduleFormData } from './schema';
 import { combineDateTimeToISO } from '@/shared/lib/datetime';
 import { generateId } from '@/shared/services/id/ulid';
 import type { Location } from './types';
-import type { Schedule } from '@/shared/db/schema';
 
 type UseCreateScheduleFormProps = {
   tripId: string;
