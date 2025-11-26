@@ -2,6 +2,7 @@ import { View, Text, ActivityIndicator, Alert } from 'react-native';
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import { TripCard, type TripData, type ActivationStatus, useDeactivateTrip } from '@/entities/trip';
 import { useGetTripExpenses } from '@/entities/expense';
+import { useGetSchedules } from '@/entities/schedule';
 import { groupExpensesByCurrency } from '@/shared/lib/currency';
 import { getTripActivationStatusDetail } from '@/shared/services/offline-prep/metadata';
 
@@ -29,6 +30,9 @@ export function MainTripSection({
     const date = new Date(dateString);
     return `${date.getMonth() + 1}월 ${date.getDate()}일`;
   };
+
+  // ✅ 일정 개수 조회
+  const { data: mainTripSchedules = [] } = useGetSchedules(mainTripData?.id ?? '');
 
   // ✅ CURRENCY_POLICY: 통화별 경비 그룹핑 (금액 기준 내림차순)
   const { data: mainTripExpenses = [] } = useGetTripExpenses(mainTripData?.id ?? '');
@@ -106,7 +110,7 @@ export function MainTripSection({
         country: mainTripData.country || '',
         startDate: formatDate(mainTripData.startDate),
         endDate: formatDate(mainTripData.endDate),
-        scheduleCount: 0, // TODO: 일정 개수 집계 API 추가 필요
+        scheduleCount: mainTripSchedules.length,
         expensesByCurrency, // ✅ 통화별 경비 데이터 전달
       }
     : null;
