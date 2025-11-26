@@ -28,38 +28,15 @@ const pressableVariants = cva(
   },
 );
 
-const pressableTextVariants = cva('font-semibold', {
-  variants: {
-    variant: {
-      default: 'text-primary-foreground',
-      destructive: 'text-destructive-foreground',
-      outline: 'text-foreground',
-      secondary: 'text-foreground',
-      ghost: 'text-foreground',
-    },
-    size: {
-      sm: 'text-sm',
-      md: 'text-body',
-      lg: 'text-body-large',
-      icon: 'text-body',
-    },
-  },
-  defaultVariants: {
-    variant: 'default',
-    size: 'md',
-  },
-});
-
 export interface PressableComponentProps
   extends Omit<PressableProps, 'children'>,
     VariantProps<typeof pressableVariants> {
   children?: React.ReactNode | ((state: PressableStateCallbackType) => React.ReactNode);
   className?: string;
-  textClassName?: string;
 }
 
 export const Pressable = forwardRef<React.ElementRef<typeof RNPressable>, PressableComponentProps>(
-  ({ className, textClassName, variant = 'default', size, children, disabled, ...props }, ref) => {
+  ({ className, variant = 'default', size = 'md', children, disabled, ...props }, ref) => {
     // 각 variant별 텍스트 색상 정의
     const textColorMap: Record<NonNullable<typeof variant>, string> = {
       default: '#F5FBF5', // primary-foreground
@@ -69,7 +46,16 @@ export const Pressable = forwardRef<React.ElementRef<typeof RNPressable>, Pressa
       ghost: '#1F1F1F', // foreground
     };
 
+    // 각 size별 폰트 크기 정의
+    const fontSizeMap: Record<NonNullable<typeof size>, number> = {
+      sm: 12,
+      md: 14,
+      lg: 16,
+      icon: 14,
+    };
+
     const textColor = textColorMap[variant ?? 'default'];
+    const fontSize = fontSizeMap[size ?? 'md'];
 
     return (
       <RNPressable
@@ -82,9 +68,7 @@ export const Pressable = forwardRef<React.ElementRef<typeof RNPressable>, Pressa
           const content = typeof children === 'function' ? children(state) : children;
 
           return typeof content === 'string' ? (
-            <Text className={cn(pressableTextVariants({ variant, size }), textClassName)} style={{ color: textColor }}>
-              {content}
-            </Text>
+            <Text style={{ color: textColor, fontSize, fontWeight: '600', textAlign: 'center' }}>{content}</Text>
           ) : (
             content
           );

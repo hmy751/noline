@@ -82,13 +82,13 @@ export default function TripDateForm({ city }: TripDateFormProps) {
 
   return (
     <>
-      <View className='p-md space-y-lg'>
+      <View className='p-md gap-lg'>
         <View className='flex-row items-center space-x-xs'>
           <MapPin size={20} className='text-foreground' />
           <Text className='text-title-large'>{city.name}</Text>
         </View>
 
-        <View className='space-y-md'>
+        <View className='gap-md'>
           <View className='flex-row items-center space-x-xs'>
             <CalendarDays size={20} className='text-muted-foreground' />
             <Text className='text-title-medium text-muted-foreground'>여행 일정</Text>

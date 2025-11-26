@@ -214,38 +214,18 @@ export const EditTripDrawer = ({ isOpen, onClose, trip }: EditTripDrawerProps) =
           {/* 버튼 섹션 */}
           <View className='gap-sm mt-lg'>
             {/* 저장 버튼 */}
-            <Pressable
-              variant='default'
-              className='w-full rounded-lg bg-primary py-md'
-              onPress={handleSubmit(onValid, onInvalid)}
-              disabled={isUpdating}
-            >
-              <Text className='text-body font-semibold text-center' style={{ color: '#F5FBF5' }}>
-                {isUpdating ? '저장 중...' : '저장'}
-              </Text>
+            <Pressable variant='default' onPress={handleSubmit(onValid, onInvalid)} disabled={isUpdating}>
+              {isUpdating ? '저장 중...' : '저장'}
             </Pressable>
 
             {/* 삭제 버튼 */}
-            <Pressable
-              variant='destructive'
-              className='w-full rounded-lg bg-destructive py-md'
-              onPress={handleDelete}
-              disabled={isDeleting}
-            >
-              <Text className='text-body font-semibold text-center' style={{ color: '#FBF5F5' }}>
-                {isDeleting ? '삭제 중...' : '삭제'}
-              </Text>
+            <Pressable variant='destructive' onPress={handleDelete} disabled={isDeleting}>
+              {isDeleting ? '삭제 중...' : '삭제'}
             </Pressable>
 
             {/* 취소 버튼 */}
-            <Pressable
-              variant='outline'
-              className='w-full rounded-lg border border-input bg-background py-md'
-              onPress={onClose}
-            >
-              <Text className='text-body font-semibold text-center' style={{ color: '#1F1F1F' }}>
-                취소
-              </Text>
+            <Pressable variant='outline' onPress={onClose}>
+              취소
             </Pressable>
           </View>
         </View>
