@@ -4,6 +4,7 @@ import { Card, Pressable, Separator } from '@repo/ui';
 import { Container, Stack, MobileHeader } from '@/shared/components';
 import { ScheduleExpenseList } from '@/features/schedule/schedule-expense-list';
 import { formatISOToLocalDate, formatISOToLocalTime } from '@/shared/lib/datetime';
+import { groupExpensesByCurrency, formatCurrencyDisplay } from '@/shared/lib/currency';
 import { useRouter } from 'expo-router';
 import { useGetScheduleById } from '@/entities/schedule/data';
 import { useGetScheduleExpenses, type Expense } from '@/entities/expense';
@@ -24,10 +25,8 @@ export default function ScheduleDetailScreen({ scheduleId, tripId, scheduledAt, 
   // ✅ 일정의 경비 목록 조회 (라우팅 레이어 적용)
   const { data: expenses = [], isLoading: isLoadingExpenses } = useGetScheduleExpenses(scheduleId);
 
-  // ✅ 총 경비 계산
-  const totalExpense = expenses.reduce((sum: number, expense: Expense) => {
-    return sum + parseFloat(expense.amount || '0');
-  }, 0);
+  // ✅ CURRENCY_POLICY: 통화별 경비 그룹핑
+  const expensesByCurrency = groupExpensesByCurrency(expenses);
 
   const isLoading = isLoadingSchedule || isLoadingExpenses;
 
@@ -131,14 +130,22 @@ export default function ScheduleDetailScreen({ scheduleId, tripId, scheduledAt, 
               {/* Separator */}
               <Separator className='my-2xs' />
 
-              {/* Total Expense */}
+              {/* Total Expense - 통화별 표시 */}
               <View className='flex-row items-center justify-between py-3xs'>
                 <View className='flex-row items-center gap-xs'>
                   <Wallet size={16} color='hsl(120, 61%, 34%)' strokeWidth={2} />
                   <Text className='text-label text-muted-foreground'>총 경비</Text>
                 </View>
-                <View className='flex-row items-center gap-2xs'>
-                  <Text className='text-display-medium text-primary'>EUR {totalExpense.toFixed(2)}</Text>
+                <View className='flex-col items-end gap-3xs'>
+                  {expensesByCurrency.length > 0 ? (
+                    expensesByCurrency.map(({ currency, amount }) => (
+                      <Text key={currency} className='text-display-medium text-primary'>
+                        {formatCurrencyDisplay(amount, currency)}
+                      </Text>
+                    ))
+                  ) : (
+                    <Text className='text-display-medium text-muted-foreground'>USD 0.00</Text>
+                  )}
                   <Text className='text-label text-muted-foreground'>({expenses.length}개)</Text>
                 </View>
               </View>

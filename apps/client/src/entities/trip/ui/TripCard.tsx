@@ -36,7 +36,7 @@ export function TripCard({
   endDate,
   scheduleCount,
   expensesByCurrency = [],
-  baseCurrency = 'EUR',
+  baseCurrency = 'USD',
   activationStatus = 'online',
   onActivatePress,
   onDeactivatePress,

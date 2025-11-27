@@ -68,7 +68,11 @@ export const getExpenseByIdLocal = async (id: string): Promise<Expense | undefin
  * scheduleId로 tripId 조회 (라우팅용)
  */
 export const getTripIdByScheduleIdLocal = async (scheduleId: string): Promise<string | null> => {
-  const schedule = await db.select({ tripId: schedules.tripId }).from(schedules).where(eq(schedules.id, scheduleId)).get();
+  const schedule = await db
+    .select({ tripId: schedules.tripId })
+    .from(schedules)
+    .where(eq(schedules.id, scheduleId))
+    .get();
   return schedule?.tripId ?? null;
 };
 
@@ -88,7 +92,7 @@ export const createExpenseLocal = async (data: CreateExpenseRequest): Promise<Ex
     scheduleId: data.scheduleId || null,
     title: data.title,
     amount: data.amount,
-    currency: data.currency || 'EUR',
+    currency: data.currency || 'USD',
     category: data.category,
     date: data.date,
     hasReceipt: data.hasReceipt || false,

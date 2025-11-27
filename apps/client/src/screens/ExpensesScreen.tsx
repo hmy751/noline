@@ -182,7 +182,7 @@ export default function ExpensesScreen() {
                 </View>
               ) : (
                 <Text className='text-display-medium text-muted-foreground'>
-                  {formatCurrencyDisplay(0, selectedTrip?.baseCurrency || 'EUR')}
+                  {formatCurrencyDisplay(0, selectedTrip?.baseCurrency || 'USD')}
                 </Text>
               )}
             </View>

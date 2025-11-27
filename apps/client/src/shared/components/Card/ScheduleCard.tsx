@@ -25,7 +25,7 @@ export function ScheduleCard({
   latitude,
   expense,
   expenseCount,
-  currency = 'EUR',
+  currency = 'USD',
   className,
   onPress,
   onMenuPress,

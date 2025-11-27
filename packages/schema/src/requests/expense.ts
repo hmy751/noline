@@ -30,7 +30,7 @@ export const createExpenseRequest = expenseEntity
     // 필수 필드 검증 추가
     title: z.string().min(1, 'Title is required'),
     amount: z.string().min(1, 'Amount is required'),
-    currency: z.string().default('EUR'),
+    currency: z.string().default('USD'),
     category: z.string().min(1, 'Category is required'),
     date: z.string().min(1, 'Date is required'),
     hasReceipt: z.boolean().default(false), // TODO: 영수증 업로드 기능 구현 시 활성화

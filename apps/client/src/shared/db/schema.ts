@@ -16,7 +16,7 @@ export const trips = sqliteTable('trips', {
   name: text('name').notNull(),
   destination: text('destination').notNull(),
   country: text('country'),
-  baseCurrency: text('base_currency').notNull().default('EUR'), // 여행 기본 통화
+  baseCurrency: text('base_currency').notNull().default('USD'), // 여행 기본 통화
   latitude: text('latitude'),
   longitude: text('longitude'),
   cityId: integer('city_id'),
@@ -81,7 +81,7 @@ export const expenses = sqliteTable('expenses', {
   scheduleId: text('schedule_id').references(() => schedules.id, { onDelete: 'set null' }),
   title: text('title').notNull(),
   amount: text('amount').notNull(), // Decimal을 문자열로 저장 (SQLite는 decimal 미지원)
-  currency: text('currency').notNull().default('EUR'),
+  currency: text('currency').notNull().default('USD'),
   category: text('category').notNull(),
   date: text('date').notNull(), // ISO string (날짜만)
   hasReceipt: integer('has_receipt', { mode: 'boolean' }).notNull().default(false),

@@ -33,7 +33,7 @@ export const createTripRequest = tripEntity
     // 필수 필드 검증 추가
     name: z.string().min(1, 'Name is required'),
     destination: z.string().min(1, 'Destination is required'),
-    baseCurrency: z.string().default('EUR'),
+    baseCurrency: z.string().default('USD'),
   });
 
 /**

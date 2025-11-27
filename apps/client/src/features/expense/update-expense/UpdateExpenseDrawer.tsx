@@ -38,7 +38,7 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
     defaultValues: {
       title: expenseData?.title || '',
       amount: expenseData?.amount || '',
-      currency: expenseData?.currency || 'EUR',
+      currency: expenseData?.currency || 'USD',
       category: expenseData?.category || '',
       date: expenseData?.date || '',
       scheduleId: expenseData?.scheduleId || undefined,

@@ -37,7 +37,7 @@ export const trips = pgTable('trips', {
   name: varchar('name', { length: 200 }).notNull(),
   destination: varchar('destination', { length: 200 }).notNull(),
   country: varchar('country', { length: 100 }),
-  baseCurrency: varchar('base_currency', { length: 10 }).notNull().default('EUR'), // 여행 기본 통화
+  baseCurrency: varchar('base_currency', { length: 10 }).notNull().default('USD'), // 여행 기본 통화
   latitude: decimal('latitude', { precision: 10, scale: 7 }),
   longitude: decimal('longitude', { precision: 10, scale: 7 }),
   cityId: integer('city_id'),
@@ -90,7 +90,7 @@ export const expenses = pgTable('expenses', {
   scheduleId: text('schedule_id').references(() => schedules.id, { onDelete: 'set null' }),
   title: varchar('title', { length: 200 }).notNull(),
   amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
-  currency: varchar('currency', { length: 3 }).notNull().default('EUR'),
+  currency: varchar('currency', { length: 3 }).notNull().default('USD'),
   category: text('category').notNull(), // enum 대신 text로 변경 (클라이언트와 일치)
   // ✅ TIMESTAMPTZ: ISO 8601 with timezone 지원
   date: timestamp('date', { withTimezone: true }).notNull(),

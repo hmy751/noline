@@ -45,7 +45,7 @@ export function groupExpensesByCurrency(expenses: Expense[], baseCurrency?: stri
   // 통화별로 그룹핑
   const grouped = expenses.reduce(
     (acc, expense) => {
-      const currency = expense.currency || 'EUR';
+      const currency = expense.currency || 'USD';
       acc[currency] = (acc[currency] || 0) + Number(expense.amount);
       return acc;
     },
