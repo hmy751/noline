@@ -34,7 +34,7 @@ export default function HomeScreen() {
   return (
     <View className='flex-1 bg-background'>
       {/* Header */}
-      <MobileHeader title='Noline' />
+      <MobileHeader title='NOLINE' />
 
       <ScrollView className='flex-1'>
         <Container>
