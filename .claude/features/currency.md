@@ -354,9 +354,9 @@ KRW 35,000
 
 ### 관련 문서
 
-- `LOCAL_FIRST_IMPLEMENTATION.md`: Echo Architecture 동기화 정책
-- `shared/schema.ts`: 데이터베이스 스키마 정의
-- `ARCHITECTURE_RULES.md`: Feature-Sliced Design 아키텍처
+- [selective-activation-architecture.md](../core/selective-activation-architecture.md): Selective Activation 아키텍처 (v2.0)
+- [local-first-impl-v1.md](../_archive/local-first-impl-v1.md): Echo Architecture 구현 가이드 (v1.0 아카이브)
+- [architecture.md](../core/architecture.md): FSD 아키텍처
 
 ---
 

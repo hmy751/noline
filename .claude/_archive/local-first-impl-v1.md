@@ -1,5 +1,20 @@
 # Noline - Echo 아키텍처 구현 가이드
 
+> ⚠️ **아카이브 문서 (v1.0)**
+>
+> 이 문서는 **v1.0 Pure Local-First** 시대(2025-10 ~ 2025-11-05)의 구현 가이드입니다.
+> **현재 아키텍처(v2.0 Selective Activation)**와 맞지 않습니다.
+>
+> **현재 가이드 참조:**
+>
+> - [selective-activation-architecture.md](../core/selective-activation-architecture.md) - v2.0 아키텍처
+> - [policy-architecture.md](../core/policy-architecture.md) - v3.0 Policy Layer
+> - [CHANGELOG.md](../CHANGELOG.md) - 정책 변경 히스토리
+>
+> **아카이브 사유:** Router 패턴 미반영, Repository 레이어 없음, 활성화 시스템 미반영
+
+---
+
 ## 📌 개요
 
 이 문서는 Noline 앱의 Echo 아키텍처(Local-First 동기화 시스템)를 실제로 구현하기 위한 상세 가이드입니다.

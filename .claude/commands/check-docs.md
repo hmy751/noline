@@ -42,7 +42,8 @@ const policyDocuments = [
   // 기능별 가이드
   '.claude/features/currency.md',
   '.claude/features/form.md',
-  '.claude/features/local-first-impl.md',
+  '.claude/features/activation-system.md',
+  '.claude/features/manual-input.md',
 
   // 참조 문서
   '.claude/references/prd.md',

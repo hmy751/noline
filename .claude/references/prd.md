@@ -51,12 +51,15 @@ Noline은 여행 중 불안정한 네트워크 환경에서도 완벽하게 작�
 
 ### "네트워크가 없어도 여행은 계속된다"
 
-#### 1. **완전한 Local-First 경험**
+#### 1. **Selective Activation 기반 Local-First 경험**
 
-- **모든 데이터는 로컬 DB(SQLite)가 유일한 진실의 근원(Single Source of Truth)**
-- UI는 서버를 전혀 알지 못하며, 오직 로컬 DB만 바라봄
-- 네트워크 상태와 무관하게 즉각적인 반응성 보장
-- 데이터 손실 0%: 모든 변경사항은 로컬에 먼저 저장 후 백그라운드 동기화
+> ⚠️ **v2.0 정책 업데이트** (2025-11): 아래 내용은 초기 설계안입니다.
+> 현재 구현된 아키텍처는 [selective-activation-architecture.md](../../core/selective-activation-architecture.md)를 참조하세요.
+
+- **활성화된 여행**: 로컬 SQLite가 진실의 원천 → 오프라인 완전 지원
+- **비활성 여행**: 서버 API가 진실의 원천 → 온라인 전용, 저장공간 절약
+- 네트워크 상태와 무관하게 활성화된 여행은 즉각적인 반응성 보장
+- 데이터 손실 0%: 활성화된 여행의 변경사항은 로컬에 저장 후 백그라운드 동기화
 
 #### 2. **오프라인 활성화 시스템**
 
@@ -82,34 +85,31 @@ Noline은 여행 중 불안정한 네트워크 환경에서도 완벽하게 작�
 
 ## 🏗️ 아키텍처 핵심 원칙
 
-### Local-First 아키텍처
+### Selective Activation 아키텍처
 
-```
+> ⚠️ 아래 다이어그램은 초기 설계안입니다. 현재 구현된 아키텍처는 Offline-Prep Router를 통해 활성화 상태에 따라 자동 분기합니다.
+
+```text
 ┌─────────────────────────────────────────────────────────┐
 │                   UI Layer (React Native)               │
-│         (React Query를 통해 오직 로컬 DB만 조회)          │
+│              (React Query를 통해 데이터 조회)              │
 └────────────────────┬────────────────────────────────────┘
-                     │ (로컬 DB 데이터)
+                     │
                      ↓
 ┌─────────────────────────────────────────────────────────┐
-│            Service Layer (Zod + Drizzle)                │
-│   (로컬 DB 조회/쓰기, Zod 검증, sync_queue 기록)             │
+│              Offline-Prep Router (v2.0)                 │
+│    routeTripQuery/Mutation, routeChildQuery/Mutation    │
 └────────────────────┬────────────────────────────────────┘
-                     │ (DB 쿼리)
-                     ↓
-┌─────────────────────────────────────────────────────────┐
-│       Persistence Layer (SQLite + sync_queue)           │
-│              (원자적 트랜잭션으로 데이터 안전성 보장)         │
-└─────────────────────────────────────────────────────────┘
-                     ↕ (백그라운드 동기화)
-              ┌──────────────┐
-              │ Sync Engine  │ ← Push: 로컬 변경사항 전송
-              │ (Background) │ → Pull: 서버 최신 데이터 수신
-              └──────────────┘
-                     ↕
-┌─────────────────────────────────────────────────────────┐
-│              Server API (PostgreSQL)                    │
-└─────────────────────────────────────────────────────────┘
+                     │
+         ┌───────────┴───────────┐
+         ↓                       ↓
+   [활성화된 여행]          [비활성 여행]
+         ↓                       ↓
+   Local SQLite            Remote Server
+         ↓
+   sync_queue (Outbox)
+         ↓
+   Background Sync → Server
 ```
 
 ### 핵심 정책
@@ -349,7 +349,7 @@ CREATE TABLE expenses (
 
 ### ✅ Phase 1: 기반 구축과 '행복한 길' (완료 - 웹 프로토타입)
 
-**🎯 목표:** 서버 없이, 오직 로컬 DB만으로 완벽하게 동작하는 앱 핵심 골격 완성
+**🎯 목표:** 로컬 DB 기반 앱 핵심 골격 완성 (v1.0 Pure Local-First)
 
 **주요 작업:**
 
@@ -513,11 +513,15 @@ CREATE TABLE expenses (
 
 ## 📝 참고 문서
 
-- [PROJECT_ARCHITECTURE.md](./PROJECT_ARCHITECTURE.md) - 기술 아키텍처
-- [DESIGN_SPECS.md](./DESIGN_SPECS.md) - 디자인 스펙
-- [WIREFRAMES.md](./WIREFRAMES.md) - 화면 설계도
-- [replit.md](./replit.md) - 프로젝트 개요
-- [LOCAL_FIRST_ARCHITECTURE.md](./attached_assets/Pasted--1-Core-Policies-Local-First-UI-DB-SQLite--1760889948065_1760889948066.txt) - Local-First 상세 아키텍처
+**현재 아키텍처 (v2.0+):**
+
+- [selective-activation-architecture.md](../core/selective-activation-architecture.md) - Selective Activation 상세 아키텍처
+- [policy-architecture.md](../core/policy-architecture.md) - Policy Layer 가이드 (v3.0)
+- [CHANGELOG.md](../CHANGELOG.md) - 정책 변경 히스토리
+
+**히스토리 (아카이브):**
+
+- [local-first-impl-v1.md](../_archive/local-first-impl-v1.md) - v1.0 Echo Architecture 구현 가이드 (아카이브)
 
 ---
 
