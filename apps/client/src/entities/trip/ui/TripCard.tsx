@@ -2,6 +2,7 @@ import { View, Text, type ViewProps, TouchableOpacity } from 'react-native';
 import { cn, Pressable } from '@repo/ui';
 import { Calendar, Download, Edit3, Trash2 } from 'lucide-react-native';
 import { ActivationBadge, type ActivationStatus } from './ActivationBadge';
+import { formatCurrencyDisplay } from '@/shared/lib/currency';
 
 /**
  * ✅ CURRENCY_POLICY: 통화별 경비 그룹
@@ -19,6 +20,7 @@ interface TripCardProps extends ViewProps {
   scheduleCount?: number;
   // ✅ CURRENCY_POLICY: 통화별 경비 그룹 (주 통화 + 추가 통화)
   expensesByCurrency?: CurrencyGroup[];
+  baseCurrency?: string; // 여행 기본 통화 (빈 경비 시 표시용)
   // ✅ 활성화 시스템 관련
   activationStatus?: ActivationStatus;
   onActivatePress?: () => void;
@@ -34,6 +36,7 @@ export function TripCard({
   endDate,
   scheduleCount,
   expensesByCurrency = [],
+  baseCurrency = 'EUR',
   activationStatus = 'online',
   onActivatePress,
   onDeactivatePress,
@@ -110,7 +113,7 @@ export function TripCard({
               )}
             </View>
           ) : (
-            <Text className='text-title-large text-primary-foreground'>EUR 0.00</Text>
+            <Text className='text-title-large text-primary-foreground'>{formatCurrencyDisplay(0, baseCurrency)}</Text>
           )}
         </View>
       </View>

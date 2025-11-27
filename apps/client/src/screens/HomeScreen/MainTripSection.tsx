@@ -34,9 +34,12 @@ export function MainTripSection({
   // ✅ 일정 개수 조회
   const { data: mainTripSchedules = [] } = useGetSchedules(mainTripData?.id ?? '');
 
-  // ✅ CURRENCY_POLICY: 통화별 경비 그룹핑 (금액 기준 내림차순)
+  // ✅ CURRENCY_POLICY: 통화별 경비 그룹핑 (baseCurrency 우선)
   const { data: mainTripExpenses = [] } = useGetTripExpenses(mainTripData?.id ?? '');
-  const expensesByCurrency = useMemo(() => groupExpensesByCurrency(mainTripExpenses), [mainTripExpenses]);
+  const expensesByCurrency = useMemo(
+    () => groupExpensesByCurrency(mainTripExpenses, mainTripData?.baseCurrency),
+    [mainTripExpenses, mainTripData?.baseCurrency],
+  );
 
   // 비활성화 mutation
   const { mutate: deactivateTrip } = useDeactivateTrip();
@@ -112,6 +115,7 @@ export function MainTripSection({
         endDate: formatDate(mainTripData.endDate),
         scheduleCount: mainTripSchedules.length,
         expensesByCurrency, // ✅ 통화별 경비 데이터 전달
+        baseCurrency: mainTripData.baseCurrency, // ✅ 빈 경비 시 표시용
       }
     : null;
 

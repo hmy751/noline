@@ -21,24 +21,25 @@ export interface CurrencyGroup {
  * 경비 목록을 통화별로 그룹핑
  *
  * @param expenses - 경비 목록
- * @returns 통화별 그룹 (금액 기준 내림차순 정렬)
+ * @param baseCurrency - 여행 기본 통화 (주 통화로 맨 위에 표시)
+ * @returns 통화별 그룹 (baseCurrency 우선, 나머지는 금액 기준 내림차순)
  *
  * @example
  * ```ts
  * const expenses = [
  *   { currency: 'EUR', amount: '100.50' },
- *   { currency: 'USD', amount: '50.00' },
+ *   { currency: 'KRW', amount: '50000' },
  *   { currency: 'EUR', amount: '200.00' },
  * ];
  *
- * const grouped = groupExpensesByCurrency(expenses);
+ * const grouped = groupExpensesByCurrency(expenses, 'EUR');
  * // [
- * //   { currency: 'EUR', amount: 300.50 },
- * //   { currency: 'USD', amount: 50.00 }
+ * //   { currency: 'EUR', amount: 300.50 },  // baseCurrency 우선
+ * //   { currency: 'KRW', amount: 50000 }
  * // ]
  * ```
  */
-export function groupExpensesByCurrency(expenses: Expense[]): CurrencyGroup[] {
+export function groupExpensesByCurrency(expenses: Expense[], baseCurrency?: string): CurrencyGroup[] {
   if (!expenses || expenses.length === 0) return [];
 
   // 통화별로 그룹핑
@@ -51,10 +52,17 @@ export function groupExpensesByCurrency(expenses: Expense[]): CurrencyGroup[] {
     {} as Record<string, number>,
   );
 
-  // 배열로 변환 후 금액 기준 내림차순 정렬 (주 통화가 맨 위)
-  return Object.entries(grouped)
-    .map(([currency, amount]) => ({ currency, amount }))
-    .sort((a, b) => b.amount - a.amount);
+  // 배열로 변환
+  const result = Object.entries(grouped).map(([currency, amount]) => ({ currency, amount }));
+
+  // baseCurrency가 있으면 해당 통화를 맨 위로, 나머지는 금액 기준 내림차순
+  return result.sort((a, b) => {
+    if (baseCurrency) {
+      if (a.currency === baseCurrency) return -1;
+      if (b.currency === baseCurrency) return 1;
+    }
+    return b.amount - a.amount;
+  });
 }
 
 /**

@@ -10,7 +10,7 @@ import { useMemo, useState } from 'react';
 import { ExpenseMenu } from '@/features/expense/expense-menu';
 import { UpdateExpenseDrawer } from '@/features/expense/update-expense';
 import { formatISOToLocalDate } from '@/shared/lib/datetime';
-import { groupExpensesByCurrency } from '@/shared/lib/currency';
+import { groupExpensesByCurrency, formatCurrencyDisplay } from '@/shared/lib/currency';
 import type { Expense } from '@/entities/expense';
 
 export default function ExpensesScreen() {
@@ -79,8 +79,11 @@ export default function ExpensesScreen() {
     return [...outsideTripRange, ...insideTripRange];
   }, [dateRange, expenses]);
 
-  // ✅ CURRENCY_POLICY: 통화별 경비 그룹핑 (금액 기준 내림차순)
-  const expensesByCurrency = useMemo(() => groupExpensesByCurrency(expenses), [expenses]);
+  // ✅ CURRENCY_POLICY: 통화별 경비 그룹핑 (baseCurrency 우선)
+  const expensesByCurrency = useMemo(
+    () => groupExpensesByCurrency(expenses, selectedTrip?.baseCurrency),
+    [expenses, selectedTrip?.baseCurrency],
+  );
 
   // 경비 메뉴 핸들러
   const handleExpenseMenuPress = (
@@ -178,7 +181,9 @@ export default function ExpensesScreen() {
                   ))}
                 </View>
               ) : (
-                <Text className='text-display-medium text-muted-foreground'>EUR 0.00</Text>
+                <Text className='text-display-medium text-muted-foreground'>
+                  {formatCurrencyDisplay(0, selectedTrip?.baseCurrency || 'EUR')}
+                </Text>
               )}
             </View>
 
