@@ -11,6 +11,7 @@ interface Schedule {
   location: string;
   latitude?: string | null;
   longitude?: string | null;
+  scheduledAt: string;
 }
 
 interface ScheduleMapViewContainerProps {
@@ -76,7 +77,14 @@ export function ScheduleMapViewContainer({
             longitude: parseFloat(schedule.longitude!),
             time: schedule.time,
           }))}
-        onSchedulePress={(scheduleId: string) => router.push(`/schedules/${scheduleId}`)}
+        onSchedulePress={(scheduleId: string) => {
+          const schedule = schedulesForMap.find((s) => s.id === scheduleId);
+          if (schedule) {
+            router.push(
+              `/schedules/${scheduleId}?tripId=${tripId}&scheduledAt=${encodeURIComponent(schedule.scheduledAt)}`,
+            );
+          }
+        }}
         selectedScheduleId={selectedScheduleId}
         onMarkerPress={(scheduleId) => {
           setSelectedScheduleId(scheduleId);
@@ -151,7 +159,11 @@ export function ScheduleMapViewContainer({
                           }
                         : null
                     }
-                    onPressDetails={() => router.push(`/schedules/${schedule.id}`)}
+                    onPressDetails={() =>
+                      router.push(
+                        `/schedules/${schedule.id}?tripId=${tripId}&scheduledAt=${encodeURIComponent(schedule.scheduledAt)}`,
+                      )
+                    }
                   />
                 </View>
               );
