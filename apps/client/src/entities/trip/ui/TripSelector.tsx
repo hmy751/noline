@@ -118,7 +118,6 @@ export function TripSelector({ className = '' }: TripSelectorProps) {
               )}
               {selectedTrip.isActivated && (
                 <Badge variant='default' className='ml-xs flex-row items-center gap-0.5 bg-emerald-100'>
-                  <WifiOff size={10} color='hsl(142, 76%, 36%)' strokeWidth={2} />
                   <Text className='text-label-small text-emerald-700'>활성화</Text>
                 </Badge>
               )}
@@ -161,7 +160,6 @@ export function TripSelector({ className = '' }: TripSelectorProps) {
                     )}
                     {trip.isActivated && (
                       <Badge variant='default' className='ml-xs flex-row items-center gap-0.5 bg-emerald-100'>
-                        <WifiOff size={10} color='hsl(142, 76%, 36%)' strokeWidth={2} />
                         <Text className='text-label-small text-emerald-700'>활성화</Text>
                       </Badge>
                     )}
