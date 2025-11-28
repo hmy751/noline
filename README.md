@@ -142,15 +142,19 @@ NOLINE은 네트워크가 없어도 여행 일정과 경비를 완벽하게 관�
 pnpm install
 
 # schema 빌드
-pnpm schema build
-
-# 클라이언트 실행
-pnpm client start
+pnpm --filter @repo/schema build
 
 # 서버 실행 (Docker PostgreSQL 필요)
-pnpm --filter @apps/server docker:up
-pnpm --filter @apps/server dev
+cd apps/server
+docker-compose up -d
+pnpm dev
+
+# 클라이언트 실행 (새 터미널에서)
+cd apps/client
+pnpm run ios
 ```
+
+> **📖 상세 설정 가이드**: 환경 변수, API 키 발급, 트러블슈팅 등 자세한 내용은 [START_GUIDE.md](./START_GUIDE.md)를 참조하세요.
 
 # 🏗 Architecture
 
