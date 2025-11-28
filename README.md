@@ -12,7 +12,8 @@ NOLINE은 네트워크가 없어도 여행 일정과 경비를 완벽하게 관�
 
 - [🔥 Motivation](#-motivation)
 - [📱 Preview & Features](#-preview--features)
-- [📂 Tech Stack](#-tech-stack)
+- [⚙️ Tech Stack](#️-tech-stack)
+- [📁 Project Structure](#-project-structure)
 - [🚀 Quick Start](#-quick-start)
 - [🏗️ Architecture](#-architecture)
   - [1. Echo Protocol: 오프라인에서도 ID를 생성하려면?](#1-echo-protocol-오프라인에서도-id를-생성하려면)
@@ -104,7 +105,7 @@ NOLINE은 네트워크가 없어도 여행 일정과 경비를 완벽하게 관�
 <br>
 <br>
 
-# 📂 Tech Stack
+# ⚙️ Tech Stack
 
 ### Frontend (React Native + Expo)
 
@@ -131,6 +132,55 @@ NOLINE은 네트워크가 없어도 여행 일정과 경비를 완벽하게 관�
 - **@repo/schema**: Zod 스키마 (Single Source of Truth)
 - **@repo/ui**: shadcn/ui 기반 컴포넌트 라이브러리
 - **pnpm workspaces**: 모노레포 관리
+
+<br>
+
+# 📁 Project Structure
+
+```
+noline/
+├── apps/
+│   ├── client/                         # React Native (Expo) 앱
+│   │   ├── app/                        # Expo Router 페이지 (파일 기반 라우팅)
+│   │   └── src/
+│   │       ├── entities/               # 도메인 엔티티 (FSD Architecture)
+│   │       │   ├── trip/               # 여행
+│   │       │   │   ├── api/            # 서버 API 호출
+│   │       │   │   ├── data/           # React Query hooks
+│   │       │   │   ├── lib/            # 로컬 DB 접근
+│   │       │   │   ├── model/          # 타입 정의
+│   │       │   │   ├── repository/     # Router 패턴 (Local/Remote 분기)
+│   │       │   │   └── ui/             # UI 컴포넌트
+│   │       │   ├── schedule/           # 일정 (동일 구조)
+│   │       │   └── expense/            # 경비 (동일 구조)
+│   │       ├── features/               # 기능 단위 모듈
+│   │       │   ├── trip/               # 여행 생성/수정
+│   │       │   ├── schedule/           # 일정 CRUD + 지도뷰
+│   │       │   └── expense/            # 경비 CRUD
+│   │       └── shared/                 # 공유 모듈
+│   │           ├── db/                 # SQLite + Drizzle 설정
+│   │           ├── services/
+│   │           │   ├── offline-prep/   # 🔥 Router (활성화 상태별 분기)
+│   │           │   ├── sync/           # sync_queue 관리
+│   │           │   └── offline-map/    # Mapbox 오프라인 지도
+│   │           ├── policy/             # Policy Layer (4-State Matrix)
+│   │           └── lib/                # 유틸리티 (datetime, currency)
+│   │
+│   └── server/                         # Express API 서버
+│       └── src/
+│           ├── routes/                 # API 엔드포인트
+│           ├── db/                     # PostgreSQL + Drizzle
+│           └── middleware/             # 인증, 에러 핸들링
+│
+└── packages/
+    ├── schema/                         # 🔥 공유 Zod 스키마 (Source of Truth)
+    │   └── src/
+    │       ├── entities/               # 도메인 모델 스키마
+    │       ├── requests/               # API 요청 스키마
+    │       ├── responses/              # API 응답 스키마
+    │       └── sync/                   # 동기화 관련 스키마
+    └── ui/                             # 공유 UI 컴포넌트
+```
 
 <br>
 <br>
