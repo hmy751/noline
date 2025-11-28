@@ -22,7 +22,7 @@ NOLINE은 네트워크가 없어도 여행 일정과 경비를 완벽하게 관�
 - [🎨 User Experience](#-user-experience)
   - [1. Graceful Degradation: 오프라인에서 일정 추가를 완전히 막아야 할까?](#1-graceful-degradation-오프라인에서-일정-추가를-완전히-막아야-할까)
   - [2. PolicyErrorDisplay: 기능 제한을 어떻게 안내할까?](#2-policyerrordisplay-기능-제한을-어떻게-안내할까)
-- [🛠️ Optimization](#-optimization)
+- [⚡ Optimization](#-optimization)
   - [1. 오프라인 경로 데이터 85% 압축](#1-오프라인-경로-데이터-85-압축)
   - [2. 오프라인 지도 선택적 다운로드](#2-오프라인-지도-선택적-다운로드)
 - [🔫 Trouble Shooting](#-trouble-shooting)
@@ -542,7 +542,7 @@ Policy Layer를 활용하여 **오프라인에서도 자연스러운 사용자 �
 <br>
 <br>
 
-# 🛠 Optimization
+# ⚡ Optimization
 
 ## 1. 오프라인 경로 데이터 85% 압축
 
