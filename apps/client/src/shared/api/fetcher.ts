@@ -1,5 +1,6 @@
 import axiosStatic, { type AxiosInstance, type AxiosResponse } from 'axios';
 import { EXPO_PUBLIC_API_URL } from '@env';
+import { setupAuthInterceptors } from '@/shared/services/auth';
 
 export const baseURL = EXPO_PUBLIC_API_URL;
 
@@ -56,6 +57,10 @@ const createAxiosInstance = (): AxiosInstance => {
     headers: { 'Content-Type': 'application/json' },
   });
 
+  // Auth 인터셉터 (Request: 토큰 추가, Response: 401 처리 + 토큰 갱신)
+  setupAuthInterceptors(instance);
+
+  // Response 데이터 추출 + 에러 핸들링
   instance.interceptors.response.use(handleResponse, handleError);
 
   return instance;

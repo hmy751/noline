@@ -49,3 +49,6 @@ export {
   type AppleAuthResult,
   type AppleAuthError,
 } from './apple-auth';
+
+// Auth Interceptor
+export { AuthRequiredError, setupAuthInterceptors, setupSyncAuthInterceptors } from './auth-interceptor';
