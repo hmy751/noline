@@ -12,6 +12,7 @@ export default {
   scheme: 'client',
   plugins: [
     'expo-router',
+    'expo-secure-store',
     [
       '@rnmapbox/maps/app.plugin.js',
       {
