@@ -1,7 +1,7 @@
-import type { AxiosInstance, InternalAxiosRequestConfig, AxiosError } from 'axios';
-import { getAccessToken, getRefreshToken, updateTokens, clearAuthData } from './token-storage';
-import { refreshTokens as refreshTokensApi } from './auth-api';
+import axios, { type AxiosInstance, type InternalAxiosRequestConfig, type AxiosError } from 'axios';
+import { getAccessToken, getRefreshToken, updateTokens } from './token-storage';
 import { authStore } from '@/shared/store/auth';
+import { EXPO_PUBLIC_API_URL } from '@env';
 
 // ========================================
 // Custom Error Classes
@@ -27,6 +27,27 @@ export class AuthRequiredError extends Error {
 let refreshPromise: Promise<boolean> | null = null;
 
 /**
+ * 토큰 갱신 API 호출 (순환 참조 방지를 위해 직접 axios 사용)
+ */
+async function refreshTokensDirectly(): Promise<{ accessToken: string; refreshToken: string }> {
+  const refreshToken = await getRefreshToken();
+
+  if (!refreshToken) {
+    throw new Error('Refresh Token이 없습니다');
+  }
+
+  const response = await axios.post(`${EXPO_PUBLIC_API_URL}/api/auth/refresh`, {
+    refreshToken,
+  });
+
+  if (!response.data.success) {
+    throw new Error(response.data.error?.message || '토큰 갱신 실패');
+  }
+
+  return response.data.data;
+}
+
+/**
  * 토큰 갱신 시도
  * - 동시 여러 요청에서 호출되어도 한 번만 실행
  * @returns 갱신 성공 여부
@@ -46,7 +67,7 @@ async function attemptTokenRefresh(): Promise<boolean> {
       }
 
       console.log('🔐 [Interceptor] Attempting token refresh...');
-      const newTokens = await refreshTokensApi();
+      const newTokens = await refreshTokensDirectly();
 
       // 새 토큰 저장
       await updateTokens({

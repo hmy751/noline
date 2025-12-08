@@ -1,6 +1,6 @@
 import axiosStatic, { type AxiosInstance, type AxiosResponse } from 'axios';
 import { EXPO_PUBLIC_API_URL } from '@env';
-import { setupAuthInterceptors } from '@/shared/services/auth';
+import { setupAuthInterceptors } from '@/shared/services/auth/auth-interceptor';
 
 export const baseURL = EXPO_PUBLIC_API_URL;
 
