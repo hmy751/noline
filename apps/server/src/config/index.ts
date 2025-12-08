@@ -36,7 +36,8 @@ const config = {
   jwt: {
     secret: process.env.JWT_SECRET,
     issuer: process.env.JWT_ISSUER || 'noline-api',
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+    accessTokenExpiresIn: '1h', // 1시간
+    refreshTokenExpiresIn: '30d', // 30일
   },
 
   db: {

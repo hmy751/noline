@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 
+import authRouter from './auth.js';
 import tripsRouter from './trips.js';
 import schedulesRouter from './schedules.js';
 import expensesRouter from './expenses.js';
@@ -26,6 +27,9 @@ router.get('/', (req: Request, res: Response) => {
     description: 'Travel expense tracking API',
   });
 });
+
+// Auth routes
+router.use('/auth', authRouter);
 
 // Trip routes
 router.use('/trips', tripsRouter);
