@@ -6,22 +6,30 @@ import { db, expenses, schedules } from '@/shared/db';
 import { eq, and, isNull, desc, sql } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
+import { authStore } from '@/shared/store/auth';
 import type { Expense, CreateExpenseRequest, UpdateExpenseRequest } from '../model';
 
 /**
- * 로컬 DB에서 전체 경비 조회
+ * 로컬 DB에서 현재 사용자의 전체 경비 조회
+ * - userId 필터링 적용 (계정별 데이터 분리)
  * - deletedAt이 null인 항목만 조회 (Soft Delete)
  * - createdAt 기준 내림차순 정렬
  */
 export const getAllExpensesLocal = async (): Promise<Expense[]> => {
+  const userId = authStore.userId;
+  if (!userId) {
+    console.log('📋 No authenticated user, returning empty expenses');
+    return [];
+  }
+
   const expenseList = await db
     .select()
     .from(expenses)
-    .where(isNull(expenses.deletedAt))
+    .where(and(isNull(expenses.deletedAt), eq(expenses.userId, userId)))
     .orderBy(desc(expenses.createdAt))
     .all();
 
-  console.log(`📋 All expenses loaded from local DB: ${expenseList.length} items`);
+  console.log(`📋 All expenses loaded from local DB: ${expenseList.length} items for user ${userId}`);
   return expenseList;
 };
 
@@ -83,7 +91,10 @@ export const getTripIdByScheduleIdLocal = async (scheduleId: string): Promise<st
 export const createExpenseLocal = async (data: CreateExpenseRequest): Promise<Expense> => {
   const id = data.id;
   const now = getCurrentISOString();
-  const userId = data.userId || '01HZQ8K9X7M2N3P4Q5R6S7T8V9';
+  const userId = data.userId || authStore.userId;
+  if (!userId) {
+    throw new Error('User not authenticated');
+  }
 
   const newExpense = {
     id,

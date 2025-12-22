@@ -3,20 +3,33 @@
 // ========================================
 
 import { db, trips } from '@/shared/db';
-import { eq, isNull, desc, sql } from 'drizzle-orm';
+import { eq, and, isNull, desc, sql } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
+import { authStore } from '@/shared/store/auth';
 import type { Trip, CreateTripRequest, UpdateTripRequest } from '../model';
 
 /**
- * 로컬 DB에서 모든 여행 조회
+ * 로컬 DB에서 현재 사용자의 여행 조회
+ * - userId 필터링 적용 (계정별 데이터 분리)
  * - deletedAt이 null인 항목만 조회 (Soft Delete)
  * - updatedAt 기준 내림차순 정렬
  */
 export const getTripsLocal = async (): Promise<Trip[]> => {
-  const tripList = await db.select().from(trips).where(isNull(trips.deletedAt)).orderBy(desc(trips.updatedAt)).all();
+  const userId = authStore.userId;
+  if (!userId) {
+    console.log('📋 No authenticated user, returning empty trips');
+    return [];
+  }
 
-  console.log(`📋 Trips loaded from local DB: ${tripList.length} items`);
+  const tripList = await db
+    .select()
+    .from(trips)
+    .where(and(isNull(trips.deletedAt), eq(trips.userId, userId)))
+    .orderBy(desc(trips.updatedAt))
+    .all();
+
+  console.log(`📋 Trips loaded from local DB: ${tripList.length} items for user ${userId}`);
   return tripList;
 };
 
@@ -34,7 +47,10 @@ export const getTripByIdLocal = async (id: string): Promise<Trip | undefined> =>
 export const createTripLocal = async (data: CreateTripRequest): Promise<Trip> => {
   const id = data.id;
   const now = getCurrentISOString();
-  const userId = data.userId || '01HZQ8K9X7M2N3P4Q5R6S7T8V9';
+  const userId = data.userId || authStore.userId;
+  if (!userId) {
+    throw new Error('User not authenticated');
+  }
 
   const newTrip = {
     id,
