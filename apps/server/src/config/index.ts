@@ -36,7 +36,8 @@ const config = {
   jwt: {
     secret: process.env.JWT_SECRET,
     issuer: process.env.JWT_ISSUER || 'noline-api',
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+    accessTokenExpiresIn: '1h', // 1시간
+    refreshTokenExpiresIn: '30d', // 30일
   },
 
   db: {
@@ -50,6 +51,11 @@ const config = {
   googleMaps: {
     placesApiKey: process.env.GOOGLE_PLACES_API_KEY,
     geoDirectionsApiKey: process.env.GOOGLE_GEO_DIRECTIONS_API_KEY,
+  },
+
+  googleOAuth: {
+    webClientId: process.env.GOOGLE_WEB_CLIENT_ID,
+    iosClientId: process.env.GOOGLE_IOS_CLIENT_ID,
   },
 } as const;
 

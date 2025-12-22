@@ -1,7 +1,8 @@
-import axiosStatic, { type AxiosInstance, type AxiosResponse } from 'axios';
-import { EXPO_PUBLIC_API_URL } from '@env';
+import axiosStatic, { type AxiosResponse } from 'axios';
+import { apiAxios, baseURL } from './axios-instances';
+import { setupAuthInterceptors } from '@/shared/services/auth/auth-interceptor';
 
-export const baseURL = EXPO_PUBLIC_API_URL;
+export { baseURL };
 
 /**
  * Custom Error class for API related errors.
@@ -49,18 +50,21 @@ const handleError = (error: unknown) => {
   throw new APIError('알 수 없는 에러가 발생했습니다', 0, 'UNKNOWN_ERROR', error);
 };
 
-const createAxiosInstance = (): AxiosInstance => {
-  const instance = axiosStatic.create({
-    baseURL,
-    timeout: 10000,
-    headers: { 'Content-Type': 'application/json' },
-  });
+/**
+ * apiAxios에 인터셉터 설정
+ * - Auth 인터셉터 (Request: 토큰 추가, Response: 401 처리 + 토큰 갱신)
+ * - Response 데이터 추출 + 에러 핸들링
+ */
+const setupApiClient = () => {
+  // Auth 인터셉터 (Request: 토큰 추가, Response: 401 처리 + 토큰 갱신)
+  setupAuthInterceptors(apiAxios);
 
-  instance.interceptors.response.use(handleResponse, handleError);
+  // Response 데이터 추출 + 에러 핸들링
+  apiAxios.interceptors.response.use(handleResponse, handleError);
 
-  return instance;
+  return apiAxios;
 };
 
-const apiClient = createAxiosInstance();
+const apiClient = setupApiClient();
 
 export default apiClient;

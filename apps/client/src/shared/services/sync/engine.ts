@@ -1,11 +1,12 @@
 import syncApiClient from './api';
-import { getPendingTasks, deleteTask, updateTaskStatus } from './queue';
+import { getPendingTasks, deleteTask, updateTaskStatus, retryFailedTask } from './queue';
 import { getLastSyncedAt, setLastSyncedAt } from './storage';
 import { upsertTrips, upsertSchedules, upsertExpenses } from '@/shared/db/utils';
 import { queryClient } from '@/shared/lib/queryClient';
 import { db, tripActivations } from '@/shared/db';
 import { eq } from 'drizzle-orm';
 import { processPendingCleanups } from './cleanup-job';
+import { AuthRequiredError } from '@/shared/services/auth';
 
 /**
  * Push 동기화 엔진
@@ -26,6 +27,9 @@ export async function pushChanges(): Promise<void> {
     }
 
     console.log(`📤 [Sync] Starting push: ${tasks.length} tasks`);
+
+    // 인증 에러 발생 여부 추적
+    let authErrorOccurred = false;
 
     // 2. 순차적으로 처리
     for (const task of tasks) {
@@ -66,16 +70,32 @@ export async function pushChanges(): Promise<void> {
 
         console.log(`✅ [Sync] Success: ${task.action} ${task.tableName}/${task.recordId}`);
       } catch (error) {
-        // 7. 실패 시 상태 업데이트
-        console.error(`❌ [Sync] Failed: ${task.action} ${task.tableName}/${task.recordId}`, error);
+        // 7. AuthRequiredError: PENDING 유지 + 루프 중단
+        if (error instanceof AuthRequiredError) {
+          console.warn(`🔐 [Sync] AuthRequiredError: ${task.tableName}/${task.recordId} - keeping PENDING`);
+          // 상태를 다시 PENDING으로 복구 (IN_PROGRESS → PENDING)
+          await retryFailedTask(task.id);
+          // 인증 에러 플래그 설정
+          authErrorOccurred = true;
+          // 인증 에러 시 나머지 작업도 실패할 것이므로 루프 중단
+          break;
+        }
 
+        // 8. 그 외 에러: FAILED로 변경
+        console.error(`❌ [Sync] Failed: ${task.action} ${task.tableName}/${task.recordId}`, error);
         await updateTaskStatus(task.id, 'FAILED', task.retryCount + 1);
       }
     }
 
+    // 인증 에러 발생 시 cleanup 건너뛰기
+    if (authErrorOccurred) {
+      console.log('⏭️ [Sync] Skipping cleanup due to auth error');
+      return;
+    }
+
     console.log(`✅ [Sync] Push completed`);
 
-    // 8. Push 완료 후 pending cleanup 처리
+    // 9. Push 완료 후 pending cleanup 처리
     try {
       console.log('🧹 [Sync] Checking for pending cleanups...');
       const processedCount = await processPendingCleanups();

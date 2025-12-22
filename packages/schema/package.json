@@ -24,6 +24,7 @@
       "responses/expense": ["./dist/responses/expense.d.ts"],
       "responses/user": ["./dist/responses/user.d.ts"],
       "responses/places": ["./dist/responses/places.d.ts"],
+      "responses/auth": ["./dist/responses/auth.d.ts"],
       "sync/sync-queue": ["./dist/sync/sync-queue.d.ts"],
       "sync/sync-status": ["./dist/sync/sync-status.d.ts"]
     }
@@ -103,6 +104,11 @@
       "types": "./dist/responses/places.d.ts",
       "import": "./dist/responses/places.mjs",
       "require": "./dist/responses/places.js"
+    },
+    "./responses/auth": {
+      "types": "./dist/responses/auth.d.ts",
+      "import": "./dist/responses/auth.mjs",
+      "require": "./dist/responses/auth.js"
     },
     "./sync/sync-queue": {
       "types": "./dist/sync/sync-queue.d.ts",

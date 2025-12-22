@@ -1,15 +1,19 @@
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, Alert } from 'react-native';
 import { Container, Stack, MobileHeader } from '@/shared/components';
 import { Avatar, AvatarFallback, Switch, Separator, Pressable } from '@repo/ui';
 import { useState } from 'react';
 import { User, Sun, Moon, Settings, Globe, Download, ChevronRight, Bug } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { useStorageStats } from '@/features/profile/hooks/useStorageStats';
+import { performLogout } from '@/shared/services/auth';
+import { useAuthStore } from '@/shared/store/auth';
 
 export default function ProfileScreen() {
   const [darkMode, setDarkMode] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { userId } = useAuthStore();
 
-  // TODO: Replace with real data
+  // TODO: Replace with real user data from server
   const user = {
     name: '여행자',
     email: 'traveler@example.com',
@@ -17,6 +21,48 @@ export default function ProfileScreen() {
   };
 
   const { stats } = useStorageStats();
+
+  // 로그아웃 처리
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+
+    try {
+      // 첫 번째 시도: 동기화 대기 데이터 체크
+      const result = await performLogout();
+
+      if (!result.success && result.hasPendingSync) {
+        // 동기화되지 않은 데이터가 있으면 확인 요청
+        Alert.alert('동기화 대기 중', result.message || '동기화되지 않은 데이터가 있습니다.', [
+          {
+            text: '취소',
+            style: 'cancel',
+          },
+          {
+            text: '계속 로그아웃',
+            style: 'destructive',
+            onPress: async () => {
+              // 강제 로그아웃
+              const forceResult = await performLogout({ force: true });
+              if (!forceResult.success) {
+                Alert.alert('오류', forceResult.message || '로그아웃에 실패했습니다.');
+              }
+              setIsLoggingOut(false);
+            },
+          },
+        ]);
+        return;
+      }
+
+      if (!result.success) {
+        Alert.alert('오류', result.message || '로그아웃에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('❌ [Profile] Logout error:', error);
+      Alert.alert('오류', '로그아웃 중 오류가 발생했습니다.');
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   const menuItems: Array<{
     icon: 'sun' | 'moon' | 'settings' | 'globe' | 'download' | 'bug';
@@ -133,13 +179,8 @@ export default function ProfileScreen() {
             </View>
 
             {/* Logout Button */}
-            <Pressable
-              variant='outline'
-              onPress={() => {
-                console.log('Logout pressed');
-              }}
-            >
-              로그아웃
+            <Pressable variant='outline' onPress={handleLogout} disabled={isLoggingOut}>
+              {isLoggingOut ? '로그아웃 중...' : '로그아웃'}
             </Pressable>
           </Stack>
         </Container>

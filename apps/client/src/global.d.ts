@@ -8,4 +8,7 @@ declare module '@env' {
   export const EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY: string;
   export const APP_VARIANT: string;
   export const EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN: string;
+  // Google OAuth
+  export const EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: string;
+  export const EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID: string;
 }

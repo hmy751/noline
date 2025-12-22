@@ -6,22 +6,19 @@ import { userEntity } from '../entities/user';
 // ========================================
 
 /**
- * 회원가입 응답
- * POST /api/users/register
+ * 사용자 정보 응답
+ * GET /api/users/:id
  */
-export const createUserResponse = z.object({
+export const getUserResponse = z.object({
   success: z.literal(true),
-  data: userEntity.omit({ password: true }), // password 제외
+  data: userEntity,
 });
 
 /**
- * 로그인 응답
- * POST /api/users/login
+ * 사용자 목록 응답
+ * GET /api/users
  */
-export const loginUserResponse = z.object({
+export const getUserListResponse = z.object({
   success: z.literal(true),
-  data: z.object({
-    user: userEntity.omit({ password: true }), // password 제외
-    token: z.string().optional(), // JWT token (Phase 2)
-  }),
+  data: z.array(userEntity),
 });

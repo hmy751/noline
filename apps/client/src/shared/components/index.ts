@@ -7,3 +7,4 @@ export * from './TimePicker';
 export * from './Map';
 export * from './PolicyBasedMapView';
 export * from './ErrorBoundary';
+export * from './SessionExpiredBanner';

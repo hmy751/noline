@@ -1,4 +1,4 @@
-import { pgTable, serial, integer, text, timestamp, varchar, decimal, pgEnum } from 'drizzle-orm/pg-core';
+import { pgTable, integer, text, timestamp, varchar, decimal, pgEnum, uniqueIndex } from 'drizzle-orm/pg-core';
 import { ulid } from 'ulid';
 
 // Enums
@@ -11,18 +11,49 @@ export const expenseCategoryEnum = pgEnum('expense_category', [
   'other',
 ]);
 
-// Users Table
-export const users = pgTable('users', {
+// Auth Provider Enum
+export const authProviderEnum = pgEnum('auth_provider', ['google', 'apple']);
+
+// Users Table (OAuth 기반)
+export const users = pgTable(
+  'users',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => ulid()),
+
+    // OAuth 필드
+    email: varchar('email', { length: 255 }).notNull(),
+    name: varchar('name', { length: 100 }).notNull(),
+    profileImageUrl: text('profile_image_url'),
+
+    // OAuth Provider 정보
+    provider: authProviderEnum('provider').notNull(),
+    providerId: text('provider_id').notNull(),
+
+    // ✅ TIMESTAMPTZ: ISO 8601 with timezone 지원
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => ({
+    // provider + providerId 복합 unique (같은 OAuth 계정 중복 방지)
+    providerProviderIdIdx: uniqueIndex('users_provider_provider_id_idx').on(table.provider, table.providerId),
+  }),
+);
+
+// Refresh Tokens Table
+export const refreshTokens = pgTable('refresh_tokens', {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => ulid()),
-  email: varchar('email', { length: 255 }).notNull().unique(),
-  password: text('password').notNull(),
-  name: varchar('name', { length: 100 }).notNull(),
-  profileImageUrl: text('profile_image_url'),
-  // ✅ TIMESTAMPTZ: ISO 8601 with timezone 지원
+  userId: text('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  token: text('token').notNull().unique(), // hashed refresh token
+  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  // 기기 정보 (선택적)
+  deviceInfo: text('device_info'),
 });
 
 // Trips Table
@@ -107,6 +138,9 @@ export const expenses = pgTable('expenses', {
 // Types
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+
+export type RefreshToken = typeof refreshTokens.$inferSelect;
+export type NewRefreshToken = typeof refreshTokens.$inferInsert;
 
 export type Trip = typeof trips.$inferSelect;
 export type NewTrip = typeof trips.$inferInsert;

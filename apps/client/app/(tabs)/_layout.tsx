@@ -1,8 +1,21 @@
 /* eslint-disable react/no-unstable-nested-components */
-import { Tabs } from 'expo-router';
+import { Tabs, Redirect } from 'expo-router';
 import { Home, Calendar, Wallet, User } from 'lucide-react-native';
+import { useAuthStore } from '@/shared/store/auth';
 
 export default function TabsLayout() {
+  const { isAuthenticated, isInitialized } = useAuthStore();
+
+  // 초기화 전이면 대기 (Splash 화면 유지)
+  if (!isInitialized) {
+    return null;
+  }
+
+  // 비인증이면 로그인 화면으로 리다이렉트
+  if (!isAuthenticated) {
+    return <Redirect href='/(auth)/login' />;
+  }
+
   return (
     <Tabs
       screenOptions={{

@@ -5,11 +5,12 @@ import { eq, and, isNull, sql } from 'drizzle-orm';
 import { createExpenseRequest, updateExpenseRequest } from '@repo/schema/requests/expense';
 import { expenseEntity } from '@repo/schema/entities/expense';
 import { expenseListResponse, expenseResponse } from '@repo/schema/responses/expense';
+import { requireAuth } from '../middleware/auth.js';
 
 const router = Router();
 
 // GET /api/expenses - 경비 조회 (Query Parameter 방식)
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', requireAuth, async (req: Request, res: Response) => {
   try {
     const { tripId, scheduleId } = req.query;
 
@@ -83,7 +84,7 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 // POST /api/expenses - 경비 생성
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', requireAuth, async (req: Request, res: Response) => {
   try {
     // Zod로 요청 데이터 검증
     const validationResult = createExpenseRequest.safeParse(req.body);
@@ -96,7 +97,7 @@ router.post('/', async (req: Request, res: Response) => {
       });
     }
 
-    const { id, userId, tripId, scheduleId, title, amount, currency, category, date, hasReceipt, receiptUrl } =
+    const { id, tripId, scheduleId, title, amount, currency, category, date, hasReceipt, receiptUrl } =
       validationResult.data;
 
     // 경비 생성 (클라이언트가 생성한 ID 사용)
@@ -104,7 +105,7 @@ router.post('/', async (req: Request, res: Response) => {
       .insert(expenses)
       .values({
         id, // ✨ 클라이언트가 생성한 ULID
-        userId: userId || null,
+        userId: req.userId!, // 인증된 사용자 ID 사용
         tripId,
         scheduleId: scheduleId || null,
         title,
@@ -156,7 +157,7 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // GET /api/expenses/:id - 특정 경비 조회
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', requireAuth, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -222,7 +223,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 });
 
 // PUT /api/expenses/:id - 경비 수정
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', requireAuth, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -303,7 +304,7 @@ router.put('/:id', async (req: Request, res: Response) => {
 });
 
 // DELETE /api/expenses/:id - 경비 삭제 (Soft Delete)
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 

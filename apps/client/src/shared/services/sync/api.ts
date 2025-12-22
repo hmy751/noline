@@ -1,5 +1,7 @@
 import axios, { type AxiosInstance, type AxiosError } from 'axios';
 import { EXPO_PUBLIC_API_URL } from '@env';
+import { getAccessToken, AuthRequiredError } from '@/shared/services/auth';
+import { authStore } from '@/shared/store/auth';
 
 /**
  * 동기화 전용 Axios 클라이언트
@@ -21,15 +23,14 @@ const syncApiClient: AxiosInstance = axios.create({
 
 /**
  * Request Interceptor
- * - 인증 토큰 자동 추가 (향후 구현)
+ * - 인증 토큰 자동 추가
  */
 syncApiClient.interceptors.request.use(
-  (config) => {
-    // TODO: 인증 구현 시 토큰 추가
-    // const token = getAuthToken();
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
+  async (config) => {
+    const token = await getAccessToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
 
     console.log(`🔄 [Sync API] ${config.method?.toUpperCase()} ${config.url}`);
 
@@ -54,6 +55,13 @@ syncApiClient.interceptors.response.use(
   async (error: AxiosError) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const originalRequest = error.config as any;
+
+    // 401 인증 에러 → AuthRequiredError로 변환 (sync engine에서 PENDING 유지)
+    if (error.response?.status === 401) {
+      console.warn('🔐 [Sync API] 401 Unauthorized, throwing AuthRequiredError');
+      authStore.setSessionExpired(true);
+      return Promise.reject(new AuthRequiredError('동기화 인증 실패'));
+    }
 
     // 재시도 가능 여부 판단
     const shouldRetry = error.response?.status && error.response.status >= 500 && error.response.status < 600; // 5xx 에러만 재시도

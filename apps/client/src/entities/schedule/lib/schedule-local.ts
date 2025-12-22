@@ -6,6 +6,7 @@ import { db, schedules } from '@/shared/db';
 import { eq, and, isNull, sql } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
+import { authStore } from '@/shared/store/auth';
 import type { Schedule, CreateScheduleRequest, UpdateScheduleRequest } from '../model';
 
 /**
@@ -62,7 +63,10 @@ export const getScheduleCountLocal = async (tripId: string): Promise<number> => 
 export const createScheduleLocal = async (data: CreateScheduleRequest): Promise<Schedule> => {
   const { id, ...rest } = data;
   const now = getCurrentISOString();
-  const userId = rest.userId || '01HZQ8K9X7M2N3P4Q5R6S7T8V9';
+  const userId = rest.userId || authStore.userId;
+  if (!userId) {
+    throw new Error('User not authenticated');
+  }
 
   const newSchedule = {
     id,

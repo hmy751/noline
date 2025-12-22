@@ -12,6 +12,58 @@
 
 ---
 
+## 2025-12
+
+### 2025-12-23
+
+**[Feature]** 🟡 Google/Apple OAuth 인증 시스템 구현
+
+> **브랜치**: `feature/google-auth`
+> **변경**: 38개 파일 (+5,179 / -4,282)
+
+**핵심 변경사항**:
+
+1. **Schema Layer**
+   - `auth.ts` 응답 스키마 추가 (loginResponse, refreshTokenResponse, getCurrentUserResponse)
+
+2. **Server Layer**
+   - Google/Apple OAuth 라우트 구현 (`routes/auth.ts`)
+   - JWT 서비스 (`services/jwt.ts`)
+   - `requireAuth` 미들웨어 적용 (모든 보호된 라우트)
+
+3. **Client Layer - Auth 서비스**
+   - `google-auth.ts`, `apple-auth.ts`: OAuth 로그인 처리
+   - `auth-api.ts`: 서버 API 호출
+   - `token-storage.ts`: SecureStore 토큰 관리
+   - `auth-interceptor.ts`: 401 처리 + 토큰 갱신
+   - `logout-service.ts`: 로그아웃 처리
+
+4. **Client Layer - 상태 관리**
+   - `authStore`: Zustand 기반 인증 상태
+   - `SessionExpiredBanner`: 세션 만료 UI
+
+5. **Client Layer - userId 필터링**
+   - `trip-local.ts`, `schedule-local.ts`, `expense-local.ts`
+   - 로컬 데이터 계정별 분리
+
+6. **아키텍처 결정**
+   - Axios Instance Factory 패턴 (순환 참조 해결)
+   - `authAxios` (인터셉터 없음) vs `apiAxios` (인터셉터 있음)
+   - Decision: [2025-12-23-auth-axios-factory.md](./decisions/2025-12-23-auth-axios-factory.md)
+
+**신규 파일**:
+
+- `apps/client/src/shared/api/axios-instances.ts`
+- `apps/client/src/shared/services/auth/*.ts` (6개 파일)
+- `apps/client/src/shared/store/auth.ts`
+- `apps/client/src/screens/LoginScreen.tsx`
+- `apps/server/src/routes/auth.ts`
+- `apps/server/src/services/jwt.ts`
+- `apps/server/src/middleware/auth.ts`
+- `packages/schema/src/responses/auth.ts`
+
+---
+
 ## 2025-11
 
 ### 2025-11-27
