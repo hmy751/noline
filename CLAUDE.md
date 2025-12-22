@@ -1110,6 +1110,51 @@ Sync Engine (백그라운드)
 - [Feature Guide](./.claude/features/activation-system.md)
 - [selective-activation-architecture.md](./.claude/core/selective-activation-architecture.md)
 
+### Google/Apple OAuth 인증 시스템
+
+**상태**: 핵심 구현 완료 (2025-12-23, 12개 커밋)
+
+**목적**: 사용자 인증 및 계정별 데이터 분리
+
+**핵심 철학**:
+
+> "인증 = 데이터 소유권, 토큰 = 서버 동기화 권한"
+
+**주요 특징**:
+
+- **Google/Apple OAuth**: 소셜 로그인으로 간편 인증
+- **JWT 토큰**: Access Token (15분) + Refresh Token (7일, Rolling)
+- **순환 참조 해결**: Axios Instance Factory 패턴
+- **userId 필터링**: 로컬 데이터 계정별 분리
+- **세션 만료 처리**: SessionExpiredBanner + 토큰 자동 갱신
+
+**아키텍처**:
+
+```text
+LoginScreen → OAuth Provider → Server Auth → JWT 발급
+                                    ↓
+                            Client Token Storage
+                                    ↓
+                            Auth Interceptor (자동 갱신)
+                                    ↓
+                            API 요청 + userId 필터링
+```
+
+**완료된 작업**:
+
+- ✅ Google OAuth 로그인
+- ✅ Apple OAuth 로그인
+- ✅ JWT 토큰 발급/갱신/검증
+- ✅ Auth Interceptor (401 처리, 토큰 갱신)
+- ✅ Axios Instance Factory (순환 참조 해결)
+- ✅ userId 기반 로컬 데이터 필터링
+- ✅ SessionExpiredBanner
+- ✅ requireAuth 미들웨어
+
+**관련 문서**:
+
+- [Decision: Auth Axios Factory](./.claude/decisions/2025-12-23-auth-axios-factory.md)
+
 ---
 
 ## 🚧 작업 예정 (Planned Features)
