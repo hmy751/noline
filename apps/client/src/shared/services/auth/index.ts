@@ -52,3 +52,6 @@ export {
 
 // Auth Interceptor
 export { AuthRequiredError, setupAuthInterceptors, setupSyncAuthInterceptors } from './auth-interceptor';
+
+// Logout Service
+export { performLogout, forceLogout, checkPendingSync, type LogoutOptions, type LogoutResult } from './logout-service';

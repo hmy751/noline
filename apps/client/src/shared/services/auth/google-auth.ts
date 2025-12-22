@@ -1,6 +1,6 @@
 import * as Google from 'expo-auth-session/providers/google';
+import * as AuthSession from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
-import { Platform } from 'react-native';
 import { EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID, EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID } from '@env';
 
 // OAuth 세션 완료 처리 (필수)
@@ -41,16 +41,17 @@ export function isGoogleAuthConfigured(): boolean {
 /**
  * Google 로그인 훅
  * - Expo AuthSession 사용
+ * - Authorization Code를 ID Token으로 교환
  * - ID Token 반환 (서버에서 검증)
  */
 export function useGoogleAuth(): {
   signIn: () => Promise<GoogleAuthResponse>;
   isLoading: boolean;
 } {
-  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+  const [request, response, promptAsync] = Google.useAuthRequest({
     webClientId: EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
     iosClientId: EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
-    // androidClientId는 필요시 추가
+    scopes: ['openid', 'profile', 'email'],
   });
 
   const signIn = async (): Promise<GoogleAuthResponse> => {
@@ -66,20 +67,62 @@ export function useGoogleAuth(): {
     try {
       const result = await promptAsync();
 
-      if (result.type === 'success') {
-        const idToken = result.params.id_token;
+      console.log('🔐 [Google Auth] Result type:', result.type);
 
-        if (!idToken) {
+      if (result.type === 'success') {
+        // 1. 먼저 authentication 객체에서 idToken 확인 (일부 경우 자동 교환됨)
+        if (result.authentication?.idToken) {
+          console.log('🔐 [Google Auth] ID Token from authentication object');
           return {
-            success: false,
-            error: 'FAILED',
-            message: 'ID Token을 받지 못했습니다',
+            success: true,
+            idToken: result.authentication.idToken,
           };
         }
 
+        // 2. Authorization Code가 있으면 수동으로 토큰 교환
+        const code = result.params?.code;
+        if (code && request?.codeVerifier) {
+          console.log('🔐 [Google Auth] Exchanging authorization code for tokens...');
+
+          try {
+            const tokenResult = await AuthSession.exchangeCodeAsync(
+              {
+                clientId: EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID || EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+                code,
+                redirectUri: request.redirectUri,
+                extraParams: {
+                  code_verifier: request.codeVerifier,
+                },
+              },
+              {
+                tokenEndpoint: 'https://oauth2.googleapis.com/token',
+              },
+            );
+
+            console.log('🔐 [Google Auth] Token exchange successful:', !!tokenResult.idToken);
+
+            if (tokenResult.idToken) {
+              return {
+                success: true,
+                idToken: tokenResult.idToken,
+              };
+            }
+          } catch (exchangeError) {
+            console.error('🔐 [Google Auth] Token exchange failed:', exchangeError);
+            return {
+              success: false,
+              error: 'FAILED',
+              message: '토큰 교환에 실패했습니다',
+            };
+          }
+        }
+
+        // ID Token을 얻지 못함
+        console.error('🔐 [Google Auth] No ID Token available');
         return {
-          success: true,
-          idToken,
+          success: false,
+          error: 'FAILED',
+          message: 'ID Token을 받지 못했습니다',
         };
       }
 

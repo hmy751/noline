@@ -1,44 +1,15 @@
-import apiClient from '@/shared/api/fetcher';
-import { getRefreshToken } from './token-storage';
+import { authAxios } from '@/shared/api/axios-instances';
+import { loginResponse, refreshTokenResponse, getCurrentUserResponse } from '@repo/schema/responses/auth';
+import { z } from 'zod';
+import { getAccessToken, getRefreshToken } from './token-storage';
 
 // ========================================
-// Types
+// Types (Zod 스키마에서 추출)
 // ========================================
 
-/**
- * 로그인 응답 타입
- */
-export interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    profileImageUrl: string | null;
-    provider: 'google' | 'apple';
-  };
-}
-
-/**
- * 토큰 갱신 응답 타입
- */
-export interface RefreshResponse {
-  accessToken: string;
-  refreshToken: string;
-}
-
-/**
- * 사용자 정보 응답 타입
- */
-export interface UserResponse {
-  id: string;
-  email: string;
-  name: string;
-  profileImageUrl: string | null;
-  provider: 'google' | 'apple';
-  createdAt: string;
-}
+export type AuthResponse = z.infer<typeof loginResponse>['data'];
+export type RefreshResponse = z.infer<typeof refreshTokenResponse>['data'];
+export type UserResponse = z.infer<typeof getCurrentUserResponse>['data'];
 
 // ========================================
 // Google Login
@@ -50,16 +21,18 @@ export interface UserResponse {
  * @param deviceInfo - 디바이스 정보 (선택)
  */
 export async function loginWithGoogle(idToken: string, deviceInfo?: string): Promise<AuthResponse> {
-  const response = await apiClient.post('/api/auth/google', {
-    idToken,
-    deviceInfo,
-  });
+  try {
+    const response = await authAxios.post('/api/auth/google', {
+      idToken,
+      deviceInfo,
+    });
 
-  if (!response.success) {
-    throw new Error(response.error?.message || 'Google 로그인 실패');
+    const validated = loginResponse.parse(response.data);
+    return validated.data;
+  } catch (error) {
+    console.error('❌ [Auth API] Google login error:', error);
+    throw error;
   }
-
-  return response.data;
 }
 
 // ========================================
@@ -72,25 +45,28 @@ export async function loginWithGoogle(idToken: string, deviceInfo?: string): Pro
  * @param user - Apple 사용자 정보 (첫 로그인 시에만 제공)
  * @param deviceInfo - 디바이스 정보 (선택)
  */
-export async function loginWithApple(
-  identityToken: string,
-  user?: {
-    email?: string;
-    name?: { firstName?: string; lastName?: string };
-  },
-  deviceInfo?: string,
-): Promise<AuthResponse> {
-  const response = await apiClient.post('/api/auth/apple', {
-    identityToken,
-    user,
-    deviceInfo,
-  });
+export async function loginWithApple(data: {
+  identityToken: string;
+  user?: string;
+  email?: string;
+  fullName?: { firstName?: string; lastName?: string };
+  deviceInfo?: string;
+}): Promise<AuthResponse> {
+  try {
+    const response = await authAxios.post('/api/auth/apple', {
+      identityToken: data.identityToken,
+      user: data.user,
+      email: data.email,
+      fullName: data.fullName,
+      deviceInfo: data.deviceInfo,
+    });
 
-  if (!response.success) {
-    throw new Error(response.error?.message || 'Apple 로그인 실패');
+    const validated = loginResponse.parse(response.data);
+    return validated.data;
+  } catch (error) {
+    console.error('❌ [Auth API] Apple login error:', error);
+    throw error;
   }
-
-  return response.data;
 }
 
 // ========================================
@@ -108,16 +84,18 @@ export async function refreshTokens(deviceInfo?: string): Promise<RefreshRespons
     throw new Error('Refresh Token이 없습니다');
   }
 
-  const response = await apiClient.post('/api/auth/refresh', {
-    refreshToken,
-    deviceInfo,
-  });
+  try {
+    const response = await authAxios.post('/api/auth/refresh', {
+      refreshToken,
+      deviceInfo,
+    });
 
-  if (!response.success) {
-    throw new Error(response.error?.message || '토큰 갱신 실패');
+    const validated = refreshTokenResponse.parse(response.data);
+    return validated.data;
+  } catch (error) {
+    console.error('❌ [Auth API] Token refresh error:', error);
+    throw error;
   }
-
-  return response.data;
 }
 
 // ========================================
@@ -133,7 +111,7 @@ export async function logout(): Promise<void> {
   // 토큰이 없어도 로컬 로그아웃은 진행
   if (refreshToken) {
     try {
-      await apiClient.post('/api/auth/logout', { refreshToken });
+      await authAxios.post('/api/auth/logout', { refreshToken });
     } catch (error) {
       // 서버 로그아웃 실패해도 로컬 로그아웃은 진행
       console.warn('서버 로그아웃 실패:', error);
@@ -147,16 +125,21 @@ export async function logout(): Promise<void> {
 
 /**
  * 현재 로그인된 사용자 정보 조회
- * - Authorization 헤더 필요 (interceptor에서 추가)
+ * - Authorization 헤더를 수동으로 추가 (순환 참조 방지)
  */
 export async function getCurrentUser(): Promise<UserResponse> {
-  const response = await apiClient.get('/api/auth/me');
+  try {
+    const accessToken = await getAccessToken();
+    const response = await authAxios.get('/api/auth/me', {
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+    });
 
-  if (!response.success) {
-    throw new Error(response.error?.message || '사용자 정보 조회 실패');
+    const validated = getCurrentUserResponse.parse(response.data);
+    return validated.data;
+  } catch (error) {
+    console.error('❌ [Auth API] Get current user error:', error);
+    throw error;
   }
-
-  return response.data;
 }
 
 // ========================================
@@ -165,12 +148,16 @@ export async function getCurrentUser(): Promise<UserResponse> {
 
 /**
  * 회원 탈퇴
- * - Authorization 헤더 필요 (interceptor에서 추가)
+ * - Authorization 헤더를 수동으로 추가 (순환 참조 방지)
  */
 export async function deleteAccount(): Promise<void> {
-  const response = await apiClient.delete('/api/auth/account');
-
-  if (!response.success) {
-    throw new Error(response.error?.message || '회원 탈퇴 실패');
+  try {
+    const accessToken = await getAccessToken();
+    await authAxios.delete('/api/auth/account', {
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
+    });
+  } catch (error) {
+    console.error('❌ [Auth API] Delete account error:', error);
+    throw error;
   }
 }

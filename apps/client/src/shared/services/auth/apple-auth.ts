@@ -30,16 +30,12 @@ export type AppleAuthResponse = AppleAuthResult | AppleAuthError;
 // ========================================
 
 /**
- * Apple 로그인 가능 여부 확인
- * - iOS 13+ 에서만 사용 가능
+ * Apple 로그인 가능 여부 확인 (동기)
+ * - iOS에서만 사용 가능
  * - Android/Web에서는 사용 불가
  */
-export async function isAppleAuthAvailable(): Promise<boolean> {
-  if (Platform.OS !== 'ios') {
-    return false;
-  }
-
-  return await AppleAuthentication.isAvailableAsync();
+export function isAppleAuthAvailable(): boolean {
+  return Platform.OS === 'ios';
 }
 
 // ========================================
@@ -53,7 +49,7 @@ export async function isAppleAuthAvailable(): Promise<boolean> {
  */
 export async function signInWithApple(): Promise<AppleAuthResponse> {
   // 가용성 확인
-  const isAvailable = await isAppleAuthAvailable();
+  const isAvailable = isAppleAuthAvailable();
   if (!isAvailable) {
     return {
       success: false,
