@@ -7,14 +7,14 @@ import { tripEntity } from '@repo/schema/entities/trip';
 import { tripResponse, tripListResponse } from '@repo/schema/responses/trip';
 import { scheduleEntity } from '@repo/schema/entities/schedule';
 import { scheduleListResponse } from '@repo/schema/responses/schedule';
+import { requireAuth } from '../middleware/auth.js';
 
 const router = Router();
 
 // GET /api/trips - 전체 여행 조회
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', requireAuth, async (req: Request, res: Response) => {
   try {
-    // TODO: 실제 인증 구현 후 userId 사용
-    const userId = '01HZQ8K9X7M2N3P4Q5R6S7T8V9'; // 테스트용 ULID
+    const userId = req.userId!;
 
     // 모든 여행 조회
     const allTrips = await db
@@ -95,7 +95,7 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 // POST /api/trips - 여행 생성
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', requireAuth, async (req: Request, res: Response) => {
   try {
     // Zod로 요청 데이터 검증
     const validationResult = createTripRequest.safeParse(req.body);
@@ -134,7 +134,7 @@ router.post('/', async (req: Request, res: Response) => {
       .insert(trips)
       .values({
         id: id,
-        userId: userId || '01HZQ8K9X7M2N3P4Q5R6S7T8V9', // 테스트용 ULID
+        userId: req.userId!, // 인증된 사용자 ID 사용
         name,
         destination,
         country: country || null,
@@ -199,10 +199,10 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // PUT /api/trips/:id - 여행 수정
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', requireAuth, async (req: Request, res: Response) => {
   try {
     const tripId = req.params.id;
-    const userId = '01HZQ8K9X7M2N3P4Q5R6S7T8V9'; // 테스트용 ULID
+    const userId = req.userId!;
 
     const validationResult = updateTripRequest.safeParse(req.body);
 
@@ -324,10 +324,10 @@ router.put('/:id', async (req: Request, res: Response) => {
 });
 
 // DELETE /api/trips/:id - 여행 삭제
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
   try {
     const tripId = req.params.id; // ULID는 문자열
-    const userId = '01HZQ8K9X7M2N3P4Q5R6S7T8V9'; // 테스트용 ULID
+    const userId = req.userId!;
 
     // 여행 존재 여부 및 소유권 확인
     const [existingTrip] = await db
@@ -382,7 +382,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
 });
 
 // GET /api/trips/:tripId/schedules - 여행의 일정 목록 조회
-router.get('/:tripId/schedules', async (req: Request, res: Response) => {
+router.get('/:tripId/schedules', requireAuth, async (req: Request, res: Response) => {
   try {
     const { tripId } = req.params;
 
@@ -444,10 +444,10 @@ router.get('/:tripId/schedules', async (req: Request, res: Response) => {
 });
 
 // POST /api/trips/:id/activate - 여행 활성화 (Pull 동기화)
-router.post('/:id/activate', async (req: Request, res: Response) => {
+router.post('/:id/activate', requireAuth, async (req: Request, res: Response) => {
   try {
     const tripId = req.params.id;
-    const userId = '01HZQ8K9X7M2N3P4Q5R6S7T8V9'; // 테스트용 ULID
+    const userId = req.userId!;
 
     // 여행 존재 여부 및 소유권 확인
     const [trip] = await db
@@ -560,10 +560,10 @@ router.post('/:id/activate', async (req: Request, res: Response) => {
 });
 
 // POST /api/trips/:id/deactivate - 여행 비활성화
-router.post('/:id/deactivate', async (req: Request, res: Response) => {
+router.post('/:id/deactivate', requireAuth, async (req: Request, res: Response) => {
   try {
     const tripId = req.params.id;
-    const userId = '01HZQ8K9X7M2N3P4Q5R6S7T8V9'; // 테스트용 ULID
+    const userId = req.userId!;
 
     // 여행 존재 여부 및 소유권 확인
     const [trip] = await db

@@ -5,11 +5,12 @@ import { eq, and, sql, isNull } from 'drizzle-orm';
 import { createScheduleRequest, updateScheduleRequest } from '@repo/schema/requests/schedule';
 import { scheduleResponse, scheduleListResponse } from '@repo/schema/responses/schedule';
 import { scheduleEntity } from '@repo/schema/entities/schedule';
+import { requireAuth } from '../middleware/auth.js';
 
 const router = Router();
 
 // POST /api/schedules - 일정 생성
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', requireAuth, async (req: Request, res: Response) => {
   try {
     // Zod로 요청 데이터 검증
     const validationResult = createScheduleRequest.safeParse(req.body);
@@ -22,14 +23,14 @@ router.post('/', async (req: Request, res: Response) => {
       });
     }
 
-    const { id, userId, tripId, title, location, address, scheduledAt, latitude, longitude } = validationResult.data;
+    const { id, tripId, title, location, address, scheduledAt, latitude, longitude } = validationResult.data;
 
     // 일정 생성 (Echo 아키텍처: 클라이언트가 생성한 ID 사용)
     const [newSchedule] = await db
       .insert(schedules)
       .values({
         id, // ✅ 클라이언트가 생성한 ID 사용
-        userId: userId || '01HZQ8K9X7M2N3P4Q5R6S7T8V9', // TODO: 실제 인증 구현 후 userId 사용
+        userId: req.userId!, // 인증된 사용자 ID 사용
         tripId,
         title,
         location,
@@ -78,7 +79,7 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // GET /api/schedules - 전체 일정 조회
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', requireAuth, async (req: Request, res: Response) => {
   try {
     const { tripId } = req.query;
 
@@ -142,7 +143,7 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 // GET /api/schedules/:id - 특정 일정 조회
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', requireAuth, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -207,10 +208,10 @@ router.get('/:id', async (req: Request, res: Response) => {
 });
 
 // PUT /api/schedules/:id - 일정 수정
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', requireAuth, async (req: Request, res: Response) => {
   try {
     const scheduleId = req.params.id;
-    const userId = '01HZQ8K9X7M2N3P4Q5R6S7T8V9'; // TODO: 실제 인증 구현 후 userId 사용
+    const userId = req.userId!;
 
     // Zod 검증
     const validationResult = updateScheduleRequest.safeParse(req.body);
@@ -308,10 +309,10 @@ router.put('/:id', async (req: Request, res: Response) => {
 });
 
 // DELETE /api/schedules/:id - 일정 삭제 (Soft Delete)
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
   try {
     const scheduleId = req.params.id;
-    const userId = '01HZQ8K9X7M2N3P4Q5R6S7T8V9'; // TODO: 실제 인증 구현 후 userId 사용
+    const userId = req.userId!;
 
     // 일정 존재 여부 확인
     const [existingSchedule] = await db
