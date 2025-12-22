@@ -52,6 +52,11 @@ const config = {
     placesApiKey: process.env.GOOGLE_PLACES_API_KEY,
     geoDirectionsApiKey: process.env.GOOGLE_GEO_DIRECTIONS_API_KEY,
   },
+
+  googleOAuth: {
+    webClientId: process.env.GOOGLE_WEB_CLIENT_ID,
+    iosClientId: process.env.GOOGLE_IOS_CLIENT_ID,
+  },
 } as const;
 
 // Validate required environment variables

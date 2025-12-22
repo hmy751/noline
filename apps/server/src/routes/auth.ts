@@ -130,10 +130,14 @@ router.post('/google', async (req: Request, res: Response) => {
     // Google ID Token 검증
     let googleUser: GoogleUserInfo;
     try {
+      // 허용된 Client ID 목록 (Web + iOS)
+      const allowedAudiences = [config.googleOAuth.webClientId, config.googleOAuth.iosClientId].filter(
+        Boolean,
+      ) as string[];
+
       const ticket = await googleClient.verifyIdToken({
         idToken,
-        // audience는 Google Cloud Console에서 설정한 Client ID
-        // 실제 배포 시 환경변수로 설정 필요
+        audience: allowedAudiences,
       });
 
       const payload = ticket.getPayload();
@@ -147,6 +151,8 @@ router.post('/google', async (req: Request, res: Response) => {
         name: payload.name || payload.email.split('@')[0],
         picture: payload.picture,
       };
+
+      console.log('✅ Google token verified for user:', googleUser.email);
     } catch (error) {
       console.error('Google token verification failed:', error);
       return res.status(401).json({
@@ -156,6 +162,7 @@ router.post('/google', async (req: Request, res: Response) => {
     }
 
     // 사용자 찾기 또는 생성
+    console.log('🔐 [Google Auth] Finding or creating user...');
     const user = await findOrCreateUser(
       'google',
       googleUser.sub,
@@ -163,13 +170,19 @@ router.post('/google', async (req: Request, res: Response) => {
       googleUser.name,
       googleUser.picture,
     );
+    console.log('🔐 [Google Auth] User found/created:', user.id);
 
     // JWT 토큰 발급
+    console.log('🔐 [Google Auth] Generating tokens...');
     const tokens = generateTokens(user.id);
+    console.log('🔐 [Google Auth] Tokens generated');
 
     // Refresh Token DB 저장
+    console.log('🔐 [Google Auth] Saving refresh token...');
     await saveRefreshToken(user.id, tokens.refreshToken, deviceInfo);
+    console.log('🔐 [Google Auth] Refresh token saved');
 
+    console.log('🔐 [Google Auth] Login successful for:', googleUser.email);
     res.status(200).json({
       success: true,
       data: {
@@ -185,7 +198,7 @@ router.post('/google', async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Google login error:', error);
+    console.error('❌ Google login error:', error);
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: '로그인 처리 중 오류가 발생했습니다' },
