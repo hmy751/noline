@@ -37,10 +37,10 @@ export async function getDirections({
   to: Coordinate;
   profile?: MapboxProfile;
 }): Promise<DirectionsResponse> {
-  const accessToken = process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN;
+  const accessToken = process.env.EXPO_PUBLIC_MAPBOX_PUBLIC_ACCESS_TOKEN;
 
   if (!accessToken) {
-    throw new Error('❌ EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN not found');
+    throw new Error('❌ EXPO_PUBLIC_MAPBOX_PUBLIC_ACCESS_TOKEN not found');
   }
 
   // Mapbox Directions API URL

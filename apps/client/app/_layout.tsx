@@ -23,7 +23,7 @@ import { SessionExpiredBanner } from '@/shared/components';
 SplashScreen.preventAutoHideAsync();
 
 // Mapbox 접근 토큰 설정 (런타임 초기화)
-MapboxGL.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN!);
+MapboxGL.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_PUBLIC_ACCESS_TOKEN!);
 
 /**
  * 인증된 상태에서만 실행되는 컴포넌트들

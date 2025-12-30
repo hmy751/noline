@@ -1,0 +1,46 @@
+{
+  "cli": {
+    "version": ">= 5.0.0",
+    "appVersionSource": "local"
+  },
+  "build": {
+    "base": {
+      "node": "20.18.1",
+      "pnpm": "9.6.0",
+      "ios": {
+        "image": "latest"
+      }
+    },
+    "development": {
+      "extends": "base",
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "simulator": false
+      },
+      "env": {
+        "APP_VARIANT": "development"
+      }
+    },
+    "preview": {
+      "extends": "base",
+      "distribution": "internal",
+      "ios": {
+        "simulator": false
+      },
+      "env": {
+        "APP_VARIANT": "development"
+      }
+    },
+    "production": {
+      "extends": "base",
+      "distribution": "store",
+      "ios": {
+        "simulator": false
+      },
+      "env": {
+        "APP_VARIANT": "production"
+      }
+    }
+  }
+}

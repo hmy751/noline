@@ -1,4 +1,4 @@
-import { GEONAMES_API_URL, GEONAMES_USERNAME } from '@env';
+import { EXPO_PUBLIC_GEONAMES_API_URL, EXPO_PUBLIC_GEONAMES_USERNAME } from '@env';
 import axios from 'axios';
 
 export interface City {
@@ -26,7 +26,7 @@ interface GeonamesResponse {
 }
 
 const fetcher = axios.create({
-  baseURL: GEONAMES_API_URL,
+  baseURL: EXPO_PUBLIC_GEONAMES_API_URL,
 });
 
 export const searchCities = async (namePrefix: string): Promise<City[]> => {
@@ -37,7 +37,7 @@ export const searchCities = async (namePrefix: string): Promise<City[]> => {
         lang: 'ko',
         orderBy: 'population',
         maxRows: 10,
-        username: GEONAMES_USERNAME,
+        username: EXPO_PUBLIC_GEONAMES_USERNAME,
         featureCode: ['PPLC', 'PPLA', 'PPLA2', 'PPL'],
         style: 'full',
       },

@@ -1,5 +1,8 @@
 module.exports = function (api) {
   api.cache(true);
+
+  const envFile = process.env.APP_VARIANT === 'production' ? '.env.production' : '.env.development';
+
   return {
     presets: [['babel-preset-expo', { jsxImportSource: 'nativewind' }]],
     // metro 설정 충돌로 'nativewind/babel'은 설정하지 않음.
@@ -7,9 +10,9 @@ module.exports = function (api) {
       [
         'module:react-native-dotenv',
         {
-          envName: 'APP_ENV',
+          envName: 'APP_VARIANT',
           moduleName: '@env',
-          path: '.env.development',
+          path: envFile,
           safe: false,
           allowUndefined: true,
           verbose: false,

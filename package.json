@@ -6,6 +6,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "postinstall": "pnpm --filter @repo/schema build",
     "client": "pnpm --filter @apps/client",
     "server": "pnpm --filter @apps/server",
     "schema": "pnpm --filter @repo/schema",

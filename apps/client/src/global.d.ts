@@ -1,13 +1,13 @@
 /// <reference types="nativewind/types" />
 
 declare module '@env' {
-  export const GEONAMES_API_URL: string;
-  export const GEONAMES_USERNAME: string;
+  export const EXPO_PUBLIC_GEONAMES_API_URL: string;
+  export const EXPO_PUBLIC_GEONAMES_USERNAME: string;
   export const EXPO_PUBLIC_API_URL: string;
   export const EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY: string;
   export const EXPO_PUBLIC_GOOGLE_MAPS_ANDROID_API_KEY: string;
   export const APP_VARIANT: string;
-  export const EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN: string;
+  export const EXPO_PUBLIC_MAPBOX_PUBLIC_ACCESS_TOKEN: string;
   // Google OAuth
   export const EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: string;
   export const EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID: string;

@@ -1,22 +1,22 @@
-const IS_DEV = process.env.APP_VARIANT === 'development';
+const IS_PROD = process.env.APP_VARIANT === 'production';
 
 export default {
-  name: IS_DEV ? 'client (Dev)' : 'client',
-  slug: 'client',
+  name: IS_PROD ? 'Noline' : 'Noline (Dev)',
+  slug: 'noline',
   main: 'index.js',
   version: '1.0.0',
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'light',
   newArchEnabled: false,
-  scheme: 'client',
+  scheme: 'noline',
   plugins: [
     'expo-router',
     'expo-secure-store',
     [
       '@rnmapbox/maps/app.plugin.js',
       {
-        RNMapboxMapsDownloadToken: process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN,
+        RNMapboxMapsDownloadToken: process.env.MAPBOX_SECRET_ACCESS_TOKEN,
       },
     ],
   ],
@@ -25,6 +25,11 @@ export default {
     resizeMode: 'contain',
     backgroundColor: '#ffffff',
   },
+  extra: {
+    eas: {
+      projectId: '6bb47585-f70f-4914-bc26-730f4b52f56c',
+    },
+  },
   web: {
     bundler: 'metro',
     favicon: './assets/favicon.png',
@@ -32,13 +37,15 @@ export default {
   // --- iOS 설정 ---
   ios: {
     supportsTablet: true,
-    bundleIdentifier: IS_DEV ? 'com.noline.dev' : 'com.noline.prod',
+    bundleIdentifier: IS_PROD ? 'com.ham.noline' : 'com.noline.dev',
+    usesAppleSignIn: true,
     config: {
       googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY,
     },
     infoPlist: {
+      ITSAppUsesNonExemptEncryption: false,
       NSAppTransportSecurity: {
-        NSAllowsArbitraryLoads: IS_DEV, // 개발 환경에서만 HTTP 허용
+        NSAllowsArbitraryLoads: !IS_PROD, // 개발 환경에서만 HTTP 허용
         NSAllowsLocalNetworking: true,
         NSExceptionDomains: {
           // GeoNames API - secure.geonames.org 사용 (SSL 인증서 정상)
@@ -52,7 +59,7 @@ export default {
   },
   // --- Android 설정 ---
   android: {
-    package: IS_DEV ? 'com.noline.dev' : 'com.noline.prod',
+    package: IS_PROD ? 'com.ham.noline' : 'com.noline.dev',
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#ffffff',
@@ -65,6 +72,6 @@ export default {
       },
     },
     // 개발 환경에서 HTTP 허용
-    usesCleartextTraffic: IS_DEV,
+    usesCleartextTraffic: !IS_PROD,
   },
 };

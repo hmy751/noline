@@ -13,9 +13,9 @@
     "docker:up": "/usr/local/bin/docker compose up -d",
     "docker:down": "/usr/local/bin/docker compose down",
     "docker:logs": "/usr/local/bin/docker compose logs -f postgres",
-    "db:generate": "NODE_ENV=development drizzle-kit generate:pg",
-    "db:push": "NODE_ENV=development drizzle-kit push:pg",
-    "db:studio": "NODE_ENV=development drizzle-kit studio"
+    "db:generate": "drizzle-kit generate:pg",
+    "db:push": "drizzle-kit push:pg",
+    "db:studio": "drizzle-kit studio"
   },
   "keywords": [],
   "author": "",
