@@ -4,41 +4,42 @@
     "appVersionSource": "local"
   },
   "build": {
+    "base": {
+      "node": "20.18.1",
+      "pnpm": "9.6.0",
+      "ios": {
+        "image": "latest"
+      }
+    },
     "development": {
+      "extends": "base",
       "developmentClient": true,
       "distribution": "internal",
       "ios": {
         "simulator": false
       },
       "env": {
-        "APP_ENV": "development"
+        "APP_VARIANT": "development"
       }
     },
     "preview": {
+      "extends": "base",
       "distribution": "internal",
       "ios": {
         "simulator": false
       },
       "env": {
-        "APP_ENV": "development"
+        "APP_VARIANT": "development"
       }
     },
     "production": {
+      "extends": "base",
       "distribution": "store",
       "ios": {
         "simulator": false
       },
       "env": {
-        "APP_ENV": "production"
-      }
-    }
-  },
-  "submit": {
-    "production": {
-      "ios": {
-        "appleId": "",
-        "ascAppId": "",
-        "appleTeamId": ""
+        "APP_VARIANT": "production"
       }
     }
   }

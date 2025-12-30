@@ -16,7 +16,7 @@ export default {
     [
       '@rnmapbox/maps/app.plugin.js',
       {
-        RNMapboxMapsDownloadToken: process.env.EXPO_PUBLIC_MAPBOX_SECRET_ACCESS_TOKEN,
+        RNMapboxMapsDownloadToken: process.env.MAPBOX_SECRET_ACCESS_TOKEN,
       },
     ],
   ],
@@ -25,6 +25,11 @@ export default {
     resizeMode: 'contain',
     backgroundColor: '#ffffff',
   },
+  extra: {
+    eas: {
+      projectId: '6bb47585-f70f-4914-bc26-730f4b52f56c',
+    },
+  },
   web: {
     bundler: 'metro',
     favicon: './assets/favicon.png',
@@ -32,12 +37,13 @@ export default {
   // --- iOS 설정 ---
   ios: {
     supportsTablet: true,
-    bundleIdentifier: IS_PROD ? 'com.noline.app' : 'com.noline.dev',
+    bundleIdentifier: IS_PROD ? 'com.ham.noline' : 'com.noline.dev',
     usesAppleSignIn: true,
     config: {
       googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY,
     },
     infoPlist: {
+      ITSAppUsesNonExemptEncryption: false,
       NSAppTransportSecurity: {
         NSAllowsArbitraryLoads: !IS_PROD, // 개발 환경에서만 HTTP 허용
         NSAllowsLocalNetworking: true,
@@ -53,7 +59,7 @@ export default {
   },
   // --- Android 설정 ---
   android: {
-    package: IS_PROD ? 'com.noline.app' : 'com.noline.dev',
+    package: IS_PROD ? 'com.ham.noline' : 'com.noline.dev',
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#ffffff',
