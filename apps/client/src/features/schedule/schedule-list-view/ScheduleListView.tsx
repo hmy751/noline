@@ -1,4 +1,4 @@
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, RefreshControl } from 'react-native';
 import { router } from 'expo-router';
 import { Container, Stack, ScheduleCard } from '@/shared/components';
 import { Pressable } from '@repo/ui';
@@ -30,6 +30,8 @@ interface ScheduleListViewProps {
   hasTrip: boolean;
   hasDates: boolean;
   onScheduleMenuPress?: (schedule: Schedule, event: unknown) => void;
+  refreshing?: boolean;
+  onRefresh?: () => void;
 }
 
 export function ScheduleListView({
@@ -39,10 +41,14 @@ export function ScheduleListView({
   hasTrip,
   hasDates,
   onScheduleMenuPress,
+  refreshing = false,
+  onRefresh,
 }: ScheduleListViewProps) {
+  const refreshControl = onRefresh ? <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> : undefined;
+
   if (!hasTrip) {
     return (
-      <ScrollView className='flex-1'>
+      <ScrollView className='flex-1' refreshControl={refreshControl}>
         <Container>
           <View className='flex-1 items-center justify-center py-xl'>
             <Text className='text-body text-muted-foreground'>여행을 선택해주세요</Text>
@@ -54,7 +60,7 @@ export function ScheduleListView({
 
   if (!hasDates) {
     return (
-      <ScrollView className='flex-1'>
+      <ScrollView className='flex-1' refreshControl={refreshControl}>
         <Container>
           <View className='flex-1 items-center justify-center py-xl'>
             <Text className='text-body text-muted-foreground'>여행 날짜를 설정해주세요</Text>
@@ -66,7 +72,7 @@ export function ScheduleListView({
 
   if (isLoading) {
     return (
-      <ScrollView className='flex-1'>
+      <ScrollView className='flex-1' refreshControl={refreshControl}>
         <Container>
           <View className='flex-1 items-center justify-center py-xl'>
             <Text className='text-body text-muted-foreground'>일정을 불러오는 중...</Text>
@@ -77,7 +83,7 @@ export function ScheduleListView({
   }
 
   return (
-    <ScrollView className='flex-1'>
+    <ScrollView className='flex-1' refreshControl={refreshControl}>
       <Container>
         <Stack direction='vertical' gap='md' className='py-sm'>
           {/* Schedule Groups by Date */}

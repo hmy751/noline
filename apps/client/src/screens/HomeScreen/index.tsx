@@ -1,4 +1,4 @@
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, RefreshControl } from 'react-native';
 import { router } from 'expo-router';
 import { Container, Stack, ScheduleCard, MobileHeader } from '@/shared/components';
 import { Pressable } from '@repo/ui';
@@ -6,11 +6,26 @@ import { ChevronRight, Plus } from 'lucide-react-native';
 import { TripsSection } from './TripsSection';
 import { Alert } from 'react-native';
 import { useNetworkStatus } from '@/shared/store/network';
+import { useGetTrips } from '@/entities/trip';
+import { useState, useCallback } from 'react';
 
 export default function HomeScreen() {
   // 네트워크 상태
   const networkStatus = useNetworkStatus();
   const isOnline = networkStatus === 'online';
+
+  // Pull-to-Refresh
+  const { refetch } = useGetTrips();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refetch();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetch]);
 
   const upcomingSchedules = [
     {
@@ -36,7 +51,7 @@ export default function HomeScreen() {
       {/* Header */}
       <MobileHeader title='NOLINE' />
 
-      <ScrollView className='flex-1'>
+      <ScrollView className='flex-1' refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         <Container>
           <Stack direction='vertical' gap='md' className='py-sm'>
             {/* Trips Section (Main + Other) */}
