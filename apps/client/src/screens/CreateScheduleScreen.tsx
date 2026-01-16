@@ -1,4 +1,4 @@
-import { View, ActivityIndicator, Text } from 'react-native';
+import { View, ActivityIndicator, Text, Keyboard } from 'react-native';
 import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -94,6 +94,7 @@ export default function CreateScheduleScreen() {
   };
 
   const handleSelectLocation = (location: Location) => {
+    Keyboard.dismiss();
     setSelectedLocation(location);
     // clearSearch(); // 검색 결과를 바로 지우지 않도록 주석 처리
     goToNextStep(); // 검색 → 폼 단계로 이동
@@ -161,7 +162,7 @@ export default function CreateScheduleScreen() {
       )}
 
       {/* 지도 영역 + 결과/폼 */}
-      <View className='flex-1 relative'>
+      <View className='flex-1 relative' onTouchStart={() => Keyboard.dismiss()}>
         <PolicyBasedMapView tripId={tripId} locations={results} selectedLocation={selectedLocation} />
 
         {/* 검색 결과 리스트 (검색 단계 + 검색 중이거나 결과 있을 때) */}
