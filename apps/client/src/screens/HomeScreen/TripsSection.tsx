@@ -82,12 +82,9 @@ export function TripsSection({ onMainTripDataChange }: TripsSectionProps) {
     (tripId: string, tripName: string) => {
       setActivatingTripName(tripName);
 
-      // 초기 진행 상태 설정
+      // 간소화된 진행 상태 (2단계)
       const initialProgress: ProgressItem[] = [
-        { id: 'activate', label: '여행 활성화 중...', status: 'loading' },
-        { id: 'schedules', label: '일정 다운로드', status: 'pending' },
-        { id: 'expenses', label: '경비 다운로드', status: 'pending' },
-        { id: 'routes', label: '경로 다운로드', status: 'pending' },
+        { id: 'data', label: '여행 데이터 다운로드 중...', status: 'loading' },
         { id: 'map', label: '오프라인 지도 준비', status: 'pending' },
       ];
 
@@ -97,56 +94,23 @@ export function TripsSection({ onMainTripDataChange }: TripsSectionProps) {
       // 활성화 실행
       activateTrip(tripId, {
         onSuccess: () => {
-          // 순차적으로 상태 업데이트 시뮬레이션
-          setTimeout(() => {
-            setActivationProgress((prev) =>
-              prev.map((item) => {
-                return item.id === 'activate'
-                  ? { ...item, status: 'success' as const, label: '여행 활성화 완료!' }
-                  : item;
-              }),
-            );
-          }, 500);
+          // 1단계: 데이터 다운로드 완료 (즉시 - API가 성공하면 데이터는 이미 저장됨)
+          setActivationProgress((prev) =>
+            prev.map((item) =>
+              item.id === 'data'
+                ? { ...item, status: 'success' as const, label: '일정, 경비, 경로 다운로드 완료!' }
+                : item,
+            ),
+          );
 
-          setTimeout(() => {
-            setActivationProgress((prev) =>
-              prev.map((item) => (item.id === 'schedules' ? { ...item, status: 'loading' as const } : item)),
-            );
-          }, 1000);
+          // 2단계: 오프라인 지도 준비 시작
+          setActivationProgress((prev) =>
+            prev.map((item) => (item.id === 'map' ? { ...item, status: 'loading' as const } : item)),
+          );
 
-          setTimeout(() => {
-            setActivationProgress((prev) =>
-              prev.map((item) =>
-                item.id === 'schedules' ? { ...item, status: 'success' as const, label: '일정 다운로드 완료!' } : item,
-              ),
-            );
-            setActivationProgress((prev) =>
-              prev.map((item) => (item.id === 'expenses' ? { ...item, status: 'loading' as const } : item)),
-            );
-          }, 2000);
-
-          setTimeout(() => {
-            setActivationProgress((prev) =>
-              prev.map((item) =>
-                item.id === 'expenses' ? { ...item, status: 'success' as const, label: '경비 다운로드 완료!' } : item,
-              ),
-            );
-            setActivationProgress((prev) =>
-              prev.map((item) => (item.id === 'routes' ? { ...item, status: 'loading' as const } : item)),
-            );
-          }, 3000);
-
-          setTimeout(() => {
-            setActivationProgress((prev) =>
-              prev.map((item) =>
-                item.id === 'routes' ? { ...item, status: 'success' as const, label: '경로 다운로드 완료!' } : item,
-              ),
-            );
-            setActivationProgress((prev) =>
-              prev.map((item) => (item.id === 'map' ? { ...item, status: 'loading' as const } : item)),
-            );
-          }, 4000);
-
+          // 지도 다운로드 완료 체크 (백그라운드에서 진행)
+          // 실제 구현에서는 mapDownloaded 상태를 polling하거나 이벤트로 처리
+          // 현재는 약간의 지연 후 완료 처리 (지도 다운로드는 백그라운드 진행)
           setTimeout(() => {
             setActivationProgress((prev) =>
               prev.map((item) =>
@@ -157,7 +121,7 @@ export function TripsSection({ onMainTripDataChange }: TripsSectionProps) {
             setActivatedTripId(tripId);
             // MainTripSection 상태 갱신 트리거
             setActivationRefreshKey((prev) => prev + 1);
-          }, 5500);
+          }, 2000);
         },
         onError: (error) => {
           console.error('활성화 실패:', error);
