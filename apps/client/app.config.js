@@ -13,6 +13,7 @@ export default {
   plugins: [
     'expo-router',
     'expo-secure-store',
+    'expo-asset',
     [
       '@rnmapbox/maps/app.plugin.js',
       {
@@ -38,6 +39,7 @@ export default {
   ios: {
     supportsTablet: true,
     bundleIdentifier: IS_PROD ? 'com.ham.noline' : 'com.noline.dev',
+    buildNumber: '4',
     usesAppleSignIn: true,
     config: {
       googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY,
