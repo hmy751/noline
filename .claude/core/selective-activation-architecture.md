@@ -66,6 +66,64 @@
 | Schema    | Zod                         | 타입 안전성 + 런타임 검증  |
 | Conflict  | LWW (Last-Write-Wins)       | 충돌 해결 (updatedAt 기준) |
 
+### 다중 사용자 환경 지원 (userId 필터링)
+
+> ⚠️ **중요**: 모든 활성화 관련 함수는 반드시 `userId` 필터링을 적용해야 합니다.
+
+**배경**: 로컬 SQLite는 기기에 저장되므로, 다른 사용자가 같은 기기에서 로그인하면 이전 사용자의 `tripActivations` 레코드가 남아있을 수 있습니다.
+
+**문제 시나리오 (userId 필터 없이)**:
+
+1. 사용자 A가 여행 활성화 → `tripActivations`에 레코드 생성
+2. 로그아웃 → 사용자 B 로그인
+3. 오프라인 상태에서 앱 재시작
+4. `hasAnyActivatedTrip()` → 사용자 A의 레코드 발견 → true 반환
+5. `getTripsLocal()` → 사용자 B의 userId로 필터 → 빈 배열!
+6. **결과**: 활성화는 있다고 하는데 Trip 데이터가 없음
+
+**해결**: 모든 활성화 조회 함수에 `userId` 필터 적용
+
+```typescript
+// ✅ 올바른 패턴 - userId 필터 포함
+export async function hasAnyActivatedTrip(): Promise<boolean> {
+  const userId = authStore.userId;
+  if (!userId) return false; // 인증 안됨 → false
+
+  const activation = await db
+    .select()
+    .from(tripActivations)
+    .where(
+      and(
+        eq(tripActivations.isActivated, true),
+        eq(tripActivations.userId, userId), // ✅ userId 필터
+      ),
+    )
+    .limit(1)
+    .all();
+  return activation.length > 0;
+}
+
+// ❌ 잘못된 패턴 - userId 필터 없음
+export async function hasAnyActivatedTrip(): Promise<boolean> {
+  const activation = await db
+    .select()
+    .from(tripActivations)
+    .where(eq(tripActivations.isActivated, true)) // ❌ 다른 사용자 데이터도 조회됨
+    .limit(1)
+    .all();
+  return activation.length > 0;
+}
+```
+
+**userId 필터가 필요한 함수들**:
+
+| 파일                      | 함수                     | 설명                              |
+| ------------------------- | ------------------------ | --------------------------------- |
+| `metadata.ts`             | `hasAnyActivatedTrip()`  | Router에서 Local/Remote 분기 결정 |
+| `metadata.ts`             | `getActivatedTripInfo()` | UI에서 활성화 뱃지 표시           |
+| `useGetTripActivation.ts` | `useGetActiveTrip()`     | TripSelector에서 활성화 상태 표시 |
+| `trip-local.ts`           | `getTripsLocal()`        | 로컬 Trip 조회                    |
+
 ---
 
 ## 🔄 데이터 흐름 상세
@@ -442,13 +500,13 @@ entities/expense/
 
 **레이어별 역할:**
 
-| 레이어       | 역할                                    | 예시                          |
-| ------------ | --------------------------------------- | ----------------------------- |
-| model        | 타입 정의 (z.infer로 추출)              | `type Expense = z.infer<...>` |
-| api          | Remote Server 통신                      | `fetchExpenses(tripId)`       |
-| lib          | Local SQLite 접근, withTransaction 사용 | `getLocalExpenses(tripId)`    |
-| repository   | Router로 활성화 상태 기반 분기          | `routeChildQuery({ local, remote })` |
-| data         | Query keys, React Query hooks           | `useGetExpenses(tripId)`      |
+| 레이어     | 역할                                    | 예시                                 |
+| ---------- | --------------------------------------- | ------------------------------------ |
+| model      | 타입 정의 (z.infer로 추출)              | `type Expense = z.infer<...>`        |
+| api        | Remote Server 통신                      | `fetchExpenses(tripId)`              |
+| lib        | Local SQLite 접근, withTransaction 사용 | `getLocalExpenses(tripId)`           |
+| repository | Router로 활성화 상태 기반 분기          | `routeChildQuery({ local, remote })` |
+| data       | Query keys, React Query hooks           | `useGetExpenses(tripId)`             |
 
 **타입 흐름:**
 
@@ -471,7 +529,8 @@ import { expenses } from '@/shared/db/schema';
 import { eq, isNull, and } from 'drizzle-orm';
 
 export async function getLocalExpenses(tripId: string) {
-  return db.select()
+  return db
+    .select()
     .from(expenses)
     .where(and(isNull(expenses.deletedAt), eq(expenses.tripId, tripId)))
     .orderBy(expenses.spentAt)
@@ -1778,6 +1837,7 @@ await withTransaction(async () => {
 #### 핵심 동작 (정책대로)
 
 **비활성 + 오프라인** 상태에서:
+
 1. Router는 정책에 따라 `remote()` 선택 (비활성이므로 로컬 데이터 없음)
 2. 서버 API 호출 시도 → 오프라인이라 실패
 3. `OfflineError` throw → UI에서 "활성화하기" 안내 표시
@@ -1786,7 +1846,7 @@ await withTransaction(async () => {
 // Router에서 OfflineError 발생
 if (networkStatus === 'offline') {
   throw new OfflineError('오프라인에서는 활성화된 여행만 볼 수 있어요', {
-    action: 'ACTIVATE_PROMPT',  // UI에서 활성화 버튼 표시 유도
+    action: 'ACTIVATE_PROMPT', // UI에서 활성화 버튼 표시 유도
     tripId,
   });
 }
@@ -1814,7 +1874,7 @@ export const useGetTrips = () => {
             return cachedData;
           }
         }
-        throw error;  // 캐시 없으면 에러 유지
+        throw error; // 캐시 없으면 에러 유지
       }
     },
   });
