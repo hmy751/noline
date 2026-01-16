@@ -252,7 +252,10 @@ export default function ExpensesScreen() {
                         hasReceipt={expense.hasReceipt}
                         isPending={false}
                         onPress={() => {
-                          router.push(`/expense-detail/${expense.id}`);
+                          router.push({
+                            pathname: '/expense-detail/[id]',
+                            params: { id: expense.id, tripId: expense.tripId },
+                          });
                         }}
                         onMenuPress={(event) => handleExpenseMenuPress(expense, event)}
                       />

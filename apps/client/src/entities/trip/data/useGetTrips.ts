@@ -8,6 +8,7 @@ import { tripQueryKeys } from './keys';
  * - Repository를 통해 활성화 상태에 따라 Local/Remote 자동 분기
  * - deletedAt이 null인 항목만 조회 (Soft Delete)
  * - updatedAt 기준 내림차순 정렬
+ * - 비활성+오프라인 시 OfflineError 발생 → UI에서 "활성화하기" 안내
  *
  * @example
  * ```tsx

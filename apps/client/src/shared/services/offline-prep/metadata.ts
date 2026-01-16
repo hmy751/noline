@@ -34,13 +34,18 @@ export async function getTripActivationStatusDetail(tripId: string): Promise<'on
 
 /**
  * 활성화된 여행이 하나라도 있는지 확인
- * - tripActivations 테이블 확인
+ * - tripActivations 테이블에서 isActivated = true인 레코드 확인
  * - Trip 자체 라우팅에서 사용
  */
 export async function hasAnyActivatedTrip(): Promise<boolean> {
-  const activation = await db.select().from(tripActivations).limit(1).all();
+  const activation = await db
+    .select()
+    .from(tripActivations)
+    .where(eq(tripActivations.isActivated, true))
+    .limit(1)
+    .all();
 
-  // tripActivations에 레코드가 하나라도 있으면 true
+  // isActivated가 true인 레코드가 있으면 true
   return activation.length > 0;
 }
 

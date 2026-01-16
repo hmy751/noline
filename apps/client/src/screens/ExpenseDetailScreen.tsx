@@ -1,21 +1,21 @@
 import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Container, Stack, MobileHeader } from '@/shared/components';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useGetAllExpenses } from '@/entities/expense';
+import { useGetTripExpenses } from '@/entities/expense';
 import { useGetSchedules } from '@/entities/schedule';
 import { MapPin, Tag, Calendar, Receipt, ChevronLeft } from 'lucide-react-native';
 import { formatISOToLocalDate } from '@/shared/lib/datetime';
 
 export default function ExpenseDetailScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, tripId } = useLocalSearchParams<{ id: string; tripId: string }>();
 
-  // 경비 데이터 조회
-  const { data: expenses = [], isLoading } = useGetAllExpenses();
+  // 경비 데이터 조회 (tripId 기반으로 Router 사용)
+  const { data: expenses = [], isLoading } = useGetTripExpenses(tripId || '');
   const expense = expenses.find((e) => e.id === id);
 
   // 연결된 일정 조회 (scheduleId가 있는 경우)
-  const { data: schedules = [] } = useGetSchedules(expense?.tripId || '');
+  const { data: schedules = [] } = useGetSchedules(tripId || '');
   const linkedSchedule = expense?.scheduleId ? schedules.find((s) => s.id === expense.scheduleId) : null;
 
   // 카테고리별 배경색

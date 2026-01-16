@@ -6,9 +6,8 @@
  */
 
 import { useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { useNetworkStatus } from '@/shared/store/network';
-import { getTripActivationStatus } from '@/shared/services/offline-prep/metadata';
+import { useGetTripActivation } from '@/entities/trip/data/useGetTripActivation';
 import { TRIP_POLICIES, SCHEDULE_POLICIES, EXPENSE_POLICIES, SERVICE_POLICIES } from './constants';
 import type { CRUDPermission, ServiceConfig, PolicyKey, ActivationStatus } from './types';
 
@@ -67,15 +66,11 @@ export interface AppPolicyContext {
 export function useAppPolicy(tripId?: string): AppPolicyContext {
   const networkStatus = useNetworkStatus();
 
-  // React Query로 활성화 상태 캐싱
-  const { data: isActivated = false } = useQuery({
-    queryKey: ['tripActivation', tripId],
-    queryFn: () => getTripActivationStatus(tripId!),
-    enabled: !!tripId, // tripId가 있을 때만 조회
-    staleTime: 5 * 60 * 1000, // 5분간 fresh 상태 유지
-  });
+  // 기존 Hook 재사용 (Single Source of Truth)
+  const { data: activation } = useGetTripActivation(tripId ?? '');
 
   // Activation Status 계산
+  const isActivated = activation?.isActivated ?? false;
   const activationStatus: ActivationStatus = tripId && isActivated ? 'active' : 'inactive';
 
   // PolicyKey 계산: "online_active" | "offline_inactive" 등

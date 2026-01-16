@@ -1760,6 +1760,90 @@ await withTransaction(async () => {
 
 ---
 
+### 패턴 7: 비활성+오프라인 시나리오와 React Query 캐시
+
+#### 상황
+
+4가지 정책 상태 중 **"비활성 + 오프라인"** 시나리오에서 발생할 수 있는 UX 문제:
+
+```
+| 상태                | Router 선택 | 결과                                    |
+|---------------------|------------|----------------------------------------|
+| 온라인 + 활성화      | local()    | ✅ SQLite 조회                          |
+| 온라인 + 비활성      | remote()   | ✅ 서버 API 호출                         |
+| 오프라인 + 활성화    | local()    | ✅ SQLite 조회                          |
+| 오프라인 + 비활성    | remote()   | ❌ 서버 실패 → OfflineError → 에러 UI   |
+```
+
+#### 핵심 동작 (정책대로)
+
+**비활성 + 오프라인** 상태에서:
+1. Router는 정책에 따라 `remote()` 선택 (비활성이므로 로컬 데이터 없음)
+2. 서버 API 호출 시도 → 오프라인이라 실패
+3. `OfflineError` throw → UI에서 "활성화하기" 안내 표시
+
+```typescript
+// Router에서 OfflineError 발생
+if (networkStatus === 'offline') {
+  throw new OfflineError('오프라인에서는 활성화된 여행만 볼 수 있어요', {
+    action: 'ACTIVATE_PROMPT',  // UI에서 활성화 버튼 표시 유도
+    tripId,
+  });
+}
+```
+
+#### 개선 가능성: React Query 캐시 폴백
+
+React Query는 기본적으로 캐시를 유지합니다 (`gcTime` 동안). 이론적으로 "비활성+오프라인" 시 이전에 조회했던 캐시 데이터를 활용할 수 있습니다:
+
+```typescript
+// ⚠️ 현재 미적용 - 참고용 패턴
+export const useGetTrips = () => {
+  const queryClient = useQueryClient();
+
+  return useQuery({
+    queryFn: async () => {
+      try {
+        return await TripRepository.getAll();
+      } catch (error) {
+        // 오프라인 에러 시 캐시 데이터가 있으면 반환
+        if (isOfflineError(error)) {
+          const cachedData = queryClient.getQueryData<Trip[]>(tripQueryKeys.all());
+          if (cachedData) {
+            console.log('📋 Using cached trips data (offline)');
+            return cachedData;
+          }
+        }
+        throw error;  // 캐시 없으면 에러 유지
+      }
+    },
+  });
+};
+```
+
+#### 왜 현재 미적용인가?
+
+1. **정책 일관성**: 4가지 상태별 동작이 명확해야 예측 가능
+2. **중복 코드**: 모든 Query Hook에 동일 패턴 적용 필요 (5개 이상)
+3. **캐시 만료**: `gcTime` 이후 캐시 없으면 어차피 에러
+4. **근본 해결 아님**: 활성화해야 완전한 오프라인 지원
+
+#### 미래 개선 고려사항
+
+필요시 다음 방향으로 개선 가능:
+
+1. **Router 레벨에서 캐시 폴백**: Hook 중복 없이 한 곳에서 처리
+2. **UI 안내 개선**: "이전에 봤던 데이터입니다 (오프라인)" 표시
+3. **캐시 영속화**: AsyncStorage로 더 오래 유지
+
+#### 현재 권장 사항
+
+- **정책대로 동작**: 비활성+오프라인 → OfflineError → "활성화하기" 안내
+- **사용자 행동 유도**: 여행을 활성화하면 완전한 오프라인 지원
+- **UX 문서화**: 사용자에게 활성화의 의미 설명
+
+---
+
 ## 🔍 디버깅 가이드
 
 ### 증상별 진단 플로우

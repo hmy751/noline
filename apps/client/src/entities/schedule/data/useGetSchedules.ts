@@ -8,6 +8,7 @@ import { scheduleQueryKeys } from './keys';
  * - Repository를 통해 활성화 상태에 따라 Local/Remote 자동 분기
  * - deletedAt이 null인 항목만 조회 (Soft Delete)
  * - scheduledAt 기준 오름차순 정렬 (시간순)
+ * - 비활성+오프라인 시 OfflineError 발생 → UI에서 "활성화하기" 안내
  *
  * @param tripId - 여행 ID (필수)
  *
