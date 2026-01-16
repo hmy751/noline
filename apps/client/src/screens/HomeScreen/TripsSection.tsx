@@ -12,7 +12,7 @@ import { MainTripSection } from './MainTripSection';
 import { OtherTripsSection } from './OtherTripsSection';
 import { useEffect, useState, useCallback } from 'react';
 import { Alert } from 'react-native';
-import { getTripActivationStatusDetail } from '@/shared/services/offline-prep/metadata';
+import { getTripActivationStatusDetail, getMapDownloadProgress } from '@/shared/services/offline-prep/metadata';
 import { useDeactivateTrip } from '@/entities/trip/data/useDeactivateTrip';
 
 interface TripsSectionProps {
@@ -108,20 +108,59 @@ export function TripsSection({ onMainTripDataChange }: TripsSectionProps) {
             prev.map((item) => (item.id === 'map' ? { ...item, status: 'loading' as const } : item)),
           );
 
-          // 지도 다운로드 완료 체크 (백그라운드에서 진행)
-          // 실제 구현에서는 mapDownloaded 상태를 polling하거나 이벤트로 처리
-          // 현재는 약간의 지연 후 완료 처리 (지도 다운로드는 백그라운드 진행)
-          setTimeout(() => {
-            setActivationProgress((prev) =>
-              prev.map((item) =>
-                item.id === 'map' ? { ...item, status: 'success' as const, label: '오프라인 지도 준비 완료!' } : item,
-              ),
-            );
-            // 활성화 완료 후 상태 업데이트
-            setActivatedTripId(tripId);
-            // MainTripSection 상태 갱신 트리거
-            setActivationRefreshKey((prev) => prev + 1);
-          }, 2000);
+          // 지도 다운로드 완료 체크 (polling)
+          const checkMapDownloaded = async () => {
+            const maxAttempts = 120; // 최대 2분 (1초 간격)
+            let attempts = 0;
+
+            const poll = async () => {
+              attempts++;
+              const status = await getTripActivationStatusDetail(tripId);
+              const progress = await getMapDownloadProgress(tripId);
+
+              // 진행률 표시 업데이트
+              if (progress !== null && progress > 0 && progress < 100) {
+                setActivationProgress((prev) =>
+                  prev.map((item) =>
+                    item.id === 'map'
+                      ? { ...item, status: 'loading' as const, label: `오프라인 지도 다운로드 중... (${progress}%)` }
+                      : item,
+                  ),
+                );
+              }
+
+              if (status === 'ready') {
+                // 다운로드 완료
+                setActivationProgress((prev) =>
+                  prev.map((item) =>
+                    item.id === 'map'
+                      ? { ...item, status: 'success' as const, label: '오프라인 지도 준비 완료!' }
+                      : item,
+                  ),
+                );
+                setActivatedTripId(tripId);
+                setActivationRefreshKey((prev) => prev + 1);
+              } else if (attempts >= maxAttempts) {
+                // 타임아웃 - 에러 표시
+                setActivationProgress((prev) =>
+                  prev.map((item) =>
+                    item.id === 'map'
+                      ? { ...item, status: 'error' as const, error: '지도 다운로드 시간이 초과되었습니다.' }
+                      : item,
+                  ),
+                );
+                setActivatedTripId(tripId);
+                setActivationRefreshKey((prev) => prev + 1);
+              } else {
+                // 계속 polling
+                setTimeout(poll, 1000);
+              }
+            };
+
+            poll();
+          };
+
+          checkMapDownloaded();
         },
         onError: (error) => {
           console.error('활성화 실패:', error);

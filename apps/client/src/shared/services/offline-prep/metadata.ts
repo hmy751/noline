@@ -109,3 +109,17 @@ export async function getTripMetadata(tripId: string) {
 
   return trip;
 }
+
+/**
+ * 지도 다운로드 진행률 조회
+ * @returns syncProgress (0-100) or null if not found
+ */
+export async function getMapDownloadProgress(tripId: string): Promise<number | null> {
+  const activation = await db.select().from(tripActivations).where(eq(tripActivations.tripId, tripId)).get();
+
+  if (!activation) {
+    return null;
+  }
+
+  return activation.syncProgress ?? 0;
+}
