@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { db, tripActivations } from '@/shared/db';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { tripQueryKeys } from './keys';
+import { authStore } from '@/shared/store/auth';
 
 /**
  * 여행 활성화 상태 조회 Hook
@@ -39,9 +40,10 @@ export const useGetTripActivation = (tripId: string) => {
 };
 
 /**
- * 현재 활성화된 여행 조회 Hook
+ * 현재 사용자의 활성화된 여행 조회 Hook
  *
  * - 동시에 1개만 활성화 가능하므로, 현재 활성화된 여행 반환
+ * - userId 필터링으로 다중 사용자 환경 지원
  *
  * @example
  * ```tsx
@@ -52,14 +54,26 @@ export const useGetActiveTrip = () => {
   return useQuery({
     queryKey: tripQueryKeys.activeTrip(),
     queryFn: async () => {
-      const activation = await db.select().from(tripActivations).where(eq(tripActivations.isActivated, true)).get();
+      const userId = authStore.userId;
 
-      if (!activation) {
-        console.log(`📋 No active trip found`);
+      // 인증되지 않은 상태면 null 반환
+      if (!userId) {
+        console.log(`📋 [useGetActiveTrip] No authenticated user`);
         return null;
       }
 
-      console.log(`📋 Active trip loaded: ${activation.tripId}`);
+      const activation = await db
+        .select()
+        .from(tripActivations)
+        .where(and(eq(tripActivations.isActivated, true), eq(tripActivations.userId, userId)))
+        .get();
+
+      if (!activation) {
+        console.log(`📋 No active trip found for user ${userId}`);
+        return null;
+      }
+
+      console.log(`📋 Active trip loaded: ${activation.tripId} for user ${userId}`);
       return activation;
     },
     staleTime: 1 * 60 * 1000, // 1분

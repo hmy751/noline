@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
-import { CheckCircle, XCircle, Download } from 'lucide-react-native';
+import { CheckCircle, XCircle, Circle, Wifi } from 'lucide-react-native';
 import { cn, Drawer, Pressable } from '@repo/ui';
 
 export interface ProgressItem {
@@ -24,41 +24,59 @@ export function ActivationProgressDrawer({ isOpen, onClose, title, items }: Acti
   const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   // 모든 작업이 완료되었는지 확인
-  const isComplete = completedCount === totalCount;
+  const isComplete = completedCount === totalCount && totalCount > 0;
   const hasError = items.some((item) => item.status === 'error');
+  const isInProgress = items.some((item) => item.status === 'loading');
 
   return (
     <Drawer isOpen={isOpen} onClose={onClose} title={title}>
       <View className='flex-1 px-lg py-md'>
-        {/* 상태 메시지 */}
-        <View className='mb-md'>
-          <Text className='text-body text-muted-foreground'>
+        {/* 상단 아이콘 + 상태 메시지 */}
+        <View className='mb-lg items-center'>
+          {isComplete && !hasError ? (
+            <View className='mb-sm h-16 w-16 items-center justify-center rounded-full bg-success/10'>
+              <Wifi size={32} color='#22c55e' strokeWidth={2} />
+            </View>
+          ) : hasError ? (
+            <View className='mb-sm h-16 w-16 items-center justify-center rounded-full bg-destructive/10'>
+              <XCircle size={32} color='#ef4444' strokeWidth={2} />
+            </View>
+          ) : (
+            <View className='mb-sm h-16 w-16 items-center justify-center'>
+              <ActivityIndicator size='large' color='#3b82f6' />
+            </View>
+          )}
+
+          <Text className='text-title-large text-center text-foreground'>
+            {isComplete ? (hasError ? '준비 중 오류 발생' : '오프라인 준비 완료!') : '오프라인 준비 중...'}
+          </Text>
+          <Text className='text-body mt-xs text-center text-muted-foreground'>
             {isComplete
               ? hasError
-                ? '일부 작업이 실패했습니다'
-                : '모든 준비가 완료되었습니다!'
-              : `준비 중... ${progressPercent}%`}
+                ? '일부 항목을 다운로드하지 못했습니다'
+                : '이제 오프라인에서도 여행을 관리할 수 있어요'
+              : `${progressPercent}% 완료`}
           </Text>
         </View>
 
         {/* 진행률 바 */}
         <View className='mb-lg h-2 overflow-hidden rounded-full bg-secondary'>
           <View
-            className={cn('h-full transition-all', hasError ? 'bg-destructive' : 'bg-success')}
+            className={cn('h-full', hasError ? 'bg-destructive' : isComplete ? 'bg-success' : 'bg-primary')}
             style={{ width: `${progressPercent}%` }}
           />
         </View>
 
         {/* 진행 항목 리스트 */}
-        <View className='flex-1'>
+        <View className='mb-lg'>
           {items.map((item) => (
-            <View key={item.id} className='mb-md flex-row items-center gap-md'>
+            <View key={item.id} className='mb-sm flex-row items-center gap-sm'>
               {/* 상태 아이콘 */}
-              <View className='h-10 w-10 items-center justify-center'>
-                {item.status === 'pending' && <Download size={20} color='#9ca3af' strokeWidth={2} />}
+              <View className='h-8 w-8 items-center justify-center'>
+                {item.status === 'pending' && <Circle size={18} color='#9ca3af' strokeWidth={2} />}
                 {item.status === 'loading' && <ActivityIndicator size='small' color='#3b82f6' />}
-                {item.status === 'success' && <CheckCircle size={20} color='#22c55e' strokeWidth={2} />}
-                {item.status === 'error' && <XCircle size={20} color='#ef4444' strokeWidth={2} />}
+                {item.status === 'success' && <CheckCircle size={18} color='#22c55e' strokeWidth={2} />}
+                {item.status === 'error' && <XCircle size={18} color='#ef4444' strokeWidth={2} />}
               </View>
 
               {/* 항목 정보 */}
@@ -66,9 +84,10 @@ export function ActivationProgressDrawer({ isOpen, onClose, title, items }: Acti
                 <Text
                   className={cn(
                     'text-body',
-                    item.status === 'success' && 'text-success',
+                    item.status === 'success' && 'text-foreground',
                     item.status === 'error' && 'text-destructive',
                     item.status === 'pending' && 'text-muted-foreground',
+                    item.status === 'loading' && 'text-foreground',
                   )}
                 >
                   {item.label}
@@ -79,17 +98,21 @@ export function ActivationProgressDrawer({ isOpen, onClose, title, items }: Acti
           ))}
         </View>
 
-        {/* 완료 버튼 (모든 작업 완료시) */}
-        {isComplete && (
-          <View className='mt-md'>
+        {/* 하단 버튼 */}
+        <View className='mt-auto'>
+          {isComplete ? (
             <Pressable
               onPress={onClose}
-              className={cn('items-center justify-center rounded-lg py-md', hasError ? 'bg-destructive' : 'bg-success')}
+              className={cn('items-center justify-center rounded-lg py-md', hasError ? 'bg-muted' : 'bg-success')}
             >
-              <Text className='text-body-bold text-white'>{hasError ? '닫기' : '완료'}</Text>
+              <Text className={cn('text-body-bold', hasError ? 'text-foreground' : 'text-white')}>
+                {hasError ? '닫기' : '완료'}
+              </Text>
             </Pressable>
-          </View>
-        )}
+          ) : (
+            <Text className='text-label text-center text-muted-foreground'>잠시만 기다려주세요...</Text>
+          )}
+        </View>
       </View>
     </Drawer>
   );

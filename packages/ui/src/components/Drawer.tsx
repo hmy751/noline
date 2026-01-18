@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   Modal,
   View,
@@ -8,8 +8,12 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Animated,
+  Dimensions,
 } from 'react-native';
 import { cn } from '../lib/utils';
+
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 // ========================================
 // Drawer Types
@@ -31,15 +35,41 @@ export type DrawerProps = {
 /**
  * Drawer (Bottom Sheet) 컴포넌트
  * 화면 하단에서 올라오는 모달 형태의 컴포넌트
+ *
+ * backdrop은 fade, 콘텐츠는 slide 애니메이션으로 분리
  */
 export const Drawer = ({ isOpen, onClose, children, title, showHandle = true, childrenOverlay }: DrawerProps) => {
+  const slideAnim = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
+
+  useEffect(() => {
+    if (isOpen) {
+      // 열릴 때: 아래에서 위로 슬라이드
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        useNativeDriver: true,
+        tension: 65,
+        friction: 11,
+      }).start();
+    } else {
+      // 닫힐 때: 위에서 아래로 슬라이드
+      Animated.timing(slideAnim, {
+        toValue: SCREEN_HEIGHT,
+        duration: 250,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [isOpen, slideAnim]);
+
   return (
-    <Modal visible={isOpen} transparent animationType='slide' onRequestClose={onClose} statusBarTranslucent>
+    <Modal visible={isOpen} transparent animationType='fade' onRequestClose={onClose} statusBarTranslucent>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <TouchableWithoutFeedback onPress={onClose}>
           <View className='flex-1 justify-end bg-black/50'>
             <TouchableWithoutFeedback>
-              <View className='bg-card rounded-t-2xl max-h-[90vh]'>
+              <Animated.View
+                className='bg-card rounded-t-2xl max-h-[90vh]'
+                style={{ transform: [{ translateY: slideAnim }] }}
+              >
                 {/* Handle */}
                 {showHandle && (
                   <View className='items-center py-2xs'>
@@ -58,7 +88,7 @@ export const Drawer = ({ isOpen, onClose, children, title, showHandle = true, ch
                 <ScrollView className='px-sm pt-lg pb-md' showsVerticalScrollIndicator={false} bounces={false}>
                   {children}
                 </ScrollView>
-              </View>
+              </Animated.View>
             </TouchableWithoutFeedback>
           </View>
         </TouchableWithoutFeedback>

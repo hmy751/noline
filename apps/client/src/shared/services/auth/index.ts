@@ -9,11 +9,15 @@ export {
   getUserId,
   setUserId,
   deleteUserId,
+  getUserInfo,
+  setUserInfo,
+  deleteUserInfo,
   saveAuthData,
   updateTokens,
   clearAuthData,
   hasAuthData,
   getAuthData,
+  type UserInfo,
 } from './token-storage';
 
 // Auth API

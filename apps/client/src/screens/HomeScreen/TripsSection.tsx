@@ -12,7 +12,7 @@ import { MainTripSection } from './MainTripSection';
 import { OtherTripsSection } from './OtherTripsSection';
 import { useEffect, useState, useCallback } from 'react';
 import { Alert } from 'react-native';
-import { getTripActivationStatusDetail } from '@/shared/services/offline-prep/metadata';
+import { getTripActivationStatusDetail, getMapDownloadProgress } from '@/shared/services/offline-prep/metadata';
 import { useDeactivateTrip } from '@/entities/trip/data/useDeactivateTrip';
 
 interface TripsSectionProps {
@@ -82,12 +82,9 @@ export function TripsSection({ onMainTripDataChange }: TripsSectionProps) {
     (tripId: string, tripName: string) => {
       setActivatingTripName(tripName);
 
-      // 초기 진행 상태 설정
+      // 간소화된 진행 상태 (2단계)
       const initialProgress: ProgressItem[] = [
-        { id: 'activate', label: '여행 활성화 중...', status: 'loading' },
-        { id: 'schedules', label: '일정 다운로드', status: 'pending' },
-        { id: 'expenses', label: '경비 다운로드', status: 'pending' },
-        { id: 'routes', label: '경로 다운로드', status: 'pending' },
+        { id: 'data', label: '여행 데이터 다운로드 중...', status: 'loading' },
         { id: 'map', label: '오프라인 지도 준비', status: 'pending' },
       ];
 
@@ -97,67 +94,73 @@ export function TripsSection({ onMainTripDataChange }: TripsSectionProps) {
       // 활성화 실행
       activateTrip(tripId, {
         onSuccess: () => {
-          // 순차적으로 상태 업데이트 시뮬레이션
-          setTimeout(() => {
-            setActivationProgress((prev) =>
-              prev.map((item) => {
-                return item.id === 'activate'
-                  ? { ...item, status: 'success' as const, label: '여행 활성화 완료!' }
-                  : item;
-              }),
-            );
-          }, 500);
+          // 1단계: 데이터 다운로드 완료 (즉시 - API가 성공하면 데이터는 이미 저장됨)
+          setActivationProgress((prev) =>
+            prev.map((item) =>
+              item.id === 'data'
+                ? { ...item, status: 'success' as const, label: '일정, 경비, 경로 다운로드 완료!' }
+                : item,
+            ),
+          );
 
-          setTimeout(() => {
-            setActivationProgress((prev) =>
-              prev.map((item) => (item.id === 'schedules' ? { ...item, status: 'loading' as const } : item)),
-            );
-          }, 1000);
+          // 2단계: 오프라인 지도 준비 시작
+          setActivationProgress((prev) =>
+            prev.map((item) => (item.id === 'map' ? { ...item, status: 'loading' as const } : item)),
+          );
 
-          setTimeout(() => {
-            setActivationProgress((prev) =>
-              prev.map((item) =>
-                item.id === 'schedules' ? { ...item, status: 'success' as const, label: '일정 다운로드 완료!' } : item,
-              ),
-            );
-            setActivationProgress((prev) =>
-              prev.map((item) => (item.id === 'expenses' ? { ...item, status: 'loading' as const } : item)),
-            );
-          }, 2000);
+          // 지도 다운로드 완료 체크 (polling)
+          const checkMapDownloaded = async () => {
+            const maxAttempts = 120; // 최대 2분 (1초 간격)
+            let attempts = 0;
 
-          setTimeout(() => {
-            setActivationProgress((prev) =>
-              prev.map((item) =>
-                item.id === 'expenses' ? { ...item, status: 'success' as const, label: '경비 다운로드 완료!' } : item,
-              ),
-            );
-            setActivationProgress((prev) =>
-              prev.map((item) => (item.id === 'routes' ? { ...item, status: 'loading' as const } : item)),
-            );
-          }, 3000);
+            const poll = async () => {
+              attempts++;
+              const status = await getTripActivationStatusDetail(tripId);
+              const progress = await getMapDownloadProgress(tripId);
 
-          setTimeout(() => {
-            setActivationProgress((prev) =>
-              prev.map((item) =>
-                item.id === 'routes' ? { ...item, status: 'success' as const, label: '경로 다운로드 완료!' } : item,
-              ),
-            );
-            setActivationProgress((prev) =>
-              prev.map((item) => (item.id === 'map' ? { ...item, status: 'loading' as const } : item)),
-            );
-          }, 4000);
+              // 진행률 표시 업데이트
+              if (progress !== null && progress > 0 && progress < 100) {
+                setActivationProgress((prev) =>
+                  prev.map((item) =>
+                    item.id === 'map'
+                      ? { ...item, status: 'loading' as const, label: `오프라인 지도 다운로드 중... (${progress}%)` }
+                      : item,
+                  ),
+                );
+              }
 
-          setTimeout(() => {
-            setActivationProgress((prev) =>
-              prev.map((item) =>
-                item.id === 'map' ? { ...item, status: 'success' as const, label: '오프라인 지도 준비 완료!' } : item,
-              ),
-            );
-            // 활성화 완료 후 상태 업데이트
-            setActivatedTripId(tripId);
-            // MainTripSection 상태 갱신 트리거
-            setActivationRefreshKey((prev) => prev + 1);
-          }, 5500);
+              if (status === 'ready') {
+                // 다운로드 완료
+                setActivationProgress((prev) =>
+                  prev.map((item) =>
+                    item.id === 'map'
+                      ? { ...item, status: 'success' as const, label: '오프라인 지도 준비 완료!' }
+                      : item,
+                  ),
+                );
+                setActivatedTripId(tripId);
+                setActivationRefreshKey((prev) => prev + 1);
+              } else if (attempts >= maxAttempts) {
+                // 타임아웃 - 에러 표시
+                setActivationProgress((prev) =>
+                  prev.map((item) =>
+                    item.id === 'map'
+                      ? { ...item, status: 'error' as const, error: '지도 다운로드 시간이 초과되었습니다.' }
+                      : item,
+                  ),
+                );
+                setActivatedTripId(tripId);
+                setActivationRefreshKey((prev) => prev + 1);
+              } else {
+                // 계속 polling
+                setTimeout(poll, 1000);
+              }
+            };
+
+            poll();
+          };
+
+          checkMapDownloaded();
         },
         onError: (error) => {
           console.error('활성화 실패:', error);

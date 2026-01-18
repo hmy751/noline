@@ -96,8 +96,11 @@ export function TripSelector({ className = '' }: TripSelectorProps) {
   if (trips.length === 0) {
     return (
       <View className={className}>
-        <View className='flex-row items-center gap-xs px-md py-sm'>
-          <Text className='text-body text-muted-foreground'>여행이 없습니다</Text>
+        <View className='w-full h-auto py-xs px-sm border border-border rounded-md'>
+          <View className='w-full flex-row items-center'>
+            <Plane size={18} color='hsl(0, 0%, 45%)' strokeWidth={2} />
+            <Text className='text-body text-muted-foreground ml-xs'>여행이 없습니다</Text>
+          </View>
         </View>
       </View>
     );

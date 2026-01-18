@@ -1,9 +1,10 @@
 import { View, Text, ScrollView, Alert } from 'react-native';
 import { Container, Stack, MobileHeader } from '@/shared/components';
-import { Avatar, AvatarFallback, Switch, Separator, Pressable } from '@repo/ui';
+import { Avatar, AvatarFallback, AvatarImage, Switch, Separator, Pressable } from '@repo/ui';
 import { useState } from 'react';
 import { User, Sun, Moon, Settings, Globe, Download, ChevronRight, Bug } from 'lucide-react-native';
 import { router } from 'expo-router';
+import Constants from 'expo-constants';
 import { useStorageStats } from '@/features/profile/hooks/useStorageStats';
 import { performLogout } from '@/shared/services/auth';
 import { useAuthStore } from '@/shared/store/auth';
@@ -11,13 +12,16 @@ import { useAuthStore } from '@/shared/store/auth';
 export default function ProfileScreen() {
   const [darkMode, setDarkMode] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const { userId } = useAuthStore();
 
-  // TODO: Replace with real user data from server
+  // AuthStore에서 user 정보 조회 (SecureStore에서 복원됨 - 오프라인 지원)
+  const { userInfo } = useAuthStore();
+
+  // 사용자 정보 (저장된 데이터 또는 기본값)
   const user = {
-    name: '여행자',
-    email: 'traveler@example.com',
-    initials: '여',
+    name: userInfo?.name ?? '사용자',
+    email: userInfo?.email ?? '',
+    profileImageUrl: userInfo?.profileImageUrl,
+    initials: userInfo?.name?.charAt(0) ?? '?',
   };
 
   const { stats } = useStorageStats();
@@ -89,7 +93,7 @@ export default function ProfileScreen() {
   ];
 
   const infoItems = [
-    { label: '앱 버전', value: '1.0.0' },
+    { label: '앱 버전', value: Constants.expoConfig?.version ?? '1.0.0' },
     { label: '저장된 데이터', value: stats.dbSize },
     { label: '오프라인 지도', value: stats.mapPackSize },
   ];
@@ -106,6 +110,7 @@ export default function ProfileScreen() {
             <View className='rounded-xl bg-card p-md'>
               <View className='flex-row items-center gap-sm'>
                 <Avatar className='h-16 w-16 bg-primary' alt='User Avatar'>
+                  {user.profileImageUrl && <AvatarImage source={{ uri: user.profileImageUrl }} />}
                   <AvatarFallback>
                     <User size={32} color='hsl(120, 61%, 98%)' strokeWidth={2} />
                   </AvatarFallback>

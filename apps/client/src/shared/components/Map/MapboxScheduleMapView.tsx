@@ -13,7 +13,7 @@ import { useRef, useEffect, useMemo, useState } from 'react';
 import MapboxGL from '@rnmapbox/maps';
 import { useGetRoutes } from '@/entities/route';
 import { decodePolyline } from '@/shared/lib/mapbox';
-import type { MapboxProfile } from '@/shared/services/directions/mapbox';
+import { formatDistance, formatDuration, type MapboxProfile } from '@/shared/services/directions/mapbox';
 import type { ScheduleMapViewProps } from './types';
 
 const styles = StyleSheet.create({
@@ -56,6 +56,45 @@ const styles = StyleSheet.create({
   profileButtonTextActive: {
     color: 'white',
   },
+  routeInfo: {
+    position: 'absolute',
+    top: 104, // 프로필 선택기 아래
+    right: 16,
+    backgroundColor: 'white',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  routeInfoItem: {
+    alignItems: 'center',
+  },
+  routeInfoLabel: {
+    fontSize: 10,
+    color: '#999',
+    marginBottom: 2,
+  },
+  routeInfoValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+  },
+  routeInfoDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: '#E0E0E0',
+  },
+  routeInfoNoRoute: {
+    fontSize: 13,
+    color: '#999',
+  },
 });
 
 /**
@@ -91,6 +130,8 @@ export function MapboxScheduleMapView({
       color: string;
       width: number;
       dashed?: boolean;
+      distance?: number; // 미터
+      duration?: number; // 초
     }> = [];
 
     // 1. 숙소 → 첫 일정 (있는 경우)
@@ -108,6 +149,8 @@ export function MapboxScheduleMapView({
           coordinates: decodePolyline(savedRoute.geometry),
           color: '#4CAF50', // 초록색
           width: 4,
+          distance: savedRoute.distance,
+          duration: savedRoute.duration,
         });
       } else {
         // 미저장 경로 - 직선
@@ -145,6 +188,8 @@ export function MapboxScheduleMapView({
           coordinates: decodePolyline(savedRoute.geometry),
           color: '#4CAF50', // 초록색
           width: 4,
+          distance: savedRoute.distance,
+          duration: savedRoute.duration,
         });
       } else {
         // 미저장 경로 - 직선
@@ -164,6 +209,16 @@ export function MapboxScheduleMapView({
 
     return segments;
   }, [schedulesWithCoords, savedRoutes, accommodationCoords, selectedProfile]);
+
+  // 총 거리/시간 계산 (저장된 경로만)
+  const routeSummary = useMemo(() => {
+    const savedSegments = routeSegments.filter((s) => s.type === 'saved' && s.distance && s.duration);
+    const totalDistance = savedSegments.reduce((sum, s) => sum + (s.distance || 0), 0);
+    const totalDuration = savedSegments.reduce((sum, s) => sum + (s.duration || 0), 0);
+    const hasAllRoutes = routeSegments.length > 0 && savedSegments.length === routeSegments.length;
+
+    return { totalDistance, totalDuration, hasAllRoutes, savedCount: savedSegments.length };
+  }, [routeSegments]);
 
   // 초기 카메라 설정
   const initialCamera = useMemo(() => {
@@ -323,6 +378,27 @@ export function MapboxScheduleMapView({
           </TouchableOpacity>
         ))}
       </View>
+
+      {/* 경로 정보 (거리 / 예상 시간) */}
+      {routeSegments.length > 0 && (
+        <View style={styles.routeInfo}>
+          {routeSummary.savedCount > 0 ? (
+            <>
+              <View style={styles.routeInfoItem}>
+                <Text style={styles.routeInfoLabel}>총 거리</Text>
+                <Text style={styles.routeInfoValue}>{formatDistance(routeSummary.totalDistance)}</Text>
+              </View>
+              <View style={styles.routeInfoDivider} />
+              <View style={styles.routeInfoItem}>
+                <Text style={styles.routeInfoLabel}>예상 시간</Text>
+                <Text style={styles.routeInfoValue}>{formatDuration(routeSummary.totalDuration)}</Text>
+              </View>
+            </>
+          ) : (
+            <Text style={styles.routeInfoNoRoute}>경로 없음</Text>
+          )}
+        </View>
+      )}
     </View>
   );
 }

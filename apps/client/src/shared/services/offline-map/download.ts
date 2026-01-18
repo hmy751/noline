@@ -91,11 +91,34 @@ export async function downloadOfflineMapInBackground(tripId: string): Promise<vo
 
   if (!pack) {
     // 없으면 새로 다운로드
-    const progressListener = (offlineRegion: any, status: any) => {
+    let lastUpdatedProgress = 0;
+
+    const progressListener = async (offlineRegion: any, status: any) => {
+      const percentage = Math.round(status.percentage);
       console.log('[OfflineMap] Download progress:', {
-        percentage: status.percentage,
+        percentage,
         completedTileCount: status.completedTileCount,
       });
+
+      // 10% 단위로 DB 업데이트 (너무 잦은 업데이트 방지)
+      if (percentage >= lastUpdatedProgress + 10 || percentage === 100) {
+        lastUpdatedProgress = percentage;
+        try {
+          await db
+            .update(tripActivations)
+            .set({
+              syncProgress: percentage,
+              updatedAt: new Date().toISOString(),
+            })
+            .where(eq(tripActivations.tripId, tripId))
+            .run();
+
+          // UI 갱신 요청
+          queryClient.invalidateQueries({ queryKey: ['trip'] });
+        } catch (e) {
+          console.error('[OfflineMap] Failed to update progress:', e);
+        }
+      }
     };
 
     const errorListener = (offlineRegion: any, error: any) => {

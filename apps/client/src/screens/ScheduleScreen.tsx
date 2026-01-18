@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { View, Alert } from 'react-native';
 import { MobileHeader } from '@/shared/components';
 import { TripSelector } from '@/entities/trip';
@@ -56,8 +56,20 @@ export default function ScheduleScreen() {
   >(undefined);
 
   const { data: trips = [] } = useGetTrips();
-  const { data: schedules = [], isLoading } = useGetSchedules(selectedTripId || '');
+  const { data: schedules = [], isLoading, refetch } = useGetSchedules(selectedTripId || '');
   const { mutate: deleteSchedule } = useDeleteSchedule();
+
+  // Pull-to-Refresh
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refetch();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetch]);
 
   // 선택된 여행 정보
   const selectedTrip = trips.find((trip: { id: string }) => trip.id === selectedTripId);
@@ -217,6 +229,8 @@ export default function ScheduleScreen() {
           hasTrip={!!selectedTrip}
           hasDates={!!(selectedTrip?.startDate && selectedTrip?.endDate)}
           onScheduleMenuPress={handleScheduleMenuPress}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
         />
       ) : (
         <ScheduleMapViewContainer

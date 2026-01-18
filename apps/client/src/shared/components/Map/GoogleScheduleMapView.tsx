@@ -97,7 +97,7 @@ export function GoogleScheduleMapView({
         longitudeDelta: 0.1,
       }}
       showsUserLocation
-      showsMyLocationButton
+      showsMyLocationButton={false}
     >
       {/* 경로 선 (점선) */}
       {schedulesWithCoords.length > 1 && (

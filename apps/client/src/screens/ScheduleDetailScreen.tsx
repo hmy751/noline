@@ -31,8 +31,11 @@ export default function ScheduleDetailScreen({ scheduleId, tripId, scheduledAt, 
   const isLoading = isLoadingSchedule || isLoadingExpenses;
 
   const handleExpensePress = (expenseId: string) => {
-    // ✅ 경비 상세 화면으로 이동
-    router.push(`/expense-detail/${expenseId}`);
+    // ✅ 경비 상세 화면으로 이동 (tripId 전달하여 Router 패턴 적용)
+    router.push({
+      pathname: '/expense-detail/[id]',
+      params: { id: expenseId, tripId },
+    });
   };
 
   /**

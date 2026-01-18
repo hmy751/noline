@@ -51,9 +51,15 @@ function AuthenticatedInitializers() {
 
 function InitializeMainTrip() {
   const { setSelectedTripId } = useTripStore();
-  const { data: trips = [] } = useGetTrips();
+  const { data: trips = [], isLoading, isError, error } = useGetTrips();
 
   useEffect(() => {
+    console.log(`📋 [InitializeMainTrip] isLoading=${isLoading}, isError=${isError}, trips.length=${trips.length}`);
+
+    if (isError) {
+      console.log('📋 [InitializeMainTrip] Error loading trips:', error);
+    }
+
     if (trips.length > 0) {
       const mainTrip = selectMainTrip(trips);
       if (mainTrip) {
@@ -63,8 +69,10 @@ function InitializeMainTrip() {
         setSelectedTripId(trips[0].id);
         console.log('✅ First trip selected:', trips[0].name);
       }
+    } else if (!isLoading && !isError) {
+      console.log('📋 [InitializeMainTrip] No trips found (empty array returned from query)');
     }
-  }, [trips, setSelectedTripId]);
+  }, [trips, setSelectedTripId, isLoading, isError, error]);
 
   return null;
 }

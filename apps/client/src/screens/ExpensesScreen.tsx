@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Alert } from 'react-native';
+import { View, Text, ScrollView, Alert, RefreshControl } from 'react-native';
 import { Container, Stack, ExpenseCard, MobileHeader } from '@/shared/components';
 import { TripSelector } from '@/entities/trip';
 import { useGetTripExpenses, useDeleteExpense } from '@/entities/expense';
@@ -6,7 +6,7 @@ import { useGetTrips } from '@/entities/trip';
 import { Pressable } from '@repo/ui';
 import { useRouter } from 'expo-router';
 import { useTripStore } from '@/shared/store';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { ExpenseMenu } from '@/features/expense/expense-menu';
 import { UpdateExpenseDrawer } from '@/features/expense/update-expense';
 import { formatISOToLocalDate } from '@/shared/lib/datetime';
@@ -31,7 +31,19 @@ export default function ExpensesScreen() {
   const selectedTrip = trips.find((trip) => trip.id === selectedTripId);
 
   // 실제 경비 데이터 조회 (tripId 필수)
-  const { data: expenses = [], isLoading } = useGetTripExpenses(selectedTripId || '');
+  const { data: expenses = [], isLoading, refetch } = useGetTripExpenses(selectedTripId || '');
+
+  // Pull-to-Refresh
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refetch();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetch]);
 
   // 여행 날짜 범위에서 모든 날짜 생성
   const generateDateRange = (): string[] => {
@@ -154,7 +166,7 @@ export default function ExpensesScreen() {
       {/* Current Trip Selector - Sticky */}
       <TripSelector className='border-b border-card-border bg-background px-md py-sm' />
 
-      <ScrollView className='flex-1'>
+      <ScrollView className='flex-1' refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         <Container>
           <Stack direction='vertical' gap='md' className='py-sm'>
             {/* ✅ CURRENCY_POLICY: 통화별 경비 표시 */}
@@ -252,7 +264,10 @@ export default function ExpensesScreen() {
                         hasReceipt={expense.hasReceipt}
                         isPending={false}
                         onPress={() => {
-                          router.push(`/expense-detail/${expense.id}`);
+                          router.push({
+                            pathname: '/expense-detail/[id]',
+                            params: { id: expense.id, tripId: expense.tripId },
+                          });
                         }}
                         onMenuPress={(event) => handleExpenseMenuPress(expense, event)}
                       />
