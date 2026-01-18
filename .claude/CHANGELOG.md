@@ -12,6 +12,72 @@
 
 ---
 
+## 2025-01
+
+### 2025-01-18
+
+**[Feature]** 🟢 Phase 1 빌드 후 버그 수정 및 UX 개선
+
+> **브랜치**: `fix/after-build-error`
+> **변경**: 33개 파일 (+749 / -190)
+> **기간**: 2025-01-16 ~ 2025-01-18 (17 commits)
+
+**핵심 변경사항**:
+
+1. **다중 사용자 환경 userId 필터링** 🐛
+   - `tripActivations` 쿼리에 userId 필터 적용
+   - 다른 사용자의 활성화 데이터 조회 버그 수정
+   - 영향 파일: `metadata.ts`, `useGetTripActivation.ts`
+
+2. **Pull-to-Refresh 기능** ✨
+   - HomeScreen: 여행 목록 새로고침
+   - ScheduleScreen/ScheduleListView: 일정 목록 새로고침
+   - ExpensesScreen: 경비 목록 새로고침
+   - RefreshControl + React Query refetch 사용
+
+3. **오프라인 지도 진행률 실시간 표시** ✨
+   - Mapbox 콜백에서 10% 단위 DB(syncProgress) 업데이트
+   - `getMapDownloadProgress()` 함수 추가
+   - polling 방식으로 UI 실시간 갱신 (최대 2분 타임아웃)
+   - 영향 파일: `download.ts`, `TripsSection.tsx`
+
+4. **오프라인 준비 UI/UX 간소화** ✨
+   - 활성화 진행 단계 5개 → 2개로 간소화
+     - 여행 데이터 다운로드
+     - 오프라인 지도 준비
+   - ActivationProgressDrawer UI 개선
+     - 상단 중앙 상태 아이콘 (로딩/완료/에러)
+     - 진행률 퍼센트 표시
+     - 컬러 진행률 바 (primary → success/error)
+
+5. **정책 구조 개선 (v3.0 Phase 1 강화)** 🔄
+   - Query Hook에서 캐시 폴백 로직 제거 (정책 일관성)
+   - 적용: `useGetTrips`, `useGetSchedules`, `useGetTripExpenses`
+   - 비활성+오프라인 → OfflineError → "활성화하기" 안내 (정책대로)
+   - `useAppPolicy`: `useGetTripActivation` 재사용으로 중복 제거
+   - 문서화: `selective-activation-architecture.md`에 "패턴 7" 추가
+
+6. **기타 버그 수정** 🐛
+   - 일정 추가 검색 시 키보드 자동 dismiss 처리
+   - Avatar fallback 문제 수정
+   - 셀렉터 UI 크기 조정
+   - ScheduleDetail → ExpenseDetail tripId 전달 누락 수정
+
+7. **UI/UX 개선** 🔄
+   - 휠 타입 TimePicker 적용
+   - Drawer fade 애니메이션 조정
+   - 프로필 앱버전 실제 연동
+   - 오프라인 지도 경로 시간 표시 반영
+   - 현위치 버튼 제거
+   - 유저 데이터 정보 기존 인증시스템에 연동
+
+**문서 업데이트**:
+
+- `selective-activation-architecture.md`: 패턴 7 추가 (비활성+오프라인 시나리오)
+- `selective-activation-architecture.md`: 다중 사용자 환경 userId 필터링 문서화
+
+---
+
 ## 2025-12
 
 ### 2025-12-23
@@ -494,7 +560,8 @@ const trips = await routeTripQuery({
 
 ## Statistics
 
-- **Total Commits**: ~150+
+- **Total Commits**: ~170+
 - **Documentation Files**: 25+
 - **Policy Changes**: 2 major versions
 - **Architecture Decisions**: 3 ADRs
+- **Last Updated**: 2025-01-18
