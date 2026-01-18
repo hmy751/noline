@@ -169,7 +169,7 @@ export function PolicyBasedMapView({ tripId, locations, selectedLocation }: Smar
             longitudeDelta: 0.05,
           }}
           showsUserLocation
-          showsMyLocationButton
+          showsMyLocationButton={false}
         >
           {/* 선택된 장소 마커 (큰 마커) */}
           {selectedLocation && (

@@ -91,7 +91,7 @@ export function MapView({ locations, selectedLocation }: MapViewProps) {
         longitudeDelta: 0.05,
       }}
       showsUserLocation
-      showsMyLocationButton
+      showsMyLocationButton={false}
     >
       {/* 선택된 장소 마커 (큰 마커) */}
       {selectedLocation && (
