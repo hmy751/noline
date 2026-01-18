@@ -33,11 +33,20 @@ export const useActivateTrip = () => {
     mutationFn: async (tripId: string) => {
       const now = getCurrentISOString();
 
-      // 1. 이미 활성화된 경우 스킵 (tripActivations 테이블 확인)
+      // 1. 이미 활성화된 경우 - 경로만 다운로드하고 종료
       const existingActivation = db.select().from(tripActivations).where(eq(tripActivations.tripId, tripId)).get();
 
       if (existingActivation?.isActivated) {
-        console.log(`✅ Trip already activated: ${tripId}`);
+        console.log(`✅ Trip already activated: ${tripId}, checking routes...`);
+
+        // 이미 활성화되어 있어도 경로 다운로드는 시도 (없는 경로만 다운로드됨)
+        const localSchedules = db.select().from(schedulesTable).where(eq(schedulesTable.tripId, tripId)).all();
+        if (localSchedules.length > 0) {
+          downloadRoutesForSchedules({ tripId, schedules: localSchedules }).catch((error) => {
+            console.error('❌ Route download failed for already activated trip:', error);
+          });
+        }
+
         return { tripId, alreadyActivated: true };
       }
 

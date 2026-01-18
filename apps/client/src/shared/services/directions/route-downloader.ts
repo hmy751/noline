@@ -12,6 +12,7 @@ import { queryClient } from '@/shared/lib/queryClient';
 import { routeQueryKeys } from '@/entities/route/data/keys';
 import { getDirections, type MapboxProfile } from './mapbox';
 import type { NewRoute } from '@/shared/db/schema';
+import { eq } from 'drizzle-orm';
 
 interface Schedule {
   id: string;
@@ -60,13 +61,28 @@ export async function downloadRoutesForSchedules({
     return { downloaded: 0 };
   }
 
-  console.log(`📍 Downloading routes for ${schedulesWithCoords.length} schedules...`);
+  // 기존 경로 조회 (중복 다운로드 방지)
+  const existingRoutes = db.select().from(routes).where(eq(routes.tripId, tripId)).all();
+
+  // 경로 존재 여부 체크 헬퍼
+  const routeExists = (fromId: string | null, toId: string, profile: MapboxProfile) => {
+    return existingRoutes.some((r) => r.fromScheduleId === fromId && r.toScheduleId === toId && r.profile === profile);
+  };
+
+  console.log(
+    `📍 Downloading routes for ${schedulesWithCoords.length} schedules (existing: ${existingRoutes.length})...`,
+  );
 
   // 1. 숙소 → 첫 일정 (있는 경우)
   if (accommodationCoords && schedulesWithCoords[0]) {
     const firstSchedule = schedulesWithCoords[0];
 
     for (const profile of PROFILES) {
+      // 이미 존재하면 스킵
+      if (routeExists(null, firstSchedule.id, profile)) {
+        continue;
+      }
+
       try {
         const directions = await getDirections({
           from: { latitude: accommodationCoords.latitude, longitude: accommodationCoords.longitude },
@@ -100,6 +116,11 @@ export async function downloadRoutesForSchedules({
     const nextSchedule = schedulesWithCoords[i + 1];
 
     for (const profile of PROFILES) {
+      // 이미 존재하면 스킵
+      if (routeExists(currentSchedule.id, nextSchedule.id, profile)) {
+        continue;
+      }
+
       try {
         const directions = await getDirections({
           from: { latitude: currentSchedule.latitude!, longitude: currentSchedule.longitude! },
@@ -130,10 +151,10 @@ export async function downloadRoutesForSchedules({
   // 3. DB에 일괄 저장
   if (newRoutes.length > 0) {
     await db.insert(routes).values(newRoutes).run();
-    
+
     // ✅ UI 갱신 요청 (지도 경로 표시)
     queryClient.invalidateQueries({ queryKey: routeQueryKeys.byTrip(tripId) });
-    
+
     console.log(`✅ Downloaded ${newRoutes.length} routes for trip ${tripId}`);
   }
 
