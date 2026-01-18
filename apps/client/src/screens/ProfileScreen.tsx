@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage, Switch, Separator, Pressable } fro
 import { useState } from 'react';
 import { User, Sun, Moon, Settings, Globe, Download, ChevronRight, Bug } from 'lucide-react-native';
 import { router } from 'expo-router';
+import Constants from 'expo-constants';
 import { useStorageStats } from '@/features/profile/hooks/useStorageStats';
 import { performLogout } from '@/shared/services/auth';
 import { useAuthStore } from '@/shared/store/auth';
@@ -92,7 +93,7 @@ export default function ProfileScreen() {
   ];
 
   const infoItems = [
-    { label: '앱 버전', value: '1.0.0' },
+    { label: '앱 버전', value: Constants.expoConfig?.version ?? '1.0.0' },
     { label: '저장된 데이터', value: stats.dbSize },
     { label: '오프라인 지도', value: stats.mapPackSize },
   ];
