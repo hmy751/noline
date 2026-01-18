@@ -4,7 +4,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Calendar, Clock, MapPin } from 'lucide-react-native';
 import { Drawer, Pressable } from '@repo/ui';
-import { DatePicker, WheelTimePicker } from '@/shared/components';
+import { DatePicker, TimePicker } from '@/shared/components';
 import { Field } from '@/shared/components/Form';
 import { useUpdateSchedule, useGetSchedules, type Schedule } from '@/entities/schedule';
 import { useAutoDownloadRoutes } from '@/entities/route';
@@ -304,7 +304,7 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
 
       {/* TimePicker Modal */}
       {timePickerVisible && (
-        <WheelTimePicker
+        <TimePicker
           visible={timePickerVisible}
           onClose={() => setTimePickerVisible(false)}
           onSelectTime={handleTimeSelect}
