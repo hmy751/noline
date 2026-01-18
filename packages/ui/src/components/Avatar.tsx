@@ -2,7 +2,6 @@ import * as AvatarPrimitive from '@rn-primitives/avatar';
 import { forwardRef } from 'react';
 import { Text } from 'react-native';
 import { cn } from '../lib/utils';
-import { Image, type ImageProps } from './Image';
 
 const AvatarRoot = AvatarPrimitive.Root;
 
@@ -21,8 +20,11 @@ const Avatar = forwardRef<
 
 Avatar.displayName = AvatarPrimitive.Root.displayName;
 
-const AvatarImage = forwardRef<React.ElementRef<typeof Image>, ImageProps>(({ className, ...props }, ref) => {
-  return <Image ref={ref} className={cn('h-full w-full', className)} {...props} />;
+const AvatarImage = forwardRef<
+  React.ElementRef<typeof AvatarPrimitive.Image>,
+  React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Image>
+>(({ className, ...props }, ref) => {
+  return <AvatarPrimitive.Image ref={ref} className={cn('h-full w-full rounded-full', className)} {...props} />;
 });
 
 AvatarImage.displayName = 'AvatarImage';
