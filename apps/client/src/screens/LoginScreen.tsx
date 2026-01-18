@@ -112,11 +112,16 @@ export default function LoginScreen() {
         }
       }
 
-      // 4. Auth Store에 저장 (토큰 + userId)
+      // 4. Auth Store에 저장 (토큰 + userId + userInfo)
       await login({
         accessToken: authResponse.accessToken,
         refreshToken: authResponse.refreshToken,
         userId: authResponse.user.id,
+        userInfo: {
+          name: authResponse.user.name,
+          email: authResponse.user.email,
+          profileImageUrl: authResponse.user.profileImageUrl ?? null,
+        },
       });
 
       console.log('✅ [Login] Google login successful');
@@ -161,11 +166,16 @@ export default function LoginScreen() {
         }
       }
 
-      // 4. Auth Store에 저장 (토큰 + userId)
+      // 4. Auth Store에 저장 (토큰 + userId + userInfo)
       await login({
         accessToken: authResponse.accessToken,
         refreshToken: authResponse.refreshToken,
         userId: authResponse.user.id,
+        userInfo: {
+          name: authResponse.user.name,
+          email: authResponse.user.email,
+          profileImageUrl: authResponse.user.profileImageUrl ?? null,
+        },
       });
 
       console.log('✅ [Login] Apple login successful');

@@ -8,6 +8,9 @@ const KEYS = {
   ACCESS_TOKEN: 'noline_access_token',
   REFRESH_TOKEN: 'noline_refresh_token',
   USER_ID: 'noline_user_id',
+  USER_NAME: 'noline_user_name',
+  USER_EMAIL: 'noline_user_email',
+  USER_PROFILE_IMAGE: 'noline_user_profile_image',
 } as const;
 
 // ========================================
@@ -97,14 +100,77 @@ export async function deleteUserId(): Promise<void> {
 }
 
 // ========================================
+// User Info (name, email, profileImageUrl)
+// ========================================
+
+export interface UserInfo {
+  name: string;
+  email: string;
+  profileImageUrl: string | null;
+}
+
+/**
+ * User Info 저장
+ */
+export async function setUserInfo(info: UserInfo): Promise<void> {
+  await Promise.all([
+    SecureStore.setItemAsync(KEYS.USER_NAME, info.name, SECURE_STORE_OPTIONS),
+    SecureStore.setItemAsync(KEYS.USER_EMAIL, info.email, SECURE_STORE_OPTIONS),
+    info.profileImageUrl
+      ? SecureStore.setItemAsync(KEYS.USER_PROFILE_IMAGE, info.profileImageUrl, SECURE_STORE_OPTIONS)
+      : SecureStore.deleteItemAsync(KEYS.USER_PROFILE_IMAGE),
+  ]);
+}
+
+/**
+ * User Info 조회
+ */
+export async function getUserInfo(): Promise<UserInfo | null> {
+  const [name, email, profileImageUrl] = await Promise.all([
+    SecureStore.getItemAsync(KEYS.USER_NAME),
+    SecureStore.getItemAsync(KEYS.USER_EMAIL),
+    SecureStore.getItemAsync(KEYS.USER_PROFILE_IMAGE),
+  ]);
+
+  if (!name || !email) return null;
+  return { name, email, profileImageUrl };
+}
+
+/**
+ * User Info 삭제
+ */
+export async function deleteUserInfo(): Promise<void> {
+  await Promise.all([
+    SecureStore.deleteItemAsync(KEYS.USER_NAME),
+    SecureStore.deleteItemAsync(KEYS.USER_EMAIL),
+    SecureStore.deleteItemAsync(KEYS.USER_PROFILE_IMAGE),
+  ]);
+}
+
+// ========================================
 // Batch Operations
 // ========================================
 
 /**
- * 토큰 + userId 한번에 저장 (로그인 성공 시)
+ * 토큰 + userId + userInfo 한번에 저장 (로그인 성공 시)
  */
-export async function saveAuthData(data: { accessToken: string; refreshToken: string; userId: string }): Promise<void> {
-  await Promise.all([setAccessToken(data.accessToken), setRefreshToken(data.refreshToken), setUserId(data.userId)]);
+export async function saveAuthData(data: {
+  accessToken: string;
+  refreshToken: string;
+  userId: string;
+  userInfo?: UserInfo;
+}): Promise<void> {
+  const promises: Promise<void>[] = [
+    setAccessToken(data.accessToken),
+    setRefreshToken(data.refreshToken),
+    setUserId(data.userId),
+  ];
+
+  if (data.userInfo) {
+    promises.push(setUserInfo(data.userInfo));
+  }
+
+  await Promise.all(promises);
 }
 
 /**
@@ -118,7 +184,7 @@ export async function updateTokens(data: { accessToken: string; refreshToken: st
  * 모든 인증 데이터 삭제 (로그아웃 시)
  */
 export async function clearAuthData(): Promise<void> {
-  await Promise.all([deleteAccessToken(), deleteRefreshToken(), deleteUserId()]);
+  await Promise.all([deleteAccessToken(), deleteRefreshToken(), deleteUserId(), deleteUserInfo()]);
 }
 
 /**
@@ -137,8 +203,14 @@ export async function getAuthData(): Promise<{
   accessToken: string | null;
   refreshToken: string | null;
   userId: string | null;
+  userInfo: UserInfo | null;
 }> {
-  const [accessToken, refreshToken, userId] = await Promise.all([getAccessToken(), getRefreshToken(), getUserId()]);
+  const [accessToken, refreshToken, userId, userInfo] = await Promise.all([
+    getAccessToken(),
+    getRefreshToken(),
+    getUserId(),
+    getUserInfo(),
+  ]);
 
-  return { accessToken, refreshToken, userId };
+  return { accessToken, refreshToken, userId, userInfo };
 }

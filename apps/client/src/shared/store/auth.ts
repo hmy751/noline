@@ -1,5 +1,12 @@
 import { create } from 'zustand';
-import { getAuthData, saveAuthData, updateTokens, clearAuthData, hasAuthData } from '../services/auth/token-storage';
+import {
+  getAuthData,
+  saveAuthData,
+  updateTokens,
+  clearAuthData,
+  hasAuthData,
+  type UserInfo,
+} from '../services/auth/token-storage';
 
 // ========================================
 // Types
@@ -8,13 +15,14 @@ import { getAuthData, saveAuthData, updateTokens, clearAuthData, hasAuthData } f
 interface AuthState {
   // State
   userId: string | null;
+  userInfo: UserInfo | null;
   isAuthenticated: boolean;
   isSessionExpired: boolean;
   isInitialized: boolean;
 
   // Actions
   init: () => Promise<void>;
-  login: (data: { accessToken: string; refreshToken: string; userId: string }) => Promise<void>;
+  login: (data: { accessToken: string; refreshToken: string; userId: string; userInfo?: UserInfo }) => Promise<void>;
   logout: () => Promise<void>;
   refreshTokens: (data: { accessToken: string; refreshToken: string }) => Promise<void>;
   setSessionExpired: (expired: boolean) => void;
@@ -27,6 +35,7 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set, get) => ({
   // Initial State
   userId: null,
+  userInfo: null,
   isAuthenticated: false,
   isSessionExpired: false,
   isInitialized: false,
@@ -34,17 +43,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   /**
    * 앱 시작 시 SecureStore에서 인증 데이터 복원
    * - 토큰 존재 여부만 확인 (만료 무시 - 오프라인 지원)
+   * - user 정보도 함께 복원 (오프라인에서 프로필 표시)
    */
   init: async () => {
     if (get().isInitialized) return;
 
     try {
-      const { userId, accessToken } = await getAuthData();
+      const { userId, accessToken, userInfo } = await getAuthData();
 
       if (userId && accessToken) {
         console.log('🔐 [AuthStore] Restored auth from SecureStore');
         set({
           userId,
+          userInfo,
           isAuthenticated: true,
           isSessionExpired: false,
           isInitialized: true,
@@ -53,6 +64,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         console.log('🔐 [AuthStore] No auth data found');
         set({
           userId: null,
+          userInfo: null,
           isAuthenticated: false,
           isSessionExpired: false,
           isInitialized: true,
@@ -62,6 +74,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       console.error('🔐 [AuthStore] Failed to restore auth:', error);
       set({
         userId: null,
+        userInfo: null,
         isAuthenticated: false,
         isSessionExpired: false,
         isInitialized: true,
@@ -70,26 +83,28 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   /**
-   * 로그인 성공 시 토큰 저장 + 상태 업데이트
+   * 로그인 성공 시 토큰 + user 정보 저장 + 상태 업데이트
    */
   login: async (data) => {
     await saveAuthData(data);
     console.log('🔐 [AuthStore] Login successful');
     set({
       userId: data.userId,
+      userInfo: data.userInfo ?? null,
       isAuthenticated: true,
       isSessionExpired: false,
     });
   },
 
   /**
-   * 로그아웃 시 토큰 삭제 + 상태 초기화
+   * 로그아웃 시 토큰 + user 정보 삭제 + 상태 초기화
    */
   logout: async () => {
     await clearAuthData();
     console.log('🔐 [AuthStore] Logout completed');
     set({
       userId: null,
+      userInfo: null,
       isAuthenticated: false,
       isSessionExpired: false,
     });
@@ -128,6 +143,9 @@ export const authStore = {
   get userId() {
     return useAuthStore.getState().userId;
   },
+  get userInfo() {
+    return useAuthStore.getState().userInfo;
+  },
   get isAuthenticated() {
     return useAuthStore.getState().isAuthenticated;
   },
@@ -140,7 +158,7 @@ export const authStore = {
   async init() {
     await useAuthStore.getState().init();
   },
-  async login(data: { accessToken: string; refreshToken: string; userId: string }) {
+  async login(data: { accessToken: string; refreshToken: string; userId: string; userInfo?: UserInfo }) {
     await useAuthStore.getState().login(data);
   },
   async logout() {
