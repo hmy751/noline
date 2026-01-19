@@ -20,6 +20,12 @@ export default {
         RNMapboxMapsDownloadToken: process.env.MAPBOX_SECRET_ACCESS_TOKEN,
       },
     ],
+    [
+      'expo-location',
+      {
+        locationAlwaysAndWhenInUsePermission: '여행 중 현재 위치를 지도에 표시하고 경로를 기록하기 위해 사용자의 위치 정보가 필요합니다.',
+      },
+    ],
   ],
   splash: {
     image: './assets/splash-icon.png',
@@ -46,6 +52,8 @@ export default {
     },
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
+      NSLocationWhenInUseUsageDescription: '여행 중 현재 위치를 지도에 표시하고 경로를 기록하기 위해 사용자의 위치 정보가 필요합니다.',
+      // NSPhotoLibraryUsageDescription: '여행 경비 영수증 사진을 첨부하기 위해 사진 라이브러리 접근 권한이 필요합니다.', // 이건 나중에 기능 추가하면 사용하기
       NSAppTransportSecurity: {
         NSAllowsArbitraryLoads: !IS_PROD, // 개발 환경에서만 HTTP 허용
         NSAllowsLocalNetworking: true,

@@ -2,8 +2,13 @@ import { StyleSheet, View, Text } from 'react-native';
 import { useRef, useEffect } from 'react';
 import RNMapView, { Marker, Polyline, PROVIDER_GOOGLE } from 'react-native-maps';
 import type { ScheduleMapViewProps } from './types';
+import { useMyLocation } from '@/shared/hooks/map/useMyLocation';
+import { MyLocationButton } from './MyLocationButton';
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   map: {
     flex: 1,
   },
@@ -31,6 +36,9 @@ export function GoogleScheduleMapView({
 }: ScheduleMapViewProps) {
   const mapRef = useRef<RNMapView>(null);
 
+  // 현재 위치 Hook
+  const { moveToCurrentLocation, isLoading: isLocationLoading } = useMyLocation({ mapRef });
+
   // 좌표가 있는 일정만 필터링
   const schedulesWithCoords = schedules.filter(
     (s) => s.latitude && s.longitude && !isNaN(s.latitude) && !isNaN(s.longitude),
@@ -52,20 +60,28 @@ export function GoogleScheduleMapView({
     }
   }, [schedulesWithCoords, selectedScheduleId]);
 
-  // 선택된 일정의 마커로 지도 중앙 이동
+  // 이전 selectedScheduleId 추적 (불필요한 애니메이션 방지)
+  const prevSelectedScheduleIdRef = useRef<string | null | undefined>(null);
+
+  // 선택된 일정의 마커로 지도 중앙 이동 (selectedScheduleId가 실제로 변경될 때만)
   useEffect(() => {
-    if (mapRef.current && selectedScheduleId) {
-      const selectedSchedule = schedulesWithCoords.find((s) => s.id === selectedScheduleId);
-      if (selectedSchedule?.latitude && selectedSchedule?.longitude) {
-        mapRef.current.animateToRegion(
-          {
-            latitude: selectedSchedule.latitude,
-            longitude: selectedSchedule.longitude,
-            latitudeDelta: 0.05,
-            longitudeDelta: 0.05,
-          },
-          500,
-        );
+    // selectedScheduleId가 실제로 변경된 경우에만 애니메이션 실행
+    if (selectedScheduleId !== prevSelectedScheduleIdRef.current) {
+      prevSelectedScheduleIdRef.current = selectedScheduleId;
+
+      if (mapRef.current && selectedScheduleId) {
+        const selectedSchedule = schedulesWithCoords.find((s) => s.id === selectedScheduleId);
+        if (selectedSchedule?.latitude && selectedSchedule?.longitude) {
+          mapRef.current.animateToRegion(
+            {
+              latitude: selectedSchedule.latitude,
+              longitude: selectedSchedule.longitude,
+              latitudeDelta: 0.05,
+              longitudeDelta: 0.05,
+            },
+            500,
+          );
+        }
       }
     }
   }, [selectedScheduleId, schedulesWithCoords]);
@@ -86,73 +102,82 @@ export function GoogleScheduleMapView({
   const firstSchedule = schedulesWithCoords[0];
 
   return (
-    <RNMapView
-      ref={mapRef}
-      provider={PROVIDER_GOOGLE}
-      style={styles.map}
-      initialRegion={{
-        latitude: firstSchedule.latitude!,
-        longitude: firstSchedule.longitude!,
-        latitudeDelta: 0.1,
-        longitudeDelta: 0.1,
-      }}
-      showsUserLocation
-      showsMyLocationButton={false}
-    >
-      {/* 경로 선 (점선) */}
-      {schedulesWithCoords.length > 1 && (
-        <Polyline
-          coordinates={schedulesWithCoords.map((s) => ({
-            latitude: s.latitude!,
-            longitude: s.longitude!,
-          }))}
-          strokeColor='#228B22'
-          strokeWidth={3}
-          lineDashPattern={[10, 10]}
-        />
-      )}
+    <View style={styles.container}>
+      <RNMapView
+        ref={mapRef}
+        provider={PROVIDER_GOOGLE}
+        style={styles.map}
+        initialRegion={{
+          latitude: firstSchedule.latitude!,
+          longitude: firstSchedule.longitude!,
+          latitudeDelta: 0.1,
+          longitudeDelta: 0.1,
+        }}
+        showsUserLocation
+        showsMyLocationButton={false}
+      >
+        {/* 경로 선 (점선) */}
+        {schedulesWithCoords.length > 1 && (
+          <Polyline
+            coordinates={schedulesWithCoords.map((s) => ({
+              latitude: s.latitude!,
+              longitude: s.longitude!,
+            }))}
+            strokeColor='#228B22'
+            strokeWidth={3}
+            lineDashPattern={[10, 10]}
+          />
+        )}
 
-      {/* 마커들 */}
-      {schedulesWithCoords.map((schedule, index) => {
-        const isSelected = schedule.id === selectedScheduleId;
-        return (
-          <Marker
-            key={schedule.id}
-            coordinate={{
-              latitude: schedule.latitude!,
-              longitude: schedule.longitude!,
-            }}
-            title={schedule.title}
-            description={`${schedule.time} • ${schedule.location}`}
-            onPress={() => onMarkerPress?.(schedule.id)}
-            zIndex={isSelected ? 10 : 1}
-          >
-            {/* 커스텀 마커 (순서 번호 표시) */}
-            <View className='items-center'>
-              <View
-                className={`rounded-full border-2 border-white shadow-md ${
-                  isSelected ? 'h-10 w-10 bg-primary' : 'h-8 w-8 bg-primary/70'
-                }`}
-                style={{ justifyContent: 'center', alignItems: 'center' }}
-              >
-                <Text
-                  className={`font-semibold ${
-                    isSelected ? 'text-body text-primary-foreground' : 'text-label text-primary-foreground/80'
-                  }`}
-                >
-                  {index + 1}
-                </Text>
-              </View>
-              {isSelected && (
+        {/* 마커들 */}
+        {schedulesWithCoords.map((schedule, index) => {
+          const isSelected = schedule.id === selectedScheduleId;
+          return (
+            <Marker
+              key={schedule.id}
+              coordinate={{
+                latitude: schedule.latitude!,
+                longitude: schedule.longitude!,
+              }}
+              title={schedule.title}
+              description={`${schedule.time} • ${schedule.location}`}
+              onPress={() => onMarkerPress?.(schedule.id)}
+              zIndex={isSelected ? 10 : 1}
+            >
+              {/* 커스텀 마커 (순서 번호 표시) */}
+              <View className='items-center'>
                 <View
-                  className='mt-1 h-2 w-2 rounded-full bg-primary'
-                  style={{ shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 2 }}
-                />
-              )}
-            </View>
-          </Marker>
-        );
-      })}
-    </RNMapView>
+                  className={`rounded-full border-2 border-white shadow-md ${
+                    isSelected ? 'h-10 w-10 bg-primary' : 'h-8 w-8 bg-primary/70'
+                  }`}
+                  style={{ justifyContent: 'center', alignItems: 'center' }}
+                >
+                  <Text
+                    className={`font-semibold ${
+                      isSelected ? 'text-body text-primary-foreground' : 'text-label text-primary-foreground/80'
+                    }`}
+                  >
+                    {index + 1}
+                  </Text>
+                </View>
+                {isSelected && (
+                  <View
+                    className='mt-1 h-2 w-2 rounded-full bg-primary'
+                    style={{ shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 2 }}
+                  />
+                )}
+              </View>
+            </Marker>
+          );
+        })}
+      </RNMapView>
+
+      {/* 커스텀 현재 위치 버튼 - 하단 카드 위로 배치 */}
+      <MyLocationButton
+        onPress={moveToCurrentLocation}
+        isLoading={isLocationLoading}
+        style={{ bottom: 220, right: 16 }}
+      />
+    </View>
   );
 }
