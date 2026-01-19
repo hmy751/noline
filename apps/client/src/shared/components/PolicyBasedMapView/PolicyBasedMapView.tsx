@@ -13,6 +13,8 @@ import RNMapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { useOfflineCity } from '@/entities/offline-city';
 import { useAppPolicy } from '@/shared/policy';
 import { OfflineMapView } from './OfflineMapView';
+import { useMyLocation } from '@/shared/hooks/map/useMyLocation';
+import { MyLocationButton } from '@/shared/components/Map/MyLocationButton';
 
 interface Location {
   latitude: number;
@@ -58,6 +60,9 @@ export function PolicyBasedMapView({ tripId, locations, selectedLocation }: Smar
 
   // 오프라인 지도 조회 (mapbox 모드에서만 필요)
   const { data: offlineCity, isLoading } = useOfflineCity(tripId);
+
+  // 현재 위치 기능 (Google Maps 모드에서 사용)
+  const { moveToCurrentLocation, isLoading: isLocationLoading } = useMyLocation({ mapRef });
 
   // 지도 영역 자동 조정 (react-native-maps - Google Maps 모드에서만)
   useEffect(() => {
@@ -158,47 +163,56 @@ export function PolicyBasedMapView({ tripId, locations, selectedLocation }: Smar
       // Google Maps 사용 (react-native-maps)
       console.log('🌐 Using Google Maps (online)');
       return (
-        <RNMapView
-          ref={mapRef}
-          provider={PROVIDER_GOOGLE}
-          style={styles.map}
-          initialRegion={{
-            latitude: centerLocation.latitude,
-            longitude: centerLocation.longitude,
-            latitudeDelta: 0.05,
-            longitudeDelta: 0.05,
-          }}
-          showsUserLocation
-          showsMyLocationButton={false}
-        >
-          {/* 선택된 장소 마커 (큰 마커) */}
-          {selectedLocation && (
-            <Marker
-              coordinate={{
-                latitude: selectedLocation.latitude,
-                longitude: selectedLocation.longitude,
-              }}
-              title={selectedLocation.name}
-              description={selectedLocation.address}
-              pinColor='#228B22'
-            />
-          )}
-
-          {/* 검색 결과 마커들 (선택 전) */}
-          {!selectedLocation &&
-            locations.map((location, index) => (
+        <View style={styles.map}>
+          <RNMapView
+            ref={mapRef}
+            provider={PROVIDER_GOOGLE}
+            style={styles.map}
+            initialRegion={{
+              latitude: centerLocation.latitude,
+              longitude: centerLocation.longitude,
+              latitudeDelta: 0.05,
+              longitudeDelta: 0.05,
+            }}
+            showsUserLocation={true}
+            showsMyLocationButton={false} // 기본 버튼 숨김
+          >
+            {/* 선택된 장소 마커 (큰 마커) */}
+            {selectedLocation && (
               <Marker
-                key={`${location.latitude}-${location.longitude}-${index}`}
                 coordinate={{
-                  latitude: location.latitude,
-                  longitude: location.longitude,
+                  latitude: selectedLocation.latitude,
+                  longitude: selectedLocation.longitude,
                 }}
-                title={location.name}
-                description={location.address}
+                title={selectedLocation.name}
+                description={selectedLocation.address}
                 pinColor='#228B22'
               />
-            ))}
-        </RNMapView>
+            )}
+
+            {/* 검색 결과 마커들 (선택 전) */}
+            {!selectedLocation &&
+              locations.map((location, index) => (
+                <Marker
+                  key={`${location.latitude}-${location.longitude}-${index}`}
+                  coordinate={{
+                    latitude: location.latitude,
+                    longitude: location.longitude,
+                  }}
+                  title={location.name}
+                  description={location.address}
+                  pinColor='#228B22'
+                />
+              ))}
+          </RNMapView>
+
+          {/* 커스텀 현재 위치 버튼 */}
+          <MyLocationButton
+            onPress={moveToCurrentLocation}
+            isLoading={isLocationLoading}
+            style={{ bottom: 100, right: 16 }} // UI 카드 위로 위치 조정
+          />
+        </View>
       );
   }
 }
