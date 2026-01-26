@@ -57,6 +57,13 @@ const config = {
     webClientId: process.env.GOOGLE_WEB_CLIENT_ID,
     iosClientId: process.env.GOOGLE_IOS_CLIENT_ID,
   },
+
+  appleOAuth: {
+    clientId: process.env.APPLE_CLIENT_ID, // App Bundle ID (예: com.noline.app)
+    teamId: process.env.APPLE_TEAM_ID,
+    keyId: process.env.APPLE_KEY_ID,
+    privateKey: process.env.APPLE_PRIVATE_KEY?.replace(/\\n/g, '\n'), // PEM 형식
+  },
 } as const;
 
 // Validate required environment variables

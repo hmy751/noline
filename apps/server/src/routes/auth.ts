@@ -8,6 +8,7 @@ import { users, refreshTokens } from '../db/schema.js';
 import config from '../config/index.js';
 import { generateTokens, verifyRefreshToken, hashToken, getRefreshTokenExpiresAt } from '../services/jwt.js';
 import { requireAuth } from '../middleware/auth.js';
+import { exchangeAppleAuthCode, revokeAppleToken, isAppleOAuthConfigured } from '../services/apple-oauth.js';
 
 const router = Router();
 
@@ -212,7 +213,7 @@ router.post('/google', async (req: Request, res: Response) => {
 
 router.post('/apple', async (req: Request, res: Response) => {
   try {
-    const { identityToken, user: appleUser, deviceInfo } = req.body;
+    const { identityToken, authorizationCode, user: appleUser, deviceInfo } = req.body;
 
     if (!identityToken) {
       return res.status(400).json({
@@ -249,6 +250,13 @@ router.post('/apple', async (req: Request, res: Response) => {
       });
     }
 
+    // Apple Authorization Code로 Refresh Token 발급 (Token Revoke용)
+    let appleRefreshToken: string | null = null;
+    if (authorizationCode && isAppleOAuthConfigured()) {
+      console.log('🔐 [Apple Auth] Exchanging authorization code for refresh token...');
+      appleRefreshToken = await exchangeAppleAuthCode(authorizationCode);
+    }
+
     // 사용자 찾기 또는 생성
     // Apple은 첫 로그인 시에만 email/name 제공, 이후에는 sub만 제공
     const existingUser = await db
@@ -259,8 +267,20 @@ router.post('/apple', async (req: Request, res: Response) => {
 
     let user;
     if (existingUser.length > 0) {
-      // 기존 사용자
-      user = existingUser[0];
+      // 기존 사용자 - Apple Refresh Token 업데이트 (있는 경우만)
+      if (appleRefreshToken) {
+        const [updatedUser] = await db
+          .update(users)
+          .set({
+            appleRefreshToken,
+            updatedAt: new Date(),
+          })
+          .where(eq(users.id, existingUser[0].id))
+          .returning();
+        user = updatedUser;
+      } else {
+        user = existingUser[0];
+      }
     } else {
       // 새 사용자 - email/name 필수
       if (!appleUserInfo.email) {
@@ -278,6 +298,7 @@ router.post('/apple', async (req: Request, res: Response) => {
           email: appleUserInfo.email,
           name: appleUserInfo.name || appleUserInfo.email.split('@')[0],
           profileImageUrl: null, // Apple은 프로필 사진 미제공
+          appleRefreshToken, // Token Revoke용 (null일 수 있음)
         })
         .returning();
 
@@ -459,6 +480,27 @@ router.get('/me', requireAuth, async (req: Request, res: Response) => {
 router.delete('/account', requireAuth, async (req: Request, res: Response) => {
   try {
     const userId = req.userId!;
+
+    // 사용자 정보 조회 (Apple 사용자인 경우 token revoke 필요)
+    const userResult = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+
+    if (userResult.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: { code: 'USER_NOT_FOUND', message: '사용자를 찾을 수 없습니다' },
+      });
+    }
+
+    const user = userResult[0];
+
+    // Apple 사용자인 경우 Token Revoke (App Store Guideline 5.1.1(v) 준수)
+    if (user.provider === 'apple' && user.appleRefreshToken && isAppleOAuthConfigured()) {
+      console.log('🔐 [Delete Account] Revoking Apple token...');
+      const revokeSuccess = await revokeAppleToken(user.appleRefreshToken);
+      if (!revokeSuccess) {
+        console.warn('⚠️ [Delete Account] Apple token revoke failed, continuing with account deletion');
+      }
+    }
 
     // 모든 Refresh Token 삭제
     await deleteAllRefreshTokens(userId);

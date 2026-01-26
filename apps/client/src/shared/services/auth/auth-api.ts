@@ -42,11 +42,13 @@ export async function loginWithGoogle(idToken: string, deviceInfo?: string): Pro
 /**
  * Apple Identity Token으로 로그인
  * @param identityToken - Apple Identity Token
+ * @param authorizationCode - Apple Authorization Code (Token Revoke용)
  * @param user - Apple 사용자 정보 (첫 로그인 시에만 제공)
  * @param deviceInfo - 디바이스 정보 (선택)
  */
 export async function loginWithApple(data: {
   identityToken: string;
+  authorizationCode: string;
   user?: string;
   email?: string;
   fullName?: { firstName?: string; lastName?: string };
@@ -55,6 +57,7 @@ export async function loginWithApple(data: {
   try {
     const response = await authAxios.post('/api/auth/apple', {
       identityToken: data.identityToken,
+      authorizationCode: data.authorizationCode,
       user: data.user,
       email: data.email,
       fullName: data.fullName,

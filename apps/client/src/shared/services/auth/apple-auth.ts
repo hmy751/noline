@@ -8,6 +8,7 @@ import { Platform } from 'react-native';
 export interface AppleAuthResult {
   success: true;
   identityToken: string;
+  authorizationCode: string; // Token Revoke용 (서버에서 Apple refresh_token 발급에 사용)
   user?: {
     email?: string;
     name?: {
@@ -75,9 +76,19 @@ export async function signInWithApple(): Promise<AppleAuthResponse> {
       };
     }
 
+    // Authorization Code 필수 (Token Revoke용)
+    if (!credential.authorizationCode) {
+      return {
+        success: false,
+        error: 'FAILED',
+        message: 'Authorization Code를 받지 못했습니다',
+      };
+    }
+
     return {
       success: true,
       identityToken: credential.identityToken,
+      authorizationCode: credential.authorizationCode,
       user: {
         email: credential.email ?? undefined,
         name: credential.fullName

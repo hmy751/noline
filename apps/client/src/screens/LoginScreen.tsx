@@ -150,9 +150,10 @@ export default function LoginScreen() {
         throw new Error(appleResult.message || 'Apple 로그인 실패');
       }
 
-      // 2. 서버로 identityToken 전송하여 인증
+      // 2. 서버로 identityToken + authorizationCode 전송하여 인증
       const authResponse = await loginWithApple({
         identityToken: appleResult.identityToken,
+        authorizationCode: appleResult.authorizationCode,
         email: appleResult.user?.email,
         fullName: appleResult.user?.name,
       });

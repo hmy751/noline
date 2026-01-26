@@ -31,6 +31,10 @@ export const users = pgTable(
     provider: authProviderEnum('provider').notNull(),
     providerId: text('provider_id').notNull(),
 
+    // Apple Sign in with Apple - Token Revoke용
+    // Apple 로그인 시 발급받은 refresh_token 저장 (계정 삭제 시 revoke에 사용)
+    appleRefreshToken: text('apple_refresh_token'),
+
     // ✅ TIMESTAMPTZ: ISO 8601 with timezone 지원
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
