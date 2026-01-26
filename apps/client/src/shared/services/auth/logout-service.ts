@@ -1,5 +1,5 @@
 import { getSyncQueueStats, clearSyncQueue } from '@/shared/services/sync/queue';
-import { logout as logoutApi } from './auth-api';
+import { logout as logoutApi, deleteAccount } from './auth-api';
 import { authStore } from '@/shared/store/auth';
 import { resetDatabase } from '@/shared/db';
 import { queryClient } from '@/shared/lib/queryClient';
@@ -140,4 +140,97 @@ export async function performLogout(options: LogoutOptions = {}): Promise<Logout
  */
 export async function forceLogout(): Promise<LogoutResult> {
   return performLogout({ force: true });
+}
+
+// ========================================
+// Delete Account Service
+// ========================================
+
+/**
+ * 회원 탈퇴 프로세스
+ *
+ * 1. sync_queue 확인 (동기화되지 않은 데이터 경고)
+ * 2. 서버 계정 삭제 (CASCADE로 모든 데이터 삭제)
+ * 3. 로컬 DB 삭제
+ * 4. Auth Store 초기화
+ * 5. React Query 캐시 무효화
+ *
+ * @param options - 삭제 옵션
+ * @returns 삭제 결과
+ *
+ * @example
+ * ```ts
+ * // 일반 삭제 (pending이 있으면 경고)
+ * const result = await performDeleteAccount();
+ * if (!result.success && result.hasPendingSync) {
+ *   // 사용자에게 확인 요청
+ *   const confirmed = await confirm('동기화되지 않은 데이터가 있습니다. 계속하시겠습니까?');
+ *   if (confirmed) {
+ *     await performDeleteAccount({ force: true });
+ *   }
+ * }
+ *
+ * // 강제 삭제
+ * await performDeleteAccount({ force: true });
+ * ```
+ */
+export async function performDeleteAccount(options: LogoutOptions = {}): Promise<LogoutResult> {
+  const { force = false } = options;
+
+  try {
+    console.log('🗑️ [DeleteAccount] Starting account deletion process...');
+
+    // 1. sync_queue 확인
+    const syncStatus = await checkPendingSync();
+
+    if (syncStatus.hasPending && !force) {
+      console.warn(`⚠️ [DeleteAccount] Pending sync: ${syncStatus.pendingCount} items`);
+      return {
+        success: false,
+        hasPendingSync: true,
+        pendingCount: syncStatus.pendingCount,
+        message: `동기화되지 않은 데이터가 ${syncStatus.pendingCount}개 있습니다. 계정을 삭제하면 이 데이터는 손실됩니다.`,
+      };
+    }
+
+    // 2. 서버 계정 삭제 API 호출 (CASCADE로 모든 데이터 삭제)
+    await deleteAccount();
+    console.log('✅ [DeleteAccount] Server account deleted');
+
+    // 3. sync_queue 삭제
+    await clearSyncQueue();
+    console.log('✅ [DeleteAccount] Sync queue cleared');
+
+    // 4. 로컬 DB 리셋 (모든 테이블 재생성)
+    await resetDatabase();
+    console.log('✅ [DeleteAccount] Local database reset');
+
+    // 5. Auth Store 초기화
+    await authStore.logout();
+    console.log('✅ [DeleteAccount] Auth store cleared');
+
+    // 6. React Query 캐시 전체 무효화
+    queryClient.clear();
+    console.log('✅ [DeleteAccount] React Query cache cleared');
+
+    console.log('✅ [DeleteAccount] Account deletion completed successfully');
+
+    return {
+      success: true,
+      message: '계정이 삭제되었습니다.',
+    };
+  } catch (error) {
+    console.error('❌ [DeleteAccount] Account deletion failed:', error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : '계정 삭제에 실패했습니다.',
+    };
+  }
+}
+
+/**
+ * 강제 계정 삭제 (데이터 손실 확인 없이)
+ */
+export async function forceDeleteAccount(): Promise<LogoutResult> {
+  return performDeleteAccount({ force: true });
 }
