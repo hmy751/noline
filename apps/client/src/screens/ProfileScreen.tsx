@@ -6,12 +6,13 @@ import { User, Sun, Moon, Settings, Globe, Download, ChevronRight, Bug } from 'l
 import { router } from 'expo-router';
 import Constants from 'expo-constants';
 import { useStorageStats } from '@/features/profile/hooks/useStorageStats';
-import { performLogout } from '@/shared/services/auth';
+import { performLogout, performDeleteAccount } from '@/shared/services/auth';
 import { useAuthStore } from '@/shared/store/auth';
 
 export default function ProfileScreen() {
   const [darkMode, setDarkMode] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   // AuthStore에서 user 정보 조회 (SecureStore에서 복원됨 - 오프라인 지원)
   const { userInfo } = useAuthStore();
@@ -65,6 +66,61 @@ export default function ProfileScreen() {
       Alert.alert('오류', '로그아웃 중 오류가 발생했습니다.');
     } finally {
       setIsLoggingOut(false);
+    }
+  };
+
+  // 계정 삭제 처리
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      '계정 삭제',
+      '계정을 삭제하면 모든 여행 데이터가 영구적으로 삭제됩니다.\n\n이 작업은 되돌릴 수 없습니다.',
+      [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '계정 삭제',
+          style: 'destructive',
+          onPress: () => executeDeleteAccount(),
+        },
+      ],
+    );
+  };
+
+  const executeDeleteAccount = async () => {
+    setIsDeletingAccount(true);
+
+    try {
+      const result = await performDeleteAccount();
+
+      if (!result.success && result.hasPendingSync) {
+        Alert.alert('동기화 대기 중', result.message || '동기화되지 않은 데이터가 있습니다.', [
+          {
+            text: '취소',
+            style: 'cancel',
+            onPress: () => setIsDeletingAccount(false),
+          },
+          {
+            text: '계속 삭제',
+            style: 'destructive',
+            onPress: async () => {
+              const forceResult = await performDeleteAccount({ force: true });
+              if (!forceResult.success) {
+                Alert.alert('오류', forceResult.message || '계정 삭제에 실패했습니다.');
+              }
+              setIsDeletingAccount(false);
+            },
+          },
+        ]);
+        return;
+      }
+
+      if (!result.success) {
+        Alert.alert('오류', result.message || '계정 삭제에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('❌ [Profile] Delete account error:', error);
+      Alert.alert('오류', '계정 삭제 중 오류가 발생했습니다.');
+    } finally {
+      setIsDeletingAccount(false);
     }
   };
 
@@ -184,8 +240,15 @@ export default function ProfileScreen() {
             </View>
 
             {/* Logout Button */}
-            <Pressable variant='outline' onPress={handleLogout} disabled={isLoggingOut}>
+            <Pressable variant='outline' onPress={handleLogout} disabled={isLoggingOut || isDeletingAccount}>
               {isLoggingOut ? '로그아웃 중...' : '로그아웃'}
+            </Pressable>
+
+            {/* Delete Account Button */}
+            <Pressable variant='ghost' onPress={handleDeleteAccount} disabled={isDeletingAccount || isLoggingOut}>
+              <Text className='text-center text-destructive'>
+                {isDeletingAccount ? '계정 삭제 중...' : '계정 삭제'}
+              </Text>
             </Pressable>
           </Stack>
         </Container>
