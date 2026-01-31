@@ -4,7 +4,7 @@ export default {
   name: IS_PROD ? 'Noline' : 'Noline (Dev)',
   slug: 'noline',
   main: 'index.js',
-  version: '1.0.0',
+  version: '1.0.1',
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'light',
