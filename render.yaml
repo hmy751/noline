@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: noline-server
+    runtime: node
+    region: singapore # 한국에서 가장 가까운 리전
+    plan: free
+    buildCommand: pnpm install && pnpm --filter @repo/schema build && pnpm --filter @apps/server build
+    startCommand: cd apps/server && pnpm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 20
+      - key: DATABASE_URL
+        sync: false # Render 대시보드에서 직접 설정
+      - key: JWT_SECRET
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: APPLE_CLIENT_ID
+        sync: false
+    autoDeploy: true # main 브랜치 푸시 시 자동 배포
