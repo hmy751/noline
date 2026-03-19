@@ -83,7 +83,7 @@
 **핵심 문서**:
 
 - [CHANGELOG.md](./.claude/CHANGELOG.md) - 정책 진화 및 주요 변경사항 추적
-  - 정책 버전: v1.0 (Pure Local-First) → v2.0 (Selective Activation)
+  - 정책 버전: v1.0 → v2.0 (Selective Activation) → v3.0 (Policy-Driven Extension)
   - Migration Guide 포함
   - 모든 아키텍처 결정 기록
 
@@ -453,7 +453,7 @@ console.log(status);
 
 **그래도 안 되면**:
 
-1. [selective-activation-architecture.md#debugging](./.claude/core/selective-activation-architecture.md#debugging) - 상세 디버깅 가이드
+1. [selective-activation-architecture.md - 디버깅 가이드](./.claude/core/selective-activation-architecture.md#-디버깅-가이드) - 상세 디버깅 가이드
 2. sync_queue 테이블 직접 확인
 3. withTransaction 사용 여부 재확인
 
@@ -1099,7 +1099,8 @@ Sync Engine (백그라운드)
 
 **남은 작업**:
 
-- [ ] Pull 동기화 고도화 (현재 activate 시 1회만)
+- [x] Pull 동기화 기본 구현 (`pullChanges()` — `lastSyncedAt` 기반 증분 동기화)
+- [ ] Pull 동기화 고도화 (현재 activate 시 1회 → 주기적 Pull)
 - [ ] 자동 비활성화 Background Job (여행 종료 + 7일)
 - [ ] 활성화 진행률 실시간 업데이트
 - [ ] 오프라인 지도 다운로드 재시도 로직
@@ -1186,14 +1187,15 @@ pnpm schema build           # @repo/schema 빌드
 
 ## 📝 Project History
 
-> **Latest**: 2025-11-19 - Documentation 리팩토링 시스템 구축
+> **최신 정책**: v3.0 Policy-Driven Extension (2025-11)
+> **최신 기능**: Google/Apple OAuth 인증 (2025-12)
 
 **⚠️ History는 반드시 [CHANGELOG.md](./.claude/CHANGELOG.md)를 참조하세요**
 
 CHANGELOG.md에서 확인할 수 있는 내용:
 
 - 📅 전체 변경 이력 (날짜별 정리)
-- 🔄 정책 버전 관리 (v1.0 Pure Local-First → v2.0 Selective Activation)
+- 🔄 정책 버전 관리 (v1.0 → v2.0 Selective Activation → v3.0 Policy-Driven Extension)
 - 📖 Migration Guide (코드 변경 방법)
 - 📊 Statistics (커밋, 문서, ADR 수)
 
@@ -1218,4 +1220,4 @@ CHANGELOG.md에서 확인할 수 있는 내용:
 
 ---
 
-**Last Updated**: 2025-11-20
+**Last Updated**: 2026-03-19

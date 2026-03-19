@@ -384,7 +384,7 @@ Decision에서 감지된 키워드:
    - **별도 Entity**: 복잡한 구조, 1:N 관계, 재사용성
 
    참고 Decision:
-   - [Expense 영수증 구조](../.claude/decisions/2024-11-05-expense-receipt.md)
+   - [Expense 영수증 구조](../decisions/2024-11-05-expense-receipt.md)
 
    2. .claude/references/images.md
       추가: "이미지 저장 정책" 섹션
@@ -419,11 +419,23 @@ Git (a3f9b2c) → CHANGELOG → Decision → CLAUDE.md
 
 - **정책 일관성 확인 필요시**: → `/doc-refactor`로 전체 검증 (선택)
 - **추가 변경사항 있을 경우**: → `/check-docs`로 다시 확인
-- **모두 완료된 경우**: → `git add . && git commit`으로 마무리
+- **모두 완료된 경우**: → 아래 문서 커밋으로 마무리
+
+### 최종: 문서 파일 커밋
+
+Step 2-4에서 생성/수정된 문서 파일을 별도 커밋합니다:
+
+```bash
+git add .claude/CHANGELOG.md .claude/decisions/ .claude/sessions/ CLAUDE.md
+git commit -m "docs: 문서 업데이트 (CHANGELOG, Decision 등)"
+```
+
+> **결과**: 코드 커밋 (Step 1) + 문서 커밋 = 총 2회 커밋
 
 ## 주의사항
 
-- **Git commit 먼저**: 모든 문서화는 commit 이후
+- **Git commit 먼저**: 코드 변경 commit 이후 문서화 시작
+- **문서도 커밋**: 생성된 문서 파일은 별도 커밋으로 마무리
 - **선택 사항**: 모든 commit에 Decision 필요 없음 (월 1-2회)
 - **자동 연결**: Session/Decision/CHANGELOG 자동으로 링크
 - **CLAUDE.md**: 정책 수립시만 업데이트 (분기별)

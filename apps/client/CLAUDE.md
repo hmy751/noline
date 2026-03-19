@@ -62,7 +62,7 @@
 **클라이언트 핵심:**
 
 - **SQLite 저장**: TEXT 타입으로 ISO 8601 문자열 저장
-- **유틸리티 위치**: `shared/lib/date.ts`
+- **유틸리티 위치**: `shared/lib/datetime.ts`
 - **Zod 검증**: `z.string().datetime({ offset: true })`
 
 ```typescript
@@ -70,8 +70,9 @@
 const now = new Date().toISOString(); // "2024-03-15T14:30:00.000Z"
 
 // 사용자 표시용 변환
-import { formatDateTime } from '@/shared/lib/date';
-formatDateTime(now); // "2024-03-15 14:30"
+import { formatISOToLocalDate, formatISOToLocalTime } from '@/shared/lib/datetime';
+formatISOToLocalDate(now);     // "2024-03-15"
+formatISOToLocalTime(now);     // "14:30"
 ```
 
 ## 🗄 Database Layer

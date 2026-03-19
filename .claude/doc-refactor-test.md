@@ -200,6 +200,136 @@
 
 ---
 
+---
+
+## Round 2: 문서 정합성 및 연결성 테스트 (2026-03-19)
+
+> **목적**: 문서 간 경로/용어/상태 정보의 정합성과, 외부인 관점에서의 오해 가능성을 검증
+> **Before 기준**: Round 1 수정 후, Round 2 수정 전
+
+### Q7. datetime 유틸 import 경로가 뭐야?
+
+**검증 대상**: Client CLAUDE.md와 Root CLAUDE.md의 경로/함수명 일관성
+
+**[Before - 2026-03-19]**
+- Root CLAUDE.md: `@/shared/lib/datetime` + `formatISOToLocalDate`, `formatISOToLocalTime`
+- Client CLAUDE.md:65: `shared/lib/date.ts` + `formatDateTime`
+- 실제 파일: `apps/client/src/shared/lib/datetime.ts` (Root이 맞고 Client가 틀림)
+- **문제**: Client 문서를 따르면 import 실패
+- **예상 등급**: B — Root 문서를 먼저 보면 맞지만, Client 문서를 보면 틀림
+
+**[After - 2026-03-19]**
+
+- Client CLAUDE.md:65: `shared/lib/datetime.ts` ✅ (Root과 일치)
+- Client CLAUDE.md:73: `formatISOToLocalDate`, `formatISOToLocalTime` ✅ (Root과 동일 함수명)
+- 실제 파일 `datetime.ts`와 모든 문서가 일치 ✅
+- **등급: A** — 경로, 함수명 모두 통일됨
+
+---
+
+### Q8. 현재 정책 버전은 몇이야?
+
+**검증 대상**: Root CLAUDE.md 내 정책 버전 표기 일관성
+
+**[Before - 2026-03-19]**
+- Root:86: "v1.0 (Pure Local-First) → v2.0 (Selective Activation)" — v3.0 누락
+- Root:98-130: v2.0, v3.0 구분해서 잘 설명됨
+- CHANGELOG Policy Versions: v1.0, v2.0만 표기, v3.0 없음
+- CHANGELOG Statistics:565: "2 major versions" (실제 3개)
+- **문제**: 같은 문서 안에서도 위치에 따라 v3.0 존재 여부가 다름
+- **예상 등급**: B — 본문은 맞지만 요약/히스토리 부분이 틀림
+
+**[After - 2026-03-19]**
+
+- Root:86: "v1.0 → v2.0 (Selective Activation) → v3.0 (Policy-Driven Extension)" ✅
+- Root:98-130: v2.0, v3.0 상세 설명 유지 ✅
+- CHANGELOG Policy Versions: v3.0 섹션 추가, v2.0 기간 명시 ✅
+- CHANGELOG Statistics: "3 major versions" ✅, "7 ADRs" ✅
+- Root History 섹션: "최신 정책: v3.0", "최신 기능: OAuth" ✅
+- **등급: A** — 요약/히스토리/본문 모두 v3.0까지 일관성 있게 표기
+
+---
+
+### Q9. Pull Sync 구현됐어? 남은 작업 뭐야?
+
+**검증 대상**: Root CLAUDE.md "남은 작업"과 Client CLAUDE.md "구현 완료" 충돌
+
+**[Before - 2026-03-19]**
+- Root:1102: `[ ] Pull 동기화 고도화 (현재 activate 시 1회만)` — 남은 작업
+- Client:305: `✅ 구현 완료` — `pullChanges()` 함수 구현됨
+- **문제**: Pull Sync 기본 구현은 완료됐지만 Root에서 "남은 작업"으로 표기
+- **예상 등급**: B — 답변이 어떤 문서를 먼저 보느냐에 따라 달라짐
+
+**[After - 2026-03-19]**
+
+- Root:1102: `[x] Pull 동기화 기본 구현 (pullChanges() — lastSyncedAt 기반 증분 동기화)` ✅
+- Root:1103: `[ ] Pull 동기화 고도화 (현재 activate 시 1회 → 주기적 Pull)` — 남은 작업으로 명확 분리
+- Client:305: `✅ 구현 완료` — Root과 일치 ✅
+- **등급: A** — 기본 구현 완료 + 고도화 남음이 명확히 구분됨
+
+---
+
+### Q10. policy-architecture.md 마이그레이션 다 끝났어?
+
+**검증 대상**: 체크리스트 상태 vs 실제 구현 상태
+
+**[Before - 2026-03-19]**
+- policy-architecture.md:758-766: Phase 2-4, Phase 5 항목이 unchecked (`[ ]`)
+- CHANGELOG 2025-11-21: "Phase 1~4 구현 완료, Phase 5 수동 테스트 남음"
+- **문제**: CHANGELOG은 Phase 4까지 완료라는데, 체크리스트는 Phase 2-4가 미완
+- **예상 등급**: B — 어떤 문서를 보느냐에 따라 반대 답변
+
+**[After - 2026-03-19]**
+
+- policy-architecture.md:758: Phase 2-4 `✅ 완료 (2025-11-21)` ✅
+- 3개 항목 모두 `[x]` (SmartMapView, CreateTripButton, Manual Input) ✅
+- Phase 5: `⏳ 대기중` — 테스트 작성만 남음으로 명확
+- CHANGELOG의 "Phase 1~4 구현 완료"와 **정확히 일치** ✅
+- **등급: A** — 체크리스트와 CHANGELOG 간 모순 해소
+
+---
+
+### Q11. 비활성화 시 데이터 안전 정책이 뭐야?
+
+**검증 대상**: activation-system.md 내부 링크 및 내용 정합성
+
+**[Before - 2026-03-19]**
+- activation-system.md:706: `../.claude/decisions/...` — 경로 중복 (`.claude` 안에서 `../.claude` 참조)
+- activation-system.md:707: `#패턴-6-비활성화-시-sync_queue-무시로-인한-데이터-손실` — 앵커 존재 확인됨 ✅
+- selective-activation-architecture.md에 "패턴 6" 두 개 존재 (1627, 1665) — 혼동 가능
+- **예상 등급**: A — 내용 자체는 정확하지만 링크 경로가 깨짐
+
+**[After - 2026-03-19]**
+
+- activation-system.md:706: `../decisions/...` — 경로 수정 완료 ✅
+- activation-system.md:707: 앵커 링크 유지 ✅
+- **등급: A** — 내용 정확 + 링크 경로 정상화
+
+---
+
+### Q12. /doc-save 실행하면 커밋 몇 번 해야 돼?
+
+**검증 대상**: doc-save 워크플로우 명확성
+
+**[Before - 2026-03-19]**
+- doc-save.md Step 1: 코드 커밋 실행
+- doc-save.md Step 2-4: CHANGELOG, Decision, CLAUDE.md 생성/수정
+- 생성된 문서 파일을 커밋하라는 단계가 없음
+- doc-save.md:422: "모두 완료된 경우 → git add . && git commit" — 모호
+- **문제**: 코드 커밋 1회 후 문서 파일 커밋이 빠져 있어 운영 혼란
+- **예상 등급**: C — 워크플로우 자체가 불완전
+
+**[After - 2026-03-19]**
+
+- doc-save.md:422: "모두 완료된 경우 → 아래 문서 커밋으로 마무리" ✅
+- doc-save.md:424-433: "최종: 문서 파일 커밋" 단계 신규 추가 ✅
+  - `git add .claude/CHANGELOG.md .claude/decisions/ .claude/sessions/ CLAUDE.md`
+  - 결과: "코드 커밋 (Step 1) + 문서 커밋 = 총 2회 커밋" 명시
+- doc-save.md:437-438: 주의사항에 "문서도 커밋" 항목 추가 ✅
+- **등급: A** — 워크플로우 완결, 커밋 횟수 명확
+
+---
+
 ## 평가 기준
 
 | 등급 | 기준 |
@@ -218,3 +348,9 @@
 | Q4 (개발 서버) | B | A | **A** | 없는 명령어 제거, 워크스페이스 필터 명령어로 정리 |
 | Q5 (v3 정책 감지) | B | A | **A** | policy-architecture.md 등 v3.0 문서 3개 추적 추가 |
 | Q6 (정책 버전) | B | A | **A** | POLICY_HISTORY에 v3.0 정의, current: true |
+| Q7 (datetime 경로) | B | A | **A** | Client CLAUDE.md `lib/date` → `lib/datetime` 통일 |
+| Q8 (정책 버전 표기) | B | A | **A** | Root 요약/CHANGELOG에 v3.0 추가 |
+| Q9 (Pull Sync 상태) | B | A | **A** | 기본 구현 완료 + 고도화 남음 명확 분리 |
+| Q10 (마이그레이션 체크리스트) | B | A | **A** | CHANGELOG 기준으로 체크리스트 현행화 |
+| Q11 (비활성화 안전 링크) | A/C | A | **A** | 내부 상대경로 수정 |
+| Q12 (doc-save 커밋 흐름) | C | A | **A** | 문서 커밋 단계 추가, 총 2회 명시 |

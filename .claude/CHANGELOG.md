@@ -12,9 +12,9 @@
 
 ---
 
-## 2025-01
+## 2026-01
 
-### 2025-01-18
+### 2026-01-18
 
 **[Feature]** 🟢 Phase 1 빌드 후 버그 수정 및 UX 개선
 
@@ -319,7 +319,7 @@ const status = networkStore.status; // 동기 접근
 
 > **관계**: v2.0 Selective Activation 기반 위에 Policy Layer 확장
 > **상태**: Phase 1~4 구현 완료, Phase 5 수동 테스트 남음
-> **추적**: [v3.0-tracker.md](./.claude/implementation/v3.0-tracker.md)
+> **추적**: [v3.0-tracker.md](./implementation/v3.0-tracker.md)
 
 **핵심 컨셉**: v2.0의 활성화 정책(active/inactive) + 네트워크 상태(online/offline) → **4-State Matrix**
 
@@ -339,7 +339,7 @@ const status = networkStore.status; // 동기 접근
 
 - **제거**: OfflineIndicator (NetworkStatusIndicator로 통합)
 
-- **테스트 시나리오**: [v3.0-test-scenarios.md](./.claude/implementation/v3.0-test-scenarios.md)
+- **테스트 시나리오**: [v3.0-test-scenarios.md](./implementation/v3.0-test-scenarios.md)
 
 **Migration 완료**:
 
@@ -367,7 +367,7 @@ if (!policy.schedule.create.allowed) {
 **[Architecture Design]** 📋 v3.0 설계 완료 - Policy-Driven Architecture
 
 > **상태**: 설계 문서 작성 완료 → 구현 완료 (2025-11-21)
-> **추적**: [v3.0-tracker.md](./.claude/implementation/v3.0-tracker.md)
+> **추적**: [v3.0-tracker.md](./implementation/v3.0-tracker.md)
 
 - **설계 완료**: Data와 Service를 분리하여 각각 다른 정책 적용하는 아키텍처
   - **Data Layer** (Trip/Schedule/Expense): Router 통한 Local-First 유지
@@ -517,7 +517,14 @@ switch(policy.mapProvider) { ... }
 
 ## Policy Versions
 
-### v2.0 - Selective Activation (2025-11-06 ~ Current)
+### v3.0 - Policy-Driven Extension (2025-11-20 ~ Current)
+
+- **핵심**: v2.0 활성화 정책 + 네트워크 상태 → 4-State Matrix로 CRUD 제어
+- **레이어**: v2.0 위에 구축된 확장 레이어
+- **Policy Hook**: `useAppPolicy`로 중앙 정책 조회
+- **가이드**: [policy-architecture.md](./core/policy-architecture.md)
+
+### v2.0 - Selective Activation (2025-11-06 ~ 2025-11-19, 기반 레이어)
 
 - **핵심**: 활성화 상태에 따른 선택적 로컬 저장
 - **진실의 원천**:
@@ -561,7 +568,7 @@ const trips = await routeTripQuery({
 ## Statistics
 
 - **Total Commits**: ~170+
-- **Documentation Files**: 25+
-- **Policy Changes**: 2 major versions
-- **Architecture Decisions**: 3 ADRs
-- **Last Updated**: 2025-01-18
+- **Documentation Files**: 37+
+- **Policy Changes**: 3 major versions (v1.0, v2.0, v3.0)
+- **Architecture Decisions**: 7 ADRs
+- **Last Updated**: 2026-03-19

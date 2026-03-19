@@ -4,7 +4,7 @@
 > **버전**: v3.0
 > **작성일**: 2025-11-20
 > **최종 업데이트**: 2025-11-21
-> **구현 추적**: [v3.0-tracker.md](../.claude/implementation/v3.0-tracker.md)
+> **구현 추적**: [v3.0-tracker.md](../implementation/v3.0-tracker.md)
 
 > **핵심**: 오프라인 환경에서도 핵심 데이터 입력을 가능하게 하는 Graceful Degradation 전략
 
