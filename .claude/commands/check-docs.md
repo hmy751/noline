@@ -34,6 +34,7 @@ const policyDocuments = [
   '.claude/core/typescript.md',
   '.claude/core/architecture.md',
   '.claude/core/selective-activation-architecture.md',
+  '.claude/core/policy-architecture.md',        // v3.0 Policy Layer
   '.claude/core/time.md',
   '.claude/core/api-data.md',
   '.claude/core/components.md',
@@ -44,6 +45,8 @@ const policyDocuments = [
   '.claude/features/form.md',
   '.claude/features/activation-system.md',
   '.claude/features/manual-input.md',
+  '.claude/features/offline-routing.md',         // v3.0 오프라인 라우팅
+  '.claude/features/offline-map.md',             // v3.0 오프라인 지도
 
   // 참조 문서
   '.claude/references/prd.md',

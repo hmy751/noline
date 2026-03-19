@@ -99,7 +99,7 @@ export const trips = pgTable('trips', {
 
 ## 🔐 Authentication & Authorization
 
-### JWT 기반 인증 (구현 예정)
+### JWT 기반 인증 (구현 완료)
 
 ```typescript
 // middleware/auth.ts
@@ -130,12 +130,12 @@ export async function authenticateToken(req, res, next) {
 - console.error 로깅
 - 500 에러 응답
 
-**Production Level:**
+**Production Level (미구현, 향후 계획):**
 
 - 커스텀 에러 클래스 체계 (AppError 상속)
 - 에러 타입별 처리 (ValidationError, NotFoundError, ConflictError)
-- Winston 로깅
-- Sentry 연동
+- Winston 로깅 (미도입)
+- Sentry 연동 (미도입)
 
 ### 글로벌 에러 핸들러
 
@@ -177,7 +177,7 @@ export async function authenticateToken(req, res, next) {
 
 1. **연결 풀**: 적절한 크기 설정 (기본 20)
 2. **쿼리 최적화**: 필요한 필드만 선택, 배치 작업
-3. **캐싱**: Redis 도입 검토 (구현 예정)
+3. **캐싱**: Redis 도입 검토 (미도입, 향후 계획)
 4. **인덱스**: updated_at, 외래키 필드
 
 ## 🔍 Monitoring & Logging

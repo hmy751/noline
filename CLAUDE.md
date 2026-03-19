@@ -1164,20 +1164,22 @@ LoginScreen → OAuth Provider → Server Auth → JWT 발급
 ## 📋 Quick Commands
 
 ```bash
-# 개발 환경
-pnpm dev          # 전체 개발 서버 실행
-pnpm dev:client   # 클라이언트만 실행
-pnpm dev:server   # 서버만 실행
+# 개발 환경 (워크스페이스 필터 사용)
+pnpm client start           # Expo 클라이언트 실행
+pnpm server dev             # 서버 개발 모드 (tsx watch)
 
-# 데이터베이스
-pnpm db:push      # DB 스키마 푸시
-pnpm db:studio    # Prisma Studio 실행
-pnpm db:generate  # Prisma Client 생성
+# 데이터베이스 (서버 워크스페이스)
+pnpm server db:push         # Drizzle 스키마 푸시
+pnpm server db:studio       # Drizzle Studio 실행
+pnpm server db:generate     # Drizzle 마이그레이션 생성
 
-# 빌드 & 배포
-pnpm build        # 전체 빌드
-pnpm typecheck    # 타입 체크
-pnpm lint         # Lint 검사
+# 빌드 & 검증
+pnpm server build           # 서버 빌드
+pnpm server typecheck       # 서버 타입 체크
+pnpm lint                   # 전체 Lint 검사
+
+# 스키마 패키지
+pnpm schema build           # @repo/schema 빌드
 ```
 
 ---

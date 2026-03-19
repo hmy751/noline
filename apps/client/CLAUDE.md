@@ -302,8 +302,9 @@ onSuccess: () => {
 
 ### Pull Sync (서버 → 로컬)
 
-**상태**: 🚧 구현 예정
-**계획**: lastSyncedAt 이후 변경사항 pull
+**상태**: ✅ 구현 완료
+**구현**: `shared/services/sync/engine.ts`의 `pullChanges()` 함수
+**동작**: lastSyncedAt 이후 변경사항을 서버에서 pull
 
 ## 📋 개발 가이드라인
 

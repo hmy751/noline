@@ -45,10 +45,12 @@ await addToSyncQueue();  // 별도 실행
 withTransaction(async () => { ... })
 ```
 
-### 2. 현재 정책 (v2.0 - Selective Activation)
+### 2. 현재 정책 (v2.0 + v3.0)
 
 ```typescript
 const CURRENT_POLICIES = {
+  // === v2.0 Selective Activation (기반 레이어) ===
+
   // 데이터 접근 정책
   dataAccess: {
     rule: 'Router를 통한 모든 데이터 접근',
@@ -75,6 +77,31 @@ const CURRENT_POLICIES = {
     rule: '클라이언트 ID 생성 (Echo Protocol)',
     required: ['generateId()'],
     forbidden: ['ulid() 직접 사용'],
+  },
+
+  // === v3.0 Policy-Driven Extension (확장 레이어) ===
+
+  // Policy Layer 정책
+  policyLayer: {
+    rule: '4-State Matrix로 CRUD 권한 제어',
+    states: ['online_active', 'online_inactive', 'offline_active', 'offline_inactive'],
+    required: ['useAppPolicy'],
+    guide: '.claude/core/policy-architecture.md',
+  },
+
+  // Data/Service Layer 분리
+  layerSeparation: {
+    rule: 'Data Layer는 Router, Service Layer는 Policy 기반',
+    dataLayer: ['Trip', 'Schedule', 'Expense'],  // sync_queue 필요
+    serviceLayer: ['Map', 'Search', 'Directions'],  // 소유권 없음
+    guide: '.claude/decisions/2025-11-20-data-service-separation.md',
+  },
+
+  // Manual Input 정책
+  manualInput: {
+    rule: 'offline_active에서 API 없이 데이터 입력 지원',
+    required: ['policy.schedule.create.mode 체크'],
+    guide: '.claude/features/manual-input.md',
   },
 };
 ```
@@ -113,9 +140,18 @@ const POLICY_HISTORY = {
   },
   '2.0': {
     name: 'Selective Activation',
-    period: '2025-11-06 ~ current',
+    period: '2025-11-06 ~',
     core: '활성화 여부에 따른 선택적 로컬',
+    layer: '기반 레이어',
     current: true,
+  },
+  '3.0': {
+    name: 'Policy-Driven Extension',
+    period: '2025-11 ~',
+    core: 'v2.0 활성화 정책 + 네트워크 상태 → 4-State Matrix로 CRUD 제어',
+    layer: '확장 레이어 (v2.0 위에 구축)',
+    current: true,
+    guide: '.claude/core/policy-architecture.md',
   },
 };
 ```
