@@ -1,17 +1,28 @@
-# NOLINE
+<div align="center">
+  <h2>NOLINE</h2>
+  <p><strong>네트워크가 없어도 여행은 계속된다</strong></p>
 
-NOLINE은 네트워크가 없어도 여행 일정과 경비를 완벽하게 관리할 수 있는 **Local-First 여행 관리 앱**입니다.
+  <p>
+    <img src="https://img.shields.io/badge/Platform-iOS-000000?logo=apple&logoColor=white" alt="Platform iOS" />
+    <img src="https://img.shields.io/badge/Version-1.0.1-blue" alt="Version 1.0.1" />
+    <img src="https://img.shields.io/badge/Architecture-Local--First-green" alt="Architecture Local-First" />
+  </p>
+
+  <p>
+    <a href="https://apps.apple.com/kr/app/noline/id6757186547">
+      <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" height="40" />
+    </a>
+  </p>
+</div>
+
+NOLINE은 네트워크가 없어도 여행 일정과 경비를 완벽하게 관리할 수 있는 **Local-First 여행 관리 iOS 앱**입니다.
 오프라인 환경에서도 일정 추가, 경비 기록, 지도 확인이 가능하며, 네트워크 복구 시 자동으로 서버와 동기화됩니다.
-
-> **"네트워크가 없어도 여행은 계속된다"**
-
-<br>
-<br>
 
 # 📖 목차
 
 - [🔥 Motivation](#-motivation)
 - [📱 Preview & Features](#-preview--features)
+- [🔐 Authentication](#-authentication)
 - [⚙️ Tech Stack](#️-tech-stack)
 - [📁 Project Structure](#-project-structure)
 - [🚀 Quick Start](#-quick-start)
@@ -29,6 +40,7 @@ NOLINE은 네트워크가 없어도 여행 일정과 경비를 완벽하게 관�
   - [1. 데이터가 서버에 동기화되지 않는다?](#1-데이터가-서버에-동기화되지-않는다)
   - [2. 여행 비활성화 시 데이터가 손실된다](#2-여행-비활성화-시-데이터가-손실된다)
 - [📜 Service Policies](#-service-policies)
+  - [플랫폼 정책](#플랫폼-정책)
 
 <br>
 <br>
@@ -106,19 +118,31 @@ NOLINE은 네트워크가 없어도 여행 일정과 경비를 완벽하게 관�
 <br>
 <br>
 
+# 🔐 Authentication
+
+- **Google / Apple OAuth** 소셜 로그인으로 간편 인증
+- **JWT 토큰 기반 인증**: Access Token (15분) + Refresh Token (7일, Rolling)
+- **자동 토큰 갱신**: 401 응답 시 Refresh Token으로 자동 재발급
+- **계정별 데이터 분리**: userId 기반 로컬 데이터 필터링
+- **세션 만료 안내**: SessionExpiredBanner로 재로그인 유도
+
+<br>
+<br>
+
 # ⚙️ Tech Stack
 
 ### Frontend (React Native + Expo)
 
-- **React Native** 0.74.5 + **Expo SDK 51**
+- **React Native** 0.74.5 + **Expo SDK 51** (iOS 전용)
 - **TypeScript** 5.5
 - **React Query** (서버 상태 관리)
-- **Zustand** (로컬 상태 관리)
+- **Zustand** (로컬 상태 관리 - 인증, 네트워크, 여행 선택)
 - **Drizzle ORM** + **SQLite** (로컬 DB)
 - **React Hook Form** + **Zod** (폼 검증)
 - **Expo Router** (파일 기반 라우팅)
 - **NativeWind** (Tailwind CSS for RN)
 - **Mapbox GL** (오프라인 지도)
+- **Google/Apple OAuth** (소셜 로그인)
 
 ### Backend (Node.js + Express)
 
@@ -126,7 +150,14 @@ NOLINE은 네트워크가 없어도 여행 일정과 경비를 완벽하게 관�
 - **TypeScript** 5.5 (ESM)
 - **Drizzle ORM** + **PostgreSQL** (Neon)
 - **Zod** (스키마 검증)
+- **JWT** (Access Token + Refresh Token)
 - **Google Maps Services** (Geocoding, Directions)
+
+### Infra & Deployment
+
+- **EAS Build** (iOS 빌드 및 App Store 배포)
+- **Render** (백엔드 서버 호스팅)
+- **Neon** (Serverless PostgreSQL)
 
 ### Shared Packages (Monorepo)
 
@@ -188,6 +219,8 @@ noline/
 
 # 🚀 Quick Start
 
+> **iOS 전용 앱**입니다. macOS + Xcode 환경이 필요합니다.
+
 ```bash
 # 의존성 설치
 pnpm install
@@ -200,7 +233,7 @@ cd apps/server
 docker-compose up -d
 pnpm dev
 
-# 클라이언트 실행 (새 터미널에서)
+# 클라이언트 실행 - iOS (새 터미널에서)
 cd apps/client
 pnpm run ios
 ```
@@ -751,6 +784,11 @@ const deactivateTrip = async (tripId: string) => {
 
 - **Soft Delete**: 삭제 후 7일간 복구 가능
 - **Last-Write-Wins**: 충돌 시 최신 데이터 우선
+
+### 플랫폼 정책
+
+- **iOS 전용 배포**: 현재 App Store(iOS)에서만 배포
+- Android 설정은 Expo 기반으로 존재하나, 우선 iOS에 집중하여 출시
 
 <br>
 <br>
