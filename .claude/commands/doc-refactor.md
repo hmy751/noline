@@ -74,7 +74,7 @@ const CURRENT_POLICIES = {
 
   // ID 생성 정책
   idGeneration: {
-    rule: '클라이언트 ID 생성 (Echo Protocol)',
+    rule: '클라이언트 ID 생성 (Client-Side ID Generation)',
     required: ['generateId()'],
     forbidden: ['ulid() 직접 사용'],
   },

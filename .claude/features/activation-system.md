@@ -276,7 +276,7 @@ export async function createExpense(data: CreateExpenseInput) {
       });
     },
     remote: async () => {
-      // 비활성: 서버 직접 (Echo Protocol 유지)
+      // 비활성: 서버 직접 (Client-Side ID 유지)
       const id = ulid();
       await api.post('/expenses', { id, ...data });
       return id;
@@ -1397,7 +1397,7 @@ throw new OfflineError('오프라인에서 추가하려면 이 여행을 활성�
 throw new Error('오프라인입니다');
 ```
 
-### 4. Echo Protocol 유지
+### 4. Client-Side ID Generation 유지
 
 ```typescript
 // ✅ 항상 클라이언트 ID 생성
@@ -1444,8 +1444,8 @@ await api.post('/expenses', data); // 서버가 ID 생성
 - **활성화 (Activation)**: 여행을 로컬에 저장하여 오프라인 작동 가능하게 하는 상태
 - **Metadata**: 여행 목록 표시용 최소 정보 (항상 로컬)
 - **Full Data**: 완전한 여행 데이터 (활성화 시만 로컬)
-- **라우팅 레이어**: 활성화 상태에 따라 로컬/서버 경로 결정하는 로직
-- **Echo Protocol**: 클라이언트가 ID 생성, 서버가 그대로 수용하는 패턴
+- **Activation Router**: 활성화 상태에 따라 로컬/서버 경로 결정하는 라우팅 레이어
+- **Client-Side ID Generation**: 클라이언트가 ID 생성, 서버가 그대로 수용하는 패턴
 
 ---
 
@@ -1491,7 +1491,7 @@ shared/services/
 │ Entity Layer (useGetExpenses) │
 └─────────────────────────────────────────────────┘
 ↓
-Offline-Prep Router (활성화 상태 확인)
+Activation Router (활성화 상태 확인)
 ↓
 ┌─────────────┴─────────────┐
 │ │
