@@ -1,6 +1,6 @@
 # 🧭 Noline Project Guide
 
-> **Noline**: 네트워크가 없어도 여행은 계속된다 - Local-First 여행 관리 앱
+> **Noline**: 네트워크가 없어도 여행은 계속된다 - Selective Local-First 여행 관리 앱
 
 ---
 
@@ -29,7 +29,7 @@
 | [policy-architecture.md](./.claude/core/policy-architecture.md)                             | 🔥🔥🔥 | ~500   | 정책 작업시   | Policy Layer 가이드 (v3.0)  |
 | [selective-activation-architecture.md](./.claude/core/selective-activation-architecture.md) | 🔥🔥🔥 | ~1,865 | Sync 작업시   | Selective Activation 가이드 |
 | [time.md](./.claude/core/time.md)                                                           | 🔥🔥   | ~1,005 | 날짜 작업시   | 시간 처리 완전 가이드       |
-| [activation-system.md](./.claude/features/activation-system.md)                             | 🔥🔥   | ~1,497 | 활성화 작업시 | Offline-Prep Router         |
+| [activation-system.md](./.claude/features/activation-system.md)                             | 🔥🔥   | ~1,497 | 활성화 작업시 | Activation Router           |
 | [manual-input.md](./.claude/features/manual-input.md)                                       | 🔥🔥   | ~600   | 오프라인 입력 | Manual Input 가이드         |
 
 **작업별 가이드** (필요시 읽기):
@@ -93,15 +93,24 @@
 
 **Noline**은 오프라인 환경에서도 완벽하게 작동하는 여행 관리 모바일 앱입니다.
 
+### 용어 규칙
+
+> 📋 **상세**: [Decision - 용어 통일](./.claude/decisions/2026-03-21-terminology-unification.md)
+
+- **아키텍처**: Selective Local-First (구 Local-First, Server-Aware)
+- **라우터**: Activation Router (구 Offline-Prep Router)
+- **ID 전략**: Client-Side ID Generation (구 Echo Protocol)
+- **UX 비유**: 오프라인 보험
+
 ### 핵심 아키텍처 (현재)
 
 #### 📍 v2.0: Selective Activation (2025-11 구현, 기반 레이어)
 
-> **핵심 정책**: "활성화 = 오프라인 대비(보험), 비활성 = 온라인 전용"
+> **핵심 정책**: "활성화 = 오프라인 보험, 비활성 = 온라인 전용"
 
 - **활성화된 여행**: Local SQLite가 진실의 원천 → 오프라인 작동 보장
 - **비활성 여행**: Server API가 진실의 원천 → 온라인 전용, 저장공간 절약
-- **Offline-Prep Router**: 활성화 상태에 따라 Local/Remote 자동 분기
+- **Activation Router**: 활성화 상태에 따라 Local/Remote 자동 분기
 - **동시 1개 제한**: 저장공간 효율화 (오프라인 지도 200MB/여행)
 - 📋 **상세**: [selective-activation-architecture.md](./.claude/core/selective-activation-architecture.md)
 
@@ -130,8 +139,8 @@
   - `PolicyErrorDisplay`: 3 variants (banner, block, inline)
   - `NetworkStatusIndicator`: 헤더 우측 네트워크 상태 표시
 
-- **Echo Protocol**: 클라이언트가 ID (ULID) 생성하고 서버는 그대로 수용
-- **@repo/schema**: 클라이언트-서버 공유 타입 계약 (Source of Truth)
+- **Client-Side ID Generation**: 클라이언트가 ID (ULID) 생성하고 서버는 그대로 수용
+- **@repo/schema**: 클라이언트-서버 공유 타입 계약 (Single Source of Truth)
 - **Sync Queue Safety**: 3단계 삭제 시스템으로 데이터 손실 방지
 
 ---
@@ -198,7 +207,7 @@ type User = z.infer<typeof userEntity>;
 
 | Layer       | 대상                    | 정책          | Router 사용 | 이유            |
 | ----------- | ----------------------- | ------------- | ----------- | --------------- |
-| **Data**    | Trip, Schedule, Expense | Local-First   | ✅ 필수     | sync_queue 필요 |
+| **Data**    | Trip, Schedule, Expense | Selective Local-First | ✅ 필수     | sync_queue 필요 |
 | **Service** | Map, Search, Directions | Network-First | ❌ 불필요   | 소유권 없음     |
 
 ### Policy Layer (중앙 제어) - ✅ 구현 완료
@@ -229,11 +238,11 @@ policy.service.searchMode     // 'api' | 'manual'
 
 ## ⚡ Quick Start (30초 - Level 1)
 
-**What**: Local-First 여행 관리 모바일 앱
+**What**: Selective Local-First 여행 관리 모바일 앱
 
 **How**:
 
-- **활성화 = 오프라인 대비 (보험)** → 로컬 DB 저장, 완전 오프라인 작동
+- **활성화 = 오프라인 보험** → 로컬 DB 저장, 완전 오프라인 작동
 - **비활성 = 온라인 전용** → 서버 API만 사용, 저장공간 절약
 - **Router가 자동 분기** → 활성화 상태 체크, Local/Remote 자동 선택
 - **동시 1개만** → 저장공간 효율화 (오프라인 지도 200MB/여행)
@@ -615,7 +624,7 @@ import { formatCurrencyDisplay } from '@/shared/lib/currency';
 ```typescript
 // packages/schema/src/requests/trip.ts
 export const createTripRequest = z.object({
-  id: z.string(), // Echo Protocol: 클라이언트 ID
+  id: z.string(), // Client-Side ID: 클라이언트가 생성
   name: z.string(),
   startDate: z.string(),
   endDate: z.string(),
@@ -640,7 +649,7 @@ import { createTripRequest } from '@repo/schema';
 app.post('/api/trips', async (req, res) => {
   const data = createTripRequest.parse(req.body);
 
-  // ✅ Echo Protocol: 클라이언트 ID 그대로 수용
+  // ✅ Client-Side ID: 클라이언트 ID 그대로 수용
   await db.insert(trips).values(data);
 
   res.json({ success: true });
@@ -822,7 +831,7 @@ await withTransaction(async () => {
     ↓
 Component/Hook
     ↓
-🌟 Offline-Prep Router (핵심!)
+🌟 Activation Router (핵심!)
     ↓
 ┌────┴────┐
 활성화?    비활성?
@@ -837,7 +846,7 @@ Background Sync
 
 **핵심 컨셉**:
 
-1. **Offline-Prep Router** (가장 중요!)
+1. **Activation Router** (가장 중요!)
    - 모든 데이터 접근의 진입점
    - 활성화 상태에 따라 Local/Remote 자동 분기
    - 4개 함수: `routeTripQuery/Mutation`, `routeChildQuery/Mutation`
@@ -847,7 +856,7 @@ Background Sync
    - 동시에 1개 여행만 활성화 가능 (저장 공간 효율)
    - `tripActivations` 테이블이 Single Source of Truth
 
-3. **Echo Protocol**
+3. **Client-Side ID Generation**
    - 클라이언트가 ID 생성 (`generateId()`)
    - 서버는 클라이언트 ID 그대로 수용
    - 오프라인 작동의 핵심
@@ -875,7 +884,7 @@ Background Sync
 
 ### Data Flow Pattern
 
-**활성화된 여행 (Offline-First)**:
+**활성화된 여행 (Local-First)**:
 
 ```
 Component → Router (활성화 체크) → Local SQLite
@@ -899,13 +908,13 @@ Component → Router (활성화 체크) → Remote Server API
 
 ### 핵심 철학 5가지
 
-1. **Local-First, Server-Aware**
-   - 오프라인이 기본, 온라인은 보너스
-   - 하지만 서버 동기화도 중요하게 다룸
-   - 활성화된 여행 = 로컬, 비활성 = 서버
+1. **Selective Local-First**
+   - 활성화된 여행 = 로컬이 진실의 원천 (오프라인 보험)
+   - 비활성 여행 = 서버가 진실의 원천 (온라인 전용)
+   - 서버 동기화도 중요하게 다룸
 
-2. **Echo Protocol**
-   - Client가 ID 생성 → Server는 수용
+2. **Client-Side ID Generation**
+   - Client가 ULID 생성 → Server는 수용
    - 충돌 없는 오프라인 작동
    - ULID 사용으로 시간순 정렬 보장
 
@@ -998,12 +1007,12 @@ apps/
   server/                      # Express API
     src/
       routes/
-        trips.ts               # Echo Protocol 준수
+        trips.ts               # Client-Side ID 수용
       db/
         index.ts               # PostgreSQL
 
 packages/
-  schema/                      # 🔥 Source of Truth
+  schema/                      # 🔥 Single Source of Truth
     src/
       entities/                # 도메인 모델
       requests/                # API 요청
@@ -1039,7 +1048,7 @@ packages/
 
 ### Shared Packages
 
-- **@repo/schema** - Zod 스키마 (Source of Truth) ⭐
+- **@repo/schema** - Zod 스키마 (Single Source of Truth) ⭐
 - **@repo/ui** - shadcn/ui 기반 컴포넌트
 - **@repo/db** - Prisma 스키마
 
@@ -1047,7 +1056,7 @@ packages/
 
 ## ✅ 완료된 기능 (Completed Features)
 
-### Offline 준비 시스템 (Offline-Prep)
+### 선택적 활성화 시스템 (Selective Activation)
 
 **상태**: 핵심 구현 완료 (2025-11-16 ~ 2025-11-19, 22개 커밋)
 
@@ -1067,7 +1076,7 @@ packages/
 **아키텍처**:
 
 ```text
-Entity Layer → Offline-Prep Router (4개 함수)
+Entity Layer → Activation Router (4개 함수)
                 ↓
     ┌───────────┴───────────┐
     │                       │
@@ -1220,4 +1229,4 @@ CHANGELOG.md에서 확인할 수 있는 내용:
 
 ---
 
-**Last Updated**: 2026-03-19
+**Last Updated**: 2026-03-21
