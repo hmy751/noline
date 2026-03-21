@@ -12,7 +12,7 @@
 
 **클라이언트 구현시 참조:**
 
-- [Selective Activation Architecture](../../.claude/core/selective-activation-architecture.md) - 활성화 기반 아키텍처, Echo Protocol
+- [Selective Activation Architecture](../../.claude/core/selective-activation-architecture.md) - 활성화 기반 아키텍처, Client-Side ID
 - [Time Guide](../../.claude/core/time.md) - 시간 처리 완전 가이드
 - [TypeScript Guide](../../.claude/core/typescript.md) - TypeScript 규칙
 - [API & Data Guide](../../.claude/core/api-data.md) - API 레이어 패턴
@@ -21,9 +21,9 @@
 
 이 문서는 **클라이언트 구현에 특화된 패턴**을 다룹니다. 전체 아키텍처는 Root CLAUDE.md를 참조하세요.
 
-## 🔄 Local-First Implementation
+## 🔄 Selective Local-First Implementation
 
-### 핵심 원칙: Echo Protocol
+### 핵심 원칙: Client-Side ID Generation
 
 **데이터 흐름:**
 
@@ -84,7 +84,7 @@ formatISOToLocalTime(now);     // "14:30"
 - **업무 테이블**: trips, expenses, schedules 등
 - **sync_queue**: 동기화 대기열 (action: CREATE | UPDATE | DELETE)
 
-**Echo Protocol 필드 (모든 테이블):**
+**Client-Side ID 필드 (모든 테이블):**
 
 - `id`: ULID (클라이언트 생성)
 - `updatedAt`: ISO 8601 문자열

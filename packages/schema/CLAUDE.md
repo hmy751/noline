@@ -78,14 +78,14 @@ packages/schema/src/
 
 - ❌ 변경 금지 (양쪽 다 계약 준수)
 - ✅ DB 스키마와 완전 일치
-- ✅ Echo Protocol 필드 포함 (id, updatedAt, deletedAt, version)
+- ✅ Client-Side ID 필드 포함 (id, updatedAt, deletedAt, version)
 
 ```typescript
 // entities/trip.ts
 import { z } from 'zod';
 
 export const tripEntity = z.object({
-  // Echo Protocol 필수 필드 (모든 Entity 공통)
+  // Client-Side ID 필수 필드 (모든 Entity 공통)
   id: z.string().ulid(),
   createdAt: z.string().datetime({ offset: true }),
   updatedAt: z.string().datetime({ offset: true }),
@@ -107,7 +107,7 @@ export type Trip = z.infer<typeof tripEntity>;
 
 **규칙:**
 
-- 모든 Entity는 Echo Protocol 필드 포함:
+- 모든 Entity는 Client-Side ID 필드 포함:
   - `id`: z.string().ulid()
   - `createdAt`: z.string().datetime({ offset: true })
   - `updatedAt`: z.string().datetime({ offset: true })
@@ -133,9 +133,9 @@ export type Trip = z.infer<typeof tripEntity>;
 // requests/trip.ts
 import { tripEntity } from '../entities/trip';
 
-// 생성 요청 (Echo Protocol: id 포함!)
+// 생성 요청 (Client-Side ID: id 포함!)
 export const createTripRequest = tripEntity.pick({
-  id: true, // Echo Protocol 필수!
+  id: true, // Client-Side ID 필수!
   name: true,
   startDate: true,
   endDate: true,
@@ -158,7 +158,7 @@ export type UpdateTripRequest = z.infer<typeof updateTripRequest>;
 
 **규칙:**
 
-- `createXxxRequest`는 반드시 `id` 포함 (Echo Protocol)
+- `createXxxRequest`는 반드시 `id` 포함 (Client-Side ID)
 - `updateXxxRequest`는 partial (선택적 업데이트)
 - 앱별 확장 가능: `.extend({ localField: z.string() })`
 
@@ -256,7 +256,7 @@ app.post('/api/trips', async (req, res) => {
   // 1. 요청 검증
   const validated = createTripRequest.parse(req.body);
 
-  // 2. Echo Protocol: 클라이언트 ID 수용
+  // 2. Client-Side ID: 클라이언트 ID 수용
   const { id, ...data } = validated;
 
   // 3. DB 저장
@@ -293,7 +293,7 @@ export const scheduleEntity = z.object({
 
 // 2. requests/schedule.ts
 export const createScheduleRequest = scheduleEntity.pick({
-  id: true, // Echo 필수!
+  id: true, // Client-Side ID 필수!
   tripId: true,
   title: true,
   startTime: true,
@@ -388,7 +388,7 @@ export const clientTripRequest = baseTripRequest.extend({
 ### ❌ Mistake 1: ID 없이 createRequest 정의
 
 ```typescript
-// ❌ 잘못됨: Echo Protocol 위반
+// ❌ 잘못됨: Client-Side ID 규칙 위반
 export const createTripRequest = z.object({
   name: z.string(),
   startDate: z.string(),
@@ -397,7 +397,7 @@ export const createTripRequest = z.object({
 
 // ✅ 올바름: id 포함
 export const createTripRequest = tripEntity.pick({
-  id: true, // Echo Protocol 필수
+  id: true, // Client-Side ID 필수
   name: true,
   startDate: true,
 });
@@ -447,19 +447,19 @@ res.json(validated);
 **Detail (상세 가이드):**
 
 - [TypeScript Guide](../../.claude/core/typescript.md) - TypeScript + Zod 패턴
-- [Selective Activation Architecture](../../.claude/core/selective-activation-architecture.md) - Echo Protocol + sync_queue
+- [Selective Activation Architecture](../../.claude/core/selective-activation-architecture.md) - Client-Side ID + sync_queue
 - [API/Data Guide](../../.claude/core/api-data.md) - API 레이어 패턴
 
 ## ✅ Checklist: 새 Entity 추가시
 
 ```
 Entity Schema:
-□ Echo Protocol 필드 포함 (id, updatedAt, deletedAt, version)
+□ Client-Side ID 필드 포함 (id, updatedAt, deletedAt, version)
 □ 날짜 필드는 z.string().datetime({ offset: true })
 □ DB 스키마와 1:1 매핑 확인
 
 Request Schema:
-□ createXxxRequest에 id 포함 (Echo 필수!)
+□ createXxxRequest에 id 포함 (Client-Side ID 필수!)
 □ updateXxxRequest는 partial
 □ sync_queue.payload 타입으로 사용 확인
 
