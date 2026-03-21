@@ -37,11 +37,11 @@
 > - Router: 데이터를 **어디에** 저장할지 결정 (WHERE)
 > - Policy: 기능을 **사용할 수 있는지** 결정 (CAN)
 
-### Echo Protocol (활성화된 여행 전용)
+### Client-Side ID Generation (활성화된 여행 전용)
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│  Echo Protocol - 클라이언트 주도 ID 생성              │
+│  Client-Side ID Generation - 클라이언트 주도 ID 생성   │
 ├─────────────────────────────────────────────────────┤
 │                                                     │
 │  1. 클라이언트가 ULID 생성                            │
@@ -194,7 +194,7 @@ export async function hasAnyActivatedTrip(): Promise<boolean> {
 │                                                     │
 │    const { id, ...data } = req.body;                 │
 │         ↑                                           │
-│         └─ 클라이언트가 생성한 ID 사용 (Echo!)        │
+│         └─ 클라이언트가 생성한 ID 그대로 수용          │
 │                                                     │
 │    await db.insert(expenses).values({                │
 │      id,              ← 클라이언트 ID 그대로         │
@@ -250,7 +250,7 @@ export async function hasAnyActivatedTrip(): Promise<boolean> {
 
 ## 📚 계층별 역할과 책임
 
-### 1. @repo/schema - 타입 계약 (Source of Truth)
+### 1. @repo/schema - 타입 계약 (Single Source of Truth)
 
 **위치:** `packages/schema/src/`
 
@@ -302,7 +302,7 @@ import { z } from 'zod';
 
 // DB와 1:1 매핑되는 완전한 스키마
 export const expenseEntity = z.object({
-  // Echo Protocol 필드 (모든 Entity 공통)
+  // Client-Side ID 필드 (모든 Entity 공통)
   id: z.string().ulid(),
   createdAt: z.string().datetime({ offset: true }),
   updatedAt: z.string().datetime({ offset: true }),
@@ -327,7 +327,7 @@ import { expenseEntity } from '../entities/expense';
 
 // CREATE 요청: 필요한 필드만 선택
 export const createExpenseRequest = expenseEntity.pick({
-  id: true, // Echo Protocol: 클라이언트가 생성
+  id: true, // Client-Side ID: 클라이언트가 생성
   tripId: true,
   scheduleId: true,
   title: true,
@@ -399,12 +399,12 @@ await addToSyncQueue('expenses', id, 'CREATE', {
 
 ```typescript
 # Entity Category (강제 계약)
-□ xxxEntity: Echo Protocol 필드 포함 (id, createdAt, updatedAt, deletedAt, version)
+□ xxxEntity: Client-Side ID 필드 포함 (id, createdAt, updatedAt, deletedAt, version)
 □ 날짜 필드는 z.string().datetime({ offset: true })
 □ DB 스키마와 1:1 매핑 확인
 
 # Request Category (확장 가능)
-□ createXxxRequest: id 포함 (Echo Protocol)
+□ createXxxRequest: id 포함 (Client-Side ID)
 □ updateXxxRequest: partial() 사용
 □ sync_queue.payload 타입과 일치 확인
 
@@ -427,7 +427,7 @@ await addToSyncQueue('expenses', id, 'CREATE', {
 
 - SQLite 테이블 정의 (Drizzle ORM)
 - 로컬 데이터 저장
-- Offline-First 지원
+- Selective Local-First 지원
 
 **예시:**
 
@@ -436,7 +436,7 @@ await addToSyncQueue('expenses', id, 'CREATE', {
 import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
 
 export const expenses = sqliteTable('expenses', {
-  // Echo Protocol 필드
+  // Client-Side ID 필드
   id: text('id').primaryKey(),
   updatedAt: text('updated_at').notNull(), // ISO string
   deletedAt: text('deleted_at'), // Soft Delete
@@ -472,7 +472,7 @@ export type NewExpense = typeof expenses.$inferInsert;
 **체크리스트:**
 
 ```typescript
-□ Echo Protocol 필드 포함 (id, updatedAt, deletedAt, version)
+□ Client-Side ID 필드 포함 (id, updatedAt, deletedAt, version)
 □ id: text('id').primaryKey()
 □ deletedAt 필드 존재 (Soft Delete)
 □ Foreign Key 설정
@@ -999,7 +999,7 @@ export function SyncProvider({ children }: { children: React.ReactNode }) {
 **역할:**
 
 - 클라이언트 요청 처리
-- **클라이언트 ID 그대로 사용** (Echo!)
+- **클라이언트 ID 그대로 사용** (Client-Side ID)
 - PostgreSQL 저장
 - Zod 검증
 - 응답 구조화
@@ -1022,7 +1022,7 @@ router.post('/', async (req, res, next) => {
     // 1. 요청 검증
     const validated = createExpenseRequestSchema.parse(req.body);
 
-    // 2. 클라이언트 ID 추출 (Echo!)
+    // 2. 클라이언트 ID 추출 (Client-Side ID)
     const { id, ...data } = validated;
     //      ↑
     //      클라이언트가 생성한 ID를 그대로 사용!
@@ -1241,7 +1241,7 @@ function convertToISO(record: any) {
 ```typescript
 # Entity Category (entities/expense.ts)
 □ expenseEntity 정의
-  □ Echo Protocol 필드 포함 (id, createdAt, updatedAt, deletedAt, version)
+  □ Client-Side ID 필드 포함 (id, createdAt, updatedAt, deletedAt, version)
   □ 날짜 필드는 z.string().datetime({ offset: true })
   □ DB 스키마와 1:1 매핑
 □ ExpenseEntity 타입 export
@@ -1265,7 +1265,7 @@ function convertToISO(record: any) {
 
 ```typescript
 □ apps/client/src/shared/db/schema.ts에 테이블 추가
-□ Echo Protocol 필드 포함 (id, updatedAt, deletedAt, version)
+□ Client-Side ID 필드 포함 (id, updatedAt, deletedAt, version)
 □ Foreign Key 설정
 □ 타입 export
 □ 마이그레이션 생성/실행
@@ -1299,7 +1299,7 @@ function convertToISO(record: any) {
 
 ```typescript
 □ apps/server/src/db/schema.ts에 테이블 추가
-□ Echo Protocol 필드 포함
+□ Client-Side ID 필드 포함
 □ timestamp with time zone 사용
 □ Foreign Key cascade 설정
 □ Drizzle 마이그레이션 생성/실행
@@ -1999,7 +1999,7 @@ export const useGetTrips = () => {
 
 ## 📐 아키텍처 다이어그램
 
-### Echo Protocol 데이터 흐름
+### Client-Side ID 데이터 흐름
 
 ```
 ┌────────────────────────────────────────────────────────────┐
