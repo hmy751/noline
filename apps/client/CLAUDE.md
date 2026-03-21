@@ -12,7 +12,7 @@
 
 **클라이언트 구현시 참조:**
 
-- [Selective Activation Architecture](../../.claude/core/selective-activation-architecture.md) - 활성화 기반 아키텍처, Echo Protocol
+- [Selective Activation Architecture](../../.claude/core/selective-activation-architecture.md) - 활성화 기반 아키텍처, Client-Side ID
 - [Time Guide](../../.claude/core/time.md) - 시간 처리 완전 가이드
 - [TypeScript Guide](../../.claude/core/typescript.md) - TypeScript 규칙
 - [API & Data Guide](../../.claude/core/api-data.md) - API 레이어 패턴
@@ -21,9 +21,9 @@
 
 이 문서는 **클라이언트 구현에 특화된 패턴**을 다룹니다. 전체 아키텍처는 Root CLAUDE.md를 참조하세요.
 
-## 🔄 Local-First Implementation
+## 🔄 Selective Local-First Implementation
 
-### 핵심 원칙: Echo Protocol
+### 핵심 원칙: Client-Side ID Generation
 
 **데이터 흐름:**
 
@@ -62,7 +62,7 @@
 **클라이언트 핵심:**
 
 - **SQLite 저장**: TEXT 타입으로 ISO 8601 문자열 저장
-- **유틸리티 위치**: `shared/lib/date.ts`
+- **유틸리티 위치**: `shared/lib/datetime.ts`
 - **Zod 검증**: `z.string().datetime({ offset: true })`
 
 ```typescript
@@ -70,8 +70,9 @@
 const now = new Date().toISOString(); // "2024-03-15T14:30:00.000Z"
 
 // 사용자 표시용 변환
-import { formatDateTime } from '@/shared/lib/date';
-formatDateTime(now); // "2024-03-15 14:30"
+import { formatISOToLocalDate, formatISOToLocalTime } from '@/shared/lib/datetime';
+formatISOToLocalDate(now);     // "2024-03-15"
+formatISOToLocalTime(now);     // "14:30"
 ```
 
 ## 🗄 Database Layer
@@ -83,7 +84,7 @@ formatDateTime(now); // "2024-03-15 14:30"
 - **업무 테이블**: trips, expenses, schedules 등
 - **sync_queue**: 동기화 대기열 (action: CREATE | UPDATE | DELETE)
 
-**Echo Protocol 필드 (모든 테이블):**
+**Client-Side ID 필드 (모든 테이블):**
 
 - `id`: ULID (클라이언트 생성)
 - `updatedAt`: ISO 8601 문자열
@@ -302,8 +303,9 @@ onSuccess: () => {
 
 ### Pull Sync (서버 → 로컬)
 
-**상태**: 🚧 구현 예정
-**계획**: lastSyncedAt 이후 변경사항 pull
+**상태**: ✅ 구현 완료
+**구현**: `shared/services/sync/engine.ts`의 `pullChanges()` 함수
+**동작**: lastSyncedAt 이후 변경사항을 서버에서 pull
 
 ## 📋 개발 가이드라인
 

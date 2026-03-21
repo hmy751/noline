@@ -42,7 +42,7 @@ export const getTripByIdLocal = async (id: string): Promise<Trip | undefined> =>
 
 /**
  * 로컬 DB에 여행 생성 + sync_queue 기록
- * - Echo Protocol: 외부에서 전달받은 ID 사용
+ * - Client-Side ID: 외부에서 전달받은 ID 사용
  */
 export const createTripLocal = async (data: CreateTripRequest): Promise<Trip> => {
   const id = data.id;

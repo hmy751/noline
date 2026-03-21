@@ -8,7 +8,7 @@ import { scheduleEntity } from '../entities/schedule';
 /**
  * 일정 생성 요청 스키마
  * - 클라이언트 → 서버
- * - ✨ Echo Protocol: 클라이언트가 ID 생성
+ * - ✨ Client-Side ID: 클라이언트가 ID 생성
  */
 export const createScheduleRequest = scheduleEntity
   .pick({

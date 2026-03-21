@@ -285,7 +285,7 @@ Zoom 16-18: 건물명/도로명 - 현재 maxZoom보다 높음
 ## 🔗 관련 문서
 
 - [ADR-002: Mapbox 오프라인 지도](./../decisions/002-offline-map-integration.md)
-- [Subscription System](./subscription-system.md)
+- ~~Subscription System~~ (미구현, 향후 계획)
 - [Selective Activation Architecture](./../core/selective-activation-architecture.md)
 - [Session: 2025-11-07](./../sessions/2025-11-07-offline-map-implementation.md)
 

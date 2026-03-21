@@ -8,7 +8,7 @@ import { routeQueryKeys } from '@/entities/route/data/keys';
  * 일정 생성 Mutation Hook
  *
  * - Repository를 통해 활성화 상태에 따라 Local/Remote 자동 분기
- * - Echo Protocol: 외부에서 ID 생성하여 전달
+ * - Client-Side ID: 외부에서 ID 생성하여 전달
  *
  * ⚠️ 주의: Policy 체크는 컴포넌트에서 useAppPolicy()로 수행
  *

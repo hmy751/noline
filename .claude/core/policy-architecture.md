@@ -4,7 +4,7 @@
 > **버전**: v3.0
 > **작성일**: 2025-11-20
 > **최종 업데이트**: 2025-11-21
-> **구현 추적**: [v3.0-tracker.md](../.claude/implementation/v3.0-tracker.md)
+> **구현 추적**: [v3.0-tracker.md](../implementation/v3.0-tracker.md)
 
 > **핵심**: 비즈니스 로직을 코드에서 분리하여 중앙에서 관리하는 아키텍처 패턴
 > **구조**: CRUD-Centric (Operation-First) - 각 동작이 4가지 상태에서 어떻게 동작하는지 한눈에 파악
@@ -755,13 +755,13 @@ export function useAppPolicy(tripId?: string): AppPolicyContext {
 - ❌ `useSchedulePolicy` 제거 → `useAppPolicy`로 통합
 - ✅ 최종: 단일 Hook (`useAppPolicy`)으로 모든 정책 제공
 
-**Phase 2-4: Service Layer & Manual Input** ⏳ 대기중
+**Phase 2-4: Service Layer & Manual Input** ✅ 완료 (2025-11-21)
 
-- [ ] SmartMapView 마이그레이션
-- [ ] CreateTripButton 마이그레이션
-- [ ] Manual Input 컴포넌트 추가
+- [x] SmartMapView 마이그레이션 (Policy 기반 지도 전환)
+- [x] CreateTripButton 마이그레이션
+- [x] Manual Input 컴포넌트 추가 (ManualScheduleForm, ManualExpenseForm)
 
-**Phase 5: 완료** ⏳ 대기중
+**Phase 5: 마무리** ⏳ 대기중
 
 - [ ] 테스트 작성
 - [x] 문서 업데이트 (policy-architecture.md 업데이트 완료)

@@ -61,8 +61,8 @@ export const refreshTokens = pgTable('refresh_tokens', {
 });
 
 // Trips Table
-// ✨ Echo 아키텍처: 혼합 모드 (ULID Hybrid Mode)
-// - 클라이언트가 ID 제공 시 → 그대로 사용 (Local-First)
+// ✨ Client-Side ID Generation: 혼합 모드
+// - 클라이언트가 ID 제공 시 → 그대로 사용 (Selective Local-First)
 // - ID 없이 요청 시 → 서버에서 생성 (하위 호환성)
 export const trips = pgTable('trips', {
   id: text('id')

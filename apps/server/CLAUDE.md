@@ -8,7 +8,7 @@
 
 - [Root CLAUDE.md](../../CLAUDE.md) - 프로젝트 정체성, 핵심 원칙, MVP vs Production 레벨
 - [Schema CLAUDE.md](../../packages/schema/CLAUDE.md) - @repo/schema 타입 계약
-- [Selective Activation Architecture](../../.claude/core/selective-activation-architecture.md) - Echo Protocol, sync_queue 상세
+- [Selective Activation Architecture](../../.claude/core/selective-activation-architecture.md) - Client-Side ID, sync_queue 상세
 
 **서버 구현시 참조:**
 
@@ -18,7 +18,7 @@
 
 ## 🎯 Server-Specific Patterns
 
-이 문서는 **서버 구현에 특화된 패턴**을 다룹니다. Echo Protocol과 @repo/schema는 Root/Schema CLAUDE.md를 참조하세요.
+이 문서는 **서버 구현에 특화된 패턴**을 다룹니다. Client-Side ID Generation과 @repo/schema는 Root/Schema CLAUDE.md를 참조하세요.
 
 ## 📁 Project Structure
 
@@ -67,7 +67,7 @@ export const trips = pgTable('trips', {
 
 ### 테이블 구조
 
-**Echo Protocol 필드 (모든 테이블):**
+**Client-Side ID 필드 (모든 테이블):**
 
 - `id`: text (ULID, 클라이언트 생성)
 - `updatedAt`: timestamp with timezone
@@ -99,7 +99,7 @@ export const trips = pgTable('trips', {
 
 ## 🔐 Authentication & Authorization
 
-### JWT 기반 인증 (구현 예정)
+### JWT 기반 인증 (구현 완료)
 
 ```typescript
 // middleware/auth.ts
@@ -130,12 +130,12 @@ export async function authenticateToken(req, res, next) {
 - console.error 로깅
 - 500 에러 응답
 
-**Production Level:**
+**Production Level (미구현, 향후 계획):**
 
 - 커스텀 에러 클래스 체계 (AppError 상속)
 - 에러 타입별 처리 (ValidationError, NotFoundError, ConflictError)
-- Winston 로깅
-- Sentry 연동
+- Winston 로깅 (미도입)
+- Sentry 연동 (미도입)
 
 ### 글로벌 에러 핸들러
 
@@ -160,7 +160,7 @@ export async function authenticateToken(req, res, next) {
 
 ### 권장 패턴
 
-- **ID 처리**: 클라이언트 ID 그대로 수용 (Echo Protocol)
+- **ID 처리**: 클라이언트 ID 그대로 수용 (Client-Side ID Generation)
 - **트랜잭션**: 여러 테이블 작업시 트랜잭션 사용
 - **삭제**: Soft Delete (`deletedAt` 필드)
 - **검증**: @repo/schema로 입력 검증
@@ -177,7 +177,7 @@ export async function authenticateToken(req, res, next) {
 
 1. **연결 풀**: 적절한 크기 설정 (기본 20)
 2. **쿼리 최적화**: 필요한 필드만 선택, 배치 작업
-3. **캐싱**: Redis 도입 검토 (구현 예정)
+3. **캐싱**: Redis 도입 검토 (미도입, 향후 계획)
 4. **인덱스**: updated_at, 외래키 필드
 
 ## 🔍 Monitoring & Logging
@@ -263,6 +263,6 @@ CMD ["node", "dist/index.js"]
 
 **상세 구현 가이드:**
 
-- [Selective Activation Architecture](../../.claude/core/selective-activation-architecture.md) - Echo Protocol, sync 엔드포인트 상세
+- [Selective Activation Architecture](../../.claude/core/selective-activation-architecture.md) - Client-Side ID, sync 엔드포인트 상세
 - [API & Data Guide](../../.claude/core/api-data.md) - API 레이어 패턴
 - [Error Handling](../../.claude/core/error-handling.md) - 에러 처리 시스템

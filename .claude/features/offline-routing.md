@@ -57,7 +57,7 @@
 │    - id: ULID (generateId)                          │
 │    - tripId, fromScheduleId, toScheduleId           │
 │    - profile, geometry, distance, duration          │
-│    - Echo Protocol 필드들 (createdAt, version...)   │
+│    - Client-Side ID 필드들 (createdAt, version...)   │
 └────────────────┬────────────────────────────────────┘
                  │
                  ▼
@@ -138,7 +138,7 @@ apps/client/src/
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 
 export const routes = sqliteTable('routes', {
-  // Echo Protocol 필드
+  // Client-Side ID 필드
   id: text('id').primaryKey(),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
@@ -332,7 +332,7 @@ export function useAutoDownloadRoutes() {
             });
 
             newRoutes.push({
-              id: generateId(), // ✅ Echo Protocol
+              id: generateId(), // ✅ Client-Side ID
               tripId,
               fromScheduleId: null, // 숙소
               toScheduleId: firstSchedule.id,
@@ -906,7 +906,7 @@ Profile: 3개
 ## 🔗 관련 문서
 
 - [Offline Map Feature](./offline-map.md) - 오프라인 지도 기능
-- [Selective Activation Architecture](../core/selective-activation-architecture.md) - Echo Protocol, 활성화 패턴
+- [Selective Activation Architecture](../core/selective-activation-architecture.md) - Client-Side ID, 활성화 패턴
 - [Client CLAUDE.md](../../apps/client/CLAUDE.md) - 클라이언트 가이드
 
 ## 📝 체크리스트

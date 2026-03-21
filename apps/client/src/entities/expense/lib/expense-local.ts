@@ -86,7 +86,7 @@ export const getTripIdByScheduleIdLocal = async (scheduleId: string): Promise<st
 
 /**
  * 로컬 DB에 경비 생성 + sync_queue 기록
- * - Echo Protocol: 외부에서 전달받은 ID 사용
+ * - Client-Side ID: 외부에서 전달받은 ID 사용
  */
 export const createExpenseLocal = async (data: CreateExpenseRequest): Promise<Expense> => {
   const id = data.id;

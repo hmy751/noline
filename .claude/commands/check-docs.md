@@ -34,6 +34,7 @@ const policyDocuments = [
   '.claude/core/typescript.md',
   '.claude/core/architecture.md',
   '.claude/core/selective-activation-architecture.md',
+  '.claude/core/policy-architecture.md',        // v3.0 Policy Layer
   '.claude/core/time.md',
   '.claude/core/api-data.md',
   '.claude/core/components.md',
@@ -44,6 +45,8 @@ const policyDocuments = [
   '.claude/features/form.md',
   '.claude/features/activation-system.md',
   '.claude/features/manual-input.md',
+  '.claude/features/offline-routing.md',         // v3.0 오프라인 라우팅
+  '.claude/features/offline-map.md',             // v3.0 오프라인 지도
 
   // 참조 문서
   '.claude/references/prd.md',
@@ -93,10 +96,10 @@ const policies: PolicyRule[] = [
     source: '.claude/core/time.md:45-78',
   },
   {
-    name: 'Echo Protocol',
+    name: 'Client-Side ID Generation',
     description: '클라이언트가 ULID 생성, 서버는 수용',
     filePatterns: ['apps/client/src/entities/**/*.ts', 'apps/server/src/routes/**/*.ts'],
-    keywords: ['ulid', 'generateId', 'echo'],
+    keywords: ['ulid', 'generateId', 'client-side-id'],
     severity: 'critical',
     source: '.claude/core/selective-activation-architecture.md:123-156',
   },
