@@ -12,6 +12,28 @@
 
 ---
 
+## 2026-03
+
+### 2026-03-21
+
+**[Docs]** 🟡 프로젝트 용어 통일 (Terminology Unification)
+
+> **Decision**: [2026-03-21-terminology-unification.md](./decisions/2026-03-21-terminology-unification.md)
+> **영향**: 문서 ~15파일, 코드 주석 ~15파일, 코드 동작 변경 없음
+
+**배경**: v1.0 → v3.0 진화 과정에서 같은 개념에 여러 용어가 혼재. 이력서/면접 대비 정합성 필요.
+
+**용어 변경**:
+
+- 아키텍처: Local-First / Offline-First / Local-First, Server-Aware → **Selective Local-First**
+- 라우터: Offline-Prep Router / Hybrid Router → **Activation Router**
+- ID 전략: Echo Protocol → **Client-Side ID Generation**
+- UX 비유: 오프라인 보험 / 오프라인 구독 → **오프라인 보험**
+
+**원칙**: 현재 상태 문서 → 새 용어 / 역사 문서 → 당시 용어 유지 + 현재 용어 병기 / 파일명·함수명 → 변경 없음
+
+---
+
 ## 2026-01
 
 ### 2026-01-18
