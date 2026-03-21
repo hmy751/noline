@@ -5,7 +5,7 @@
   <p>
     <img src="https://img.shields.io/badge/Platform-iOS-000000?logo=apple&logoColor=white" alt="Platform iOS" />
     <img src="https://img.shields.io/badge/Version-1.0.1-blue" alt="Version 1.0.1" />
-    <img src="https://img.shields.io/badge/Architecture-Local--First-green" alt="Architecture Local-First" />
+    <img src="https://img.shields.io/badge/Architecture-Selective_Local--First-green" alt="Architecture Selective Local-First" />
   </p>
 
   <p>
@@ -15,7 +15,7 @@
   </p>
 </div>
 
-NOLINE은 네트워크가 없어도 여행 일정과 경비를 완벽하게 관리할 수 있는 **Local-First 여행 관리 iOS 앱**입니다.
+NOLINE은 네트워크가 없어도 여행 일정과 경비를 완벽하게 관리할 수 있는 **Selective Local-First 여행 관리 iOS 앱**입니다.
 오프라인 환경에서도 일정 추가, 경비 기록, 지도 확인이 가능하며, 네트워크 복구 시 자동으로 서버와 동기화됩니다.
 
 # 📖 목차
@@ -27,7 +27,7 @@ NOLINE은 네트워크가 없어도 여행 일정과 경비를 완벽하게 관�
 - [📁 Project Structure](#-project-structure)
 - [🚀 Quick Start](#-quick-start)
 - [🏗️ Architecture](#-architecture)
-  - [1. Echo Protocol: 오프라인에서도 ID를 생성하려면?](#1-echo-protocol-오프라인에서도-id를-생성하려면)
+  - [1. Client-Side ID Generation: 오프라인에서도 ID를 생성하려면?](#1-client-side-id-generation-오프라인에서도-id를-생성하려면)
   - [2. Selective Activation: 모든 여행을 로컬에 저장하면 용량이 부족하다](#2-selective-activation-모든-여행을-로컬에-저장하면-용량이-부족하다)
   - [3. Policy Layer: 활성화하면 온라인에서도 구글맵을 못 쓴다?](#3-policy-layer-활성화하면-온라인에서도-구글맵을-못-쓴다)
 - [🎨 User Experience](#-user-experience)
@@ -51,7 +51,7 @@ NOLINE은 네트워크가 없어도 여행 일정과 경비를 완벽하게 관�
 
 비행기 안에서, 로밍이 안 되는 지역에서, 데이터가 끊긴 지하철에서 - 이런 순간에도 여행 일정을 확인하고, 경비를 기록하고, 지도를 봐야 할 때가 있습니다.
 
-기존 여행 앱들은 대부분 **서버 의존적**입니다. 네트워크가 없으면 아무것도 할 수 없어, 이 문제를 해결하기 위해 **Local-First** 아키텍처를 선택했습니다.
+기존 여행 앱들은 대부분 **서버 의존적**입니다. 네트워크가 없으면 아무것도 할 수 없어, 이 문제를 해결하기 위해 **Selective Local-First** 아키텍처를 선택했습니다.
 
 1. **오프라인이 기본, 온라인은 보너스**: 네트워크 없이도 모든 핵심 기능이 작동해야 합니다.
 2. **데이터 손실 제로**: 오프라인에서 입력한 데이터는 반드시 서버에 동기화되어야 합니다.
@@ -260,7 +260,7 @@ flowchart TB
 
     subgraph Layer1["1. ID Layer (v1.0)"]
         I["오프라인에서도 ID를 생성할 수 있는가?"]
-        I1["Echo Protocol"]
+        I1["Client-Side ID Generation"]
         I2["ULID"]
     end
 
@@ -270,7 +270,7 @@ flowchart TB
 
 <br>
 
-## 1. Echo Protocol: 오프라인에서도 ID를 생성하려면?
+## 1. Client-Side ID Generation: 오프라인에서도 ID를 생성하려면?
 
 오프라인에서 데이터를 생성하려면 가장 먼저 해결해야 할 문제가 있습니다. 바로 **ID 생성**입니다.
 
@@ -280,7 +280,7 @@ flowchart TB
 
 클라이언트가 ID를 생성하면 **충돌 위험**이 있습니다. 두 기기에서 동시에 같은 ID를 생성하면 데이터가 덮어씌워지는 문제가 발생합니다.
 
-### 해결: ULID + Echo Protocol
+### 해결: ULID + Client-Side ID Generation
 
 **ULID(Universally Unique Lexicographically Sortable Identifier)**를 도입했습니다:
 
@@ -288,7 +288,7 @@ flowchart TB
 - **충돌 방지**: 밀리초 단위 타임스탬프 + 랜덤 값으로 사실상 충돌 불가능합니다.
 - **UUID 호환**: 기존 시스템과의 호환성이 좋습니다.
 
-**Echo Protocol**: 클라이언트가 생성한 ID를 서버가 그대로 수용합니다.
+**Client-Side ID Generation**: 클라이언트가 생성한 ID를 서버가 그대로 수용합니다.
 
 ```typescript
 import { generateId } from '@/shared/services/id/ulid';
