@@ -25,7 +25,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
 
     const { id, tripId, title, location, address, scheduledAt, latitude, longitude } = validationResult.data;
 
-    // 일정 생성 (Echo 아키텍처: 클라이언트가 생성한 ID 사용)
+    // 일정 생성 (Client-Side ID: 클라이언트가 생성한 ID 사용)
     const [newSchedule] = await db
       .insert(schedules)
       .values({

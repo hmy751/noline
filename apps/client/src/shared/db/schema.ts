@@ -199,7 +199,7 @@ export const routes = sqliteTable('routes', {
   distance: integer('distance').notNull(), // 미터 (meters)
   duration: integer('duration').notNull(), // 초 (seconds)
 
-  // Echo Protocol 필드
+  // Client-Side ID 필드
   createdAt: text('created_at').notNull(), // ISO string
   updatedAt: text('updated_at').notNull(), // ISO string
   deletedAt: text('deleted_at'), // ISO string

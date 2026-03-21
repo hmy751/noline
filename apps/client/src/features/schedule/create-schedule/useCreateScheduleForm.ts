@@ -62,7 +62,7 @@ export const useCreateScheduleForm = ({ tripId, selectedLocation, onSuccess }: U
   };
 
   const onValid = (data: CreateScheduleFormData) => {
-    // ✅ Echo Protocol: Generate ULID on client
+    // ✅ Client-Side ID: Generate ULID on client
     const id = generateId();
 
     // ✅ date + time → ISO string with timezone

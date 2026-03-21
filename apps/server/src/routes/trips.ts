@@ -128,7 +128,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
       });
     }
 
-    // ✨ Echo 아키텍처: 클라이언트가 생성한 ID 사용 (Local-First)
+    // ✨ Client-Side ID: 클라이언트가 생성한 ID 사용 (Selective Local-First)
     // 여행 생성 (도시 정보 포함)
     const [newTrip] = await db
       .insert(trips)

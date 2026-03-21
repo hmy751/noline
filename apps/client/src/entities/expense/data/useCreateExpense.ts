@@ -7,7 +7,7 @@ import { expenseQueryKeys } from './keys';
  * 경비 생성 Mutation Hook
  *
  * - Repository를 통해 활성화 상태에 따라 Local/Remote 자동 분기
- * - Echo Protocol: 외부에서 ID 생성하여 전달
+ * - Client-Side ID: 외부에서 ID 생성하여 전달
  *
  * @example
  * ```tsx

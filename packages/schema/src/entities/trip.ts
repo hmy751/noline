@@ -11,7 +11,7 @@ import { z } from 'zod';
  * - 날짜: ISO 8601 datetime string
  */
 export const tripEntity = z.object({
-  // Echo Protocol 필드
+  // Client-Side ID 필드
   id: z.string().ulid(),
   createdAt: z.string().datetime({ offset: true }),
   updatedAt: z.string().datetime({ offset: true }),
