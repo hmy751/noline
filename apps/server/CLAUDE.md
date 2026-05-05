@@ -6,7 +6,7 @@
 
 **프로젝트 이해 (처음 읽을 때):**
 
-- [Root CLAUDE.md](../../CLAUDE.md) - 프로젝트 정체성, 핵심 원칙, MVP vs Production 레벨
+- [Root CLAUDE.md](../../CLAUDE.md) - 프로젝트 정체성, 핵심 불변식, 문서 진입점
 - [Schema CLAUDE.md](../../packages/schema/CLAUDE.md) - @repo/schema 타입 계약
 - [Selective Activation Architecture](../../.claude/core/selective-activation-architecture.md) - Client-Side ID, sync_queue 상세
 

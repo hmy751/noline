@@ -6,7 +6,7 @@
 
 **프로젝트 이해 (처음 읽을 때):**
 
-- [Root CLAUDE.md](../../CLAUDE.md) - 프로젝트 정체성, 핵심 원칙, MVP vs Production 레벨
+- [Root CLAUDE.md](../../CLAUDE.md) - 프로젝트 정체성, 핵심 불변식, 문서 진입점
 - [Schema CLAUDE.md](../../packages/schema/CLAUDE.md) - @repo/schema 타입 계약 (Entity/Request/Response)
 - [FSD Architecture](../../.claude/core/architecture.md) - Feature-Sliced Design 상세 구조
 
