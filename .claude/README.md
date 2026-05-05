@@ -29,8 +29,8 @@
 | [sessions/](sessions/) | 설계/구현 세션 기록 | 왜 그런 선택을 했는지 확인하는 기록이다. active policy로 바로 사용하지 않는다. |
 | [references/](references/) | PRD, wireframe, image notes 같은 원천 자료 | 제품/기획 source로 읽는다. 구현 정책과 충돌하면 active guide를 우선한다. |
 | [_archive/](_archive/) | 과거 구현 가이드와 deprecated 맥락 | 역사 자료다. 명시 요청 없이 현재 구현 기준으로 끌어올리지 않는다. |
+| [audits/](audits/) | 문서 품질 검증, 하네스 점검, 리팩터링 테스트 | active guide가 아니다. 현재 정책과 충돌하면 active source를 우선한다. |
 | [CHANGELOG.md](CHANGELOG.md) | 정책/기능 변화의 긴 이력 | 큰 흐름을 볼 때 사용한다. 세부 구현은 코드와 active guide를 확인한다. |
-| [doc-refactor-test.md](doc-refactor-test.md) | 문서 품질 검증용 테스트/관찰 | active guide가 아니다. 추후 `audits/` 또는 `_archive/`로 재분류할 수 있다. |
 | [settings.local.json](settings.local.json) | Claude 로컬 설정 | 프로젝트 정책 문서가 아니다. 하네스 개편 이유만으로 수정하지 않는다. |
 
 ## Active Source Index

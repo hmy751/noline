@@ -39,7 +39,7 @@ Existing `.claude` documents were not deleted in this pass.
 - `core/` and key `features/` remain active sources.
 - `decisions/`, `sessions/`, `implementation/`, `CHANGELOG.md`, `references/`, and `_archive/` remain evidence, source, history, or archive.
 - `.claude/commands/` remains Claude-specific command reference.
-- `.claude/doc-refactor-test.md` remains in place for now and can later be classified as audit or archive.
+- `.claude/doc-refactor-test.md` was initially left in place, then moved to `.claude/audits/doc-refactor-test.md` after active guide drift was reviewed. It remains preserved as an audit/test artifact, not active policy.
 
 ## Minimal Refresh
 

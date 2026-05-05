@@ -18,6 +18,12 @@ The goal is not to replace Noline's existing `.claude` materials with a new harn
 - `ea4a433` - added root/workspace `AGENTS.md -> CLAUDE.md` symlink bridges.
 - `144db24` - refreshed current-guide contradictions and broken active references.
 - `53f35ee` - reduced root `CLAUDE.md` to a navigation hub and recorded the harness decision.
+- `af34a1c` - updated this plan's progress log after the first restructure pass.
+- `fb7d95b` - fixed archived reference links without rewriting archive content.
+- `b9a0195` - aligned workspace guide references after tooling map review.
+- `3d44d97` - aligned active guide terminology and implementation paths after comparison with the prior harness branch.
+- `7a88af3` - clarified current error handling/API/TypeScript guide behavior and marked client error infra as an expansion candidate.
+- Follow-up pass - moved `.claude/doc-refactor-test.md` to `.claude/audits/` and updated the document role map.
 
 Implementation note: the prior `harness/noline-ai-guides` branch was used as reference material only. This branch recreated the structure cleanly from `main` instead of cherry-picking the old branch wholesale.
 
@@ -64,7 +70,7 @@ Use this role model before editing or moving anything.
 | Evidence/history | Why decisions happened, implementation trails, trackers, change history | `.claude/decisions/`, `.claude/sessions/`, `.claude/implementation/`, `CHANGELOG.md` | Preserve, mark as evidence/history |
 | Reference/source | PRD, wireframes, image notes, source material | `.claude/references/` | Preserve, mark as reference/source |
 | Archive | Old architecture or deprecated implementation guidance | `.claude/_archive/` | Preserve, keep out of active reading path |
-| Audit/test | Harness or doc quality tests | Example: `.claude/doc-refactor-test.md` | Move or classify later; do not delete in first pass |
+| Audit/test | Harness or doc quality tests | Example: `.claude/audits/doc-refactor-test.md` | Preserve as audit evidence; do not read as active policy |
 | Claude-only command | Claude command reference | `.claude/commands/` | Preserve, label as Claude-specific |
 
 ## Recommended Work Order
@@ -188,7 +194,7 @@ Keep commits small so later sessions can revert or compare safely.
 
 ## Open Questions
 
-- Should `.claude/doc-refactor-test.md` become `.claude/audits/doc-refactor-test.md`, or move into `_archive/`?
+- Resolved in follow-up pass: `.claude/doc-refactor-test.md` became `.claude/audits/doc-refactor-test.md`.
 - Should `.claude/features/activation-system.md` be split later into active feature guide and rollout/history notes?
 - Should Noline eventually have a thin `noline-policy-checker` report-only agent?
 - Should Noline eventually have a `noline-context-collector`, or is the global `gather-context` enough?
