@@ -31,10 +31,11 @@ Implementation note: the prior `harness/noline-ai-guides` branch was used as ref
 
 Noline already has a large documentation corpus.
 
-- Root `CLAUDE.md` is still an older-style, large all-in-one guide.
+- Root `CLAUDE.md` has been reduced from the older all-in-one guide into a navigation hub.
 - `.claude/core/` and key `.claude/features/` files contain important active engineering policy.
-- `.claude/decisions/`, `.claude/sessions/`, `.claude/implementation/`, `CHANGELOG.md`, `.claude/references/`, and `.claude/_archive/` contain evidence, source, history, or older context.
-- Some active guides contain stale status wording or broken/ambiguous links.
+- `.claude/guards/`, `.claude/workflows/`, and `.claude/harness/` now provide map layers on top of the existing corpus.
+- `.claude/decisions/`, `.claude/sessions/`, `.claude/implementation/`, `CHANGELOG.md`, `.claude/references/`, `.claude/audits/`, and `.claude/_archive/` contain evidence, source, audit/test material, history, or older context.
+- The first active-guide stale pass is complete. Future drift should still be fixed carefully against the code.
 - Current checked-out branch before this planning branch was `harness/noline-ai-guides`, which already explores a possible direction. Treat it as reference material, not as the unquestioned final answer.
 
 ## Borrowed Ideas
@@ -73,124 +74,33 @@ Use this role model before editing or moving anything.
 | Audit/test | Harness or doc quality tests | Example: `.claude/audits/doc-refactor-test.md` | Preserve as audit evidence; do not read as active policy |
 | Claude-only command | Claude command reference | `.claude/commands/` | Preserve, label as Claude-specific |
 
-## Recommended Work Order
+## Completed Work Order
 
-### Phase 0. Baseline And Inventory
+This section replaces the original unchecked work plan. A later session should not restart these phases unless it intentionally wants a new pass.
 
-- [ ] Start from `main`, or consciously rebase/cherry-pick onto a `main`-based branch.
-- [ ] Record `git status -sb`.
-- [ ] Record `.claude` file list and line counts.
-- [ ] Search stale terms and status conflicts:
-  - [ ] `구현 예정`
-  - [ ] `향후 추가 예정`
-  - [ ] `진행 예정`
-  - [ ] `Echo Protocol`
-  - [ ] `Offline-Prep`
-  - [ ] `Local-First`
-- [ ] Check markdown links in root, workspace guides, and `.claude`.
-- [ ] Build a small inventory table with `path`, `current role`, `desired role`, `stale risk`, and `action`.
+| Phase | Status | Evidence |
+| --- | --- | --- |
+| Baseline and inventory | Complete | Started from `main` (`503a4a5`), compared with `harness/noline-ai-guides`, ran stale-term and link scans. |
+| Map layers | Complete | `.claude/README.md`, `.claude/harness/README.md`, `.claude/guards/README.md`, `.claude/workflows/README.md`. |
+| Claude/Codex bridges | Complete | Root and workspace `AGENTS.md -> CLAUDE.md` symlinks. |
+| Active-guide stale fixes | Complete for this pass | Currency/manual input, policy links, offline map/routing paths, Activation Router terminology, error/API/TypeScript currentness. |
+| Root guide reduction | Complete | Root `CLAUDE.md` is now a navigation hub. |
+| Decision record | Complete | `.claude/decisions/2026-05-06-ai-harness-restructure.md`. |
+| Audit/test classification | Complete | `.claude/audits/README.md` and `.claude/audits/doc-refactor-test.md`. |
+| Verification | Complete for this pass | Active markdown link scan, stale active-term scan, symlink check, `tooling-map-auditor` review. |
 
-### Phase 1. Add Map Layers Without Removing Existing Material
+## Completed Commit Slices
 
-- [ ] Add `.claude/README.md`.
-  - [ ] Explain `.claude` document roles.
-  - [ ] Mark active source vs evidence/history vs reference/archive.
-  - [ ] Make clear that `commands/` are Claude command references.
-- [ ] Add `.claude/harness/README.md`.
-  - [ ] Explain root and workspace `AGENTS.md -> CLAUDE.md` bridge.
-  - [ ] Explain layer ownership.
-  - [ ] State local agents/skills are candidates only.
-- [ ] Add `.claude/guards/README.md`.
-  - [ ] Include only high-cost rules:
-    - [ ] Activation Router
-    - [ ] Data/Service separation
-    - [ ] `withTransaction` + `sync_queue`
-    - [ ] Client-Side ID / `generateId()`
-    - [ ] schema-first / `z.infer`
-    - [ ] ISO 8601 time
-    - [ ] soft delete / cleanup safety
-    - [ ] auth/user scope
-    - [ ] Policy UI / `useAppPolicy`
-- [ ] Add `.claude/workflows/README.md`.
-  - [ ] Include repeated task starting paths only:
-    - [ ] sync debugging
-    - [ ] new Entity
-    - [ ] date/time
-    - [ ] currency
-    - [ ] form
-    - [ ] UI component
-    - [ ] API endpoint
+Commits were kept small so the branch can be compared or partially reverted later.
 
-### Phase 2. Add Claude/Codex Bridges
-
-- [ ] Add root `AGENTS.md -> CLAUDE.md` symlink.
-- [ ] Add workspace symlinks only where local `CLAUDE.md` exists and Codex should inherit it:
-  - [ ] `apps/client/AGENTS.md -> CLAUDE.md`
-  - [ ] `apps/server/AGENTS.md -> CLAUDE.md`
-  - [ ] `packages/schema/AGENTS.md -> CLAUDE.md`
-  - [ ] `packages/ui/AGENTS.md -> CLAUDE.md`
-- [ ] Do not create `.codex` command/rule equivalents just because `.claude/commands/` exists.
-
-### Phase 3. Minimal Stale Fixes In Active Guides
-
-Only fix wording that conflicts with current code or document roles. Avoid broad rewrites.
-
-- [ ] Fix `.claude/features/currency.md` where `baseCurrency` is described as future-only even though it exists in schema/code.
-- [ ] Fix `.claude/features/manual-input.md` where top status says implemented but later text says implementation is still pending.
-- [ ] Fix obviously broken active links, especially active guide links that point to the wrong relative path.
-- [ ] Review `.claude/core/policy-architecture.md` for links that accidentally point under `.claude/apps/...`.
-- [ ] Leave historical terminology in historical documents unless it misleads from an active guide.
-
-### Phase 4. Shrink Root `CLAUDE.md` Last
-
-Only do this after map, guard, and workflow destinations exist.
-
-Keep root `CLAUDE.md` responsible for:
-
-- [ ] Project identity.
-- [ ] Current terminology.
-- [ ] Core invariants.
-- [ ] Fast links to `.claude/README.md`, harness, guards, workflows, core docs, feature docs, and workspace guides.
-- [ ] Reminder that more specific owner docs override root summary.
-
-Move or link out from root:
-
-- [ ] Long task checklists.
-- [ ] Long pitfall code examples.
-- [ ] Detailed architecture walkthroughs.
-- [ ] Completed feature history.
-- [ ] Large migration/history sections.
-
-Do not remove information unless a target document already owns it.
-
-### Phase 5. Decision Record
-
-- [ ] Add a decision record under `.claude/decisions/`.
-- [ ] Include:
-  - [ ] Why the harness changed.
-  - [ ] Why existing docs were preserved.
-  - [ ] Why root `CLAUDE.md` was reduced last.
-  - [ ] What was explicitly not done.
-  - [ ] How future agents/skills should be considered.
-
-### Phase 6. Verification
-
-- [ ] `git status -sb`
-- [ ] Link check or scripted markdown link scan.
-- [ ] `rg` stale terms again and classify each remaining hit as active, history, reference, or archive.
-- [ ] Confirm no runtime code changed.
-- [ ] Confirm root and workspace `AGENTS.md` symlinks resolve correctly.
-- [ ] If global/root harness bridge files, global skills/agents, or Codex bridge files were modified, run `tooling-map-auditor` before final response.
-
-## Suggested Commit Slices
-
-Keep commits small so later sessions can revert or compare safely.
-
-1. `docs: noline harness map and bridge plan`
-2. `docs: add noline guard and workflow maps`
-3. `docs: refresh stale active guide wording`
-4. `docs: shrink root CLAUDE guide`
-5. `docs: record noline harness restructure decision`
+1. `docs: add noline harness restructure plan`
+2. `docs: add noline harness maps`
+3. `docs: add codex guide symlinks`
+4. `docs: refresh active guide references`
+5. `docs: shrink root guide and record harness decision`
+6. `docs: align active guide terminology`
+7. `docs: clarify current error handling guide`
+8. `docs: classify doc audit notes`
 
 ## Open Questions
 
@@ -204,9 +114,9 @@ Keep commits small so later sessions can revert or compare safely.
 
 If a later session sees only this file, proceed conservatively:
 
-1. Do not delete existing documentation.
-2. Create map layers first.
-3. Fix only current-guide contradictions.
-4. Reduce root `CLAUDE.md` last.
-5. Treat history as evidence, not current policy.
+1. Do not restart the completed restructure phases without checking `git log main..HEAD`.
+2. Do not delete existing documentation just because it contains old terminology.
+3. Treat `.claude/core/`, key `.claude/features/`, root/workspace `CLAUDE.md`, `guards/`, and `workflows/` as the active path.
+4. Treat decisions, sessions, implementation notes, audits, references, and archive as evidence/history/source unless an active guide points there.
+5. Fix future drift in active guides by comparing against code first.
 6. Keep agents/skills as candidates until repeated real use proves them.

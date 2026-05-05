@@ -32,6 +32,7 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
 | Workflows | [../workflows/](../workflows/) | 반복 작업별 시작 순서, 관련 guard와 source 문서 포인터 |
 | Commands | [../commands/](../commands/) | Claude command reference와 문서 관리 workflow |
 | Decisions | [../decisions/](../decisions/) | 정책, 용어, 하네스 구조가 왜 바뀌었는지 |
+| Audits | [../audits/](../audits/) | 문서 품질 검증과 하네스 점검 evidence. active policy가 아님 |
 | Implementation/sessions | [../implementation/](../implementation/), [../sessions/](../sessions/) | 작업 이력과 증거. 기본값은 active policy가 아님 |
 | References/archive | [../references/](../references/), [../_archive/](../_archive/) | 원천 자료와 과거 맥락. 명시 요청 없이 현재 정책처럼 수정하지 않음 |
 

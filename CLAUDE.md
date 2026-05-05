@@ -111,10 +111,12 @@ noline/
 │   ├── guards/          # High-cost rule map
 │   ├── workflows/       # Repeated task entry points
 │   ├── harness/         # AI/developer harness map
+│   ├── commands/        # Claude command references
 │   ├── decisions/       # Decision records
 │   ├── implementation/  # Trackers/history
 │   ├── sessions/        # Session records
 │   ├── references/      # PRD/wireframe/source material
+│   ├── audits/          # Document audit/test evidence
 │   └── _archive/        # Deprecated historical material
 └── CLAUDE.md            # This navigation hub
 ```
@@ -159,11 +161,4 @@ pnpm schema build
 
 ## Claude Commands
 
-문서 관리 command 자료는 [commands/](./.claude/commands/)에 있다.
-
-- `/check-docs`: Git commit 전 변경사항 기반 문서화 필요도 판단
-- `/doc-discuss`: 새 기능 논의 시 session 파일 생성 제안
-- `/doc-save`: 문서 저장 및 Decision/CHANGELOG 연결
-- `/doc-refactor`: 정책 일관성 검증 및 문서 리팩토링
-
-Codex 작업에서는 command 문서를 참고할 수 있지만, Claude 전용 실행 전제를 그대로 재현하지 않는다.
+문서 관리 command 자료는 [commands/](./.claude/commands/)에 있다. Codex 작업에서는 참고 자료로만 읽고, Claude 전용 실행 전제를 그대로 재현하지 않는다.
