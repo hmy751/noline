@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import config from '../config/index.js';
 
 // ========================================
@@ -11,6 +12,128 @@ interface AppleTokenResponse {
   expires_in: number;
   refresh_token: string;
   id_token: string;
+}
+
+interface AppleJWK {
+  kty: string;
+  kid: string;
+  use: string;
+  alg: string;
+  n: string;
+  e: string;
+}
+
+interface AppleKeysResponse {
+  keys: AppleJWK[];
+}
+
+interface AppleIdentityTokenPayload {
+  sub: string;
+  email?: string;
+  iss: string;
+  aud: string;
+  exp: number;
+  iat: number;
+}
+
+// ========================================
+// Apple Public Key Verification
+// ========================================
+
+// Apple 공개키 캐시 (재시작 시 리셋)
+let cachedAppleKeys: AppleJWK[] | null = null;
+let cacheExpiresAt = 0;
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24시간
+
+/**
+ * Apple 공개키 가져오기 (캐시 적용)
+ * @see https://developer.apple.com/documentation/sign_in_with_apple/fetch_apple_s_public_key_for_verifying_token_signature
+ */
+async function getApplePublicKeys(): Promise<AppleJWK[]> {
+  if (cachedAppleKeys && Date.now() < cacheExpiresAt) {
+    return cachedAppleKeys;
+  }
+
+  const response = await fetch('https://appleid.apple.com/auth/keys');
+  if (!response.ok) {
+    throw new Error(`Failed to fetch Apple public keys: ${response.status}`);
+  }
+
+  const data = (await response.json()) as AppleKeysResponse;
+  cachedAppleKeys = data.keys;
+  cacheExpiresAt = Date.now() + CACHE_TTL_MS;
+
+  return data.keys;
+}
+
+/**
+ * JWK → PEM 변환 (Node.js crypto 사용)
+ */
+function jwkToPem(jwk: AppleJWK): string {
+  const keyObject = crypto.createPublicKey({
+    key: {
+      kty: jwk.kty,
+      n: jwk.n,
+      e: jwk.e,
+    },
+    format: 'jwk',
+  });
+
+  return keyObject.export({ type: 'spki', format: 'pem' }) as string;
+}
+
+/**
+ * Apple Identity Token 서명 검증
+ *
+ * 1. JWT 헤더에서 kid 추출
+ * 2. Apple 공개키에서 해당 kid 매칭
+ * 3. 서명 검증 + issuer/audience 확인
+ *
+ * @param identityToken - Apple Sign In에서 받은 identity_token (JWT)
+ * @returns 검증된 payload
+ */
+export async function verifyAppleIdentityToken(identityToken: string): Promise<AppleIdentityTokenPayload> {
+  const { clientId } = config.appleOAuth;
+  if (!clientId) {
+    throw new Error('Apple OAuth client ID is not configured');
+  }
+
+  // JWT 헤더에서 kid 추출
+  const [headerBase64] = identityToken.split('.');
+  const header = JSON.parse(Buffer.from(headerBase64, 'base64').toString());
+
+  if (!header.kid) {
+    throw new Error('Apple identity token missing kid in header');
+  }
+
+  // Apple 공개키 가져오기
+  const appleKeys = await getApplePublicKeys();
+  const matchingKey = appleKeys.find((key) => key.kid === header.kid);
+
+  if (!matchingKey) {
+    // 캐시가 오래됐을 수 있으므로 강제 갱신
+    cachedAppleKeys = null;
+    const refreshedKeys = await getApplePublicKeys();
+    const retryKey = refreshedKeys.find((key) => key.kid === header.kid);
+
+    if (!retryKey) {
+      throw new Error(`No matching Apple public key found for kid: ${header.kid}`);
+    }
+
+    const pem = jwkToPem(retryKey);
+    return jwt.verify(identityToken, pem, {
+      algorithms: ['RS256'],
+      issuer: 'https://appleid.apple.com',
+      audience: clientId,
+    }) as AppleIdentityTokenPayload;
+  }
+
+  const pem = jwkToPem(matchingKey);
+  return jwt.verify(identityToken, pem, {
+    algorithms: ['RS256'],
+    issuer: 'https://appleid.apple.com',
+    audience: clientId,
+  }) as AppleIdentityTokenPayload;
 }
 
 // ========================================

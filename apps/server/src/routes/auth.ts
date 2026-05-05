@@ -8,7 +8,12 @@ import { users, refreshTokens } from '../db/schema.js';
 import config from '../config/index.js';
 import { generateTokens, verifyRefreshToken, hashToken, getRefreshTokenExpiresAt } from '../services/jwt.js';
 import { requireAuth } from '../middleware/auth.js';
-import { exchangeAppleAuthCode, revokeAppleToken, isAppleOAuthConfigured } from '../services/apple-oauth.js';
+import {
+  exchangeAppleAuthCode,
+  revokeAppleToken,
+  isAppleOAuthConfigured,
+  verifyAppleIdentityToken,
+} from '../services/apple-oauth.js';
 
 const router = Router();
 
@@ -222,17 +227,13 @@ router.post('/apple', async (req: Request, res: Response) => {
       });
     }
 
-    // Apple Identity Token 검증
-    // Note: 실제 구현에서는 apple-signin-auth 라이브러리 또는 직접 JWT 검증 필요
-    // 여기서는 간단한 JWT 디코딩으로 처리 (production에서는 서명 검증 필수!)
+    // Apple Identity Token 서명 검증 (Apple 공개키 사용)
     let appleUserInfo: AppleUserInfo;
     try {
-      // JWT 디코딩 (서명 검증 없이 - production에서는 검증 필요!)
-      const [, payloadBase64] = identityToken.split('.');
-      const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString());
+      const payload = await verifyAppleIdentityToken(identityToken);
 
       if (!payload.sub) {
-        throw new Error('Invalid payload');
+        throw new Error('Invalid payload: missing sub');
       }
 
       appleUserInfo = {
@@ -242,6 +243,8 @@ router.post('/apple', async (req: Request, res: Response) => {
           ? `${appleUser.name.firstName} ${appleUser.name.lastName || ''}`.trim()
           : undefined,
       };
+
+      console.log('✅ Apple token verified for user:', appleUserInfo.email || appleUserInfo.sub);
     } catch (error) {
       console.error('Apple token verification failed:', error);
       return res.status(401).json({
