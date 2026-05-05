@@ -82,15 +82,19 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
 router.get('/', requireAuth, async (req: Request, res: Response) => {
   try {
     const { tripId } = req.query;
+    const userId = req.userId!;
 
-    // 조회 쿼리 구성
-    const allSchedules = tripId
-      ? await db
-          .select()
-          .from(schedules)
-          .where(and(isNull(schedules.deletedAt), eq(schedules.tripId, tripId as string)))
-          .orderBy(schedules.scheduledAt)
-      : await db.select().from(schedules).where(isNull(schedules.deletedAt)).orderBy(schedules.scheduledAt);
+    // 조회 쿼리 구성 (소유권 필터링)
+    const conditions = [isNull(schedules.deletedAt), eq(schedules.userId, userId)];
+    if (tripId) {
+      conditions.push(eq(schedules.tripId, tripId as string));
+    }
+
+    const allSchedules = await db
+      .select()
+      .from(schedules)
+      .where(and(...conditions))
+      .orderBy(schedules.scheduledAt);
 
     // ISO string으로 변환 및 Entity 검증
     const validatedSchedules = allSchedules.map((schedule) => {
@@ -146,12 +150,13 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
 router.get('/:id', requireAuth, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const userId = req.userId!;
 
-    // 일정 조회 (Soft Delete 제외)
+    // 일정 조회 (Soft Delete 제외, 소유권 확인)
     const [schedule] = await db
       .select()
       .from(schedules)
-      .where(and(eq(schedules.id, id), isNull(schedules.deletedAt)))
+      .where(and(eq(schedules.id, id), eq(schedules.userId, userId), isNull(schedules.deletedAt)))
       .limit(1);
 
     if (!schedule) {
@@ -224,18 +229,18 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
       });
     }
 
-    const { id, title, location, address, scheduledAt, latitude, longitude } = validationResult.data;
+    const { title, location, address, scheduledAt, latitude, longitude } = validationResult.data;
 
-    // 일정 존재 여부 확인 (soft delete 체크)
+    // 일정 존재 여부 및 소유권 확인 (soft delete 체크)
     const [existingSchedule] = await db
       .select()
       .from(schedules)
-      .where(and(eq(schedules.id, scheduleId), isNull(schedules.deletedAt)));
+      .where(and(eq(schedules.id, scheduleId), eq(schedules.userId, userId), isNull(schedules.deletedAt)));
 
     if (!existingSchedule) {
       return res.status(404).json({
         error: 'Not found',
-        message: 'Schedule not found or has been deleted',
+        message: 'Schedule not found or you do not have permission to edit it',
       });
     }
 
@@ -314,16 +319,16 @@ router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
     const scheduleId = req.params.id;
     const userId = req.userId!;
 
-    // 일정 존재 여부 확인
+    // 일정 존재 여부 및 소유권 확인
     const [existingSchedule] = await db
       .select()
       .from(schedules)
-      .where(and(eq(schedules.id, scheduleId), isNull(schedules.deletedAt)));
+      .where(and(eq(schedules.id, scheduleId), eq(schedules.userId, userId), isNull(schedules.deletedAt)));
 
     if (!existingSchedule) {
       return res.status(404).json({
         error: 'Not found',
-        message: 'Schedule not found or has been deleted',
+        message: 'Schedule not found or you do not have permission to delete it',
       });
     }
 

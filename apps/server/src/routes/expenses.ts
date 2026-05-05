@@ -13,9 +13,10 @@ const router = Router();
 router.get('/', requireAuth, async (req: Request, res: Response) => {
   try {
     const { tripId, scheduleId } = req.query;
+    const userId = req.userId!;
 
-    // 조건 구성
-    const conditions = [isNull(expenses.deletedAt)];
+    // 조건 구성 (소유권 필터링)
+    const conditions = [isNull(expenses.deletedAt), eq(expenses.userId, userId)];
 
     if (tripId) {
       conditions.push(eq(expenses.tripId, tripId as string));
@@ -160,12 +161,13 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
 router.get('/:id', requireAuth, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const userId = req.userId!;
 
-    // 경비 조회 (Soft Delete 제외)
+    // 경비 조회 (Soft Delete 제외, 소유권 확인)
     const [expense] = await db
       .select()
       .from(expenses)
-      .where(and(eq(expenses.id, id), isNull(expenses.deletedAt)))
+      .where(and(eq(expenses.id, id), eq(expenses.userId, userId), isNull(expenses.deletedAt)))
       .limit(1);
 
     if (!expense) {
@@ -240,7 +242,9 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
 
     const updateData = validationResult.data;
 
-    // 경비 수정
+    const userId = req.userId!;
+
+    // 경비 수정 (소유권 확인)
     const [updatedExpense] = await db
       .update(expenses)
       .set({
@@ -255,7 +259,7 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
         updatedAt: new Date(),
         version: sql`${expenses.version} + 1`, // ✅ version 증가 (Local-First)
       })
-      .where(and(eq(expenses.id, id), isNull(expenses.deletedAt)))
+      .where(and(eq(expenses.id, id), eq(expenses.userId, userId), isNull(expenses.deletedAt)))
       .returning();
 
     if (!updatedExpense) {
@@ -308,7 +312,9 @@ router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    // Soft Delete: deletedAt 업데이트
+    const userId = req.userId!;
+
+    // Soft Delete: deletedAt 업데이트 (소유권 확인)
     const [deletedExpense] = await db
       .update(expenses)
       .set({
@@ -316,7 +322,7 @@ router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
         updatedAt: new Date(),
         version: sql`${expenses.version} + 1`, // ✅ version 증가 (Local-First)
       })
-      .where(and(eq(expenses.id, id), isNull(expenses.deletedAt)))
+      .where(and(eq(expenses.id, id), eq(expenses.userId, userId), isNull(expenses.deletedAt)))
       .returning();
 
     if (!deletedExpense) {
