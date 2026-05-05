@@ -188,7 +188,7 @@ if (isFirstSchedule) {
 
 - Entity: `entities/offline-city/`
 - Service: `shared/services/offline-map/`
-- DB Schema: `shared/db/schema/offline-city.ts`
+- DB Schema: `shared/db/schema.ts` (`offlineCities`)
 
 **주요 이슈 & 해결:**
 
@@ -275,7 +275,7 @@ onSuccess: () => {
 - Entity: `entities/route/data/`
 - Service: `shared/services/directions/mapbox.ts`
 - Util: `shared/lib/mapbox.ts` (polyline 디코딩)
-- Component: `shared/components/Map/OfflineScheduleMapView.tsx`
+- Component: `shared/components/Map/MapboxScheduleMapView.tsx` (via `PolicyBasedScheduleMapView.tsx`)
 - DB Schema: `shared/db/schema.ts` (routes 테이블)
 
 **주요 이슈 & 해결:**

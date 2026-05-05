@@ -1341,7 +1341,7 @@ function convertToISO(record: any) {
 
 ## 🚨 반복되는 이슈 패턴과 해결책
 
-### 패턴 1: Schema ID 필드 누락 (Echo 위반)
+### 패턴 1: Schema ID 필드 누락 (Client-Side ID 위반)
 
 #### 증상
 
@@ -1363,7 +1363,7 @@ Server: 01XYZ789  ❌
 ```typescript
 // ✅ 수정
 export const createScheduleRequestSchema = z.object({
-  id: z.string().ulid(), // Echo 필수!
+  id: z.string().ulid(), // Client-Side ID 필수!
   tripId: z.string(),
   title: z.string(),
 });
@@ -1933,7 +1933,7 @@ export const useGetTrips = () => {
    Client: 01ABC123
    Server: 01XYZ789
 
-   ├─ YES → Echo 위반!
+   ├─ YES → Client-Side ID 위반!
    │  ├─ createXxxRequestSchema에 id 있는가?
    │  ├─ 서버에서 const { id } = req.body 하는가?
    │  └─ 서버 insert에 id 포함하는가?
@@ -2131,8 +2131,8 @@ export const useGetTrips = () => {
      await addToSyncQueue(...);
    });
 
-3. ✅ 모든 엔티티를 Local-First로 일관되게 구현
-   queryFn: () => db.select().from(table)  // API 호출 ❌
+3. ✅ 활성화 대상 Data Entity는 Activation Router/로컬 DB 정책을 일관되게 적용
+   queryFn: () => repository.getByTrip(tripId)  // 훅에서 직접 API 호출 ❌
 
 4. ✅ 서버는 클라이언트 ID를 그대로 사용
    const { id, ...data } = req.body;
@@ -2185,7 +2185,7 @@ export const useGetTrips = () => {
    await db.delete(table).where(...)  // 동기화 불가!
 
 7. ❌ createXxxRequestSchema에서 id 빠뜨리면 안 됨
-   z.object({ title, amount })  // id 없음 → Echo 위반!
+   z.object({ title, amount })  // id 없음 → Client-Side ID 위반!
 ```
 
 ---

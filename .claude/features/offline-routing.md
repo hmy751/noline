@@ -62,7 +62,7 @@
                  │
                  ▼
 ┌─────────────────────────────────────────────────────┐
-│ 6. OfflineScheduleMapView                           │
+│ 6. MapboxScheduleMapView                            │
 │    - useGetRoutes({ tripId }) → 로컬 DB 조회        │
 │    - selectedProfile 기준 필터링                    │
 │    - decodePolyline(geometry) → [lng, lat][]       │
@@ -125,7 +125,8 @@ apps/client/src/
 │   │   ├── mapbox.ts                   # decodePolyline() 유틸 ⭐
 │   │   └── external-map.ts             # Google Maps 길찾기 유틸 (신규)
 │   └── components/Map/
-│       └── OfflineScheduleMapView.tsx  # 경로 렌더링 컴포넌트 ⭐
+│       ├── MapboxScheduleMapView.tsx        # 경로 렌더링 컴포넌트 ⭐
+│       └── PolicyBasedScheduleMapView.tsx   # 정책/프로바이더 선택 wrapper
 ```
 
 ## 💻 구현 상세
@@ -554,7 +555,7 @@ export function useGetRoutes({ tripId }: { tripId: string }) {
 
 ### 8. 지도 렌더링 컴포넌트
 
-**위치**: `apps/client/src/shared/components/Map/OfflineScheduleMapView.tsx`
+**위치**: `apps/client/src/shared/components/Map/MapboxScheduleMapView.tsx`
 
 **핵심 기능**:
 

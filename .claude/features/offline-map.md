@@ -61,8 +61,8 @@ apps/client/src/
 │   └── useCreateScheduleForm.ts         # 자동 다운로드 트리거
 ├── shared/
 │   ├── db/
-│   │   ├── index.ts                     # offline_cities 테이블 생성
-│   │   └── schema/offline-city.ts       # Drizzle 스키마
+│   │   ├── index.ts                     # DB 초기화
+│   │   └── schema.ts                    # offline_cities Drizzle 스키마
 │   └── services/offline-map/
 │       └── useOfflineMapCleanup.ts      # 자동 정리
 └── app/
@@ -73,7 +73,7 @@ apps/client/src/
 
 ### 1. DB 스키마 (offline_cities)
 
-**위치**: `apps/client/src/shared/db/schema/offline-city.ts`
+**위치**: `apps/client/src/shared/db/schema.ts`
 
 ```typescript
 import { sqliteTable, integer, text } from 'drizzle-orm/sqlite-core';

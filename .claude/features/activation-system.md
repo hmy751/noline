@@ -1447,11 +1447,13 @@ await api.post('/expenses', data); // 서버가 ID 생성
 - **Activation Router**: 활성화 상태에 따라 로컬/서버 경로 결정하는 라우팅 레이어
 - **Client-Side ID Generation**: 클라이언트가 ID 생성, 서버가 그대로 수용하는 패턴
 
+> 용어 주의: 현재 문서 용어는 **Activation Router**를 우선한다. 다만 실제 코드 경로는 기존 구현 이력을 보존해 `apps/client/src/shared/services/offline-prep/`로 남아 있으므로, 코드 경로명만 보고 과거 용어를 현재 정책명으로 되돌리지 않는다.
+
 ---
 
 ## 🏗 디렉토리 구조 및 아키텍처 관계
 
-### Offline-Prep 서비스 위치
+### Activation Router 서비스 위치 (코드 경로: `offline-prep`)
 
 ```text
 shared/services/
@@ -1465,17 +1467,17 @@ shared/services/
 │ ├── storage.ts # sync metadata
 │ └── api.ts # Sync API 클라이언트
 │
-└── offline-prep/ # 📦 오프라인 준비 시스템 (활성화)
+└── offline-prep/ # 📦 Activation Router 구현 (활성화)
 ├── router.ts # routeQuery, routeMutation (라우팅)
 ├── metadata.ts # getTripMetadata (활성화 상태 조회)
 └── manager.ts # activate, deactivate (활성화 관리 - 미래)
 ```
 
-### Sync Engine vs Offline-Prep
+### Sync Engine vs Activation Router
 
 **완전히 독립적인 두 계층**:
 
-| 비교            | Sync Engine              | Offline-Prep                 |
+| 비교            | Sync Engine              | Activation Router            |
 | --------------- | ------------------------ | ---------------------------- |
 | **책임**        | 로컬 ↔ 서버 동기화      | 데이터 소스 라우팅           |
 | **동작 시점**   | 백그라운드 주기적        | Query/Mutation 시점 (실시간) |
@@ -1509,13 +1511,13 @@ Remote Server
 
 **핵심**:
 
-- Offline-Prep: Entity 계층에서 직접 호출 (실시간 라우팅)
+- Activation Router: Entity 계층에서 직접 호출 (실시간 라우팅)
 - Sync Engine: 백그라운드에서 독립 실행 (활성화된 여행만 관여)
 - 두 시스템은 서로를 호출하지 않음 (독립적)
 
 ### lib/ vs services/ 구분
 
-**왜 Offline-Prep이 `services/`에?**
+**왜 Activation Router가 `services/offline-prep/`에?**
 
 |                 | lib/                           | services/                                 |
 | --------------- | ------------------------------ | ----------------------------------------- |
@@ -1524,7 +1526,7 @@ Remote Server
 | **재사용**      | 다른 프로젝트 OK               | 앱에 특화됨                               |
 | **Side effect** | ❌ 없음                        | ✅ 있음 (DB, API, 파일 등)                |
 
-**Offline-Prep 판단**:
+**Activation Router 판단**:
 
 - Side effect: ✅ (DB 조회, 네트워크 상태 확인)
 - 앱 특화: ✅ (Noline의 활성화 시스템에 특화)
@@ -1615,7 +1617,7 @@ return operations.local();
 
 **핵심 이유**:
 
-1. ✅ **단방향 의존성**: Entity → Offline-Prep (제거 쉬움)
+1. ✅ **단방향 의존성**: Entity → Activation Router (`offline-prep` 경로, 제거 쉬움)
 2. ✅ **기존 코드 영향 최소**: Sync, Mutation 무관
 3. ✅ **Git으로 완벽 복구**: 커밋 단위 롤백 가능
 4. ✅ **점진적 롤백 옵션**: Router만 무시 가능
@@ -1636,7 +1638,7 @@ export async function routeQuery<T>(...) {
 if (!FEATURES.OFFLINE_PREP_ENABLED) {
 return operations.local(); // 기존 동작
 }
-// Offline-Prep 로직
+// Activation Router 로직
 const metadata = await getTripMetadata(tripId);
 // ...
 }
@@ -1668,7 +1670,7 @@ const metadata = await getTripMetadata(tripId);
 
 git commit -m "feat: Add trip_activations table"
 
-# Commit 2: Offline-Prep 서비스 추가
+# Commit 2: Activation Router 서비스 추가
 
 git commit -m "feat: Add offline-prep router service"
 

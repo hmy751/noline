@@ -274,7 +274,7 @@ const groupByCurrency = (expenses: Expense[]) => {
 };
 ```
 
-### 3. Echo 동기화
+### 3. Client-Side ID / sync_queue 동기화
 
 - 통화 정보는 모든 기기에서 동일하게 유지
 - currency 필드는 Soft Delete 시에도 보존

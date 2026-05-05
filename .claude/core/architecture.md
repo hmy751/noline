@@ -164,29 +164,27 @@ noline/
 - 모달 및 전체 화면 페이지는 루트(`app/`)에 배치합니다.
   - 탭 바 등 특정 레이아웃에서 벗어나야 하는 화면은 해당 그룹 폴더 바깥(주로 `app/` 바로 아래)에 라우트 파일을 생성합니다.
 
-## 🚀 Walkthrough: '프로필 수정' 기능 추가하기
+## 🚀 Walkthrough: '여행 생성' 흐름 확인하기
 
 1. **Entity 정의 (필요시)**:
-   - `src/entities/user`에 `User` 엔티티 관련 코드가 정의되어 있는지 확인합니다. 여기에는 `UserAvatar` 컴포넌트, `model/`의 타입, `api/`의 API 함수 등이 포함될 수 있습니다.
+   - `src/entities/trip`에 `Trip` 엔티티 관련 코드가 정의되어 있는지 확인합니다. 여기에는 `model/`의 타입, `api/`의 원격 함수, `lib/`의 로컬 datasource, `repository/`, `data/` hook이 포함될 수 있습니다.
 
 2. **Feature 생성**:
-   - `src/features/edit-profile-form` 디렉토리를 만듭니다.
-   - 이 안에 프로필 정보를 수정하는 `Form` 컴포넌트와 관련 로직(상태, 유효성 검사, API 호출)을 모두 구현합니다. 이 폼은 `entities/user/api`의 API 함수와 `@repo/ui` 또는 `shared/components`의 UI 컴포넌트를 사용하게 될 것입니다.
+   - `src/features/trip/create-trip` 아래에서 여행 생성 폼과 관련 로직을 확인하거나 확장합니다.
+   - 폼은 `entities/trip/data` hook, `@repo/schema`, `@repo/ui` 또는 `shared/components`의 UI 컴포넌트를 조합합니다.
 
 3. **Screen 생성**:
-   - `src/screens/EditProfileScreen.tsx` 파일을 만듭니다.
-   - `shared`의 `MobileHeader`와 2번에서 만든 `edit-profile-form` 피처를 가져와 페이지 레이아웃에 맞게 배치합니다.
+   - `src/screens/CreateTripScreen.tsx`에서 `MobileHeader`와 `create-trip` 피처를 페이지 레이아웃에 맞게 배치합니다.
 
 4. **Route 생성**:
-   - `app/profile/edit.tsx` 파일을 만듭니다.
-   - 이 파일 안에서 3번에서 만든 `EditProfileScreen`을 `import` 하여 `return` 합니다.
+   - `app/create-trip.tsx`에서 3번의 Screen을 `import` 하여 `return` 합니다.
 
    ```typescript
-   // app/profile/edit.tsx
-   import EditProfileScreen from '@/screens/EditProfileScreen';
+   // app/create-trip.tsx
+   import CreateTripScreen from '@/screens/CreateTripScreen';
 
-   export default function EditProfileRoute() {
-     return <EditProfileScreen />;
+   export default function CreateTrip() {
+     return <CreateTripScreen />;
    }
    ```
 
