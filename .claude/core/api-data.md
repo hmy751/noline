@@ -1,15 +1,16 @@
 ---
-description: API & 데이터 페칭 아키텍처 - 사용자가 API/데이터 페칭 구현을 요청할 때 반드시 가져와야 합니다. MVP(기본 에러 처리, 타입 전용) 및 Production(Zod 유효성 검사, 완전한 계층 분리) 레벨을 지원합니다. 컨텍스트 인식 React Query 패턴을 사용하여 3계층 아키텍처(API/Data/UI)를 정의합니다.
+description: API & 데이터 페칭 아키텍처 - 현재 Noline의 @repo/schema, Entity/Data hook, React Query, Activation Router 기준을 정리합니다.
 alwaysApply: true
 ---
 
 # API 호출 및 데이터 페칭 가이드
 
 - 이건 가이드로서 만약 구현되어 있지 않는다면 무조건적으로 따를 필요는 없다.
+- 현재 클라이언트에는 `_libs/error`/`errorService`가 없다. 데이터 훅 예시는 기본 `Error` throw와 React Query error state 처리를 우선한다.
 
 ---
 
-## 0. ⚠️ AI 자동 실행 프로토콜 (레벨별 가이드)
+## 0. 구현 깊이 가이드 (레벨별 가이드)
 
 ### 📊 구현 레벨 선택 (기본: MVP)
 
@@ -140,7 +141,7 @@ export const fetchUserInfo = async (): Promise<UserInfo> => {
   const validated = UserInfoSchema.safeParse(response);
 
   if (!validated.success) {
-    throw new ValidationError('Invalid user data');
+    throw new Error('Invalid user data');
   }
 
   return validated.data;
@@ -263,7 +264,6 @@ React Query 훅은 API 함수와 강한 결합도를 가지므로, 관련된 엔
 import { useQuery } from '@tanstack/react-query';
 import { fetchUserInfo } from '@/entities/user/api/user';
 import { UserInfoResponseSchema } from '@repo/schema/user';
-import { APIError } from '@/_libs/error/errors';
 
 // ✅ DO: Query Key 패턴 정의
 export const userQueryKeys = {
@@ -286,11 +286,7 @@ export const useGetUser = () => {
       if (parsedData.success) {
         return parsedData.data;
       } else {
-        throw new APIError({
-          message: '회원 정보 조회에 실패했습니다.',
-          status: 404,
-          data: parsedData.error,
-        });
+        throw new Error(`회원 정보 조회에 실패했습니다: ${parsedData.error.message}`);
       }
     },
     staleTime: 5 * 60 * 1000, // 5분
@@ -307,10 +303,7 @@ export const useGetUserById = (userId: number) => {
       const parsedData = UserSchema.safeParse(response);
 
       if (!parsedData.success) {
-        throw new APIError({
-          message: '사용자를 찾을 수 없습니다.',
-          status: 404,
-        });
+        throw new Error('사용자를 찾을 수 없습니다.');
       }
 
       return parsedData.data;
@@ -328,7 +321,7 @@ export const useSuspenseGetInterviewerList = () => {
       const parsedData = InterviewerListResponseSchema.safeParse(response);
 
       if (!parsedData.success) {
-        throw new ClientServerMismatchedError({ data: parsedData.error });
+        throw new Error(`응답 구조가 일치하지 않습니다: ${parsedData.error.message}`);
       }
 
       return parsedData.data;
@@ -350,7 +343,7 @@ export const useCreateInterview = () => {
       const validated = CreateInterviewResponseSchema.safeParse(response);
 
       if (!validated.success) {
-        throw new ValidationError('Invalid response');
+        throw new Error('Invalid response');
       }
 
       return validated.data;
@@ -368,11 +361,8 @@ export const useCreateInterview = () => {
       });
     },
     onError: (error) => {
-      // ✅ DO: 에러 핸들링
-      errorService.handle(error, {
-        type: 'toast',
-        title: '인터뷰 생성 실패',
-      });
+      // ✅ DO: 화면/호출부에서 React Query error state로 처리
+      console.error('인터뷰 생성 실패:', error);
     },
   });
 };
@@ -423,12 +413,9 @@ export const useInterview = () => {}; // ❌
 const handleResponse = async (response: Response) => {
   if (!response.ok) {
     if (response.status === 401) {
-      throw new AuthError({ data: errorData, message: '인증이 필요합니다.' });
+      throw new Error('인증이 필요합니다.');
     }
-    throw new APIError({
-      message: errorData.message || 'API 요청에 실패했습니다.',
-      status: response.status,
-    });
+    throw new Error(errorData.message || `API 요청에 실패했습니다. (${response.status})`);
   }
   return response.json();
 };
@@ -448,18 +435,13 @@ export const useLogin = () => {
       const validated = LoginResponseSchema.safeParse(response);
 
       if (!validated.success) {
-        throw new ClientServerMismatchedError({
-          data: validated.error,
-        });
+        throw new Error(`응답 구조가 일치하지 않습니다: ${validated.error.message}`);
       }
 
       return validated.data;
     },
     onError: (error) => {
-      errorService.handle(error, {
-        type: 'toast',
-        title: '로그인 실패',
-      });
+      console.error('로그인 실패:', error);
     },
   });
 };
@@ -474,7 +456,7 @@ function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit}>
-      {/* 에러는 React Query와 errorService에서 처리됨 */}
+      {/* 에러는 React Query error state로 처리 */}
       <Button type="submit" isLoading={isPending}>
         로그인
       </Button>
@@ -513,7 +495,7 @@ export const fetchUser = async () => {
 export const fetchUser = async () => {
   const response = await fetcher.get('/api/user');
   const validated = UserSchema.safeParse(response);
-  if (!validated.success) throw new ValidationError();
+  if (!validated.success) throw new Error('Invalid user data');
   return validated.data;
 };
 
@@ -647,8 +629,8 @@ export const useGetUser = () => {
     queryKey: userQueryKeys.info(),
     queryFn: fetchUserInfo,
     retry: (failureCount, error) => {
-      // AuthError는 재시도하지 않음
-      if (error instanceof AuthError) return false;
+      // 인증 실패는 재시도하지 않음
+      if (error instanceof Error && error.message.includes('인증')) return false;
       // 최대 3번까지 재시도
       return failureCount < 3;
     },

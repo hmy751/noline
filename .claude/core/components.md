@@ -1,5 +1,5 @@
 ---
-description: 컴포넌트 아키텍처 & 개발 프로토콜 - 사용자가 컴포넌트 생성/수정을 요청할 때 반드시 가져와야 합니다. MVP(빠르고 유연한) 및 Production(완전하고 모범 사례를 따르는) 레벨을 지원합니다. 컨텍스트 인식 워크플로우를 통해 atom (packages/ui)과 composition (shared/components) 레이어 분리를 정의합니다.
+description: 컴포넌트 아키텍처 & 개발 가이드 - React Native 클라이언트의 packages/ui atom과 shared/components 조합 기준을 정리합니다.
 alwaysApply: false
 ---
 
@@ -7,10 +7,11 @@ alwaysApply: false
 
 - 이 프로젝트는 리액트 네이티브 프로젝트로 모바일 앱을 중점으로 개발한다.
 - 기본적으로 재사용성과 확장성을 고려한다.
+- 기준은 React Native/Expo다. 과거 웹/Next.js 예시가 남아 있으면 원칙 설명용으로만 읽고, 새 클라이언트 코드는 `View`, `Text`, `Pressable`, `className` 기반 NativeWind 패턴을 우선한다.
 
 ---
 
-## 0. ⚠️ AI 자동 실행 프로토콜 (레벨별 가이드)
+## 0. 구현 깊이 가이드 (레벨별 가이드)
 
 ### 📊 구현 레벨 선택 (기본: MVP)
 
@@ -585,20 +586,18 @@ export default function HomeScreen() {
 ### 🎨 컴포넌트 구조 (표준 템플릿)
 
 ```tsx
-'use client'; // Next.js Client Component인 경우만
-
 // 1️⃣ Import 섹션 (순서 엄수)
 import { useState, useEffect, useCallback, memo } from 'react';
-import { useRouter } from 'next/navigation';
-import Button from '@repo/ui/Button';
-import styles from './Component.module.css';
+import { View, Text } from 'react-native';
+import { router } from 'expo-router';
+import { Pressable } from '@repo/ui';
 
 // 2️⃣ 타입 정의
 interface ComponentProps {
   variant?: 'primary' | 'secondary';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
-  onSubmit?: (data: FormData) => void;
+  onSubmit?: () => void;
   children: React.ReactNode;
 }
 
@@ -611,7 +610,6 @@ export default function Component({
   children,
 }: ComponentProps) {
   // 4️⃣ Hooks (선언 순서 중요)
-  const router = useRouter();
   const [state, setState] = useState<string>('');
   const [isOpen, setIsOpen] = useState(false);
 
@@ -620,13 +618,9 @@ export default function Component({
     setIsOpen((prev) => !prev);
   }, []);
 
-  const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault();
-      onSubmit?.(new FormData(e.currentTarget as HTMLFormElement));
-    },
-    [onSubmit],
-  );
+  const handleSubmit = useCallback(() => {
+    onSubmit?.();
+  }, [onSubmit]);
 
   // 6️⃣ Side Effects
   useEffect(() => {
@@ -644,11 +638,15 @@ export default function Component({
 
   // 8️⃣ JSX 반환
   return (
-    <div className={styles.container}>
-      <Button variant={variant} size={size} onClick={handleClick}>
+    <View className='gap-sm'>
+      <Text className='text-body text-foreground'>{state}</Text>
+      <Pressable variant={variant === 'primary' ? 'default' : 'secondary'} size={size} onPress={handleClick}>
         {children}
-      </Button>
-    </div>
+      </Pressable>
+      <Pressable variant='ghost' onPress={handleSubmit}>
+        저장
+      </Pressable>
+    </View>
   );
 }
 ```
@@ -657,13 +655,13 @@ export default function Component({
 
 ```tsx
 // ✅ DO: Props 구조 분해 할당
-function Button({ variant, size, children, onClick }: ButtonProps) {
-  return <button onClick={onClick}>{children}</button>;
+function ActionButton({ variant, size, children, onPress }: ButtonProps) {
+  return <Pressable variant={variant} size={size} onPress={onPress}>{children}</Pressable>;
 }
 
 // ❌ DON'T: props 객체 직접 사용
-function Button(props: ButtonProps) {
-  return <button onClick={props.onClick}>{props.children}</button>;
+function ActionButton(props: ButtonProps) {
+  return <Pressable onPress={props.onPress}>{props.children}</Pressable>;
 }
 ```
 

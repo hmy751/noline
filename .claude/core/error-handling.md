@@ -1,52 +1,54 @@
 ---
-description: 에러 처리 상세 가이드 - 에러 처리를 구현할 때 반드시 가져와야 합니다. MVP(기본 try-catch, console.error) 및 Production(커스텀 에러 클래스, errorService, ErrorBoundary) 레벨을 지원합니다. 기존 인프라에 기반한 컨텍스트 인식 에러 처리를 제공합니다.
+description: 에러 처리 상세 가이드 - 현재 Noline의 서버 AppError/errorHandler, 클라이언트 React Query/PolicyErrorDisplay 기준과 확장 후보를 구분합니다.
 alwaysApply: false
 ---
 
 # 에러 처리 상세 가이드
 
-> 💡 **빠른 참조**: 핵심 원칙만 필요하다면 `07-error-handling-summary.md`를 먼저 확인하세요.
+> 현재 기준:
 >
-> 이 문서는 에러 클래스 구조, errorService 구현, 계층별 패턴 등 상세 내용을 포함합니다.
+> - 서버 에러 인프라: `apps/server/src/middleware/errorHandler.ts`의 `AppError`와 `errorHandler`.
+> - 클라이언트 정책/권한 에러 UI: `apps/client/src/shared/components/ErrorBoundary/PolicyErrorDisplay.tsx`.
+> - 클라이언트에는 현재 `_libs/error/`, 중앙 `errorService`, 클래스형 `ErrorBoundary` 인프라가 없다.
+>
+> 아래의 `_libs/error`, `errorService`, 커스텀 클라이언트 에러 클래스 예시는 **확장 후보/설계 블루프린트**다. 명시 요청 없이 현재 구현 기준으로 새 인프라를 만들지 않는다.
 
 ---
 
-## 0. ⚠️ AI 자동 실행 프로토콜 (레벨별 가이드)
+## 0. 구현 깊이 가이드 (현재 구현 우선)
 
 ### 📊 구현 레벨 선택 (기본: MVP)
 
-사용자가 명시하지 않으면 **MVP** 레벨 적용  
-"production 레벨로" 명시하면 **Production** 레벨 적용
+사용자가 명시하지 않으면 **현재 구현 레벨**을 적용한다.  
+"production 레벨로", "중앙 에러 인프라까지"처럼 명시하면 아래 확장 후보를 검토한다.
 
 ---
 
-### 🟢 MVP Level (기본값)
+### 🟢 현재 구현 Level (기본값)
 
 **목표**: 빠른 구현, 기본 에러 처리
 
 **원칙**:
 
-- ✅ 기존 에러 인프라가 있으면 → 따른다
-- ✅ 기존 에러 인프라가 없으면 → 기본 패턴만
+- ✅ 서버에서는 기존 `AppError`/`errorHandler`를 따른다
+- ✅ 클라이언트에서는 React Query error state, `throw new Error(...)`, 정책 UI(`PolicyErrorDisplay`)를 우선한다
+- ✅ 존재하지 않는 `_libs/error`/`errorService`를 기본 작업에서 새로 만들지 않는다
 
 **체크리스트**:
 
 ```
-1. 에러 인프라 확인
-   - _libs/error/ 있나?
-   - errorService 있나?
-   - 커스텀 에러 클래스 있나?
+1. 위치 확인
+   - 서버 라우터/미들웨어인가? → AppError/errorHandler 사용
+   - 클라이언트 정책 위반인가? → PolicyErrorDisplay 사용
+   - React Query 데이터 훅인가? → queryFn에서 Error throw, 화면에서 error state 처리
 
-   ✅ 있으면 → 사용
-   ⚠️ 없으면 → 기본 패턴만
+2. 기본 패턴
+   - try-catch가 필요한 경계에서만 사용
+   - console.error는 개발/진단용으로 제한
+   - 기본 Error 객체 또는 기존 도메인 에러 사용
+   - 사용자 메시지는 화면/정책 컴포넌트에서 결정
 
-2. 기본 패턴 (인프라 없을 때)
-   - try-catch
-   - console.error로 로깅
-   - 기본 Error 객체 사용
-   - 간단한 에러 메시지
-
-📌 핵심: "인프라 있으면 쓰고, 없으면 기본만"
+📌 핵심: "현재 존재하는 인프라를 따르고, 새 중앙 에러 계층은 별도 작업으로 둔다"
 ```
 
 **예시**:
@@ -56,8 +58,8 @@ alwaysApply: false
 → MVP 레벨
 
 AI 실행:
-1. errorService 있나? → ❌ 없음
-2. MVP니까 → 기본 try-catch만
+1. 서버/클라이언트 위치 확인
+2. 현재 구현 레벨이므로 기본 Error + React Query 상태 사용
 
 결과:
 export const fetchUser = async (id: number) => {
@@ -84,14 +86,14 @@ if (error) {
 
 ---
 
-### 🔴 Production Level
+### 🔴 확장 후보 Level (명시 요청 시)
 
 **목표**: 완전한 에러 처리 시스템
 
 **원칙**:
 
 - ✅ 기존 에러 인프라가 있으면 → 따른다
-- ✅ 기존 에러 인프라가 없으면 → 구축부터
+- ✅ 클라이언트 중앙 에러 계층이 실제로 필요하면 → 별도 설계/결정 기록 후 구축
 
 **체크리스트**:
 
@@ -100,7 +102,7 @@ if (error) {
    - _libs/error/ 있나?
 
    ✅ 있으면 → 사용
-   ❌ 없으면 → 구축
+   ❌ 없으면 → 바로 만들지 말고 필요성과 범위를 먼저 확인
      • AppError 기본 클래스
      • APIError, AuthError, ValidationError 등
      • errorService (중앙 처리)
@@ -119,7 +121,7 @@ if (error) {
    - toast 알림
    - 재시도 로직
 
-📌 핵심: "완전한 에러 처리 시스템 구축"
+📌 핵심: "완전한 에러 처리 시스템은 기본값이 아니라 명시적 확장 작업"
 ```
 
 **예시**:
@@ -130,7 +132,7 @@ if (error) {
 
 AI 실행:
 1. errorService 있나? → ❌ 없음
-2. Production이니까 → 인프라 구축부터
+2. 명시 요청이 있으므로 → 설계/결정 기록 후 인프라 구축 검토
 
 결과:
 // 1. _libs/error/errors/AppError.ts 생성
