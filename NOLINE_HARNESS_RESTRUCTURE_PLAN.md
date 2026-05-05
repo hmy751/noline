@@ -9,6 +9,18 @@ This document is a handoff/checklist for future sessions. It exists so that a la
 
 The goal is not to replace Noline's existing `.claude` materials with a new harness copied from another project. The goal is to add a safer reading structure on top of the existing materials, then gradually reduce the old root guide once the destination layers exist.
 
+## Progress Log
+
+2026-05-06 branch progress on `docs/noline-harness-plan`:
+
+- `a834082` - added this restructure plan from `main` (`503a4a5`).
+- `7c19516` - added `.claude` document map, harness map, guard map, and workflow map.
+- `ea4a433` - added root/workspace `AGENTS.md -> CLAUDE.md` symlink bridges.
+- `144db24` - refreshed current-guide contradictions and broken active references.
+- `53f35ee` - reduced root `CLAUDE.md` to a navigation hub and recorded the harness decision.
+
+Implementation note: the prior `harness/noline-ai-guides` branch was used as reference material only. This branch recreated the structure cleanly from `main` instead of cherry-picking the old branch wholesale.
+
 ## Current Understanding
 
 Noline already has a large documentation corpus.
@@ -180,7 +192,7 @@ Keep commits small so later sessions can revert or compare safely.
 - Should `.claude/features/activation-system.md` be split later into active feature guide and rollout/history notes?
 - Should Noline eventually have a thin `noline-policy-checker` report-only agent?
 - Should Noline eventually have a `noline-context-collector`, or is the global `gather-context` enough?
-- How much of the existing `harness/noline-ai-guides` branch should be cherry-picked versus recreated cleanly from `main`?
+- Resolved in this pass: use the existing `harness/noline-ai-guides` branch as reference, but recreate cleanly from `main`.
 
 ## Hand-Off Summary
 
