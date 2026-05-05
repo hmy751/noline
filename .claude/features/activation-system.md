@@ -806,7 +806,7 @@ export function useGetTripExpenses(tripId: string) {
 
 ### ActivationBadge (실제 구현)
 
-**파일**: [apps/client/src/entities/trip/ui/ActivationBadge.tsx](../../../apps/client/src/entities/trip/ui/ActivationBadge.tsx)
+**파일**: [apps/client/src/entities/trip/ui/ActivationBadge.tsx](../../apps/client/src/entities/trip/ui/ActivationBadge.tsx)
 
 ```tsx
 // ✅ 현재 구현
@@ -847,7 +847,7 @@ export function ActivationBadge({ status }: { status: ActivationStatus }) {
 
 ### TripCard with Activation Buttons (실제 구현)
 
-**파일**: [apps/client/src/entities/trip/ui/TripCard.tsx](../../../apps/client/src/entities/trip/ui/TripCard.tsx)
+**파일**: [apps/client/src/entities/trip/ui/TripCard.tsx](../../apps/client/src/entities/trip/ui/TripCard.tsx)
 
 ```tsx
 // ✅ 현재 구현
@@ -888,7 +888,7 @@ export function TripCard({
 
 ### MainTripSection (활성화 상태 조회 예시)
 
-**파일**: [apps/client/src/screens/HomeScreen/MainTripSection.tsx](../../../apps/client/src/screens/HomeScreen/MainTripSection.tsx)
+**파일**: [apps/client/src/screens/HomeScreen/MainTripSection.tsx](../../apps/client/src/screens/HomeScreen/MainTripSection.tsx)
 
 ```tsx
 // ✅ 현재 구현
@@ -928,7 +928,7 @@ export function MainTripSection({ mainTripData, onActivatePress }: MainTripSecti
 
 ### Activation Progress Drawer
 
-**파일**: [apps/client/src/entities/trip/ui/ActivationProgressDrawer.tsx](../../../apps/client/src/entities/trip/ui/ActivationProgressDrawer.tsx)
+**파일**: [apps/client/src/entities/trip/ui/ActivationProgressDrawer.tsx](../../apps/client/src/entities/trip/ui/ActivationProgressDrawer.tsx)
 
 ```tsx
 // ✅ 현재 구현

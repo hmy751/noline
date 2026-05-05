@@ -570,7 +570,7 @@ A: Last-Write-Wins + 메타데이터 보존:
 
 > **📋 Implementation Tracker**: [v3.0-tracker.md](../implementation/v3.0-tracker.md)
 >
-> Phase 3에서 Manual Input 구현 예정
+> Phase 3에서 Manual Input은 구현 완료. 남은 테스트/품질 보강 항목은 tracker와 현재 코드를 함께 확인.
 
 ## 관련 문서
 

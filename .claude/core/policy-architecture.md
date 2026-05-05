@@ -258,7 +258,7 @@ export const SERVICE_POLICIES: Record<PolicyKey, ServicePolicies> = {
 ````typescript
 // useAppPolicy.ts
 import { useState, useEffect } from 'react';
-import { useNetworkStatus } from '@/shared/hooks/useNetworkStatus';
+import { useNetworkStatus } from '@/shared/store/network';
 import { getTripActivationStatus } from '@/shared/services/offline-prep/metadata';
 import { TRIP_POLICIES, SCHEDULE_POLICIES, EXPENSE_POLICIES, SERVICE_POLICIES } from './constants';
 import type { PolicyKey, ActivationStatus, AppPolicyContext } from './types';
@@ -770,4 +770,4 @@ export function useAppPolicy(tripId?: string): AppPolicyContext {
 
 - [Decision: Data/Service 분리](../decisions/2025-11-20-data-service-separation.md)
 - [Selective Activation Architecture](./selective-activation-architecture.md)
-- [Router 구현](../apps/client/src/shared/services/offline-prep/router.ts)
+- [Router 구현](../../apps/client/src/shared/services/offline-prep/router.ts)

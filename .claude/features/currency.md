@@ -39,12 +39,12 @@ expenses: {
 }
 ```
 
-### Trip 스키마 (향후 추가 예정)
+### Trip 스키마 (구현됨)
 
 ```typescript
 trips: {
   // ... 기존 필드
-  baseCurrency: text; // 여행 기본 통화 (예정)
+  baseCurrency: text; // 여행 기본 통화
 }
 ```
 
@@ -186,27 +186,19 @@ KRW 50,000
    - 추가 통화 개수 표시
    - 공간 효율적 디자인
 
-4. **Mock 데이터**
-   - EUR, USD, KRW 3개 통화
-   - 다양한 금액 시나리오
-   - UI 테스트 가능
+4. **여행 기본 통화 설정**
+   - Trip 스키마, client/server DB schema, create/update request에 `baseCurrency` 포함
+   - 여행 생성 시 국가 코드 기반 기본 통화 설정
+   - 경비 생성 시 여행의 `baseCurrency`를 기본값으로 사용
 
-### 🔄 진행 예정
+5. **통화 포맷 유틸**
+   - `formatCurrencyDisplay`
+   - `groupExpensesByCurrency`
+   - `getPrimaryCurrency`
 
-1. **경비 생성/수정 폼**
-   - 통화 선택 드롭다운 추가
-   - 기본값: 여행의 baseCurrency (또는 EUR)
-   - 자주 사용하는 통화 우선 표시
+### 남은 개선 후보
 
-2. **여행 기본 통화 설정**
-   - Trip 스키마에 baseCurrency 필드 추가
-   - 여행 생성 시 기본 통화 선택
-   - 경비 추가 시 기본값으로 사용
-
-3. **통화 목록 관리**
-   - 지원 통화 목록 정의 (ISO 4217 기준)
-   - 통화 심볼 매핑 (€, $, ₩ 등)
-   - 국가별 기본 통화 제안
+아래 항목은 구현 예정으로 확정된 체크리스트가 아니라, 이후 UX/표시 품질을 높일 때 검토할 후보다. 상세는 [향후 개선 사항](#향후-개선-사항)을 기준으로 본다.
 
 ## 향후 개선 사항
 

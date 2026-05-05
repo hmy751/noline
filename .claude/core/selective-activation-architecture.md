@@ -932,7 +932,7 @@ async function upsertExpenses(expenses: Expense[]) {
 
 import React, { useEffect, useState } from 'react';
 import { AppState } from 'react-native';
-import { useNetworkStatus } from '@/shared/hooks/useNetworkStatus';
+import { useNetworkStatus } from '@/shared/store/network';
 import { pushChanges, pullChanges } from './engine';
 
 export function SyncProvider({ children }: { children: React.ReactNode }) {
