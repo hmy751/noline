@@ -758,11 +758,17 @@ export class ErrorBoundary extends Component<Props, State> {
 
 ## ✅ 체크리스트
 
-- [ ] 모든 async 함수에 try-catch 또는 .catch() 사용
-- [ ] 커스텀 에러 클래스 사용 (문자열 throw 금지)
-- [ ] 에러는 errorService로 중앙 처리
+### 현재 구현 기본값
+
+- [ ] 서버 라우터/미들웨어 에러는 `AppError`/`errorHandler` 흐름과 맞는지 확인
+- [ ] 클라이언트 데이터 훅은 `Error`를 throw하고 React Query error state가 화면에서 처리되는지 확인
+- [ ] 정책/권한 차단은 `PolicyErrorDisplay` 또는 policy UI 패턴으로 표시
 - [ ] 사용자 친화적 에러 메시지 제공
-- [ ] React Query onError에서 에러 처리
-- [ ] Error Boundary로 런타임 에러 캐치
-- [ ] 프로덕션 환경에서 에러 로깅
 - [ ] 민감 정보는 에러 메시지에 포함하지 않기
+
+### 명시적 확장 작업일 때만
+
+- [ ] 클라이언트 중앙 에러 계층이 필요한 이유와 범위를 먼저 기록
+- [ ] 커스텀 에러 클래스, `errorService`, Error Boundary를 한 세트로 설계
+- [ ] 기존 React Query/policy UI 패턴과 중복되거나 충돌하지 않는지 확인
+- [ ] 에러 로깅/트래킹 도입 범위와 개인정보 노출 위험 확인
