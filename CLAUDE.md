@@ -104,7 +104,8 @@ noline/
 ├── packages/
 │   ├── schema/          # Shared Zod contracts
 │   ├── ui/              # Shared UI components
-│   └── eslint-config/   # Shared lint config
+│   ├── eslint-config/   # Shared lint config
+│   └── typescript-config/ # Shared TypeScript config
 ├── .claude/
 │   ├── core/            # Active architecture/policy docs
 │   ├── features/        # Feature guides
