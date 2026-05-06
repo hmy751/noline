@@ -50,6 +50,28 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
 4. 새 agent/skill은 정책 본문을 복사하지 말고 어떤 문서를 읽고 어떤 산출물을 반환할지만 얇게 정의한다.
 5. bridge, agent, skill을 추가하거나 크게 바꾸면 최종 응답 전에 bridge drift를 점검한다.
 
+## Workspace Guide Contract
+
+하위 `CLAUDE.md`는 구현 참고서이기 전에 path-scoped harness entrypoint다. 각 파일은 아래 질문에 짧게 답해야 한다.
+
+- 이 workspace가 소유하는 구현 책임은 무엇인가.
+- 같은 폴더의 `AGENTS.md`가 bridge symlink인지, 별도 정책 원천인지.
+- 작업자가 루트 `noline-work`에서 들어온 뒤 어떤 rule, guard, runbook을 먼저 확인해야 하는가.
+- 어떤 내용은 이 파일에 쌓지 않고 `rules/`, `guards/`, `runbooks/`, `context/`, `sessions/`, `_archive/`로 보내야 하는가.
+
+workspace guide는 짧게 유지한다. 긴 feature 설명, 교육용 예시, 디버깅 사례, 배포 후보가 필요하면 owning context나 archive로 분리한다. `pnpm harness:check`는 각 workspace guide가 `Harness Role`, local `AGENTS.md` bridge, `noline-work` routing을 갖고 있고 과도하게 길어지지 않는지 확인한다.
+
+결정 기록: [Workspace Guide Harness Contract](../decisions/2026-05-06-workspace-guide-harness-contract.md)
+
+현재 workspace guide 역할:
+
+| Workspace | Harness role | Drift signal |
+| --- | --- | --- |
+| `apps/client` | React Native, FSD, local DB, Activation Router, policy UI 실행 가이드 | schema/server 공통 정책이나 긴 기능 이력이 client guide에 누적됨 |
+| `apps/server` | Express route, auth/user scope, DB/sync endpoint 실행 가이드 | schema 계약이나 운영 추정 예시가 현재 서버 정책처럼 굳어짐 |
+| `packages/schema` | Zod contract, request/response, cross-workspace type boundary 실행 가이드 | client/server 구현 절차가 schema guide에 쌓임 |
+| `packages/ui` | 순수 UI primitive와 앱 조합 컴포넌트 경계 실행 가이드 | domain logic, API, screen state가 package guide나 primitive에 들어옴 |
+
 ## 하네스 변경 규칙
 
 1. 새 규칙은 담을 수 있는 가장 작은 owner에 둔다.
@@ -84,17 +106,16 @@ pnpm harness:check
 이 검증은 `AGENTS.md -> CLAUDE.md` bridge, legacy 하네스 경로 부활 여부, active Markdown 링크, root 임시 계획 파일, whitespace diff를 확인한다.
 실행층이 추가된 뒤에는 `.claude/skills`, `.agents/skills`, `.claude/agents`, `.codex/agents`의 예상 파일과 report-only/parity도 함께 확인한다.
 
-## 이번 실행 패스
+## 최근 정리 결과
 
-이번 정리 브랜치에서 하는 일:
+2026-05-06 하네스 정리 패스에서 완료한 일:
 
-- stale unmerged branch와 깨진 worktree를 정리하고 `main` 기준 새 브랜치에서 진행
 - 오래된 `references/`와 `implementation/` 자료를 active surface에서 제거하고 `_archive/`로 보존
 - `noline-work` skill과 `noline-*` report-only agents로 실행층 추가
-- 루트 [Noline Harness Execution Plan](../../NOLINE_HARNESS_EXECUTION_PLAN.md)에 실행 상태와 merge 이후 정리 기준을 기록
+- 완료 기록을 [Harness Execution Record](../audits/2026-05-06-harness-execution-plan.md)에 보존
 - `pnpm harness:check`로 bridge, legacy surface, active Markdown link, whitespace diff를 반복 검증
 
-이번 정리 브랜치에서 하지 않는 일:
+이 정리에서 의도적으로 하지 않은 일:
 
 - runtime code 변경
 - Claude command를 Codex command로 자동 변환

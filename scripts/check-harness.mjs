@@ -50,12 +50,12 @@ function walkMarkdown(target) {
 
 function checkMarkdownLinks() {
   const activeInputs = [
-    'NOLINE_HARNESS_EXECUTION_PLAN.md',
     'CLAUDE.md',
     'README.md',
     'START_GUIDE.md',
     '.claude/README.md',
     '.claude/harness',
+    '.claude/audits/2026-05-06-harness-execution-plan.md',
     '.claude/skills',
     '.claude/agents',
     '.claude/rules',
@@ -166,8 +166,34 @@ function checkExecutionSurfaces() {
   }
 }
 
+function checkWorkspaceGuideContract() {
+  const workspaceGuides = {
+    'apps/client/CLAUDE.md': 140,
+    'apps/server/CLAUDE.md': 130,
+    'packages/schema/CLAUDE.md': 130,
+    'packages/ui/CLAUDE.md': 120,
+  };
+
+  for (const [guide, maxLines] of Object.entries(workspaceGuides)) {
+    const text = fs.readFileSync(path.join(root, guide), 'utf8');
+    if (!text.includes('## Harness Role')) {
+      failures.push(`${guide} must document its path-scoped Harness Role`);
+    }
+    if (!text.includes('AGENTS.md')) {
+      failures.push(`${guide} must state the local AGENTS.md bridge boundary`);
+    }
+    if (!text.includes('noline-work')) {
+      failures.push(`${guide} must route work through the noline-work dispatcher`);
+    }
+    const lines = text.trimEnd().split('\n').length;
+    if (lines > maxLines) {
+      failures.push(`${guide} has ${lines} lines; keep workspace harness guides at or below ${maxLines} lines`);
+    }
+  }
+}
+
 function checkRootPlans() {
-  const allowed = new Set(['NOLINE_HARNESS_EXECUTION_PLAN.md']);
+  const allowed = new Set();
   for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
     if (!entry.isFile()) continue;
     if (/^NOLINE_.*PLAN.*\.md$/.test(entry.name) && !allowed.has(entry.name)) {
@@ -196,6 +222,7 @@ checkSymlink('packages/schema/AGENTS.md', 'CLAUDE.md');
 checkSymlink('packages/ui/AGENTS.md', 'CLAUDE.md');
 checkNoLegacySurfaces();
 checkExecutionSurfaces();
+checkWorkspaceGuideContract();
 checkRootPlans();
 checkMarkdownLinks();
 checkGitDiffWhitespace();

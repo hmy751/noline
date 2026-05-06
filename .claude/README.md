@@ -5,7 +5,7 @@
 ## 읽는 순서
 
 1. 루트 [CLAUDE.md](../CLAUDE.md)에서 프로젝트 정체성, bridge, 빠른 링크를 확인한다.
-2. 작업 위치에 맞는 workspace guide를 연다.
+2. 작업 위치에 맞는 workspace guide를 연다. 이 파일들은 상세 참고서가 아니라 path-scoped harness entrypoint다.
    - [apps/client/CLAUDE.md](../apps/client/CLAUDE.md)
    - [apps/server/CLAUDE.md](../apps/server/CLAUDE.md)
    - [packages/schema/CLAUDE.md](../packages/schema/CLAUDE.md)
@@ -63,3 +63,4 @@ Codex bridge:
 - active guide에서 현재 코드와 충돌하는 표현은 코드 확인 후 수정한다.
 - 문서를 이동하기 전에 먼저 이 지도나 [corpus inventory](audits/2026-05-06-doc-corpus-inventory.md)에서 현재 역할과 목표 역할을 분명히 한다.
 - 하네스 구조나 작업 방식이 바뀌면 [decisions/](decisions/)에 결정 기록을 남긴다.
+- workspace guide가 길어지면 상세 설명을 owning `context/`, `runbooks/`, `rules/`, `sessions/`, `_archive/`로 분리한다.

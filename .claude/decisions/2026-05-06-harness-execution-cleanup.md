@@ -15,6 +15,8 @@
 - `.claude/implementation/`은 active/evidence 디렉터리에서 제거하고, 기존 v3 추적표와 테스트 시나리오는 `.claude/_archive/implementation/`에 보존한다.
 - `.claude/references/`는 active surface에서 제거하고, PRD/wireframe/image guide는 `.claude/_archive/references/`에 보존한다.
 - 루트에는 이번 실행 패스의 진행 계획인 `NOLINE_HARNESS_EXECUTION_PLAN.md`를 둔다. 이 파일은 PR 동안 visible tracker로 유지하고, merge 이후 `.claude/audits/`로 이동하거나 후속 계획이 생기면 archive한다.
+
+2026-05-06 merge 후속 정리: PR #28 병합 뒤 root tracker는 `.claude/audits/2026-05-06-harness-execution-plan.md`로 이동했다.
 - 반복 검증을 위해 `pnpm harness:check`를 추가한다.
 
 ## 영향

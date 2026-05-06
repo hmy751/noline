@@ -1,231 +1,62 @@
-# 🎨 Noline UI Component Library
+# Noline UI Package Guide
 
-> shadcn/ui 기반 React Native 컴포넌트 라이브러리
+> `@repo/ui` pure primitive harness entrypoint.
 
-## 📚 Quick Navigation
+## Overview
 
-**프로젝트 이해 (처음 읽을 때):**
+`@repo/ui`는 비즈니스 로직 없는 React Native UI primitive 패키지다. 앱 조합 컴포넌트와 screen workflow는 `apps/client`가 소유한다.
 
-- [Root CLAUDE.md](../../CLAUDE.md) - 프로젝트 정체성, 핵심 불변식, 문서 진입점
-- [Noline Rules](../../.claude/rules/README.md) - 구현 중 지켜야 할 compact rule
-- [Noline Context Map](../../.claude/context/README.md) - 깊은 아키텍처/기능 맥락
+## Harness Role
 
-**컴포넌트 개발시 참조:**
+이 파일은 `packages/ui`를 수정할 때 AI 작업자가 먼저 읽는 path-scoped 실행 가이드다. 목적은 pure primitive 경계와 앱 composition 경계를 빠르게 잡는 것이고, 디자인 시스템 문서를 길게 보존하는 것이 아니다.
 
-- [Policy UI Rule](../../.claude/rules/policy-ui.md) - 정책 제한 UI와 blocked state
-- [Build UI Components Runbook](../../.claude/runbooks/README.md#component-guide) - 컴포넌트 작업 시작 순서
-- [Component Context](../../.claude/context/README.md#components) - 컴포넌트 작성 상세 맥락
+- `packages/ui/CLAUDE.md`가 UI package guide의 원천이다.
+- `packages/ui/AGENTS.md`는 이 파일을 가리키는 Codex bridge symlink다. 별도 정책 원천처럼 수정하지 않는다.
+- 작업 실행 순서는 루트 [noline-work skill](../../.claude/skills/noline-work/SKILL.md)을 따른다.
+- policy UI, form composition, domain UI는 이 파일에 누적하지 않고 client/context owner로 보낸다.
 
-## 📋 Overview
+## Start Here
 
-`@repo/ui`는 **비즈니스 로직 없는 순수 UI 컴포넌트** 라이브러리입니다.
+| 작업 | 먼저 볼 문서 |
+| --- | --- |
+| primitive 추가/수정 | [Component runbook](../../.claude/runbooks/README.md#component-guide), [Component context](../../.claude/context/components.md) |
+| policy 제한 UI | [Policy UI rule](../../.claude/rules/policy-ui.md), [Policy context](../../.claude/context/policy-architecture.md) |
+| app composition | [Client guide](../../apps/client/CLAUDE.md), [Form context](../../.claude/context/form.md) |
+| TypeScript props style | [TypeScript/Zod context](../../.claude/context/typescript.md) |
 
-## 🎯 컴포넌트 설계 철학
+## Ownership
 
-### 핵심: "컴포넌트는 자신이 놓일 환경을 가정해서는 안 된다"
+| Area | UI package가 소유하는 것 | 다른 owner로 보낼 것 |
+| --- | --- | --- |
+| `src/components/*` | domain-free primitive and shell components | Trip/Schedule/Expense UI |
+| `src/lib/utils.ts` | className/style utility | app business helper |
+| `src/index.tsx` | public primitive export surface | screen-level composition |
+| `styles/*` export | shared style assets | feature-specific layout |
 
-좋은 컴포넌트는 **컨텍스트 독립적(Context-Agnostic)**이어야 합니다.
+## Component Boundary
 
-**❌ 나쁜 예:** 컴포넌트가 외부 margin 포함
-**✅ 좋은 예:** 부모가 간격 제어 (gap, padding)
+- 컴포넌트는 자신이 놓일 화면 위치를 가정하지 않는다.
+- 외부 margin, screen position, navigation side effect는 부모가 소유한다.
+- 내부 padding, visual variants, basic interaction state는 primitive가 소유할 수 있다.
+- `Trip`, `Expense`, `Schedule`, auth, API, DB, policy decision이 들어오면 `apps/client` 쪽 composition으로 보낸다.
+- 새 blocked-state component를 만들기 전에 existing policy UI 패턴을 먼저 확인한다.
 
-### 원칙: "배치는 부모에게, 내부는 컴포넌트에게"
+## Current Path Map
 
-1. **외부 여백(Margin) 금지**
-   - 컴포넌트 최상위에 margin, position, top, left 등 금지
-   - 간격은 부모의 gap, padding으로 제어
-
-2. **내부 여백(Padding)만 허용**
-   - 컴포넌트 내부 콘텐츠 간격은 padding 사용
-   - 내부 요소 배치는 컴포넌트 책임
-
-3. **크기는 유연하게**
-   - 기본: 콘텐츠에 맞춤
-   - 필요시: width/height props로 제어
-
-### Atom vs Composition
-
-- **Atom (packages/ui)**: 원자 단위 컴포넌트 (Button, Input, Card shell)
-- **Composition (shared/components)**: Atom 조합 컴포넌트 (FormField, PageLayout)
-
-### 핵심 원칙
-
-- **비즈니스 무관**: "Trip", "Expense" 같은 도메인 지식 없음
-- **순수 UI**: 스타일과 기본 인터랙션만 포함
-- **재사용성**: 모든 프로젝트에서 사용 가능
-- **일관성**: 통일된 디자인 언어 제공
-
-> **상세 맥락**: [Component Context](../../.claude/context/README.md#components) - 외부 margin 금지, forwardRef 사용 등
-
-## 🏗 Architecture
-
-### 기본 구조 (참고용)
-
-```plaintext
-packages/ui/
-├── src/
-│   ├── components/           # UI 컴포넌트
-│   │   ├── Input.tsx        # 예: 입력 필드
-│   │   ├── Card.tsx         # 예: 카드 컨테이너
-│   │   ├── Select.tsx       # 예: 선택 박스
-│   │   └── ...              # 기타 컴포넌트들
-│   ├── lib/
-│   │   └── utils.ts         # 유틸리티 함수 (cn)
-│   └── index.ts             # 진입점 (exports)
-├── package.json
-└── tsconfig.json
+```text
+packages/ui/src/
+├── components/
+├── lib/
+└── index.tsx
 ```
 
-> 💡 **참고**: 컴포넌트 파일명은 예시이며, 실제 구현된 컴포넌트는 아래 "현재 구현된 컴포넌트" 섹션을 참조하세요.
+## Commands
 
-## 🧩 Core Components
-
-### 현재 구현된 컴포넌트 (계속 추가 중)
-
-**Form 관련:**
-
-- **Input** - 텍스트 입력
-- **Textarea** - 멀티라인 텍스트 입력
-- **Checkbox** - 체크박스
-- **Switch** - 토글 스위치
-- **RadioGroup** - 라디오 버튼 그룹
-- **Select** - 드롭다운 선택
-- **Label** - 폼 라벨
-
-**Layout 관련:**
-
-- **Card** - 콘텐츠 컨테이너 (CardHeader, CardContent, CardFooter)
-- **Separator** - 구분선
-- **Drawer** - 하단 서랍 (Bottom Sheet)
-
-**Media & Display:**
-
-- **Image** - 이미지 컴포넌트
-- **Avatar** - 프로필 아바타
-- **Badge** - 배지/태그
-
-**Interaction:**
-
-- **Pressable** - 터치 인터랙션 래퍼
-- **Calendar** - 날짜 선택 캘린더
-
-> 💡 **참고**: 컴포넌트는 프로젝트 요구사항에 따라 지속적으로 추가됩니다.
-> 각 컴포넌트의 상세 Props는 해당 파일을 참조하세요.
-
-## 🎨 Styling System
-
-### 디자인 토큰
-
-**색상:**
-
-- primary, secondary, destructive
-- muted, background, foreground, border
-
-**간격:**
-
-- xs(4), sm(8), md(16), lg(24), xl(32), 2xl(48)
-
-**타이포그래피:**
-
-- h1(32), h2(24), h3(20), body(16), caption(14)
-
-## 🛠 Utilities
-
-**cn (Class Names)**: 조건부 클래스 결합 유틸리티
-
-- 위치: `@repo/ui/lib/utils`
-
-## 📋 개발 가이드라인
-
-### 권장 패턴
-
-- **순수 UI**: 비즈니스 로직 없음
-- **범용 Props**: title, description, children
-- **스타일 변형**: variant, size props 제공
-
-### 주의 사항
-
-- **도메인 결합**: Trip, Expense 등 비즈니스 개념 피함
-- **API 호출**: fetch, axios 등 네트워크 요청 피함
-- **외부 의존성**: 특정 앱 로직에 종속 피함
-
-## 📦 Usage in Apps
-
-### 사용 예시
-
-**entities 레이어**: @repo/ui를 활용한 도메인 컴포넌트
-
-- `entities/trip/ui/TripCard.tsx` - Card 컴포넌트 활용
-
-**shared 레이어**: 앱 공용 컴포넌트 조합
-
-- `shared/components/FormField.tsx` - Input + Label 조합
-
-## 🔄 Component Lifecycle
-
-### 1. 개발 프로세스
-
-```
-1. 디자인 시스템 정의 (Figma)
-   ↓
-2. @repo/ui에 순수 컴포넌트 구현
-   ↓
-3. Storybook으로 문서화 (예정)
-   ↓
-4. 앱에서 import하여 사용
+```bash
+pnpm --filter @repo/ui lint
+pnpm harness:check
 ```
 
-### 2. 버전 관리
+## Update Rule
 
-```json
-// packages/ui/package.json
-{
-  "name": "@repo/ui",
-  "version": "0.1.0",
-  "exports": {
-    ".": "./src/index.tsx",
-    "./styles/*": "./styles/*"
-  }
-}
-```
-
-## 🧪 Testing (도입 후보)
-
-현재 `@repo/ui` 패키지는 `lint` 스크립트만 제공한다. 컴포넌트 테스트를 도입할 때는 아래 패턴을 기준으로 테스트 환경과 package script를 함께 추가한다.
-
-### 컴포넌트 테스트
-
-```typescript
-import { render, fireEvent } from '@testing-library/react-native';
-import { Button } from '@repo/ui';
-
-describe('Button', () => {
-  it('renders correctly', () => {
-    const { getByText } = render(
-      <Button>Click me</Button>
-    );
-    expect(getByText('Click me')).toBeTruthy();
-  });
-
-  it('handles press events', () => {
-    const onPress = jest.fn();
-    const { getByText } = render(
-      <Button onPress={onPress}>Click me</Button>
-    );
-    fireEvent.press(getByText('Click me'));
-    expect(onPress).toHaveBeenCalled();
-  });
-});
-```
-
-## 📚 Related Documents
-
-**다른 Workspace:**
-
-- [Client CLAUDE.md](../../apps/client/CLAUDE.md) - 클라이언트에서 @repo/ui 사용법
-
-**상세 구현 가이드:**
-
-- [Build UI Components Runbook](../../.claude/runbooks/README.md#component-guide) - 컴포넌트 작업 시작 순서
-- [Component Context](../../.claude/context/README.md#components) - 컴포넌트 작성 상세 맥락
-- [Noline Context Map](../../.claude/context/README.md) - FSD와 TypeScript/Zod 맥락
+이 파일에는 UI primitive 작업자가 시작 전에 알아야 할 경계만 남긴다. 컴포넌트 철학의 긴 설명, 레거시 web 예시, 앱 조합 사례는 [Component context](../../.claude/context/components.md) 또는 `_archive/`로 보낸다.

@@ -30,6 +30,19 @@ Context -> Workplan -> Implementation -> Policy Check -> Verification -> Handoff
 | UI component | `.claude/runbooks/README.md#component-guide`, `packages/ui/CLAUDE.md`, `context/components.md` | 필요 시 `noline-context-collector` |
 | 하네스 / bridge / docs | `.claude/harness/README.md`, `.claude/README.md`, 관련 decision | `noline-harness-observer` |
 
+## Workspace 진입 기준
+
+루트 guide 다음에는 작업 경로와 가장 가까운 workspace guide 하나를 먼저 읽는다.
+
+| Path | Workspace guide | 하네스상 기대 |
+| --- | --- | --- |
+| `apps/client/**` | `apps/client/CLAUDE.md` | client-only 구현 패턴, Router/local DB/policy UI 경계 확인 |
+| `apps/server/**` | `apps/server/CLAUDE.md` | route/auth/user scope/DB/sync endpoint 경계 확인 |
+| `packages/schema/**` | `packages/schema/CLAUDE.md` | Zod contract와 client/server blast radius 확인 |
+| `packages/ui/**` | `packages/ui/CLAUDE.md` | pure primitive와 app composition 경계 확인 |
+
+workspace guide가 공통 정책을 길게 복사하거나 오래된 이력을 현재 정책처럼 들고 있으면, 구현 전에 owning doc로 분리하거나 active guide를 줄인다.
+
 ## Agent 사용 기준
 
 - `noline-context-collector`: 관련 코드, 문서, decision, 최근 commit을 한 장의 context card로 모을 때만 사용한다.
