@@ -441,14 +441,17 @@ res.json(validated);
 **Context (빠른 참조):**
 
 - [Root CLAUDE.md](../../CLAUDE.md) - @repo/schema 전체 정책
+- [Noline Rules](../../.claude/rules/README.md) - 구현 중 지켜야 할 compact rule
+- [Noline Runbooks](../../.claude/runbooks/README.md) - 반복 작업 시작 순서
+- [Noline Context Map](../../.claude/context/README.md) - 깊은 아키텍처/기능 맥락
 - [Client CLAUDE.md](../../apps/client/CLAUDE.md) - 클라이언트 사용법
 - [Server CLAUDE.md](../../apps/server/CLAUDE.md) - 서버 사용법
 
 **Detail (상세 가이드):**
 
-- [TypeScript Guide](../../.claude/core/typescript.md) - TypeScript + Zod 패턴
-- [Selective Activation Architecture](../../.claude/core/selective-activation-architecture.md) - Client-Side ID + sync_queue
-- [API/Data Guide](../../.claude/core/api-data.md) - API 레이어 패턴
+- [Schema First Rule](../../.claude/rules/schema-first.md) - schema-first 계약
+- [Client-Side ID Rule](../../.claude/rules/client-side-id.md) - create payload ID 전략
+- [ISO Time Rule](../../.claude/rules/iso-time.md) - datetime 필드 규칙
 
 ## ✅ Checklist: 새 Entity 추가시
 

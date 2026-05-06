@@ -7,14 +7,17 @@
 **프로젝트 이해 (처음 읽을 때):**
 
 - [Root CLAUDE.md](../../CLAUDE.md) - 프로젝트 정체성, 핵심 불변식, 문서 진입점
+- [Noline Rules](../../.claude/rules/README.md) - 구현 중 지켜야 할 compact rule
+- [Noline Runbooks](../../.claude/runbooks/README.md) - 반복 작업 시작 순서
+- [Noline Context Map](../../.claude/context/README.md) - 깊은 아키텍처/기능 맥락
 - [Schema CLAUDE.md](../../packages/schema/CLAUDE.md) - @repo/schema 타입 계약
-- [Selective Activation Architecture](../../.claude/core/selective-activation-architecture.md) - Client-Side ID, sync_queue 상세
 
 **서버 구현시 참조:**
 
-- [API & Data Guide](../../.claude/core/api-data.md) - API 레이어 패턴
-- [Error Handling](../../.claude/core/error-handling.md) - 에러 처리 패턴
-- [TypeScript Guide](../../.claude/core/typescript.md) - TypeScript 규칙
+- [Schema First Rule](../../.claude/rules/schema-first.md) - API contract와 타입 추론
+- [Auth/User Scope Rule](../../.claude/rules/auth-user-scope.md) - 인증과 user ownership
+- [Client-Side ID Rule](../../.claude/rules/client-side-id.md) - create endpoint ID 수용
+- [ISO Time Rule](../../.claude/rules/iso-time.md) - 시간 저장/전송 규칙
 
 ## 🎯 Server-Specific Patterns
 
@@ -45,7 +48,7 @@ apps/server/
 
 ## 🕐 Time Management
 
-> **상세 가이드**: [time.md](../../.claude/core/time.md)
+> **Rule**: [ISO Time](../../.claude/rules/iso-time.md) / **Context**: [Time and date](../../.claude/context/README.md#time-and-date)
 
 **서버 핵심:**
 
@@ -263,6 +266,6 @@ CMD ["node", "dist/index.js"]
 
 **상세 구현 가이드:**
 
-- [Selective Activation Architecture](../../.claude/core/selective-activation-architecture.md) - Client-Side ID, sync 엔드포인트 상세
-- [API & Data Guide](../../.claude/core/api-data.md) - API 레이어 패턴
-- [Error Handling](../../.claude/core/error-handling.md) - 에러 처리 시스템
+- [Schema First Rule](../../.claude/rules/schema-first.md) - API contract와 타입 추론
+- [Auth/User Scope Rule](../../.claude/rules/auth-user-scope.md) - 인증과 user ownership
+- [Noline Context Map](../../.claude/context/README.md) - API/data, selective activation, error handling context
