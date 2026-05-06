@@ -1,5 +1,7 @@
 # /generate-pr
 
+> Claude-only command reference다. Codex rule이 아니며, 현재 작업 정책은 루트 `CLAUDE.md`와 `.claude/README.md`의 role map을 우선한다.
+
 Push 전 현재 브랜치의 커밋들과 변경사항을 분석하여 PR 메시지를 자동 생성합니다.
 
 ## 사용 시점

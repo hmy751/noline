@@ -4,6 +4,8 @@ alwaysApply: true
 
 # 🧭 Noline App Architecture Rules
 
+> 문서 상태: active source다. FSD 계층, 라우팅 책임, workspace 구조의 현재 기준으로 읽는다.
+
 이 문서는 Noline 앱의 일관성, 확장성, 유지보수성을 위해 정의된 아키텍처 규칙입니다. 프로젝트는 유연한 Feature-Sliced Design (FSD) 원칙을 따릅니다.
 
 ## 📜 핵심 원칙

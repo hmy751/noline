@@ -1,5 +1,7 @@
 # /check-docs
 
+> Claude-only command reference다. Codex rule이 아니며, 현재 작업 정책은 루트 `CLAUDE.md`와 `.claude/README.md`의 role map을 우선한다.
+
 개발 완료 후 어떤 문서화가 필요한지 실제 정책을 기반으로 분석합니다.
 
 ## 사용 시점

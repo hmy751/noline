@@ -5,6 +5,8 @@ description: TypeScript 코드 스타일 & 모범 사례 - interface와 type 사
 
 # TypeScript 코드 스타일 가이드
 
+> 문서 상태: active source다. TypeScript/Zod 스타일의 현재 기준으로 읽되, 예시는 React Native/Expo 프로젝트 구조에 맞춰 번역한다.
+
 ## ✅ 타입 정의 규칙 (DO)
 
 ### 1. interface vs type 사용 기준

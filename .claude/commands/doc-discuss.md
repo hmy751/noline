@@ -1,5 +1,7 @@
 # /doc-discuss
 
+> Claude-only command reference다. Codex rule이 아니며, 현재 작업 정책은 루트 `CLAUDE.md`와 `.claude/README.md`의 role map을 우선한다.
+
 개발 시작 전 논의 내용을 분석하고 Session 파일 생성을 제안합니다.
 
 ## 사용 시점

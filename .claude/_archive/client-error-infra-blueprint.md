@@ -19,7 +19,7 @@ alwaysApply: false
 >
 > 아래의 `_libs/error`, `errorService`, 커스텀 클라이언트 에러 클래스 예시는 **확장 후보/설계 블루프린트**다. 명시 요청 없이 현재 구현 기준으로 새 인프라를 만들지 않는다.
 >
-> 문서 상태: mixed active source다. 상단의 현재 기준과 마지막 체크리스트의 "현재 구현 기본값"은 active다. 긴 커스텀 에러 인프라 예시는 extension candidate이며, 별도 결정 없이 현재 작업 기본값으로 승격하지 않는다.
+> 문서 상태: archive-only다. 아래의 "현재 기준"이나 체크리스트 문구는 이동 전 문맥을 보존한 역사적 중복이며, 현재 active source가 아니다. 실제 작업 기준은 [../core/error-handling.md](../core/error-handling.md)만 우선한다.
 
 ---
 
