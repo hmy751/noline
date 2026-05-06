@@ -38,6 +38,26 @@ Context -> Workplan -> Implementation -> Policy Check -> Verification -> Handoff
 
 agent는 report-only다. 파일 수정은 메인 작업자가 한다.
 
+## Team Workflow
+
+agent 파일이 있다고 해서 자동으로 팀이 실행되지는 않는다. `noline-work`는 어떤 agent를 붙일지 고르는 dispatcher이고, 실제 호출 순서와 병렬화는 메인 작업자가 작업 범위에 맞게 결정한다.
+
+기본 팀 흐름:
+
+```text
+1. noline-context-collector (optional, before implementation)
+2. main worker implementation
+3. noline-policy-checker (when code touches high-cost policy)
+4. noline-harness-observer (only when harness/bridge changes)
+5. deterministic verification scripts
+```
+
+병렬화 기준:
+
+- `noline-context-collector`는 메인 구현 전 blocker면 직접 읽고, sidecar 수집이면 subagent로 맡긴다.
+- `noline-policy-checker`는 구현 diff가 생긴 뒤에만 의미가 있다.
+- `noline-harness-observer`는 일반 기능 구현 팀에 끼우지 않는다.
+
 ## 검증 기준
 
 항상:
@@ -62,5 +82,6 @@ client-only 변경은 workspace guide의 Expo/React Native 명령을 우선 확�
 
 - 이 skill에 정책 본문을 축적하지 않는다.
 - Claude command를 Codex command로 자동 변환하지 않는다.
+- `.claude/agents`나 `.codex/agents`에 파일을 둔 것만으로 자동 팀 실행이 생긴다고 가정하지 않는다.
 - hook/config/rule은 deterministic enforcement가 필요할 때만 만든다.
 - 한 번의 작업 불편을 곧장 새 agent나 새 rule로 승격하지 않는다.

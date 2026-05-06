@@ -132,6 +132,19 @@ function checkExecutionSurfaces() {
 
   checkSymlink('.agents/skills/noline-work', '../../.claude/skills/noline-work');
 
+  const skillPath = path.join(root, '.claude/skills/noline-work/SKILL.md');
+  if (!fs.existsSync(skillPath)) {
+    failures.push('.claude/skills/noline-work/SKILL.md is missing');
+  } else {
+    const skillText = fs.readFileSync(skillPath, 'utf8');
+    if (!skillText.includes('## Team Workflow')) {
+      failures.push('.claude/skills/noline-work/SKILL.md must document Team Workflow boundaries');
+    }
+    if (!skillText.includes('자동으로 팀이 실행되지는 않는다')) {
+      failures.push('.claude/skills/noline-work/SKILL.md must state agents do not auto-run as a team');
+    }
+  }
+
   for (const agent of expectedExecutionAgents) {
     const claudePath = path.join(root, '.claude/agents', `${agent}.md`);
     const codexPath = path.join(root, '.codex/agents', `${agent}.toml`);

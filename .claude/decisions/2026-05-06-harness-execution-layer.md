@@ -31,6 +31,7 @@
   - `noline-context-collector`: 작업 단위의 관련 자료 context card.
   - `noline-policy-checker`: 구현 변경 뒤 high-cost policy drift 점검.
   - `noline-harness-observer`: 하네스/bridge 변경 뒤 layer placement와 parity 점검.
+- agent 파일은 자동 team runner가 아니라 discoverable 역할 정의로 둔다. 팀처럼 쓸 때는 `noline-work`가 호출 순서와 적용 조건을 안내하고, 실제 호출과 결과 통합은 메인 작업자가 한다.
 - `pnpm harness:check`가 실행층 파일과 bridge parity를 검증하게 한다.
 
 ## 비목표
@@ -38,6 +39,7 @@
 - runtime code 변경 없음.
 - Claude command를 Codex command로 자동 변환하지 않는다.
 - hook/config enforcement는 아직 추가하지 않는다. 지금 필요한 deterministic 검증은 `scripts/check-harness.mjs`가 맡는다.
+- 자동 multi-agent orchestration을 만들지 않는다. 이 결정은 dispatcher와 report-only 역할 정의까지만 소유한다.
 - agent에 정책 본문을 축적하지 않는다. 정책 본문은 rules/guards/runbooks/context가 계속 소유한다.
 
 ## 후속 점검

@@ -110,4 +110,6 @@ pnpm harness:check
 - `noline-policy-checker`: Router, `withTransaction`, `generateId`, schema-first, ISO time, auth ownership, soft delete 정책 drift를 보는 report-only checker.
 - `noline-harness-observer`: 하네스/bridge 변경 뒤 구조 drift와 Claude/Codex parity를 보는 report-only observer.
 
+agent/skill 파일은 discoverable 역할 정의일 뿐, 자동 team runner가 아니다. 여러 agent를 팀처럼 쓰려면 `noline-work`의 Team Workflow처럼 메인 작업자가 호출 순서, 병렬화, 결과 통합을 명시한다.
+
 새 실행자는 반복 사용으로 모양이 충분히 안정된 뒤에만 추가한다. agent나 skill이 커지면 내용을 owning docs로 되돌리고 실행자는 읽을 자료와 출력 형식만 남긴다.
