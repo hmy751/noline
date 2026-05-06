@@ -4,6 +4,8 @@
 > Status: Accepted
 > Scope: Noline AI/developer documentation harness
 
+> Follow-up: [Decision: Harness Layer Model](2026-05-06-harness-layer-model.md) extends this decision by adding `rules/`, `runbooks/`, and `context/`, and by reclassifying `core/`/`features/` as deep context/compatibility sources.
+
 ## Context
 
 Noline had a large and useful documentation corpus, but the root `CLAUDE.md` had grown into an older all-in-one guide. It mixed project identity, task checklists, architecture summaries, pitfalls, completed feature history, commands, and links into one long reading path.
