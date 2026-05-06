@@ -27,7 +27,7 @@
 | `.claude/core/typescript.md` | Active TypeScript/Zod guide | Medium | Keep active; prefer React Native/Expo examples. |
 | `.claude/core/api-data.md` | Active API/data guide | High | Keep active, but continue replacing legacy web/custom-error examples with current Noline examples. |
 | `.claude/core/components.md` | Mixed active component principles + legacy web examples | High | Keep active for principles; split or archive web-heavy sections in a later pass. |
-| `.claude/core/error-handling.md` | Current baseline + extension blueprint | High | Keep active with strong labels; extension examples are not default implementation. |
+| `.claude/core/error-handling.md` | Current error-handling baseline | Low | Keep active and short; archived blueprint owns old central-error design. |
 | `.claude/features/activation-system.md` | Mixed current feature guide + rollout/history checklist | High | Split candidate: current guide vs rollout/history notes. |
 | `.claude/features/offline-map.md` | Active feature guide | Medium | Keep active; verify paths against code when touched. |
 | `.claude/features/offline-routing.md` | Active feature guide | Medium | Keep active; verify map component names against code when touched. |
@@ -54,7 +54,7 @@
 
 - `features/activation-system.md`: keep current Activation Router behavior in place; move rollout/checklist history to a separate history or archive file if it keeps confusing active work.
 - `core/components.md`: keep React Native component principles; archive or rewrite web/Next-heavy examples.
-- `core/error-handling.md`: if central client error infra is not planned soon, move the long blueprint to `_archive/` and leave a short current baseline guide.
+- Resolved: `core/error-handling.md` is now a short current baseline guide, and the old long blueprint is preserved as `_archive/client-error-infra-blueprint.md`.
 
 ### Pass 3. Claude Command Hygiene
 
