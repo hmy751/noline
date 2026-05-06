@@ -2,136 +2,64 @@
 alwaysApply: false
 ---
 
-# React Native 폼 구현 가이드 (Form Implementation Guide)
+# React Native Form Guide
 
-이 문서는 프로젝트의 폼(Form) 기능 구현에 대한 규칙과 가이드라인을 정의합니다. 일관성 있고 재사용 가능하며 유지보수가 용이한 폼을 만들기 위해 모든 팀원은 이 가이드를 준수해야 합니다.
+> 문서 상태: active source.
+> 과거 web component 구조가 섞인 폼 가이드는 [_archive/form-guide-legacy-web-patterns.md](../_archive/form-guide-legacy-web-patterns.md)에 보존되어 있다.
 
-> 문서 상태: active source다. 다만 일부 표현은 기존 웹 프로젝트 컴포넌트 구조를 참고하므로, 실제 구현은 React Native 기본 요소와 현재 `@repo/ui`/`shared/components` 구조에 맞춰 번역한다.
+Noline의 폼은 React Native/Expo 화면에서 `react-hook-form`, Zod schema, `Field` 조합 컴포넌트, feature hook을 기본 조합으로 사용한다.
 
-## 1. 핵심 기술 스택 (Core Tech Stack)
+## Current Defaults
 
-- **상태 관리 (State Management):** `react-hook-form`
-- **UI 컴포넌트 (UI Components):** 기존 웹 프로젝트의 `Input`, `Select`와 같은 컴포넌트 구조를 활용하여 React Native 컴포넌트를 구성합니다. 기반이 되는 요소로는 `TextInput`, `View` 등 React Native 기본 컴포넌트나 외부 라이브러리를 사용합니다.
+- form state: `react-hook-form`.
+- validation: `zodResolver`.
+- input bridge: `Controller`.
+- field shell: `apps/client/src/shared/components/Form/Field.tsx`.
+- submit side effect: feature hook 또는 entity data hook.
+- date/time input: `DatePicker`, `TimePicker`, `shared/lib/datetime`.
 
-## 2. UI 컴포넌트 구조: 컴파운드 컴포넌트 패턴 (Compound Component Pattern)
+## Controller Pattern
 
-모든 폼 필드는 **`Field` 컴파운드 컴포넌트**를 사용하여 구성합니다. 이는 UI의 유연성과 가독성을 높입니다. 이렇게 만들어진 순수 UI 컴포넌트들은 **비즈니스 로직을 담고 있는 컨트롤러(Hooks)와 효과적으로 조합되어야 합니다.**
-
-### 2.1. `Field` 컴포넌트 구성 요소
-
-- **`Field` (`Field.Root`):** 하나의 필드 단위를 감싸는 최상위 `View` 컨테이너.
-- **`Field.Title`:** 필드의 제목을 표시하는 `Text` 컴포넌트.
-- **`Field.ElementsBox`:** 입력 요소(`TextInput` 등)들을 감싸는 `View` 컨테이너. 수평/수직 정렬을 담당합니다.
-- **`Field.Description`:** 필드에 대한 부가 설명을 제공하는 `Text` 컴포넌트.
-- **`Field.Message`:** 유효성 검사 에러 메시지를 표시하는 `Text` 컴포넌트.
-
-### 2.2. 사용 예시
-
-```tsx
-<Field>
-  <Field.Title>이름</Field.Title>
-  <Field.ElementsBox>{/* 여기에 Controller로 감싼 TextInput이 위치합니다. */}</Field.ElementsBox>
-  <Field.Description>실명을 입력해주세요.</Field.Description>
-  <Field.Message>{/* 에러 메시지 */}</Field.Message>
-</Field>
-```
-
-## 3. 상태 관리 및 UI 연동 규칙
-
-### 3.1. `Controller` 사용 의무화
-
-모든 폼 입력 컴포넌트는 `react-hook-form`의 **`<Controller>`** 컴포넌트로 감싸야 합니다. `register`는 React Native 환경에서 예기치 않은 동작을 유발할 수 있으므로 **사용을 금지**합니다.
-
-- **이유:** `Controller`는 `render` prop을 통해 `field` 객체(`onChange`, `onBlur`, `value` 등)를 명시적으로 전달하므로, 어떤 종류의 React Native 컴포넌트와도 안정적으로 통합할 수 있습니다.
-
-### 3.2. `Controller` `render` prop 명명 규칙
-
-`render` prop에서 받는 `field` 객체는 항상 구조 분해 할당하여 사용합니다.
-
-- **권장:** `render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => ...}`
-- **주의:** `onChange` prop을 `TextInput`의 `onChangeText`에 전달해야 합니다.
-
-### 3.3. `Controller` 구현 예시
+React Native input은 `register` 대신 `Controller`로 연결한다.
 
 ```tsx
 <Controller
   control={control}
-  name='username'
-  rules={{
-    required: '이름은 필수 항목입니다.',
-    minLength: { value: 2, message: '최소 2자 이상 입력해주세요.' },
-  }}
-  render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
-    <>
-      <TextInput
-        onBlur={onBlur}
-        onChangeText={onChange}
-        value={value}
-        placeholder='이름을 입력하세요'
-        style={error ? styles.inputError : styles.input}
-      />
+  name='title'
+  render={({ field: { value, onChange }, fieldState: { error } }) => (
+    <Field>
+      <Field.Title>제목</Field.Title>
+      <Field.ElementsBox>
+        <TextInput value={value} onChangeText={onChange} />
+      </Field.ElementsBox>
       {error && <Field.Message>{error.message}</Field.Message>}
-    </>
+    </Field>
   )}
 />
 ```
 
-## 4. 유효성 검사 (Validation)
+## Layer Split
 
-- **유효성 검사 규칙(`rules`)은 항상 `Controller`의 `rules` prop 내에 정의**합니다.
-- `mode: 'onChange'` 또는 `mode: 'onBlur'`를 `useForm`에 설정하여 사용자 경험을 향상시키는 것을 권장합니다.
-- 복잡한 유효성 검사 로직은 별도의 유틸리티 함수로 분리하여 관리합니다. (e.g., `src/utils/validators.ts`)
+| Layer | 책임 |
+| --- | --- |
+| schema file | form input validation |
+| feature hook | `useForm`, submit handler, date/time picker state |
+| form component | field layout and user input |
+| entity data hook | server/local mutation and query invalidation |
+| repository | Activation Router local/remote routing |
 
-## 5. 로직과 UI의 분리 (Repo/UI Separation)
+폼 컴포넌트가 직접 API나 DB를 호출하지 않게 한다.
 
-폼을 구성할 때는 UI를 담당하는 부분과 비즈니스 로직(Repository 역할)을 담당하는 부분을 명확하게 분리해야 합니다. 이는 컴포넌트의 재사용성을 높이고 테스트 용이성을 확보하기 위함입니다.
+## Policy and Manual Mode
 
-### 5.1. UI Layer (`components/forms/*.tsx`)
+오프라인/활성화 상태에 따라 입력 가능성이 달라지는 폼은 [manual-input.md](./manual-input.md)와 [policy-architecture.md](../core/policy-architecture.md)를 같이 본다.
 
-- **역할:** 폼의 시각적 구조와 레이아웃을 정의하고, 사용자 인터랙션을 처리하는 데 집중합니다. "어떻게 보이는가"에 대한 책임을 가집니다.
-- **주요 책임:**
-  - `Field`, `TextInput` 등 UI 컴포넌트를 조합하여 폼의 구조를 만듭니다.
-  - `react-hook-form`을 사용하여 폼의 상태(입력 값, 유효성 검사 상태 등)를 관리합니다.
-  - 사용자의 입력을 받고, 유효성 검사 메시지를 화면에 표시합니다.
-  - 폼 제출 버튼 클릭 시, `handleSubmit`을 통해 유효성 검사를 통과한 데이터를 로직 레이어(커스텀 훅)에 전달하는 역할까지만 수행합니다.
-- **금지 사항:**
-  - UI 컴포넌트 내에서 직접 API를 호출하지 않습니다.
-  - 전역 상태(Zustand, React Query 등)를 직접적으로 변경하는 로직을 포함하지 않습니다.
+폼 내부에서 네트워크/활성화 조건을 새로 계산하기보다, 화면이나 feature 조합부에서 `useAppPolicy`로 분기한다.
 
-### 5.2. Business Logic Layer / Repo Layer (`hooks/*.ts`)
+## 체크리스트
 
-- **역할:** 폼 제출 이후의 모든 데이터 처리 및 비즈니스 로직을 담당합니다. "무엇을 하는가"에 대한 책임을 가집니다.
-- **주요 책임:**
-  - UI 레이어로부터 받은 데이터를 사용하여 서버 API를 호출합니다.
-  - API 통신과 관련된 비동기 상태(로딩, 성공, 에러)를 관리합니다.
-  - API 응답 결과에 따라 전역 상태를 업데이트하거나, 캐시를 갱신합니다.
-  - 폼 제출과 관련된 모든 사이드 이펙트를 처리합니다.
-- **구현 방식:**
-  - 관련 로직들을 재사용 가능한 **커스텀 훅(Custom Hook)**으로 캡슐화하는 것을 원칙으로 합니다. (e.g., `useSignIn`, `useCreatePost`)
-
-## 6. 폼 제출 (Form Submission)
-
-- 폼 제출 로직(API 호출 등)은 폼 UI 컴포넌트에서 분리하여 **커스텀 훅(Custom Hook)**으로 관리합니다. (e.g., `useSignIn`, `useUpdateProfile`)
-- `handleSubmit`을 사용하여 폼 제출을 처리하고, 첫 번째 인자로 `onValid` 콜백, 두 번째 인자로 `onInvalid` 콜백을 전달할 수 있습니다.
-
-```tsx
-// SignInForm.tsx
-const { control, handleSubmit } = useForm();
-const { signIn, isLoading } = useSignIn(); // 커스텀 훅
-
-const onValid = (data) => {
-  signIn(data);
-};
-
-return (
-  <View>
-    {/* ... Controller fields ... */}
-    <Button title='로그인' onPress={handleSubmit(onValid)} disabled={isLoading} />
-  </View>
-);
-```
-
-## 7. 접근성 (Accessibility)
-
-- React Native는 웹과 접근성 처리 방식이 다릅니다. `accessibilityLabel`, `accessibilityHint` 등의 prop을 적절히 사용하여 스크린 리더 사용자를 지원해야 합니다.
-- `Field.Title` 컴포넌트가 `TextInput` 같은 입력 요소와 의미적으로 연결되도록 `accessibilityLabel`을 제공하는 것을 고려합니다.
+- [ ] schema와 form default value가 같은 shape인가?
+- [ ] React Native input이 `Controller`로 연결되어 있는가?
+- [ ] submit 전에 date/time/currency 같은 경계 값이 정규화되는가?
+- [ ] side effect가 form UI가 아니라 hook/data layer로 분리되어 있는가?
+- [ ] policy/manual mode 분기가 중복 계산되지 않는가?

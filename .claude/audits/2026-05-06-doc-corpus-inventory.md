@@ -21,19 +21,19 @@
 | `.claude/guards/README.md` | High-cost guard map | Low | Keep concise; link to source docs. |
 | `.claude/workflows/README.md` | Repeated task entrypoints | Low | Keep concise; link to source docs. |
 | `.claude/core/architecture.md` | Active FSD/root architecture guide | Medium | Keep active; examples should use real Noline paths. |
-| `.claude/core/selective-activation-architecture.md` | Active Data Layer/Router guide | Medium | Keep active; avoid reintroducing old Echo/Offline-Prep terms except as history notes. |
-| `.claude/core/policy-architecture.md` | Active Service Layer/policy guide | Medium | Keep active; verify import paths when touched. |
-| `.claude/core/time.md` | Active time/date guide | Medium | Keep active; web/FormData examples should be treated as pattern examples, not copy-paste code. |
+| `.claude/core/selective-activation-architecture.md` | Current Data Layer/Router guide | Low | Keep active and short; archived v2 guide owns long rollout/history notes. |
+| `.claude/core/policy-architecture.md` | Current Policy Layer guide | Low | Keep active and short; archived v3 rollout owns phase/checklist history. |
+| `.claude/core/time.md` | Current time/date guide | Low | Keep active and short; archived complete guide owns web/input history. |
 | `.claude/core/typescript.md` | Active TypeScript/Zod guide | Medium | Keep active; prefer React Native/Expo examples. |
-| `.claude/core/api-data.md` | Active API/data guide | High | Keep active, but continue replacing legacy web/custom-error examples with current Noline examples. |
-| `.claude/core/components.md` | Mixed active component principles + legacy web examples | High | Keep active for principles; split or archive web-heavy sections in a later pass. |
+| `.claude/core/api-data.md` | Current API/data guide | Low | Keep active and short; archived legacy guide owns web/custom-error examples. |
+| `.claude/core/components.md` | Current React Native component guide | Low | Keep active and short; archived legacy guide owns web/Next examples. |
 | `.claude/core/error-handling.md` | Current error-handling baseline | Low | Keep active and short; archived blueprint owns old central-error design. |
-| `.claude/features/activation-system.md` | Mixed current feature guide + rollout/history checklist | High | Split candidate: current guide vs rollout/history notes. |
+| `.claude/features/activation-system.md` | Current Activation System guide | Low | Keep active and short; archived rollout history owns phase/checklist notes. |
 | `.claude/features/offline-map.md` | Active feature guide | Medium | Keep active; verify paths against code when touched. |
 | `.claude/features/offline-routing.md` | Active feature guide | Medium | Keep active; verify map component names against code when touched. |
-| `.claude/features/currency.md` | Active feature guide | Medium | Keep active; web display examples may need RN rewrite later. |
-| `.claude/features/manual-input.md` | Active feature guide | Medium | Keep active; status wording already refreshed once. |
-| `.claude/features/form.md` | Active form guide, short/generic | Medium | Keep active; verify examples before expanding. |
+| `.claude/features/currency.md` | Current currency policy guide | Low | Keep active and short; archived guide owns legacy display examples. |
+| `.claude/features/manual-input.md` | Current manual input guide | Low | Keep active and short; archived rollout owns phase history. |
+| `.claude/features/form.md` | Current React Native form guide | Low | Keep active and short; archived guide owns legacy web phrasing. |
 | `.claude/commands/` | Claude-only command references | High | Add/keep labels; do not use as active Codex workflow. |
 | `.claude/audits/` | Audit/test evidence | Low | Preserve; never read as active policy. |
 | `.claude/decisions/` | Decision evidence | Low | Preserve; update only with new decisions or explicit corrections. |
@@ -46,14 +46,12 @@
 
 ### Pass 1. Label Mixed Active Documents
 
-- Add a short status note to high-risk active documents.
-- Make clear whether a document is current baseline, extension candidate, rollout history, or pattern-only example.
-- Do not move large sections until the labels make the split obvious.
+- Complete. High-risk active documents were first labeled before moving large legacy sections.
 
 ### Pass 2. Split Candidates
 
-- `features/activation-system.md`: keep current Activation Router behavior in place; move rollout/checklist history to a separate history or archive file if it keeps confusing active work.
-- `core/components.md`: keep React Native component principles; archive or rewrite web/Next-heavy examples.
+- Complete. The active paths now contain short current guides, while the older long guides are preserved in `_archive/`.
+- Split docs: activation-system, selective-activation, policy-architecture, api-data, components, time, manual-input, form, currency.
 - Resolved: `core/error-handling.md` is now a short current baseline guide, and the old long blueprint is preserved as `_archive/client-error-infra-blueprint.md`.
 
 ### Pass 3. Claude Command Hygiene

@@ -52,12 +52,13 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
 - `.claude` document map 추가
 - guard/workflow map 추가
 - `AGENTS.md -> CLAUDE.md` bridge 추가
-- active guide의 현재 코드와 충돌하는 표현만 최소 수정
+- active guide의 현재 코드와 충돌하는 표현 정리
+- legacy-heavy active guide는 원문을 `_archive/`에 보존하고 현재 경로를 짧은 guide로 재작성
 - 루트 `CLAUDE.md`는 destination layer가 준비된 뒤 마지막에 축약
 
 이번 개편에서 하지 않는 일:
 
-- 기존 문서 대량 삭제
+- 기존 문서 삭제
 - history/session/archive의 오래된 용어 전면 정리
 - Claude command를 Codex command로 자동 변환
 - 로컬 agent/skill 즉시 생성

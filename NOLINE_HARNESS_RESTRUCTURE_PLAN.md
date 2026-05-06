@@ -24,6 +24,7 @@ The goal is not to replace Noline's existing `.claude` materials with a new harn
 - `3d44d97` - aligned active guide terminology and implementation paths after comparison with the prior harness branch.
 - `7a88af3` - clarified current error handling/API/TypeScript guide behavior and marked client error infra as an expansion candidate.
 - Follow-up pass - moved `.claude/doc-refactor-test.md` to `.claude/audits/` and updated the document role map.
+- Follow-up pass - split legacy-heavy active guides into short current guides plus `_archive/` originals. This covered activation-system, selective-activation, policy, api-data, components, time, manual-input, form, and currency.
 
 Implementation note: the prior `harness/noline-ai-guides` branch was used as reference material only. This branch recreated the structure cleanly from `main` instead of cherry-picking the old branch wholesale.
 
@@ -36,6 +37,7 @@ Noline already has a large documentation corpus.
 - `.claude/guards/`, `.claude/workflows/`, and `.claude/harness/` now provide map layers on top of the existing corpus.
 - `.claude/decisions/`, `.claude/sessions/`, `.claude/implementation/`, `CHANGELOG.md`, `.claude/references/`, `.claude/audits/`, and `.claude/_archive/` contain evidence, source, audit/test material, history, or older context.
 - The first active-guide stale pass is complete. Future drift should still be fixed carefully against the code.
+- Legacy-heavy active guides have been split: current paths now stay short, while long rollout/history/web-pattern material is preserved in `_archive/`.
 - Current checked-out branch before this planning branch was `harness/noline-ai-guides`, which already explores a possible direction. Treat it as reference material, not as the unquestioned final answer.
 
 ## Borrowed Ideas
@@ -84,6 +86,7 @@ This section replaces the original unchecked work plan. A later session should n
 | Map layers | Complete | `.claude/README.md`, `.claude/harness/README.md`, `.claude/guards/README.md`, `.claude/workflows/README.md`. |
 | Claude/Codex bridges | Complete | Root and workspace `AGENTS.md -> CLAUDE.md` symlinks. |
 | Active-guide stale fixes | Complete for this pass | Currency/manual input, policy links, offline map/routing paths, Activation Router terminology, error/API/TypeScript currentness. |
+| Legacy-heavy active guide split | Complete for this pass | Current short guides were added at the original active paths; older long guides were preserved under `.claude/_archive/`. |
 | Root guide reduction | Complete | Root `CLAUDE.md` is now a navigation hub. |
 | Decision record | Complete | `.claude/decisions/2026-05-06-ai-harness-restructure.md`. |
 | Audit/test classification | Complete | `.claude/audits/README.md` and `.claude/audits/doc-refactor-test.md`. |
@@ -101,11 +104,12 @@ Commits were kept small so the branch can be compared or partially reverted late
 6. `docs: align active guide terminology`
 7. `docs: clarify current error handling guide`
 8. `docs: classify doc audit notes`
+9. `docs: split current guides from archived legacy material`
 
 ## Open Questions
 
 - Resolved in follow-up pass: `.claude/doc-refactor-test.md` became `.claude/audits/doc-refactor-test.md`.
-- Should `.claude/features/activation-system.md` be split later into active feature guide and rollout/history notes?
+- Resolved in follow-up pass: `.claude/features/activation-system.md` is now a short active guide, and the old rollout/history content is `_archive/activation-system-rollout-history.md`.
 - Should Noline eventually have a thin `noline-policy-checker` report-only agent?
 - Should Noline eventually have a `noline-context-collector`, or is the global `gather-context` enough?
 - Resolved in this pass: use the existing `harness/noline-ai-guides` branch as reference, but recreate cleanly from `main`.

@@ -55,8 +55,9 @@
 
 ## 보존 규칙
 
-- 첫 개편 단계에서는 기존 `.claude` 문서를 삭제하지 않는다.
-- 오래된 용어가 history, session, archive에 남아 있어도 바로 고치지 않는다.
-- active guide에서 현재 코드와 충돌하는 표현만 최소 수정한다.
-- 문서를 이동하기 전에 먼저 이 지도에서 현재 역할과 목표 역할을 분명히 한다.
+- 기존 `.claude` 문서를 생각 없이 삭제하지 않는다.
+- active 경로에서 제외해야 할 오래된 가이드는 `_archive/`로 이동하고, 원래 경로에는 현재 작업 기준의 짧은 guide를 남긴다.
+- 오래된 용어가 history, session, implementation, reference, archive에 남아 있어도 현재 정책처럼 고치지 않는다.
+- active guide에서 현재 코드와 충돌하는 표현은 코드 확인 후 수정한다.
+- 문서를 이동하기 전에 먼저 이 지도나 [corpus inventory](audits/2026-05-06-doc-corpus-inventory.md)에서 현재 역할과 목표 역할을 분명히 한다.
 - 하네스 구조나 작업 방식이 바뀌면 [decisions/](decisions/)에 결정 기록을 남긴다.
