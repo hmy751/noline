@@ -341,7 +341,7 @@ const status = networkStore.status; // 동기 접근
 
 > **관계**: v2.0 Selective Activation 기반 위에 Policy Layer 확장
 > **상태**: Phase 1~4 구현 완료, Phase 5 수동 테스트 남음
-> **추적**: [v3.0-tracker.md](./implementation/v3.0-tracker.md)
+> **추적**: [v3.0-tracker.md](./_archive/implementation/v3.0-tracker.md)
 
 **핵심 컨셉**: v2.0의 활성화 정책(active/inactive) + 네트워크 상태(online/offline) → **4-State Matrix**
 
@@ -361,7 +361,7 @@ const status = networkStore.status; // 동기 접근
 
 - **제거**: OfflineIndicator (NetworkStatusIndicator로 통합)
 
-- **테스트 시나리오**: [v3.0-test-scenarios.md](./implementation/v3.0-test-scenarios.md)
+- **테스트 시나리오**: [v3.0-test-scenarios.md](./_archive/implementation/v3.0-test-scenarios.md)
 
 **Migration 완료**:
 
@@ -389,7 +389,7 @@ if (!policy.schedule.create.allowed) {
 **[Architecture Design]** 📋 v3.0 설계 완료 - Policy-Driven Architecture
 
 > **상태**: 설계 문서 작성 완료 → 구현 완료 (2025-11-21)
-> **추적**: [v3.0-tracker.md](./implementation/v3.0-tracker.md)
+> **추적**: [v3.0-tracker.md](./_archive/implementation/v3.0-tracker.md)
 
 - **설계 완료**: Data와 Service를 분리하여 각각 다른 정책 적용하는 아키텍처
   - **Data Layer** (Trip/Schedule/Expense): Router 통한 Local-First 유지

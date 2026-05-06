@@ -90,8 +90,8 @@ Treat these as evidence/history/source unless an active guide explicitly promote
 
 - `.claude/decisions/`
 - `.claude/sessions/`
-- `.claude/implementation/`
-- `.claude/references/`
+- `.claude/_archive/implementation/`
+- `.claude/_archive/references/`
 - `.claude/audits/`
 - `.claude/_archive/`
 - `.claude/CHANGELOG.md`

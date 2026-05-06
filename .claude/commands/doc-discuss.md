@@ -129,7 +129,7 @@ YYYY-MM-DD
 
 - packages/schema/CLAUDE.md - Entity 정의 규칙
 - .claude/context/selective-activation-architecture.md - sync_queue 패턴
-- .claude/references/images.md - 이미지 최적화
+- .claude/_archive/references/react-native-image-guide.md - 이미지 최적화 history
 
 📝 Session 저장 권장
 

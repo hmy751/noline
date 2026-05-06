@@ -50,10 +50,6 @@ const policyDocuments = [
   '.claude/context/offline-routing.md',         // v3.0 오프라인 라우팅
   '.claude/context/offline-map.md',             // v3.0 오프라인 지도
 
-  // 참조 문서
-  '.claude/references/prd.md',
-  '.claude/references/wireframe.md',
-  '.claude/references/images.md',
 ];
 ```
 

@@ -20,8 +20,8 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
 | Commands | [../commands/](../commands/) | Claude command reference와 문서 관리 workflow | Claude 참고 자료 |
 | Decisions | [../decisions/](../decisions/) | 정책, 용어, 하네스 구조가 왜 바뀌었는지 | 근거 기록 |
 | Audits | [../audits/](../audits/) | 문서 품질 검증과 하네스 점검 evidence | 근거 기록, policy 아님 |
-| Implementation/sessions | [../implementation/](../implementation/), [../sessions/](../sessions/) | 작업 이력과 증거 | history |
-| References/archive | [../references/](../references/), [../_archive/](../_archive/) | 원천 자료와 과거 맥락 | source/history |
+| Sessions | [../sessions/](../sessions/) | 작업 이력과 증거 | history |
+| Archive | [../_archive/](../_archive/) | 과거 맥락, 오래된 reference, deprecated guidance | history |
 
 예전 `core/`와 `features/` 본문 문서는 [context](../context/)로 이동했다. 새 하네스 entrypoint는 `rules/`, `guards/`, `runbooks/`, `context/`를 기준으로 유지한다.
 
@@ -69,6 +69,16 @@ type(scope): summary
 - scope는 변경이 진짜 repo-wide이거나 유용한 owner가 없을 때만 생략한다.
 
 결정 기록: [Commit Message Convention](../decisions/2026-05-06-commit-message-convention.md)
+
+## 실행 검증
+
+하네스 구조나 문서 owner를 바꾼 뒤에는 아래 검증을 실행한다.
+
+```bash
+pnpm harness:check
+```
+
+이 검증은 `AGENTS.md -> CLAUDE.md` bridge, legacy 하네스 경로 부활 여부, active Markdown 링크, root 임시 계획 파일, whitespace diff를 확인한다.
 
 ## 이번 패스
 

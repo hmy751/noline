@@ -27,6 +27,7 @@
 | 반복 작업 시작 순서 | [Noline Runbooks](./.claude/runbooks/README.md) |
 | 깊은 아키텍처/기능 맥락 | [Noline Context Map](./.claude/context/README.md) |
 | 하네스 레이어 개편 이유 | [Decision: Harness Layer Model](./.claude/decisions/2026-05-06-harness-layer-model.md) |
+| 현재 하네스 실행 계획 | [Noline Harness Execution Plan](./NOLINE_HARNESS_EXECUTION_PLAN.md) |
 
 ## Common Runbooks
 
@@ -112,9 +113,7 @@ noline/
 │   ├── harness/         # AI/developer harness and bridge model
 │   ├── commands/        # Claude command references
 │   ├── decisions/       # Decision records
-│   ├── implementation/  # Trackers/history
 │   ├── sessions/        # Session records
-│   ├── references/      # PRD/wireframe/source material
 │   ├── audits/          # Document audit/test evidence
 │   └── _archive/        # Deprecated historical material
 └── CLAUDE.md            # This navigation hub
@@ -147,6 +146,7 @@ pnpm server build
 pnpm server typecheck
 pnpm lint
 pnpm schema build
+pnpm harness:check
 ```
 
 ## Documentation Rules

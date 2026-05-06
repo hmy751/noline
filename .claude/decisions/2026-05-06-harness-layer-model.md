@@ -4,6 +4,8 @@
 > Status: Accepted
 > 범위: Noline AI/developer 하네스 구조
 
+> Follow-up: [Decision: Harness Execution Cleanup](2026-05-06-harness-execution-cleanup.md) archives stale implementation trackers and adds `pnpm harness:check`.
+
 ## 배경
 
 이전 restructure는 root guide, document map, guard map, workflow map, archive hygiene, `AGENTS.md -> CLAUDE.md` bridge를 추가해 문서 corpus를 더 안전하게 만들었다.
@@ -25,7 +27,7 @@ Noline 하네스에 아래 레이어 모델을 적용한다.
 - `.claude/guards/`: 고비용 실패 지도와 마무리 점검 표면.
 - `.claude/runbooks/`: 반복 작업 진입점.
 - `.claude/context/`: 깊은 아키텍처, cross-cutting engineering context, 기능별 설명을 보존하는 owner.
-- `.claude/decisions/`, `.claude/audits/`, `.claude/references/`, `.claude/_archive/`: 근거, 검증, 제품 source, history.
+- `.claude/decisions/`, `.claude/audits/`, `.claude/_archive/`: 근거, 검증, 오래된 source, history.
 
 이번 패스에서는 기존 링크를 보존하고 현재 local harness surface를 존중하기 위해 공통 하네스 문서를 `.claude/` 아래에 둔다. 이것이 Claude 전용 동작을 공통 source of truth로 삼겠다는 뜻은 아니다.
 

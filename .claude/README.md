@@ -26,9 +26,7 @@
 | [context/](context/) | 깊은 아키텍처, cross-cutting engineering context, 기능별 동작/edge case | rule/runbook만으로 부족할 때 열고 코드와 대조한다. |
 | [commands/](commands/) | Claude command reference와 문서 관리 workflow | Claude 전용 command 자료다. Codex command로 자동 이식하지 않는다. 먼저 [commands/README.md](commands/README.md)를 확인한다. |
 | [decisions/](decisions/) | 정책, 용어, 구조 변경의 이유 | 현재 정책의 근거로 읽되, source 문서가 더 최신이면 source를 우선한다. |
-| [implementation/](implementation/) | 구현 추적표와 테스트 시나리오 | evidence/history로 읽는다. 완료/미완료 표기는 코드와 대조한다. |
 | [sessions/](sessions/) | 설계/구현 세션 기록 | 왜 그런 선택을 했는지 확인하는 기록이다. active policy로 바로 사용하지 않는다. |
-| [references/](references/) | PRD, wireframe, image notes 같은 원천 자료 | 제품/기획 source로 읽는다. 구현 정책과 충돌하면 active guide를 우선한다. |
 | [_archive/](_archive/) | 과거 구현 가이드와 deprecated 맥락 | 역사 자료다. 명시 요청 없이 현재 구현 기준으로 끌어올리지 않는다. |
 | [audits/](audits/) | 문서 품질 검증, 하네스 점검, 리팩터링 테스트 | active guide가 아니다. 현재 정책과 충돌하면 active source를 우선한다. |
 | [CHANGELOG.md](CHANGELOG.md) | 정책/기능 변화의 긴 이력 | 큰 흐름을 볼 때 사용한다. 세부 구현은 코드와 active guide를 확인한다. |

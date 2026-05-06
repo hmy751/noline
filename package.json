@@ -10,6 +10,7 @@
     "client": "pnpm --filter @apps/client",
     "server": "pnpm --filter @apps/server",
     "schema": "pnpm --filter @repo/schema",
+    "harness:check": "node scripts/check-harness.mjs",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "format": "prettier --write ."
   },
