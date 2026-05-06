@@ -1,6 +1,6 @@
 # Noline Harness Restructure Handoff
 
-> 2026-05-06 handoff for branch `docs/noline-harness-plan`.
+> 2026-05-06 handoff for branch `docs/noline-harness-restructure`.
 > This is an audit/session continuity note, not active policy.
 
 ## Why This Exists
@@ -9,7 +9,7 @@ The temporary root planning file `NOLINE_HARNESS_RESTRUCTURE_PLAN.md` was commit
 
 ## Branch Context
 
-- Branch: `docs/noline-harness-plan`
+- Branch: `docs/noline-harness-restructure`
 - Base used when the plan was created: `main` at `503a4a5`
 - Original temporary plan commit: `a834082 docs: add noline harness restructure plan`
 - Temporary root plan removal commit: `d6d5a91 docs: move harness handoff into audits`
@@ -23,7 +23,7 @@ Use `git log --oneline main..HEAD` for the exact current branch history. Do not 
 
 Start a later session with this order:
 
-1. Run `git status -sb` and confirm the branch is `docs/noline-harness-plan`.
+1. Run `git status -sb` and confirm the branch is `docs/noline-harness-restructure`.
 2. Run `git log --oneline main..HEAD` to see whether more commits were added after this handoff.
 3. Read root `CLAUDE.md`, `.claude/README.md`, and `.claude/harness/README.md` for the current active reading path.
 4. Use this handoff only to understand what the branch already did and what remains.
