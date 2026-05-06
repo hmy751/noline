@@ -2,7 +2,7 @@
 
 > Noline: 네트워크가 없어도 여행은 계속된다. Selective Local-First 여행 관리 앱.
 
-이 파일은 루트 탐색 허브다. 상세 정책은 `.claude/core/`, `.claude/features/`, workspace `CLAUDE.md`가 소유한다. 더 구체적인 owner 문서가 있으면 그 문서를 우선한다.
+이 파일은 루트 탐색 허브다. 상세 정책은 workspace guide, [rules](./.claude/rules/README.md), [guards](./.claude/guards/README.md), [runbooks](./.claude/runbooks/README.md), [context](./.claude/context/README.md)가 나누어 소유한다.
 
 ## Claude/Codex Bridge
 
@@ -13,7 +13,8 @@
   - [apps/server/CLAUDE.md](./apps/server/CLAUDE.md)
   - [packages/schema/CLAUDE.md](./packages/schema/CLAUDE.md)
   - [packages/ui/CLAUDE.md](./packages/ui/CLAUDE.md)
-- 하네스 구조와 변경 규칙은 [Noline AI Harness](./.claude/harness/README.md)를 따른다.
+- 하네스 구조와 tool bridge 규칙은 [Noline AI Harness](./.claude/harness/README.md)를 따른다.
+- `.codex/`, `.agents/`, local agent, local skill은 구체적인 반복 필요가 생길 때만 만든다.
 
 ## Start Here
 
@@ -21,21 +22,23 @@
 | --- | --- |
 | `.claude` 자료 역할 파악 | [Document Map](./.claude/README.md) |
 | 하네스/bridge 작업 | [Noline AI Harness](./.claude/harness/README.md) |
+| 코드 수정 중 지켜야 할 compact rule | [Noline Rules](./.claude/rules/README.md) |
 | 코드 변경 전후 보호 정책 점검 | [Noline Guard Map](./.claude/guards/README.md) |
-| 반복 작업 시작 순서 | [Noline Workflow Map](./.claude/workflows/README.md) |
-| 하네스 개편 배경 | [Decision: AI Harness Restructure](./.claude/decisions/2026-05-06-ai-harness-restructure.md) |
+| 반복 작업 시작 순서 | [Noline Runbooks](./.claude/runbooks/README.md) |
+| 깊은 아키텍처/기능 맥락 | [Noline Context Map](./.claude/context/README.md) |
+| 하네스 레이어 개편 이유 | [Decision: Harness Layer Model](./.claude/decisions/2026-05-06-harness-layer-model.md) |
 
-## Common Workflows
+## Common Runbooks
 
 | 작업 | 시작점 |
 | --- | --- |
-| 동기화 버그 수정 | [Debug Sync Issues](./.claude/workflows/README.md#sync-debug) |
-| 새 Entity 추가 | [Add New Entity](./.claude/workflows/README.md#add-entity) |
-| 날짜/시간 처리 | [Work with Dates/Times](./.claude/workflows/README.md#datetime-utils) |
-| 통화 표시 | [Display Currency/Amounts](./.claude/workflows/README.md#currency-utils) |
-| Form 구현 | [Implement Forms](./.claude/workflows/README.md#form-pattern) |
-| UI 컴포넌트 | [Build UI Components](./.claude/workflows/README.md#component-guide) |
-| API 추가 | [Add API Endpoint](./.claude/workflows/README.md#api-endpoint) |
+| 동기화 버그 수정 | [Debug Sync Issues](./.claude/runbooks/README.md#sync-debug) |
+| 새 Entity 추가 | [Add New Entity](./.claude/runbooks/README.md#add-entity) |
+| API 추가 | [Add API Endpoint](./.claude/runbooks/README.md#api-endpoint) |
+| Form 구현 | [Implement Forms](./.claude/runbooks/README.md#form-pattern) |
+| 날짜/시간 처리 | [Work With Dates/Times](./.claude/runbooks/README.md#datetime-utils) |
+| 통화 표시 | [Display Currency/Amounts](./.claude/runbooks/README.md#currency-utils) |
+| UI 컴포넌트 | [Build UI Components](./.claude/runbooks/README.md#component-guide) |
 
 ## Project Identity
 
@@ -65,25 +68,20 @@ Noline은 불안정한 네트워크 환경에서도 여행 계획과 경비 기�
 9. 서버 route는 인증과 user ownership을 확인한다.
 10. 정책 제한 UI는 `useAppPolicy`, `PolicyErrorDisplay`, `NetworkStatusIndicator` 같은 기존 패턴을 먼저 사용한다.
 
-상세 체크는 [Guard Map](./.claude/guards/README.md)을 기준으로 한다.
+상세 체크는 [Rules](./.claude/rules/README.md)와 [Guard Map](./.claude/guards/README.md)을 기준으로 한다.
 
-## Architecture Sources
+## Task Rule Index
 
-| 주제 | Source |
+| 주제 | Rule |
 | --- | --- |
-| 전체 구조/FSD | [architecture.md](./.claude/core/architecture.md) |
-| Selective Activation, Router, sync | [selective-activation-architecture.md](./.claude/core/selective-activation-architecture.md) |
-| API/Data/query key/repository | [api-data.md](./.claude/core/api-data.md) |
-| Policy Layer | [policy-architecture.md](./.claude/core/policy-architecture.md) |
-| 날짜/시간 | [time.md](./.claude/core/time.md) |
-| TypeScript/Zod | [typescript.md](./.claude/core/typescript.md) |
-| UI component rules | [components.md](./.claude/core/components.md) |
-| Error handling | [error-handling.md](./.claude/core/error-handling.md) |
-| Activation system | [activation-system.md](./.claude/features/activation-system.md) |
-| Manual input | [manual-input.md](./.claude/features/manual-input.md) |
-| Currency | [currency.md](./.claude/features/currency.md) |
-| Forms | [form.md](./.claude/features/form.md) |
-| Offline map/routing | [offline-map.md](./.claude/features/offline-map.md), [offline-routing.md](./.claude/features/offline-routing.md) |
+| Local/Remote routing | [Activation Router](./.claude/rules/activation-router.md) |
+| Local mutation + sync | [Transaction + Sync Queue](./.claude/rules/transaction-sync-queue.md) |
+| Schema/type contract | [Schema First](./.claude/rules/schema-first.md) |
+| Create ID strategy | [Client-Side ID](./.claude/rules/client-side-id.md) |
+| 날짜/시간 | [ISO Time](./.claude/rules/iso-time.md) |
+| 서버 인증/소유권 | [Auth/User Scope](./.claude/rules/auth-user-scope.md) |
+| 정책 제한 UI | [Policy UI](./.claude/rules/policy-ui.md) |
+| 깊은 맥락 | [Context Map](./.claude/context/README.md) |
 
 ## Workspace Ownership
 
@@ -107,11 +105,11 @@ noline/
 │   ├── eslint-config/   # Shared lint config
 │   └── typescript-config/ # Shared TypeScript config
 ├── .claude/
-│   ├── core/            # Active architecture/policy docs
-│   ├── features/        # Feature guides
-│   ├── guards/          # High-cost rule map
-│   ├── workflows/       # Repeated task entry points
-│   ├── harness/         # AI/developer harness map
+│   ├── rules/           # Compact task/path rules
+│   ├── guards/          # High-cost failure map
+│   ├── runbooks/        # Repeated task entry points
+│   ├── context/         # Deep architecture and feature context sources
+│   ├── harness/         # AI/developer harness and bridge model
 │   ├── commands/        # Claude command references
 │   ├── decisions/       # Decision records
 │   ├── implementation/  # Trackers/history
@@ -155,6 +153,8 @@ pnpm schema build
 
 - 루트는 탐색과 핵심 불변식만 소유한다.
 - 상세 정책은 가장 작은 owner 문서에 둔다.
+- 반복 작업은 `runbooks/`, compact rule은 `rules/`, 깊은 설명은 `context/`에서 시작한다.
+- 깊은 아키텍처와 기능 설명은 `context/`가 소유한다. 예전 `core/`와 `features/` 경로를 새 entrypoint로 되살리지 않는다.
 - 기존 history, session, reference, archive 문서를 삭제하거나 현재 정책처럼 고치기 전에 [Document Map](./.claude/README.md)에서 역할을 확인한다.
 - active guide와 코드가 충돌하면 코드를 확인하고 active guide만 최소 수정한다.
 - 정책이나 하네스 구조가 바뀌면 [decisions/](./.claude/decisions/)에 결정 기록을 남긴다.

@@ -511,8 +511,8 @@ Day 7+: vacuumDeletedRecords() 실행 → Hard delete → 저장 공간 회수
 
 ### 프로젝트 문서
 
-- `.claude/core/selective-activation-architecture.md` - Offline-Prep 시스템 아키텍처
-- `.claude/features/activation-system.md` - Activation 가이드
+- `.claude/context/selective-activation-architecture.md` - Offline-Prep 시스템 아키텍처
+- `.claude/context/activation-system.md` - Activation 가이드
 - `CLAUDE.md:256` - Soft Delete 패턴 정책
 
 ### 관련 Session

@@ -1,12 +1,31 @@
-# Noline AI Harness
+# Noline AI 하네스
 
-이 문서는 Noline의 AI/developer 지침이 어디에 있고 어떤 책임을 갖는지 정의한다. 새 규칙집이 아니라 지도이며, 기존 `.claude` 자료를 지우지 않고 읽는 경로를 정리하는 것이 목적이다.
+이 문서는 Noline의 AI/developer 지침이 어디에 있고 어떤 책임을 갖는지 정의한다. 새 규칙집이 아니라 owner와 bridge 지도다.
 
 ## 목적
 
-Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴을 다루는 상세 문서가 이미 많다. 하네스의 역할은 루트 가이드를 계속 비대하게 만드는 것이 아니라, 작업 시점에 필요한 맥락을 빠르게 고르게 하는 것이다.
+Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴을 다루는 상세 문서가 이미 많다. 하네스의 역할은 루트나 tool-specific 폴더를 비대하게 만드는 것이 아니라, 작업 시점에 필요한 레이어를 빠르게 고르게 하는 것이다.
 
-## Claude/Codex Bridge
+## 현재 레이어 모델
+
+| 레이어 | Owner | 역할 | 읽는 방식 |
+| --- | --- | --- | --- |
+| Root guide | [../../CLAUDE.md](../../CLAUDE.md) | 프로젝트 정체성, bridge, 빠른 탐색, 핵심 불변식 | 항상 작게 유지 |
+| Workspace guides | `apps/*/CLAUDE.md`, `packages/*/CLAUDE.md` | app/package별 구현 규칙과 명령 | 경로에 따라 읽음 |
+| Document map | [../README.md](../README.md) | `.claude` corpus의 역할과 읽는 순서 | 문서 작업 시 시작점 |
+| Rules | [../rules/](../rules/) | 짧고 검증 가능한 task/path 규칙 | 작업/경로에 따라 읽음 |
+| Guards | [../guards/](../guards/) | 데이터 손실, sync 누락, auth 누락 같은 고비용 실패 점검 | 위험한 수정 전후 |
+| Runbooks | [../runbooks/](../runbooks/) | 반복 작업의 시작 순서 | 작업 진입점 |
+| Context | [../context/](../context/) | 깊은 아키텍처, cross-cutting engineering context, 기능별 설명 | 필요할 때만 |
+| Commands | [../commands/](../commands/) | Claude command reference와 문서 관리 workflow | Claude 참고 자료 |
+| Decisions | [../decisions/](../decisions/) | 정책, 용어, 하네스 구조가 왜 바뀌었는지 | 근거 기록 |
+| Audits | [../audits/](../audits/) | 문서 품질 검증과 하네스 점검 evidence | 근거 기록, policy 아님 |
+| Implementation/sessions | [../implementation/](../implementation/), [../sessions/](../sessions/) | 작업 이력과 증거 | history |
+| References/archive | [../references/](../references/), [../_archive/](../_archive/) | 원천 자료와 과거 맥락 | source/history |
+
+예전 `core/`와 `features/` 본문 문서는 [context](../context/)로 이동했다. 새 하네스 entrypoint는 `rules/`, `guards/`, `runbooks/`, `context/`를 기준으로 유지한다.
+
+## Claude/Codex 브릿지
 
 - `CLAUDE.md`는 사람이 읽는 로컬 프로젝트 가이드의 원천이다.
 - `AGENTS.md`는 Codex가 같은 가이드를 읽기 위한 bridge다. 두 번째 원천이 아니다.
@@ -16,25 +35,17 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
   - `apps/server/`
   - `packages/schema/`
   - `packages/ui/`
-- 새 주요 workspace에 로컬 `CLAUDE.md`가 생기면, Codex도 그 지침을 계층 컨텍스트로 봐야 할 때만 `AGENTS.md -> CLAUDE.md` symlink를 추가한다.
 - `.claude/commands/`는 Claude command reference다. Codex command나 rule로 자동 포팅하지 않는다.
+- `.claude/rules/`의 Markdown은 현재 공통으로 읽을 수 있는 프로젝트 지침이지만 Claude 전용 loader 의미를 갖지는 않는다.
+- `.codex/`, `.agents/`, `.claude/agents/`, `.claude/skills/`는 구체적인 반복 필요가 생길 때만 만든다.
 
-## Layer Ownership
+## 브릿지 규칙
 
-| Layer | Owner | Role |
-| --- | --- | --- |
-| Root guide | [../../CLAUDE.md](../../CLAUDE.md) | 프로젝트 정체성, 빠른 탐색, 핵심 불변식, 상세 문서 포인터 |
-| Workspace guides | `apps/*/CLAUDE.md`, `packages/*/CLAUDE.md` | app/package별 구현 규칙 |
-| Document map | [../README.md](../README.md) | `.claude` corpus의 역할과 읽는 순서 |
-| Core docs | [../core/](../core/) | 오래 유지되는 아키텍처와 cross-cutting engineering policy |
-| Feature docs | [../features/](../features/) | 기능별 동작, edge case, 구현 메모 |
-| Guards | [../guards/](../guards/) | Router, transaction, schema-first, Client-Side ID, ISO time 같은 보호 정책 지도 |
-| Workflows | [../workflows/](../workflows/) | 반복 작업별 시작 순서, 관련 guard와 source 문서 포인터 |
-| Commands | [../commands/](../commands/) | Claude command reference와 문서 관리 workflow |
-| Decisions | [../decisions/](../decisions/) | 정책, 용어, 하네스 구조가 왜 바뀌었는지 |
-| Audits | [../audits/](../audits/) | 문서 품질 검증과 하네스 점검 evidence. active policy가 아님 |
-| Implementation/sessions | [../implementation/](../implementation/), [../sessions/](../sessions/) | 작업 이력과 증거. 기본값은 active policy가 아님 |
-| References/archive | [../references/](../references/), [../_archive/](../_archive/) | 원천 자료와 과거 맥락. 명시 요청 없이 현재 정책처럼 수정하지 않음 |
+1. 도구별 파일은 공통 지침을 가리키거나 얇게 적응한다.
+2. 도구별 파일이 별도 정책 원천처럼 조용히 갈라지면 안 된다.
+3. Claude/Codex 양쪽 버전이 생기면 같은 내용인지, adapter인지, 의도적으로 다른지 기록한다.
+4. 새 agent/skill은 정책 본문을 복사하지 말고 어떤 문서를 읽고 어떤 산출물을 반환할지만 얇게 정의한다.
+5. bridge, agent, skill을 추가하거나 크게 바꾸면 최종 응답 전에 bridge drift를 점검한다.
 
 ## 하네스 변경 규칙
 
@@ -42,27 +53,39 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
 2. 루트 `CLAUDE.md`는 탐색용으로 유지한다. 모든 상세 패턴을 루트로 끌어올리지 않는다.
 3. 한 번의 디버깅 세션에서 생긴 불편을 바로 일반 규칙으로 승격하지 않는다. 반복되거나 비용이 큰 실패일 때만 하네스화한다.
 4. reference project에서 영향을 받았다면 표면 형식을 복사하지 말고 Noline의 역할 모델로 번역한다.
-5. 로컬 agent나 skill을 만들더라도 얇게 둔다. 기준 본문은 owning docs가 소유하고, agent/skill은 어떤 문서를 읽고 어떤 report나 patch plan을 반환할지만 맡는다.
-6. 이후 작업 방식에 영향을 주는 하네스 변경은 [../decisions/](../decisions/)에 기록한다.
+5. `rules/`는 짧고 검증 가능하게, `context/`는 깊은 설명을 보존하게, `runbooks/`는 실행 순서만 빠르게 유지한다.
+6. 이후 작업 방식에 영향을 주는 하네스 변경은 [decisions/](../decisions/)에 기록한다.
 
-## 현재 범위
+## 커밋 메시지 기준
+
+새 커밋은 가능한 한 Conventional Commit 형태를 사용한다.
+
+```text
+type(scope): summary
+```
+
+- runtime code는 `client`, `server`, `schema`, `ui` 같은 workspace scope를 우선한다.
+- documentation/harness 변경은 `harness`, `rules`, `runbooks`, `context`, `guards`, `readme`, `archive`처럼 가장 작은 문서 owner를 scope로 쓴다.
+- scope는 변경이 진짜 repo-wide이거나 유용한 owner가 없을 때만 생략한다.
+
+결정 기록: [Commit Message Convention](../decisions/2026-05-06-commit-message-convention.md)
+
+## 이번 패스
 
 이번 개편에서 하는 일:
 
-- `.claude` document map 추가
-- guard/workflow map 추가
-- `AGENTS.md -> CLAUDE.md` bridge 추가
-- active guide의 현재 코드와 충돌하는 표현 정리
-- legacy-heavy active guide는 원문을 `_archive/`에 보존하고 현재 경로를 짧은 guide로 재작성
-- 루트 `CLAUDE.md`는 destination layer가 준비된 뒤 마지막에 축약
+- `rules/`, `runbooks/`, `context/` 레이어 추가
+- 예전 `core/`와 `features/` 본문 문서를 `context/`로 이동해 깊은 맥락의 owner를 단일화
+- Claude/Codex bridge가 tool-specific 강제가 아니라 adapter 관계임을 명시
+- root/document map/guard/runbook 링크를 새 레이어 중심으로 정리
 
 이번 개편에서 하지 않는 일:
 
 - 기존 문서 삭제
-- history/session/archive의 오래된 용어 전면 정리
-- Claude command를 Codex command로 자동 변환
-- 로컬 agent/skill 즉시 생성
 - runtime code 변경
+- Claude command를 Codex command로 자동 변환
+- `.agents/` 또는 `.codex/`를 모양상 생성
+- 로컬 agent/skill 즉시 생성
 
 ## 향후 후보
 

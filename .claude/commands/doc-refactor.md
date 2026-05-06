@@ -88,7 +88,7 @@ const CURRENT_POLICIES = {
     rule: '4-State Matrix로 CRUD 권한 제어',
     states: ['online_active', 'online_inactive', 'offline_active', 'offline_inactive'],
     required: ['useAppPolicy'],
-    guide: '.claude/core/policy-architecture.md',
+    guide: '.claude/context/policy-architecture.md',
   },
 
   // Data/Service Layer 분리
@@ -103,7 +103,7 @@ const CURRENT_POLICIES = {
   manualInput: {
     rule: 'offline_active에서 API 없이 데이터 입력 지원',
     required: ['policy.schedule.create.mode 체크'],
-    guide: '.claude/features/manual-input.md',
+    guide: '.claude/context/manual-input.md',
   },
 };
 ```
@@ -153,7 +153,7 @@ const POLICY_HISTORY = {
     core: 'v2.0 활성화 정책 + 네트워크 상태 → 4-State Matrix로 CRUD 제어',
     layer: '확장 레이어 (v2.0 위에 구축)',
     current: true,
-    guide: '.claude/core/policy-architecture.md',
+    guide: '.claude/context/policy-architecture.md',
   },
 };
 ```

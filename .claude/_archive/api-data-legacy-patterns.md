@@ -6,7 +6,7 @@ alwaysApply: true
 # API 호출 및 데이터 페칭 가이드
 
 > Archived on 2026-05-06 during the harness restructure.
-> Current active guide: [core/api-data.md](../core/api-data.md).
+> Current active guide: [context/api-data.md](../context/api-data.md).
 > 이 문서는 legacy web/custom-error 예시와 레벨별 설명 보존용이다. 현재 작업 기준은 active guide를 우선한다.
 
 - 이건 가이드로서 만약 구현되어 있지 않는다면 무조건적으로 따를 필요는 없다.

@@ -7,12 +7,14 @@
 **프로젝트 이해 (처음 읽을 때):**
 
 - [Root CLAUDE.md](../../CLAUDE.md) - 프로젝트 정체성, 핵심 불변식, 문서 진입점
-- [FSD Architecture](../../.claude/core/architecture.md) - @repo/ui의 역할과 계층 구조
+- [Noline Rules](../../.claude/rules/README.md) - 구현 중 지켜야 할 compact rule
+- [Noline Context Map](../../.claude/context/README.md) - 깊은 아키텍처/기능 맥락
 
 **컴포넌트 개발시 참조:**
 
-- [Components Guide](../../.claude/core/components.md) - 컴포넌트 작성 상세 규칙
-- [TypeScript Guide](../../.claude/core/typescript.md) - TypeScript 패턴
+- [Policy UI Rule](../../.claude/rules/policy-ui.md) - 정책 제한 UI와 blocked state
+- [Build UI Components Runbook](../../.claude/runbooks/README.md#component-guide) - 컴포넌트 작업 시작 순서
+- [Component Context](../../.claude/context/README.md#components) - 컴포넌트 작성 상세 맥락
 
 ## 📋 Overview
 
@@ -53,7 +55,7 @@
 - **재사용성**: 모든 프로젝트에서 사용 가능
 - **일관성**: 통일된 디자인 언어 제공
 
-> **상세 규칙**: [Components Guide](../../.claude/core/components.md) - 외부 margin 금지, forwardRef 사용 등
+> **상세 맥락**: [Component Context](../../.claude/context/README.md#components) - 외부 margin 금지, forwardRef 사용 등
 
 ## 🏗 Architecture
 
@@ -224,6 +226,6 @@ describe('Button', () => {
 
 **상세 구현 가이드:**
 
-- [Components Guide](../../.claude/core/components.md) - 컴포넌트 작성 규칙
-- [FSD Architecture](../../.claude/core/architecture.md) - @repo/ui의 계층적 역할
-- [TypeScript Guide](../../.claude/core/typescript.md) - Props 타입 정의
+- [Build UI Components Runbook](../../.claude/runbooks/README.md#component-guide) - 컴포넌트 작업 시작 순서
+- [Component Context](../../.claude/context/README.md#components) - 컴포넌트 작성 상세 맥락
+- [Noline Context Map](../../.claude/context/README.md) - FSD와 TypeScript/Zod 맥락

@@ -131,12 +131,12 @@
 
 **[Before - 2026-03-19]**
 - `/check-docs`의 policyDocuments 목록 (check-docs.md:25~52):
-  - `.claude/core/selective-activation-architecture.md` ✅ (v2.0)
-  - `.claude/features/activation-system.md` ✅
-  - `.claude/features/manual-input.md` ✅
-  - **누락**: `.claude/core/policy-architecture.md` ❌ (v3.0 핵심!)
-  - **누락**: `.claude/features/offline-routing.md` ❌
-  - **누락**: `.claude/features/offline-map.md` ❌
+  - `.claude/context/selective-activation-architecture.md` ✅ (v2.0)
+  - `.claude/context/activation-system.md` ✅
+  - `.claude/context/manual-input.md` ✅
+  - **누락**: `.claude/context/policy-architecture.md` ❌ (v3.0 핵심!)
+  - **누락**: `.claude/context/offline-routing.md` ❌
+  - **누락**: `.claude/context/offline-map.md` ❌
 - `/doc-refactor`의 CURRENT_POLICIES는 v2.0까지만 정의 (doc-refactor.md:48)
   - Policy Layer의 4-State Matrix 언급 없음
   - `useAppPolicy` Hook 검증 없음
@@ -146,9 +146,9 @@
 **[After - 2026-03-19]**
 - `check-docs.md`의 policyDocuments 목록에 v3.0 문서 **모두 포함** ✅:
 
-  - `.claude/core/policy-architecture.md` ✅ (v3.0 핵심, line 37)
-  - `.claude/features/offline-routing.md` ✅ (v3.0, line 48)
-  - `.claude/features/offline-map.md` ✅ (v3.0, line 49)
+  - `.claude/context/policy-architecture.md` ✅ (v3.0 핵심, line 37)
+  - `.claude/context/offline-routing.md` ✅ (v3.0, line 48)
+  - `.claude/context/offline-map.md` ✅ (v3.0, line 49)
 
 - `doc-refactor.md`의 CURRENT_POLICIES에 v3.0 정책 **모두 정의** ✅:
 
@@ -190,7 +190,7 @@
     core: 'v2.0 활성화 정책 + 네트워크 상태 → 4-State Matrix로 CRUD 제어',
     layer: '확장 레이어 (v2.0 위에 구축)',
     current: true,
-    guide: '.claude/core/policy-architecture.md',
+    guide: '.claude/context/policy-architecture.md',
   }
   ```
 

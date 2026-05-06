@@ -7,8 +7,8 @@
 >
 > **현재 가이드 참조:**
 >
-> - [selective-activation-architecture.md](../core/selective-activation-architecture.md) - v2.0 아키텍처
-> - [policy-architecture.md](../core/policy-architecture.md) - v3.0 Policy Layer
+> - [selective-activation-architecture.md](../context/selective-activation-architecture.md) - v2.0 아키텍처
+> - [policy-architecture.md](../context/policy-architecture.md) - v3.0 Policy Layer
 > - [CHANGELOG.md](../CHANGELOG.md) - 정책 변경 히스토리
 >
 > **아카이브 사유:** Router 패턴 미반영, Repository 레이어 없음, 활성화 시스템 미반영

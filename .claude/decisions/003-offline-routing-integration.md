@@ -492,8 +492,8 @@ if (routeCache.has(cacheKey)) {
 
 ### Documentation
 
-- [Feature Guide: Offline Routing](../features/offline-routing.md)
-- [Client CLAUDE.md: Offline Routing](../../apps/client/CLAUDE.md#-offline-routing)
+- [Feature Guide: Offline Routing](../context/offline-routing.md)
+- [Client CLAUDE.md: Offline Routing](../../apps/client/CLAUDE.md#offline-routing)
 - [ADR-002: Offline Map Integration](./002-offline-map-integration.md)
 
 ### External APIs
@@ -504,8 +504,8 @@ if (routeCache.has(cacheKey)) {
 
 ### Related Issues
 
-- [ULID Error Fix](../features/offline-routing.md#issue-1-ulid-생성-에러-critical)
-- [Camera Africa Issue](../features/offline-routing.md#issue-2-지도가-아프리카에서-시작)
+- [ULID Error Fix](../context/offline-routing.md#issue-1-ulid-생성-에러-critical)
+- [Camera Africa Issue](../context/offline-routing.md#issue-2-지도가-아프리카에서-시작)
 
 ---
 

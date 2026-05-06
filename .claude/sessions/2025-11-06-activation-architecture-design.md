@@ -553,12 +553,12 @@ CREATE TABLE trip_activations (
 
 - [CLAUDE.md](../../CLAUDE.md) - 프로젝트 전체 가이드
 - [packages/schema/CLAUDE.md](../../packages/schema/CLAUDE.md) - Entity 스키마 규칙
-- [.claude/core/selective-activation-architecture.md](../core/selective-activation-architecture.md) - Selective Activation 가이드
-- [.claude/core/api-data.md](../core/api-data.md) - API 레이어 패턴
+- [.claude/context/selective-activation-architecture.md](../context/selective-activation-architecture.md) - Selective Activation 가이드
+- [.claude/context/api-data.md](../context/api-data.md) - API 레이어 패턴
 
 ### 구현 가이드 (작성 예정)
 
-- [.claude/features/activation-system.md](../features/activation-system.md) - 활성화 시스템 구현 가이드
+- [.claude/context/activation-system.md](../context/activation-system.md) - 활성화 시스템 구현 가이드
 
 ---
 

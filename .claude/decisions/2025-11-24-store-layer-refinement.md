@@ -264,8 +264,8 @@ shared/
 ## 관련 문서
 
 - [CHANGELOG.md](..//CHANGELOG.md#2025-11-24)
-- [architecture.md](../core/architecture.md)
-- Policy Architecture: [policy-architecture.md](../core/policy-architecture.md)
+- [architecture.md](../context/architecture.md)
+- Policy Architecture: [policy-architecture.md](../context/policy-architecture.md)
 
 ---
 

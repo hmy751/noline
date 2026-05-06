@@ -7,15 +7,17 @@
 **프로젝트 이해 (처음 읽을 때):**
 
 - [Root CLAUDE.md](../../CLAUDE.md) - 프로젝트 정체성, 핵심 불변식, 문서 진입점
+- [Noline Rules](../../.claude/rules/README.md) - 구현 중 지켜야 할 compact rule
+- [Noline Runbooks](../../.claude/runbooks/README.md) - 반복 작업 시작 순서
+- [Noline Context Map](../../.claude/context/README.md) - 깊은 아키텍처/기능 맥락
 - [Schema CLAUDE.md](../../packages/schema/CLAUDE.md) - @repo/schema 타입 계약 (Entity/Request/Response)
-- [FSD Architecture](../../.claude/core/architecture.md) - Feature-Sliced Design 상세 구조
 
 **클라이언트 구현시 참조:**
 
-- [Selective Activation Architecture](../../.claude/core/selective-activation-architecture.md) - 활성화 기반 아키텍처, Client-Side ID
-- [Time Guide](../../.claude/core/time.md) - 시간 처리 완전 가이드
-- [TypeScript Guide](../../.claude/core/typescript.md) - TypeScript 규칙
-- [API & Data Guide](../../.claude/core/api-data.md) - API 레이어 패턴
+- [Activation Router Rule](../../.claude/rules/activation-router.md) - 활성화 기반 Local/Remote routing
+- [Transaction + Sync Queue Rule](../../.claude/rules/transaction-sync-queue.md) - 로컬 mutation과 sync_queue 원자성
+- [Client-Side ID Rule](../../.claude/rules/client-side-id.md) - 생성 ID 전략
+- [ISO Time Rule](../../.claude/rules/iso-time.md) - 시간 저장/전송 규칙
 
 ## 🎯 Client-Specific Patterns
 
@@ -57,7 +59,7 @@
 
 ## 🕐 Time Management
 
-> **상세 가이드**: [time.md](../../.claude/core/time.md)
+> **Rule**: [ISO Time](../../.claude/rules/iso-time.md) / **Context**: [Time and date](../../.claude/context/README.md#time-and-date)
 
 **클라이언트 핵심:**
 
@@ -151,7 +153,7 @@ export { useGetExpenses, useCreateExpense, expenseQueryKeys } from './data';
 
 ## 🗺 Offline Map Integration
 
-> **상세 가이드**: [offline-map.md](../../.claude/features/offline-map.md)
+> **Context**: [Offline map](../../.claude/context/README.md#offline-map)
 
 **핵심 패턴:**
 
@@ -199,12 +201,12 @@ if (isFirstSchedule) {
 **관련 문서:**
 
 - [ADR-002: Mapbox 오프라인 지도](../../.claude/decisions/002-offline-map-integration.md)
-- [Feature Guide: Offline Map](../../.claude/features/offline-map.md)
+- [Context: Offline Map](../../.claude/context/README.md#offline-map)
 - [Session: 2025-11-07](../../.claude/sessions/2025-11-07-offline-map-implementation.md)
 
 ## 🛣 Offline Routing
 
-> **상세 가이드**: [offline-routing.md](../../.claude/features/offline-routing.md)
+> **Context**: [Offline routing](../../.claude/context/README.md#offline-routing)
 
 **핵심 패턴:**
 
@@ -286,7 +288,7 @@ onSuccess: () => {
 
 **관련 문서:**
 
-- [Feature Guide: Offline Routing](../../.claude/features/offline-routing.md)
+- [Context: Offline Routing](../../.claude/context/README.md#offline-routing)
 
 ## 🔄 Sync Engine
 
@@ -441,6 +443,6 @@ npx expo start --clear
 
 **상세 구현 가이드:**
 
-- [Selective Activation Architecture](../../.claude/core/selective-activation-architecture.md) - sync_queue, withTransaction 상세
-- [Components Guide](../../.claude/core/components.md) - 컴포넌트 작성 규칙
-- [Error Handling](../../.claude/core/error-handling.md) - 에러 처리 패턴
+- [Activation Router Rule](../../.claude/rules/activation-router.md) - Local/Remote routing
+- [Transaction + Sync Queue Rule](../../.claude/rules/transaction-sync-queue.md) - sync_queue, withTransaction
+- [Noline Context Map](../../.claude/context/README.md) - components, error handling, feature context

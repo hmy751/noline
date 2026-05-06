@@ -5,7 +5,7 @@ alwaysApply: false
 # React Native 폼 구현 가이드 (Form Implementation Guide)
 
 > Archived on 2026-05-06 during the harness restructure.
-> Current active guide: [features/form.md](../features/form.md).
+> Current active guide: [context/form.md](../context/form.md).
 > 이 문서는 legacy web component 표현이 섞인 폼 가이드 보존용이다. 현재 작업 기준은 active guide를 우선한다.
 
 이 문서는 프로젝트의 폼(Form) 기능 구현에 대한 규칙과 가이드라인을 정의합니다. 일관성 있고 재사용 가능하며 유지보수가 용이한 폼을 만들기 위해 모든 팀원은 이 가이드를 준수해야 합니다.

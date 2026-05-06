@@ -1,7 +1,7 @@
 # Noline - 시간 데이터 처리 완전 가이드
 
 > Archived on 2026-05-06 during the harness restructure.
-> Current active guide: [core/time.md](../core/time.md).
+> Current active guide: [context/time.md](../context/time.md).
 > 이 문서는 긴 시간 처리 설명과 web input 예시 보존용이다. 현재 작업 기준은 active guide를 우선한다.
 >
 > 문서 상태: archived history.
