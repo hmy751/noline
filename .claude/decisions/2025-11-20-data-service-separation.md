@@ -197,7 +197,7 @@ switch(policy.mapProvider) {
 
 - [Selective Activation Architecture](./../core/selective-activation-architecture.md)
 - [Router Implementation](../../apps/client/src/shared/services/offline-prep/router.ts)
-- [Network Status Hook](../../apps/client/src/shared/hooks/useNetworkStatus.ts)
+- [Network Status Store](../../apps/client/src/shared/store/network.ts)
 
 ## 7. 후속 작업
 

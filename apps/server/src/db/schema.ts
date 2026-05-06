@@ -61,7 +61,7 @@ export const refreshTokens = pgTable('refresh_tokens', {
 });
 
 // Trips Table
-// ✨ Client-Side ID Generation: 혼합 모드
+// ✨ Client-Side ID Generation with server fallback
 // - 클라이언트가 ID 제공 시 → 그대로 사용 (Selective Local-First)
 // - ID 없이 요청 시 → 서버에서 생성 (하위 호환성)
 export const trips = pgTable('trips', {
@@ -82,7 +82,7 @@ export const trips = pgTable('trips', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 
-  // Phase 2: Local-First 필드
+  // Selective Local-First sync fields
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
   version: integer('version').notNull().default(1),
 });
@@ -108,7 +108,7 @@ export const schedules = pgTable('schedules', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 
-  // Phase 2: Local-First 필드
+  // Selective Local-First sync fields
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
   version: integer('version').notNull().default(1),
 });
@@ -134,7 +134,7 @@ export const expenses = pgTable('expenses', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 
-  // Phase 2: Local-First 필드
+  // Selective Local-First sync fields
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
   version: integer('version').notNull().default(1),
 });

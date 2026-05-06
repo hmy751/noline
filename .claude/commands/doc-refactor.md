@@ -1,5 +1,7 @@
 # doc-refactor
 
+> Claude-only command reference다. Codex rule이 아니며, 현재 작업 정책은 루트 `CLAUDE.md`와 `.claude/README.md`의 role map을 우선한다.
+
 문서와 코드의 정책 일관성을 검증하고 리팩토링합니다.
 
 ## 사용법

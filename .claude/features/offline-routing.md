@@ -1,6 +1,8 @@
 # Offline Routing Feature Guide
 
 > Mapbox Directions API 기반 오프라인 경로 저장 및 표시 구현 가이드
+>
+> 문서 상태: active source다. 파일 경로와 Mapbox 렌더링 컴포넌트명은 2026-05-06 정비 패스에서 현재 코드 기준으로 갱신했다. 이후 코드와 충돌하면 코드를 확인한 뒤 이 문서만 최소 수정한다.
 
 ## 📌 개요
 
@@ -62,7 +64,7 @@
                  │
                  ▼
 ┌─────────────────────────────────────────────────────┐
-│ 6. OfflineScheduleMapView                           │
+│ 6. MapboxScheduleMapView                            │
 │    - useGetRoutes({ tripId }) → 로컬 DB 조회        │
 │    - selectedProfile 기준 필터링                    │
 │    - decodePolyline(geometry) → [lng, lat][]       │
@@ -125,7 +127,8 @@ apps/client/src/
 │   │   ├── mapbox.ts                   # decodePolyline() 유틸 ⭐
 │   │   └── external-map.ts             # Google Maps 길찾기 유틸 (신규)
 │   └── components/Map/
-│       └── OfflineScheduleMapView.tsx  # 경로 렌더링 컴포넌트 ⭐
+│       ├── MapboxScheduleMapView.tsx        # 경로 렌더링 컴포넌트 ⭐
+│       └── PolicyBasedScheduleMapView.tsx   # 정책/프로바이더 선택 wrapper
 ```
 
 ## 💻 구현 상세
@@ -546,7 +549,7 @@ export function useGetRoutes({ tripId }: { tripId: string }) {
 }
 ```
 
-**Local-First 패턴 준수**:
+**Selective Local-First 패턴 준수**:
 
 - ✅ 로컬 DB에서만 조회
 - ✅ API 호출 없음
@@ -554,7 +557,7 @@ export function useGetRoutes({ tripId }: { tripId: string }) {
 
 ### 8. 지도 렌더링 컴포넌트
 
-**위치**: `apps/client/src/shared/components/Map/OfflineScheduleMapView.tsx`
+**위치**: `apps/client/src/shared/components/Map/MapboxScheduleMapView.tsx`
 
 **핵심 기능**:
 

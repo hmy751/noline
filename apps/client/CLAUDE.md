@@ -6,7 +6,7 @@
 
 **프로젝트 이해 (처음 읽을 때):**
 
-- [Root CLAUDE.md](../../CLAUDE.md) - 프로젝트 정체성, 핵심 원칙, MVP vs Production 레벨
+- [Root CLAUDE.md](../../CLAUDE.md) - 프로젝트 정체성, 핵심 불변식, 문서 진입점
 - [Schema CLAUDE.md](../../packages/schema/CLAUDE.md) - @repo/schema 타입 계약 (Entity/Request/Response)
 - [FSD Architecture](../../.claude/core/architecture.md) - Feature-Sliced Design 상세 구조
 
@@ -188,7 +188,7 @@ if (isFirstSchedule) {
 
 - Entity: `entities/offline-city/`
 - Service: `shared/services/offline-map/`
-- DB Schema: `shared/db/schema/offline-city.ts`
+- DB Schema: `shared/db/schema.ts` (`offlineCities`)
 
 **주요 이슈 & 해결:**
 
@@ -275,7 +275,7 @@ onSuccess: () => {
 - Entity: `entities/route/data/`
 - Service: `shared/services/directions/mapbox.ts`
 - Util: `shared/lib/mapbox.ts` (polyline 디코딩)
-- Component: `shared/components/Map/OfflineScheduleMapView.tsx`
+- Component: `shared/components/Map/MapboxScheduleMapView.tsx` (via `PolicyBasedScheduleMapView.tsx`)
 - DB Schema: `shared/db/schema.ts` (routes 테이블)
 
 **주요 이슈 & 해결:**

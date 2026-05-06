@@ -1,1232 +1,165 @@
-# 🧭 Noline Project Guide
-
-> **Noline**: 네트워크가 없어도 여행은 계속된다 - Selective Local-First 여행 관리 앱
-
----
-
-## 🎯 AI & Developer Navigation Hub
-
-> **빠른 시작**: 하려는 작업을 찾아 바로 이동하세요
-
-### ⚡ Most Common Tasks
-
-| 하려는 작업         | 바로 가기                             | 예상 시간 |
-| ------------------- | ------------------------------------- | --------- |
-| 🔧 동기화 버그 수정 | [→ Sync Debugging](#sync-debug)       | 2분       |
-| ➕ 새 Entity 추가   | [→ Add Entity](#add-entity)           | 5분       |
-| 🕐 날짜/시간 처리   | [→ DateTime Utils](#datetime-utils)   | 1분       |
-| 💰 통화 표시        | [→ Currency Utils](#currency-utils)   | 1분       |
-| 📝 Form 구현        | [→ Form Pattern](#form-pattern)       | 3분       |
-| 🎨 UI 컴포넌트      | [→ Component Guide](#component-guide) | 3분       |
-| 🌐 API 추가         | [→ API Endpoint](#api-endpoint)       | 5분       |
-
-### 📚 Deep Dive Documentation
-
-**핵심 가이드** (반드시 읽기):
-
-| 문서                                                                                        | 깊이   | 라인수 | 언제          | 내용                        |
-| ------------------------------------------------------------------------------------------- | ------ | ------ | ------------- | --------------------------- |
-| [policy-architecture.md](./.claude/core/policy-architecture.md)                             | 🔥🔥🔥 | ~500   | 정책 작업시   | Policy Layer 가이드 (v3.0)  |
-| [selective-activation-architecture.md](./.claude/core/selective-activation-architecture.md) | 🔥🔥🔥 | ~1,865 | Sync 작업시   | Selective Activation 가이드 |
-| [time.md](./.claude/core/time.md)                                                           | 🔥🔥   | ~1,005 | 날짜 작업시   | 시간 처리 완전 가이드       |
-| [activation-system.md](./.claude/features/activation-system.md)                             | 🔥🔥   | ~1,497 | 활성화 작업시 | Activation Router           |
-| [manual-input.md](./.claude/features/manual-input.md)                                       | 🔥🔥   | ~600   | 오프라인 입력 | Manual Input 가이드         |
-
-**작업별 가이드** (필요시 읽기):
-
-| 문서                                                  | 깊이 | 언제            | 내용              |
-| ----------------------------------------------------- | ---- | --------------- | ----------------- |
-| [typescript.md](./.claude/core/typescript.md)         | 🔥   | 타입 작성시     | Schema-First 패턴 |
-| [api-data.md](./.claude/core/api-data.md)             | 🔥   | API 작업시      | React Query, Keys |
-| [components.md](./.claude/core/components.md)         | 🔥   | 컴포넌트 작성시 | 작성 규칙         |
-| [error-handling.md](./.claude/core/error-handling.md) | 🔥   | 에러 처리시     | 에러 패턴         |
-| [architecture.md](./.claude/core/architecture.md)     | 🔥   | 파일 위치시     | FSD 구조          |
-
-**Workspace 가이드** (작업 위치별):
-
-| 가이드                                          | 언제          | 내용              |
-| ----------------------------------------------- | ------------- | ----------------- |
-| [Client CLAUDE.md](./apps/client/CLAUDE.md)     | Client 작업시 | React Native 패턴 |
-| [Server CLAUDE.md](./apps/server/CLAUDE.md)     | Server 작업시 | Express API       |
-| [Schema CLAUDE.md](./packages/schema/CLAUDE.md) | Entity 추가시 | 타입 계약         |
-| [UI CLAUDE.md](./packages/ui/CLAUDE.md)         | UI 작업시     | 컴포넌트 철학     |
-
----
-
-## 📖 Documentation Philosophy
-
-> **핵심**: 맥락 있는 간략화 - "왜"를 한 문장으로라도
-
-### 문서 구조 원칙
-
-1. **Level 1 (30초)**: 핵심만 빠르게 파악
-2. **Level 2 (5분)**: 실제 작업에 필요한 패턴
-3. **Level 3 (필요시)**: 상세 문서로 Deep Dive
-
-### 유지보수 원칙
-
-- **Single Source**: Root CLAUDE.md 하나로 충분하도록
-- **Code-First**: 추상적 원칙보다 구체적 사용법
-- **Task-Oriented**: 목적별로 빠르게 찾을 수 있게
-- **Context Preserved**: 간략화해도 맥락은 유지, 상세 링크 제공
-- **Always Updated**: 코드 변경 시 문서도 함께 업데이트
-
-### 문서 관리 Commands
-
-프로젝트의 정책과 문서 일관성을 유지하기 위한 commands:
-
-- **`/check-docs`** - Git commit 전, 변경사항 기반 문서화 필요도 판단
-- **`/doc-discuss`** - 새 기능 논의 시, Session 파일 생성 제안
-- **`/doc-save`** - 문서 저장 및 자동 연결 (Decision, CHANGELOG)
-- **`/doc-refactor`** - 정책 일관성 검증 및 리팩토링 (정기적)
-
-**핵심 문서**:
-
-- [CHANGELOG.md](./.claude/CHANGELOG.md) - 정책 진화 및 주요 변경사항 추적
-  - 정책 버전: v1.0 → v2.0 (Selective Activation) → v3.0 (Policy-Driven Extension)
-  - Migration Guide 포함
-  - 모든 아키텍처 결정 기록
-
----
-
-## 📌 Project Identity
-
-**Noline**은 오프라인 환경에서도 완벽하게 작동하는 여행 관리 모바일 앱입니다.
-
-### 용어 규칙
-
-> 📋 **상세**: [Decision - 용어 통일](./.claude/decisions/2026-03-21-terminology-unification.md)
-
-- **아키텍처**: Selective Local-First (구 Local-First, Server-Aware)
-- **라우터**: Activation Router (구 Offline-Prep Router)
-- **ID 전략**: Client-Side ID Generation (구 Echo Protocol)
-- **UX 비유**: 오프라인 보험
-
-### 핵심 아키텍처 (현재)
-
-#### 📍 v2.0: Selective Activation (2025-11 구현, 기반 레이어)
-
-> **핵심 정책**: "활성화 = 오프라인 보험, 비활성 = 온라인 전용"
-
-- **활성화된 여행**: Local SQLite가 진실의 원천 → 오프라인 작동 보장
-- **비활성 여행**: Server API가 진실의 원천 → 온라인 전용, 저장공간 절약
-- **Activation Router**: 활성화 상태에 따라 Local/Remote 자동 분기
-- **동시 1개 제한**: 저장공간 효율화 (오프라인 지도 200MB/여행)
-- 📋 **상세**: [selective-activation-architecture.md](./.claude/core/selective-activation-architecture.md)
-
-#### 🎯 v3.0: Policy-Driven Extension (2025-11 구현, 확장 레이어)
-
-> **핵심 컨셉**: v2.0 활성화 정책 + 네트워크 상태 → 4가지 시나리오별 동작 제어
-
-- **Policy Layer 추가**:
-  - **4-State Matrix**: `online_active`, `online_inactive`, `offline_active`, `offline_inactive`
-  - **CRUD-Centric**: 각 Entity별 create/read/update/delete 권한 명시
-  - **useAppPolicy Hook**: 중앙 정책 조회, 컴포넌트는 정책만 확인
-  - 📋 **가이드**: [policy-architecture.md](./.claude/core/policy-architecture.md)
-
-- **Manual Input Support**:
-  - `offline_active` 상태에서 API 없이 데이터 입력
-  - Schedule: latitude/longitude nullable, 온라인 복구 후 재검색
-  - Expense: 환율 정보 없이 수동 입력
-  - 📋 **가이드**: [manual-input.md](./.claude/features/manual-input.md)
-
-- **Data/Service Layer 분리**:
-  - **Data Layer**: Trip/Schedule/Expense - Router 사용 (Local-First)
-  - **Service Layer**: Map/Search - Policy 기반 제어 (Network-First)
-  - 📋 **Decision**: [data-service-separation.md](./.claude/decisions/2025-11-20-data-service-separation.md)
-
-- **UI Components**:
-  - `PolicyErrorDisplay`: 3 variants (banner, block, inline)
-  - `NetworkStatusIndicator`: 헤더 우측 네트워크 상태 표시
-
-- **Client-Side ID Generation**: 클라이언트가 ID (ULID) 생성하고 서버는 그대로 수용
-- **@repo/schema**: 클라이언트-서버 공유 타입 계약 (Single Source of Truth)
-- **Sync Queue Safety**: 3단계 삭제 시스템으로 데이터 손실 방지
-
----
-
-## 📦 @repo/schema 계약 레벨
-
-> **핵심**: Entity는 강제 계약, Request/Response는 확장 가능
-
-### 계약(Contract) 관점
-
-| 레벨     | 스키마 타입       | 자유도       | 역할                          |
-| -------- | ----------------- | ------------ | ----------------------------- |
-| **필수** | Entity            | ❌ 변경 불가 | 도메인 모델, 모두가 준수      |
-| **기본** | Request/Response  | ✅ 확장 가능 | 기본 구조 제공, 필요시 extend |
-| **내부** | 각 앱 고유 스키마 | ✅ 완전 자유 | sync_queue 등 앱별 특화       |
-
-### 사용 예시
-
-```typescript
-// @repo/schema에서 import
-import { tripEntity, baseTripRequest } from '@repo/schema';
-
-// Entity는 그대로 사용 (계약 준수)
-export { tripEntity };
-
-// Request는 필요시 확장
-export const createTripRequest = baseTripRequest.extend({
-  localField: z.string(), // 앱 특화 필드 추가
-});
-```
-
-### 사용 규칙
-
-**정책: schema만 export, 타입은 z.infer 사용**
-
-```typescript
-// ❌ 잘못된 방법
-import { type User } from '@repo/schema/entities/user';
-
-// ✅ 올바른 방법
-import { userEntity } from '@repo/schema/entities/user';
-import { z } from 'zod';
-
-type User = z.infer<typeof userEntity>;
-```
-
-**이유**:
-
-- Schema가 Single Source of Truth (유일한 타입의 출처)
-- Schema와 타입의 완벽한 동기화 보장
-- 런타임 검증과 타입이 항상 일치
-
-**상세**: [Schema CLAUDE.md](./packages/schema/CLAUDE.md)
-
----
-
-## 🏗️ Data/Service Layer 분리 (v3.0 - 구현 완료)
-
-> **📋 상태**: ✅ 구현 완료 (Phase 1~4, 90%)
->
-> **핵심**: Data는 소유권이 있고 동기화 필요, Service는 단순 조회
-
-### Layer 구분
-
-| Layer       | 대상                    | 정책          | Router 사용 | 이유            |
-| ----------- | ----------------------- | ------------- | ----------- | --------------- |
-| **Data**    | Trip, Schedule, Expense | Selective Local-First | ✅ 필수     | sync_queue 필요 |
-| **Service** | Map, Search, Directions | Network-First | ❌ 불필요   | 소유권 없음     |
-
-### Policy Layer (중앙 제어) - ✅ 구현 완료
-
-```typescript
-// 4가지 상태 매트릭스
-type PolicyKey = 'online_active' | 'online_inactive' | 'offline_active' | 'offline_inactive';
-
-// 사용 예시
-const policy = useAppPolicy(tripId);
-if (!policy.schedule.create.allowed) {
-  return <PolicyErrorDisplay permission={policy.schedule.create} variant='block' />;
-}
-
-// CRUD-Centric 접근
-policy.trip.create.allowed    // boolean
-policy.schedule.create.mode   // 'full' | 'manual-only' | 'disabled'
-policy.expense.read.reason    // string
-
-// Service Layer
-policy.service.mapProvider    // 'google' | 'mapbox' | 'none'
-policy.service.searchMode     // 'api' | 'manual'
-```
-
-**상세**: [Policy Architecture 가이드](./.claude/core/policy-architecture.md)
-
----
-
-## ⚡ Quick Start (30초 - Level 1)
-
-**What**: Selective Local-First 여행 관리 모바일 앱
-
-**How**:
-
-- **활성화 = 오프라인 보험** → 로컬 DB 저장, 완전 오프라인 작동
-- **비활성 = 온라인 전용** → 서버 API만 사용, 저장공간 절약
-- **Router가 자동 분기** → 활성화 상태 체크, Local/Remote 자동 선택
-- **동시 1개만** → 저장공간 효율화 (오프라인 지도 200MB/여행)
-
-**Key**: Router가 활성화 상태에 따라 자동 분기
-
-**Most Used Functions**:
-
-```typescript
-// 1. 데이터 접근 (Router - 31회 사용)
-routeTripQuery({ local, remote });
-routeTripMutation({ local, remote });
-// 💡 Why: 활성화 상태에 따라 로컬/서버 자동 라우팅. 수동으로 하면 매번 if문 필요
-
-// 2. 원자적 트랜잭션 (25회 사용)
-withTransaction(async () => {
-  await db.insert(...);
-  await addToSyncQueue(...);
-});
-// 💡 Why: 둘 중 하나만 성공하면 동기화 영구 실패. 실제 버그 사례 있음
-
-// 3. 날짜 표시 (Time Utils - 59회 사용)
-formatISOToLocalDate(iso);  // "2024-03-15"
-formatISOToLocalTime(iso);  // "14:30"
-// 💡 Why: new Date().toLocaleDateString() 7개 파일 중복 발견. 일관성 필요
-
-// 4. 통화 표시 (Currency Utils - 59회 사용)
-formatCurrencyDisplay(amount, currency);  // "KRW 1,234,567"
-// 💡 Why: 통화별 포맷 다름 (KRW는 소수점 없음, USD는 있음)
-
-// 5. ID 생성 (React Native 호환)
-generateId();  // ✅ ulid() wrapper
-// 💡 Why: ulid 직접 사용 시 React Native 환경 에러 가능
-```
-
----
-
-## 🎯 Task-Oriented Guides (Level 2 - 빠른 가이드)
-
-### <a id="add-entity"></a>➕ Add New Entity (Trip/Schedule/Expense)
-
-<details>
-<summary><strong>전체 체크리스트 (5분)</strong></summary>
-
-**읽기 순서**: 처음이면 전체, 익숙하면 Step 4(Repository)부터
-
-**레이어 구조**:
+# Noline Project Guide
+
+> Noline: 네트워크가 없어도 여행은 계속된다. Selective Local-First 여행 관리 앱.
+
+이 파일은 루트 탐색 허브다. 상세 정책은 `.claude/core/`, `.claude/features/`, workspace `CLAUDE.md`가 소유한다. 더 구체적인 owner 문서가 있으면 그 문서를 우선한다.
+
+## Claude/Codex Bridge
+
+- `CLAUDE.md`가 로컬 프로젝트 가이드의 원천이다.
+- `AGENTS.md`는 `CLAUDE.md`를 가리키는 Codex bridge다.
+- 같은 bridge가 적용되는 workspace:
+  - [apps/client/CLAUDE.md](./apps/client/CLAUDE.md)
+  - [apps/server/CLAUDE.md](./apps/server/CLAUDE.md)
+  - [packages/schema/CLAUDE.md](./packages/schema/CLAUDE.md)
+  - [packages/ui/CLAUDE.md](./packages/ui/CLAUDE.md)
+- 하네스 구조와 변경 규칙은 [Noline AI Harness](./.claude/harness/README.md)를 따른다.
+
+## Start Here
+
+| 필요 | 읽을 문서 |
+| --- | --- |
+| `.claude` 자료 역할 파악 | [Document Map](./.claude/README.md) |
+| 하네스/bridge 작업 | [Noline AI Harness](./.claude/harness/README.md) |
+| 코드 변경 전후 보호 정책 점검 | [Noline Guard Map](./.claude/guards/README.md) |
+| 반복 작업 시작 순서 | [Noline Workflow Map](./.claude/workflows/README.md) |
+| 하네스 개편 배경 | [Decision: AI Harness Restructure](./.claude/decisions/2026-05-06-ai-harness-restructure.md) |
+
+## Common Workflows
+
+| 작업 | 시작점 |
+| --- | --- |
+| 동기화 버그 수정 | [Debug Sync Issues](./.claude/workflows/README.md#sync-debug) |
+| 새 Entity 추가 | [Add New Entity](./.claude/workflows/README.md#add-entity) |
+| 날짜/시간 처리 | [Work with Dates/Times](./.claude/workflows/README.md#datetime-utils) |
+| 통화 표시 | [Display Currency/Amounts](./.claude/workflows/README.md#currency-utils) |
+| Form 구현 | [Implement Forms](./.claude/workflows/README.md#form-pattern) |
+| UI 컴포넌트 | [Build UI Components](./.claude/workflows/README.md#component-guide) |
+| API 추가 | [Add API Endpoint](./.claude/workflows/README.md#api-endpoint) |
+
+## Project Identity
+
+Noline은 불안정한 네트워크 환경에서도 여행 계획과 경비 기록을 이어갈 수 있게 하는 모바일 앱이다.
+
+현재 용어:
+
+| 개념 | 현재 이름 | 과거/역사 문서의 이름 |
+| --- | --- | --- |
+| 아키텍처 | Selective Local-First | Local-First, Offline-First, Local-First Server-Aware |
+| 라우터 | Activation Router | Offline-Prep Router, Hybrid Router |
+| ID 전략 | Client-Side ID Generation | Echo Protocol |
+| UX 비유 | 오프라인 보험 | 오프라인 구독 |
+
+용어 변경의 이유는 [2026-03-21 terminology decision](./.claude/decisions/2026-03-21-terminology-unification.md)에 기록되어 있다. 역사 문서의 오래된 용어는 그대로 둘 수 있지만, 현재 정책 설명에서는 위 용어를 사용한다.
+
+## Core Invariants
+
+1. 활성화된 여행은 Local SQLite가 진실의 원천이다. 비활성 여행은 Server API가 진실의 원천이다.
+2. Trip/Schedule/Expense 같은 Data Layer는 Activation Router를 통해 Local/Remote를 분기한다.
+3. Map/Search/Directions 같은 Service Layer는 소유권과 sync 대상이 아니므로 Policy 기반 Network-First로 다룬다.
+4. 로컬 mutation과 `sync_queue` 추가는 `withTransaction` 안에서 원자적으로 처리한다.
+5. Entity 생성 ID는 클라이언트가 `generateId()`로 만들고, 서버는 클라이언트 ID를 수용한다.
+6. `@repo/schema`가 클라이언트/서버 타입 계약의 원천이다. 타입은 schema에서 `z.infer`로 추론한다.
+7. 시간 값은 ISO 8601 datetime with timezone으로 저장/전송하고, 표시는 shared util에서 처리한다.
+8. delete flow는 soft delete와 cleanup 안전 조건을 따른다.
+9. 서버 route는 인증과 user ownership을 확인한다.
+10. 정책 제한 UI는 `useAppPolicy`, `PolicyErrorDisplay`, `NetworkStatusIndicator` 같은 기존 패턴을 먼저 사용한다.
+
+상세 체크는 [Guard Map](./.claude/guards/README.md)을 기준으로 한다.
+
+## Architecture Sources
+
+| 주제 | Source |
+| --- | --- |
+| 전체 구조/FSD | [architecture.md](./.claude/core/architecture.md) |
+| Selective Activation, Router, sync | [selective-activation-architecture.md](./.claude/core/selective-activation-architecture.md) |
+| API/Data/query key/repository | [api-data.md](./.claude/core/api-data.md) |
+| Policy Layer | [policy-architecture.md](./.claude/core/policy-architecture.md) |
+| 날짜/시간 | [time.md](./.claude/core/time.md) |
+| TypeScript/Zod | [typescript.md](./.claude/core/typescript.md) |
+| UI component rules | [components.md](./.claude/core/components.md) |
+| Error handling | [error-handling.md](./.claude/core/error-handling.md) |
+| Activation system | [activation-system.md](./.claude/features/activation-system.md) |
+| Manual input | [manual-input.md](./.claude/features/manual-input.md) |
+| Currency | [currency.md](./.claude/features/currency.md) |
+| Forms | [form.md](./.claude/features/form.md) |
+| Offline map/routing | [offline-map.md](./.claude/features/offline-map.md), [offline-routing.md](./.claude/features/offline-routing.md) |
+
+## Workspace Ownership
+
+| Workspace | 책임 | Guide |
+| --- | --- | --- |
+| `apps/client` | React Native, FSD, local DB, Router, policy UI, offline features | [apps/client/CLAUDE.md](./apps/client/CLAUDE.md) |
+| `apps/server` | Express routes, auth/user scope, PostgreSQL, sync endpoints | [apps/server/CLAUDE.md](./apps/server/CLAUDE.md) |
+| `packages/schema` | Zod entity/request/response contract | [packages/schema/CLAUDE.md](./packages/schema/CLAUDE.md) |
+| `packages/ui` | 공유 UI primitives와 컴포넌트 철학 | [packages/ui/CLAUDE.md](./packages/ui/CLAUDE.md) |
+
+## Project Structure
 
 ```text
-@repo/schema → model/ → api/ → lib/ → repository/ → data/ → components
+noline/
+├── apps/
+│   ├── client/          # React Native + Expo app
+│   └── server/          # Express API server
+├── packages/
+│   ├── schema/          # Shared Zod contracts
+│   ├── ui/              # Shared UI components
+│   ├── eslint-config/   # Shared lint config
+│   └── typescript-config/ # Shared TypeScript config
+├── .claude/
+│   ├── core/            # Active architecture/policy docs
+│   ├── features/        # Feature guides
+│   ├── guards/          # High-cost rule map
+│   ├── workflows/       # Repeated task entry points
+│   ├── harness/         # AI/developer harness map
+│   ├── commands/        # Claude command references
+│   ├── decisions/       # Decision records
+│   ├── implementation/  # Trackers/history
+│   ├── sessions/        # Session records
+│   ├── references/      # PRD/wireframe/source material
+│   ├── audits/          # Document audit/test evidence
+│   └── _archive/        # Deprecated historical material
+└── CLAUDE.md            # This navigation hub
 ```
 
-#### Step 1: Schema 정의 (@repo/schema)
-
-```typescript
-// packages/schema/src/entities/newEntity.ts
-export const newEntitySchema = z.object({
-  id: z.string(),
-  // ... fields
-});
-
-// 💡 Why: @repo/schema가 클라이언트-서버 타입 계약의 Single Source of Truth
-```
-
-#### Step 2: Model 타입 추출 (entities/\*/model)
-
-```typescript
-// entities/newEntity/model/index.ts
-import { newEntitySchema } from '@repo/schema';
-import { z } from 'zod';
-
-export type NewEntity = z.infer<typeof newEntitySchema>;
-
-// 💡 Why: z.infer로 타입 추출하여 Schema와 동기화 보장
-```
-
-#### Step 3: API & Local DataSource 구현
-
-```typescript
-// entities/newEntity/api/newEntity.ts (Remote)
-export const fetchAllNewEntities = async () => {
-  const response = await apiClient.get('/newEntities');
-  return response.data;
-};
-
-// entities/newEntity/lib/newEntity-local.ts (Local)
-export const getNewEntitiesLocal = async () => {
-  return await db.select().from(newEntities).where(isNull(newEntities.deletedAt)).all();
-};
-
-export const createNewEntityLocal = async (data: CreateNewEntityRequest) => {
-  await withTransaction(async () => {
-    await db.insert(newEntities).values(data);
-    await addToSyncQueue('newEntities', data.id, 'CREATE', data);
-  });
-};
-
-// 💡 Why: Local은 withTransaction으로 DB+sync_queue 원자성 보장
-```
-
-#### Step 4: Repository 패턴 (가장 중요!)
-
-```typescript
-// entities/newEntity/repository/newEntity-repository.ts
-import { routeTripQuery, routeTripMutation } from '@/shared/services/offline-prep/router';
-import * as NewEntityApi from '../api/newEntity';
-import * as NewEntityLocal from '../lib/newEntity-local';
-
-export const NewEntityRepository = {
-  getAll: async () => {
-    return await routeTripQuery({
-      local: () => NewEntityLocal.getNewEntitiesLocal(),
-      remote: async () => {
-        const response = await NewEntityApi.fetchAllNewEntities();
-        return response.data;
-      },
-    });
-  },
-  create: async (data: CreateNewEntityRequest) => {
-    return await routeTripMutation({
-      local: () => NewEntityLocal.createNewEntityLocal(data),
-      remote: () => NewEntityApi.fetchCreateNewEntity(data),
-    });
-  },
-};
-
-// 💡 Why: Repository가 Router를 캡슐화하여 Data Hook은 단순하게 유지
-```
-
-#### Step 5: Data Hooks (React Query)
-
-```typescript
-// entities/newEntity/data/keys.ts
-export const newEntityQueryKeys = {
-  base: ['newEntity'] as const,
-  all: () => [...newEntityQueryKeys.base, 'all'] as const,
-};
-
-// entities/newEntity/data/useGetNewEntities.ts
-export const useGetNewEntities = () => {
-  return useQuery({
-    queryKey: newEntityQueryKeys.all(),
-    queryFn: () => NewEntityRepository.getAll(),
-  });
-};
-
-// 💡 Why: Data Hook은 Repository만 호출, Router/Transaction 신경 안 씀
-```
-
-**디버깅 팁**:
-
-- sync_queue 테이블 확인: `SELECT * FROM sync_queue WHERE status = 'pending'`
-- 활성화 상태 확인: `getTripActivationStatusDetail(tripId)`
-
-**상세 가이드**:
-
-- [Schema CLAUDE.md](./packages/schema/CLAUDE.md) - 스키마 정의 상세
-- [architecture.md](./.claude/core/architecture.md) - Entity 폴더 구조
-- [selective-activation-architecture.md](./.claude/core/selective-activation-architecture.md) - 전체 아키텍처
-
-</details>
-
-### <a id="sync-debug"></a>🔧 Debug Sync Issues
-
-<details>
-<summary><strong>체크리스트 (2분)</strong></summary>
-
-**대부분의 동기화 문제는 이 3가지**:
-
-#### 1. Router 사용 확인
-
-```typescript
-// 🔍 찾아볼 안티패턴
-await db.select(); // ❌ Router 없이 직접 접근
-await api.get(); // ❌ Router 없이 직접 호출
-
-// ✅ 올바른 패턴
-await routeTripQuery({
-  local: () => db.select().from(trips),
-  remote: () => api.get('/trips'),
-});
-
-// 💡 놓치면: 활성화된 여행은 로컬에만 있는데 서버 API 호출 → 404 에러
-```
-
-#### 2. Transaction 확인
-
-```typescript
-// 🔍 찾아볼 안티패턴
-await db.insert(trips).values(data);
-await addToSyncQueue(...);  // ❌ 따로 실행
-
-// ✅ 올바른 패턴
-await withTransaction(async () => {
-  await db.insert(trips).values(data);
-  await addToSyncQueue(...);
-});
-
-// 💡 실제 버그 사례: DB insert 성공 → addToSyncQueue 실패 → 데이터는 있는데 서버 전송 안 됨
-```
-
-#### 3. 활성화 상태 확인
-
-```typescript
-// 디버깅 코드
-import { getTripActivationStatusDetail } from '@/shared/services/offline-prep/metadata';
-
-const status = await getTripActivationStatusDetail(tripId);
-console.log(status);
-// {
-//   isActivated: true,
-//   hasLocalData: true,
-//   activatedAt: "2024-03-15T10:00:00Z",
-//   ...
-// }
-```
-
-**그래도 안 되면**:
-
-1. [selective-activation-architecture.md - 디버깅 가이드](./.claude/core/selective-activation-architecture.md#-디버깅-가이드) - 상세 디버깅 가이드
-2. sync_queue 테이블 직접 확인
-3. withTransaction 사용 여부 재확인
-
-</details>
-
-### <a id="datetime-utils"></a>🕐 Work with Dates/Times
-
-<details>
-<summary><strong>Utils 목록 (1분)</strong></summary>
-
-```typescript
-import {
-  formatISOToLocalDate,
-  formatISOToLocalTime,
-  formatISOToLocalDateTime,
-  combineDateTimeToISO,
-} from '@/shared/lib/datetime';
-
-// 표시용 (59회 사용)
-formatISOToLocalDate(iso); // "2024-03-15"
-formatISOToLocalTime(iso); // "14:30"
-formatISOToLocalDateTime(iso); // "2024-03-15 14:30"
-
-// Form 변환용
-combineDateTimeToISO(date, time); // Form → ISO
-dateToISODateTime(dateString); // "2024-03-15" → ISO
-
-// 비교용
-isSameDay(iso1, iso2); // boolean
-
-// ❌ Never (7개 파일 중복 발견)
-const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString('ko-KR');
-};
-// 문제: 일관성 깨짐, 중복 코드
-```
-
-**핵심 정책**:
-
-- 모든 시간은 ISO 8601 형식으로 저장
-- 표시할 때만 로컬 포맷으로 변환
-- SQLite: TEXT 타입, PostgreSQL: TIMESTAMPTZ
-
-**상세**: [time.md](./.claude/core/time.md) - 시간 처리 완전 가이드
-
-</details>
-
-### <a id="currency-utils"></a>💰 Display Currency/Amounts
-
-<details>
-<summary><strong>Currency Utils (1분)</strong></summary>
-
-```typescript
-import { formatCurrencyDisplay, groupExpensesByCurrency, getPrimaryCurrency } from '@/shared/lib/currency';
-
-// 표시용 (59회 사용)
-formatCurrencyDisplay(1234567, 'KRW'); // "KRW 1,234,567"
-formatCurrencyDisplay(1234.56, 'USD'); // "USD 1,234.56"
-
-// 그룹화
-groupExpensesByCurrency(expenses);
-// { KRW: [...], USD: [...] }
-
-// 주 통화 선택
-getPrimaryCurrency(expenses); // 가장 많이 사용된 통화 반환
-```
-
-**핵심 정책**:
-
-- **KRW/JPY**: 소수점 없음 (정수만)
-- **USD/EUR**: 소수점 2자리
-- **환율 변환 없음**: 통화별 독립 관리
-- **천 단위 구분자**: 모든 통화 적용
-
-**상세**: [currency.md](./.claude/features/currency.md) - 통화 처리 정책
-
-</details>
-
-### <a id="form-pattern"></a>📝 Implement Forms
-
-<details>
-<summary><strong>Form Pattern (3분)</strong></summary>
-
-```typescript
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { combineDateTimeToISO } from '@/shared/lib/datetime';
-import { tripSchema } from '@repo/schema';
-
-const form = useForm({
-  resolver: zodResolver(tripSchema),
-  defaultValues: {
-    name: '',
-    date: '',
-    time: '',
-  },
-});
-
-const onSubmit = form.handleSubmit(async (data) => {
-  // 날짜/시간 결합
-  const startDateTime = combineDateTimeToISO(data.date, data.time);
-
-  await createMutation.mutateAsync({
-    ...data,
-    startDateTime,
-  });
-});
-
-// 💡 Why: react-hook-form + Zod로 타입 안전성과 검증 동시 해결
-```
-
-**상세**: [form.md](./.claude/features/form.md) - 폼 구현 패턴
-
-</details>
-
-### <a id="component-guide"></a>🎨 Build UI Components
-
-<details>
-<summary><strong>Component Checklist (3분)</strong></summary>
-
-```typescript
-// 1. 컴포넌트 위치
-// packages/ui/src/components/      - 공통 컴포넌트
-// apps/client/src/entities/{entity}/ui/  - 도메인별 컴포넌트
-
-// 2. Props 타입 정의
-type ComponentProps = {
-  // Props...
-};
-
-// 3. 외부 margin 금지 (재사용성)
-// ❌ Bad: style={{ margin: 10 }}
-// ✅ Good: 부모가 margin 제어
-<View style={{ marginBottom: 16 }}>
-  <MyComponent />  {/* 컴포넌트는 margin 없음 */}
-</View>
-
-// 4. 날짜/통화 표시는 유틸 사용
-import { formatISOToLocalDate } from '@/shared/lib/datetime';
-import { formatCurrencyDisplay } from '@/shared/lib/currency';
-
-// 💡 Why: 일관된 포맷, 중복 방지
-```
-
-**상세**:
-
-- [UI CLAUDE.md](./packages/ui/CLAUDE.md) - UI 철학
-- [components.md](./.claude/core/components.md) - 작성 규칙
-
-</details>
-
-### <a id="api-endpoint"></a>🌐 Add API Endpoint
-
-<details>
-<summary><strong>API Endpoint Checklist (5분)</strong></summary>
-
-#### Step 1: Schema 정의 (packages/schema)
-
-```typescript
-// packages/schema/src/requests/trip.ts
-export const createTripRequest = z.object({
-  id: z.string(), // Client-Side ID: 클라이언트가 생성
-  name: z.string(),
-  startDate: z.string(),
-  endDate: z.string(),
-});
-
-// packages/schema/src/responses/trip.ts
-export const tripResponse = z.object({
-  id: z.string(),
-  name: z.string(),
-  // ... fields
-});
-
-// 💡 Why: 클라이언트-서버 타입 계약
-```
-
-#### Step 2: Server Route (apps/server)
-
-```typescript
-// apps/server/src/routes/trips.ts
-import { createTripRequest } from '@repo/schema';
-
-app.post('/api/trips', async (req, res) => {
-  const data = createTripRequest.parse(req.body);
-
-  // ✅ Client-Side ID: 클라이언트 ID 그대로 수용
-  await db.insert(trips).values(data);
-
-  res.json({ success: true });
-});
-
-// 💡 Why: 클라이언트가 ID 생성 → 오프라인 작동 가능
-```
-
-#### Step 3: Client Hook (apps/client)
-
-```typescript
-// apps/client/src/entities/trip/data/useCreateTrip.ts
-import { generateId } from '@/shared/services/id/ulid';
-import { routeTripMutation } from '@/shared/services/offline-prep/router';
-import { withTransaction } from '@/shared/db/utils';
-
-export const useCreateTrip = () => {
-  return useMutation({
-    mutationFn: async (data) => {
-      const id = generateId(); // 클라이언트 ID 생성
-
-      await routeTripMutation({
-        local: () =>
-          withTransaction(async () => {
-            await db.insert(trips).values({ id, ...data });
-            await addToSyncQueue('trips', id, 'CREATE');
-          }),
-        remote: () => api.post('/trips', { id, ...data }),
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: tripQueryKeys.all() });
-    },
-  });
-};
-
-// 💡 Why: Router가 활성화 상태 체크, withTransaction으로 원자성 보장
-```
-
-**상세**:
-
-- [Server CLAUDE.md](./apps/server/CLAUDE.md) - API 구조
-- [api-data.md](./.claude/core/api-data.md) - API 레이어 패턴
-
-</details>
-
----
-
-## 🚨 Common Pitfalls (자주 하는 실수)
-
-> **가장 많이 발생하는 버그 Top 3**
-
-### ❌ Pitfall 1: Router 미사용 (치명적!)
-
-```typescript
-// ❌ Bad - 50% 버그의 원인
-const trips = await db.select().from(trips);
-const response = await api.get('/trips');
-
-// ✅ Good
-const trips = await routeTripQuery({
-  local: () => db.select().from(trips),
-  remote: () => api.get('/trips'),
-});
-
-// 💡 놓치면: 활성화된 여행은 로컬에만 있는데 서버 호출 → 404 에러
-// 또는 비활성 여행은 서버에만 있는데 로컬 조회 → 빈 배열
-```
-
-**이유**: Router가 활성화 상태를 자동으로 체크해서 로컬/서버 분기. 이게 **프로젝트의 핵심**!
-
-### ❌ Pitfall 2: withTransaction 없이 sync_queue 추가
-
-```typescript
-// ❌ Bad - 원자성 보장 안 됨
-await db.insert(trips).values(data);
-await addToSyncQueue('trips', id, 'CREATE');
-// 문제: DB 실패 시 sync_queue만 남음 → Ghost 데이터
-// 문제: DB 성공, sync_queue 실패 → 서버 동기화 안 됨
-
-// ✅ Good
-await withTransaction(async () => {
-  await db.insert(trips).values(data);
-  await addToSyncQueue('trips', id, 'CREATE');
-});
-
-// 💡 Why: 둘 중 하나만 성공하면 데이터 불일치. 둘 다 성공 or 둘 다 롤백
-```
-
-**실제 버그 사례**:
-
-- 여행 데이터는 로컬에 있는데 서버에 없음
-- sync_queue는 있는데 실제 데이터는 없음
-
-### ❌ Pitfall 3: formatDate 중복 정의
-
-```typescript
-// ❌ Bad (7개 파일에서 중복 발견됨)
-const formatDate = (date: string) => {
-  return new Date(date).toLocaleDateString('ko-KR');
-};
-
-// ✅ Good
-import { formatISOToLocalDate } from '@/shared/lib/datetime';
-const displayDate = formatISOToLocalDate(trip.startDate);
-
-// 💡 Why: 공통 유틸이 있는데 중복 구현하면 일관성 깨짐
-```
-
-### ❌ Pitfall 4: ulid 직접 사용
-
-```typescript
-// ❌ Bad (React Native 호환 문제)
-import { ulid } from 'ulid';
-const id = ulid();
-
-// ✅ Good
-import { generateId } from '@/shared/services/id/ulid';
-const id = generateId();
-
-// 💡 Why: React Native 환경에서 ulid 직접 사용 시 에러 가능
-```
-
-### ❌ Pitfall 5: 비활성화 시 sync_queue 무시 (데이터 손실!)
-
-```typescript
-// ❌ Bad - 데이터 손실 위험
-await db.update(tripActivations).set({ isActivated: false });
-await db.delete(schedules).where(eq(schedules.tripId, tripId));
-await db.delete(expenses).where(eq(expenses.tripId, tripId));
-
-// 문제 시나리오:
-// 1. 오프라인에서 expense 생성 → sync_queue에 PENDING
-// 2. 비활성화 + cleanup → Hard delete 실행
-// 3. 네트워크 복구 → sync engine 시도
-// 4. ❌ 로컬 DB에 데이터 없음 → 서버 전송 실패
-// 5. 결과: 데이터 영구 손실 💀
-
-// ✅ Good - 3단계 삭제 시스템
-// Phase 1: sync_queue 체크
-const hasPending = await hasPendingTasksForTrip(tripId);
-
-await withTransaction(async () => {
-  await db.update(tripActivations).set({
-    isActivated: false,
-    cleanupPending: hasPending, // ← 지연 플래그
-  });
-
-  // PENDING 없으면 즉시 Soft delete
-  if (!hasPending) {
-    await db.update(schedules).set({ deletedAt: now });
-    await db.update(expenses).set({ deletedAt: now });
-  }
-});
-
-// Phase 2: Background Job이 sync 완료 후 Soft delete 실행
-// Phase 3: 7일 후 Vacuum이 Hard delete 실행
-```
-
-**핵심 포인트**:
-
-- `hasPendingTasksForTrip()` - sync_queue 체크 필수
-- `cleanupPending` 플래그 - 지연된 cleanup 제어
-- Soft Delete (deletedAt 설정) → Hard Delete 없음!
-- Background Job이 sync 완료 확인 후 cleanup
-
-**실제 버그 사례**: commit f0b5039 (2025-11-20) 전에는 sync_queue 체크 없이 즉시 Hard delete하여 데이터 손실 발생
-
-**상세**: [Decision: Deactivation Sync Queue Safety](./.claude/decisions/2025-11-20-deactivation-sync-queue-safety.md)
-
----
-
-## 🏗 Core Architecture (Level 3 - 아키텍처)
-
-### The Big Picture (2분)
-
-```
-사용자 요청
-    ↓
-Component/Hook
-    ↓
-🌟 Activation Router (핵심!)
-    ↓
-┌────┴────┐
-활성화?    비활성?
-↓          ↓
-Local      Remote
-SQLite     API
-↓
-sync_queue
-↓
-Background Sync
-```
-
-**핵심 컨셉**:
-
-1. **Activation Router** (가장 중요!)
-   - 모든 데이터 접근의 진입점
-   - 활성화 상태에 따라 Local/Remote 자동 분기
-   - 4개 함수: `routeTripQuery/Mutation`, `routeChildQuery/Mutation`
-
-2. **Activation System**
-   - "활성화 = 오프라인 보험, 비활성 = 온라인 전용"
-   - 동시에 1개 여행만 활성화 가능 (저장 공간 효율)
-   - `tripActivations` 테이블이 Single Source of Truth
-
-3. **Client-Side ID Generation**
-   - 클라이언트가 ID 생성 (`generateId()`)
-   - 서버는 클라이언트 ID 그대로 수용
-   - 오프라인 작동의 핵심
-
-4. **withTransaction Pattern**
-   - DB 작업 + sync_queue를 원자적으로
-   - 둘 다 성공 or 둘 다 롤백
-
-### Architecture Decisions & Why
-
-| 결정          | 선택                | 이유                       | 버려진 대안                  |
-| ------------- | ------------------- | -------------------------- | ---------------------------- |
-| **ID 생성**   | Client ULID         | 오프라인 작동, 시간순 정렬 | Server 생성 (네트워크 필요)  |
-| **로컬 DB**   | SQLite + Drizzle    | React Native 최적화        | Realm (무거움), WatermelonDB |
-| **동기화**    | sync_queue (Outbox) | 트랜잭션 보장, 단순함      | CRDT (복잡), Event Sourcing  |
-| **충돌 해결** | Last-Write-Wins     | 초기 버전 단순성           | Vector Clock, CRDT           |
-| **활성화**    | 선택적 (1개)        | 200MB/여행, 저장 공간      | 전체 로컬 (용량 부족)        |
-| **상태 관리** | React Query         | 서버 상태 최적화           | Zustand (로컬용), Redux      |
-
-**설계 과정**:
-
-- [2025-11-06 Session](./.claude/sessions/2025-11-06-activation-architecture-design.md) - 아키텍처 설계 전체 논의
-- 초기 고려: temp_cache 방식 → 복잡도 증가로 폐기
-- 최종 결정: 선택적 활성화 (1개 제한)
-
-### Data Flow Pattern
-
-**활성화된 여행 (Local-First)**:
-
-```
-Component → Router (활성화 체크) → Local SQLite
-                                      ↓
-                                  sync_queue
-                                      ↓
-                            Background Sync → Server
-```
-
-**비활성 여행 (Server-First)**:
-
-```
-Component → Router (활성화 체크) → Remote Server API
-```
-
-**상세**: [selective-activation-architecture.md](./.claude/core/selective-activation-architecture.md)
-
----
-
-## 📋 Development Principles (핵심 철학)
-
-### 핵심 철학 5가지
-
-1. **Selective Local-First**
-   - 활성화된 여행 = 로컬이 진실의 원천 (오프라인 보험)
-   - 비활성 여행 = 서버가 진실의 원천 (온라인 전용)
-   - 서버 동기화도 중요하게 다룸
-
-2. **Client-Side ID Generation**
-   - Client가 ULID 생성 → Server는 수용
-   - 충돌 없는 오프라인 작동
-   - ULID 사용으로 시간순 정렬 보장
-
-3. **Explicit over Magic**
-   - Router 명시적 사용
-   - withTransaction 명시적 사용
-   - 자동화보다 명확한 의도 표현
-
-4. **Progressive Enhancement**
-   - MVP 먼저, Production은 나중에
-   - 작동하는 코드 > 완벽한 코드
-   - 기존 구조 있으면 따르고, 없으면 유연하게
-
-5. **Type Safety**
-   - @repo/schema가 Source of Truth
-   - any 금지, z.infer 사용
-   - 런타임 검증과 타입이 항상 일치
-
-### 개발 워크플로우
-
-1. **[사고 단계]** 요구사항 받으면 먼저 단계별 의사코드(pseudocode) 작성
-2. **[확인 단계]** 수립된 계획에 대해 사용자 확인 요청
-3. **[실행 단계]** 확인된 계획에 따라 코드 구현
-4. **[유연성]** 기존 패턴과 충돌시 → 이유 설명 → 대안 제시 → 확인 후 진행
-
-### 구현 레벨
-
-#### 🟢 MVP Level (기본값)
-
-- **목표**: 빠른 구현, 작동하는 코드
-- **원칙**: 기존 구조 있으면 따르고, 없으면 유연하게
-
-#### 🔴 Production Level
-
-- **목표**: 완전한 베스트 프랙티스
-- **원칙**: 없으면 만들어서라도 완벽하게
-- **사용시**: "production 레벨로" 명시할 때
-
-### 코드 품질 기준
-
-- **완성도**: TODO 없이 100% 구현
-- **가독성**: 명확하고 이해하기 쉬운 코드 (구체적 함수명, 의미 있는 변수명)
-- **확장성**: 재사용성과 유지보수성 고려 (DRY 원칙)
-- **타입 안전성**: any 사용 금지, 타입 가드 활용, z.infer 사용
-
-### 커뮤니케이션 원칙
-
-- **간결함**: 핵심만 전달 (불필요한 설명 지양)
-- **정직함**: 모르는 것은 명확히 표현 (추측하지 않기)
-- **유연성**: 더 나은 방법이 있다면 제안 (이유와 함께)
-
----
-
-## 🗂 Project Structure
-
-```
-apps/
-  client/                      # React Native App
-    src/
-      entities/                # FSD Architecture
-        trip/
-          data/
-            keys.ts            # 🔥 Query Key Factory (필수!)
-            useGetTrips.ts     # routeTripQuery 사용
-            useCreateTrip.ts   # withTransaction 사용
-          ui/
-            TripCard.tsx       # 컴포넌트
-        schedule/
-        expense/
-
-      shared/
-        services/
-          offline-prep/
-            router.ts          # 🔥 핵심! Router 4개 함수
-            metadata.ts        # 활성화 상태 조회
-          sync/
-            queue.ts           # sync_queue 관리
-          id/
-            ulid.ts            # generateId() wrapper
-
-        lib/
-          datetime.ts          # 🔥 시간 유틸 (59회 사용)
-          currency.ts          # 🔥 통화 유틸 (59회 사용)
-
-        db/
-          index.ts             # SQLite 초기화
-          utils.ts             # withTransaction
-          schema.ts            # Drizzle 스키마
-
-  server/                      # Express API
-    src/
-      routes/
-        trips.ts               # Client-Side ID 수용
-      db/
-        index.ts               # PostgreSQL
-
-packages/
-  schema/                      # 🔥 Single Source of Truth
-    src/
-      entities/                # 도메인 모델
-      requests/                # API 요청
-      responses/               # API 응답
-      sync/                    # 동기화 스키마
-
-  ui/                          # UI 컴포넌트
-    src/
-      components/              # shadcn/ui 기반
-```
-
-**파일 구조 철학**: [architecture.md](./.claude/core/architecture.md)
-
----
-
-## 🛠 Tech Stack
-
-### Frontend (React Native + Expo)
-
-- React Native + Expo (SDK 51)
-- TypeScript
-- React Query (서버 상태)
-- Drizzle ORM + SQLite (로컬 DB)
-- React Hook Form + Zod (폼 검증)
-- Expo Router (파일 기반 라우팅)
-
-### Backend (Node.js + Express)
-
-- Express + TypeScript
-- PostgreSQL (Neon)
-- Drizzle ORM
-- Zod (검증)
-
-### Shared Packages
-
-- **@repo/schema** - Zod 스키마 (Single Source of Truth) ⭐
-- **@repo/ui** - shadcn/ui 기반 컴포넌트
-- **@repo/db** - Prisma 스키마
-
----
-
-## ✅ 완료된 기능 (Completed Features)
-
-### 선택적 활성화 시스템 (Selective Activation)
-
-**상태**: 핵심 구현 완료 (2025-11-16 ~ 2025-11-19, 22개 커밋)
-
-**목적**: 오프라인 지도 통합을 위한 선택적 데이터 동기화
-
-**핵심 철학**:
-
-> "활성화 = 오프라인 보험, 비활성 = 온라인 전용"
-
-**주요 특징**:
-
-- **활성화된 여행**: 완전 오프라인 (Local-First 유지) - 최대 200MB
-- **비활성 여행**: 온라인 전용 (Server-First) - 모든 Trip 메타데이터는 로컬
-- **저장 공간 효율화**: 동시에 1개 여행만 활성화 가능
-- **자동 관리**: 여행 종료 + 7일 후 자동 비활성화 (예정)
-
-**아키텍처**:
-
-```text
-Entity Layer → Activation Router (4개 함수)
-                ↓
-    ┌───────────┴───────────┐
-    │                       │
-[활성화된 여행]        [비활성 여행]
-    ↓                       ↓
-Local SQLite          Remote Server
-    ↓
-Sync Engine (백그라운드)
-```
-
-**완료된 작업**:
-
-- ✅ tripActivations 테이블 생성 (Single Source of Truth)
-- ✅ Router 4개 함수 분리 (routeTripQuery/Mutation, routeChildQuery/Mutation)
-- ✅ offline-prep 서비스 레이어 (router, metadata, errors)
-- ✅ Entity Hooks 통합 (Trip, Schedule, Expense)
-- ✅ UI 컴포넌트 (ActivationBadge, ProgressDrawer, TripCard)
-- ✅ 활성화/비활성화 기능 (useActivateTrip, useDeactivateTrip)
-- ✅ 오프라인 지도 연동
-- ✅ 디버그 도구 추가
-- ✅ 통화 자동 설정 (ISO 국가 코드 기반)
-- ✅ trips.activated 필드 제거 (데이터 정합성 보장)
-
-**아키텍처 확정 사항**:
-
-- tripActivations 테이블을 활성화 상태의 단일 진실 공급원으로 사용
-- Trip 작업 vs Child(Schedule/Expense) 작업의 의미적 분리
-- Service 레이어 책임 명확화 (getTripActivationStatusDetail)
-
-**남은 작업**:
-
-- [x] Pull 동기화 기본 구현 (`pullChanges()` — `lastSyncedAt` 기반 증분 동기화)
-- [ ] Pull 동기화 고도화 (현재 activate 시 1회 → 주기적 Pull)
-- [ ] 자동 비활성화 Background Job (여행 종료 + 7일)
-- [ ] 활성화 진행률 실시간 업데이트
-- [ ] 오프라인 지도 다운로드 재시도 로직
-
-**관련 문서**:
-
-- [Session: 아키텍처 설계](./.claude/sessions/2025-11-06-activation-architecture-design.md)
-- [Feature Guide](./.claude/features/activation-system.md)
-- [selective-activation-architecture.md](./.claude/core/selective-activation-architecture.md)
-
-### Google/Apple OAuth 인증 시스템
-
-**상태**: 핵심 구현 완료 (2025-12-23, 12개 커밋)
-
-**목적**: 사용자 인증 및 계정별 데이터 분리
-
-**핵심 철학**:
-
-> "인증 = 데이터 소유권, 토큰 = 서버 동기화 권한"
-
-**주요 특징**:
-
-- **Google/Apple OAuth**: 소셜 로그인으로 간편 인증
-- **JWT 토큰**: Access Token (15분) + Refresh Token (7일, Rolling)
-- **순환 참조 해결**: Axios Instance Factory 패턴
-- **userId 필터링**: 로컬 데이터 계정별 분리
-- **세션 만료 처리**: SessionExpiredBanner + 토큰 자동 갱신
-
-**아키텍처**:
-
-```text
-LoginScreen → OAuth Provider → Server Auth → JWT 발급
-                                    ↓
-                            Client Token Storage
-                                    ↓
-                            Auth Interceptor (자동 갱신)
-                                    ↓
-                            API 요청 + userId 필터링
-```
-
-**완료된 작업**:
-
-- ✅ Google OAuth 로그인
-- ✅ Apple OAuth 로그인
-- ✅ JWT 토큰 발급/갱신/검증
-- ✅ Auth Interceptor (401 처리, 토큰 갱신)
-- ✅ Axios Instance Factory (순환 참조 해결)
-- ✅ userId 기반 로컬 데이터 필터링
-- ✅ SessionExpiredBanner
-- ✅ requireAuth 미들웨어
-
-**관련 문서**:
-
-- [Decision: Auth Axios Factory](./.claude/decisions/2025-12-23-auth-axios-factory.md)
-
----
-
-## 🚧 작업 예정 (Planned Features)
-
----
-
-## 📋 Quick Commands
+## Tech Stack
+
+| Area | Stack |
+| --- | --- |
+| Mobile client | React Native, Expo, TypeScript, NativeWind, React Query |
+| Local data | SQLite, Drizzle-style local schema, sync_queue |
+| Server | Node.js, Express, TypeScript, PostgreSQL, Drizzle ORM |
+| Shared contract | `@repo/schema`, Zod |
+| Workspace tooling | pnpm workspaces |
+
+## Quick Commands
 
 ```bash
-# 개발 환경 (워크스페이스 필터 사용)
-pnpm client start           # Expo 클라이언트 실행
-pnpm server dev             # 서버 개발 모드 (tsx watch)
+# 개발 환경
+pnpm client start
+pnpm server dev
 
-# 데이터베이스 (서버 워크스페이스)
-pnpm server db:push         # Drizzle 스키마 푸시
-pnpm server db:studio       # Drizzle Studio 실행
-pnpm server db:generate     # Drizzle 마이그레이션 생성
+# 데이터베이스
+pnpm server db:push
+pnpm server db:studio
+pnpm server db:generate
 
-# 빌드 & 검증
-pnpm server build           # 서버 빌드
-pnpm server typecheck       # 서버 타입 체크
-pnpm lint                   # 전체 Lint 검사
-
-# 스키마 패키지
-pnpm schema build           # @repo/schema 빌드
+# 빌드/검증
+pnpm server build
+pnpm server typecheck
+pnpm lint
+pnpm schema build
 ```
 
----
+## Documentation Rules
 
-## 📝 Project History
+- 루트는 탐색과 핵심 불변식만 소유한다.
+- 상세 정책은 가장 작은 owner 문서에 둔다.
+- 기존 history, session, reference, archive 문서를 삭제하거나 현재 정책처럼 고치기 전에 [Document Map](./.claude/README.md)에서 역할을 확인한다.
+- active guide와 코드가 충돌하면 코드를 확인하고 active guide만 최소 수정한다.
+- 정책이나 하네스 구조가 바뀌면 [decisions/](./.claude/decisions/)에 결정 기록을 남긴다.
+- `.claude/commands/`는 Claude command reference다. Codex로 자동 이식하지 않는다.
 
-> **최신 정책**: v3.0 Policy-Driven Extension (2025-11)
-> **최신 기능**: Google/Apple OAuth 인증 (2025-12)
+## Claude Commands
 
-**⚠️ History는 반드시 [CHANGELOG.md](./.claude/CHANGELOG.md)를 참조하세요**
-
-CHANGELOG.md에서 확인할 수 있는 내용:
-
-- 📅 전체 변경 이력 (날짜별 정리)
-- 🔄 정책 버전 관리 (v1.0 → v2.0 Selective Activation → v3.0 Policy-Driven Extension)
-- 📖 Migration Guide (코드 변경 방법)
-- 📊 Statistics (커밋, 문서, ADR 수)
-
----
-
-## 🤝 Contributing Guidelines
-
-이 문서는 AI 어시스턴트가 프로젝트를 이해하고 일관된 코드를 생성하도록 돕는 가이드입니다.
-
-### 문서 업데이트 시
-
-1. **Root CLAUDE.md 우선**: 핵심 패턴은 여기에
-2. **Progressive Disclosure 유지**: 30초 → 5분 → 상세 구조
-3. **실제 코드 기반**: 추상적 원칙보다 구체적 사용법
-4. **맥락 추가**: "💡 Why" 설명 항상 포함
-
-### 코드 작성 시
-
-- 기존 패턴을 최대한 따르되, 더 나은 방법이 있다면 제안
-- 불확실한 부분은 추측하지 말고 명확히 질문
-- 코드 작성 전 계획을 먼저 공유하고 확인
-
----
-
-**Last Updated**: 2026-03-21
+문서 관리 command 자료는 [commands/](./.claude/commands/)에 있다. Codex 작업에서는 참고 자료로만 읽고, Claude 전용 실행 전제를 그대로 재현하지 않는다.

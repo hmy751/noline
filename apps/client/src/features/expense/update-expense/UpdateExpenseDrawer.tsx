@@ -87,7 +87,7 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
   const onValid = (data: ExpenseUpdateFormData) => {
     if (!expenseData) return;
 
-    // ✅ Local-First: 로컬 DB 업데이트 + sync_queue 기록
+    // ✅ Selective Local-First: 로컬 DB 업데이트 + sync_queue 기록
     updateExpense(
       {
         id: expenseData.id,

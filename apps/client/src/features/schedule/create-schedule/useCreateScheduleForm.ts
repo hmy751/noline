@@ -70,7 +70,7 @@ export const useCreateScheduleForm = ({ tripId, selectedLocation, onSuccess }: U
 
     createSchedule(
       {
-        id, // ✅ Echo: client-generated ID
+        id, // ✅ Client-Side ID
         tripId,
         title: data.title,
         location: data.location,

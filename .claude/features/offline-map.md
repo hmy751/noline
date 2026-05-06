@@ -1,6 +1,8 @@
 # Offline Map Feature Guide
 
 > Mapbox 오프라인 지도 다운로드 및 관리 구현 가이드
+>
+> 문서 상태: active source다. 파일 경로와 컴포넌트명은 2026-05-06 정비 패스에서 현재 코드 기준으로 갱신했다. 이후 코드와 충돌하면 코드를 확인한 뒤 이 문서만 최소 수정한다.
 
 ## 📌 개요
 
@@ -61,8 +63,8 @@ apps/client/src/
 │   └── useCreateScheduleForm.ts         # 자동 다운로드 트리거
 ├── shared/
 │   ├── db/
-│   │   ├── index.ts                     # offline_cities 테이블 생성
-│   │   └── schema/offline-city.ts       # Drizzle 스키마
+│   │   ├── index.ts                     # DB 초기화
+│   │   └── schema.ts                    # offline_cities Drizzle 스키마
 │   └── services/offline-map/
 │       └── useOfflineMapCleanup.ts      # 자동 정리
 └── app/
@@ -73,7 +75,7 @@ apps/client/src/
 
 ### 1. DB 스키마 (offline_cities)
 
-**위치**: `apps/client/src/shared/db/schema/offline-city.ts`
+**위치**: `apps/client/src/shared/db/schema.ts`
 
 ```typescript
 import { sqliteTable, integer, text } from 'drizzle-orm/sqlite-core';

@@ -5,6 +5,8 @@ description: TypeScript 코드 스타일 & 모범 사례 - interface와 type 사
 
 # TypeScript 코드 스타일 가이드
 
+> 문서 상태: active source다. TypeScript/Zod 스타일의 현재 기준으로 읽되, 예시는 React Native/Expo 프로젝트 구조에 맞춰 번역한다.
+
 ## ✅ 타입 정의 규칙 (DO)
 
 ### 1. interface vs type 사용 기준
@@ -161,10 +163,10 @@ const value = data!.value!.nested!;
 ## 📦 Import 순서 (필수)
 
 ```typescript
-// 1️⃣ React & Next.js
+// 1️⃣ React, React Native, Expo
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import Image from 'next/image';
+import { View, Text } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
 
 // 2️⃣ 외부 라이브러리 (알파벳 순)
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -174,17 +176,13 @@ import clsx from 'clsx';
 import { z } from 'zod';
 
 // 3️⃣ @repo/* 패키지 (알파벳 순)
-import Button from '@repo/ui/Button';
-import Input from '@repo/ui/Input';
-import { VALIDATION } from '@repo/constant/message';
-import { LoginRequestSchema } from '@repo/schema/user';
-import { useToastStore } from '@repo/store/useToastStore';
+import { Pressable, Input } from '@repo/ui';
+import { createTripRequestSchema } from '@repo/schema';
 
 // 4️⃣ 앱 내부 절대 경로 (@/*) (알파벳 순)
-import { fetchLogin } from '@/_apis/user';
-import { useGetUser } from '@/_data/user';
-import { errorService } from '@/_libs/error/service';
-import useUserStore from '@/_store/zustand/useUserStore';
+import { useGetTrips } from '@/entities/trip';
+import { formatDate } from '@/shared/lib/datetime';
+import { useNetworkStatus } from '@/shared/store/network';
 
 // 5️⃣ 상대 경로 (가까운 순서)
 import styles from './Component.module.css';
@@ -249,10 +247,11 @@ const fetchAndProcessData = async () => {
   try {
     const response = await fetchData();
     const validated = DataSchema.safeParse(response);
-    if (!validated.success) throw new ValidationError();
+    if (!validated.success) throw new Error('Invalid data');
     return processData(validated.data);
   } catch (error) {
-    errorService.handle(error);
+    console.error('Failed to fetch and process data:', error);
+    throw error;
   }
 };
 
@@ -261,7 +260,7 @@ const fetchAndProcessData = () => {
   return fetchData()
     .then((response) => DataSchema.parse(response))
     .then((data) => processData(data))
-    .catch((error) => errorService.handle(error));
+    .catch((error) => console.error(error));
 };
 
 // ✅ DO: 단일 책임 원칙
@@ -311,14 +310,12 @@ const fetchUser = async (id: number): Promise<User | null> => {
     const validated = UserSchema.safeParse(response);
 
     if (!validated.success) {
-      throw new ValidationError('Invalid user data');
+      throw new Error('Invalid user data');
     }
 
     return validated.data;
   } catch (error) {
-    if (error instanceof APIError) {
-      errorService.handle(error);
-    }
+    console.error('Failed to fetch user:', error);
     return null;
   }
 };
@@ -338,7 +335,7 @@ const fetchUser = async (id: number) => {
  *
  * @param token - JWT 인증 토큰
  * @returns 검증된 사용자 정보 또는 null
- * @throws {AuthError} 토큰이 만료되었거나 유효하지 않은 경우
+ * @throws {Error} 토큰이 만료되었거나 유효하지 않은 경우
  *
  * @example
  * ```typescript

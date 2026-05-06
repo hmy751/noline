@@ -6,7 +6,7 @@
 
 **프로젝트 이해 (처음 읽을 때):**
 
-- [Root CLAUDE.md](../../CLAUDE.md) - 프로젝트 정체성, MVP vs Production 레벨
+- [Root CLAUDE.md](../../CLAUDE.md) - 프로젝트 정체성, 핵심 불변식, 문서 진입점
 - [FSD Architecture](../../.claude/core/architecture.md) - @repo/ui의 역할과 계층 구조
 
 **컴포넌트 개발시 참조:**
@@ -179,15 +179,17 @@ packages/ui/
 // packages/ui/package.json
 {
   "name": "@repo/ui",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "exports": {
-    ".": "./src/index.ts",
-    "./components/*": "./src/components/*.tsx"
+    ".": "./src/index.tsx",
+    "./styles/*": "./styles/*"
   }
 }
 ```
 
-## 🧪 Testing (구현 예정)
+## 🧪 Testing (도입 후보)
+
+현재 `@repo/ui` 패키지는 `lint` 스크립트만 제공한다. 컴포넌트 테스트를 도입할 때는 아래 패턴을 기준으로 테스트 환경과 package script를 함께 추가한다.
 
 ### 컴포넌트 테스트
 

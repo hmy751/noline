@@ -257,7 +257,7 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
         ...(updateData.receiptUrl !== undefined && { receiptUrl: updateData.receiptUrl }),
         ...(updateData.scheduleId !== undefined && { scheduleId: updateData.scheduleId }),
         updatedAt: new Date(),
-        version: sql`${expenses.version} + 1`, // ✅ version 증가 (Local-First)
+        version: sql`${expenses.version} + 1`, // ✅ version 증가 (Selective Local-First sync)
       })
       .where(and(eq(expenses.id, id), eq(expenses.userId, userId), isNull(expenses.deletedAt)))
       .returning();
@@ -320,7 +320,7 @@ router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
       .set({
         deletedAt: new Date(),
         updatedAt: new Date(),
-        version: sql`${expenses.version} + 1`, // ✅ version 증가 (Local-First)
+        version: sql`${expenses.version} + 1`, // ✅ version 증가 (Selective Local-First sync)
       })
       .where(and(eq(expenses.id, id), eq(expenses.userId, userId), isNull(expenses.deletedAt)))
       .returning();

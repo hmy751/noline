@@ -13,7 +13,7 @@ import { tripQueryKeys } from './keys';
  * ```tsx
  * const { mutate, isPending } = useCreateTrip();
  * mutate({
- *   id: ulid(), // Client-Side ID: 외부에서 ID 생성
+ *   id: generateId(), // Client-Side ID: 외부에서 ID 생성
  *   name: 'Tokyo Trip',
  *   destination: 'Tokyo',
  *   country: 'Japan',

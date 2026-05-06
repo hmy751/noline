@@ -26,7 +26,7 @@ export const trips = sqliteTable('trips', {
   createdAt: text('created_at').notNull(), // ISO string
   updatedAt: text('updated_at').notNull(), // ISO string
 
-  // Local-First 필드
+  // Selective Local-First sync fields
   deletedAt: text('deleted_at'), // ISO string
   version: integer('version').default(1).notNull(),
 });
@@ -58,7 +58,7 @@ export const schedules = sqliteTable('schedules', {
   createdAt: text('created_at').notNull(), // ISO string
   updatedAt: text('updated_at').notNull(), // ISO string
 
-  // Local-First 필드
+  // Selective Local-First sync fields
   deletedAt: text('deleted_at'), // ISO string
   version: integer('version').default(1).notNull(),
 });
@@ -89,7 +89,7 @@ export const expenses = sqliteTable('expenses', {
   createdAt: text('created_at').notNull(), // ISO string
   updatedAt: text('updated_at').notNull(), // ISO string
 
-  // Local-First 필드
+  // Selective Local-First sync fields
   deletedAt: text('deleted_at'), // ISO string
   version: integer('version').default(1).notNull(),
 });
