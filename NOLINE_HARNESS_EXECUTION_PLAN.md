@@ -6,11 +6,11 @@
 
 ## Why This Exists
 
-The previous harness branches already moved Noline from one large root guide into a layered model: root guide, workspace guides, rules, guards, runbooks, context, decisions, audits, references, and archive.
+The previous harness branches already moved Noline from one large root guide into a layered model: root guide, workspace guides, rules, guards, runbooks, context, decisions, audits, sessions, and archive.
 
 The remaining problem is operational clarity. Old branches, stale tracker paths, and unclear evidence folders make the harness feel unfinished even though the main layer model is already merged.
 
-This root plan is intentionally kept because the current work is still in execution. Remove or archive it only after this execution pass is merged or explicitly superseded.
+This root plan is intentionally kept as the live execution tracker for `docs/harness-execution-cleanup`. Move it to `.claude/audits/` after the branch is merged, or archive it if a later plan supersedes this pass.
 
 ## Current Decisions
 
@@ -20,6 +20,7 @@ This root plan is intentionally kept because the current work is still in execut
 - Keep `decisions/`, `sessions/`, and `audits/` as evidence/history, not active policy.
 - Do not create `.codex/`, `.agents/`, `.claude/agents/`, or `.claude/skills/` until a repeated local tool need is proven.
 - Add an executable harness check so bridge and layer hygiene can be verified without re-reading all handoff notes.
+- Keep this root plan for this PR so the execution state is visible without digging through audit history.
 
 ## Execution Checklist
 
@@ -33,7 +34,18 @@ This root plan is intentionally kept because the current work is still in execut
 - [x] Add `scripts/check-harness.mjs`.
 - [x] Add `pnpm harness:check`.
 - [x] Run final verification after edits.
-- [ ] Decide whether to keep this plan at root for one more PR or move it to `.claude/audits/`.
+- [x] Decide whether to keep this plan at root for one more PR or move it to `.claude/audits/`.
+
+## Execution State
+
+This branch is ready for review when:
+
+- `pnpm harness:check` passes.
+- `git status --short --branch` is clean.
+- no active `.claude/references/` or `.claude/implementation/` directory exists.
+- no stale local/remote branch from the previous harness attempts remains unhandled.
+
+After merge, move this file to `.claude/audits/` with the merge outcome or archive it if a newer root plan replaces it.
 
 ## Folder Role Target
 

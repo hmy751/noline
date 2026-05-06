@@ -13,7 +13,7 @@
 - stale local unmerged branch는 삭제하고 새 브랜치 `docs/harness-execution-cleanup`에서 진행한다.
 - `.claude/implementation/`은 active/evidence 디렉터리에서 제거하고, 기존 v3 추적표와 테스트 시나리오는 `.claude/_archive/implementation/`에 보존한다.
 - `.claude/references/`는 active surface에서 제거하고, PRD/wireframe/image guide는 `.claude/_archive/references/`에 보존한다.
-- 루트에는 이번 실행 패스의 진행 계획인 `NOLINE_HARNESS_EXECUTION_PLAN.md`를 둔다.
+- 루트에는 이번 실행 패스의 진행 계획인 `NOLINE_HARNESS_EXECUTION_PLAN.md`를 둔다. 이 파일은 PR 동안 visible tracker로 유지하고, merge 이후 `.claude/audits/`로 이동하거나 후속 계획이 생기면 archive한다.
 - 반복 검증을 위해 `pnpm harness:check`를 추가한다.
 
 ## 영향

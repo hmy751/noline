@@ -80,22 +80,21 @@ pnpm harness:check
 
 이 검증은 `AGENTS.md -> CLAUDE.md` bridge, legacy 하네스 경로 부활 여부, active Markdown 링크, root 임시 계획 파일, whitespace diff를 확인한다.
 
-## 이번 패스
+## 이번 실행 패스
 
-이번 개편에서 하는 일:
+이번 정리 브랜치에서 하는 일:
 
-- `rules/`, `runbooks/`, `context/` 레이어 추가
-- 예전 `core/`와 `features/` 본문 문서를 `context/`로 이동해 깊은 맥락의 owner를 단일화
-- Claude/Codex bridge가 tool-specific 강제가 아니라 adapter 관계임을 명시
-- root/document map/guard/runbook 링크를 새 레이어 중심으로 정리
+- stale unmerged branch와 깨진 worktree를 정리하고 `main` 기준 새 브랜치에서 진행
+- 오래된 `references/`와 `implementation/` 자료를 active surface에서 제거하고 `_archive/`로 보존
+- 루트 [Noline Harness Execution Plan](../../NOLINE_HARNESS_EXECUTION_PLAN.md)에 실행 상태와 merge 이후 정리 기준을 기록
+- `pnpm harness:check`로 bridge, legacy surface, active Markdown link, whitespace diff를 반복 검증
 
-이번 개편에서 하지 않는 일:
+이번 정리 브랜치에서 하지 않는 일:
 
-- 기존 문서 삭제
 - runtime code 변경
 - Claude command를 Codex command로 자동 변환
-- `.agents/` 또는 `.codex/`를 모양상 생성
-- 로컬 agent/skill 즉시 생성
+- `.agents/`, `.codex/`, `.claude/agents/`, `.claude/skills/`를 모양상 생성
+- decisions, sessions, audits, archive history를 현재 정책처럼 재작성
 
 ## 향후 후보
 
