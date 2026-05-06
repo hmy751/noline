@@ -56,9 +56,8 @@
 
 ### Pass 3. Claude Command Hygiene
 
-- Add a `commands/README.md` explaining Claude-only status.
-- Mark command examples as templates that can contain historical paths.
-- Update command source lists only if Claude commands are still actively used.
+- Complete. `commands/README.md` explains Claude-only status and warns that examples may contain historical paths.
+- Command source lists should only be updated if Claude commands are still actively used.
 
 ## Archive Rule
 
