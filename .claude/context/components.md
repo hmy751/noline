@@ -33,7 +33,7 @@ Noline의 현재 UI 기준은 React Native/Expo, NativeWind className, `@repo/ui
 
 ## Form Components
 
-폼 UI는 [form.md](../features/form.md)를 우선한다.
+폼 UI는 [form.md](form.md)를 우선한다.
 
 - `react-hook-form`의 `Controller`로 React Native input을 연결한다.
 - field label, description, error message는 `Field` 조합을 우선 사용한다.

@@ -3,7 +3,7 @@
 > 2026-05-06 handoff for branch `docs/noline-harness-restructure`.
 > This is an audit/session continuity note, not active policy.
 
-> Follow-up: branch `docs/harness-doc-prune` adds the later `rules/`, `runbooks`, and `context` layer model. See [2026-05-06-harness-layer-followup-handoff.md](2026-05-06-harness-layer-followup-handoff.md) for the current follow-up handoff.
+> Follow-up: branch `docs/harness-doc-prune` adds the later `rules/`, `runbooks`, and `context` layer model. That follow-up also moves former `core/` and `features/` material into `.claude/context/`. See [2026-05-06-harness-layer-followup-handoff.md](2026-05-06-harness-layer-followup-handoff.md) for the current follow-up handoff.
 
 ## Why This Exists
 
@@ -68,7 +68,7 @@ The exact list may grow after this note; always check `git log`.
 - `.claude/README.md`: document role map and active reading order.
 - `.claude/harness/README.md`: Claude/Codex bridge and harness ownership rules.
 - `.claude/guards/README.md`: high-cost policy map.
-- `.claude/workflows/README.md`: repeated task entrypoints.
+- `.claude/workflows/README.md`: compatibility redirect to `runbooks/`.
 - `.claude/audits/README.md`: explains audit material is not active policy.
 - `.claude/audits/2026-05-06-doc-corpus-inventory.md`: corpus inventory and stale-risk map.
 - `.claude/audits/2026-05-06-harness-restructure-handoff.md`: this re-entry note.
@@ -83,9 +83,8 @@ Use active docs for current implementation work:
 - `.claude/README.md`
 - `.claude/harness/README.md`
 - `.claude/guards/README.md`
-- `.claude/workflows/README.md`
-- `.claude/core/`
-- Key `.claude/features/`
+- `.claude/runbooks/README.md`
+- `.claude/context/README.md`
 
 Treat these as evidence/history/source unless an active guide explicitly promotes a rule:
 
@@ -147,10 +146,10 @@ Highest priority before merge:
 Lower priority, only when relevant code areas are touched:
 
 - Review medium-risk active guides:
-  - `.claude/core/architecture.md`
-  - `.claude/core/typescript.md`
-  - `.claude/features/offline-map.md`
-  - `.claude/features/offline-routing.md`
+  - `.claude/context/architecture.md`
+  - `.claude/context/typescript.md`
+  - `.claude/context/offline-map.md`
+  - `.claude/context/offline-routing.md`
   - workspace `CLAUDE.md` files
 - Compare these guides against current code before doing any wording cleanup.
 

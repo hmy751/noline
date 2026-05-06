@@ -4,7 +4,7 @@
 > Status: Accepted
 > Scope: Noline AI/developer documentation harness
 
-> Follow-up: [Decision: Harness Layer Model](2026-05-06-harness-layer-model.md) extends this decision by adding `rules/`, `runbooks/`, and `context/`, and by reclassifying `core/`/`features/` as deep context/compatibility sources.
+> Follow-up: [Decision: Harness Layer Model](2026-05-06-harness-layer-model.md) extends this decision by adding `rules/`, `runbooks/`, and `context/`. The later link migration moved former `core/` and `features/` material into `.claude/context/`.
 
 ## Context
 
@@ -38,7 +38,7 @@ The new structure is:
 
 Existing `.claude` documents were not deleted in this pass.
 
-- `core/` and key `features/` remain active sources.
+- Former `core/` and key `features/` material remains preserved under `.claude/context/`.
 - `decisions/`, `sessions/`, `implementation/`, `CHANGELOG.md`, `references/`, and `_archive/` remain evidence, source, history, or archive.
 - `.claude/commands/` remains Claude-specific command reference.
 - `.claude/doc-refactor-test.md` was initially left in place, then moved to `.claude/audits/doc-refactor-test.md` after active guide drift was reviewed. It remains preserved as an audit/test artifact, not active policy.

@@ -1,7 +1,7 @@
 # Policy-Driven Architecture Guide
 
 > Archived on 2026-05-06 during the harness restructure.
-> Current active guide: [core/policy-architecture.md](../core/policy-architecture.md).
+> Current active guide: [context/policy-architecture.md](../context/policy-architecture.md).
 > 이 문서는 v3.0 rollout, phase tracking, 긴 예시 보존용이다. 현재 작업 기준은 active guide를 우선한다.
 
 > **📋 상태**: ✅ 구현 완료 (Phase 1~4, 90%)
@@ -775,5 +775,5 @@ export function useAppPolicy(tripId?: string): AppPolicyContext {
 ## 참고 자료
 
 - [Decision: Data/Service 분리](../decisions/2025-11-20-data-service-separation.md)
-- [Selective Activation Architecture](../core/selective-activation-architecture.md)
+- [Selective Activation Architecture](../context/selective-activation-architecture.md)
 - [Router 구현](../../apps/client/src/shared/services/offline-prep/router.ts)

@@ -108,9 +108,7 @@ noline/
 │   ├── rules/           # Compact task/path rules
 │   ├── guards/          # High-cost failure map
 │   ├── runbooks/        # Repeated task entry points
-│   ├── context/         # Deep context map and compatibility layer
-│   ├── core/            # Existing deep architecture/context sources
-│   ├── features/        # Existing feature context sources
+│   ├── context/         # Deep architecture and feature context sources
 │   ├── harness/         # AI/developer harness and bridge model
 │   ├── commands/        # Claude command references
 │   ├── decisions/       # Decision records
@@ -156,7 +154,7 @@ pnpm schema build
 - 루트는 탐색과 핵심 불변식만 소유한다.
 - 상세 정책은 가장 작은 owner 문서에 둔다.
 - 반복 작업은 `runbooks/`, compact rule은 `rules/`, 깊은 설명은 `context/`에서 시작한다.
-- `core/`와 `features/`는 현재 보존된 깊은 맥락/호환성 source로 읽고, 새 하네스 중심으로 키우지 않는다.
+- 깊은 아키텍처와 기능 설명은 `context/`가 소유한다. 예전 `core/`와 `features/` 경로를 새 entrypoint로 되살리지 않는다.
 - 기존 history, session, reference, archive 문서를 삭제하거나 현재 정책처럼 고치기 전에 [Document Map](./.claude/README.md)에서 역할을 확인한다.
 - active guide와 코드가 충돌하면 코드를 확인하고 active guide만 최소 수정한다.
 - 정책이나 하네스 구조가 바뀌면 [decisions/](./.claude/decisions/)에 결정 기록을 남긴다.

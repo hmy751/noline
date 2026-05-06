@@ -33,22 +33,22 @@ const policyDocuments = [
   'packages/ui/CLAUDE.md',
 
   // 상세 가이드
-  '.claude/core/typescript.md',
-  '.claude/core/architecture.md',
-  '.claude/core/selective-activation-architecture.md',
-  '.claude/core/policy-architecture.md',        // v3.0 Policy Layer
-  '.claude/core/time.md',
-  '.claude/core/api-data.md',
-  '.claude/core/components.md',
-  '.claude/core/error-handling.md',
+  '.claude/context/typescript.md',
+  '.claude/context/architecture.md',
+  '.claude/context/selective-activation-architecture.md',
+  '.claude/context/policy-architecture.md',        // v3.0 Policy Layer
+  '.claude/context/time.md',
+  '.claude/context/api-data.md',
+  '.claude/context/components.md',
+  '.claude/context/error-handling.md',
 
   // 기능별 가이드
-  '.claude/features/currency.md',
-  '.claude/features/form.md',
-  '.claude/features/activation-system.md',
-  '.claude/features/manual-input.md',
-  '.claude/features/offline-routing.md',         // v3.0 오프라인 라우팅
-  '.claude/features/offline-map.md',             // v3.0 오프라인 지도
+  '.claude/context/currency.md',
+  '.claude/context/form.md',
+  '.claude/context/activation-system.md',
+  '.claude/context/manual-input.md',
+  '.claude/context/offline-routing.md',         // v3.0 오프라인 라우팅
+  '.claude/context/offline-map.md',             // v3.0 오프라인 지도
 
   // 참조 문서
   '.claude/references/prd.md',
@@ -87,7 +87,7 @@ const policies: PolicyRule[] = [
     filePatterns: ['apps/client/src/entities/**/*.ts'],
     keywords: ['withTransaction', 'sync_queue', 'transaction'],
     severity: 'high',
-    source: '.claude/core/selective-activation-architecture.md:234-289',
+    source: '.claude/context/selective-activation-architecture.md:234-289',
   },
   {
     name: 'ISO 8601 시간 형식',
@@ -95,7 +95,7 @@ const policies: PolicyRule[] = [
     filePatterns: ['**/*.ts'],
     keywords: ['date', 'time', 'timestamp', 'Date', 'DateTime'],
     severity: 'medium',
-    source: '.claude/core/time.md:45-78',
+    source: '.claude/context/time.md:45-78',
   },
   {
     name: 'Client-Side ID Generation',
@@ -103,7 +103,7 @@ const policies: PolicyRule[] = [
     filePatterns: ['apps/client/src/entities/**/*.ts', 'apps/server/src/routes/**/*.ts'],
     keywords: ['ulid', 'generateId', 'client-side-id'],
     severity: 'critical',
-    source: '.claude/core/selective-activation-architecture.md:123-156',
+    source: '.claude/context/selective-activation-architecture.md:123-156',
   },
   {
     name: 'Soft Delete',
@@ -119,7 +119,7 @@ const policies: PolicyRule[] = [
     filePatterns: ['apps/client/src/**/*.ts'],
     keywords: ['useQuery', 'useMutation', 'queryKey'],
     severity: 'high',
-    source: '.claude/core/api-data.md:178-234',
+    source: '.claude/context/api-data.md:178-234',
   },
   {
     name: 'Component 외부 margin 금지',
@@ -127,7 +127,7 @@ const policies: PolicyRule[] = [
     filePatterns: ['packages/ui/**/*.tsx', 'apps/client/src/**/*.tsx'],
     keywords: ['margin', 'component', 'ui'],
     severity: 'low',
-    source: '.claude/core/components.md:89-112',
+    source: '.claude/context/components.md:89-112',
   },
   // ... CLAUDE.md에서 더 많은 정책 자동 추출
 ];
@@ -270,7 +270,7 @@ function recommendDocumentation(affectedPolicies: AffectedPolicy[]) {
 파일: apps/client/src/entities/expense/model/mutations.ts
 감지: withTransaction 사용
 정책: "DB + sync_queue 원자성 보장"
-출처: .claude/core/selective-activation-architecture.md:234-289
+출처: .claude/context/selective-activation-architecture.md:234-289
 
 변경 내용:
 
@@ -298,7 +298,7 @@ Decision에 포함할 내용:
 관련 정책 문서:
 
 - packages/schema/CLAUDE.md
-- .claude/core/selective-activation-architecture.md
+- .claude/context/selective-activation-architecture.md
 
 다음 단계: /doc-save --decision
 ```
@@ -319,7 +319,7 @@ Decision에 포함할 내용:
 파일: packages/ui/src/Card.tsx
 감지: margin 스타일 제거
 정책: "재사용성을 위해 컴포넌트는 내부만 관리"
-출처: .claude/core/components.md:89-112
+출처: .claude/context/components.md:89-112
 
 📝 권장사항: CHANGELOG 업데이트
 

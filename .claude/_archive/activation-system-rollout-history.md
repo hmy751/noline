@@ -1,7 +1,7 @@
 # 활성화 시스템 (Activation System)
 
 > Archived on 2026-05-06 during the harness restructure.
-> Current active guide: [features/activation-system.md](../features/activation-system.md).
+> Current active guide: [context/activation-system.md](../context/activation-system.md).
 > 이 문서는 rollout history, phase checklist, 과거 설계 세부사항 보존용이다. 현재 작업 기준으로 직접 적용하지 않는다.
 
 > 오프라인 지도 통합을 위한 선택적 데이터 동기화 시스템
@@ -710,7 +710,7 @@ function PendingCleanupTrigger() {
 #### 관련 문서
 
 - Decision: [`.claude/decisions/2025-11-20-deactivation-sync-queue-safety.md`](../decisions/2025-11-20-deactivation-sync-queue-safety.md)
-- Architecture: [selective-activation-architecture.md 패턴 6](../core/selective-activation-architecture.md#패턴-6-비활성화-시-sync_queue-무시로-인한-데이터-손실)
+- Architecture: [selective-activation-architecture.md 패턴 6](../context/selective-activation-architecture.md#패턴-6-비활성화-시-sync_queue-무시로-인한-데이터-손실)
 
 ### 자동 비활성화
 
@@ -1272,13 +1272,13 @@ async function checkExpiringActivations() {
 ### Architecture
 
 - [CLAUDE.md](../../CLAUDE.md) - 프로젝트 가이드
-- [Selective Activation Architecture](../core/selective-activation-architecture.md) - 활성화 기반 아키텍처 가이드
+- [Selective Activation Architecture](../context/selective-activation-architecture.md) - 활성화 기반 아키텍처 가이드
 - [Schema CLAUDE.md](../../packages/schema/CLAUDE.md) - Entity 스키마 규칙
 
 ### Implementation
 
-- [API & Data Layer](../core/api-data.md) - API 레이어 패턴
-- [Error Handling](../core/error-handling.md) - 에러 처리 패턴
+- [API & Data Layer](../context/api-data.md) - API 레이어 패턴
+- [Error Handling](../context/error-handling.md) - 에러 처리 패턴
 
 ---
 
@@ -1701,5 +1701,5 @@ git commit -m "feat: Apply offline-prep to Expense entity"
 
 - [Session: 아키텍처 설계](../sessions/2025-11-06-activation-architecture-design.md) - 설계 논의 전체 과정
 - [CLAUDE.md](../../CLAUDE.md) - 프로젝트 전체 가이드
-- [selective-activation-architecture.md](../core/selective-activation-architecture.md) - Selective Activation 완전 가이드
-- [architecture.md](../core/architecture.md) - FSD 디렉토리 구조
+- [selective-activation-architecture.md](../context/selective-activation-architecture.md) - Selective Activation 완전 가이드
+- [architecture.md](../context/architecture.md) - FSD 디렉토리 구조

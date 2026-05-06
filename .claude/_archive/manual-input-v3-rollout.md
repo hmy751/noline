@@ -1,7 +1,7 @@
 # Manual Input Feature Guide
 
 > Archived on 2026-05-06 during the harness restructure.
-> Current active guide: [features/manual-input.md](../features/manual-input.md).
+> Current active guide: [context/manual-input.md](../context/manual-input.md).
 > 이 문서는 v3.0 manual input rollout, phase 설명, 긴 예시 보존용이다. 현재 작업 기준은 active guide를 우선한다.
 
 > **📋 상태**: ✅ 구현 완료 (Phase 3, 100%)
@@ -580,7 +580,7 @@ A: Last-Write-Wins + 메타데이터 보존:
 
 ## 관련 문서
 
-- [Policy Architecture (설계)](../core/policy-architecture.md)
-- [Selective Activation (구현 완료)](../core/selective-activation-architecture.md)
+- [Policy Architecture (설계)](../context/policy-architecture.md)
+- [Selective Activation (구현 완료)](../context/selective-activation-architecture.md)
 - [Decision: Data/Service 분리](../decisions/2025-11-20-data-service-separation.md)
 - [v3.0 Implementation Tracker](../implementation/v3.0-tracker.md)

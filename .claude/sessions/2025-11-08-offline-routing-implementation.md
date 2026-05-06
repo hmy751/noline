@@ -6,7 +6,7 @@
 
 - **날짜**: 2025-11-08
 - **작업 범위**: Offline Routing MVP 구현
-- **관련 문서**: [ADR-003](../decisions/003-offline-routing-integration.md), [Feature Guide](../features/offline-routing.md)
+- **관련 문서**: [ADR-003](../decisions/003-offline-routing-integration.md), [Feature Guide](../context/offline-routing.md)
 - **이전 세션**: [2025-11-07 Offline Map](./2025-11-07-offline-map-implementation.md)
 
 ---
@@ -703,7 +703,7 @@ if (routeCache.has(cacheKey)) {
 
 ## 📚 Documentation Created (생성된 문서)
 
-1. **Feature Guide**: [offline-routing.md](../features/offline-routing.md)
+1. **Feature Guide**: [offline-routing.md](../context/offline-routing.md)
    - 상세 구현 가이드 (750줄)
    - 아키텍처, 트러블슈팅, 성능 분석
 

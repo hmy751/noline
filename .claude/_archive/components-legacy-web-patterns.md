@@ -6,7 +6,7 @@ alwaysApply: false
 # 컴포넌트
 
 > Archived on 2026-05-06 during the harness restructure.
-> Current active guide: [core/components.md](../core/components.md).
+> Current active guide: [context/components.md](../context/components.md).
 > 이 문서는 component principle과 legacy web/Next.js 예시 보존용이다. 현재 React Native 작업 기준은 active guide를 우선한다.
 
 - 이 프로젝트는 리액트 네이티브 프로젝트로 모바일 앱을 중점으로 개발한다.

@@ -155,7 +155,7 @@ export const expenseEntity = baseEntity.extend({
 ## Related Policies
 
 - @repo/schema 규칙: packages/schema/CLAUDE.md:67-89
-- withTransaction 패턴: .claude/core/selective-activation-architecture.md:234-289
+- withTransaction 패턴: .claude/context/selective-activation-architecture.md:234-289
 - 이미지 최적화: .claude/references/images.md
 
 ## Related Documents

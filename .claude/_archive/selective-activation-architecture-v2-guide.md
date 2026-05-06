@@ -1,11 +1,11 @@
 # Noline - Selective Activation 아키텍처 실전 가이드
 
 > Archived on 2026-05-06 during the harness restructure.
-> Current active guide: [core/selective-activation-architecture.md](../core/selective-activation-architecture.md).
+> Current active guide: [context/selective-activation-architecture.md](../context/selective-activation-architecture.md).
 > 이 문서는 v2 실전 가이드와 반복 이슈 기록 보존용이다. 현재 작업 기준은 active guide를 우선한다.
 
 > ⚠️ **중요**: 이 문서는 **Data Layer**에만 적용됩니다.
-> Service Layer(Map/Search)는 [Policy Architecture](../core/policy-architecture.md)를 참조하세요.
+> Service Layer(Map/Search)는 [Policy Architecture](../context/policy-architecture.md)를 참조하세요.
 >
 > 문서 상태: archived history.
 
@@ -2255,7 +2255,7 @@ deletedAt: expense.deletedAt?.toISOString() || null;
 
 ## 📚 추가 자료
 
-- [Activation System](../features/activation-system.md) - 활성화 시스템 완전 가이드
+- [Activation System](../context/activation-system.md) - 활성화 시스템 완전 가이드
 - [Drizzle ORM 공식 문서](https://orm.drizzle.team/)
 - [React Query 공식 문서](https://tanstack.com/query/latest)
 - [Zod 공식 문서](https://zod.dev/)

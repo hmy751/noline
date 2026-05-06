@@ -1,7 +1,7 @@
 # 통화 정책 가이드
 
 > Archived on 2026-05-06 during the harness restructure.
-> Current active guide: [features/currency.md](../features/currency.md).
+> Current active guide: [context/currency.md](../context/currency.md).
 > 이 문서는 통화 정책의 긴 설명과 legacy display 예시 보존용이다. 현재 작업 기준은 active guide를 우선한다.
 >
 > 문서 상태: archived history.
@@ -352,9 +352,9 @@ KRW 35,000
 
 ### 관련 문서
 
-- [selective-activation-architecture.md](../core/selective-activation-architecture.md): Selective Activation 아키텍처 (v2.0)
+- [selective-activation-architecture.md](../context/selective-activation-architecture.md): Selective Activation 아키텍처 (v2.0)
 - [local-first-impl-v1.md](../_archive/local-first-impl-v1.md): Echo Architecture 구현 가이드 (v1.0 아카이브)
-- [architecture.md](../core/architecture.md): FSD 아키텍처
+- [architecture.md](../context/architecture.md): FSD 아키텍처
 
 ---
 

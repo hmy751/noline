@@ -21,22 +21,22 @@
 | `.claude/rules/README.md` | Compact task/path rule map | Low | Keep short and verifiable; link to context for deeper detail. |
 | `.claude/guards/README.md` | High-cost guard map | Low | Keep concise; link to source docs. |
 | `.claude/runbooks/README.md` | Repeated task entrypoints | Low | Keep concise; link to rules/context/source docs. |
-| `.claude/context/README.md` | Deep context map and compatibility layer | Low | Keep as the entrypoint to `core/` and `features/`. |
+| `.claude/context/README.md` | Deep context map | Low | Keep as the entrypoint for deep architecture and feature context. |
 | `.claude/workflows/README.md` | Compatibility redirect for old workflow links | Low | Do not add new workflow content; point to `runbooks/`. |
-| `.claude/core/architecture.md` | Existing FSD/root architecture context | Medium | Preserve as deep context; examples should use real Noline paths. |
-| `.claude/core/selective-activation-architecture.md` | Existing Data Layer/Router context | Low | Preserve as deep context; compact rule lives in `rules/`. |
-| `.claude/core/policy-architecture.md` | Existing Policy Layer context | Low | Preserve as deep context; compact rule lives in `rules/`. |
-| `.claude/core/time.md` | Existing time/date context | Low | Preserve as deep context; compact rule lives in `rules/`. |
-| `.claude/core/typescript.md` | Existing TypeScript/Zod context | Medium | Preserve as deep context; compact rule lives in `rules/`. |
-| `.claude/core/api-data.md` | Existing API/data context | Low | Preserve as deep context; runbooks link to it when needed. |
-| `.claude/core/components.md` | Existing React Native component context | Low | Preserve as deep context; workspace guide owns local specifics. |
-| `.claude/core/error-handling.md` | Existing error-handling context | Low | Preserve as deep context. |
-| `.claude/features/activation-system.md` | Existing Activation System context | Low | Preserve as deep context; archived rollout history owns phase/checklist notes. |
-| `.claude/features/offline-map.md` | Existing feature context | Medium | Preserve as deep context; verify paths against code when touched. |
-| `.claude/features/offline-routing.md` | Existing feature context | Medium | Preserve as deep context; verify map component names against code when touched. |
-| `.claude/features/currency.md` | Existing currency policy context | Low | Preserve as deep context; archived guide owns legacy display examples. |
-| `.claude/features/manual-input.md` | Existing manual input context | Low | Preserve as deep context; archived rollout owns phase history. |
-| `.claude/features/form.md` | Existing React Native form context | Low | Preserve as deep context; archived guide owns legacy web phrasing. |
+| `.claude/context/architecture.md` | FSD/root architecture context | Medium | Preserve as deep context; examples should use real Noline paths. |
+| `.claude/context/selective-activation-architecture.md` | Data Layer/Router context | Low | Preserve as deep context; compact rule lives in `rules/`. |
+| `.claude/context/policy-architecture.md` | Policy Layer context | Low | Preserve as deep context; compact rule lives in `rules/`. |
+| `.claude/context/time.md` | Time/date context | Low | Preserve as deep context; compact rule lives in `rules/`. |
+| `.claude/context/typescript.md` | TypeScript/Zod context | Medium | Preserve as deep context; compact rule lives in `rules/`. |
+| `.claude/context/api-data.md` | API/data context | Low | Preserve as deep context; runbooks link to it when needed. |
+| `.claude/context/components.md` | React Native component context | Low | Preserve as deep context; workspace guide owns local specifics. |
+| `.claude/context/error-handling.md` | Error-handling context | Low | Preserve as deep context. |
+| `.claude/context/activation-system.md` | Activation System context | Low | Preserve as deep context; archived rollout history owns phase/checklist notes. |
+| `.claude/context/offline-map.md` | Offline map feature context | Medium | Preserve as deep context; verify paths against code when touched. |
+| `.claude/context/offline-routing.md` | Offline routing feature context | Medium | Preserve as deep context; verify map component names against code when touched. |
+| `.claude/context/currency.md` | Currency policy context | Low | Preserve as deep context; archived guide owns legacy display examples. |
+| `.claude/context/manual-input.md` | Manual input context | Low | Preserve as deep context; archived rollout owns phase history. |
+| `.claude/context/form.md` | React Native form context | Low | Preserve as deep context; archived guide owns legacy web phrasing. |
 | `.claude/commands/` | Claude-only command references | High | Add/keep labels; do not use as active Codex workflow. |
 | `.claude/audits/` | Audit/test evidence | Low | Preserve; never read as active policy. |
 | `.claude/decisions/` | Decision evidence | Low | Preserve; update only with new decisions or explicit corrections. |
@@ -55,7 +55,7 @@
 
 - Complete. The active paths now contain short current guides, while the older long guides are preserved in `_archive/`.
 - Split docs: activation-system, selective-activation, policy-architecture, api-data, components, time, manual-input, form, currency.
-- Resolved: `core/error-handling.md` is now a short current baseline guide, and the old long blueprint is preserved as `_archive/client-error-infra-blueprint.md`.
+- Resolved: `context/error-handling.md` is now a short current baseline guide, and the old long blueprint is preserved as `_archive/client-error-infra-blueprint.md`.
 
 ### Pass 3. Claude Command Hygiene
 
@@ -65,10 +65,10 @@
 ### Pass 4. Layer Model Follow-Up
 
 - Complete. `rules/`, `runbooks/`, and `context/` now define the active harness entry layers.
-- `core/` and `features/` are preserved as deep context/compatibility sources rather than startup reading.
+- Former `core/` and `features/` docs were moved into `context/`, so deep context has a single owner directory.
 - `workflows/` is retained as a compatibility redirect while `runbooks/` owns repeated task entrypoints.
 - The temporary root follow-up plan was removed after preserving continuity context in [2026-05-06-harness-layer-followup-handoff.md](2026-05-06-harness-layer-followup-handoff.md).
 
 ## Archive Rule
 
-Use `_archive/` when a document or section is no longer safe as current guidance but still contains useful history. Prefer a small stub in the original location only if many links point there. Use `audits/` when the content is a test, critique, inventory, or verification note rather than product/architecture history.
+Use `_archive/` when a document or section is no longer safe as current guidance but still contains useful history. Prefer updating links into `context/`; leave a compatibility stub only when a live path is intentionally kept. Use `audits/` when the content is a test, critique, inventory, or verification note rather than product/architecture history.

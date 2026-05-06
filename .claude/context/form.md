@@ -52,7 +52,7 @@ React Native input은 `register` 대신 `Controller`로 연결한다.
 
 ## Policy and Manual Mode
 
-오프라인/활성화 상태에 따라 입력 가능성이 달라지는 폼은 [manual-input.md](./manual-input.md)와 [policy-architecture.md](../core/policy-architecture.md)를 같이 본다.
+오프라인/활성화 상태에 따라 입력 가능성이 달라지는 폼은 [manual-input.md](manual-input.md)와 [policy-architecture.md](policy-architecture.md)를 같이 본다.
 
 폼 내부에서 네트워크/활성화 조건을 새로 계산하기보다, 화면이나 feature 조합부에서 `useAppPolicy`로 분기한다.
 

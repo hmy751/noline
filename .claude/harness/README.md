@@ -16,14 +16,14 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
 | Rules | [../rules/](../rules/) | 짧고 검증 가능한 task/path 규칙 | 작업/경로에 따라 읽음 |
 | Guards | [../guards/](../guards/) | 데이터 손실, sync 누락, auth 누락 같은 고비용 실패 점검 | 위험한 수정 전후 |
 | Runbooks | [../runbooks/](../runbooks/) | 반복 작업의 시작 순서 | 작업 진입점 |
-| Context | [../context/](../context/) | 깊은 아키텍처/기능 설명과 `core/`/`features/` 호환성 지도 | 필요할 때만 |
+| Context | [../context/](../context/) | 깊은 아키텍처, cross-cutting engineering context, 기능별 설명 | 필요할 때만 |
 | Commands | [../commands/](../commands/) | Claude command reference와 문서 관리 workflow | Claude 참고 자료 |
 | Decisions | [../decisions/](../decisions/) | 정책, 용어, 하네스 구조가 왜 바뀌었는지 | 근거 기록 |
 | Audits | [../audits/](../audits/) | 문서 품질 검증과 하네스 점검 evidence | 근거 기록, policy 아님 |
 | Implementation/sessions | [../implementation/](../implementation/), [../sessions/](../sessions/) | 작업 이력과 증거 | history |
 | References/archive | [../references/](../references/), [../_archive/](../_archive/) | 원천 자료와 과거 맥락 | source/history |
 
-`core/`와 `features/`는 이 패스에서 삭제하거나 대량 이동하지 않는다. 현재는 [context map](../context/README.md)이 깊은 맥락과 compatibility source로 연결한다.
+예전 `core/`와 `features/` 본문 문서는 [context](../context/)로 이동했다. 새 하네스 entrypoint는 `rules/`, `guards/`, `runbooks/`, `context/`를 기준으로 유지한다.
 
 ## Claude/Codex 브릿지
 
@@ -75,7 +75,7 @@ type(scope): summary
 이번 개편에서 하는 일:
 
 - `rules/`, `runbooks/`, `context/` 레이어 추가
-- `core/`와 `features/`를 하네스 중심이 아니라 깊은 context/compatibility source로 재분류
+- 예전 `core/`와 `features/` 본문 문서를 `context/`로 이동해 깊은 맥락의 owner를 단일화
 - Claude/Codex bridge가 tool-specific 강제가 아니라 adapter 관계임을 명시
 - root/document map/guard/runbook 링크를 새 레이어 중심으로 정리
 

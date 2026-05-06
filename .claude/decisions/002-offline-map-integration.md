@@ -358,7 +358,7 @@ const errorListener = (error) => {
 ### Phase 2: 활성화 시스템 연동 (계획 중)
 
 ```typescript
-// .claude/features/activation-system.md 참조
+// .claude/context/activation-system.md 참조
 
 // 활성화 여행: 완전 오프라인
 if (trip.isSubscribed) {
@@ -394,8 +394,8 @@ if (subscribedTrips.length >= 1) {
 
 ## 관련 문서
 
-- [Activation System](./../features/activation-system.md) - 활성화 시스템 설계
-- [Selective Activation Architecture](./../core/selective-activation-architecture.md) - 활성화 기반 아키텍처 가이드
+- [Activation System](./../context/activation-system.md) - 활성화 시스템 설계
+- [Selective Activation Architecture](./../context/selective-activation-architecture.md) - 활성화 기반 아키텍처 가이드
 - [Client CLAUDE.md](./../../apps/client/CLAUDE.md) - 클라이언트 패턴
 - [Session: 2025-11-07](./../sessions/2025-11-07-offline-map-implementation.md) - 구현 과정
 

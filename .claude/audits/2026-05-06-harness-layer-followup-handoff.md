@@ -11,7 +11,7 @@ The temporary root file `NOLINE_DEV_HARNESS_REDESIGN_PLAN.md` was used as a chec
 
 - Branch: `docs/harness-doc-prune`
 - Base: `main` after `docs/noline-harness-restructure` was merged.
-- Current shape before this handoff: 5 commits ahead of `main`.
+- Current shape before this migration pass: 6 commits ahead of `main`.
 - Original temporary plan commit: `ac797e2 docs: add harness redesign checkpoint plan`
 - Follow-up decision source: [../decisions/2026-05-06-harness-layer-model.md](../decisions/2026-05-06-harness-layer-model.md)
 
@@ -21,8 +21,8 @@ Use `git log --oneline main..HEAD` for the exact current branch history. Do not 
 
 - Added `.claude/rules/` as compact, verifiable task/path rules.
 - Added `.claude/runbooks/` as the active repeated-task entry surface.
-- Added `.claude/context/` as the deep context and compatibility map for existing `core/` and `features/` material.
-- Reclassified `core/` and `features/` as deep context/compatibility sources rather than startup reading.
+- Added `.claude/context/` as the deep context owner.
+- Moved the former `core/` and `features/` material into `.claude/context/` so the old directories no longer remain as active sources.
 - Changed `.claude/workflows/README.md` into a compatibility redirect to `runbooks/`.
 - Updated root and workspace `CLAUDE.md` files to route through `rules/`, `runbooks/`, and `context`.
 - Recorded the layer model decision in `.claude/decisions/2026-05-06-harness-layer-model.md`.
@@ -42,7 +42,7 @@ Use active docs for current implementation work:
 - `.claude/runbooks/README.md`
 - `.claude/context/README.md`
 
-Read existing `core/` and `features/` files only as deep context or compatibility sources unless an active guide explicitly promotes a rule.
+Read `.claude/context/` for deep architecture and feature context unless an active guide explicitly promotes a shorter rule.
 
 Treat these as evidence/history/source unless an active guide explicitly promotes a rule:
 
@@ -58,8 +58,8 @@ Treat these as evidence/history/source unless an active guide explicitly promote
 
 ## Validation Performed
 
-- `git diff --check` passed.
-- Local Markdown link/anchor scan passed for the 23 Markdown files changed against `main`.
+- `git diff --check` and `git diff --cached --check` passed for this migration pass.
+- Local Markdown path scan passed for 78 Markdown files after excluding Claude command template examples.
 - Root and major workspace `AGENTS.md -> CLAUDE.md` symlinks were preserved.
 - `.agents/`, `.codex/`, `.claude/agents/`, and `.claude/skills/` were not created.
 - Earlier in the branch, `tooling-map-auditor` reported no must-fix bridge issue. It did call out that the temporary root plan should be removed or relocated before merge; this handoff resolves that.

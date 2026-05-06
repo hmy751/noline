@@ -271,9 +271,9 @@ const trips = await TripRepository.getAll();
 **문서 업데이트**:
 
 - `CLAUDE.md` - "Add New Entity" 가이드 5단계로 확장
-- `.claude/core/architecture.md` - Entity 폴더 구조 (lib/, repository/ 추가)
-- `.claude/core/api-data.md` - 5단계 레이어 아키텍처 다이어그램, Production 체크리스트
-- `.claude/core/selective-activation-architecture.md` - Entity Layer 구조 및 구현 예시
+- `.claude/context/architecture.md` - Entity 폴더 구조 (lib/, repository/ 추가)
+- `.claude/context/api-data.md` - 5단계 레이어 아키텍처 다이어그램, Production 체크리스트
+- `.claude/context/selective-activation-architecture.md` - Entity Layer 구조 및 구현 예시
 - `apps/client/CLAUDE.md` - Entity 5단계 레이어 구조 섹션 추가
 
 ---
@@ -408,8 +408,8 @@ if (!policy.schedule.create.allowed) {
 
 - **작성된 문서**:
   - Decision: `.claude/decisions/2025-11-20-data-service-separation.md`
-  - Guide: `.claude/core/policy-architecture.md` (520줄)
-  - Feature: `.claude/features/manual-input.md` (568줄)
+  - Guide: `.claude/context/policy-architecture.md` (520줄)
+  - Feature: `.claude/context/manual-input.md` (568줄)
 
 - **해결 예정 문제**:
   - ✅ (설계) 활성화 여행도 온라인에서 Google Maps 사용 가능
@@ -544,7 +544,7 @@ switch(policy.mapProvider) { ... }
 - **핵심**: v2.0 활성화 정책 + 네트워크 상태 → 4-State Matrix로 CRUD 제어
 - **레이어**: v2.0 위에 구축된 확장 레이어
 - **Policy Hook**: `useAppPolicy`로 중앙 정책 조회
-- **가이드**: [policy-architecture.md](./core/policy-architecture.md)
+- **가이드**: [policy-architecture.md](./context/policy-architecture.md)
 
 ### v2.0 - Selective Activation (2025-11-06 ~ 2025-11-19, 기반 레이어)
 

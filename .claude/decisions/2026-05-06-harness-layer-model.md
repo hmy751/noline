@@ -24,7 +24,7 @@ Noline 하네스에 아래 레이어 모델을 적용한다.
 - `.claude/rules/`: 중요한 engineering choice를 위한 짧은 작업/경로별 규칙.
 - `.claude/guards/`: 고비용 실패 지도와 마무리 점검 표면.
 - `.claude/runbooks/`: 반복 작업 진입점.
-- `.claude/context/`: 현재 `core/`와 `features/` source를 연결하는 깊은 설명과 호환성 지도.
+- `.claude/context/`: 깊은 아키텍처, cross-cutting engineering context, 기능별 설명을 보존하는 owner.
 - `.claude/decisions/`, `.claude/audits/`, `.claude/references/`, `.claude/_archive/`: 근거, 검증, 제품 source, history.
 
 이번 패스에서는 기존 링크를 보존하고 현재 local harness surface를 존중하기 위해 공통 하네스 문서를 `.claude/` 아래에 둔다. 이것이 Claude 전용 동작을 공통 source of truth로 삼겠다는 뜻은 아니다.
@@ -37,8 +37,8 @@ Noline 하네스에 아래 레이어 모델을 적용한다.
 
 ## 영향
 
-- 새 작업 지침은 보통 `core/`나 `features/`가 아니라 `rules/` 또는 `runbooks/`에서 시작한다.
-- 기존 `core/`와 `features/` 파일은 link migration 동안 깊은 맥락으로 유지한다.
+- 새 작업 지침은 보통 `rules/` 또는 `runbooks/`에서 시작하고, 깊은 설명은 `context/`에서 찾는다.
+- 예전 `core/`와 `features/` 파일은 link migration과 함께 `.claude/context/`로 이동했다.
 - 기존 `workflows/` 경로는 호환성 자료로 남기고, `runbooks/`가 active repeated-task surface를 맡는다.
 - 향후 agent/skill은 얇게 두고 owning docs로 되돌아가게 한다.
 
