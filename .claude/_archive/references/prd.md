@@ -54,7 +54,7 @@ Noline은 여행 중 불안정한 네트워크 환경에서도 완벽하게 작�
 #### 1. **Selective Activation 기반 Local-First 경험**
 
 > ⚠️ **v2.0 정책 업데이트** (2025-11): 아래 내용은 초기 설계안입니다.
-> 현재 구현된 아키텍처는 [selective-activation-architecture.md](../context/selective-activation-architecture.md)를 참조하세요.
+> 현재 구현된 아키텍처는 [selective-activation-architecture.md](../../context/selective-activation-architecture.md)를 참조하세요.
 
 - **활성화된 여행**: 로컬 SQLite가 진실의 원천 → 오프라인 완전 지원
 - **비활성 여행**: 서버 API가 진실의 원천 → 온라인 전용, 저장공간 절약
@@ -515,13 +515,13 @@ CREATE TABLE expenses (
 
 **현재 아키텍처 (v2.0+):**
 
-- [selective-activation-architecture.md](../context/selective-activation-architecture.md) - Selective Activation 상세 아키텍처
-- [policy-architecture.md](../context/policy-architecture.md) - Policy Layer 가이드 (v3.0)
-- [CHANGELOG.md](../CHANGELOG.md) - 정책 변경 히스토리
+- [selective-activation-architecture.md](../../context/selective-activation-architecture.md) - Selective Activation 상세 아키텍처
+- [policy-architecture.md](../../context/policy-architecture.md) - Policy Layer 가이드 (v3.0)
+- [CHANGELOG.md](../../CHANGELOG.md) - 정책 변경 히스토리
 
 **히스토리 (아카이브):**
 
-- [local-first-impl-v1.md](../_archive/local-first-impl-v1.md) - v1.0 Echo Architecture 구현 가이드 (아카이브)
+- [local-first-impl-v1.md](../local-first-impl-v1.md) - v1.0 Echo Architecture 구현 가이드 (아카이브)
 
 ---
 

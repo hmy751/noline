@@ -5,7 +5,7 @@
 
 ## Working Rule
 
-- History is preserved. `sessions/`, `decisions/`, `implementation/`, `CHANGELOG.md`, `references/`, `_archive/`, and `audits/` are evidence/source/history unless an active guide explicitly promotes a rule.
+- History is preserved. `sessions/`, `decisions/`, `CHANGELOG.md`, `_archive/`, and `audits/` are evidence/source/history unless an active guide explicitly promotes a rule.
 - Old material is not deleted outright. If it is no longer safe as active guidance, move it to `_archive/` or classify it under `audits/`.
 - Active documents may be edited when they conflict with code, current terminology, or the role model.
 - Claude commands remain Claude-only references. They can be labeled or archived, but they are not copied into Codex rules.
@@ -41,9 +41,9 @@
 | `.claude/audits/` | Audit/test evidence | Low | Preserve; never read as active policy. |
 | `.claude/decisions/` | Decision evidence | Low | Preserve; update only with new decisions or explicit corrections. |
 | `.claude/sessions/` | Session history | Low | Preserve. |
-| `.claude/implementation/` | Trackers/test history | Medium | Preserve; verify completion status against code. |
-| `.claude/references/` | Product/source material | Medium | Preserve; active policy wins on implementation conflicts. |
 | `.claude/_archive/` | Deprecated historical guidance | Low | Preserve; do not reactivate without explicit decision. |
+| `.claude/_archive/implementation/` | Old trackers/test scenarios | Low | Preserve as history; do not treat completion status as current without checking code. |
+| `.claude/_archive/references/` | Old product/reference material | Low | Preserve as history; do not add to active startup reads. |
 
 ## Recommended Next Passes
 

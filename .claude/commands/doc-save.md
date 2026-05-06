@@ -156,7 +156,7 @@ export const expenseEntity = baseEntity.extend({
 
 - @repo/schema 규칙: packages/schema/CLAUDE.md:67-89
 - withTransaction 패턴: .claude/context/selective-activation-architecture.md:234-289
-- 이미지 최적화: .claude/references/images.md
+- 이미지 최적화: .claude/_archive/references/react-native-image-guide.md
 
 ## Related Documents
 
@@ -207,7 +207,7 @@ Decision에서 감지된 키워드:
    - Optional vs Required 판단 기준
    - 타입 선택 가이드 (string vs object)
 
-2. .claude/references/images.md
+2. .claude/_archive/references/react-native-image-guide.md
    현재: 이미지 최적화만 다룸
    추가 권장: "이미지 저장 정책" 섹션
    - URL vs Base64 vs File
@@ -345,7 +345,7 @@ Decision에서 감지된 키워드:
 1. packages/schema/CLAUDE.md
    섹션: "Entity 확장 가이드라인" 추가 권장
 
-2. .claude/references/images.md
+2. .claude/_archive/references/react-native-image-guide.md
    섹션: "이미지 저장 정책" 추가 권장
 
 지금 업데이트하시겠습니까? [y/N]
@@ -388,7 +388,7 @@ Decision에서 감지된 키워드:
    참고 Decision:
    - [Expense 영수증 구조](../decisions/2024-11-05-expense-receipt.md)
 
-   2. .claude/references/images.md
+   2. .claude/_archive/references/react-native-image-guide.md
       추가: "이미지 저장 정책" 섹션
 
 전체 문서 연결 완료!

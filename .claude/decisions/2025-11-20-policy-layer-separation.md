@@ -279,4 +279,4 @@ Hook은 Policy에 의존하지 않으므로:
 ## 참고
 
 - [Policy Architecture](../context/policy-architecture.md) - 전체 설계
-- [v3.0 Tracker](../implementation/v3.0-tracker.md) - 구현 진행 상황
+- [v3.0 Tracker](../_archive/implementation/v3.0-tracker.md) - 구현 진행 상황

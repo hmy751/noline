@@ -1183,4 +1183,4 @@ if (!isSubscribed(tripId) && queueCount >= 10) {
 ---
 
 **작성일**: 2025-10-19  
-**참고 문서**: [PRD.md](../references/prd.md), Local-First 아키텍처 원본 첨부(현재 저장소에는 없음)
+**참고 문서**: [PRD.md](references/prd.md), Local-First 아키텍처 원본 첨부(현재 저장소에는 없음)

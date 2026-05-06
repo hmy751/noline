@@ -8,7 +8,7 @@
 > **버전**: v3.0
 > **작성일**: 2025-11-20
 > **최종 업데이트**: 2025-11-21
-> **구현 추적**: [v3.0-tracker.md](../implementation/v3.0-tracker.md)
+> **구현 추적**: [v3.0-tracker.md](implementation/v3.0-tracker.md)
 
 > **핵심**: 오프라인 환경에서도 핵심 데이터 입력을 가능하게 하는 Graceful Degradation 전략
 >
@@ -576,7 +576,7 @@ A: Last-Write-Wins + 메타데이터 보존:
 
 ## 구현 추적
 
-> **📋 Implementation Tracker**: [v3.0-tracker.md](../implementation/v3.0-tracker.md)
+> **📋 Implementation Tracker**: [v3.0-tracker.md](implementation/v3.0-tracker.md)
 >
 > Phase 3에서 Manual Input은 구현 완료. 남은 테스트/품질 보강 항목은 tracker와 현재 코드를 함께 확인.
 
@@ -585,4 +585,4 @@ A: Last-Write-Wins + 메타데이터 보존:
 - [Policy Architecture (설계)](../context/policy-architecture.md)
 - [Selective Activation (구현 완료)](../context/selective-activation-architecture.md)
 - [Decision: Data/Service 분리](../decisions/2025-11-20-data-service-separation.md)
-- [v3.0 Implementation Tracker](../implementation/v3.0-tracker.md)
+- [v3.0 Implementation Tracker](implementation/v3.0-tracker.md)

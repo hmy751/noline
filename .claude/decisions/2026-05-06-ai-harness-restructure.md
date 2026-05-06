@@ -5,6 +5,8 @@
 > Scope: Noline AI/developer documentation harness
 
 > Follow-up: [Decision: Harness Layer Model](2026-05-06-harness-layer-model.md) extends this decision by adding `rules/`, `runbooks/`, and `context/`. The later link migration moved former `core/` and `features/` material into `.claude/context/`.
+> Follow-up: [Decision: Harness Execution Cleanup](2026-05-06-harness-execution-cleanup.md) archives stale implementation trackers and old `references/` material.
+> Follow-up: [Decision: Harness Execution Layer](2026-05-06-harness-execution-layer.md) adds the explicit skill/agent execution layer.
 
 ## Context
 
@@ -39,7 +41,7 @@ The new structure is:
 Existing `.claude` documents were not deleted in this pass.
 
 - Former `core/` and key `features/` material remains preserved under `.claude/context/`.
-- `decisions/`, `sessions/`, `implementation/`, `CHANGELOG.md`, `references/`, and `_archive/` remain evidence, source, history, or archive.
+- `decisions/`, `sessions/`, `CHANGELOG.md`, and `_archive/` remain evidence, source, history, or archive.
 - `.claude/commands/` remains Claude-specific command reference.
 - `.claude/doc-refactor-test.md` was initially left in place, then moved to `.claude/audits/doc-refactor-test.md` after active guide drift was reviewed. It remains preserved as an audit/test artifact, not active policy.
 
@@ -57,7 +59,7 @@ Only current-guide contradictions and broken active links were fixed.
 - No runtime code changes.
 - No mass rewrite of historical documents.
 - No automatic conversion of Claude commands into Codex commands.
-- No local Noline agents or skills yet.
+- No local Noline agents or skills in this restructure pass. The later execution-layer decision owns the explicit exception.
 - No deletion of old material just because it uses older terms.
 
 ## Consequences
@@ -66,4 +68,4 @@ Future sessions should start from the root guide, then use the document map, gua
 
 Future harness changes should add rules to the smallest owner document and record decisions here when the workflow itself changes.
 
-If repeated use proves a local tool shape, Noline may later add a thin report-only context collector or policy checker. Until then, the owning documents remain the source of truth.
+If repeated use proves a local tool shape, Noline may later add a thin report-only context collector or policy checker. The 2026-05-06 execution-layer follow-up now owns that exception while keeping the owning documents as the source of truth.

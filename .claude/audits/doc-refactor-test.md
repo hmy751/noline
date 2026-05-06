@@ -1,5 +1,7 @@
 # 문서 리팩토링 Before/After 테스트
 
+> 2026-05-06 후속 정리: 이 파일은 audit history다. 당시 `.claude/references/images.md`였던 이미지 가이드는 현재 `.claude/_archive/references/react-native-image-guide.md`에 보존한다.
+
 > **목적**: 문서 정비 전후로 동일 질문을 새 세션에서 해보고, AI 응답 품질 변화를 비교
 > **작성일**: 2026-03-19
 > **사용법**: 아래 질문을 새 세션에서 그대로 복붙하고, 응답을 `[After]`에 기록

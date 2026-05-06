@@ -8,7 +8,7 @@
 > **버전**: v3.0
 > **작성일**: 2025-11-20
 > **최종 업데이트**: 2025-11-21
-> **구현 추적**: [v3.0-tracker.md](../implementation/v3.0-tracker.md)
+> **구현 추적**: [v3.0-tracker.md](implementation/v3.0-tracker.md)
 
 > 문서 상태: archived history. 상단 구현률/phase 표기는 작성 당시 추적 정보이므로 현재 코드와 충돌하면 코드를 우선 확인한다.
 >
@@ -743,7 +743,7 @@ export function useAppPolicy(tripId?: string): AppPolicyContext {
 
 ## 마이그레이션 체크리스트
 
-> **📋 구현 추적**: 상세한 구현 체크리스트는 [v3.0-tracker.md](../implementation/v3.0-tracker.md)를 참조하세요.
+> **📋 구현 추적**: 상세한 구현 체크리스트는 [v3.0-tracker.md](implementation/v3.0-tracker.md)를 참조하세요.
 
 **Phase 1: Policy Layer Core** ✅ 완료 (2025-11-20)
 

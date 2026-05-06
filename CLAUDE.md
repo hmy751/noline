@@ -14,7 +14,7 @@
   - [packages/schema/CLAUDE.md](./packages/schema/CLAUDE.md)
   - [packages/ui/CLAUDE.md](./packages/ui/CLAUDE.md)
 - 하네스 구조와 tool bridge 규칙은 [Noline AI Harness](./.claude/harness/README.md)를 따른다.
-- `.codex/`, `.agents/`, local agent, local skill은 구체적인 반복 필요가 생길 때만 만든다.
+- 실행층은 `.claude/skills/noline-work`, `.agents/skills/noline-work`, `.claude/agents/`, `.codex/agents/`가 얇게 맡는다. 기준 본문은 계속 rules/guards/runbooks/context가 소유한다.
 
 ## Start Here
 
@@ -22,11 +22,13 @@
 | --- | --- |
 | `.claude` 자료 역할 파악 | [Document Map](./.claude/README.md) |
 | 하네스/bridge 작업 | [Noline AI Harness](./.claude/harness/README.md) |
+| 작업 실행 dispatcher | [noline-work skill](./.claude/skills/noline-work/SKILL.md) |
 | 코드 수정 중 지켜야 할 compact rule | [Noline Rules](./.claude/rules/README.md) |
 | 코드 변경 전후 보호 정책 점검 | [Noline Guard Map](./.claude/guards/README.md) |
 | 반복 작업 시작 순서 | [Noline Runbooks](./.claude/runbooks/README.md) |
 | 깊은 아키텍처/기능 맥락 | [Noline Context Map](./.claude/context/README.md) |
 | 하네스 레이어 개편 이유 | [Decision: Harness Layer Model](./.claude/decisions/2026-05-06-harness-layer-model.md) |
+| 현재 하네스 실행 계획 | [Noline Harness Execution Plan](./NOLINE_HARNESS_EXECUTION_PLAN.md) |
 
 ## Common Runbooks
 
@@ -110,13 +112,15 @@ noline/
 │   ├── runbooks/        # Repeated task entry points
 │   ├── context/         # Deep architecture and feature context sources
 │   ├── harness/         # AI/developer harness and bridge model
+│   ├── skills/          # Thin workflow dispatchers
+│   ├── agents/          # Claude report-only execution agents
 │   ├── commands/        # Claude command references
 │   ├── decisions/       # Decision records
-│   ├── implementation/  # Trackers/history
 │   ├── sessions/        # Session records
-│   ├── references/      # PRD/wireframe/source material
 │   ├── audits/          # Document audit/test evidence
 │   └── _archive/        # Deprecated historical material
+├── .agents/             # Codex skill bridge
+├── .codex/              # Codex report-only agent definitions
 └── CLAUDE.md            # This navigation hub
 ```
 
@@ -147,6 +151,7 @@ pnpm server build
 pnpm server typecheck
 pnpm lint
 pnpm schema build
+pnpm harness:check
 ```
 
 ## Documentation Rules
@@ -159,6 +164,7 @@ pnpm schema build
 - active guide와 코드가 충돌하면 코드를 확인하고 active guide만 최소 수정한다.
 - 정책이나 하네스 구조가 바뀌면 [decisions/](./.claude/decisions/)에 결정 기록을 남긴다.
 - `.claude/commands/`는 Claude command reference다. Codex로 자동 이식하지 않는다.
+- skill은 dispatcher로만 둔다. agent는 report-only 실행자로만 두고, 정책 본문은 owning docs에 남긴다.
 
 ## Claude Commands
 
