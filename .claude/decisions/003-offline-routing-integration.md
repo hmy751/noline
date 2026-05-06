@@ -493,7 +493,7 @@ if (routeCache.has(cacheKey)) {
 ### Documentation
 
 - [Feature Guide: Offline Routing](../context/offline-routing.md)
-- [Client CLAUDE.md: Offline Routing](../../apps/client/CLAUDE.md#-offline-routing)
+- [Client CLAUDE.md: Offline Routing](../../apps/client/CLAUDE.md#offline-routing)
 - [ADR-002: Offline Map Integration](./002-offline-map-integration.md)
 
 ### External APIs

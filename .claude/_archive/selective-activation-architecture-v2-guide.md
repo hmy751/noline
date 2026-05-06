@@ -1668,6 +1668,8 @@ await withTransaction(async () => {
 
 ---
 
+<a id="패턴-6-비활성화-시-sync_queue-무시로-인한-데이터-손실"></a>
+
 ### 패턴 6: 비활성화 시 sync_queue 무시로 인한 데이터 손실
 
 #### 증상

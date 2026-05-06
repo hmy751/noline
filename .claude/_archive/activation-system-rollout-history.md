@@ -710,7 +710,7 @@ function PendingCleanupTrigger() {
 #### 관련 문서
 
 - Decision: [`.claude/decisions/2025-11-20-deactivation-sync-queue-safety.md`](../decisions/2025-11-20-deactivation-sync-queue-safety.md)
-- Architecture: [selective-activation-architecture.md 패턴 6](../context/selective-activation-architecture.md#패턴-6-비활성화-시-sync_queue-무시로-인한-데이터-손실)
+- Architecture: [selective-activation-architecture.md 패턴 6](selective-activation-architecture-v2-guide.md#패턴-6-비활성화-시-sync_queue-무시로-인한-데이터-손실)
 
 ### 자동 비활성화
 

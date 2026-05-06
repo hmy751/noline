@@ -237,6 +237,8 @@ function ManualScheduleForm({ tripId }) {
 }
 ```
 
+<a id="4-데이터-저장-with-sync_queue"></a>
+
 ### 4. 데이터 저장 (with sync_queue)
 
 ```typescript
