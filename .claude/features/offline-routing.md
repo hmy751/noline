@@ -549,7 +549,7 @@ export function useGetRoutes({ tripId }: { tripId: string }) {
 }
 ```
 
-**Local-First 패턴 준수**:
+**Selective Local-First 패턴 준수**:
 
 - ✅ 로컬 DB에서만 조회
 - ✅ API 호출 없음

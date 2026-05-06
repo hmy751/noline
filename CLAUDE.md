@@ -48,7 +48,7 @@ Noline은 불안정한 네트워크 환경에서도 여행 계획과 경비 기�
 | 아키텍처 | Selective Local-First | Local-First, Offline-First, Local-First Server-Aware |
 | 라우터 | Activation Router | Offline-Prep Router, Hybrid Router |
 | ID 전략 | Client-Side ID Generation | Echo Protocol |
-| UX 비유 | 오프라인 보험 | 선택적 활성화 |
+| UX 비유 | 오프라인 보험 | 오프라인 구독 |
 
 용어 변경의 이유는 [2026-03-21 terminology decision](./.claude/decisions/2026-03-21-terminology-unification.md)에 기록되어 있다. 역사 문서의 오래된 용어는 그대로 둘 수 있지만, 현재 정책 설명에서는 위 용어를 사용한다.
 

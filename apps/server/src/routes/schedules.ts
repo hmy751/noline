@@ -247,7 +247,7 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
     // 업데이트할 필드 준비
     const updateData: any = {
       updatedAt: new Date(),
-      version: sql`${schedules.version} + 1`, // ✅ version 증가 (Local-First)
+      version: sql`${schedules.version} + 1`, // ✅ version 증가 (Selective Local-First sync)
     };
 
     // id는 무시 (클라이언트에서 전송되더라도 변경 불가)
@@ -332,7 +332,7 @@ router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
       });
     }
 
-    // ✅ Soft Delete: deletedAt 설정 (Local-First)
+    // ✅ Soft Delete: deletedAt 설정 (Selective Local-First sync)
     const [deletedSchedule] = await db
       .update(schedules)
       .set({

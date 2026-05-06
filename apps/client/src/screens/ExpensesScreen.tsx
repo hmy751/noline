@@ -127,7 +127,7 @@ export default function ExpensesScreen() {
         text: '삭제',
         style: 'destructive',
         onPress: () => {
-          // ✅ Local-First: 로컬 DB Soft Delete + sync_queue 기록
+          // ✅ Selective Local-First: 로컬 DB Soft Delete + sync_queue 기록
           deleteExpense(selectedExpense.id, {
             onSuccess: () => {
               Alert.alert('성공', '경비가 삭제되었습니다.');

@@ -1,7 +1,7 @@
 /**
- * 오프라인 활성화 시스템 (Offline Preparation System)
- * - 선택적 오프라인 지원을 위한 라우팅 레이어
- * - trips 테이블의 activated 필드 기반 라우팅
+ * Activation Router
+ * - 활성화 상태에 따라 Local/Remote 데이터 경로 분기
+ * - tripActivations 테이블의 활성화 메타데이터 기반 라우팅
  */
 
 export { OfflineError, isOfflineError, type OfflineErrorOptions } from './errors';

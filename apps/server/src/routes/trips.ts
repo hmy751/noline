@@ -232,7 +232,7 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
     // 업데이트할 필드 준비
     const updateData: any = {
       updatedAt: new Date(),
-      version: sql`${trips.version} + 1`, // ✅ version 증가 (Local-First)
+      version: sql`${trips.version} + 1`, // ✅ version 증가 (Selective Local-First sync)
     };
 
     if (name !== undefined) updateData.name = name;
@@ -342,7 +342,7 @@ router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
       });
     }
 
-    // ✅ Soft Delete: deletedAt 설정 (Local-First)
+    // ✅ Soft Delete: deletedAt 설정 (Selective Local-First sync)
     // 다른 기기에 삭제가 전파되도록 함
     const [deletedTrip] = await db
       .update(trips)
