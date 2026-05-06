@@ -12,6 +12,24 @@
 
 ---
 
+## 2026-05
+
+### 2026-05-06
+
+**[Docs]** 🟡 AI/developer 하네스 실행층 추가
+
+> **Decision**: [2026-05-06-harness-execution-layer.md](./decisions/2026-05-06-harness-execution-layer.md)
+> **영향**: `.claude/skills/noline-work`, `.claude/agents/`, `.agents/skills`, `.codex/agents`, `pnpm harness:check`
+
+**핵심 변경사항**:
+
+- `noline-work` skill을 작업 dispatcher로 추가
+- `noline-context-collector`, `noline-policy-checker`, `noline-harness-observer`를 report-only 실행자로 추가
+- Claude/Codex 실행층 bridge parity를 `pnpm harness:check`에서 검증
+- 정책 본문은 계속 rules/guards/runbooks/context가 소유하고, skill/agent는 읽을 자료와 출력 형식만 소유
+
+---
+
 ## 2026-03
 
 ### 2026-03-21

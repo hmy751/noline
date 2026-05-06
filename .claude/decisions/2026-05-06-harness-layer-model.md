@@ -5,6 +5,7 @@
 > 범위: Noline AI/developer 하네스 구조
 
 > Follow-up: [Decision: Harness Execution Cleanup](2026-05-06-harness-execution-cleanup.md) archives stale implementation trackers and adds `pnpm harness:check`.
+> Follow-up: [Decision: Harness Execution Layer](2026-05-06-harness-execution-layer.md) adds the explicit skill/agent execution layer after the missing repeated need became clear.
 
 ## 배경
 
@@ -31,7 +32,7 @@ Noline 하네스에 아래 레이어 모델을 적용한다.
 
 이번 패스에서는 기존 링크를 보존하고 현재 local harness surface를 존중하기 위해 공통 하네스 문서를 `.claude/` 아래에 둔다. 이것이 Claude 전용 동작을 공통 source of truth로 삼겠다는 뜻은 아니다.
 
-구체적인 반복 도구별 필요가 생기기 전에는 `.codex/`, `.agents/`, local agent, local skill을 만들지 않는다.
+구체적인 반복 도구별 필요가 생기기 전에는 `.codex/`, `.agents/`, local agent, local skill을 만들지 않는다. 2026-05-06 실행층 follow-up 이후에는 `noline-work`와 `noline-*` report-only agents가 그 예외를 소유한다.
 
 ## 브릿지 규칙
 
@@ -49,4 +50,4 @@ Noline 하네스에 아래 레이어 모델을 적용한다.
 - runtime code 변경 없음.
 - 기존 문서 대량 삭제 없음.
 - Claude command를 Codex rule/command로 자동 변환하지 않음.
-- 이번 패스에서는 local Noline agent나 skill을 만들지 않음.
+- 이 layer-model 패스 자체에서는 local Noline agent나 skill을 만들지 않음. 후속 실행층 결정은 별도 decision이 소유한다.

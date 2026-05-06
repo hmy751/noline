@@ -18,9 +18,10 @@ This root plan is intentionally kept as the live execution tracker for `docs/har
 - Archive `references/`; the remaining PRD and wireframe are old source material, not active startup context.
 - Move stale implementation trackers and non-product reference guides into `_archive/`.
 - Keep `decisions/`, `sessions/`, and `audits/` as evidence/history, not active policy.
-- Do not create `.codex/`, `.agents/`, `.claude/agents/`, or `.claude/skills/` until a repeated local tool need is proven.
+- Do not create additional `.codex/`, `.agents/`, `.claude/agents/`, or `.claude/skills/` surfaces beyond the explicit execution layer unless another repeated local tool need is proven.
 - Add an executable harness check so bridge and layer hygiene can be verified without re-reading all handoff notes.
 - Keep this root plan for this PR so the execution state is visible without digging through audit history.
+- Add the execution layer now that the missing repeated need is explicit: a thin dispatcher skill, report-only agents, and bridge parity checks.
 
 ## Execution Checklist
 
@@ -35,6 +36,11 @@ This root plan is intentionally kept as the live execution tracker for `docs/har
 - [x] Add `pnpm harness:check`.
 - [x] Run final verification after edits.
 - [x] Decide whether to keep this plan at root for one more PR or move it to `.claude/audits/`.
+- [x] Compare against `blog`, `dev-hub`, and current Claude/Codex harness docs.
+- [x] Add `noline-work` dispatcher skill.
+- [x] Add report-only `noline-context-collector`, `noline-policy-checker`, and `noline-harness-observer`.
+- [x] Add Claude/Codex execution-layer bridge files.
+- [x] Extend `pnpm harness:check` to validate execution-layer parity.
 
 ## Execution State
 
@@ -44,6 +50,7 @@ This branch is ready for review when:
 - `git status --short --branch` is clean.
 - no active `.claude/references/` or `.claude/implementation/` directory exists.
 - no stale local/remote branch from the previous harness attempts remains unhandled.
+- execution-layer skill/agent bridge parity passes.
 
 After merge, move this file to `.claude/audits/` with the merge outcome or archive it if a newer root plan replaces it.
 
@@ -56,6 +63,10 @@ After merge, move this file to `.claude/audits/` with the merge outcome or archi
 | `.claude/guards/` | High-cost failure checks |
 | `.claude/runbooks/` | Repeated task entrypoints |
 | `.claude/context/` | Deep architecture and feature context |
+| `.claude/skills/noline-work/` | Thin execution dispatcher |
+| `.agents/skills/noline-work` | Codex skill bridge to the Claude skill source |
+| `.claude/agents/` | Claude report-only execution agents |
+| `.codex/agents/` | Codex report-only execution agents |
 | `.claude/_archive/references/` | Old product/reference source |
 | `.claude/decisions/` | Accepted decisions and rationale |
 | `.claude/sessions/` | Historical design/implementation sessions |
@@ -77,5 +88,6 @@ git status --short --branch
 - absence of accidental local tool surfaces
 - absence of legacy `.claude/core`, `.claude/features`, `.claude/implementation`, and `.claude/references`
 - active Markdown links
+- expected execution-layer skill/agent files and bridge parity
 - old temporary root plan names
 - `git diff --check` and `git diff --cached --check`

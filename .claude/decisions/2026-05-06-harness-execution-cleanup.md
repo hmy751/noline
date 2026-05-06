@@ -3,6 +3,7 @@
 > Date: 2026-05-06
 > Status: Accepted
 > 범위: Noline AI/developer 하네스 실행 단계
+> Follow-up: [Decision: Harness Execution Layer](2026-05-06-harness-execution-layer.md) adds the explicit skill/agent execution layer after the missing repeated need became clear.
 
 ## 배경
 
@@ -25,5 +26,5 @@
 ## 하지 않는 일
 
 - runtime code 변경 없음.
-- `.codex/`, `.agents/`, `.claude/agents/`, `.claude/skills/` 생성 없음.
+- 이 cleanup 결정 자체에서는 `.codex/`, `.agents/`, `.claude/agents/`, `.claude/skills/`를 만들지 않는다. 이후 실행층 추가는 follow-up 결정이 소유한다.
 - decisions, sessions, audits, changelog의 history를 현재 정책처럼 재작성하지 않음.

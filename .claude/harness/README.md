@@ -17,6 +17,8 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
 | Guards | [../guards/](../guards/) | 데이터 손실, sync 누락, auth 누락 같은 고비용 실패 점검 | 위험한 수정 전후 |
 | Runbooks | [../runbooks/](../runbooks/) | 반복 작업의 시작 순서 | 작업 진입점 |
 | Context | [../context/](../context/) | 깊은 아키텍처, cross-cutting engineering context, 기능별 설명 | 필요할 때만 |
+| Skill | [../skills/noline-work/SKILL.md](../skills/noline-work/SKILL.md) | 작업 유형별 읽기 경로, report-only agent, 검증 명령을 연결하는 dispatcher | 기능/버그/하네스 작업 실행 시 |
+| Agents | [../agents/](../agents/) + [../../.codex/agents/](../../.codex/agents/) | context 수집, policy drift 점검, harness observer | 필요할 때만 report-only |
 | Commands | [../commands/](../commands/) | Claude command reference와 문서 관리 workflow | Claude 참고 자료 |
 | Decisions | [../decisions/](../decisions/) | 정책, 용어, 하네스 구조가 왜 바뀌었는지 | 근거 기록 |
 | Audits | [../audits/](../audits/) | 문서 품질 검증과 하네스 점검 evidence | 근거 기록, policy 아님 |
@@ -37,7 +39,8 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
   - `packages/ui/`
 - `.claude/commands/`는 Claude command reference다. Codex command나 rule로 자동 포팅하지 않는다.
 - `.claude/rules/`의 Markdown은 현재 공통으로 읽을 수 있는 프로젝트 지침이지만 Claude 전용 loader 의미를 갖지는 않는다.
-- `.codex/`, `.agents/`, `.claude/agents/`, `.claude/skills/`는 구체적인 반복 필요가 생길 때만 만든다.
+- `.claude/skills/noline-work`는 Claude skill 원천이고 `.agents/skills/noline-work`는 Codex skill bridge다.
+- `.claude/agents/*.md`는 Claude report-only agent 정의이고 `.codex/agents/*.toml`은 같은 의미의 Codex agent 정의다.
 
 ## 브릿지 규칙
 
@@ -79,6 +82,7 @@ pnpm harness:check
 ```
 
 이 검증은 `AGENTS.md -> CLAUDE.md` bridge, legacy 하네스 경로 부활 여부, active Markdown 링크, root 임시 계획 파일, whitespace diff를 확인한다.
+실행층이 추가된 뒤에는 `.claude/skills`, `.agents/skills`, `.claude/agents`, `.codex/agents`의 예상 파일과 report-only/parity도 함께 확인한다.
 
 ## 이번 실행 패스
 
@@ -86,6 +90,7 @@ pnpm harness:check
 
 - stale unmerged branch와 깨진 worktree를 정리하고 `main` 기준 새 브랜치에서 진행
 - 오래된 `references/`와 `implementation/` 자료를 active surface에서 제거하고 `_archive/`로 보존
+- `noline-work` skill과 `noline-*` report-only agents로 실행층 추가
 - 루트 [Noline Harness Execution Plan](../../NOLINE_HARNESS_EXECUTION_PLAN.md)에 실행 상태와 merge 이후 정리 기준을 기록
 - `pnpm harness:check`로 bridge, legacy surface, active Markdown link, whitespace diff를 반복 검증
 
@@ -93,15 +98,16 @@ pnpm harness:check
 
 - runtime code 변경
 - Claude command를 Codex command로 자동 변환
-- `.agents/`, `.codex/`, `.claude/agents/`, `.claude/skills/`를 모양상 생성
+- hook/config enforcement를 모양상 생성
 - decisions, sessions, audits, archive history를 현재 정책처럼 재작성
 
-## 향후 후보
+## 실행층
 
-아래는 아직 active tool이 아니라 후보 목록이다.
+현재 active 실행층:
 
+- `noline-work`: 작업 유형별 dispatcher. 기준 본문을 소유하지 않고 필요한 guide/rule/runbook/context/agent/검증 명령을 연결한다.
 - `noline-context-collector`: feature/bug 단위로 관련 코드, 문서, decision, 최근 커밋을 모아 compact card를 반환하는 report-only collector.
 - `noline-policy-checker`: Router, `withTransaction`, `generateId`, schema-first, ISO time, auth ownership, soft delete 정책 drift를 보는 report-only checker.
-- `noline-harness-observer`: 큰 하네스 변경 뒤 구조 drift를 보는 report-only observer.
+- `noline-harness-observer`: 하네스/bridge 변경 뒤 구조 drift와 Claude/Codex parity를 보는 report-only observer.
 
-반복 사용으로 모양이 충분히 안정된 뒤에만 만든다. 그 전에는 이 하네스 지도와 기존 문서를 함께 사용한다.
+새 실행자는 반복 사용으로 모양이 충분히 안정된 뒤에만 추가한다. agent나 skill이 커지면 내용을 owning docs로 되돌리고 실행자는 읽을 자료와 출력 형식만 남긴다.

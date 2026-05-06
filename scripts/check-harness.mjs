@@ -10,6 +10,11 @@ const failures = [];
 
 const rel = (target) => path.relative(root, target) || '.';
 const exists = (target) => fs.existsSync(path.join(root, target));
+const expectedExecutionAgents = [
+  'noline-context-collector',
+  'noline-harness-observer',
+  'noline-policy-checker',
+];
 
 function checkSymlink(linkPath, expectedTarget) {
   const absolute = path.join(root, linkPath);
@@ -51,10 +56,13 @@ function checkMarkdownLinks() {
     'START_GUIDE.md',
     '.claude/README.md',
     '.claude/harness',
+    '.claude/skills',
+    '.claude/agents',
     '.claude/rules',
     '.claude/guards',
     '.claude/runbooks',
     '.claude/context',
+    '.claude/decisions',
     'apps/client/CLAUDE.md',
     'apps/server/CLAUDE.md',
     'packages/schema/CLAUDE.md',
@@ -85,14 +93,63 @@ function checkNoLegacySurfaces() {
     '.claude/features',
     '.claude/implementation',
     '.claude/references',
-    '.codex',
-    '.agents',
-    '.claude/agents',
-    '.claude/skills',
   ];
 
   for (const target of forbidden) {
     if (exists(target)) failures.push(`${target} should not exist in the current Noline harness`);
+  }
+}
+
+function listEntries(target) {
+  const absolute = path.join(root, target);
+  if (!fs.existsSync(absolute)) return [];
+  return fs.readdirSync(absolute).filter((entry) => entry !== '.DS_Store').sort();
+}
+
+function checkOnlyEntries(target, allowed) {
+  const absolute = path.join(root, target);
+  if (!fs.existsSync(absolute)) {
+    failures.push(`${target} is missing`);
+    return;
+  }
+
+  const actual = listEntries(target);
+  for (const entry of allowed) {
+    if (!actual.includes(entry)) failures.push(`${target}/${entry} is missing`);
+  }
+  for (const entry of actual) {
+    if (!allowed.includes(entry)) failures.push(`${target}/${entry} is not an expected harness execution surface`);
+  }
+}
+
+function checkExecutionSurfaces() {
+  checkOnlyEntries('.claude/skills', ['noline-work']);
+  checkOnlyEntries('.agents', ['skills']);
+  checkOnlyEntries('.agents/skills', ['noline-work']);
+  checkOnlyEntries('.claude/agents', expectedExecutionAgents.map((agent) => `${agent}.md`));
+  checkOnlyEntries('.codex', ['agents']);
+  checkOnlyEntries('.codex/agents', expectedExecutionAgents.map((agent) => `${agent}.toml`));
+
+  checkSymlink('.agents/skills/noline-work', '../../.claude/skills/noline-work');
+
+  for (const agent of expectedExecutionAgents) {
+    const claudePath = path.join(root, '.claude/agents', `${agent}.md`);
+    const codexPath = path.join(root, '.codex/agents', `${agent}.toml`);
+    if (!fs.existsSync(claudePath) || !fs.existsSync(codexPath)) continue;
+
+    const codexName = agent.replaceAll('-', '_');
+    const claudeText = fs.readFileSync(claudePath, 'utf8');
+    const codexText = fs.readFileSync(codexPath, 'utf8');
+
+    if (!claudeText.includes('report-only')) {
+      failures.push(`.claude/agents/${agent}.md must state report-only`);
+    }
+    if (!codexText.includes(`name = "${codexName}"`)) {
+      failures.push(`.codex/agents/${agent}.toml must use name "${codexName}"`);
+    }
+    if (!codexText.includes('Inspect only. Do not edit files.')) {
+      failures.push(`.codex/agents/${agent}.toml must be read-only/report-only`);
+    }
   }
 }
 
@@ -125,6 +182,7 @@ checkSymlink('apps/server/AGENTS.md', 'CLAUDE.md');
 checkSymlink('packages/schema/AGENTS.md', 'CLAUDE.md');
 checkSymlink('packages/ui/AGENTS.md', 'CLAUDE.md');
 checkNoLegacySurfaces();
+checkExecutionSurfaces();
 checkRootPlans();
 checkMarkdownLinks();
 checkGitDiffWhitespace();

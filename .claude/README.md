@@ -20,6 +20,8 @@
 | 위치 | 역할 | 읽는 방식 |
 | --- | --- | --- |
 | [harness/](harness/) | Claude/Codex bridge, 문서 owner, 하네스 변경 규칙 | AI/developer 운영 구조를 바꿀 때 먼저 읽는다. |
+| [skills/noline-work](skills/noline-work/SKILL.md) | 작업 유형별 guide/rule/agent/검증 dispatcher | 기능 구현, 버그 수정, 하네스 변경을 실제로 시작할 때 사용한다. |
+| [agents/](agents/) | Claude report-only 실행자 | context 수집, policy drift 점검, harness observer가 필요할 때만 사용한다. |
 | [rules/](rules/) | 짧고 검증 가능한 task/path 규칙 | 관련 코드 수정 중 scoped rule로 읽는다. |
 | [guards/](guards/) | 데이터 손실, sync 누락, auth 누락처럼 비용이 큰 실수 방지 지도 | 코드 변경 전후 체크용으로 읽는다. |
 | [runbooks/](runbooks/) | 반복 작업별 시작 순서 | 작업 시작 1-5분 안에 무엇을 확인할지 정한다. |
@@ -31,6 +33,12 @@
 | [audits/](audits/) | 문서 품질 검증, 하네스 점검, 리팩터링 테스트 | active guide가 아니다. 현재 정책과 충돌하면 active source를 우선한다. |
 | [CHANGELOG.md](CHANGELOG.md) | 정책/기능 변화의 긴 이력 | 큰 흐름을 볼 때 사용한다. 세부 구현은 코드와 active guide를 확인한다. |
 | [settings.local.json](settings.local.json) | Claude 로컬 설정 | 프로젝트 정책 문서가 아니다. 하네스 개편 이유만으로 수정하지 않는다. |
+
+Codex bridge:
+
+- `.agents/skills/noline-work`는 `.claude/skills/noline-work`를 가리키는 symlink다.
+- `.codex/agents/`는 `.claude/agents/`와 같은 의미의 report-only agent 정의를 Codex 형식으로 둔다.
+- bridge parity는 `pnpm harness:check`가 확인한다.
 
 ## Active Task Index
 
@@ -44,6 +52,7 @@
 | Auth/user ownership | [rules/auth-user-scope.md](rules/auth-user-scope.md) |
 | Policy-driven UI | [rules/policy-ui.md](rules/policy-ui.md) |
 | Repeated task flow | [runbooks/README.md](runbooks/README.md) |
+| Execution dispatcher | [skills/noline-work/SKILL.md](skills/noline-work/SKILL.md) |
 | Deep architecture/feature context | [context/README.md](context/README.md) |
 
 ## 보존 규칙
