@@ -7,6 +7,8 @@
 > **구현 추적**: [v3.0-tracker.md](../implementation/v3.0-tracker.md)
 
 > **핵심**: 오프라인 환경에서도 핵심 데이터 입력을 가능하게 하는 Graceful Degradation 전략
+>
+> 문서 상태: active source다. 구현 완료 상태는 현재 기준으로 보되, implementation tracker의 오래된 완료/미완료 표기는 코드와 대조한다.
 
 ## 📋 목차
 

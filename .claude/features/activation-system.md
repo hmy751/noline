@@ -1,6 +1,8 @@
 # 활성화 시스템 (Activation System)
 
 > 오프라인 지도 통합을 위한 선택적 데이터 동기화 시스템
+>
+> 문서 상태: mixed active source + rollout history다. 아키텍처 개요, 현재 동작, Glossary, Activation Router 관계는 active로 읽는다. Phase별 commit checklist와 미구현 항목은 rollout/history 또는 future candidate이며 현재 정책처럼 강제하지 않는다. 이 문서는 향후 current guide와 rollout/history로 split할 후보다.
 
 ## 📌 핵심 철학
 

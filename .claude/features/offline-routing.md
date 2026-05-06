@@ -1,6 +1,8 @@
 # Offline Routing Feature Guide
 
 > Mapbox Directions API 기반 오프라인 경로 저장 및 표시 구현 가이드
+>
+> 문서 상태: active source다. 파일 경로와 Mapbox 렌더링 컴포넌트명은 2026-05-06 정비 패스에서 현재 코드 기준으로 갱신했다. 이후 코드와 충돌하면 코드를 확인한 뒤 이 문서만 최소 수정한다.
 
 ## 📌 개요
 

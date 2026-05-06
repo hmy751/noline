@@ -9,6 +9,8 @@ alwaysApply: false
 - 기본적으로 재사용성과 확장성을 고려한다.
 - 기준은 React Native/Expo다. 과거 웹/Next.js 예시가 남아 있으면 원칙 설명용으로만 읽고, 새 클라이언트 코드는 `View`, `Text`, `Pressable`, `className` 기반 NativeWind 패턴을 우선한다.
 
+> 문서 상태: mixed active source다. 컴포넌트 책임, atom/composition 경계, 재사용 원칙은 active로 읽는다. `<div>`, `<button>`, Next.js, CSS module 예시는 legacy/pattern-only 예시이며 React Native 코드에 그대로 복사하지 않는다. 웹-heavy 섹션은 향후 archive/split 후보로 추적한다.
+
 ---
 
 ## 0. 구현 깊이 가이드 (레벨별 가이드)

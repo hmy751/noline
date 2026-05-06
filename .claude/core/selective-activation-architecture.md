@@ -2,6 +2,8 @@
 
 > ⚠️ **중요**: 이 문서는 **Data Layer**에만 적용됩니다.
 > Service Layer(Map/Search)는 [Policy Architecture](./policy-architecture.md)를 참조하세요.
+>
+> 문서 상태: active source다. 여기서 `Local-First`는 활성화된 여행의 Data Entity 경로를 뜻한다. Service Layer나 비활성 여행까지 일괄 적용하지 않는다.
 
 ## 📌 v3.0 Update (2025-11)
 

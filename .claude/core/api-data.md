@@ -8,6 +8,8 @@ alwaysApply: true
 - 이건 가이드로서 만약 구현되어 있지 않는다면 무조건적으로 따를 필요는 없다.
 - 현재 클라이언트에는 `_libs/error`/`errorService`가 없다. 데이터 훅 예시는 기본 `Error` throw와 React Query error state 처리를 우선한다.
 
+> 문서 상태: active source다. 다만 `MVP/Production` 표현은 구현 깊이 가이드일 뿐, 존재하지 않는 인프라를 기본으로 만들라는 뜻이 아니다. `user`, `interview`, 웹 폼 예시는 패턴 예시로 읽고, 실제 작업에서는 Noline의 Entity/Repository/Data hook과 React Native/Expo 구조로 번역한다.
+
 ---
 
 ## 0. 구현 깊이 가이드 (레벨별 가이드)

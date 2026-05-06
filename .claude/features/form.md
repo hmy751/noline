@@ -6,6 +6,8 @@ alwaysApply: false
 
 이 문서는 프로젝트의 폼(Form) 기능 구현에 대한 규칙과 가이드라인을 정의합니다. 일관성 있고 재사용 가능하며 유지보수가 용이한 폼을 만들기 위해 모든 팀원은 이 가이드를 준수해야 합니다.
 
+> 문서 상태: active source다. 다만 일부 표현은 기존 웹 프로젝트 컴포넌트 구조를 참고하므로, 실제 구현은 React Native 기본 요소와 현재 `@repo/ui`/`shared/components` 구조에 맞춰 번역한다.
+
 ## 1. 핵심 기술 스택 (Core Tech Stack)
 
 - **상태 관리 (State Management):** `react-hook-form`
