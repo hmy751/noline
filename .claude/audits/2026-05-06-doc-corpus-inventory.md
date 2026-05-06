@@ -64,9 +64,10 @@
 
 ### Pass 4. Layer Model Follow-Up
 
-- In progress. `rules/`, `runbooks/`, and `context/` now define the active harness entry layers.
+- Complete. `rules/`, `runbooks/`, and `context/` now define the active harness entry layers.
 - `core/` and `features/` are preserved as deep context/compatibility sources rather than startup reading.
 - `workflows/` is retained as a compatibility redirect while `runbooks/` owns repeated task entrypoints.
+- The temporary root follow-up plan was removed after preserving continuity context in [2026-05-06-harness-layer-followup-handoff.md](2026-05-06-harness-layer-followup-handoff.md).
 
 ## Archive Rule
 

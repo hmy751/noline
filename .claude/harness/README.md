@@ -56,6 +56,20 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
 5. `rules/`는 짧고 검증 가능하게, `context/`는 깊은 설명을 보존하게, `runbooks/`는 실행 순서만 빠르게 유지한다.
 6. 이후 작업 방식에 영향을 주는 하네스 변경은 [decisions/](../decisions/)에 기록한다.
 
+## 커밋 메시지 기준
+
+새 커밋은 가능한 한 Conventional Commit 형태를 사용한다.
+
+```text
+type(scope): summary
+```
+
+- runtime code는 `client`, `server`, `schema`, `ui` 같은 workspace scope를 우선한다.
+- documentation/harness 변경은 `harness`, `rules`, `runbooks`, `context`, `guards`, `readme`, `archive`처럼 가장 작은 문서 owner를 scope로 쓴다.
+- scope는 변경이 진짜 repo-wide이거나 유용한 owner가 없을 때만 생략한다.
+
+결정 기록: [Commit Message Convention](../decisions/2026-05-06-commit-message-convention.md)
+
 ## 이번 패스
 
 이번 개편에서 하는 일:

@@ -3,6 +3,8 @@
 > 2026-05-06 handoff for branch `docs/noline-harness-restructure`.
 > This is an audit/session continuity note, not active policy.
 
+> Follow-up: branch `docs/harness-doc-prune` adds the later `rules/`, `runbooks`, and `context` layer model. See [2026-05-06-harness-layer-followup-handoff.md](2026-05-06-harness-layer-followup-handoff.md) for the current follow-up handoff.
+
 ## Why This Exists
 
 The temporary root planning file `NOLINE_HARNESS_RESTRUCTURE_PLAN.md` was committed early in this branch to keep the restructure understandable across sessions. Its planning role is now complete, so the root file was removed. This handoff preserves only the context a later Claude/Codex session needs to avoid restarting or misreading the work.
