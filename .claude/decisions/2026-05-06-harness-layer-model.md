@@ -1,50 +1,50 @@
-# Decision: Harness Layer Model
+# 결정 기록: 하네스 레이어 모델
 
 > Date: 2026-05-06
 > Status: Accepted
-> Scope: Noline AI/developer harness structure
+> 범위: Noline AI/developer 하네스 구조
 
-## Context
+## 배경
 
-The previous restructure made the documentation corpus safer by adding a root guide, document map, guard map, workflow map, archive hygiene, and `AGENTS.md -> CLAUDE.md` bridges.
+이전 restructure는 root guide, document map, guard map, workflow map, archive hygiene, `AGENTS.md -> CLAUDE.md` bridge를 추가해 문서 corpus를 더 안전하게 만들었다.
 
-After that pass, `core/` and `features/` still looked like the harness center even when many files were better understood as deep context. That created two risks:
+그 다음에도 `core/`와 `features/`는 여전히 하네스의 중심처럼 보였다. 하지만 실제로는 많은 파일이 startup policy라기보다 깊은 맥락에 가까웠다. 이 상태에는 두 가지 위험이 있었다.
 
-- Older implementation guides could be read as always-on policy.
-- Claude/Codex bridge work could appear to mean "put everything under `.claude/`" or "mirror everything into tool-specific folders."
+- 오래된 구현 가이드가 항상 적용되는 현재 정책처럼 읽힐 수 있다.
+- Claude/Codex bridge 작업이 "모든 것을 `.claude/` 아래에 넣자" 또는 "tool-specific folder에 전부 mirror하자"로 오해될 수 있다.
 
-Current tool patterns point in the same direction: keep startup instructions small, use scoped/path rules for concrete behavior, preserve deeper context on demand, and avoid duplicating policy across tool adapters.
+최근 도구 패턴도 같은 방향을 가리킨다. 시작 지침은 작게 유지하고, 구체적인 동작은 작업/경로별 규칙으로 두며, 깊은 맥락은 필요할 때 열고, 도구 adapter 사이에 정책을 중복하지 않는다.
 
-## Decision
+## 결정
 
-Adopt a layer model for Noline's harness:
+Noline 하네스에 아래 레이어 모델을 적용한다.
 
-- Root `CLAUDE.md` / `AGENTS.md`: small navigation and project invariants.
-- Workspace guides: owner rules for `apps/*` and `packages/*`.
-- `.claude/rules/`: compact task/path rules for high-signal engineering choices.
-- `.claude/guards/`: high-cost failure map and final check surface.
-- `.claude/runbooks/`: repeated task entry points.
-- `.claude/context/`: deep explanations and compatibility map for current `core/` and `features/` sources.
-- `.claude/decisions/`, `.claude/audits/`, `.claude/references/`, `.claude/_archive/`: evidence, verification, product source, and historical material.
+- Root `CLAUDE.md` / `AGENTS.md`: 작은 탐색 허브와 project invariant.
+- Workspace guides: `apps/*`와 `packages/*`의 owner rule.
+- `.claude/rules/`: 중요한 engineering choice를 위한 짧은 작업/경로별 규칙.
+- `.claude/guards/`: 고비용 실패 지도와 마무리 점검 표면.
+- `.claude/runbooks/`: 반복 작업 진입점.
+- `.claude/context/`: 현재 `core/`와 `features/` source를 연결하는 깊은 설명과 호환성 지도.
+- `.claude/decisions/`, `.claude/audits/`, `.claude/references/`, `.claude/_archive/`: 근거, 검증, 제품 source, history.
 
-For this pass, common harness docs remain under `.claude/` to preserve existing links and because that is the current local harness surface. This does not make Claude-specific behavior the common source of truth.
+이번 패스에서는 기존 링크를 보존하고 현재 local harness surface를 존중하기 위해 공통 하네스 문서를 `.claude/` 아래에 둔다. 이것이 Claude 전용 동작을 공통 source of truth로 삼겠다는 뜻은 아니다.
 
-No `.codex/`, `.agents/`, local agent, or local skill is created until a concrete repeated tool-specific need appears.
+구체적인 반복 도구별 필요가 생기기 전에는 `.codex/`, `.agents/`, local agent, local skill을 만들지 않는다.
 
-## Bridge Rule
+## 브릿지 규칙
 
-Tool-specific files may adapt or point to common project guidance, but should not silently become separate policy sources. If both Claude and Codex versions exist later, the harness must record whether they are equivalent, adapters, or intentionally different.
+도구별 파일은 공통 프로젝트 지침을 적응하거나 가리킬 수 있지만, 조용히 별도 정책 원천이 되어서는 안 된다. 나중에 Claude와 Codex 양쪽 버전이 생기면 같은 내용인지, adapter인지, 의도적으로 다른지 하네스에 기록한다.
 
-## Consequences
+## 영향
 
-- New task instructions should usually start in `rules/` or `runbooks/`, not in `core/` or `features/`.
-- Existing `core/` and `features/` files remain available as deep context while links migrate.
-- The old `workflows/` path stays as compatibility material while `runbooks/` becomes the active repeated-task surface.
-- Future agents/skills should stay thin and point back to owning docs.
+- 새 작업 지침은 보통 `core/`나 `features/`가 아니라 `rules/` 또는 `runbooks/`에서 시작한다.
+- 기존 `core/`와 `features/` 파일은 link migration 동안 깊은 맥락으로 유지한다.
+- 기존 `workflows/` 경로는 호환성 자료로 남기고, `runbooks/`가 active repeated-task surface를 맡는다.
+- 향후 agent/skill은 얇게 두고 owning docs로 되돌아가게 한다.
 
-## Non-Goals
+## 하지 않는 일
 
-- No runtime code changes.
-- No mass deletion of existing documentation.
-- No automatic conversion of Claude commands into Codex rules or commands.
-- No creation of local Noline agents or skills in this pass.
+- runtime code 변경 없음.
+- 기존 문서 대량 삭제 없음.
+- Claude command를 Codex rule/command로 자동 변환하지 않음.
+- 이번 패스에서는 local Noline agent나 skill을 만들지 않음.

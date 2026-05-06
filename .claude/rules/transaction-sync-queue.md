@@ -1,21 +1,21 @@
-# Rule: Transaction + Sync Queue
+# 규칙: Transaction + Sync Queue
 
-## Scope
+## 적용 범위
 
-- Local mutations in the client
-- Offline/manual input writes
-- Activation and deactivation flows
-- Any write path that creates or updates `sync_queue`
+- client local mutation
+- offline/manual input write
+- activation/deactivation flow
+- `sync_queue`를 만들거나 갱신하는 write path
 
-## Rules
+## 규칙
 
-- Local DB changes and the matching `sync_queue` insert must happen inside the same `withTransaction` call.
-- Do not enqueue sync work after a successful local write in a separate step.
-- Do not put Service Layer work such as map/search/directions into `sync_queue` unless the ownership model changes by decision record.
-- Delete flows must preserve soft-delete and pending-sync safety.
-- Activation/deactivation cleanup must check pending sync state before removing local data.
+- local DB 변경과 대응되는 `sync_queue` insert는 같은 `withTransaction` 안에서 처리한다.
+- local write가 성공한 뒤 별도 단계에서 sync work를 enqueue하지 않는다.
+- ownership model이 decision record로 바뀌기 전에는 map/search/directions 같은 Service Layer work를 `sync_queue`에 넣지 않는다.
+- delete flow는 soft-delete와 pending-sync safety를 지켜야 한다.
+- activation/deactivation cleanup은 local data를 지우기 전에 pending sync 상태를 확인한다.
 
-## Before Finishing
+## 마무리 확인
 
-- Check [Guard Map](../guards/README.md): Transaction + sync_queue and Soft Delete.
-- If changing cleanup behavior, read [Deactivation Sync Queue Safety](../decisions/2025-11-20-deactivation-sync-queue-safety.md).
+- [Guard Map](../guards/README.md)의 Transaction + sync_queue와 Soft Delete를 확인한다.
+- cleanup 동작을 바꾼다면 [Deactivation Sync Queue Safety](../decisions/2025-11-20-deactivation-sync-queue-safety.md)를 읽는다.

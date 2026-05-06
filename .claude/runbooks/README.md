@@ -1,92 +1,92 @@
-# Noline Runbooks
+# Noline 런북
 
-Runbooks are repeated task entry points. They give the first checks and links for a task, without copying full architecture guides.
+런북은 반복 작업의 진입점이다. 전체 아키텍처 가이드를 복사하지 않고, 작업을 시작할 때 먼저 확인할 순서와 링크만 제공한다.
 
-## Reading Model
+## 읽는 방식
 
-1. Pick the task shape below.
-2. Open the linked rule and workspace guide.
-3. Use [Guard Map](../guards/README.md) before and after editing.
-4. Read [Context Map](../context/README.md) only when the compact rule is not enough.
+1. 아래에서 작업 유형을 고른다.
+2. 연결된 규칙과 workspace guide를 연다.
+3. 수정 전후에 [Guard Map](../guards/README.md)을 확인한다.
+4. 규칙만으로 부족할 때만 [맥락 지도](../context/README.md)을 읽는다.
 
-## Quick Task Table
+## 빠른 작업표
 
-| Task | First rules | Workspace/context |
+| 작업 | 먼저 볼 규칙 | workspace/context |
 | --- | --- | --- |
-| [Add New Entity](#add-entity) | [Schema First](../rules/schema-first.md), [Client-Side ID](../rules/client-side-id.md), [Activation Router](../rules/activation-router.md) | [packages/schema](../../packages/schema/CLAUDE.md), [client](../../apps/client/CLAUDE.md), [server](../../apps/server/CLAUDE.md) |
-| [Debug Sync Issues](#sync-debug) | [Activation Router](../rules/activation-router.md), [Transaction + Sync Queue](../rules/transaction-sync-queue.md) | [Selective Activation context](../context/README.md#selective-activation-and-router) |
-| [Add API Endpoint](#api-endpoint) | [Schema First](../rules/schema-first.md), [Auth/User Scope](../rules/auth-user-scope.md), [Client-Side ID](../rules/client-side-id.md) | [server](../../apps/server/CLAUDE.md), [schema](../../packages/schema/CLAUDE.md) |
-| [Implement Forms](#form-pattern) | [Schema First](../rules/schema-first.md), [Policy UI](../rules/policy-ui.md), [ISO Time](../rules/iso-time.md) | [Form context](../context/README.md#forms-and-manual-input) |
-| [Work With Dates/Times](#datetime-utils) | [ISO Time](../rules/iso-time.md) | [Time context](../context/README.md#time-and-date) |
-| [Display Currency/Amounts](#currency-utils) | No hard rule; use context first | [Currency context](../context/README.md#currency) |
-| [Build UI Components](#component-guide) | [Policy UI](../rules/policy-ui.md) | [packages/ui](../../packages/ui/CLAUDE.md), [Component context](../context/README.md#components) |
+| [새 Entity 추가](#add-entity) | [Schema First](../rules/schema-first.md), [Client-Side ID](../rules/client-side-id.md), [Activation Router](../rules/activation-router.md) | [packages/schema](../../packages/schema/CLAUDE.md), [client](../../apps/client/CLAUDE.md), [server](../../apps/server/CLAUDE.md) |
+| [동기화 문제 디버깅](#sync-debug) | [Activation Router](../rules/activation-router.md), [Transaction + Sync Queue](../rules/transaction-sync-queue.md) | [Selective Activation context](../context/README.md#selective-activation-and-router) |
+| [API endpoint 추가](#api-endpoint) | [Schema First](../rules/schema-first.md), [Auth/User Scope](../rules/auth-user-scope.md), [Client-Side ID](../rules/client-side-id.md) | [server](../../apps/server/CLAUDE.md), [schema](../../packages/schema/CLAUDE.md) |
+| [Form 구현](#form-pattern) | [Schema First](../rules/schema-first.md), [Policy UI](../rules/policy-ui.md), [ISO Time](../rules/iso-time.md) | [Form context](../context/README.md#forms-and-manual-input) |
+| [날짜/시간 처리](#datetime-utils) | [ISO Time](../rules/iso-time.md) | [Time context](../context/README.md#time-and-date) |
+| [통화/금액 표시](#currency-utils) | hard rule 없음. context 먼저 확인 | [Currency context](../context/README.md#currency) |
+| [UI 컴포넌트 작성](#component-guide) | [Policy UI](../rules/policy-ui.md) | [packages/ui](../../packages/ui/CLAUDE.md), [Component context](../context/README.md#components) |
 
-## <a id="add-entity"></a>Add New Entity
+## <a id="add-entity"></a>새 Entity 추가
 
-Use for Trip/Schedule/Expense-like sync-owned Data Entities.
+Trip/Schedule/Expense처럼 sync-owned Data Entity를 추가하거나 확장할 때 사용한다.
 
-1. Define or update the Zod schema in `packages/schema`.
-2. Infer types from the schema; avoid parallel DTOs.
-3. Confirm create payload and server route accept client-created IDs.
-4. Add client model, local datasource, remote API, repository routing, and data hook boundaries.
-5. Put local DB mutation and `sync_queue` insert in the same transaction.
-6. Check delete/list behavior for `deletedAt` and pending sync safety.
-7. Verify server routes authenticate and scope user-owned data.
+1. `packages/schema`에서 Zod schema를 먼저 정의하거나 갱신한다.
+2. schema에서 type을 추론하고, 별도 DTO를 중복 작성하지 않는다.
+3. create payload와 server route가 client-created ID를 수용하는지 확인한다.
+4. client model, local datasource, remote API, repository routing, data hook 경계를 잡는다.
+5. local DB mutation과 `sync_queue` insert를 같은 transaction 안에 둔다.
+6. delete/list 동작이 `deletedAt`과 pending sync safety를 지키는지 확인한다.
+7. server route가 인증과 user ownership을 확인하는지 본다.
 
-## <a id="sync-debug"></a>Debug Sync Issues
+## <a id="sync-debug"></a>동기화 문제 디버깅
 
-Use when a local/remote state, pending sync, activation, or deletion path is wrong.
+local/remote state, pending sync, activation, deletion path가 어긋날 때 사용한다.
 
-1. Identify the trip, entity, activation state, and user.
-2. Check whether Data Layer code bypassed the Activation Router.
-3. Check local writes and `sync_queue` inserts share one transaction.
-4. Compare queue rows with local rows and server payloads.
-5. For delete/deactivation, check soft delete and cleanup safety.
-6. For server drift, check auth and user ownership filters.
+1. 문제가 난 trip, entity, activation state, user를 확인한다.
+2. Data Layer 코드가 Activation Router를 우회했는지 확인한다.
+3. local write와 `sync_queue` insert가 같은 transaction 안에 있는지 본다.
+4. queue row와 local row, server payload가 서로 맞는지 비교한다.
+5. delete/deactivation 문제라면 soft delete와 cleanup safety를 확인한다.
+6. server drift라면 auth와 user ownership filter를 확인한다.
 
-## <a id="api-endpoint"></a>Add API Endpoint
+## <a id="api-endpoint"></a>API endpoint 추가
 
-Use for server route changes and client-facing API contracts.
+server route와 client-facing API contract를 바꿀 때 사용한다.
 
-1. Start from `packages/schema` request/response schemas.
-2. Parse requests with Zod at the route boundary.
-3. Verify auth and user ownership before reading or mutating rows.
-4. Preserve client-created IDs for sync-owned create flows.
-5. Update client API hooks/repositories without bypassing Data Layer routing.
+1. `packages/schema` request/response schema에서 시작한다.
+2. route boundary에서 Zod로 request를 parse한다.
+3. row를 읽거나 쓰기 전에 auth와 user ownership을 확인한다.
+4. sync-owned create flow에서는 client-created ID를 보존한다.
+5. client API hook/repository를 갱신하되 Data Layer routing을 우회하지 않는다.
 
-## <a id="form-pattern"></a>Implement Forms
+## <a id="form-pattern"></a>Form 구현
 
-Use for client forms and manual input flows.
+client form과 manual input flow에 사용한다.
 
-1. Use React Hook Form and Zod resolver where the existing codebase does.
-2. Keep form-only state local, then convert to request shape at submit.
-3. Use shared date/time and currency utilities.
-4. Use policy primitives for offline/active/inactive restrictions.
-5. Keep mutation hooks focused on data work; screens own UX and policy display.
+1. 기존 codebase가 쓰는 위치에서는 React Hook Form과 Zod resolver를 사용한다.
+2. form-only state는 local로 두고, submit 시 request shape으로 변환한다.
+3. 날짜/시간과 통화 표시는 shared utility를 사용한다.
+4. offline/active/inactive 제한은 policy primitive로 표현한다.
+5. mutation hook은 data work에 집중하고, screen은 UX와 policy display를 맡는다.
 
-## <a id="datetime-utils"></a>Work With Dates/Times
+## <a id="datetime-utils"></a>날짜/시간 처리
 
-1. Store/transmit ISO 8601 datetime strings with timezone.
-2. Format only at display boundaries.
-3. Use shared datetime utilities before adding new formatting code.
-4. Convert separate form date/time fields into ISO at submit.
-5. Check SQLite/PostgreSQL field semantics when touching persistence.
+1. 저장/전송 값은 timezone이 있는 ISO 8601 datetime string으로 유지한다.
+2. format은 표시 boundary에서만 적용한다.
+3. 새 formatter를 만들기 전에 shared datetime utility를 찾는다.
+4. 분리된 form date/time field는 submit 시 ISO 값으로 결합한다.
+5. persistence를 만질 때 SQLite/PostgreSQL field 의미를 확인한다.
 
-## <a id="currency-utils"></a>Display Currency/Amounts
+## <a id="currency-utils"></a>통화/금액 표시
 
-1. Use `formatCurrencyDisplay` for display.
-2. Use `groupExpensesByCurrency` when grouping by currency.
-3. Use `getPrimaryCurrency` only when a representative currency is needed.
-4. Do not add exchange-rate conversion without a new product policy.
+1. 표시는 `formatCurrencyDisplay`를 사용한다.
+2. 통화별 묶음은 `groupExpensesByCurrency`를 사용한다.
+3. 대표 통화가 필요할 때만 `getPrimaryCurrency`를 사용한다.
+4. 새 제품 정책 없이 exchange-rate conversion을 추가하지 않는다.
 
-## <a id="component-guide"></a>Build UI Components
+## <a id="component-guide"></a>UI 컴포넌트 작성
 
-1. Put reusable primitives in `packages/ui`; keep domain components in the owning client slice.
-2. Let parents control external margin.
-3. Type props explicitly.
-4. Use shared date/currency display helpers.
-5. Use policy UI patterns before adding new blocked-state components.
+1. 재사용 primitive는 `packages/ui`, domain component는 owning client slice에 둔다.
+2. 외부 margin은 부모가 제어한다.
+3. props type을 명시한다.
+4. 날짜/통화 표시는 shared helper를 사용한다.
+5. 새 blocked-state component를 만들기 전에 policy UI 패턴을 확인한다.
 
-## Compatibility
+## 호환성
 
-The older [workflow map](../workflows/README.md) is kept as a compatibility entry while links migrate. New repeated-task guidance should be added here.
+기존 [workflow map](../workflows/README.md)은 링크 호환성 때문에 남겨둔다. 새 반복 작업 안내는 이 런북에 추가한다.
