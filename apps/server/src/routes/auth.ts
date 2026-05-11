@@ -158,7 +158,7 @@ router.post('/google', async (req: Request, res: Response) => {
         picture: payload.picture,
       };
 
-      console.log('✅ Google token verified for user:', googleUser.email);
+      console.log('✅ Google token verified for user (sub):', googleUser.sub);
     } catch (error) {
       console.error('Google token verification failed:', error);
       return res.status(401).json({
@@ -188,7 +188,7 @@ router.post('/google', async (req: Request, res: Response) => {
     await saveRefreshToken(user.id, tokens.refreshToken, deviceInfo);
     console.log('🔐 [Google Auth] Refresh token saved');
 
-    console.log('🔐 [Google Auth] Login successful for:', googleUser.email);
+    console.log('🔐 [Google Auth] Login successful for user:', user.id);
     res.status(200).json({
       success: true,
       data: {
@@ -244,7 +244,7 @@ router.post('/apple', async (req: Request, res: Response) => {
           : undefined,
       };
 
-      console.log('✅ Apple token verified for user:', appleUserInfo.email || appleUserInfo.sub);
+      console.log('✅ Apple token verified for user (sub):', appleUserInfo.sub);
     } catch (error) {
       console.error('Apple token verification failed:', error);
       return res.status(401).json({
