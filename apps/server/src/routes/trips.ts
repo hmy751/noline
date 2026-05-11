@@ -34,7 +34,7 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
         updatedAt: trips.updatedAt,
       })
       .from(trips)
-      .where(sql`${trips.userId} = ${userId}`)
+      .where(and(eq(trips.userId, userId), isNull(trips.deletedAt)))
       .orderBy(desc(trips.createdAt));
 
     if (!allTrips || allTrips.length === 0) {
@@ -449,11 +449,11 @@ router.post('/:id/activate', requireAuth, async (req: Request, res: Response) =>
     const tripId = req.params.id;
     const userId = req.userId!;
 
-    // 여행 존재 여부 및 소유권 확인
+    // 여행 존재 여부 및 소유권 확인 (soft delete 제외)
     const [trip] = await db
       .select()
       .from(trips)
-      .where(and(eq(trips.id, tripId), eq(trips.userId, userId)));
+      .where(and(eq(trips.id, tripId), eq(trips.userId, userId), isNull(trips.deletedAt)));
 
     if (!trip) {
       return res.status(404).json({
@@ -462,8 +462,11 @@ router.post('/:id/activate', requireAuth, async (req: Request, res: Response) =>
       });
     }
 
-    // 모든 Trip 조회 (활성화 시 모든 Trip 메타데이터 전송)
-    const allTrips = await db.select().from(trips).where(eq(trips.userId, userId));
+    // 모든 Trip 조회 (활성화 시 모든 Trip 메타데이터 전송, soft delete 제외)
+    const allTrips = await db
+      .select()
+      .from(trips)
+      .where(and(eq(trips.userId, userId), isNull(trips.deletedAt)));
 
     // 여행의 모든 일정 조회 (Soft Delete 제외)
     const tripSchedules = await db
