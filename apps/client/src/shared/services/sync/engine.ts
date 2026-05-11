@@ -9,6 +9,51 @@ import { processPendingCleanups } from './cleanup-job';
 import { AuthRequiredError } from '@/shared/services/auth';
 
 /**
+ * Sync push 대상 테이블 → 서버 endpoint 매핑.
+ *
+ * 새 sync-owned entity가 추가될 때 여기에만 한 줄을 더 한다. push 엔진은
+ * tableName 으로 endpoint 만 lookup하고, action 별 HTTP 메서드는
+ * 아래 helper에서 결정한다.
+ */
+const SYNC_PUSH_ENDPOINTS = {
+  trips: '/api/trips',
+  schedules: '/api/schedules',
+  expenses: '/api/expenses',
+} as const;
+
+type SyncTable = keyof typeof SYNC_PUSH_ENDPOINTS;
+type SyncAction = 'CREATE' | 'UPDATE' | 'DELETE';
+
+function isSyncTable(tableName: string): tableName is SyncTable {
+  return tableName in SYNC_PUSH_ENDPOINTS;
+}
+
+async function pushTaskToServer(
+  tableName: SyncTable,
+  action: SyncAction,
+  recordId: string,
+  payload: unknown,
+): Promise<void> {
+  const endpoint = SYNC_PUSH_ENDPOINTS[tableName];
+
+  switch (action) {
+    case 'CREATE':
+      await syncApiClient.post(endpoint, payload);
+      return;
+    case 'UPDATE':
+      await syncApiClient.put(`${endpoint}/${recordId}`, payload);
+      return;
+    case 'DELETE':
+      await syncApiClient.delete(`${endpoint}/${recordId}`);
+      return;
+    default: {
+      const exhaustive: never = action;
+      throw new Error(`Unknown sync action: ${exhaustive as string}`);
+    }
+  }
+}
+
+/**
  * Push 동기화 엔진
  *
  * sync_queue의 PENDING 작업을 서버로 전송
@@ -39,33 +84,14 @@ export async function pushChanges(): Promise<void> {
         // 상태 변경: PENDING → IN_PROGRESS
         await updateTaskStatus(task.id, 'IN_PROGRESS');
 
-        // 3. Payload 파싱
-        const payload = JSON.parse(task.payload);
-
-        // 4. 테이블별 엔드포인트 분기
-        let endpoint = '';
-        if (task.tableName === 'trips') {
-          endpoint = '/api/trips';
-        } else if (task.tableName === 'schedules') {
-          endpoint = '/api/schedules';
-        } else if (task.tableName === 'expenses') {
-          endpoint = '/api/expenses';
-        } else {
+        if (!isSyncTable(task.tableName)) {
           throw new Error(`Unknown table: ${task.tableName}`);
         }
 
-        // 5. 액션별 HTTP 메서드 결정
-        if (task.action === 'CREATE') {
-          await syncApiClient.post(endpoint, payload);
-        } else if (task.action === 'UPDATE') {
-          await syncApiClient.put(`${endpoint}/${task.recordId}`, payload);
-        } else if (task.action === 'DELETE') {
-          await syncApiClient.delete(`${endpoint}/${task.recordId}`);
-        } else {
-          throw new Error(`Unknown action: ${task.action}`);
-        }
+        const payload = JSON.parse(task.payload);
+        await pushTaskToServer(task.tableName, task.action as SyncAction, task.recordId, payload);
 
-        // 6. 성공 시 sync_queue에서 삭제
+        // 성공 시 sync_queue에서 삭제
         await deleteTask(task.id);
 
         console.log(`✅ [Sync] Success: ${task.action} ${task.tableName}/${task.recordId}`);
@@ -148,11 +174,11 @@ export async function pullChanges(): Promise<void> {
       activatedTripIds,
     });
 
-    // 3. 서버에서 데이터 가져오기
+    // 3. 서버에서 데이터 가져오기 (이 시점에 activatedTripIds.length > 0 임이 보장됨)
     const response = await syncApiClient.get('/api/sync/pull', {
       params: {
         lastSyncedAt: lastSyncedAt?.toISOString(),
-        activatedTripIds: activatedTripIds.length > 0 ? activatedTripIds.join(',') : undefined,
+        activatedTripIds: activatedTripIds.join(','),
       },
     });
 
