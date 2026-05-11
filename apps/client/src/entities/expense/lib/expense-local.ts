@@ -163,9 +163,20 @@ export const updateExpenseLocal = async (id: string, data: UpdateExpenseRequest)
 
 /**
  * 로컬 DB에서 경비 삭제 (Soft Delete) + sync_queue 기록
+ *
+ * payload에 tripId를 포함시키면 cleanup-job이 비활성화 전에 자식 entity의
+ * pending DELETE를 정확히 식별할 수 있다. 서버는 DELETE body를 사용하지 않으므로
+ * 동기화 동작에는 영향이 없다.
  */
 export const deleteExpenseLocal = async (id: string): Promise<{ id: string; deletedAt: string }> => {
   const now = getCurrentISOString();
+
+  const existing = await db
+    .select({ tripId: expenses.tripId })
+    .from(expenses)
+    .where(eq(expenses.id, id))
+    .get();
+  const tripId = existing?.tripId ?? null;
 
   await withTransaction(async () => {
     await db
@@ -177,7 +188,7 @@ export const deleteExpenseLocal = async (id: string): Promise<{ id: string; dele
       })
       .where(eq(expenses.id, id));
 
-    await addToSyncQueue('expenses', id, 'DELETE', null);
+    await addToSyncQueue('expenses', id, 'DELETE', { tripId });
   });
 
   console.log(`✅ Expense deleted locally (Soft Delete): ${id}`);

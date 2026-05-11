@@ -241,11 +241,13 @@ export async function getPendingTasksForTrip(tripId: string): Promise<SyncQueueI
     if (task.tableName === 'trips' && task.recordId === tripId) {
       return true;
     }
-    // Child entities의 경우 payload에서 tripId 확인
+    // Child entities의 경우 payload에서 tripId 확인.
+    // CREATE/UPDATE payload는 entity 전체, DELETE payload는 { tripId } 만 포함.
+    // 이전 버전이 남긴 payload === "null"도 옵셔널 체이닝으로 안전하게 처리.
     if (task.tableName === 'schedules' || task.tableName === 'expenses') {
       try {
-        const payload = JSON.parse(task.payload);
-        return payload.tripId === tripId;
+        const payload = JSON.parse(task.payload) as { tripId?: string } | null;
+        return payload?.tripId === tripId;
       } catch {
         return false;
       }
