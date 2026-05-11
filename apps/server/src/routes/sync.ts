@@ -1,13 +1,14 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { db, trips, schedules, expenses } from '../db/index.js';
-import { gte, inArray, and } from 'drizzle-orm';
+import { gte, inArray, and, eq } from 'drizzle-orm';
 import {
   syncPullQuerySchema,
   syncPullResponseSchema,
   syncPushRequestSchema,
   syncPushResponseSchema,
 } from '@repo/schema/sync/sync-status';
+import { requireAuth } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -31,8 +32,9 @@ const router = Router();
  * @example
  * GET /api/sync/pull?lastSyncedAt=2025-10-24T10:00:00.000Z&activatedTripIds=trip1,trip2
  */
-router.get('/pull', async (req: Request, res: Response) => {
+router.get('/pull', requireAuth, async (req: Request, res: Response) => {
   try {
+    const userId = req.userId!;
     const { lastSyncedAt, activatedTripIds } = req.query;
 
     console.log('📥 [Sync Pull] Request received:', {
@@ -48,17 +50,27 @@ router.get('/pull', async (req: Request, res: Response) => {
 
     console.log('📥 [Sync Pull] Activated trip IDs:', activatedIds);
 
-    // updatedAt >= sinceDate인 레코드 조회
-    // - trips: 모든 여행 (메타데이터)
-    // - schedules/expenses: 활성화된 여행만
+    // updatedAt >= sinceDate인 레코드 조회 (인증된 사용자 소유 row만)
+    // - trips: 사용자의 모든 여행 (메타데이터)
+    // - schedules/expenses: 사용자의 활성화된 여행만
     const [tripsData, schedulesData, expensesData] = await Promise.all([
-      db.select().from(trips).where(gte(trips.updatedAt, sinceDate)).orderBy(trips.updatedAt),
+      db
+        .select()
+        .from(trips)
+        .where(and(eq(trips.userId, userId), gte(trips.updatedAt, sinceDate)))
+        .orderBy(trips.updatedAt),
 
       activatedIds.length > 0
         ? db
             .select()
             .from(schedules)
-            .where(and(gte(schedules.updatedAt, sinceDate), inArray(schedules.tripId, activatedIds)))
+            .where(
+              and(
+                eq(schedules.userId, userId),
+                gte(schedules.updatedAt, sinceDate),
+                inArray(schedules.tripId, activatedIds),
+              ),
+            )
             .orderBy(schedules.updatedAt)
         : Promise.resolve([]),
 
@@ -66,7 +78,13 @@ router.get('/pull', async (req: Request, res: Response) => {
         ? db
             .select()
             .from(expenses)
-            .where(and(gte(expenses.updatedAt, sinceDate), inArray(expenses.tripId, activatedIds)))
+            .where(
+              and(
+                eq(expenses.userId, userId),
+                gte(expenses.updatedAt, sinceDate),
+                inArray(expenses.tripId, activatedIds),
+              ),
+            )
             .orderBy(expenses.updatedAt)
         : Promise.resolve([]),
     ]);
@@ -170,7 +188,7 @@ router.get('/pull', async (req: Request, res: Response) => {
  *   payload: { id: '01K8...', name: 'Tokyo', ... }
  * }
  */
-router.post('/push', async (req: Request, res: Response) => {
+router.post('/push', requireAuth, async (req: Request, res: Response) => {
   try {
     const { tableName, recordId, action, payload } = req.body;
 
