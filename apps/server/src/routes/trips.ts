@@ -8,6 +8,7 @@ import { tripResponse, tripListResponse } from '@repo/schema/responses/trip';
 import { scheduleEntity } from '@repo/schema/entities/schedule';
 import { scheduleListResponse } from '@repo/schema/responses/schedule';
 import { requireAuth } from '../middleware/auth.js';
+import { sendInternalError } from '../utils/http-errors.js';
 
 const router = Router();
 
@@ -77,20 +78,7 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
     res.status(200).json(validatedResponse.data);
   } catch (error) {
     console.error('Error fetching trips:', error);
-
-    if (error instanceof Error) {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to fetch trips',
-        details: error.message,
-      });
-    } else {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to fetch trips',
-        details: 'Unknown error occurred',
-      });
-    }
+    sendInternalError(res, 'Failed to fetch trips', error);
   }
 });
 
@@ -173,28 +161,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
     res.status(201).json(validatedTrip.data);
   } catch (error) {
     console.error('Error creating trip:', error);
-
-    // TypeScript safe error handling
-    if (error instanceof Error) {
-      console.error('Error details:', {
-        message: error.message,
-        stack: error.stack,
-      });
-
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to create trip',
-        details: error.message,
-      });
-    } else {
-      console.error('Unknown error type:', error);
-
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to create trip',
-        details: 'Unknown error occurred',
-      });
-    }
+    sendInternalError(res, 'Failed to create trip', error);
   }
 });
 
@@ -306,20 +273,7 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
     res.status(200).json(validatedTrip.data);
   } catch (error) {
     console.error('Error updating trip:', error);
-
-    if (error instanceof Error) {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to update trip',
-        details: error.message,
-      });
-    } else {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to update trip',
-        details: 'Unknown error occurred',
-      });
-    }
+    sendInternalError(res, 'Failed to update trip', error);
   }
 });
 
@@ -364,20 +318,7 @@ router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error deleting trip:', error);
-
-    if (error instanceof Error) {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to delete trip',
-        details: error.message,
-      });
-    } else {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to delete trip',
-        details: 'Unknown error occurred',
-      });
-    }
+    sendInternalError(res, 'Failed to delete trip', error);
   }
 });
 
@@ -426,20 +367,7 @@ router.get('/:tripId/schedules', requireAuth, async (req: Request, res: Response
     res.status(200).json(validatedResponse.data);
   } catch (error) {
     console.error('Error fetching schedules:', error);
-
-    if (error instanceof Error) {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to fetch schedules',
-        details: error.message,
-      });
-    } else {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to fetch schedules',
-        details: 'Unknown error occurred',
-      });
-    }
+    sendInternalError(res, 'Failed to fetch schedules', error);
   }
 });
 
@@ -545,20 +473,7 @@ router.post('/:id/activate', requireAuth, async (req: Request, res: Response) =>
     });
   } catch (error) {
     console.error('Error activating trip:', error);
-
-    if (error instanceof Error) {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to activate trip',
-        details: error.message,
-      });
-    } else {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to activate trip',
-        details: 'Unknown error occurred',
-      });
-    }
+    sendInternalError(res, 'Failed to activate trip', error);
   }
 });
 
@@ -594,20 +509,7 @@ router.post('/:id/deactivate', requireAuth, async (req: Request, res: Response) 
     });
   } catch (error) {
     console.error('Error deactivating trip:', error);
-
-    if (error instanceof Error) {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to deactivate trip',
-        details: error.message,
-      });
-    } else {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to deactivate trip',
-        details: 'Unknown error occurred',
-      });
-    }
+    sendInternalError(res, 'Failed to deactivate trip', error);
   }
 });
 

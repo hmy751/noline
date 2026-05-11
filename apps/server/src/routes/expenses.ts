@@ -6,6 +6,7 @@ import { createExpenseRequest, updateExpenseRequest } from '@repo/schema/request
 import { expenseEntity } from '@repo/schema/entities/expense';
 import { expenseListResponse, expenseResponse } from '@repo/schema/responses/expense';
 import { requireAuth } from '../middleware/auth.js';
+import { sendInternalError } from '../utils/http-errors.js';
 
 const router = Router();
 
@@ -67,20 +68,7 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
     res.status(200).json(validatedResponse.data);
   } catch (error) {
     console.error('Error fetching expenses:', error);
-
-    if (error instanceof Error) {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to fetch expenses',
-        details: error.message,
-      });
-    } else {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to fetch expenses',
-        details: 'Unknown error occurred',
-      });
-    }
+    sendInternalError(res, 'Failed to fetch expenses', error);
   }
 });
 
@@ -140,20 +128,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error creating expense:', error);
-
-    if (error instanceof Error) {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to create expense',
-        details: error.message,
-      });
-    } else {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to create expense',
-        details: 'Unknown error occurred',
-      });
-    }
+    sendInternalError(res, 'Failed to create expense', error);
   }
 });
 
@@ -207,20 +182,7 @@ router.get('/:id', requireAuth, async (req: Request, res: Response) => {
     res.status(200).json(validatedResponse.data);
   } catch (error) {
     console.error('Error fetching expense:', error);
-
-    if (error instanceof Error) {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to fetch expense',
-        details: error.message,
-      });
-    } else {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to fetch expense',
-        details: 'Unknown error occurred',
-      });
-    }
+    sendInternalError(res, 'Failed to fetch expense', error);
   }
 });
 
@@ -290,20 +252,7 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error updating expense:', error);
-
-    if (error instanceof Error) {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to update expense',
-        details: error.message,
-      });
-    } else {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to update expense',
-        details: 'Unknown error occurred',
-      });
-    }
+    sendInternalError(res, 'Failed to update expense', error);
   }
 });
 
@@ -342,20 +291,7 @@ router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error deleting expense:', error);
-
-    if (error instanceof Error) {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to delete expense',
-        details: error.message,
-      });
-    } else {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to delete expense',
-        details: 'Unknown error occurred',
-      });
-    }
+    sendInternalError(res, 'Failed to delete expense', error);
   }
 });
 

@@ -6,6 +6,7 @@ import { createScheduleRequest, updateScheduleRequest } from '@repo/schema/reque
 import { scheduleResponse, scheduleListResponse } from '@repo/schema/responses/schedule';
 import { scheduleEntity } from '@repo/schema/entities/schedule';
 import { requireAuth } from '../middleware/auth.js';
+import { sendInternalError } from '../utils/http-errors.js';
 
 const router = Router();
 
@@ -61,20 +62,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
     res.status(201).json(validatedSchedule.data);
   } catch (error) {
     console.error('Error creating schedule:', error);
-
-    if (error instanceof Error) {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to create schedule',
-        details: error.message,
-      });
-    } else {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to create schedule',
-        details: 'Unknown error occurred',
-      });
-    }
+    sendInternalError(res, 'Failed to create schedule', error);
   }
 });
 
@@ -129,20 +117,7 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
     res.status(200).json(validatedResponse.data);
   } catch (error) {
     console.error('Error fetching schedules:', error);
-
-    if (error instanceof Error) {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to fetch schedules',
-        details: error.message,
-      });
-    } else {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to fetch schedules',
-        details: 'Unknown error occurred',
-      });
-    }
+    sendInternalError(res, 'Failed to fetch schedules', error);
   }
 });
 
@@ -195,20 +170,7 @@ router.get('/:id', requireAuth, async (req: Request, res: Response) => {
     res.status(200).json(validatedResponse.data);
   } catch (error) {
     console.error('Error fetching schedule:', error);
-
-    if (error instanceof Error) {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to fetch schedule',
-        details: error.message,
-      });
-    } else {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to fetch schedule',
-        details: 'Unknown error occurred',
-      });
-    }
+    sendInternalError(res, 'Failed to fetch schedule', error);
   }
 });
 
@@ -296,20 +258,7 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
     res.status(200).json(validatedSchedule.data);
   } catch (error) {
     console.error('Error updating schedule:', error);
-
-    if (error instanceof Error) {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to update schedule',
-        details: error.message,
-      });
-    } else {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to update schedule',
-        details: 'Unknown error occurred',
-      });
-    }
+    sendInternalError(res, 'Failed to update schedule', error);
   }
 });
 
@@ -353,20 +302,7 @@ router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error deleting schedule:', error);
-
-    if (error instanceof Error) {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to delete schedule',
-        details: error.message,
-      });
-    } else {
-      res.status(500).json({
-        error: 'Internal server error',
-        message: 'Failed to delete schedule',
-        details: 'Unknown error occurred',
-      });
-    }
+    sendInternalError(res, 'Failed to delete schedule', error);
   }
 });
 
