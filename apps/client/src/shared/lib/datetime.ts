@@ -190,15 +190,6 @@ export function formatISOToRelative(isoString: string): string {
 }
 
 /**
- * 현재 시간을 ISO string으로 반환
- *
- * @returns ISO 8601 string
- */
-export function getCurrentISOString(): string {
-  return new Date().toISOString();
-}
-
-/**
  * 날짜 문자열을 ISO datetime string으로 변환 (UTC 자정 기준)
  *
  * @param dateString - 날짜 문자열 ("2024-03-15" 형식 또는 ISO datetime)
