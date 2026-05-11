@@ -9,6 +9,7 @@ import { db } from '@/shared/db';
 import { trips, offlineCities } from '@/shared/db/schema';
 import { queryClient } from '@/shared/lib/queryClient';
 import { offlineCityKeys } from '@/entities/offline-city/data/keys';
+import { TRIP_ACTIVATION_GRACE_DAYS } from '@/shared/lib/lifecycle';
 
 /**
  * 오프라인 지도 자동 정리
@@ -35,7 +36,7 @@ export async function cleanupExpiredOfflineMaps(): Promise<void> {
 
       const endDate = new Date(trip.endDate);
       const expiryDate = new Date(endDate);
-      expiryDate.setDate(expiryDate.getDate() + 7); // +7일
+      expiryDate.setDate(expiryDate.getDate() + TRIP_ACTIVATION_GRACE_DAYS);
 
       return now > expiryDate;
     });
@@ -94,7 +95,7 @@ async function decrementCityReference(cityId: number): Promise<void> {
 
     const endDate = new Date(trip.endDate);
     const expiryDate = new Date(endDate);
-    expiryDate.setDate(expiryDate.getDate() + 7);
+    expiryDate.setDate(expiryDate.getDate() + TRIP_ACTIVATION_GRACE_DAYS);
 
     return now <= expiryDate; // 아직 만료 안됨
   }).length;

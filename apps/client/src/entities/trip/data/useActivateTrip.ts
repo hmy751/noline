@@ -10,6 +10,7 @@ import { routeQueryKeys } from '@/entities/route/data/keys';
 import { downloadOfflineMapInBackground } from '@/shared/services/offline-map/download';
 import { downloadRoutesForSchedules } from '@/shared/services/directions/route-downloader';
 import { generateId } from '@/shared/services/id/ulid';
+import { TRIP_ACTIVATION_GRACE_DAYS } from '@/shared/lib/lifecycle';
 import type { Trip } from '../model/types';
 
 /**
@@ -93,7 +94,7 @@ export const useActivateTrip = () => {
 
         // 4-5. 활성화 레코드 생성 또는 업데이트 (upsert)
         const expiresAt = new Date(trip.endDate);
-        expiresAt.setDate(expiresAt.getDate() + 7); // 여행 종료 + 7일
+        expiresAt.setDate(expiresAt.getDate() + TRIP_ACTIVATION_GRACE_DAYS);
 
         await db
           .insert(tripActivations)

@@ -3,12 +3,7 @@ import { eq, sql, and, isNotNull, lt } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { hasPendingTasksForTrip } from './queue';
 import { cleanupOfflineMapForTrip } from '@/shared/services/offline-map';
-
-/**
- * Vacuum 설정
- * Soft delete된 레코드를 완전히 삭제(Hard delete)하기까지의 기간
- */
-const VACUUM_THRESHOLD_DAYS = 7; // 7일
+import { SOFT_DELETE_VACUUM_DAYS } from '@/shared/lib/lifecycle';
 
 /**
  * Background Cleanup Job
@@ -201,7 +196,7 @@ export async function forceCleanupTrip(tripId: string): Promise<void> {
 /**
  * Vacuum: Soft delete된 레코드를 완전히 삭제 (Hard delete)
  *
- * deletedAt이 설정된 지 VACUUM_THRESHOLD_DAYS(7일) 지난 레코드를
+ * deletedAt이 설정된 지 SOFT_DELETE_VACUUM_DAYS 지난 레코드를
  * 데이터베이스에서 완전히 제거하여 저장 공간 회수
  *
  * 실행 시점:
@@ -213,7 +208,7 @@ export async function forceCleanupTrip(tripId: string): Promise<void> {
 export async function vacuumDeletedRecords(): Promise<{ schedules: number; expenses: number }> {
   try {
     const thresholdDate = new Date();
-    thresholdDate.setDate(thresholdDate.getDate() - VACUUM_THRESHOLD_DAYS);
+    thresholdDate.setDate(thresholdDate.getDate() - SOFT_DELETE_VACUUM_DAYS);
     const thresholdISO = thresholdDate.toISOString();
 
     console.log(`🧹 [Vacuum] Starting vacuum for records deleted before ${thresholdISO}`);
