@@ -20,6 +20,7 @@
 | 위치 | 역할 | 읽는 방식 |
 | --- | --- | --- |
 | [harness/](harness/) | Claude/Codex bridge, 문서 owner, 하네스 변경 규칙 | AI/developer 운영 구조를 바꿀 때 먼저 읽는다. |
+| [../context/](../context/) | Project common context, Workspace current/source/output/records, Recover·Maintain·Verify | 지속 작업을 복구하거나 새 Context Workspace를 만들 때 읽는다. `.claude/context/`의 제품 설명 Owner와 다르다. |
 | [skills/noline-work](skills/noline-work/SKILL.md) | 작업 유형별 guide/rule/agent/검증 dispatcher | 기능 구현, 버그 수정, 하네스 변경을 실제로 시작할 때 사용한다. |
 | [agents/](agents/) | Claude report-only 실행자 | context 수집, policy drift 점검, harness observer가 필요할 때만 사용한다. |
 | [rules/](rules/) | 짧고 검증 가능한 task/path 규칙 | 관련 코드 수정 중 scoped rule로 읽는다. |
@@ -32,11 +33,13 @@
 | [_archive/](_archive/) | 과거 구현 가이드와 deprecated 맥락 | 역사 자료다. 명시 요청 없이 현재 구현 기준으로 끌어올리지 않는다. |
 | [audits/](audits/) | 문서 품질 검증, 하네스 점검, 리팩터링 테스트 | active guide가 아니다. 현재 정책과 충돌하면 active source를 우선한다. |
 | [CHANGELOG.md](CHANGELOG.md) | 정책/기능 변화의 긴 이력 | 큰 흐름을 볼 때 사용한다. 세부 구현은 코드와 active guide를 확인한다. |
-| [settings.local.json](settings.local.json) | Claude 로컬 설정 | 프로젝트 정책 문서가 아니다. 하네스 개편 이유만으로 수정하지 않는다. |
+| [settings.json](settings.json) | 공유 Claude Code lifecycle hook 설정 | `SessionStart`·prompt·response-end·session-end를 explicit-unbound Maintain adapter에 연결한다. 개인 권한은 여기 넣지 않는다. |
+| [settings.local.json](settings.local.json) | Claude 로컬 설정 | 개인 권한과 machine-specific 선택만 둔다. 공유 hook을 덮어쓰거나 하네스 개편 이유만으로 수정하지 않는다. |
 
 Codex bridge:
 
 - `.agents/skills/noline-work`는 `.claude/skills/noline-work`를 가리키는 symlink다.
+- `.agents/skills/create-context-workspace`는 `.claude/skills/create-context-workspace`를 가리키는 symlink다. 최초 Context Harness 이식에는 쓰지 않고, 설치 후 새 독립 또는 후속 Workspace를 만들 때만 쓴다.
 - `.codex/agents/`는 `.claude/agents/`와 같은 의미의 report-only agent 정의를 Codex 형식으로 둔다.
 - bridge parity는 `pnpm harness:check`가 확인한다.
 
@@ -53,6 +56,7 @@ Codex bridge:
 | Policy-driven UI | [rules/policy-ui.md](rules/policy-ui.md) |
 | Repeated task flow | [runbooks/README.md](runbooks/README.md) |
 | Execution dispatcher | [skills/noline-work/SKILL.md](skills/noline-work/SKILL.md) |
+| Context Workspace 생성·전환 | [../context/work/workspaces/CREATE-AND-TRANSITION.md](../context/work/workspaces/CREATE-AND-TRANSITION.md), [create-context-workspace](skills/create-context-workspace/SKILL.md) |
 | Deep architecture/feature context | [context/README.md](context/README.md) |
 
 ## 보존 규칙

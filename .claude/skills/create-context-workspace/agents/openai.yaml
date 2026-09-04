@@ -1,0 +1,6 @@
+interface:
+  display_name: "Create Context Workspace"
+  short_description: "설치된 Context Harness에서 새 Workspace를 선별·생성"
+  default_prompt: "$create-context-workspace를 사용해 이미 Context Harness가 설치된 Project에서 요청한 새 독립 또는 후속 Workspace를 구성하고 bounded 재진입까지 검토해줘."
+policy:
+  allow_implicit_invocation: true

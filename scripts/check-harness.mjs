@@ -15,6 +15,7 @@ const expectedExecutionAgents = [
   'noline-harness-observer',
   'noline-policy-checker',
 ];
+const expectedSkills = ['create-context-workspace', 'noline-work'];
 
 function checkSymlink(linkPath, expectedTarget) {
   const absolute = path.join(root, linkPath);
@@ -63,6 +64,7 @@ function checkMarkdownLinks() {
     '.claude/runbooks',
     '.claude/context',
     '.claude/decisions',
+    'context',
     'apps/client/CLAUDE.md',
     'apps/server/CLAUDE.md',
     'packages/schema/CLAUDE.md',
@@ -106,7 +108,7 @@ function listEntries(target) {
   return fs.readdirSync(absolute).filter((entry) => entry !== '.DS_Store').sort();
 }
 
-function checkOnlyEntries(target, allowed) {
+function checkOnlyEntries(target, required, allowed = required) {
   const absolute = path.join(root, target);
   if (!fs.existsSync(absolute)) {
     failures.push(`${target} is missing`);
@@ -114,7 +116,7 @@ function checkOnlyEntries(target, allowed) {
   }
 
   const actual = listEntries(target);
-  for (const entry of allowed) {
+  for (const entry of required) {
     if (!actual.includes(entry)) failures.push(`${target}/${entry} is missing`);
   }
   for (const entry of actual) {
@@ -123,14 +125,19 @@ function checkOnlyEntries(target, allowed) {
 }
 
 function checkExecutionSurfaces() {
-  checkOnlyEntries('.claude/skills', ['noline-work']);
+  checkOnlyEntries('.claude/skills', expectedSkills);
   checkOnlyEntries('.agents', ['skills']);
-  checkOnlyEntries('.agents/skills', ['noline-work']);
+  checkOnlyEntries('.agents/skills', expectedSkills);
   checkOnlyEntries('.claude/agents', expectedExecutionAgents.map((agent) => `${agent}.md`));
-  checkOnlyEntries('.codex', ['agents']);
+  checkOnlyEntries(
+    '.codex',
+    ['agents', 'config.toml', 'hooks', 'hooks.json', 'maintain.json'],
+    ['agents', 'config.toml', 'hooks', 'hooks.json', 'maintain.json', 'maintain-runtime'],
+  );
   checkOnlyEntries('.codex/agents', expectedExecutionAgents.map((agent) => `${agent}.toml`));
 
   checkSymlink('.agents/skills/noline-work', '../../.claude/skills/noline-work');
+  checkSymlink('.agents/skills/create-context-workspace', '../../.claude/skills/create-context-workspace');
 
   const skillPath = path.join(root, '.claude/skills/noline-work/SKILL.md');
   if (!fs.existsSync(skillPath)) {
@@ -162,6 +169,67 @@ function checkExecutionSurfaces() {
     }
     if (!codexText.includes('Inspect only. Do not edit files.')) {
       failures.push(`.codex/agents/${agent}.toml must be read-only/report-only`);
+    }
+  }
+}
+
+function checkContextHarnessSurface() {
+  const required = [
+    'context/README.md',
+    'context/project/README.md',
+    'context/project/overview.md',
+    'context/work/README.md',
+    'context/work/workspaces/README.md',
+    'context/work/workspaces/CREATE-AND-TRANSITION.md',
+    'context/work/harness/README.md',
+    '.codex/config.toml',
+    '.codex/hooks.json',
+    '.codex/hooks/maintain.py',
+    '.codex/maintain.json',
+    '.claude/settings.json',
+    '.claude/hooks/maintain.py',
+  ];
+
+  for (const target of required) {
+    if (!exists(target)) failures.push(`${target} is missing from the Context Harness surface`);
+  }
+
+  const maintainConfig = path.join(root, '.codex/maintain.json');
+  if (fs.existsSync(maintainConfig)) {
+    try {
+      const parsed = JSON.parse(fs.readFileSync(maintainConfig, 'utf8'));
+      if (parsed.schema_version !== 2 || parsed.mode !== 'explicit') {
+        failures.push('.codex/maintain.json must use schema v2 explicit admission');
+      }
+    } catch {
+      failures.push('.codex/maintain.json must be valid JSON');
+    }
+  }
+
+  const claudeSettings = path.join(root, '.claude/settings.json');
+  if (fs.existsSync(claudeSettings)) {
+    try {
+      const parsed = JSON.parse(fs.readFileSync(claudeSettings, 'utf8'));
+      for (const [eventName, command] of Object.entries({
+        SessionStart: 'session-start',
+        UserPromptSubmit: 'user-prompt',
+        Stop: 'response-end',
+        SessionEnd: 'session-end',
+      })) {
+        const handlers = parsed.hooks?.[eventName];
+        const maintainHandler = handlers?.flatMap((group) => group.hooks ?? []).find(
+          (handler) => handler.type === 'command'
+            && handler.command === 'python3'
+            && Array.isArray(handler.args)
+            && handler.args[0] === '${CLAUDE_PROJECT_DIR}/.claude/hooks/maintain.py'
+            && handler.args[1] === command,
+        );
+        if (!maintainHandler) {
+          failures.push(`.claude/settings.json must route ${eventName} to the Claude Maintain wrapper`);
+        }
+      }
+    } catch {
+      failures.push('.claude/settings.json must be valid JSON');
     }
   }
 }
@@ -222,6 +290,7 @@ checkSymlink('packages/schema/AGENTS.md', 'CLAUDE.md');
 checkSymlink('packages/ui/AGENTS.md', 'CLAUDE.md');
 checkNoLegacySurfaces();
 checkExecutionSurfaces();
+checkContextHarnessSurface();
 checkWorkspaceGuideContract();
 checkRootPlans();
 checkMarkdownLinks();

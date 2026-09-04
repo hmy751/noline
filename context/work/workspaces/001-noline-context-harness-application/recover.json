@@ -1,0 +1,18 @@
+{
+  "schema_version": 4,
+  "workspace_id": "001-noline-context-harness-application",
+  "project_context": [
+    {
+      "path": "context/project/overview.md",
+      "reason": "Noline의 사용자 장면, 공통 불변식, 상세 Owner와 검증 경계를 먼저 복구하기 위해 선택했다."
+    },
+    {
+      "path": "context/project/architecture.md",
+      "reason": "client·server·schema·UI와 기존 .claude Owner가 나뉘는 구조 및 검증 경로를 확인하기 위해 선택했다."
+    },
+    {
+      "path": "context/project/decisions/0001-selective-local-first.md",
+      "reason": "활성화 상태, Data Owner, Router와 Policy Layer의 지속 결정을 이식 판단과 이후 Workspace의 제약으로 사용하기 위해 선택했다."
+    }
+  ]
+}

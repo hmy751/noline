@@ -11,6 +11,7 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
 | 레이어 | Owner | 역할 | 읽는 방식 |
 | --- | --- | --- | --- |
 | Root guide | [../../CLAUDE.md](../../CLAUDE.md) | 프로젝트 정체성, bridge, 빠른 탐색, 핵심 불변식 | 항상 작게 유지 |
+| Context Harness | [../../context/README.md](../../context/README.md) | Project common context, 지속 Workspace와 Recover·Maintain·Verify 운영 | `.claude/context/`의 제품 설명 Owner와 분리 |
 | Workspace guides | `apps/*/CLAUDE.md`, `packages/*/CLAUDE.md` | app/package별 구현 규칙과 명령 | 경로에 따라 읽음 |
 | Document map | [../README.md](../README.md) | `.claude` corpus의 역할과 읽는 순서 | 문서 작업 시 시작점 |
 | Rules | [../rules/](../rules/) | 짧고 검증 가능한 task/path 규칙 | 작업/경로에 따라 읽음 |
@@ -40,7 +41,9 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
 - `.claude/commands/`는 Claude command reference다. Codex command나 rule로 자동 포팅하지 않는다.
 - `.claude/rules/`의 Markdown은 현재 공통으로 읽을 수 있는 프로젝트 지침이지만 Claude 전용 loader 의미를 갖지는 않는다.
 - `.claude/skills/noline-work`는 Claude skill 원천이고 `.agents/skills/noline-work`는 Codex skill bridge다.
+- `.claude/skills/create-context-workspace`는 설치된 Context Harness에서 새 Workspace를 구성하는 Claude skill 원천이고 `.agents/skills/create-context-workspace`는 Codex bridge다.
 - `.claude/agents/*.md`는 Claude report-only agent 정의이고 `.codex/agents/*.toml`은 같은 의미의 Codex agent 정의다.
+- `.claude/settings.json`은 Claude Code lifecycle hook을 `.claude/hooks/maintain.py`에 연결한다. `.codex/hooks.json`은 Codex lifecycle을 `.codex/hooks/maintain.py`에 연결한다. 둘 다 새 session을 자동 binding하지 않으며, Claude payload의 `agent_id`가 있는 subagent event는 Main binding과 분리하기 위해 adapter가 조용히 무시한다.
 
 ## 브릿지 규칙
 
@@ -80,6 +83,7 @@ workspace guide는 짧게 유지한다. 긴 feature 설명, 교육용 예시, �
 4. reference project에서 영향을 받았다면 표면 형식을 복사하지 말고 Noline의 역할 모델로 번역한다.
 5. `rules/`는 짧고 검증 가능하게, `context/`는 깊은 설명을 보존하게, `runbooks/`는 실행 순서만 빠르게 유지한다.
 6. 이후 작업 방식에 영향을 주는 하네스 변경은 [decisions/](../decisions/)에 기록한다.
+7. Context Harness는 `.claude/context/`의 깊은 제품 설명을 복제하지 않고, 상세 Owner를 우선하는 Project common context와 Work state만 소유한다.
 
 ## 커밋 메시지 기준
 
@@ -127,6 +131,7 @@ pnpm harness:check
 현재 active 실행층:
 
 - `noline-work`: 작업 유형별 dispatcher. 기준 본문을 소유하지 않고 필요한 guide/rule/runbook/context/agent/검증 명령을 연결한다.
+- `create-context-workspace`: 설치 뒤 새 독립 또는 후속 Context Workspace를 구성·bounded 재진입 검토하는 skill이다. 최초 이식이나 기존 Workspace 단순 수정에는 사용하지 않는다.
 - `noline-context-collector`: feature/bug 단위로 관련 코드, 문서, decision, 최근 커밋을 모아 compact card를 반환하는 report-only collector.
 - `noline-policy-checker`: Router, `withTransaction`, `generateId`, schema-first, ISO time, auth ownership, soft delete 정책 drift를 보는 report-only checker.
 - `noline-harness-observer`: 하네스/bridge 변경 뒤 구조 drift와 Claude/Codex parity를 보는 report-only observer.

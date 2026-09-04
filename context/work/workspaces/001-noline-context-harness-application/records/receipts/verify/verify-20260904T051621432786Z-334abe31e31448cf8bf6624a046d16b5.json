@@ -1,0 +1,117 @@
+{
+  "argv": [
+    "node",
+    "scripts/check-harness.mjs"
+  ],
+  "canonical_basis_capture": "before_verification",
+  "canonical_basis_collected_at": "2026-09-04T05:16:21.367Z",
+  "canonical_basis_files": [
+    {
+      "path": "context/project/README.md",
+      "sha256": "702ed3304c8bee177bc6ca921224c354f509274a42728f727b319527e792d09b",
+      "size": 1732
+    },
+    {
+      "path": "context/work/README.md",
+      "sha256": "ea1c441f30664bcc84a8ea9b0b80a9973aa074b9e75052738ba0aae0ac8a69db",
+      "size": 1210
+    },
+    {
+      "path": ".claude/harness/README.md",
+      "sha256": "bda49a4759a0229ad7f483e789c5551fba34c422f6db6a37642e101e115a4d6c",
+      "size": 10368
+    },
+    {
+      "path": ".claude/decisions/2026-09-04-context-harness-application.md",
+      "sha256": "0cf0b62b9b69c782ca3cdeb72420b2c2ce621f97487188273e4c1ef3aa9f3c5e",
+      "size": 2144
+    }
+  ],
+  "claim": "Noline의 기존 Claude/Codex bridge와 새 Context Harness entrypoint가 target의 deterministic harness check에서 함께 유효하다.",
+  "evidence_capture": "before_verification",
+  "evidence_collected_at": "2026-09-04T05:16:21.367Z",
+  "evidence_files": [
+    {
+      "path": "CLAUDE.md",
+      "sha256": "c2231007f1b48d29196aac94ad2c136629e6ab87731039e1b7b35164d6175763",
+      "size": 9676
+    },
+    {
+      "path": ".claude/README.md",
+      "sha256": "afe1696d679c80dc98b5c1fc337f70da76fc293978ae913de78a3a99295d7386",
+      "size": 6293
+    },
+    {
+      "path": ".claude/harness/README.md",
+      "sha256": "bda49a4759a0229ad7f483e789c5551fba34c422f6db6a37642e101e115a4d6c",
+      "size": 10368
+    },
+    {
+      "path": ".claude/skills/noline-work/SKILL.md",
+      "sha256": "7cf7ade9bd44ede4728972724ac87ddd1b20f03578438afcd6f9f319f22f4e00",
+      "size": 5463
+    },
+    {
+      "path": "scripts/check-harness.mjs",
+      "sha256": "b571863f990e718fc8ad80bca05dc254f47d931b2737e3f4b4ec99bcc2753394",
+      "size": 9334
+    },
+    {
+      "path": "context/README.md",
+      "sha256": "789728f5e51833ed0f9b071e039ff7c5867c2f792087699c41caa325c9b67ea4",
+      "size": 1623
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/README.md",
+      "sha256": "ac93fed7c958a16af0ad51c1a468a2e2916e158e207a1dfde297af89af2182eb",
+      "size": 1163
+    }
+  ],
+  "exit_code": 0,
+  "finished_at": "2026-09-04T05:16:21.432Z",
+  "normalization": {
+    "output_root_token": "<OUTPUT_ROOT>",
+    "stderr_replacements": 0,
+    "stdout_replacements": 0
+  },
+  "output_capture": {
+    "encoding": "utf-8",
+    "errors": "replace",
+    "limit_unit": "characters",
+    "max_chars_per_stream": 20000,
+    "stderr": {
+      "observed_chars": 0,
+      "persisted_chars": 0,
+      "read_error": null,
+      "truncated": false
+    },
+    "stdout": {
+      "observed_chars": 22,
+      "persisted_chars": 22,
+      "read_error": null,
+      "truncated": false
+    }
+  },
+  "process_returncode": 0,
+  "result": "pass",
+  "runtime_environment": {
+    "command_cwd": "<OUTPUT_ROOT>",
+    "os_name": "posix",
+    "platform_machine": "arm64",
+    "platform_system": "Darwin",
+    "python_implementation": "CPython",
+    "python_version": "3.14.3",
+    "verification_receipt_schema_version": 2,
+    "verify_contract_schema_version": 2
+  },
+  "schema_version": 2,
+  "snapshot_sha256": "fdc79e2bfca9d95dd6d8e0c5b5608541d3f306fc0affbddae4efd74ec669af43",
+  "started_at": "2026-09-04T05:16:21.369Z",
+  "stderr": "",
+  "stdout": "Harness check passed.\n",
+  "timeout": {
+    "timed_out": false,
+    "timeout_seconds": 90.0
+  },
+  "workspace_id": "001-noline-context-harness-application"
+}

@@ -29,6 +29,7 @@ Context -> Workplan -> Implementation -> Policy Check -> Verification -> Handoff
 | client form / policy UI | `.claude/runbooks/README.md#form-pattern`, `rules/policy-ui.md`, `rules/iso-time.md` | `noline-policy-checker` |
 | UI component | `.claude/runbooks/README.md#component-guide`, `packages/ui/CLAUDE.md`, `context/components.md` | 필요 시 `noline-context-collector` |
 | 하네스 / bridge / docs | `.claude/harness/README.md`, `.claude/README.md`, 관련 decision | `noline-harness-observer` |
+| 새 Context Workspace 생성·전환 | `context/work/workspaces/CREATE-AND-TRANSITION.md`, `context/work/README.md` | `create-context-workspace` |
 
 ## Workspace 진입 기준
 

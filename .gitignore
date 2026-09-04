@@ -47,4 +47,8 @@ pnpm-debug.log*
 # typescript
 *.tsbuildinfo
 
+# Context Harness local runtime (may contain user and Main conversation text)
+.codex/maintain-runtime/
+.claude/maintain-runtime/
+
 .cursor

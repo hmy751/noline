@@ -1,0 +1,52 @@
+{
+  "description": "Workspace Maintain session binding and response-end routing",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/maintain.py\" session-start",
+            "timeout": 600,
+            "statusMessage": "Checking Workspace Maintain binding",
+            "additionalContextLimit": 12000
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/maintain.py\" user-prompt",
+            "timeout": 3,
+            "additionalContextLimit": 12000
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/maintain.py\" response-end",
+            "timeout": 3
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/maintain.py\" session-end",
+            "timeout": 3
+          }
+        ]
+      }
+    ]
+  }
+}

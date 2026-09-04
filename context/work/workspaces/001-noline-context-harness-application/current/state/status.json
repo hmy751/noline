@@ -1,0 +1,8 @@
+{
+  "finished_at": "2026-09-04T07:01:05.934Z",
+  "receipt": "workspaces/001-noline-context-harness-application/records/receipts/verify/verify-20260904T070105935210Z-b470ae607a5945769333e7f5016450be.json",
+  "result": "pass",
+  "schema_version": 3,
+  "status": "verification_passed",
+  "workspace_id": "001-noline-context-harness-application"
+}

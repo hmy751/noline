@@ -1,0 +1,33 @@
+{
+  "schema_version": 2,
+  "workspace_id": "001-noline-context-harness-application",
+  "claim": "Noline의 기존 Claude/Codex bridge와 새 Context Harness entrypoint가 target의 deterministic harness check에서 함께 유효하다.",
+  "canonical_basis": [
+    "context/project/README.md",
+    "context/work/README.md",
+    ".claude/harness/README.md",
+    ".claude/decisions/2026-09-04-context-harness-application.md",
+    "context/work/harness/maintain/SESSION-BINDING-AND-LIFECYCLE.md"
+  ],
+  "verification": {
+    "argv": [
+      "node",
+      "scripts/check-harness.mjs"
+    ],
+    "evidence_paths": [
+      "CLAUDE.md",
+      ".claude/README.md",
+      ".claude/harness/README.md",
+      ".claude/settings.json",
+      ".claude/hooks/maintain.py",
+      ".claude/skills/noline-work/SKILL.md",
+      "scripts/check-harness.mjs",
+      "context/README.md",
+      "context/work/harness/maintain/claude_hook.py",
+      "context/work/harness/maintain/tests/test_claude_hook.py",
+      "context/work/workspaces/001-noline-context-harness-application/README.md"
+    ],
+    "timeout_seconds": 90,
+    "max_output_chars": 20000
+  }
+}

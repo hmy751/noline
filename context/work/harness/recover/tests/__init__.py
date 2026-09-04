@@ -1,0 +1,1 @@
+"""Recover responsibility tests."""

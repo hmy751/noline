@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "workspace_id",
+    "outcome",
+    "importance",
+    "summary",
+    "changes",
+    "evidence",
+    "unresolved",
+    "question"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "workspace_id": {
+      "type": "string"
+    },
+    "outcome": {
+      "type": "string",
+      "enum": ["no_change", "update", "needs_user_decision"]
+    },
+    "importance": {
+      "type": "string",
+      "enum": ["none", "quiet", "important"]
+    },
+    "summary": {
+      "type": "string"
+    },
+    "changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "expected_sha256", "content", "reason"],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "expected_sha256": {
+            "type": ["string", "null"],
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "content": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "unresolved": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "question": {
+      "type": ["string", "null"]
+    }
+  }
+}

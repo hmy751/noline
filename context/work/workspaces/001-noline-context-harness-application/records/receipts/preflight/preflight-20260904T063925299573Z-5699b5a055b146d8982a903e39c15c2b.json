@@ -1,0 +1,1013 @@
+{
+  "captured_at": "2026-09-04T06:39:25.299573Z",
+  "git": {
+    "branch": "claude/noline-context-harness",
+    "dirty_entries": [
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "symlink",
+        "link_target": "../../.claude/skills/create-context-workspace",
+        "path": ".agents/skills/create-context-workspace",
+        "sha256": "8e856a19026066cb03ffd0bb7168157e10ed0d470ea58e17cd5b0591f998e448",
+        "size": 45,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": "302a4eca88c03ea86d5111c2e2d1c753864c9ad9",
+        "index_oid": "302a4eca88c03ea86d5111c2e2d1c753864c9ad9",
+        "kind": "file",
+        "path": ".claude/README.md",
+        "sha256": "afe1696d679c80dc98b5c1fc337f70da76fc293978ae913de78a3a99295d7386",
+        "size": 6293,
+        "states": [
+          "worktree"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": ".claude/decisions/2026-09-04-context-harness-application.md",
+        "sha256": "0cf0b62b9b69c782ca3cdeb72420b2c2ce621f97487188273e4c1ef3aa9f3c5e",
+        "size": 2144,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": "7f9be295abc7b930f1a7516a0c447237504c5961",
+        "index_oid": "7f9be295abc7b930f1a7516a0c447237504c5961",
+        "kind": "file",
+        "path": ".claude/harness/README.md",
+        "sha256": "bda49a4759a0229ad7f483e789c5551fba34c422f6db6a37642e101e115a4d6c",
+        "size": 10368,
+        "states": [
+          "worktree"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": ".claude/skills/create-context-workspace/SKILL.md",
+        "sha256": "881955bbce51eac63a75e912c2477354cda2f9ae732120818b5a96a5bfd86540",
+        "size": 5950,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": ".claude/skills/create-context-workspace/agents/openai.yaml",
+        "sha256": "d19244825c7bd72a786a17b143fd423f1f09fc3bc3a33528fe1fba6271273e4a",
+        "size": 391,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": "b69e19131e0451ae8ff1abf8c740da74c29cc6e6",
+        "index_oid": "b69e19131e0451ae8ff1abf8c740da74c29cc6e6",
+        "kind": "file",
+        "path": ".claude/skills/noline-work/SKILL.md",
+        "sha256": "7cf7ade9bd44ede4728972724ac87ddd1b20f03578438afcd6f9f319f22f4e00",
+        "size": 5463,
+        "states": [
+          "worktree"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": ".codex/config.toml",
+        "sha256": "c3046fc85372bf78906bffcef45ed9bfa8380aea56cf5902b2e845b0ccc5c792",
+        "size": 317,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": ".codex/hooks.json",
+        "sha256": "d57434fc33b56fe0a71fcf234a3f4e360bd703705d62cffd08108c6f650f116b",
+        "size": 1305,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": ".codex/hooks/maintain.py",
+        "sha256": "34a116dd5860335f0b69e32daca3286d317ec518a5b02c4324053114193d56b1",
+        "size": 436,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": ".codex/maintain.json",
+        "sha256": "d90cb30f290c4eeb5a27ca3d96cb0864553e054acd194e1c71e57099f23b720d",
+        "size": 48,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": "b4fa52280cbb673331c92b887dba37ebcf7d721d",
+        "index_oid": "b4fa52280cbb673331c92b887dba37ebcf7d721d",
+        "kind": "file",
+        "path": ".gitignore",
+        "sha256": "9167b77dc28d4a93c8590d7f4d0410d9e89ce0907609490d640741380f54d737",
+        "size": 596,
+        "states": [
+          "worktree"
+        ]
+      },
+      {
+        "head_oid": "bee9aa99aa865f2bc0d402792855d0a42bef375c",
+        "index_oid": "bee9aa99aa865f2bc0d402792855d0a42bef375c",
+        "kind": "file",
+        "path": "CLAUDE.md",
+        "sha256": "c2231007f1b48d29196aac94ad2c136629e6ab87731039e1b7b35164d6175763",
+        "size": 9676,
+        "states": [
+          "worktree"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/README.md",
+        "sha256": "789728f5e51833ed0f9b071e039ff7c5867c2f792087699c41caa325c9b67ea4",
+        "size": 1623,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/__init__.py",
+        "sha256": "c8cb99f385157cb1c7e2ddf32364988341490a4bfbbcf5b75dde84afca47eba4",
+        "size": 37,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/project/README.md",
+        "sha256": "702ed3304c8bee177bc6ca921224c354f509274a42728f727b319527e792d09b",
+        "size": 1732,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/project/architecture.md",
+        "sha256": "b14cc87a1b2affc484dffed2b309533681ecd4b099ade10c1103467b22af4882",
+        "size": 2063,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/project/decisions/0001-selective-local-first.md",
+        "sha256": "824e706d66f427845f0c4c74cbef7dbd3b3f41b0c0ab8d2c993af1b5e8da78a9",
+        "size": 1580,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/project/decisions/README.md",
+        "sha256": "cd6f7c91a7e24be915d331cfc496448d461ce88cbf0c7e51a7ad3e8befe960e6",
+        "size": 610,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/project/overview.md",
+        "sha256": "00a5db37a65cebdfb01bf1f202d99a38407402607dd5ccf4da1ab8134063c00d",
+        "size": 2877,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/project/prd.md",
+        "sha256": "bd9a54194d1f28c2d0cc803e95cebcd657ca27be527a590726451012a3623fea",
+        "size": 1569,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/AGENTS.md",
+        "sha256": "81497507f32ab8454888ac01520a65138bfc6efd86b4d07fb63adb2efb72b060",
+        "size": 11139,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/README.md",
+        "sha256": "ea1c441f30664bcc84a8ea9b0b80a9973aa074b9e75052738ba0aae0ac8a69db",
+        "size": 1210,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/__init__.py",
+        "sha256": "944df23a817e1dfa2136353da31e09f57c4c43f0b4833fc28cc66b95de1f2de6",
+        "size": 56,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/README.md",
+        "sha256": "a26f203058425b913dd2a272864b0840e50c8e79aa90f8af73e8a9c89f3b071a",
+        "size": 5940,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/__init__.py",
+        "sha256": "565d0fb6b9679d01d7a99589fe717defb3c70fe7b0c26e3d64b3dad1a87fc95e",
+        "size": 77,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/__main__.py",
+        "sha256": "7659c716a4079386ed888792d1d4692d93e7f3481bef466c2522eeed3a48976b",
+        "size": 139,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/cli.py",
+        "sha256": "7332cee8583068e914a60ecc0e843f717b146bfe12e35b9264cf9e9aa3624dfd",
+        "size": 4577,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/maintain/README.md",
+        "sha256": "c30b208448444aa78708e39039cc6e79398a12a8479d5c7a51d2137e4243b884",
+        "size": 12598,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/maintain/SESSION-BINDING-AND-LIFECYCLE.md",
+        "sha256": "4b98f19c1c638ee1c8a4f1ec3197ed35f448530b2a74ff4750fefb9f7104c72e",
+        "size": 14269,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/maintain/__init__.py",
+        "sha256": "88efd9baebe8108c4512e7d676da721edbce3026b34124a8b9be4abdaba1cc5f",
+        "size": 427,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/maintain/codex_session.py",
+        "sha256": "2cd8dc5364d259bf8aa61cd48bf93776aa9726b672907b63da001bc31bf8f7de",
+        "size": 18074,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/maintain/decision.schema.json",
+        "sha256": "ba2bc724a541818643ed14260ecd73fde957bfc856056a16de7d8dd344d77414",
+        "size": 1502,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/maintain/grounding.schema.json",
+        "sha256": "fcce71787545f24432231487ef095d4748899874b770f194ae30db85ea3b65ed",
+        "size": 727,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/maintain/host_adapter.py",
+        "sha256": "26285f7afa9d554080fda126c5d3f041a5b4727187a1159b98c84033174638a0",
+        "size": 73976,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/maintain/operation.py",
+        "sha256": "853092c639a4040522bc8945f39261a15af507b7e5999658baca3d714aff4623",
+        "size": 22719,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/maintain/tests/__init__.py",
+        "sha256": "fdf3ff857a42d025b97edbf2f7f51ded6c725b1cb15e0e77cbc4612fde784939",
+        "size": 32,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/maintain/tests/test_cli.py",
+        "sha256": "93f6e734641912ca2c2d753a962c7852e4db94e28ce7693189e67522cdac45ea",
+        "size": 3046,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/maintain/tests/test_codex_session.py",
+        "sha256": "55815c3c6a2462139f807af1d7eec617e7793de3ee35d94a3953e90d4e7367d6",
+        "size": 12392,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/maintain/tests/test_host_adapter.py",
+        "sha256": "95df4b05f18fe95b9ec110473afdd4df17c375b50af599a52e1e77f6028d5c06",
+        "size": 59117,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/maintain/tests/test_operation.py",
+        "sha256": "db81295d442766a1192922a20d906c606835633d128331c65c10d142fa41dc99",
+        "size": 15587,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/maintain/workspace-context-maintainer.toml",
+        "sha256": "82ec714fb12aaf6cfdad1d29e65b94959d45db8ad885435ef69f065bb77a7001",
+        "size": 3199,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/recover/README.md",
+        "sha256": "f0c2caadccca95241a79de53dc9be7a03baf214efc56ff139425426015df2a8f",
+        "size": 4058,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/recover/__init__.py",
+        "sha256": "24b87e16437958cd0a6f4e2d7e584c65246353c682496647b58a7e2aeb3e5bdf",
+        "size": 174,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/recover/operation.py",
+        "sha256": "a57221056f19b8b40a5449d798f1362f22a8fdeeb1b192dfd5ceac2837f930e8",
+        "size": 20053,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/recover/tests/__init__.py",
+        "sha256": "79e929be6e13af22c01a43bfa1699d991256d4f5d9ccc72fe89b4742d40c6b68",
+        "size": 36,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/recover/tests/test_recover.py",
+        "sha256": "0ae0dc6e8c61cb8279d81d201333f9c139afcd67b690519c2cafafa3aecbd94e",
+        "size": 39130,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/testing.py",
+        "sha256": "171618587c29a9a20663e4148b397b73e5fec4bfcdb23abfd1848a3b8fe0150d",
+        "size": 9961,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/validation/README.md",
+        "sha256": "3f347bee28033f414b3ddd66d4d67d71e8e6ccd9fc90ee1e25ff5b918482847e",
+        "size": 1535,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/validation/__init__.py",
+        "sha256": "98245b0a398fc80623e196c12b2cc8512edac6779083c386d834d5625335ef17",
+        "size": 40,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/validation/tests/__init__.py",
+        "sha256": "5189b7f6d69b9fb696ba82183c6bef0fc40abed3a76cf07231525da8e50bba2e",
+        "size": 68,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/validation/tests/test_ephemeral_workspace_state_preservation.py",
+        "sha256": "37fb4eaf72ed220966f68f7a277850a71eb8c4d102919e9f5e4cdaae370683ad",
+        "size": 3135,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/verify/README.md",
+        "sha256": "a7bdf3f3c5381685b7f1e380bf1f88ffdc0cb1362e1b85d41784d46525a52f32",
+        "size": 3518,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/verify/__init__.py",
+        "sha256": "267cfcd4b9123c755e7087872492a0a24f816e3a912375f33eee25874cd49bd4",
+        "size": 118,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/verify/operation.py",
+        "sha256": "c95c9b1f34568618c7ae5197e32b592c9e5b2b14b2a685f7e8528d4f5912acf3",
+        "size": 22974,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/verify/tests/__init__.py",
+        "sha256": "e67bd61322883fc47fc6a2719b986447b2bce10c976ff7d77934c8db662527c6",
+        "size": 35,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/verify/tests/test_verify.py",
+        "sha256": "6d8422325fda2b86c427220b617275c0fe656a390101128b0de5bc1e0dd407d1",
+        "size": 27334,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/workspace_contract.py",
+        "sha256": "e7d504e95e67f2234456c3d323e8ec8ecad6f77219f7e83d3a02440746603c43",
+        "size": 11832,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/workspaces/001-noline-context-harness-application/README.md",
+        "sha256": "ac93fed7c958a16af0ad51c1a468a2e2916e158e207a1dfde297af89af2182eb",
+        "size": 1163,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/01-goal.md",
+        "sha256": "f8b25336e4a6d24e133c5cb6c328a66528efb03e7481def6c6c33e60bca97462",
+        "size": 883,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/02-constraints.md",
+        "sha256": "d09a6852327bae8796fddfce37f0d182bb9091d15cf1bd40910ddb1130bf29db",
+        "size": 1229,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/03-project-context.md",
+        "sha256": "b9e3dd45d978420f09fdffc6c7c5e5436ee48a1d81d079c4e1bfc443b4701d83",
+        "size": 876,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/index.md",
+        "sha256": "59ba0a7deebe0d45eb37b2aef824fafc375c06a180c9f954f3e7b5698c6c69f8",
+        "size": 514,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/workspaces/001-noline-context-harness-application/current/state/index.md",
+        "sha256": "4b38cbc5dc1987d0d0c857dc48572946d8f27ca385278ae12336038ca1c2c8e2",
+        "size": 1351,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/workspaces/001-noline-context-harness-application/current/state/status.json",
+        "sha256": "58de904440065d952dba359a9d3bdcb3e68e25a0c33825be74a921fb2ac6aeda",
+        "size": 344,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/workspaces/001-noline-context-harness-application/output/index.md",
+        "sha256": "fa9502f221137acdad7e7ce834892433193d66042f65eb9ba267ebdd2c58584c",
+        "size": 1146,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/workspaces/001-noline-context-harness-application/records/2026-09-04-01-initial-application.md",
+        "sha256": "0c15ce820a025cb3324f6abf87ae2af5f1fe3dcc7e756cb90a369df48d0e117c",
+        "size": 2353,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/workspaces/001-noline-context-harness-application/records/2026-09-04-02-validation.md",
+        "sha256": "51d7104fd16939ebe75cd1d3bbe0ffbca522b9151ed0047646bd08f1482a1e8e",
+        "size": 2964,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/workspaces/001-noline-context-harness-application/records/README.md",
+        "sha256": "671fb12971840d2c098086c5f3c0ccad884bfe143df3cc4a487e3f377bdc211c",
+        "size": 584,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/README.md",
+        "sha256": "08b6ebb2bfde35e98afdc2327a786965bdaa3c9122492a9b0928da5f7e71ac3e",
+        "size": 504,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/harness-tests/harness-test-20260904T051401072108Z-cbdcc39d66274ed1af992018a14bce6a.json",
+        "sha256": "541a27112c3a63767b407577619a67707cce74eb286f1399b8dc84a64d5554c7",
+        "size": 26805,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/preflight/preflight-20260904T035945230719Z-b9ccb26968c24cd8b20f1de6e5413785.json",
+        "sha256": "c1419d9a1c86acf6f432548f5014b0d6cef71ae293d59ec05d20195dcded81d7",
+        "size": 3890,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/verify/verify-20260904T051410639699Z-98a525536dc0485db673a1be2bc869b5.json",
+        "sha256": "aa833a43d7f30cfccf8f4438bb557076525227e1501e00cbb0a646166f75d847",
+        "size": 3596,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/verify/verify-20260904T051621432786Z-334abe31e31448cf8bf6624a046d16b5.json",
+        "sha256": "380cc97f85dedb298df36d86dd68be1caca2322c75a14a2b42f61ea8702b01ea",
+        "size": 3596,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/workspaces/001-noline-context-harness-application/recover.json",
+        "sha256": "c4216a15760ce387c84377cfdd9ee3c6d37a6e61718d08d80a9a643c3169184c",
+        "size": 776,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/workspaces/001-noline-context-harness-application/source/index.md",
+        "sha256": "c6f7403523bcb0e5bdadf025dbb0d8df6fc0393b2bdf90c77812476f5c7cbfd8",
+        "size": 762,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/workspaces/001-noline-context-harness-application/verify.json",
+        "sha256": "f40ff5091ee7d1b4227793bb1b1522f9a6abae071dd3ec260390c0018dbf0af0",
+        "size": 880,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/workspaces/001-noline-context-harness-application/workspace.json",
+        "sha256": "cf0ebf38729aa9fff9f002f565b863da243f9d01c414bebabec0035e2f3e38d3",
+        "size": 86,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/workspaces/CREATE-AND-TRANSITION.md",
+        "sha256": "ea4afb5d4e5be9e05eefa50fe71f52ef8747fb78c9779ae4fe728fec0e7715d3",
+        "size": 10334,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/workspaces/README.md",
+        "sha256": "ff7540a3b7f99e5daa52ba52c432db2fe0d64c802909b40c377b964780e17ced",
+        "size": 6360,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/workspaces/index.json",
+        "sha256": "feff9bf1c1dee63f46045a86e93f8fb16308e18c17c60ca518d3ff83789be6f0",
+        "size": 93,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": "b50cca9360ffeb225b8719506cb61ee1be3cdd8f",
+        "index_oid": "b50cca9360ffeb225b8719506cb61ee1be3cdd8f",
+        "kind": "file",
+        "path": "scripts/check-harness.mjs",
+        "sha256": "b571863f990e718fc8ad80bca05dc254f47d931b2737e3f4b4ec99bcc2753394",
+        "size": 9334,
+        "states": [
+          "worktree"
+        ]
+      }
+    ],
+    "head": "74926b8e33f87c04ec11a25991733f1b8bc3cbdc",
+    "status_porcelain_v1": " M .claude/README.md\n M .claude/harness/README.md\n M .claude/skills/noline-work/SKILL.md\n M .gitignore\n M CLAUDE.md\n M scripts/check-harness.mjs\n?? .agents/skills/create-context-workspace\n?? .claude/decisions/2026-09-04-context-harness-application.md\n?? .claude/skills/create-context-workspace/SKILL.md\n?? .claude/skills/create-context-workspace/agents/openai.yaml\n?? .codex/config.toml\n?? .codex/hooks.json\n?? .codex/hooks/maintain.py\n?? .codex/maintain.json\n?? context/README.md\n?? context/__init__.py\n?? context/project/README.md\n?? context/project/architecture.md\n?? context/project/decisions/0001-selective-local-first.md\n?? context/project/decisions/README.md\n?? context/project/overview.md\n?? context/project/prd.md\n?? context/work/AGENTS.md\n?? context/work/README.md\n?? context/work/__init__.py\n?? context/work/harness/README.md\n?? context/work/harness/__init__.py\n?? context/work/harness/__main__.py\n?? context/work/harness/cli.py\n?? context/work/harness/maintain/README.md\n?? context/work/harness/maintain/SESSION-BINDING-AND-LIFECYCLE.md\n?? context/work/harness/maintain/__init__.py\n?? context/work/harness/maintain/codex_session.py\n?? context/work/harness/maintain/decision.schema.json\n?? context/work/harness/maintain/grounding.schema.json\n?? context/work/harness/maintain/host_adapter.py\n?? context/work/harness/maintain/operation.py\n?? context/work/harness/maintain/tests/__init__.py\n?? context/work/harness/maintain/tests/test_cli.py\n?? context/work/harness/maintain/tests/test_codex_session.py\n?? context/work/harness/maintain/tests/test_host_adapter.py\n?? context/work/harness/maintain/tests/test_operation.py\n?? context/work/harness/maintain/workspace-context-maintainer.toml\n?? context/work/harness/recover/README.md\n?? context/work/harness/recover/__init__.py\n?? context/work/harness/recover/operation.py\n?? context/work/harness/recover/tests/__init__.py\n?? context/work/harness/recover/tests/test_recover.py\n?? context/work/harness/testing.py\n?? context/work/harness/validation/README.md\n?? context/work/harness/validation/__init__.py\n?? context/work/harness/validation/tests/__init__.py\n?? context/work/harness/validation/tests/test_ephemeral_workspace_state_preservation.py\n?? context/work/harness/verify/README.md\n?? context/work/harness/verify/__init__.py\n?? context/work/harness/verify/operation.py\n?? context/work/harness/verify/tests/__init__.py\n?? context/work/harness/verify/tests/test_verify.py\n?? context/work/harness/workspace_contract.py\n?? context/work/workspaces/001-noline-context-harness-application/README.md\n?? context/work/workspaces/001-noline-context-harness-application/current/memory/01-goal.md\n?? context/work/workspaces/001-noline-context-harness-application/current/memory/02-constraints.md\n?? context/work/workspaces/001-noline-context-harness-application/current/memory/03-project-context.md\n?? context/work/workspaces/001-noline-context-harness-application/current/memory/index.md\n?? context/work/workspaces/001-noline-context-harness-application/current/state/index.md\n?? context/work/workspaces/001-noline-context-harness-application/current/state/status.json\n?? context/work/workspaces/001-noline-context-harness-application/output/index.md\n?? context/work/workspaces/001-noline-context-harness-application/records/2026-09-04-01-initial-application.md\n?? context/work/workspaces/001-noline-context-harness-application/records/2026-09-04-02-validation.md\n?? context/work/workspaces/001-noline-context-harness-application/records/README.md\n?? context/work/workspaces/001-noline-context-harness-application/records/receipts/README.md\n?? context/work/workspaces/001-noline-context-harness-application/records/receipts/harness-tests/harness-test-20260904T051401072108Z-cbdcc39d66274ed1af992018a14bce6a.json\n?? context/work/workspaces/001-noline-context-harness-application/records/receipts/preflight/preflight-20260904T035945230719Z-b9ccb26968c24cd8b20f1de6e5413785.json\n?? context/work/workspaces/001-noline-context-harness-application/records/receipts/verify/verify-20260904T051410639699Z-98a525536dc0485db673a1be2bc869b5.json\n?? context/work/workspaces/001-noline-context-harness-application/records/receipts/verify/verify-20260904T051621432786Z-334abe31e31448cf8bf6624a046d16b5.json\n?? context/work/workspaces/001-noline-context-harness-application/recover.json\n?? context/work/workspaces/001-noline-context-harness-application/source/index.md\n?? context/work/workspaces/001-noline-context-harness-application/verify.json\n?? context/work/workspaces/001-noline-context-harness-application/workspace.json\n?? context/work/workspaces/CREATE-AND-TRANSITION.md\n?? context/work/workspaces/README.md\n?? context/work/workspaces/index.json\n"
+  },
+  "instruction_files": [
+    {
+      "head_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "index_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "kind": "symlink",
+      "link_target": "CLAUDE.md",
+      "path": "AGENTS.md",
+      "sha256": "6ebdb617a8104a7756d0cf36578ab01103dc9f07e4dc6feb751296b9c402faf7",
+      "size": 9
+    },
+    {
+      "head_oid": "bee9aa99aa865f2bc0d402792855d0a42bef375c",
+      "index_oid": "bee9aa99aa865f2bc0d402792855d0a42bef375c",
+      "kind": "file",
+      "path": "CLAUDE.md",
+      "sha256": "c2231007f1b48d29196aac94ad2c136629e6ab87731039e1b7b35164d6175763",
+      "size": 9676
+    },
+    {
+      "head_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "index_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "kind": "symlink",
+      "link_target": "CLAUDE.md",
+      "path": "apps/client/AGENTS.md",
+      "sha256": "6ebdb617a8104a7756d0cf36578ab01103dc9f07e4dc6feb751296b9c402faf7",
+      "size": 9
+    },
+    {
+      "head_oid": "ac703e620f20d5cc128a98ff3f6070b11bd76d08",
+      "index_oid": "ac703e620f20d5cc128a98ff3f6070b11bd76d08",
+      "kind": "file",
+      "path": "apps/client/CLAUDE.md",
+      "sha256": "8c0d2613a9cd74202809f6f466b792031dd532c19fa5e7f68dd4549f7fbc9350",
+      "size": 4447
+    },
+    {
+      "head_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "index_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "kind": "symlink",
+      "link_target": "CLAUDE.md",
+      "path": "apps/server/AGENTS.md",
+      "sha256": "6ebdb617a8104a7756d0cf36578ab01103dc9f07e4dc6feb751296b9c402faf7",
+      "size": 9
+    },
+    {
+      "head_oid": "a827312259c922abdf9f190d9992b5839452b9f9",
+      "index_oid": "a827312259c922abdf9f190d9992b5839452b9f9",
+      "kind": "file",
+      "path": "apps/server/CLAUDE.md",
+      "sha256": "11655d326c6d1d4f2ee04ac33928938dbd8b2d884dd4a9d7617064ae1de9e6dc",
+      "size": 3631
+    },
+    {
+      "head_oid": null,
+      "index_oid": null,
+      "kind": "file",
+      "path": "context/work/AGENTS.md",
+      "sha256": "81497507f32ab8454888ac01520a65138bfc6efd86b4d07fb63adb2efb72b060",
+      "size": 11139
+    },
+    {
+      "head_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "index_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "kind": "symlink",
+      "link_target": "CLAUDE.md",
+      "path": "packages/schema/AGENTS.md",
+      "sha256": "6ebdb617a8104a7756d0cf36578ab01103dc9f07e4dc6feb751296b9c402faf7",
+      "size": 9
+    },
+    {
+      "head_oid": "81c8978770c58ae240e8796749b00338e3e18ad4",
+      "index_oid": "81c8978770c58ae240e8796749b00338e3e18ad4",
+      "kind": "file",
+      "path": "packages/schema/CLAUDE.md",
+      "sha256": "d11f80d0db5c225a78150b1177100b6e580cd10076a63addafb5fc0602c142e6",
+      "size": 3310
+    },
+    {
+      "head_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "index_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "kind": "symlink",
+      "link_target": "CLAUDE.md",
+      "path": "packages/ui/AGENTS.md",
+      "sha256": "6ebdb617a8104a7756d0cf36578ab01103dc9f07e4dc6feb751296b9c402faf7",
+      "size": 9
+    },
+    {
+      "head_oid": "883eb42772a977f971cdb5b9a043914571b02a6e",
+      "index_oid": "883eb42772a977f971cdb5b9a043914571b02a6e",
+      "kind": "file",
+      "path": "packages/ui/CLAUDE.md",
+      "sha256": "cd37e8f1aadc7a6ac68c230abd26c510609550f69bcdbbd7b6c5af104b2db654",
+      "size": 2899
+    }
+  ],
+  "project_root": "/Users/hammyeong-yeon/Desktop/10_work/noline",
+  "proof_ceiling": "This receipt captures observed paths and bytes during one local capture pass. It is not an atomic snapshot; concurrent changes may make fields internally inconsistent. It does not establish authorship, intent, or a pre-existing immutable history.",
+  "receipt_id": "5699b5a055b146d8982a903e39c15c2b",
+  "receipt_type": "context_harness_preflight",
+  "schema_version": 1
+}

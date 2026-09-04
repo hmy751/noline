@@ -14,7 +14,8 @@
   - [packages/schema/CLAUDE.md](./packages/schema/CLAUDE.md)
   - [packages/ui/CLAUDE.md](./packages/ui/CLAUDE.md)
 - 하네스 구조와 tool bridge 규칙은 [Noline AI Harness](./.claude/harness/README.md)를 따른다.
-- 실행층은 `.claude/skills/noline-work`, `.agents/skills/noline-work`, `.claude/agents/`, `.codex/agents/`가 얇게 맡는다. 기준 본문은 계속 rules/guards/runbooks/context가 소유한다.
+- 작업의 지속 상태와 선택된 Project common context는 root [Context Harness](./context/README.md)를 따른다. 이는 깊은 제품 설명 Owner인 [`.claude/context/`](./.claude/context/README.md)를 대체하지 않는다.
+- 실행층은 `.claude/skills/noline-work`, `.agents/skills/noline-work`, `.claude/agents/`, `.codex/agents/`가 얇게 맡는다. `.claude/settings.json`과 `.codex/hooks.json`은 각각의 host lifecycle을 explicit-unbound Maintain adapter에 연결한다. 기준 본문은 계속 rules/guards/runbooks/context가 소유한다.
 
 ## Start Here
 
@@ -22,6 +23,7 @@
 | --- | --- |
 | `.claude` 자료 역할 파악 | [Document Map](./.claude/README.md) |
 | 하네스/bridge 작업 | [Noline AI Harness](./.claude/harness/README.md) |
+| 현재 작업 복구·새 Context Workspace | [Context Harness](./context/README.md) |
 | 작업 실행 dispatcher | [noline-work skill](./.claude/skills/noline-work/SKILL.md) |
 | 코드 수정 중 지켜야 할 compact rule | [Noline Rules](./.claude/rules/README.md) |
 | 코드 변경 전후 보호 정책 점검 | [Noline Guard Map](./.claude/guards/README.md) |
@@ -160,6 +162,7 @@ pnpm harness:check
 - 상세 정책은 가장 작은 owner 문서에 둔다.
 - 반복 작업은 `runbooks/`, compact rule은 `rules/`, 깊은 설명은 `context/`에서 시작한다.
 - 깊은 아키텍처와 기능 설명은 `context/`가 소유한다. 예전 `core/`와 `features/` 경로를 새 entrypoint로 되살리지 않는다.
+- root `context/`는 Project common context와 Workspace 운영 상태의 별도 층이다. `.claude/context/`의 제품 설명을 이동·복제하지 않고 필요한 상세 Owner만 선택해 사용한다.
 - 기존 history, session, reference, archive 문서를 삭제하거나 현재 정책처럼 고치기 전에 [Document Map](./.claude/README.md)에서 역할을 확인한다.
 - active guide와 코드가 충돌하면 코드를 확인하고 active guide만 최소 수정한다.
 - 정책이나 하네스 구조가 바뀌면 [decisions/](./.claude/decisions/)에 결정 기록을 남긴다.
