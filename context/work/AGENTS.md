@@ -25,6 +25,16 @@ python3 -m context.work.harness verify
 - **Verify**: Workspace 상태 전환이나 인계에 남길 지속적인 제품 증거가 필요할 때 실행한다. `verify.json`의 고정 명령을 실행하고 receipt와 machine status를 남기지만 context의 의미를 갱신하거나 사람의 acceptance를 결정하지 않는다.
 - **Harness validation**: 작업 흐름의 단계가 아니라 Harness 자체 검증 경계다. Recover·Verify 계약이나 구현이 바뀔 때 임시 Project/Workspace fixture에서 결정적 회귀 검사를 실행하고 실제 active Workspace의 receipt나 status를 생성·변경하지 않는다.
 
+<!-- evidence-collector:start -->
+## 증거 수집 연결
+
+이 Project의 Workspace 작업에는 당시 자료와 회고 단서를 보존하는 독립 증거 수집기를 선택적으로 연결한다. 로컬 `evidence-collector/`가 없으면 미설치 상태이며 기존 Workspace 작업을 계속한다. 개인 폴더가 Git에서 제외돼 있어도 설치돼 있으면 아래 명시 경로로 운영 안내를 읽을 수 있다. 수집 연결이 켜져 있을 때 사용자가 선택한 Workspace의 activation이 성공하면 다음 사용자 요청부터 수집한다. Workspace 문서를 읽거나 생성한 것만으로 session이 연결된다고 판단하지 않는다.
+
+Main은 기존 Workspace 연결·전환·해제 명령을 사용한다. 원래 요청의 귀속은 연결 어댑터가 전달하며, Main이 사건별 수집 호출·승인·대기·재시도·결과 보고를 수행하지 않는다. 수집 실패 때문에 Main이 대신 수집하거나 개발 흐름에 추가 절차를 넣지 않는다. 연결 성공을 실제 자료 수집 완료나 평가 결과로 해석하지 않는다.
+
+수집 범위·기록·실행 상태 확인, 중단·재개 또는 문제 해결이 필요한 때 수집기 운영 안내 `../../evidence-collector/README.md`를 읽는다. 그 안내가 수집 상세를 소유하며, Workspace 선택과 지속 context의 갱신 책임은 기존 Work·Maintain 계약을 따른다.
+<!-- evidence-collector:end -->
+
 ## 새 Workspace 생성과 전환
 
 새 Workspace를 만들거나 현재 작업을 후속 Workspace로 분리하는 요청에는 repo-local [`create-context-workspace` skill](../../.agents/skills/create-context-workspace/SKILL.md)을 사용한다. Skill과 main은 [`생성·전환 canonical`](workspaces/CREATE-AND-TRANSITION.md)을 적용하며, 상세 의미를 이 운영 파일에 다시 정의하지 않는다.

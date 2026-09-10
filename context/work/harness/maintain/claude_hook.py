@@ -200,8 +200,7 @@ class ClaudeHookAdapter:
             payload, "last_assistant_message"
         )
         normalized["stop_hook_active"] = bool(payload.get("stop_hook_active", False))
-        if self.adapter.status(session_id)["status"] != "active":
-            return _hook_output("Stop")
+        # An admitted turn keeps its binding after deactivation.
 
         state = self._read_turn_state(session_id)
         pending = state.get("pending") if state else None

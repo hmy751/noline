@@ -1,18 +1,16 @@
-"""Project-root wrapper for the Workspace Maintain lifecycle adapter."""
-
-from __future__ import annotations
-
+"""Project control entrypoint; optional external lifecycle dispatcher."""
 from pathlib import Path
+import runpy
 import sys
-
-
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(PROJECT_ROOT))
-
-from context.work.harness.maintain.host_adapter import main  # noqa: E402
-
-
-if __name__ == "__main__":
-    raise SystemExit(
-        main([*sys.argv[1:], "--project-root", str(PROJECT_ROOT)])
-    )
+project=Path(__file__).resolve().parents[2]
+sys.path.insert(0,str(project))
+dispatch=project/'evidence-collector/integration/dispatch.py'
+if dispatch.is_file():
+    sys.path.insert(0,str(dispatch.parent))
+    sys.argv=[str(dispatch),'--host','codex','--project-root',str(project),*sys.argv[1:]]
+    runpy.run_path(str(dispatch),run_name='__main__')
+else:
+    if len(sys.argv)>1 and sys.argv[1] in ("tool-event", "interrupt"):
+        raise SystemExit(0)
+    from context.work.harness.maintain.host_adapter import main
+    raise SystemExit(main([*sys.argv[1:], "--project-root", str(project)]))

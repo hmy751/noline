@@ -56,3 +56,6 @@ pnpm-debug.log*
 # Python cache
 __pycache__/
 *.py[cod]
+
+# Personal evidence collector
+/evidence-collector/

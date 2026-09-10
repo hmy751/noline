@@ -115,3 +115,9 @@ Unit test는 unbound no-op, session 격리, activation rollback, A→B→A gener
 ## 교체와 제거
 
 이 하위 경계는 Maintain의 host 연결과 운영 truth를 위한 제거 가능한 장치다. Adapter, hook과 runtime을 제거해도 Workspace의 goal·current·source·output·records와 Maintain의 의미 기준은 남아야 한다. 다른 host adapter로 교체할 때도 explicit selection, 성공 뒤 generation commit, event snapshot, generation-local failure, false success 금지와 민감 runtime의 retention Owner를 다시 충족해야 한다.
+
+## 외부 lifecycle 연결을 위한 귀속 조회
+
+`MaintainHostAdapter.routing_snapshot(session_id, turn_id)`는 이미 접수된 turn의 `workspace_id`와 `binding_generation`만 반환하는 읽기 전용 조회다. 활성 index나 현재 binding으로 과거 turn을 추정하지 않으며, 접수 원문이나 Maintain 판단은 외부에 제공하지 않는다. 외부 소비자의 모델·저장 위치·실패 정책을 Maintain에 넣지 않는다.
+
+Claude Stop도 현재 active 여부만으로 이미 접수된 turn을 버리지 않는다. 연결 해제 전 접수한 turn의 마지막 응답은 저장된 generation을 기준으로 처리하며, 다음 요청은 새 연결 상태를 따른다.

@@ -661,6 +661,23 @@ class MaintainHostAdapter:
             "current_binding": None,
         }
 
+    def routing_snapshot(self, session_id: str, turn_id: str) -> dict[str, Any] | None:
+        """Return the immutable routing metadata for an admitted turn, without conversation text."""
+        self._validate_host_config()
+        session_id = expect_nonempty_string(session_id, "session id")
+        turn_id = expect_nonempty_string(turn_id, "turn id")
+        directory = self._session_directory(session_id)
+        if not (directory / "session.json").exists():
+            return None
+        path = self._turn_path(directory, _hash_identifier(turn_id))
+        if not path.exists():
+            return None
+        state = self._read_session_state(directory)
+        turn = _read_json_object(path, "Maintain turn routing")
+        binding = self._binding_snapshot(turn, state, "Maintain turn routing")
+        return {"workspace_id": binding["workspace_id"],
+                "binding_generation": binding["generation"]}
+
     def status(self, session_id: str) -> dict[str, Any]:
         """Read one Main session binding without creating runtime state."""
 

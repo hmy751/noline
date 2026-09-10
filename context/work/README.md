@@ -7,6 +7,14 @@
 
 Harness는 Workspace의 goal·사람 판단·Project 기준을 소유하지 않는다. Harness를 제거해도 각 Workspace는 자기 README와 `current/`을 읽어 재진입할 수 있어야 한다.
 
+<!-- evidence-collector:start -->
+## 선택적 증거 수집 연결
+
+이 Work의 Workspace 작업에는 로컬 설치가 있을 때 독립 증거 수집기(`../../evidence-collector/README.md`)를 선택적으로 연결한다. 개인 설치는 Git clone으로 전달되지 않으며 없는 체크아웃에서는 기존 Maintain이 동작한다. Maintain은 Workspace 연결과 지속 context 갱신을, 수집기는 당시 자료와 회고 단서 보존을 맡는다. 연결 어댑터만 양쪽 실행 구현을 알고 확정된 요청 귀속을 전달한다. 수집 기록은 Workspace의 현재 판단이나 평가 결론을 대신하지 않는다.
+
+Main의 참여 범위와 활성 조건은 [Work 운영 지침](AGENTS.md#증거-수집-연결)이 소유하고, 수집 상세와 기록·상태 접근은 수집기 운영 안내가 소유한다. 수집 연결을 제거해도 Workspace와 기존 Harness의 의미·책임은 유지된다.
+<!-- evidence-collector:end -->
+
 명령은 Noline Project root에서 실행한다.
 
 ```sh

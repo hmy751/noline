@@ -1,3 +1,6 @@
 [agents.workspace_context_maintainer]
 description = "Noline Main의 수동 fallback에서 explicit Workspace로 grounding하고 response-end의 durable 변화·Owner·ambiguity·보고 중요도를 판단하는 read-only maintainer."
 config_file = "../context/work/harness/maintain/workspace-context-maintainer.toml"
+
+[features]
+hooks = true

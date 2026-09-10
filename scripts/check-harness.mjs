@@ -226,11 +226,16 @@ function checkContextHarnessSurface() {
           (handler) => handler.type === 'command'
             && handler.command === 'python3'
             && Array.isArray(handler.args)
-            && handler.args[0] === '${CLAUDE_PROJECT_DIR}/.claude/hooks/maintain.py'
-            && handler.args[1] === command,
+            && ((handler.args[0] === '${CLAUDE_PROJECT_DIR}/.claude/hooks/maintain.py'
+              && handler.args[1] === command)
+              || (handler.args[0] === path.join(root, 'evidence-collector/integration/dispatch.py')
+                && handler.args[1] === '--host' && handler.args[2] === 'claude'
+                && handler.args[3] === '--project-root' && handler.args[4] === root
+                && handler.args[5] === command
+                && exists('evidence-collector/integration/dispatch.py'))),
         );
         if (!maintainHandler) {
-          failures.push(`.claude/settings.json must route ${eventName} to the Claude Maintain wrapper`);
+          failures.push(`.claude/settings.json must route ${eventName} through a supported Claude lifecycle entrypoint`);
         }
       }
     } catch {
