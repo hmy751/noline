@@ -1,10 +1,8 @@
 # Noline Context Harness skills
 
-이 디렉터리는 Noline의 작업 dispatcher와 Context Harness 운영 스킬의 원본을 소유한다. 각 `SKILL.md`가 해당 스킬의 호출 조건·실행 방법을, `agents/openai.yaml`이 Codex 호출 설정을 소유한다. Project·Workspace의 지속 의미와 문서 관리 계약은 해당 context Owner에 남는다.
+이 디렉터리는 Noline의 Context Harness 운영 스킬 원본과 deprecated 스킬의 이력을 소유한다. 각 `SKILL.md`가 해당 스킬의 호출 조건·실행 방법을, `agents/openai.yaml`이 Codex 호출 설정을 소유한다. Project·Workspace의 지속 의미와 문서 관리 계약은 해당 context Owner에 남는다.
 
 ## 설치된 역할과 진입점
-
-- [noline-work](noline-work/SKILL.md): 기존 Noline 작업 dispatcher와 report-only agent 조율. 상세 제품 정책 Owner를 유지한다.
 
 - [create-context-workspace](create-context-workspace/SKILL.md): 새 독립 Workspace의 초기 구성과 재진입 검토. [생성·전환 계약](../../context/work/workspaces/CREATE-AND-TRANSITION.md)을 적용한다.
 - [update-project-context](update-project-context/SKILL.md): 여러 Workspace에 지속될 맥락의 갱신·누락 복원. [Project 관리 계약](../../context/project/MAINTENANCE.md)을 적용한다.
@@ -14,6 +12,10 @@
 - [explanation-recovery](explanation-recovery/SKILL.md): 앞선 실제 설명에서 놓친 뜻·전제·논리 연결을 필요한 만큼 복구한다.
 
 위 목록은 역할을 찾는 색인이다. 상세 호출 조건과 설명·검토의 권한 경계는 각 스킬을 따른다. 고정 호출 순서나 모든 작업에서 실행하는 공통 workflow는 두지 않는다.
+
+## Deprecated
+
+- [noline-work](noline-work/SKILL.md): 2026-09-10 사용자 요청으로 사용 중단. 호출하지 않으며 기존 본문과 bridge는 이력으로 보존한다. 작업별 기준은 root·workspace guide와 rules·guards·runbooks·context에서 직접 찾는다.
 
 ## Context와 문서 갱신
 

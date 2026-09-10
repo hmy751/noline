@@ -18,7 +18,7 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
 | Guards | [../guards/](../guards/) | 데이터 손실, sync 누락, auth 누락 같은 고비용 실패 점검 | 위험한 수정 전후 |
 | Runbooks | [../runbooks/](../runbooks/) | 반복 작업의 시작 순서 | 작업 진입점 |
 | Context | [../context/](../context/) | 깊은 아키텍처, cross-cutting engineering context, 기능별 설명 | 필요할 때만 |
-| Skill | [../skills/noline-work/SKILL.md](../skills/noline-work/SKILL.md) | 작업 유형별 읽기 경로, report-only agent, 검증 명령을 연결하는 dispatcher | 기능/버그/하네스 작업 실행 시 |
+| Skill | [../skills/README.md](../skills/README.md) | Context Harness 운영 스킬과 deprecated 스킬 이력 | 각 스킬의 호출 조건에 따라 읽음 |
 | Agents | [../agents/](../agents/) + [../../.codex/agents/](../../.codex/agents/) | context 수집, policy drift 점검, harness observer | 필요할 때만 report-only |
 | Commands | [../commands/](../commands/) | Claude command reference와 문서 관리 workflow | Claude 참고 자료 |
 | Decisions | [../decisions/](../decisions/) | 정책, 용어, 하네스 구조가 왜 바뀌었는지 | 근거 기록 |
@@ -40,7 +40,7 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
   - `packages/ui/`
 - `.claude/commands/`는 Claude command reference다. Codex command나 rule로 자동 포팅하지 않는다.
 - `.claude/rules/`의 Markdown은 현재 공통으로 읽을 수 있는 프로젝트 지침이지만 Claude 전용 loader 의미를 갖지는 않는다.
-- `.claude/skills/noline-work`는 Claude skill 원천이고 `.agents/skills/noline-work`는 Codex skill bridge다.
+- `.claude/skills/noline-work`와 `.agents/skills/noline-work`는 deprecated 원본과 Codex bridge로 보존한다. 현재 작업에서 호출하지 않는다.
 - `.claude/skills/create-context-workspace`는 설치된 Context Harness에서 새 Workspace를 구성하는 Claude skill 원천이고 `.agents/skills/create-context-workspace`는 Codex bridge다.
 - `.claude/agents/*.md`는 Claude report-only agent 정의이고 `.codex/agents/*.toml`은 같은 의미의 Codex agent 정의다.
 - `.claude/settings.json`은 Claude Code lifecycle hook을 `.claude/hooks/maintain.py`에 연결한다. `.codex/hooks.json`은 Codex lifecycle을 `.codex/hooks/maintain.py`에 연결한다. 둘 다 새 session을 자동 binding하지 않으며, Claude payload의 `agent_id`가 있는 subagent event는 Main binding과 분리하기 위해 adapter가 조용히 무시한다.
@@ -59,10 +59,10 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
 
 - 이 workspace가 소유하는 구현 책임은 무엇인가.
 - 같은 폴더의 `AGENTS.md`가 bridge symlink인지, 별도 정책 원천인지.
-- 작업자가 루트 `noline-work`에서 들어온 뒤 어떤 rule, guard, runbook을 먼저 확인해야 하는가.
+- 작업자가 루트 guide에서 들어온 뒤 어떤 rule, guard, runbook을 먼저 확인해야 하는가.
 - 어떤 내용은 이 파일에 쌓지 않고 `rules/`, `guards/`, `runbooks/`, `context/`, `sessions/`, `_archive/`로 보내야 하는가.
 
-workspace guide는 짧게 유지한다. 긴 feature 설명, 교육용 예시, 디버깅 사례, 배포 후보가 필요하면 owning context나 archive로 분리한다. `pnpm harness:check`는 각 workspace guide가 `Harness Role`, local `AGENTS.md` bridge, `noline-work` routing을 갖고 있고 과도하게 길어지지 않는지 확인한다.
+workspace guide는 짧게 유지한다. 긴 feature 설명, 교육용 예시, 디버깅 사례, 배포 후보가 필요하면 owning context나 archive로 분리한다. `pnpm harness:check`는 각 workspace guide가 `Harness Role`, local `AGENTS.md` bridge를 갖고 있고 과도하게 길어지지 않는지 확인한다.
 
 결정 기록: [Workspace Guide Harness Contract](../decisions/2026-05-06-workspace-guide-harness-contract.md)
 
@@ -130,16 +130,17 @@ pnpm harness:check
 
 현재 active 실행층:
 
-- `noline-work`: 작업 유형별 dispatcher. 기준 본문을 소유하지 않고 필요한 guide/rule/runbook/context/agent/검증 명령을 연결한다.
 - `create-context-workspace`: 설치 뒤 새 독립 또는 후속 Context Workspace를 구성·bounded 재진입 검토하는 skill이다. 최초 이식이나 기존 Workspace 단순 수정에는 사용하지 않는다.
 - `noline-context-collector`: feature/bug 단위로 관련 코드, 문서, decision, 최근 커밋을 모아 compact card를 반환하는 report-only collector.
 - `noline-policy-checker`: Router, `withTransaction`, `generateId`, schema-first, ISO time, auth ownership, soft delete 정책 drift를 보는 report-only checker.
 - `noline-harness-observer`: 하네스/bridge 변경 뒤 구조 drift와 Claude/Codex parity를 보는 report-only observer.
 
-agent/skill 파일은 discoverable 역할 정의일 뿐, 자동 team runner가 아니다. 여러 agent를 팀처럼 쓰려면 `noline-work`의 Team Workflow처럼 메인 작업자가 호출 순서, 병렬화, 결과 통합을 명시한다.
+`noline-work`는 2026-09-10 사용자 요청으로 deprecated 처리했다. 작업별 기준은 root·workspace guide와 rules·guards·runbooks·context에서 직접 찾는다. 기존 스킬 본문과 bridge는 이력으로 남기며 현재 workflow로 실행하지 않는다. [결정 기록](../decisions/2026-09-10-deprecate-noline-work.md)
+
+agent/skill 파일은 discoverable 역할 정의일 뿐, 자동 team runner가 아니다. 여러 agent를 팀처럼 쓸 때의 호출 순서, 병렬화, 결과 통합은 메인 작업자가 정한다.
 
 새 실행자는 반복 사용으로 모양이 충분히 안정된 뒤에만 추가한다. agent나 skill이 커지면 내용을 owning docs로 되돌리고 실행자는 읽을 자료와 출력 형식만 남긴다.
 
 ## Context Harness 보완
 
-[Project layer](../../context/project/README.md)와 [Spec·Ticket](../../context/work/workspaces/SPEC-AND-TICKETS.md)이 지속 내용과 유지 책임을 소유한다. [운영 skill 색인](../skills/README.md)은 생성·Project 갱신·논의·재판단·작업물 설명·설명 복구를 연결한다. `.claude/skills/` 원본과 `.agents/skills/` 상대 bridge를 유지하며 기존 dispatcher·agents와 각 host adapter를 대체하지 않는다. 적용 선택은 [2026-09-09 Decision](../decisions/2026-09-09-context-harness-upgrade.md)에 있다.
+[Project layer](../../context/project/README.md)와 [Spec·Ticket](../../context/work/workspaces/SPEC-AND-TICKETS.md)이 지속 내용과 유지 책임을 소유한다. [운영 skill 색인](../skills/README.md)은 생성·Project 갱신·논의·재판단·작업물 설명·설명 복구를 연결한다. `.claude/skills/` 원본과 `.agents/skills/` 상대 bridge를 유지하며 report-only agents와 각 host adapter를 대체하지 않는다. 적용 선택은 [2026-09-09 Decision](../decisions/2026-09-09-context-harness-upgrade.md)에 있다.

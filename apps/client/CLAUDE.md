@@ -8,7 +8,7 @@
 
 - `apps/client/CLAUDE.md`가 클라이언트 workspace guide의 원천이다.
 - `apps/client/AGENTS.md`는 이 파일을 가리키는 Codex bridge symlink다. 별도 정책 원천처럼 수정하지 않는다.
-- 작업 실행 순서는 루트 [noline-work skill](../../.claude/skills/noline-work/SKILL.md)을 따른다.
+- 작업에 필요한 기준은 아래 Start Here와 [Runbooks](../../.claude/runbooks/README.md)에서 직접 찾는다.
 - 공통 정책은 이 파일에 복사하지 않고 `rules/`, `guards/`, `runbooks/`, `context/` 중 가장 작은 owner로 보낸다.
 
 ## Start Here

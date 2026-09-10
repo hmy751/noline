@@ -1,9 +1,15 @@
 ---
 name: noline-work
-description: Noline repo에서 기능 구현, 버그 수정, sync/activation/policy 작업, 하네스 변경을 시작할 때 쓰는 실행 dispatcher. 작업 유형에 맞는 guide/rule/runbook/context를 고르고 필요한 report-only agent와 검증 명령을 연결한다.
+description: "[DEPRECATED 2026-09-10 — 발동하지 않는다] 사용자 요청으로 사용 중단한 Noline 작업 dispatcher. 기존 본문은 이력으로만 보존하며 현재 작업의 실행 지침으로 적용하지 않는다."
 ---
 
-# noline-work
+# noline-work — DEPRECATED
+
+2026-09-10 사용자 요청으로 사용을 중단했다. 자동 선택하거나 아래 workflow를 실행하지 않는다. 명시적으로 이 스킬을 열어도 deprecated 상태를 알리고 과거 지침을 적용하지 않는다.
+
+현재 작업은 [루트 가이드](../../../CLAUDE.md)와 작업 경로의 workspace guide에서 필요한 rules·guards·runbooks·context를 직접 찾는다. [결정 기록](../../decisions/2026-09-10-deprecate-noline-work.md)에 적용 범위를 남겼다.
+
+## 과거 실행 지침 — 이력으로만 보존
 
 이 skill은 Noline 작업의 실행층이다. 기준 본문을 새로 소유하지 않고, 루트 guide, workspace guide, `rules/`, `guards/`, `runbooks/`, `context/`를 작업 유형에 맞게 꺼내는 dispatcher로만 동작한다.
 

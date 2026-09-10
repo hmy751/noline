@@ -15,7 +15,7 @@
   - [packages/ui/CLAUDE.md](./packages/ui/CLAUDE.md)
 - 하네스 구조와 tool bridge 규칙은 [Noline AI Harness](./.claude/harness/README.md)를 따른다.
 - 작업의 지속 상태와 선택된 Project common context는 root [Context Harness](./context/README.md)를 따른다. 이는 깊은 제품 설명 Owner인 [`.claude/context/`](./.claude/context/README.md)를 대체하지 않는다.
-- 실행층은 `.claude/skills/noline-work`, `.agents/skills/noline-work`, `.claude/agents/`, `.codex/agents/`가 얇게 맡는다. `.claude/settings.json`과 `.codex/hooks.json`은 각각의 host lifecycle을 explicit-unbound Maintain adapter에 연결한다. 기준 본문은 계속 rules/guards/runbooks/context가 소유한다.
+- 실행층은 [운영 skill 색인](./.claude/skills/README.md)과 `.claude/agents/`, `.codex/agents/`에서 찾는다. `noline-work`는 deprecated이며 호출하지 않는다. `.claude/settings.json`과 `.codex/hooks.json`은 각각의 host lifecycle을 explicit-unbound Maintain adapter에 연결한다. 기준 본문은 계속 rules/guards/runbooks/context가 소유한다.
 
 ## Start Here
 
@@ -24,7 +24,7 @@
 | `.claude` 자료 역할 파악 | [Document Map](./.claude/README.md) |
 | 하네스/bridge 작업 | [Noline AI Harness](./.claude/harness/README.md) |
 | 현재 작업 복구·새 Context Workspace | [Context Harness](./context/README.md) |
-| 작업 실행 dispatcher | [noline-work skill](./.claude/skills/noline-work/SKILL.md) |
+| 작업별 시작 경로 | [Noline Runbooks](./.claude/runbooks/README.md) |
 | 코드 수정 중 지켜야 할 compact rule | [Noline Rules](./.claude/rules/README.md) |
 | 코드 변경 전후 보호 정책 점검 | [Noline Guard Map](./.claude/guards/README.md) |
 | 반복 작업 시작 순서 | [Noline Runbooks](./.claude/runbooks/README.md) |

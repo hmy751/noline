@@ -138,18 +138,8 @@ function checkExecutionSurfaces() {
 
   for (const name of expectedSkills) {
     checkSymlink(`.agents/skills/${name}`, `../../.claude/skills/${name}`);
-  }
-
-  const skillPath = path.join(root, '.claude/skills/noline-work/SKILL.md');
-  if (!fs.existsSync(skillPath)) {
-    failures.push('.claude/skills/noline-work/SKILL.md is missing');
-  } else {
-    const skillText = fs.readFileSync(skillPath, 'utf8');
-    if (!skillText.includes('## Team Workflow')) {
-      failures.push('.claude/skills/noline-work/SKILL.md must document Team Workflow boundaries');
-    }
-    if (!skillText.includes('자동으로 팀이 실행되지는 않는다')) {
-      failures.push('.claude/skills/noline-work/SKILL.md must state agents do not auto-run as a team');
+    if (!exists(`.claude/skills/${name}/SKILL.md`)) {
+      failures.push(`.claude/skills/${name}/SKILL.md is missing`);
     }
   }
 
@@ -259,9 +249,6 @@ function checkWorkspaceGuideContract() {
     }
     if (!text.includes('AGENTS.md')) {
       failures.push(`${guide} must state the local AGENTS.md bridge boundary`);
-    }
-    if (!text.includes('noline-work')) {
-      failures.push(`${guide} must route work through the noline-work dispatcher`);
     }
     const lines = text.trimEnd().split('\n').length;
     if (lines > maxLines) {

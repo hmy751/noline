@@ -21,7 +21,7 @@
 | --- | --- | --- |
 | [harness/](harness/) | Claude/Codex bridge, 문서 owner, 하네스 변경 규칙 | AI/developer 운영 구조를 바꿀 때 먼저 읽는다. |
 | [../context/](../context/) | Project common context, Workspace current/source/output/records, Recover·Maintain·Verify | 지속 작업을 복구하거나 새 Context Workspace를 만들 때 읽는다. `.claude/context/`의 제품 설명 Owner와 다르다. |
-| [skills/noline-work](skills/noline-work/SKILL.md) | 작업 유형별 guide/rule/agent/검증 dispatcher | 기능 구현, 버그 수정, 하네스 변경을 실제로 시작할 때 사용한다. |
+| [skills/](skills/README.md) | Context Harness 운영 스킬과 deprecated 스킬 이력 | 각 스킬의 호출 조건을 따른다. `noline-work`는 deprecated이며 호출하지 않는다. |
 | [agents/](agents/) | Claude report-only 실행자 | context 수집, policy drift 점검, harness observer가 필요할 때만 사용한다. |
 | [rules/](rules/) | 짧고 검증 가능한 task/path 규칙 | 관련 코드 수정 중 scoped rule로 읽는다. |
 | [guards/](guards/) | 데이터 손실, sync 누락, auth 누락처럼 비용이 큰 실수 방지 지도 | 코드 변경 전후 체크용으로 읽는다. |
@@ -38,7 +38,7 @@
 
 Codex bridge:
 
-- `.agents/skills/noline-work`는 `.claude/skills/noline-work`를 가리키는 symlink다.
+- `.agents/skills/noline-work`는 deprecated 원본 `.claude/skills/noline-work`를 가리키는 보존용 symlink다.
 - `.agents/skills/create-context-workspace`는 `.claude/skills/create-context-workspace`를 가리키는 symlink다. 최초 Context Harness 이식에는 쓰지 않고, 설치 후 새 독립 또는 후속 Workspace를 만들 때만 쓴다.
 - `.codex/agents/`는 `.claude/agents/`와 같은 의미의 report-only agent 정의를 Codex 형식으로 둔다.
 - bridge parity는 `pnpm harness:check`가 확인한다.
@@ -55,7 +55,7 @@ Codex bridge:
 | Auth/user ownership | [rules/auth-user-scope.md](rules/auth-user-scope.md) |
 | Policy-driven UI | [rules/policy-ui.md](rules/policy-ui.md) |
 | Repeated task flow | [runbooks/README.md](runbooks/README.md) |
-| Execution dispatcher | [skills/noline-work/SKILL.md](skills/noline-work/SKILL.md) |
+| 운영 스킬과 호출 조건 | [skills/README.md](skills/README.md) |
 | Context Workspace 생성·전환 | [../context/work/workspaces/CREATE-AND-TRANSITION.md](../context/work/workspaces/CREATE-AND-TRANSITION.md), [create-context-workspace](skills/create-context-workspace/SKILL.md) |
 | Deep architecture/feature context | [context/README.md](context/README.md) |
 
