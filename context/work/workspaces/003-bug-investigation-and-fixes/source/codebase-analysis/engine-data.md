@@ -1,0 +1,67 @@
+# 엔진과 데이터 흐름
+
+[전체 목차와 분석 범위](README.md)
+
+> 2026-09-06 분석 기록 · 기준 코드: `b4ed41f6e4bbae26fd45827b3b9063097a2c1ea4`
+> 2026-09-08에 카테고리별로 분리했다. 관찰과 검증 결과는 원래 분석 시점 기준이다.
+
+## 저장 위치를 고르기 전에 local 데이터가 필요한 작업이 있다
+
+일정·경비의 일부 수정·삭제와 일정별 경비 조회는 local 데이터에서 `tripId`를 찾은 뒤 Router를 호출한다. 따라서 서버에서 처리할 작업도 local 데이터 존재가 선행 조건일 수 있다.
+
+조건은 소스에서 확인했다. local 데이터가 없는 비활성 여행에서 실제 실패하는지는 화면 연결과 준비 상태를 함께 재현해야 한다.
+
+근거: [일정 Repository](../../../../../../apps/client/src/entities/schedule/repository/schedule-repository.ts) 62행, [경비 Repository](../../../../../../apps/client/src/entities/expense/repository/expense-repository.ts) 40·65행.
+
+## 동기화 실행 종료·전체 반영·정리 가능 상태의 의미가 분산돼 있다
+
+push는 일반 실패를 FAILED로 남기고 인증 실패는 PENDING으로 돌린 뒤 중단하지만, 호출부에 결과를 구분해 반환하지 않는다. Provider는 정상 반환 후 완료 시각을 갱신한다. 여행의 미전송 작업을 확인하는 helper는 PENDING 상태만 조회한다.
+
+따라서 실행이 끝남, 모든 변경이 반영됨, local 데이터를 정리해도 됨을 같은 의미로 읽을 수 없다. 실패·진행 중 작업을 정리 판단에서 어떻게 다룰지 확인해야 한다. 데이터 손실을 실제 재현한 것은 아니다.
+
+근거: [push 결과](../../../../../../apps/client/src/shared/services/sync/engine.ts) 98행, [완료 시각](../../../../../../apps/client/src/shared/services/sync/provider.tsx) 85행, [여행 대기 작업 조회](../../../../../../apps/client/src/shared/services/sync/queue.ts) 231행.
+
+## 활성화는 여러 작업을 조율하며 완료 상태도 여러 의미를 가진다
+
+활성화 hook은 서버 요청, 여러 테이블 반영, 이전 활성화 해제, 지도·경로 준비, 조회 캐시 갱신을 연결한다. 다운로드는 백그라운드로 이어지며 상태의 ready 판단은 지도 다운로드 여부를 본다.
+
+‘활성화 완료’, ‘지도 준비’, ‘경로 준비’를 구분해야 한다. 상태 이름 `online`도 이 문맥에서는 실제 네트워크 연결보다 비활성 상태를 나타내므로 이름을 다른 문맥에 적용해 읽으면 혼동할 수 있다.
+
+근거: [활성화](../../../../../../apps/client/src/entities/trip/data/useActivateTrip.ts) 66·169행, [상태 판단](../../../../../../apps/client/src/shared/services/offline-prep/metadata.ts) 22행.
+
+## 공통 구현과 설정이 실제 사용처에 완전히 이어지지 않는다
+
+경로 다운로드 공통 함수는 활성화에서 사용하지만, 일정 변경 hook은 같은 다운로드를 별도로 구현한다. 공통 함수에는 기존 경로 확인이 있고 hook에는 없다. 공통 함수의 주석은 두 곳에서 사용한다고 설명한다.
+
+활성화와 sync의 local upsert, 즉시 비활성화와 지연 cleanup에도 비슷한 생명주기 처리가 따로 있다. 필드와 정리 조건을 바꿀 때 함께 맞춰야 하는 위치가 여러 곳이다.
+
+또한 policy의 `syncStrategy`는 정의돼 있으나, 확인한 앱 소스에서 이 값으로 동기화 방식을 결정하는 사용처는 찾지 못했다. 설정이 실제 동작을 제어한다고 읽을 수 있어 주의가 필요하다.
+
+근거: [경로 공통 함수](../../../../../../apps/client/src/shared/services/directions/route-downloader.ts) 5·64행, [별도 hook 구현](../../../../../../apps/client/src/entities/route/data/useAutoDownloadRoutes.ts) 39행, [sync upsert](../../../../../../apps/client/src/shared/db/utils.ts) 64행, [지연 정리](../../../../../../apps/client/src/shared/services/sync/cleanup-job.ts) 99행, [정책 설정](../../../../../../apps/client/src/shared/policy/constants.ts) 355행.
+
+## 같은 상태를 두 방식으로 관리하면서 조건이 충돌한다
+
+동기화 API의 재시도는 `_retry`와 `_retryCount`를 함께 사용한다. 첫 재시도에서 `_retry`를 true로 바꾼 뒤, 다시 같은 요청 설정으로 실패하면 `!originalRequest._retry` 조건이 재진입을 막는다. 안쪽의 최대 3회 카운터와 의도가 맞지 않는다.
+
+```ts
+if (shouldRetry && !originalRequest._retry) {
+  originalRequest._retry = true;
+  originalRequest._retryCount = (originalRequest._retryCount || 0) + 1;
+
+  if (originalRequest._retryCount <= 3) {
+    // 지연 후 같은 요청 설정으로 재요청
+  }
+}
+```
+
+조건 충돌은 코드에서 확인했다. 실제 서버 오류를 발생시키는 재시도 재현은 수행하지 않았다.
+
+근거: [재시도 조건](../../../../../../apps/client/src/shared/services/sync/api.ts) 75행.
+
+## 앱 준비 완료와 실패 후 계속 진행하는 상태가 같은 값으로 표현된다
+
+앱 초기화는 DB·인증 준비가 실패해도 finally에서 `isAppReady`를 true로 바꾼다. 일부 cleanup은 준비 완료 신호 대신 2초 지연 후 실행된다.
+
+필수 초기화 실패 시 어떤 화면과 재시도를 제공할지, 어떤 작업은 실패해도 계속 진행할지 구분할 필요가 있다. 시작 실패 상황의 실제 화면은 실행 검증하지 않았다.
+
+근거: [앱 초기화](../../../../../../apps/client/app/_layout.tsx) 169·185행, [지연 cleanup](../../../../../../apps/client/app/_layout.tsx) 118행.

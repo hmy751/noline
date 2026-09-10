@@ -1,0 +1,95 @@
+// 현재 소스에서 함수를 읽어 실행한다. 제품 파일과 실제 앱 DB는 수정하지 않는다.
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+const assert = require('node:assert/strict');
+const { createRequire } = require('node:module');
+const { DatabaseSync } = require('node:sqlite');
+const root = '/Users/hammyeong-yeon/Desktop/10_work/noline';
+const requireRepo = createRequire(path.join(root, 'package.json'));
+const ts = requireRepo('typescript');
+const { drizzle } = requireRepo('drizzle-orm/expo-sqlite');
+const { sqliteTable, text } = requireRepo('drizzle-orm/sqlite-core');
+const { eq } = requireRepo('drizzle-orm');
+
+function loadFunction(relativePath, name, globals) {
+  const input = fs.readFileSync(path.join(root, relativePath), 'utf8');
+  const source = ts.createSourceFile(relativePath, input, ts.ScriptTarget.Latest, true);
+  const declaration = source.statements.find(s => ts.isFunctionDeclaration(s) && s.name?.text === name);
+  assert(declaration, name);
+  const compiled = ts.transpileModule(declaration.getText(source), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+  }).outputText;
+  const exports = {};
+  vm.runInNewContext(compiled, { exports, ...globals }, { filename: relativePath });
+  return exports[name];
+}
+
+// Expo native bridge만 Node의 메모리 SQLite로 대체한다. 설치된 Expo Drizzle driver는 그대로 사용한다.
+const sqlite = new DatabaseSync(':memory:');
+const trace = [];
+const expoAdapter = {
+  prepareSync(sql) {
+    const statement = sqlite.prepare(sql);
+    return {
+      executeSync(params) {
+        trace.push(sql);
+        if (statement.columns().length) {
+          const rows = statement.all(...params);
+          return { getAllSync: () => rows, getFirstSync: () => rows[0] };
+        }
+        const result = statement.run(...params);
+        return { changes: Number(result.changes), lastInsertRowId: Number(result.lastInsertRowid) };
+      },
+      executeForRawResultSync(params) {
+        trace.push(sql);
+        statement.setReturnArrays(true);
+        const rows = statement.all(...params);
+        return { getAllSync: () => rows };
+      },
+    };
+  },
+};
+const db = drizzle(expoAdapter);
+const entries = sqliteTable('entries', { id: text('id').primaryKey() });
+const queue = sqliteTable('queue', { id: text('id').primaryKey(), payload: text('payload').notNull() });
+const syncQueue = sqliteTable('sync_queue', {
+  id: text('id').primaryKey(), tableName: text('table_name'), recordId: text('record_id'),
+  action: text('action'), payload: text('payload'), status: text('status'), createdAt: text('created_at'),
+});
+sqlite.exec('CREATE TABLE entries(id TEXT PRIMARY KEY); CREATE TABLE queue(id TEXT PRIMARY KEY, payload TEXT NOT NULL); CREATE TABLE sync_queue(id TEXT PRIMARY KEY, table_name TEXT, record_id TEXT, action TEXT, payload TEXT, status TEXT, created_at TEXT);');
+
+(async () => {
+  const withTransaction = loadFunction('apps/client/src/shared/db/utils.ts', 'withTransaction', { db });
+  await assert.rejects(() => withTransaction(async () => {
+    await db.insert(entries).values({ id: 'entry' });
+    await db.insert(queue).values({ id: 'task', payload: null });
+  }));
+  const retained = Number(sqlite.prepare('SELECT count(*) AS n FROM entries').get().n);
+  assert.equal(retained, 1);
+  console.log(JSON.stringify({ probe: 'current-withTransaction', retainedEntriesAfterQueueFailure: retained, sqlOrder: [...trace] }));
+
+  sqlite.exec('DELETE FROM entries');
+  trace.length = 0;
+  assert.throws(() => db.transaction(tx => {
+    tx.insert(entries).values({ id: 'control' }).run();
+    tx.insert(queue).values({ id: 'task', payload: null }).run();
+  }));
+  assert.equal(Number(sqlite.prepare('SELECT count(*) AS n FROM entries').get().n), 0);
+  console.log(JSON.stringify({ probe: 'synchronous-control', retainedEntriesAfterQueueFailure: 0, sqlOrder: [...trace] }));
+
+  const tasks = [
+    { id: 'partial-update', tableName: 'schedules', recordId: 'schedule-1', action: 'UPDATE', payload: JSON.stringify({ title: 'Edited' }), status: 'PENDING', createdAt: '2026-09-10' },
+    { id: 'failed-create', tableName: 'schedules', recordId: 'schedule-2', action: 'CREATE', payload: JSON.stringify({ tripId: 'trip-1' }), status: 'FAILED', createdAt: '2026-09-10' },
+  ];
+  db.insert(syncQueue).values(tasks).run();
+  const getPendingTasksForTrip = loadFunction('apps/client/src/shared/services/sync/queue.ts', 'getPendingTasksForTrip', { db, syncQueue, eq });
+  const selected = await getPendingTasksForTrip('trip-1');
+  assert.equal(selected.length, 0);
+  console.log(JSON.stringify({ probe: 'trip-cleanup-task-selection', existingUnsentTasks: tasks.map(t => ({ id: t.id, status: t.status })), returnedTasks: selected }));
+
+  db.insert(syncQueue).values({ id: 'pending-create-control', tableName: 'schedules', recordId: 'schedule-3', action: 'CREATE', payload: JSON.stringify({ tripId: 'trip-1' }), status: 'PENDING', createdAt: '2026-09-10' }).run();
+  assert.equal((await getPendingTasksForTrip('trip-1')).length, 1);
+  console.log(JSON.stringify({ probe: 'pending-create-control', returnedTaskCount: 1 }));
+  sqlite.close();
+})().catch(error => { console.error(error); process.exitCode = 1; });

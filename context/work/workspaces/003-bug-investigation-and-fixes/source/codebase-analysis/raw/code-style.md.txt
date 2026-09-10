@@ -1,0 +1,93 @@
+# 코드 표현
+
+[전체 목차와 분석 범위](../2026-09-06-codebase-analysis.md)
+
+> 2026-09-06 분석 기록 · 기준 코드: `b4ed41f6e4bbae26fd45827b3b9063097a2c1ea4`
+> 2026-09-08에 카테고리별로 분리했다. 관찰과 검증 결과는 원래 분석 시점 기준이다.
+
+## 단순한 작업을 로그·catch·반복 주석이 둘러싼다
+
+경비 API 함수는 요청·응답 검증·반환이라는 짧은 작업에 조회 결과 로그와 ‘오류 출력 후 그대로 재전파’하는 catch를 반복한다. 함수명·타입·코드로 드러나는 내용에 설명 주석과 정책 표기가 다시 붙는 경우도 있다.
+
+이 때문에 실행 의도보다 읽을 분량이 늘어난다. 오류를 기록할 책임은 필요하지만, 모든 함수가 같은 오류를 다시 출력해야 하는지는 별도 판단이다.
+
+표현 비교용 예시 — 현재 동작의 핵심은 다음처럼 읽을 수 있다. 실제 파일에 적용한 변경은 아니다.
+
+```ts
+export const fetchExpensesByTripId = async (
+  tripId: string,
+): Promise<Expense[]> => {
+  const response = await apiClient.get(`/api/expenses?tripId=${tripId}`);
+  return expenseListResponse.parse(response).data;
+};
+```
+
+주석은 ‘왜 이 처리가 필요한가’를 설명할 때 가치가 있다. 경비 DELETE 작업에 `tripId`를 남겨야 지연 정리가 해당 여행의 작업을 식별한다는 설명은 보존할 근거가 있다.
+
+근거: [경비 API](../../../apps/client/src/entities/expense/api/expenses.ts) 15행, [생성 주석](../../../apps/client/src/features/schedule/create-schedule/useCreateScheduleForm.ts) 65행, [삭제 이유 주석](../../../apps/client/src/entities/expense/lib/expense-local.ts) 165행.
+
+## 타입 변환과 기본값 처리가 값의 의미를 흐린다
+
+선택 장소의 좌표는 이미 `number`인데 다음과 같이 숫자를 문자열로 바꾼 뒤 다시 숫자로 만든다.
+
+```ts
+latitude: selectedLocation?.latitude
+  ? parseFloat(String(selectedLocation.latitude))
+  : undefined,
+```
+
+이 자리에서는 `selectedLocation?.latitude`가 선택 여부와 값의 의미를 더 직접 드러낸다. 기존 조건은 `0`을 없음으로 취급한다. 서버의 `latitude ? String(latitude) : null`에도 같은 값 구분 문제가 반복된다.
+
+`||`를 일괄 교체하자는 판단은 아니다. 미전달, null, 빈 문자열, 0 중 무엇을 같은 상태로 취급하는지 확인해야 한다. 좌표 0이 누락되는 조건은 코드에서 확인했으며 실제 화면 입력부터 저장까지의 재현은 하지 않았다.
+
+근거: [좌표 타입](../../../apps/client/src/features/schedule/create-schedule/types.ts) 9행, [client 변환](../../../apps/client/src/features/schedule/create-schedule/useCreateScheduleForm.ts) 79·90행, [server 변환](../../../apps/server/src/routes/schedules.ts) 40·231행.
+
+## 조건의 의미를 이름보다 표현식에서 추측해야 한다
+
+경비 JSX는 `currency === expensesByCurrency[0].currency`를 반복한다. 독자는 ‘첫 번째 항목과 같다’를 ‘주 통화다’로 해석해야 한다. 통화별 소수 자릿수 규칙도 JSX 안에 들어 있다.
+
+현재 의미에 맞는 `isPrimaryCurrency` 같은 이름으로 판단을 드러내면 강조 스타일과 ‘주 통화’ 표시를 읽기 쉬워진다. 모든 조건을 변수로 추출할 필요는 없으며, 반복되거나 의미 해석이 필요한 조건이 대상이다.
+
+같은 화면의 `outsideTripRange`, `insideTripRange`는 좋은 기존 예시다. 두 이름과 반환 순서만으로 여행 기간 밖 항목을 앞에 둔다는 의도를 읽을 수 있다.
+
+근거: [경비 화면](../../../apps/client/src/screens/ExpensesScreen.tsx) 88·182·187·189행.
+
+## 타입 검사를 우회하는 표현의 근거가 드러나지 않는다
+
+`normalizedTrips as never[]`, `updateData: any`, 조회 결과의 `return updated!`가 있다. 이 표현들은 각각 전달 데이터의 형태, 허용 필드, 결과의 존재 여부를 독자가 별도로 확인하게 한다.
+
+단언을 지우는 것만으로 해결되지는 않는다. 경계에서 데이터 형태를 검증하거나, 이미 확인한 조건이 타입과 다음 처리에 이어지도록 해야 한다. 모든 `as`나 non-null assertion을 같은 문제로 취급하지 않았다.
+
+근거: [동기화 변환](../../../apps/client/src/shared/services/sync/engine.ts) 202·211·220행, [서버 수정 값](../../../apps/server/src/routes/trips.ts) 200행, [local 수정 결과](../../../apps/client/src/entities/expense/lib/expense-local.ts) 160행.
+
+## 검증한 사실을 이어 쓰지 않고 같은 검증을 반복한다
+
+서버 목록 API는 각 entity를 검증한 결과를 전체 응답 schema에 다시 넣는다. 전체 응답 schema도 같은 entity schema의 배열을 포함하므로 항목 검증이 반복된다. 여행·일정·경비 목록에 이 형태가 있다.
+
+요청과 응답은 서로 다른 경계여서 각각 검증할 이유가 있다. 여기서의 관찰은 동일한 응답 entity를 연속 검증하고 실패 처리도 두 벌 유지한다는 점이다.
+
+근거: [일정 목록 검증](../../../apps/server/src/routes/schedules.ts) 88·107행, [경비 목록 검증](../../../apps/server/src/routes/expenses.ts) 38·58행, [응답 schema factory](../../../packages/schema/src/responses/_envelope.ts) 16행.
+
+## 현재 입력 계약상 도달하지 못하는 분기가 남아 있다
+
+여행 수정 schema는 날짜에 `undefined`는 허용하지만 `null`은 허용하지 않는다. 검증을 통과한 뒤 서버는 시작일과 종료일 각각의 `null` 처리를 구현한다. 독자는 실제로 날짜를 지우는 기능도 있는지 혼동할 수 있다.
+
+안전 검사를 일괄 삭제하자는 판단이 아니다. 현재 허용하는 입력과 처리 분기를 맞춰 읽을 수 있어야 한다.
+
+근거: [날짜 계약](../../../packages/schema/src/entities/trip.ts) 30행, [수정 schema](../../../packages/schema/src/requests/trip.ts) 44행, [처리 분기](../../../apps/server/src/routes/trips.ts) 210·225행.
+
+## 최적화 표현의 실제 조건이 의도와 맞지 않는다
+
+일정·경비 화면은 매 렌더링에 새 `dateRange` 배열을 만든 뒤 그 배열을 `useMemo` 의존성에 넣는다. 배열 참조가 매번 달라져 해당 계산도 매번 다시 실행된다.
+
+```ts
+const dateRange = generateDateRange();
+
+const schedulesByDate = useMemo(() => {
+  // dateRange로 일정 묶기
+}, [dateRange, schedules]);
+```
+
+독자는 재계산 조건을 추적해야 하지만 현재 표현에는 계산 재사용 효과가 없다. 성능 문제가 측정됐다는 뜻은 아니다.
+
+근거: [일정 화면](../../../apps/client/src/screens/ScheduleScreen.tsx) 94·160·186행, [경비 화면](../../../apps/client/src/screens/ExpensesScreen.tsx) 65·68·92행.

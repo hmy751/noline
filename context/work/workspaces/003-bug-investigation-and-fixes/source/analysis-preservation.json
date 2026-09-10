@@ -1,0 +1,68 @@
+{
+  "preserved_at": "2026-09-10T12:48:53.415733+00:00",
+  "reason": "사용자가 원래 .claude/sessions 분석 경로의 향후 삭제를 전제로 Workspace 안에 내용을 보존하도록 요청했다.",
+  "transformation": "raw는 원본과 byte-for-byte 동일하다. 읽기용 Markdown은 링크 목적지를 새 위치에 맞췄고, 사용자 요청으로 분석 목차의 리팩토링 배경 설명 2곳에서 특정 활용 목적을 직접 언급한 표현을 삭제했다. 그 외 본문은 동일하다.",
+  "original_path_role": "과거 출처 식별값이며 이후 읽기·재진입에 필요한 경로가 아니다.",
+  "files": [
+    {
+      "original_path": ".claude/sessions/2026-09-06-codebase-analysis.md",
+      "original_sha256": "2638bad8c95af5b2dc5df209c2ac663e9cfa45a8c7274bb2c7bff33ad5fa1601",
+      "raw_snapshot": "source/codebase-analysis/raw/2026-09-06-codebase-analysis.md.txt",
+      "raw_sha256": "2638bad8c95af5b2dc5df209c2ac663e9cfa45a8c7274bb2c7bff33ad5fa1601",
+      "reading_copy": "source/codebase-analysis/README.md",
+      "reading_copy_sha256": "43b2b4a1754ad5d2c92fd08fd55d496d36c2957d4e5f3ea656455c86d2445c34",
+      "editorial_changes": [
+        "도입 문장의 특정 활용 목적 수식어 삭제",
+        "분석 출발점 문장의 특정 활용 목적 구절 삭제"
+      ]
+    },
+    {
+      "original_path": ".claude/sessions/2026-09-06-codebase-analysis/architecture.md",
+      "original_sha256": "60c405a33cd68c587c2565477f502100d27826bd18f2cce7d4e1bf66c31aa552",
+      "raw_snapshot": "source/codebase-analysis/raw/architecture.md.txt",
+      "raw_sha256": "60c405a33cd68c587c2565477f502100d27826bd18f2cce7d4e1bf66c31aa552",
+      "reading_copy": "source/codebase-analysis/architecture.md",
+      "reading_copy_sha256": "d069784af06683cdeb076a65e546fb93a34822f6dd4d7d86d360231f44f2ec2e"
+    },
+    {
+      "original_path": ".claude/sessions/2026-09-06-codebase-analysis/code-style.md",
+      "original_sha256": "1cea5a9c9b0857973b7314478587ae70f5994952ee7f7c7f848d7f6e9a7b9787",
+      "raw_snapshot": "source/codebase-analysis/raw/code-style.md.txt",
+      "raw_sha256": "1cea5a9c9b0857973b7314478587ae70f5994952ee7f7c7f848d7f6e9a7b9787",
+      "reading_copy": "source/codebase-analysis/code-style.md",
+      "reading_copy_sha256": "59609f705c2c649dcea7cf57f7fbb0256330dd5428eacfe06908d77be3772b97"
+    },
+    {
+      "original_path": ".claude/sessions/2026-09-06-codebase-analysis/components.md",
+      "original_sha256": "9529fa1860ea3ce2499a818db3a988109db5ade6c2815e2b9ea67b7906cbffcc",
+      "raw_snapshot": "source/codebase-analysis/raw/components.md.txt",
+      "raw_sha256": "9529fa1860ea3ce2499a818db3a988109db5ade6c2815e2b9ea67b7906cbffcc",
+      "reading_copy": "source/codebase-analysis/components.md",
+      "reading_copy_sha256": "97b88547caf44095376590172271a0e2bb41f692cf381b0f8aefd6a6b41d92ab"
+    },
+    {
+      "original_path": ".claude/sessions/2026-09-06-codebase-analysis/engine-data.md",
+      "original_sha256": "487996b4c15502b381212c37f913e90d01a585112fa491527011a0f7ab5e8278",
+      "raw_snapshot": "source/codebase-analysis/raw/engine-data.md.txt",
+      "raw_sha256": "487996b4c15502b381212c37f913e90d01a585112fa491527011a0f7ab5e8278",
+      "reading_copy": "source/codebase-analysis/engine-data.md",
+      "reading_copy_sha256": "662bfbab5e9eb0bc9c547bda81f5fdeae285bb3b0a4b61ac202158c6ee51f212"
+    },
+    {
+      "original_path": ".claude/sessions/2026-09-06-codebase-analysis/server-contracts.md",
+      "original_sha256": "c2d89e356a05c524817ffe689e50ffff864714dcc87f4bffd4637c270c705fca",
+      "raw_snapshot": "source/codebase-analysis/raw/server-contracts.md.txt",
+      "raw_sha256": "c2d89e356a05c524817ffe689e50ffff864714dcc87f4bffd4637c270c705fca",
+      "reading_copy": "source/codebase-analysis/server-contracts.md",
+      "reading_copy_sha256": "4ccfc386159a0f8de8b785bab6d8ad77d510733fbb1b33be0fd9dc8b0dd43b13"
+    },
+    {
+      "original_path": ".claude/sessions/2026-09-06-codebase-analysis/verification.md",
+      "original_sha256": "a5ecc5b1746e18654e5a84ee4dce125fa7426cdc80f50b07bfd142885aaf72a2",
+      "raw_snapshot": "source/codebase-analysis/raw/verification.md.txt",
+      "raw_sha256": "a5ecc5b1746e18654e5a84ee4dce125fa7426cdc80f50b07bfd142885aaf72a2",
+      "reading_copy": "source/codebase-analysis/verification.md",
+      "reading_copy_sha256": "5e4fd33ff94ba4805763269e77be67368db4f41a2024d369e16d776c5c5fd4ff"
+    }
+  ]
+}

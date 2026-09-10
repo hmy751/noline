@@ -1,0 +1,44 @@
+# 구조와 보존할 기반
+
+[전체 목차와 분석 범위](README.md)
+
+> 2026-09-06 분석 기록 · 기준 코드: `b4ed41f6e4bbae26fd45827b3b9063097a2c1ea4`
+> 2026-09-08에 카테고리별로 분리했다. 관찰과 검증 결과는 원래 분석 시점 기준이다.
+
+화면과 feature는 입력·표시·사용자 행동을 조합한다. entity의 data hook은 조회·저장을 요청하고 조회 캐시를 갱신한다. Repository는 데이터 작업의 진입점이고, Activation Router는 local/API 실행을 고른다. 오프라인 준비·동기화·정리 서비스는 여러 데이터와 다운로드 자원의 흐름을 연결한다. 서버는 인증·검증·DB 작업·응답을 처리하며, schema package는 client/server가 공유하는 데이터 계약을 소유한다.
+
+| 영역 | 실제 책임 | 분석에서 눈에 띈 상태 |
+| --- | --- | --- |
+| 화면·feature·UI | 입력, 선택, 목록·지도 표시, 화면 이동 | 공통 입력 기반은 있고 초기화·완료·실패 처리가 화면별로 다름 |
+| entity·Repository·Router | 데이터 작업과 local/API 선택 | 일반 CRUD 패턴은 반복되지만 일부 작업에 숨은 local 데이터 전제가 있음 |
+| 활성화·동기화·정리 | 데이터 준비, 미전송 작업 반영, 다운로드, 정리 | 여러 작업의 완료 의미와 실패 처리 책임을 함께 읽어야 함 |
+| 서버·공유 schema | 인증, 입력·응답 검증, DB 데이터 변환 | 같은 데이터를 다루는 API 사이에 조건과 변환 차이가 있음 |
+| 검사 도구·로그 | 변경 검증과 동작 추적 | 타입 오류, 린트 실행 오류, 개발용 출력과 실패 기록의 혼재가 확인됨 |
+
+일정·경비의 대표 저장 흐름:
+
+```mermaid
+flowchart TD
+    A[화면과 입력 폼] --> B[데이터 hook]
+    B --> C[Repository]
+    C --> D[Activation Router]
+    D -->|활성화된 여행| E[SQLite와 전송 대기열]
+    D -->|비활성 여행 · 온라인| F[서버 API]
+    E --> G[동기화 엔진]
+    G -->|대기 작업 전송| F
+    F -->|변경분 가져오기| G
+    G -->|로컬 반영| E
+```
+
+여행 자체의 조회·변경은 ‘활성화된 여행이 하나라도 있는가’를 기준으로 분기한다. 일정·경비는 해당 여행의 활성화 여부를 기준으로 한다. 실제 push는 전용 `/sync/push` 대신 여행·일정·경비의 REST API에 POST/PUT/DELETE를 보낸다. 서버의 `/sync/push`가 501이라는 이유만으로 동기화 전체가 미구현이라고 판단하면 안 된다.
+
+보존할 근거가 있는 기반:
+
+- 화면이 저장 위치를 직접 고르지 않는 일반 CRUD 경로가 여행·일정·경비에서 반복된다.
+- 로컬 저장과 전송 대기열 기록을 `withTransaction` 호출 안에 함께 배치하는 패턴이 있다. 실제 rollback 보장은 별도 검증이 필요하다.
+- client 생성 ID, 공유 Zod schema, soft delete, 지연 정리가 코드에 반영돼 있다.
+- 사용자 데이터의 동기화와 지도·경로 자원의 다운로드를 구분한다.
+- 생성 폼에서 React Hook Form·Zod·공용 날짜 변환·입력 표시 컴포넌트를 재사용한다.
+- 검색창처럼 작더라도 입력 설정과 동작을 의미 있게 묶는 컴포넌트가 있다. 크기만으로 불필요한 추상화라고 보지 않았다.
+
+근거: [Router](../../../../../../apps/client/src/shared/services/offline-prep/router.ts) 14·44행, [일정 local 저장](../../../../../../apps/client/src/entities/schedule/lib/schedule-local.ts) 87행, [동기화 전송](../../../../../../apps/client/src/shared/services/sync/engine.ts) 18행, [서버 sync](../../../../../../apps/server/src/routes/sync.ts) 191행.

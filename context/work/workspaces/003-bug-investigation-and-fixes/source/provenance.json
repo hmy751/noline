@@ -1,0 +1,36 @@
+{
+  "captured_at": "2026-09-10T12:34:19.772535+00:00",
+  "session_id": "01a08a6e-de21-7483-8703-d10dd71df670",
+  "analysis_date": "2026-09-06",
+  "analysis_commit": "b4ed41f6e4bbae26fd45827b3b9063097a2c1ea4",
+  "workspace_setup_head": "aa2314cd9c1400420ea8d22f5ea39f9d76ceca21",
+  "branch_at_setup": "refactor/codebase",
+  "original_analysis_sha256": {
+    ".claude/sessions/2026-09-06-codebase-analysis.md": "2638bad8c95af5b2dc5df209c2ac663e9cfa45a8c7274bb2c7bff33ad5fa1601",
+    ".claude/sessions/2026-09-06-codebase-analysis/architecture.md": "60c405a33cd68c587c2565477f502100d27826bd18f2cce7d4e1bf66c31aa552",
+    ".claude/sessions/2026-09-06-codebase-analysis/code-style.md": "1cea5a9c9b0857973b7314478587ae70f5994952ee7f7c7f848d7f6e9a7b9787",
+    ".claude/sessions/2026-09-06-codebase-analysis/components.md": "9529fa1860ea3ce2499a818db3a988109db5ade6c2815e2b9ea67b7906cbffcc",
+    ".claude/sessions/2026-09-06-codebase-analysis/engine-data.md": "487996b4c15502b381212c37f913e90d01a585112fa491527011a0f7ab5e8278",
+    ".claude/sessions/2026-09-06-codebase-analysis/server-contracts.md": "c2d89e356a05c524817ffe689e50ffff864714dcc87f4bffd4637c270c705fca",
+    ".claude/sessions/2026-09-06-codebase-analysis/verification.md": "a5ecc5b1746e18654e5a84ee4dce125fa7426cdc80f50b07bfd142885aaf72a2"
+  },
+  "user_excerpt_source_lines": [
+    9,
+    488,
+    515,
+    527,
+    540,
+    570,
+    593
+  ],
+  "isolation_probe": {
+    "original_path": "/tmp/noline-analysis-20260910-probes.cjs",
+    "snapshot": "source/2026-09-10-isolation-probes.cjs.txt",
+    "sha256": "91cd567d731d4465d999ec5c9927f0497fab5816f5b23d83dc7b6cd3f48f0a1f",
+    "output_snapshot": "source/2026-09-10-isolation-probes-output.txt",
+    "output_sha256": "9414cc14bcbbb358562893fdc1be43bf7a242bd696a8b148e3c10f41f6795121",
+    "transcript_line": 301,
+    "run_timestamp": "2026-09-10T08:42:33.255Z",
+    "exit_code": 0
+  }
+}

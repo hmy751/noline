@@ -1,0 +1,18 @@
+{
+  "schema_version": 6,
+  "workspace_id": "003-bug-investigation-and-fixes",
+  "project_context": [
+    {
+      "path": "context/project/README.md",
+      "reason": "Project의 내용 층과 상세 Owner 우선순위, 필요한 자료의 진입점을 찾는다."
+    },
+    {
+      "path": "context/project/common/product.md",
+      "reason": "활성 여행의 오프라인 입력 보존, 데이터와 서비스의 책임, 기존 제품 제약을 작업에서 유지한다."
+    },
+    {
+      "path": "context/project/current/architecture.md",
+      "reason": "제품 코드의 현재 책임과 지원 경계, 제품 검사와 Harness 검사의 증명 범위를 구별한다."
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+{"probe":"current-withTransaction","retainedEntriesAfterQueueFailure":1,"sqlOrder":["begin","commit","insert into \"entries\" (\"id\") values (?)","insert into \"queue\" (\"id\", \"payload\") values (?, ?)"]}
+{"probe":"synchronous-control","retainedEntriesAfterQueueFailure":0,"sqlOrder":["begin","insert into \"entries\" (\"id\") values (?)","insert into \"queue\" (\"id\", \"payload\") values (?, ?)","rollback"]}
+{"probe":"trip-cleanup-task-selection","existingUnsentTasks":[{"id":"partial-update","status":"PENDING"},{"id":"failed-create","status":"FAILED"}],"returnedTasks":[]}
+{"probe":"pending-create-control","returnedTaskCount":1}
