@@ -1,7 +1,27 @@
-# Noline Project common decisions
+# Project decisions
 
-이 디렉터리는 여러 Workspace에 계속 적용되는 결정을 Project common context 수준으로 재서술한다. 기존 [`.claude/decisions/`](../../../.claude/decisions/)의 상세 근거와 history를 이동·복제하지 않는다.
+이 폴더는 중요한 선택의 이유, 기각한 대안과 재검토 신호를 보존한다. `common/`, `current/`, `guidance/`의 현재 답을 자동으로 대신하지 않으며, 현재 값을 직접 소유하는 예외는 문서가 그 normative 범위를 명시해야 한다.
 
-- [`0001-selective-local-first.md`](0001-selective-local-first.md): 활성화 상태에 따른 Data Owner, Activation Router, Policy Layer, client-generated ID와 schema-first 경계
+## 별도 Decision을 남길 때
 
-새 Workspace의 일회성 선택, 검증 결과, 이식 과정은 이 폴더가 아니라 해당 Workspace의 `current/`·`records/`에 둔다.
+단순한 현재값 갱신이나 모든 변경에 Decision을 만들지는 않는다. 다음 중 하나 이상이 해당하면 선택의 맥락을 별도로 보존할 필요를 검토한다.
+
+- 의미 있는 대안 사이에서 선택했다.
+- 이유를 잃으면 다음 작업이 같은 논쟁을 반복할 가능성이 크다.
+- 여러 Project 책임이나 후속 작업에 영향을 준다.
+- 특정 신호가 나타나면 다시 판단해야 한다.
+- 현재 결과만으로는 선택 근거를 복원하기 어렵다.
+
+## 남길 판단 맥락
+
+무엇을 선택했고 왜 선택했는지, 그 판단의 근거를 남긴다. 실제로 검토한 대안과 기각 이유, 당시 불확실했던 부분, 다시 검토할 신호를 함께 설명한다. 현재 답을 확인할 실제 내용의 정본을 연결하고, 이전 판단을 대체했다면 그 관계를 밝힌다.
+
+구성과 분량은 선택의 성격에 맞춘다. 필요한 불확실성은 무엇을 아직 정하지 않았거나 확인하지 못했는지 구체적으로 남긴다. 과거 자료에 없는 대안이나 선택 이유를 추정해 채우지 않는다.
+
+## 현재 문서
+
+- [`0001-selective-local-first.md`](0001-selective-local-first.md): Selective Local-First의 선택 의미와 상세 결정 접근점
+
+결정이 대체되면 과거 문서를 지우지 않고 상태와 대체 결정을 연결한다. 현재 제품 의미·구현 지도·조건부 지침은 각각의 책임 층에서도 함께 갱신한다.
+
+Noline의 기존 [상세 Decision Owner](../../../.claude/decisions/)는 그대로 유지한다. 중요한 하네스 선택도 기존 Owner에 기록하고 여기에는 관련 재진입 경로를 연결한다.

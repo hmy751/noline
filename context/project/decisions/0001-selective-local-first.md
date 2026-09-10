@@ -20,3 +20,7 @@
 - [Data/Service separation decision](../../../.claude/decisions/2025-11-20-data-service-separation.md)
 - [Policy Layer separation decision](../../../.claude/decisions/2025-11-20-policy-layer-separation.md)
 - [Terminology unification](../../../.claude/decisions/2026-03-21-terminology-unification.md)
+
+## 현재 authority와 재검토
+
+현재 제품 의미는 [common](../common/product.md), 구현 경계는 [current](../current/architecture.md)에서 읽는다. 이 문서는 선택 이유의 요약이며 상세 rule·code의 Owner를 대체하지 않는다. 활성 여행의 범위, 오프라인 편집 정책 또는 데이터·서비스 소유 구분을 바꾸는 요구가 생기면 기존 상세 결정과 함께 재검토한다. 당시 자료에 없는 대안·불확실성을 새로 꾸며 기록하지 않는다.

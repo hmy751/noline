@@ -1,0 +1,2673 @@
+{
+  "source_commit": "87d21023f6acd8ae709322d48da9851594f9acb0",
+  "target_head": "b4ed41f6e4bbae26fd45827b3b9063097a2c1ea4",
+  "items": [
+    {
+      "path": ".agents/skills/README.md",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "c349ff80484c50061557276d746c5c95bef5503d78b55f5267efd7d0c8f86d12",
+        "size": 299
+      },
+      "ancestors": [
+        {
+          "path": ".agents/skills",
+          "kind": "directory"
+        },
+        {
+          "path": ".agents",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": ".agents/skills/explanation-recovery",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "symlink",
+      "after": {
+        "kind": "symlink",
+        "target": "../../.claude/skills/explanation-recovery"
+      },
+      "ancestors": [
+        {
+          "path": ".agents/skills",
+          "kind": "directory"
+        },
+        {
+          "path": ".agents",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": ".agents/skills/reconsider-work",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "symlink",
+      "after": {
+        "kind": "symlink",
+        "target": "../../.claude/skills/reconsider-work"
+      },
+      "ancestors": [
+        {
+          "path": ".agents/skills",
+          "kind": "directory"
+        },
+        {
+          "path": ".agents",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": ".agents/skills/update-project-context",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "symlink",
+      "after": {
+        "kind": "symlink",
+        "target": "../../.claude/skills/update-project-context"
+      },
+      "ancestors": [
+        {
+          "path": ".agents/skills",
+          "kind": "directory"
+        },
+        {
+          "path": ".agents",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": ".agents/skills/work-artifact-briefing",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "symlink",
+      "after": {
+        "kind": "symlink",
+        "target": "../../.claude/skills/work-artifact-briefing"
+      },
+      "ancestors": [
+        {
+          "path": ".agents/skills",
+          "kind": "directory"
+        },
+        {
+          "path": ".agents",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": ".agents/skills/work-discussion",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "symlink",
+      "after": {
+        "kind": "symlink",
+        "target": "../../.claude/skills/work-discussion"
+      },
+      "ancestors": [
+        {
+          "path": ".agents/skills",
+          "kind": "directory"
+        },
+        {
+          "path": ".agents",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": ".claude/decisions/2026-09-09-context-harness-upgrade.md",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "adf976cf6ff5a8c2a3714f9efe661d35d56419326db8d1858e18d420973dcf65",
+        "size": 1598
+      },
+      "ancestors": [
+        {
+          "path": ".claude/decisions",
+          "kind": "directory"
+        },
+        {
+          "path": ".claude",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": ".claude/harness/README.md",
+      "before": {
+        "kind": "file",
+        "sha256": "f407002a189255822801c054ecf92139e56315640b7ab684e4c224d381c34439",
+        "size": 10741
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "53e1927b1f71726286a9fa80f887d29f9fd29fc81764b0cc481b0c163898af33",
+        "size": 11327
+      },
+      "ancestors": [
+        {
+          "path": ".claude/harness",
+          "kind": "directory"
+        },
+        {
+          "path": ".claude",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": ".claude/skills/README.md",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "59f3dcd434ab7aa478c928728331af1375ec38c8847d3abce148b8bf4a0b2ce9",
+        "size": 3996
+      },
+      "ancestors": [
+        {
+          "path": ".claude/skills",
+          "kind": "directory"
+        },
+        {
+          "path": ".claude",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": ".claude/skills/create-context-workspace/SKILL.md",
+      "before": {
+        "kind": "file",
+        "sha256": "881955bbce51eac63a75e912c2477354cda2f9ae732120818b5a96a5bfd86540",
+        "size": 5950
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "fd4a4b741071dfc21898ce4b05fa2609296ea76fa0d752a0f91e6ac50e1ae1e5",
+        "size": 7383
+      },
+      "ancestors": [
+        {
+          "path": ".claude/skills/create-context-workspace",
+          "kind": "directory"
+        },
+        {
+          "path": ".claude/skills",
+          "kind": "directory"
+        },
+        {
+          "path": ".claude",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": ".claude/skills/create-context-workspace/agents/openai.yaml",
+      "before": {
+        "kind": "file",
+        "sha256": "d19244825c7bd72a786a17b143fd423f1f09fc3bc3a33528fe1fba6271273e4a",
+        "size": 391
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "d19244825c7bd72a786a17b143fd423f1f09fc3bc3a33528fe1fba6271273e4a",
+        "size": 391
+      },
+      "ancestors": [
+        {
+          "path": ".claude/skills/create-context-workspace/agents",
+          "kind": "directory"
+        },
+        {
+          "path": ".claude/skills/create-context-workspace",
+          "kind": "directory"
+        },
+        {
+          "path": ".claude/skills",
+          "kind": "directory"
+        },
+        {
+          "path": ".claude",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": ".claude/skills/explanation-recovery/SKILL.md",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "9f3981002424b9e967e98cf8b13c05671f50271fb430e492a8acec749e6668ec",
+        "size": 7028
+      },
+      "ancestors": [
+        {
+          "path": ".claude/skills/explanation-recovery",
+          "kind": "absent"
+        },
+        {
+          "path": ".claude/skills",
+          "kind": "directory"
+        },
+        {
+          "path": ".claude",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": ".claude/skills/explanation-recovery/agents/openai.yaml",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "90b68d63cd06b9e30965ad929cb2fa1eae83a54a4121f56ef77a7033795d99ac",
+        "size": 314
+      },
+      "ancestors": [
+        {
+          "path": ".claude/skills/explanation-recovery/agents",
+          "kind": "absent"
+        },
+        {
+          "path": ".claude/skills/explanation-recovery",
+          "kind": "absent"
+        },
+        {
+          "path": ".claude/skills",
+          "kind": "directory"
+        },
+        {
+          "path": ".claude",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": ".claude/skills/reconsider-work/SKILL.md",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "d9334a21831dbd311b69f1eb4ac5f1a576bec7e6cd185f695cc0eea569077404",
+        "size": 12530
+      },
+      "ancestors": [
+        {
+          "path": ".claude/skills/reconsider-work",
+          "kind": "absent"
+        },
+        {
+          "path": ".claude/skills",
+          "kind": "directory"
+        },
+        {
+          "path": ".claude",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": ".claude/skills/reconsider-work/agents/openai.yaml",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "5b41c363ce1dca4739f48f1c5c5b52c412e64f83aa87524ee1b5faf997c80f88",
+        "size": 325
+      },
+      "ancestors": [
+        {
+          "path": ".claude/skills/reconsider-work/agents",
+          "kind": "absent"
+        },
+        {
+          "path": ".claude/skills/reconsider-work",
+          "kind": "absent"
+        },
+        {
+          "path": ".claude/skills",
+          "kind": "directory"
+        },
+        {
+          "path": ".claude",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": ".claude/skills/update-project-context/SKILL.md",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "69516d33c0c03e963333bb1b20a80ca67f1aac4291db4897790e9645d2dd4856",
+        "size": 2726
+      },
+      "ancestors": [
+        {
+          "path": ".claude/skills/update-project-context",
+          "kind": "absent"
+        },
+        {
+          "path": ".claude/skills",
+          "kind": "directory"
+        },
+        {
+          "path": ".claude",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": ".claude/skills/update-project-context/agents/openai.yaml",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "6948937f8e1c773ad8f3819639bcfec17be0f72dcc0ba4cfbd0de8cf32fcf6dd",
+        "size": 410
+      },
+      "ancestors": [
+        {
+          "path": ".claude/skills/update-project-context/agents",
+          "kind": "absent"
+        },
+        {
+          "path": ".claude/skills/update-project-context",
+          "kind": "absent"
+        },
+        {
+          "path": ".claude/skills",
+          "kind": "directory"
+        },
+        {
+          "path": ".claude",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": ".claude/skills/work-artifact-briefing/SKILL.md",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "5ccf61c506591e4f34df09c997738aa60b3bb3cb6c937100606b600c72b3a5fb",
+        "size": 11071
+      },
+      "ancestors": [
+        {
+          "path": ".claude/skills/work-artifact-briefing",
+          "kind": "absent"
+        },
+        {
+          "path": ".claude/skills",
+          "kind": "directory"
+        },
+        {
+          "path": ".claude",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": ".claude/skills/work-artifact-briefing/agents/openai.yaml",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "dfcebd4263c703c2302cf488296719a38fe784ed8d9ffd7dc26d9068beade2d2",
+        "size": 328
+      },
+      "ancestors": [
+        {
+          "path": ".claude/skills/work-artifact-briefing/agents",
+          "kind": "absent"
+        },
+        {
+          "path": ".claude/skills/work-artifact-briefing",
+          "kind": "absent"
+        },
+        {
+          "path": ".claude/skills",
+          "kind": "directory"
+        },
+        {
+          "path": ".claude",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": ".claude/skills/work-discussion/SKILL.md",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "b3b0e00ba1a15663dd796ad8177ddc7a00ae9ab6604fb27867e8feed8aecdffb",
+        "size": 11868
+      },
+      "ancestors": [
+        {
+          "path": ".claude/skills/work-discussion",
+          "kind": "absent"
+        },
+        {
+          "path": ".claude/skills",
+          "kind": "directory"
+        },
+        {
+          "path": ".claude",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": ".claude/skills/work-discussion/agents/openai.yaml",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "eb96e6e8a257d6351d831abac1a15bfdceb6e991acdeb17929ab539edfa38035",
+        "size": 295
+      },
+      "ancestors": [
+        {
+          "path": ".claude/skills/work-discussion/agents",
+          "kind": "absent"
+        },
+        {
+          "path": ".claude/skills/work-discussion",
+          "kind": "absent"
+        },
+        {
+          "path": ".claude/skills",
+          "kind": "directory"
+        },
+        {
+          "path": ".claude",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "CLAUDE.md",
+      "before": {
+        "kind": "file",
+        "sha256": "3d261c1503d1ef3729652bca4cf38a9665a1813755eecc87b90f4323de6e87a1",
+        "size": 9805
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "3b2eb7a7ab8dca3213b09d793a21dfa006ae8cc7c88a1442bb46c914b1b0d378",
+        "size": 11051
+      },
+      "ancestors": [],
+      "ignored": false
+    },
+    {
+      "path": "context/README.md",
+      "before": {
+        "kind": "file",
+        "sha256": "789728f5e51833ed0f9b071e039ff7c5867c2f792087699c41caa325c9b67ea4",
+        "size": 1623
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "bbf2e7ad6b470769ba4bc64afe677aa88a5ff7cc0ff46688f200a81e496086ed",
+        "size": 1660
+      },
+      "ancestors": [
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/project/README.md",
+      "before": {
+        "kind": "file",
+        "sha256": "702ed3304c8bee177bc6ca921224c354f509274a42728f727b319527e792d09b",
+        "size": 1732
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "80c265c7bb61984929355cbc0f79585ea8152b8b139f550d4df03b1ffaa22bd8",
+        "size": 11700
+      },
+      "ancestors": [
+        {
+          "path": "context/project",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/project/architecture.md",
+      "before": {
+        "kind": "file",
+        "sha256": "b14cc87a1b2affc484dffed2b309533681ecd4b099ade10c1103467b22af4882",
+        "size": 2063
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "e3cc66fe293e17fcd5b0b5bc24099f4f7752a2f63f4d717d6cd73c133f5f604e",
+        "size": 2336
+      },
+      "ancestors": [
+        {
+          "path": "context/project",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/project/common/README.md",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "5322d7efc77f4ebfd6aa3670db35a28f629787ccd05f0dd467c8023385c9a8c9",
+        "size": 465
+      },
+      "ancestors": [
+        {
+          "path": "context/project/common",
+          "kind": "absent"
+        },
+        {
+          "path": "context/project",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/project/common/product.md",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "67cdfd00cb175ada5ab17ace2e6127dcee2c35f7968dabe26e298d28bb50148c",
+        "size": 3571
+      },
+      "ancestors": [
+        {
+          "path": "context/project/common",
+          "kind": "absent"
+        },
+        {
+          "path": "context/project",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/project/current/README.md",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "0b3a9dc1211c90a5bdbf2a5ca8b8e0aabab28e7bad2e2229393093f818d2170c",
+        "size": 504
+      },
+      "ancestors": [
+        {
+          "path": "context/project/current",
+          "kind": "absent"
+        },
+        {
+          "path": "context/project",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/project/current/architecture.md",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "1a0503ae25067eca4f0859ca41e4c386c9e93698ad849e28426a5aeaac056d9b",
+        "size": 3601
+      },
+      "ancestors": [
+        {
+          "path": "context/project/current",
+          "kind": "absent"
+        },
+        {
+          "path": "context/project",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/project/decisions/0001-selective-local-first.md",
+      "before": {
+        "kind": "file",
+        "sha256": "824e706d66f427845f0c4c74cbef7dbd3b3f41b0c0ab8d2c993af1b5e8da78a9",
+        "size": 1580
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "138a1130daafda5151329b34c76521c861baf8edde84690e25e2ca9e61335931",
+        "size": 2102
+      },
+      "ancestors": [
+        {
+          "path": "context/project/decisions",
+          "kind": "directory"
+        },
+        {
+          "path": "context/project",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/project/decisions/README.md",
+      "before": {
+        "kind": "file",
+        "sha256": "cd6f7c91a7e24be915d331cfc496448d461ce88cbf0c7e51a7ad3e8befe960e6",
+        "size": 610
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "8149bdde90338b554f000a0a72a35eb1bb3245eb019196653eba27826538ddf5",
+        "size": 2042
+      },
+      "ancestors": [
+        {
+          "path": "context/project/decisions",
+          "kind": "directory"
+        },
+        {
+          "path": "context/project",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/project/guidance/README.md",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "497fb8860729c02ddd788bf95f5cbae78d98d38e0890fbc4dcbb45d66ec62301",
+        "size": 2350
+      },
+      "ancestors": [
+        {
+          "path": "context/project/guidance",
+          "kind": "absent"
+        },
+        {
+          "path": "context/project",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/project/guidance/explanation-and-evidence-criteria.md",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "2e6fa681900d1d1e28e3ec520ae22e073761ddde7e04a1272cf50e99c58ede83",
+        "size": 6123
+      },
+      "ancestors": [
+        {
+          "path": "context/project/guidance",
+          "kind": "absent"
+        },
+        {
+          "path": "context/project",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/project/overview.md",
+      "before": {
+        "kind": "file",
+        "sha256": "00a5db37a65cebdfb01bf1f202d99a38407402607dd5ccf4da1ab8134063c00d",
+        "size": 2877
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "fc9985f92d0ecbc1d339787f510d43efbc0769246376d0910d8b1cb9a1548f1a",
+        "size": 3138
+      },
+      "ancestors": [
+        {
+          "path": "context/project",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/project/prd.md",
+      "before": {
+        "kind": "file",
+        "sha256": "bd9a54194d1f28c2d0cc803e95cebcd657ca27be527a590726451012a3623fea",
+        "size": 1569
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "9978d34253c790dc644729f470e69a18b4d1315e153e511f91f343fe43556dfc",
+        "size": 1830
+      },
+      "ancestors": [
+        {
+          "path": "context/project",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/AGENTS.md",
+      "before": {
+        "kind": "file",
+        "sha256": "81497507f32ab8454888ac01520a65138bfc6efd86b4d07fb63adb2efb72b060",
+        "size": 11139
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "8b2f89f42a4f0b3d8f1eeb95e30c7f9c3b3b239d01bb7bfdea59c6b4ebde128c",
+        "size": 11820
+      },
+      "ancestors": [
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/README.md",
+      "before": {
+        "kind": "file",
+        "sha256": "ea1c441f30664bcc84a8ea9b0b80a9973aa074b9e75052738ba0aae0ac8a69db",
+        "size": 1210
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "a0df36a6bfe9a0aeed15b1b0a005340f712c28080ed993c41f63617ec17e0c8a",
+        "size": 1368
+      },
+      "ancestors": [
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/harness/maintain/README.md",
+      "before": {
+        "kind": "file",
+        "sha256": "8d7162de05e6db5cd15d6c16a5dd0c4ab7a603bd83592cb4dfea50b921e190d4",
+        "size": 12796
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "f0d4459e771c0af5c5dfb7e28e2d5d7f5c5af15291fbc70340a3d33af88e83c8",
+        "size": 15276
+      },
+      "ancestors": [
+        {
+          "path": "context/work/harness/maintain",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/harness",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/harness/maintain/codex_session.py",
+      "before": {
+        "kind": "file",
+        "sha256": "2cd8dc5364d259bf8aa61cd48bf93776aa9726b672907b63da001bc31bf8f7de",
+        "size": 18074
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "c60195a0c0fbb678df27437d328ee8bf2ce10a63005500ef08a6d3273ab12159",
+        "size": 18628
+      },
+      "ancestors": [
+        {
+          "path": "context/work/harness/maintain",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/harness",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/harness/maintain/operation.py",
+      "before": {
+        "kind": "file",
+        "sha256": "853092c639a4040522bc8945f39261a15af507b7e5999658baca3d714aff4623",
+        "size": 22719
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "54b701ffd3304f871b77107a07c66406588ca096f909b7d32c0f3327266c713a",
+        "size": 23385
+      },
+      "ancestors": [
+        {
+          "path": "context/work/harness/maintain",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/harness",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/harness/maintain/tests/test_codex_session.py",
+      "before": {
+        "kind": "file",
+        "sha256": "55815c3c6a2462139f807af1d7eec617e7793de3ee35d94a3953e90d4e7367d6",
+        "size": 12392
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "00035027bf1d876de34be090c23500fecacbd5820d174ec1f609a49648c4d4de",
+        "size": 12563
+      },
+      "ancestors": [
+        {
+          "path": "context/work/harness/maintain/tests",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/harness/maintain",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/harness",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/harness/maintain/tests/test_operation.py",
+      "before": {
+        "kind": "file",
+        "sha256": "db81295d442766a1192922a20d906c606835633d128331c65c10d142fa41dc99",
+        "size": 15587
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "07341d8747c632254d8b2a00329b6212fccc72f8377a59ebed461f8ba2593bb6",
+        "size": 20930
+      },
+      "ancestors": [
+        {
+          "path": "context/work/harness/maintain/tests",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/harness/maintain",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/harness",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/harness/maintain/workspace-context-maintainer.toml",
+      "before": {
+        "kind": "file",
+        "sha256": "82ec714fb12aaf6cfdad1d29e65b94959d45db8ad885435ef69f065bb77a7001",
+        "size": 3199
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "4230a3daee85ec1b5a982ac558e291b1bb46073ab2b3693e51071e45f90c511b",
+        "size": 4027
+      },
+      "ancestors": [
+        {
+          "path": "context/work/harness/maintain",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/harness",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/harness/recover/README.md",
+      "before": {
+        "kind": "file",
+        "sha256": "f0c2caadccca95241a79de53dc9be7a03baf214efc56ff139425426015df2a8f",
+        "size": 4058
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "3624acaab9bae896125d5bc85c9bc3c53dd8df2fa7c01c0cabcab3930a4cba8b",
+        "size": 5494
+      },
+      "ancestors": [
+        {
+          "path": "context/work/harness/recover",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/harness",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/harness/recover/operation.py",
+      "before": {
+        "kind": "file",
+        "sha256": "a57221056f19b8b40a5449d798f1362f22a8fdeeb1b192dfd5ceac2837f930e8",
+        "size": 20053
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "df39fe84c024dbfb510a8ba2c46f3e21b733581cf8285661d5e119668efee36c",
+        "size": 21346
+      },
+      "ancestors": [
+        {
+          "path": "context/work/harness/recover",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/harness",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/harness/recover/tests/test_recover.py",
+      "before": {
+        "kind": "file",
+        "sha256": "0ae0dc6e8c61cb8279d81d201333f9c139afcd67b690519c2cafafa3aecbd94e",
+        "size": 39130
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "570c8c32f23ed5686c6448c12f26cab86ff5838c4f0665116fb39c3115c117c8",
+        "size": 47218
+      },
+      "ancestors": [
+        {
+          "path": "context/work/harness/recover/tests",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/harness/recover",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/harness",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/harness/testing.py",
+      "before": {
+        "kind": "file",
+        "sha256": "171618587c29a9a20663e4148b397b73e5fec4bfcdb23abfd1848a3b8fe0150d",
+        "size": 9961
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "5f32c041b103820916df6c3bd019d565ae245f9967d85f5dfdbf740f5ea9f250",
+        "size": 12198
+      },
+      "ancestors": [
+        {
+          "path": "context/work/harness",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/harness/verify/README.md",
+      "before": {
+        "kind": "file",
+        "sha256": "a7bdf3f3c5381685b7f1e380bf1f88ffdc0cb1362e1b85d41784d46525a52f32",
+        "size": 3518
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "1eb15e8be5c8d75cae0bddd536b4079ba034bc6dfdf7e753dbdfae1680cadf6b",
+        "size": 4392
+      },
+      "ancestors": [
+        {
+          "path": "context/work/harness/verify",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/harness",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/harness/verify/tests/test_verify.py",
+      "before": {
+        "kind": "file",
+        "sha256": "6d8422325fda2b86c427220b617275c0fe656a390101128b0de5bc1e0dd407d1",
+        "size": 27334
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "9d8fc6d6a238ca45eb71c399da08efcfabc90755d746ce92c23473bfb0396dfc",
+        "size": 28393
+      },
+      "ancestors": [
+        {
+          "path": "context/work/harness/verify/tests",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/harness/verify",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/harness",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/README.md",
+      "before": {
+        "kind": "file",
+        "sha256": "ac93fed7c958a16af0ad51c1a468a2e2916e158e207a1dfde297af89af2182eb",
+        "size": 1163
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "632bd973711327480c3652386bb4c07ac924de425c7403952fc5d2ca597a443f",
+        "size": 1201
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/01-goal.md",
+      "before": {
+        "kind": "file",
+        "sha256": "2aa3265f9ec26a865fcaac0d8f1c7186654a1211673b126a76849f16b65f5fde",
+        "size": 1113
+      },
+      "action": "remove-after-byte-copy",
+      "after": {
+        "kind": "absent"
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current/memory",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/02-constraints.md",
+      "before": {
+        "kind": "file",
+        "sha256": "41b59365f1fbc35a2bc3ef89feb41c9660e58c0af7f81e8cfcf63ba75bb6c1fa",
+        "size": 1525
+      },
+      "action": "remove-after-byte-copy",
+      "after": {
+        "kind": "absent"
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current/memory",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/03-project-context.md",
+      "before": {
+        "kind": "file",
+        "sha256": "b9e3dd45d978420f09fdffc6c7c5e5436ee48a1d81d079c4e1bfc443b4701d83",
+        "size": 876
+      },
+      "action": "remove-after-byte-copy",
+      "after": {
+        "kind": "absent"
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current/memory",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/index.md",
+      "before": {
+        "kind": "file",
+        "sha256": "59ba0a7deebe0d45eb37b2aef824fafc375c06a180c9f954f3e7b5698c6c69f8",
+        "size": 514
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "fad778804ef6b7bada3e11d6afd02d4e2f3785ac755f439f3534c316578db70d",
+        "size": 1458
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current/memory",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/project-context.md",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "58a592040d201ca69fc003812d8f443e2b8528d8988da0db38fb2733e5bcc5a1",
+        "size": 861
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current/memory",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/spec/01-problem-goal-scope.md",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "098fefcfa7d0d441f8b096bee3b9022b68b5be0ac987a30918e46dfb4ab1f00b",
+        "size": 874
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/spec",
+          "kind": "absent"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current/memory",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/spec/02-behavior-and-cases.md",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "8f3319a45aed9e0b6b228fc10d302cd388daaed4778465089d48110ed81c0630",
+        "size": 1118
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/spec",
+          "kind": "absent"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current/memory",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/spec/03-concepts-and-contracts.md",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "2aa165419145b78e9c99c7374a0364e9fd52cad7ec891db58b7b5961f3660efe",
+        "size": 1248
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/spec",
+          "kind": "absent"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current/memory",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/spec/04-quality-and-completion.md",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "0b6e382d2c93792f8812fd2af306c7081d1f56fbac8afff17516fdbaa88cda6c",
+        "size": 1331
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/spec",
+          "kind": "absent"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current/memory",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/spec/05-constraints-design-assumptions.md",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "aa34f9753c3af019aa4b3f408e4ca3860fd182ed88ccf03685cb0d02f7723dd7",
+        "size": 1429
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/spec",
+          "kind": "absent"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current/memory",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/tickets/001-upgrade.md",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "bd6732d0bda68a147ce1cd0c7b6ad730d4640f2cd1db06a8f307baba275a65db",
+        "size": 1384
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/tickets",
+          "kind": "absent"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current/memory",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/tickets/index.md",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "aa522fa5e0740f0dbadcdf361cea0cfd4da5c766edc6ab12adf866cea3409b7a",
+        "size": 315
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/tickets",
+          "kind": "absent"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current/memory",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/state/index.md",
+      "before": {
+        "kind": "file",
+        "sha256": "59f3a266ffd251408ffb6d8981c5f1135c3f4fd791e8ec904bf5e2ceca04cd1d",
+        "size": 1410
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "a74495777537619bd277ed3d5c72a4cf977ade1267baae07740028c08a71fb27",
+        "size": 1347
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current/state",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/current",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/output/index.md",
+      "before": {
+        "kind": "file",
+        "sha256": "f194ae42c69eaef4ed2249ef8d27284662b8ca6d7ffc2ee843d6738dbc63d7f3",
+        "size": 1524
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "c3ca40020a6804e6382f836184af1e92f92a0bd80ffd6858d75fdc226639dd3b",
+        "size": 1881
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/output",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/2026-09-09-01-reference-upgrade.md",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "36414502d7a595deabf4b53c8d7617d584222c8544d2408a7540de83a701dfe1",
+        "size": 3547
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/records",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/README.md",
+      "before": {
+        "kind": "file",
+        "sha256": "671fb12971840d2c098086c5f3c0ccad884bfe143df3cc4a487e3f377bdc211c",
+        "size": 584
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "6fcd9b2c97559e4249d896a072a0a08c23d998ecb5517d43677c68be00e8141d",
+        "size": 715
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/records",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/harness-tests/README.md",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "2430abbcfe8b39592563baaad80821292f4368968f26d4c1b30474656c91f084",
+        "size": 213
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/harness-tests",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/records",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/preflight/preflight-20260909T140507056185Z-f1caf35fc6894327a7d811ffd7622f3c.json",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "fe8772537968d93538e5124a987716aaed20acb936b5865259907b2e8ec481f1",
+        "size": 11422
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/preflight",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/records",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/recover.json",
+      "before": {
+        "kind": "file",
+        "sha256": "c4216a15760ce387c84377cfdd9ee3c6d37a6e61718d08d80a9a643c3169184c",
+        "size": 776
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "8eb5b620b6b1926193406badf948a2ea2219817b0b1e448bebdfa69255f0f2fd",
+        "size": 752
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/source/index.md",
+      "before": {
+        "kind": "file",
+        "sha256": "c6f7403523bcb0e5bdadf025dbb0d8df6fc0393b2bdf90c77812476f5c7cbfd8",
+        "size": 762
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "cc93ea40fb3e287d239a225c74c478b6ce850c7ddcf9ae850900ab68d6bdce31",
+        "size": 1204
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/source",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/source/prior-memory/01-goal.md.txt",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "2aa3265f9ec26a865fcaac0d8f1c7186654a1211673b126a76849f16b65f5fde",
+        "size": 1113
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/source/prior-memory",
+          "kind": "absent"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/source",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/source/prior-memory/02-constraints.md.txt",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "41b59365f1fbc35a2bc3ef89feb41c9660e58c0af7f81e8cfcf63ba75bb6c1fa",
+        "size": 1525
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/source/prior-memory",
+          "kind": "absent"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/source",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/source/prior-memory/03-project-context.md.txt",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "b9e3dd45d978420f09fdffc6c7c5e5436ee48a1d81d079c4e1bfc443b4701d83",
+        "size": 876
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/source/prior-memory",
+          "kind": "absent"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application/source",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/verify.json",
+      "before": {
+        "kind": "file",
+        "sha256": "a31d0e99b4137759abef693afa23fcb22fa0bd3652bb5458e9435db5dd386fe8",
+        "size": 1135
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "9353d3c3ea89a31f0fda618669dd13ae848d29bdf106bc2f3b67da69f3b8f6c5",
+        "size": 7548
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces/001-noline-context-harness-application",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/CREATE-AND-TRANSITION.md",
+      "before": {
+        "kind": "file",
+        "sha256": "ea4afb5d4e5be9e05eefa50fe71f52ef8747fb78c9779ae4fe728fec0e7715d3",
+        "size": 10334
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "bbb2b0fe1c9dd80d2b4258ea8d3595ee617c4250a298069cb08d9b910a6fa5c2",
+        "size": 12464
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/README.md",
+      "before": {
+        "kind": "file",
+        "sha256": "ff7540a3b7f99e5daa52ba52c432db2fe0d64c802909b40c377b964780e17ced",
+        "size": 6360
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "c87570fc940a39681c78fa9a083e22ca6d69dc16dc6b9e37d63e764bb7dedd68",
+        "size": 8207
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "context/work/workspaces/SPEC-AND-TICKETS.md",
+      "before": {
+        "kind": "absent"
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "5bf952a44487f42f311c14d0c11c1f1392f2050b31a584e400b5a9b64cb35d6f",
+        "size": 14185
+      },
+      "ancestors": [
+        {
+          "path": "context/work/workspaces",
+          "kind": "directory"
+        },
+        {
+          "path": "context/work",
+          "kind": "directory"
+        },
+        {
+          "path": "context",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    },
+    {
+      "path": "scripts/check-harness.mjs",
+      "before": {
+        "kind": "file",
+        "sha256": "3e61f55096ffb3346b8d4be13c6cb9e3b54064f92fe1fc80f64563058a682283",
+        "size": 10462
+      },
+      "action": "write",
+      "after": {
+        "kind": "file",
+        "sha256": "09e853dbb84b43b2914f682298caf55aee46960f95b21fff89e9c8ddccc4141f",
+        "size": 10864
+      },
+      "ancestors": [
+        {
+          "path": "scripts",
+          "kind": "directory"
+        }
+      ],
+      "ignored": false
+    }
+  ],
+  "protected": [
+    {
+      "head_oid": null,
+      "index_oid": null,
+      "kind": "file",
+      "path": ".claude/sessions/2026-09-06-codebase-analysis.md",
+      "sha256": "2638bad8c95af5b2dc5df209c2ac663e9cfa45a8c7274bb2c7bff33ad5fa1601",
+      "size": 4680,
+      "states": [
+        "untracked"
+      ]
+    },
+    {
+      "head_oid": null,
+      "index_oid": null,
+      "kind": "file",
+      "path": ".claude/sessions/2026-09-06-codebase-analysis/architecture.md",
+      "sha256": "60c405a33cd68c587c2565477f502100d27826bd18f2cce7d4e1bf66c31aa552",
+      "size": 3701,
+      "states": [
+        "untracked"
+      ]
+    },
+    {
+      "head_oid": null,
+      "index_oid": null,
+      "kind": "file",
+      "path": ".claude/sessions/2026-09-06-codebase-analysis/code-style.md",
+      "sha256": "1cea5a9c9b0857973b7314478587ae70f5994952ee7f7c7f848d7f6e9a7b9787",
+      "size": 6882,
+      "states": [
+        "untracked"
+      ]
+    },
+    {
+      "head_oid": null,
+      "index_oid": null,
+      "kind": "file",
+      "path": ".claude/sessions/2026-09-06-codebase-analysis/components.md",
+      "sha256": "9529fa1860ea3ce2499a818db3a988109db5ade6c2815e2b9ea67b7906cbffcc",
+      "size": 4261,
+      "states": [
+        "untracked"
+      ]
+    },
+    {
+      "head_oid": null,
+      "index_oid": null,
+      "kind": "file",
+      "path": ".claude/sessions/2026-09-06-codebase-analysis/engine-data.md",
+      "sha256": "487996b4c15502b381212c37f913e90d01a585112fa491527011a0f7ab5e8278",
+      "size": 5541,
+      "states": [
+        "untracked"
+      ]
+    },
+    {
+      "head_oid": null,
+      "index_oid": null,
+      "kind": "file",
+      "path": ".claude/sessions/2026-09-06-codebase-analysis/server-contracts.md",
+      "sha256": "c2d89e356a05c524817ffe689e50ffff864714dcc87f4bffd4637c270c705fca",
+      "size": 3323,
+      "states": [
+        "untracked"
+      ]
+    },
+    {
+      "head_oid": null,
+      "index_oid": null,
+      "kind": "file",
+      "path": ".claude/sessions/2026-09-06-codebase-analysis/verification.md",
+      "sha256": "a5ecc5b1746e18654e5a84ee4dce125fa7426cdc80f50b07bfd142885aaf72a2",
+      "size": 4662,
+      "states": [
+        "untracked"
+      ]
+    },
+    {
+      "head_oid": null,
+      "index_oid": null,
+      "kind": "file",
+      "path": "context/__pycache__/__init__.cpython-314.pyc",
+      "sha256": "38c30ee1bad68fd66efa59e0bf9374a253f8e31a15addcc50ac491f57a7572f6",
+      "size": 208,
+      "states": [
+        "untracked"
+      ]
+    },
+    {
+      "head_oid": null,
+      "index_oid": null,
+      "kind": "file",
+      "path": "context/work/__pycache__/__init__.cpython-314.pyc",
+      "sha256": "20bf397566a48e2a246418d95b46b9f798e221e856f06bc638f69e38a4201226",
+      "size": 232,
+      "states": [
+        "untracked"
+      ]
+    },
+    {
+      "head_oid": null,
+      "index_oid": null,
+      "kind": "file",
+      "path": "context/work/harness/__pycache__/__init__.cpython-314.pyc",
+      "sha256": "12fd34b0ad4f2b04fdbef23dfca976c404ed86c39bb3e1466d21f2254222762e",
+      "size": 261,
+      "states": [
+        "untracked"
+      ]
+    },
+    {
+      "head_oid": null,
+      "index_oid": null,
+      "kind": "file",
+      "path": "context/work/harness/__pycache__/workspace_contract.cpython-314.pyc",
+      "sha256": "defe963212afcf48395c9304a1fa25cc95879baff0fa5e6f38c68d7fe2ad18d6",
+      "size": 17655,
+      "states": [
+        "untracked"
+      ]
+    },
+    {
+      "head_oid": null,
+      "index_oid": null,
+      "kind": "file",
+      "path": "context/work/harness/maintain/__pycache__/__init__.cpython-314.pyc",
+      "sha256": "e0ec13234d87489664e572075364e12471175e7cc560ab1a847f6687e7fdeaf4",
+      "size": 530,
+      "states": [
+        "untracked"
+      ]
+    },
+    {
+      "head_oid": null,
+      "index_oid": null,
+      "kind": "file",
+      "path": "context/work/harness/maintain/__pycache__/claude_hook.cpython-314.pyc",
+      "sha256": "82bc85007af87dcd97745127dd05ea3bb932c2caa7ade8b4ee8ef8bedec4b497",
+      "size": 19417,
+      "states": [
+        "untracked"
+      ]
+    },
+    {
+      "head_oid": null,
+      "index_oid": null,
+      "kind": "file",
+      "path": "context/work/harness/maintain/__pycache__/codex_session.cpython-314.pyc",
+      "sha256": "41b436a7ab7beada8b881e5332a512e64b68a0e96127f14a6d252e4e80605ada",
+      "size": 23831,
+      "states": [
+        "untracked"
+      ]
+    },
+    {
+      "head_oid": null,
+      "index_oid": null,
+      "kind": "file",
+      "path": "context/work/harness/maintain/__pycache__/host_adapter.cpython-314.pyc",
+      "sha256": "1af9216d1e2a3b682e7d68fdf9f75c59b286d88c04f60ad3152cb12abfc0f574",
+      "size": 82458,
+      "states": [
+        "untracked"
+      ]
+    },
+    {
+      "head_oid": null,
+      "index_oid": null,
+      "kind": "file",
+      "path": "context/work/harness/maintain/__pycache__/operation.cpython-314.pyc",
+      "sha256": "6553ea704f48de729b54f776cb00c77583e7efa1d3656b3fa8b30896f5a62808",
+      "size": 30843,
+      "states": [
+        "untracked"
+      ]
+    },
+    {
+      "head_oid": null,
+      "index_oid": null,
+      "kind": "file",
+      "path": "context/work/harness/recover/__pycache__/__init__.cpython-314.pyc",
+      "sha256": "89bf75735051dc4a846377a92c1ee4585bceb4bdfee97cdc0357a730366ea32b",
+      "size": 360,
+      "states": [
+        "untracked"
+      ]
+    },
+    {
+      "head_oid": null,
+      "index_oid": null,
+      "kind": "file",
+      "path": "context/work/harness/recover/__pycache__/operation.cpython-314.pyc",
+      "sha256": "d74c222168a18fd8600cdca83791fd0ccb7e7cd2888561914dd3217a66301316",
+      "size": 24041,
+      "states": [
+        "untracked"
+      ]
+    }
+  ],
+  "runtime_directories_present": false,
+  "evidence_regular_files": 123,
+  "phase": "pre-apply intent; later verification/state/report edits are not represented as final hashes"
+}

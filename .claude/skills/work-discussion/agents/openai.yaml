@@ -1,0 +1,6 @@
+interface:
+  display_name: "작업 이해안"
+  short_description: "구현 전에 원하는 결과와 지킬 경계를 함께 맞춥니다"
+  default_prompt: "$work-discussion을 사용해 구현 전에 작업 이해안을 함께 정리해 주세요."
+policy:
+  allow_implicit_invocation: false

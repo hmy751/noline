@@ -33,7 +33,7 @@ Maintain 전체의 목적과 비소유 범위는 이 README가 canonical이다. 
 
 ### Recover가 소유하는 최초 grounding 입력
 
-새 Maintainer session은 explicit `workspace_id`로 기존 [`Recover`](../recover/) packet을 한 번 만든다. 이 호출은 active index를 읽지 않고 선택된 current, `output/index.md`와 Workspace가 선택한 Project context만 안전하게 읽는다. Workspace source·records 전체, output artifact 본문과 `verify.json`은 자동 grounding 입력이 아니다.
+새 Maintainer session은 explicit `workspace_id`로 기존 [`Recover`](../recover/) packet을 한 번 만든다. 이 호출은 active index를 읽지 않고 선택된 current, `output/index.md`와 Workspace가 선택한 Project context만 안전하게 읽는다. Workspace source·records 전체, Ticket 본문, output artifact 본문과 `verify.json`은 자동 grounding 입력이 아니다. Spec 전체와 Ticket 색인은 Recover를 통해 들어온다.
 
 제품 Verify receipt의 snapshot이 `fresh`라는 사실은 선언된 제품 파일이 receipt와 같다는 뜻일 뿐, 사람용 current 의미가 실제 작업과 맞다는 뜻이 아니다.
 
@@ -48,11 +48,15 @@ Maintain은 explicit binding으로 선택된 한 Workspace 안의 의미 변화�
 같은 Maintainer agent session은 최초 packet으로 이해를 갖춘 뒤 각 response-end의 사용자 발화와 Main response를 이전 이해에 붙인다. 이미 그 입력에 제한된 실제 근거나 기존 Verify 결과가 포함돼 있으면 출처와 입증 범위를 함께 보존할 수 있지만, 누락된 repository diff·Git 상태·raw test log를 기본 수집하거나 제품 test·eval을 새로 실행하지 않는다. 다음은 자연어 맥락을 종합해야 하므로 agent 판단에 남는다.
 
 - 새 사실이 이후 재진입에 남길 durable 변화인지
-- `current/memory`, `current/state/index.md`, `records`, source provenance 또는 `output/index.md` 중 기존 의미 Owner가 어디인지
+- Spec의 목표·요구·판단 기준, Ticket의 작업 정의·진행·결과, 전체 Workspace state, records, source provenance 또는 output 색인 중 기존 의미 Owner가 어디인지
 - 사용자 결정 전에는 쓸 수 없는 ambiguity인지
 - 반영 뒤 사용자에게 알려야 할 정도로 중요한지
 
 Agent는 제품 test를 대신 실행하거나 사람의 목표·acceptance·완료를 결정하지 않는다. 사용자 결정은 결정으로, Main의 완료·test 주장은 `Main이 보고한 상태`로 출처 강도를 보존한다. 실제 확인을 입력으로 받을 때만 무엇을 확인했고 무엇은 확인하지 못했는지도 함께 유지한다.
+
+Spec·Ticket도 기존 기록·갱신 책임에 포함한다. 대화에서 정해진 내용을 처음 문서로 만들거나 결과를 반영할 수 있으며 Main만 작성하도록 제한하지 않는다. Main이 필요한 설계·작업 분해·위임·결과 확인과 다음 행동을 조율한다. Maintain은 실행자 선택·dispatch·작업 재계획을 맡지 않는다. 상세 내용 기준은 [Spec과 Ticket](../../workspaces/SPEC-AND-TICKETS.md)을 따른다. Codex bridge는 이 canonical을 Maintain README와 함께 규칙 입력으로 제공하므로 grounding 중 추가 탐색 없이 읽을 수 있다. 개별 Workspace의 읽기 범위는 기존 bounded Recover packet으로 유지한다.
+
+기존 Owner와 이번 delta에 명시된 로컬 파일은 필요한 범위에서 읽어 Ticket 본문·실제 preimage·관련 근거를 확인할 수 있다. Main이 받은 subagent 결과나 다른 세션의 대화가 자동으로 입력되지는 않는다. 입력에 연결된 결과와 출처만 보존하고, 다른 실행자가 직접 수정했을 수 있는 문서는 현재 내용과 SHA-256을 확인한다. 비동기 반영을 접수했다는 사실만으로 실행에 사용할 Spec·Ticket이 준비됐다고 하지 않는다.
 
 ### 규칙 장치가 소유하는 side-effect 경계
 
@@ -63,13 +67,13 @@ Agent 결과는 `no_change`, `update`, `needs_user_decision` 중 하나인 struc
 - decision과 실제 binding의 exact Workspace id
 - exact schema와 outcome별 허용 side effect
 - 기존 파일의 expected SHA-256 preimage
-- Project root·Workspace root 경계, direct child, regular file와 symlink
+- Project root·Workspace root 경계, 허용된 폴더와 깊이, regular file와 symlink
 - Markdown EOF newline, 줄 끝 공백과 로컬 링크
 - 아래 allowlist 밖의 모든 write 거부
 
 허용되는 Workspace 상대 경로는 다음뿐이다.
 
-- `current/memory/` 바로 아래의 Markdown
+- `current/memory/`, `current/memory/spec/`, `current/memory/tickets/` 각각 바로 아래의 Markdown
 - `current/state/index.md`
 - `source/index.md`
 - `output/index.md`
@@ -78,7 +82,7 @@ Agent 결과는 `no_change`, `update`, `needs_user_decision` 중 하나인 struc
 
 기존 record를 다시 쓰지 않는다. Raw source snapshot, 제품 코드·문서·test, `workspace.json`, `recover.json`, `verify.json`, `current/state/status.json`, `records/receipts/`, `workspaces/index.json`은 수정하지 않는다.
 
-새 `current/memory/*.md` 주제를 만들 때는 같은 decision에서 `current/memory/index.md`도 갱신하고 새 문서로 가는 링크를 넣는다. Guard는 이 pair가 없는 proposal을 거부한다.
+새 memory 주제·Spec 파일은 같은 decision에서 `current/memory/index.md`를 갱신해 연결한다. 새 Ticket 본문은 `current/memory/tickets/index.md`를 갱신해 연결한다. Ticket 색인 자체를 새로 만들 때는 memory 색인에서 연결한다. Guard는 해당 색인 갱신과 새 문서 링크가 없는 proposal을 거부한다. 기존 본문 갱신마다 색인·state를 기계적으로 다시 쓰지는 않는다. 필요한 폴더는 Workspace 생성 시 준비하며 guarded apply는 폴더 생성·삭제나 Ticket의 자동 보관·이동을 수행하지 않는다.
 
 새 날짜별 record를 만들 때도 같은 decision에서 기존 `records/README.md`를 preimage와 함께 갱신하고 새 record 링크를 넣는다. Guard는 이 pair가 없는 proposal과 새 `records/README.md` 생성을 거부한다. 여러 파일의 실제 write는 하나의 atomic transaction이 아니므로 중간 실패·crash 때 pair가 항상 함께 남는다는 보장은 하지 않는다.
 
@@ -110,7 +114,9 @@ Decision은 다음 의미를 갖는다.
 
 새 Main session의 unbound 기본값, explicit activation·rebind·deactivation, binding generation, prompt·response-end·late worker 귀속, hook·worker·notice lifecycle, 민감 runtime의 실제 저장 범위와 retention, config migration과 actual-host 증명 상한은 [`SESSION-BINDING-AND-LIFECYCLE.md`](SESSION-BINDING-AND-LIFECYCLE.md)가 소유한다.
 
-자동 lifecycle adapter가 없는 host에서도 Main은 이 README의 semantic 판단·guarded apply 책임을 수동으로 수행할 수 있다. 다만 수동 fallback은 모든 response-end 자동 점검, 같은 semantic identity 재사용이나 Main 비차단을 증명하지 않는다.
+자동 lifecycle adapter가 없는 host나 현재 자동 연결을 사용하지 않는 session에서도, 문서 반영이 허용된 작업이면 Main은 explicit Workspace의 bounded bootstrap과 이 README의 semantic 판단·guarded apply 책임을 수동으로 수행할 수 있다. 수동 처리는 자동 session binding을 만들지 않으며 unbound hook은 계속 정상 no-op이다. 자동 연결은 사용자의 명시적 Workspace 선택에 따라 별도로 수행한다. 스킬에 기록을 맡겼다는 설명만으로 문서 반영이나 activation을 완료했다고 하지 않는다.
+
+수동 fallback은 모든 response-end 자동 점검, 같은 semantic identity 재사용이나 Main 비차단을 증명하지 않는다. 자동으로 연결된 session에서는 같은 문서를 별도 수동 경로로 중복 수정하지 않고 기존 Maintain 흐름의 결과와 필요한 실제 반영을 확인한다.
 
 ## 소유하지 않는 것
 

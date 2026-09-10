@@ -1,0 +1,308 @@
+{
+  "captured_at": "2026-09-09T14:05:07.056185Z",
+  "git": {
+    "branch": "feat/noline-context-harness",
+    "dirty_entries": [
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": ".claude/sessions/2026-09-06-codebase-analysis.md",
+        "sha256": "2638bad8c95af5b2dc5df209c2ac663e9cfa45a8c7274bb2c7bff33ad5fa1601",
+        "size": 4680,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": ".claude/sessions/2026-09-06-codebase-analysis/architecture.md",
+        "sha256": "60c405a33cd68c587c2565477f502100d27826bd18f2cce7d4e1bf66c31aa552",
+        "size": 3701,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": ".claude/sessions/2026-09-06-codebase-analysis/code-style.md",
+        "sha256": "1cea5a9c9b0857973b7314478587ae70f5994952ee7f7c7f848d7f6e9a7b9787",
+        "size": 6882,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": ".claude/sessions/2026-09-06-codebase-analysis/components.md",
+        "sha256": "9529fa1860ea3ce2499a818db3a988109db5ade6c2815e2b9ea67b7906cbffcc",
+        "size": 4261,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": ".claude/sessions/2026-09-06-codebase-analysis/engine-data.md",
+        "sha256": "487996b4c15502b381212c37f913e90d01a585112fa491527011a0f7ab5e8278",
+        "size": 5541,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": ".claude/sessions/2026-09-06-codebase-analysis/server-contracts.md",
+        "sha256": "c2d89e356a05c524817ffe689e50ffff864714dcc87f4bffd4637c270c705fca",
+        "size": 3323,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": ".claude/sessions/2026-09-06-codebase-analysis/verification.md",
+        "sha256": "a5ecc5b1746e18654e5a84ee4dce125fa7426cdc80f50b07bfd142885aaf72a2",
+        "size": 4662,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/__pycache__/__init__.cpython-314.pyc",
+        "sha256": "38c30ee1bad68fd66efa59e0bf9374a253f8e31a15addcc50ac491f57a7572f6",
+        "size": 208,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/__pycache__/__init__.cpython-314.pyc",
+        "sha256": "20bf397566a48e2a246418d95b46b9f798e221e856f06bc638f69e38a4201226",
+        "size": 232,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/__pycache__/__init__.cpython-314.pyc",
+        "sha256": "12fd34b0ad4f2b04fdbef23dfca976c404ed86c39bb3e1466d21f2254222762e",
+        "size": 261,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/__pycache__/workspace_contract.cpython-314.pyc",
+        "sha256": "defe963212afcf48395c9304a1fa25cc95879baff0fa5e6f38c68d7fe2ad18d6",
+        "size": 17655,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/maintain/__pycache__/__init__.cpython-314.pyc",
+        "sha256": "e0ec13234d87489664e572075364e12471175e7cc560ab1a847f6687e7fdeaf4",
+        "size": 530,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/maintain/__pycache__/claude_hook.cpython-314.pyc",
+        "sha256": "82bc85007af87dcd97745127dd05ea3bb932c2caa7ade8b4ee8ef8bedec4b497",
+        "size": 19417,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/maintain/__pycache__/codex_session.cpython-314.pyc",
+        "sha256": "41b436a7ab7beada8b881e5332a512e64b68a0e96127f14a6d252e4e80605ada",
+        "size": 23831,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/maintain/__pycache__/host_adapter.cpython-314.pyc",
+        "sha256": "1af9216d1e2a3b682e7d68fdf9f75c59b286d88c04f60ad3152cb12abfc0f574",
+        "size": 82458,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/maintain/__pycache__/operation.cpython-314.pyc",
+        "sha256": "6553ea704f48de729b54f776cb00c77583e7efa1d3656b3fa8b30896f5a62808",
+        "size": 30843,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/recover/__pycache__/__init__.cpython-314.pyc",
+        "sha256": "89bf75735051dc4a846377a92c1ee4585bceb4bdfee97cdc0357a730366ea32b",
+        "size": 360,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "context/work/harness/recover/__pycache__/operation.cpython-314.pyc",
+        "sha256": "d74c222168a18fd8600cdca83791fd0ccb7e7cd2888561914dd3217a66301316",
+        "size": 24041,
+        "states": [
+          "untracked"
+        ]
+      }
+    ],
+    "head": "b4ed41f6e4bbae26fd45827b3b9063097a2c1ea4",
+    "status_porcelain_v1": "?? .claude/sessions/2026-09-06-codebase-analysis.md\n?? .claude/sessions/2026-09-06-codebase-analysis/architecture.md\n?? .claude/sessions/2026-09-06-codebase-analysis/code-style.md\n?? .claude/sessions/2026-09-06-codebase-analysis/components.md\n?? .claude/sessions/2026-09-06-codebase-analysis/engine-data.md\n?? .claude/sessions/2026-09-06-codebase-analysis/server-contracts.md\n?? .claude/sessions/2026-09-06-codebase-analysis/verification.md\n?? context/__pycache__/__init__.cpython-314.pyc\n?? context/work/__pycache__/__init__.cpython-314.pyc\n?? context/work/harness/__pycache__/__init__.cpython-314.pyc\n?? context/work/harness/__pycache__/workspace_contract.cpython-314.pyc\n?? context/work/harness/maintain/__pycache__/__init__.cpython-314.pyc\n?? context/work/harness/maintain/__pycache__/claude_hook.cpython-314.pyc\n?? context/work/harness/maintain/__pycache__/codex_session.cpython-314.pyc\n?? context/work/harness/maintain/__pycache__/host_adapter.cpython-314.pyc\n?? context/work/harness/maintain/__pycache__/operation.cpython-314.pyc\n?? context/work/harness/recover/__pycache__/__init__.cpython-314.pyc\n?? context/work/harness/recover/__pycache__/operation.cpython-314.pyc\n"
+  },
+  "instruction_files": [
+    {
+      "head_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "index_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "kind": "symlink",
+      "link_target": "CLAUDE.md",
+      "path": "AGENTS.md",
+      "sha256": "6ebdb617a8104a7756d0cf36578ab01103dc9f07e4dc6feb751296b9c402faf7",
+      "size": 9
+    },
+    {
+      "head_oid": "eaec1962d13ec13b7346e5139c7c4c9731fbb379",
+      "index_oid": "eaec1962d13ec13b7346e5139c7c4c9731fbb379",
+      "kind": "file",
+      "path": "CLAUDE.md",
+      "sha256": "3d261c1503d1ef3729652bca4cf38a9665a1813755eecc87b90f4323de6e87a1",
+      "size": 9805
+    },
+    {
+      "head_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "index_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "kind": "symlink",
+      "link_target": "CLAUDE.md",
+      "path": "apps/client/AGENTS.md",
+      "sha256": "6ebdb617a8104a7756d0cf36578ab01103dc9f07e4dc6feb751296b9c402faf7",
+      "size": 9
+    },
+    {
+      "head_oid": "ac703e620f20d5cc128a98ff3f6070b11bd76d08",
+      "index_oid": "ac703e620f20d5cc128a98ff3f6070b11bd76d08",
+      "kind": "file",
+      "path": "apps/client/CLAUDE.md",
+      "sha256": "8c0d2613a9cd74202809f6f466b792031dd532c19fa5e7f68dd4549f7fbc9350",
+      "size": 4447
+    },
+    {
+      "head_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "index_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "kind": "symlink",
+      "link_target": "CLAUDE.md",
+      "path": "apps/server/AGENTS.md",
+      "sha256": "6ebdb617a8104a7756d0cf36578ab01103dc9f07e4dc6feb751296b9c402faf7",
+      "size": 9
+    },
+    {
+      "head_oid": "a827312259c922abdf9f190d9992b5839452b9f9",
+      "index_oid": "a827312259c922abdf9f190d9992b5839452b9f9",
+      "kind": "file",
+      "path": "apps/server/CLAUDE.md",
+      "sha256": "11655d326c6d1d4f2ee04ac33928938dbd8b2d884dd4a9d7617064ae1de9e6dc",
+      "size": 3631
+    },
+    {
+      "head_oid": "875d4f5478f9dbf01d753c2f5c4a11110f635543",
+      "index_oid": "875d4f5478f9dbf01d753c2f5c4a11110f635543",
+      "kind": "file",
+      "path": "context/work/AGENTS.md",
+      "sha256": "81497507f32ab8454888ac01520a65138bfc6efd86b4d07fb63adb2efb72b060",
+      "size": 11139
+    },
+    {
+      "head_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "index_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "kind": "symlink",
+      "link_target": "CLAUDE.md",
+      "path": "packages/schema/AGENTS.md",
+      "sha256": "6ebdb617a8104a7756d0cf36578ab01103dc9f07e4dc6feb751296b9c402faf7",
+      "size": 9
+    },
+    {
+      "head_oid": "81c8978770c58ae240e8796749b00338e3e18ad4",
+      "index_oid": "81c8978770c58ae240e8796749b00338e3e18ad4",
+      "kind": "file",
+      "path": "packages/schema/CLAUDE.md",
+      "sha256": "d11f80d0db5c225a78150b1177100b6e580cd10076a63addafb5fc0602c142e6",
+      "size": 3310
+    },
+    {
+      "head_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "index_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "kind": "symlink",
+      "link_target": "CLAUDE.md",
+      "path": "packages/ui/AGENTS.md",
+      "sha256": "6ebdb617a8104a7756d0cf36578ab01103dc9f07e4dc6feb751296b9c402faf7",
+      "size": 9
+    },
+    {
+      "head_oid": "883eb42772a977f971cdb5b9a043914571b02a6e",
+      "index_oid": "883eb42772a977f971cdb5b9a043914571b02a6e",
+      "kind": "file",
+      "path": "packages/ui/CLAUDE.md",
+      "sha256": "cd37e8f1aadc7a6ac68c230abd26c510609550f69bcdbbd7b6c5af104b2db654",
+      "size": 2899
+    }
+  ],
+  "project_root": "/Users/hammyeong-yeon/Desktop/10_work/noline",
+  "proof_ceiling": "This receipt captures observed paths and bytes during one local capture pass. It is not an atomic snapshot; concurrent changes may make fields internally inconsistent. It does not establish authorship, intent, or a pre-existing immutable history.",
+  "receipt_id": "f1caf35fc6894327a7d811ffd7622f3c",
+  "receipt_type": "context_harness_preflight",
+  "schema_version": 1
+}

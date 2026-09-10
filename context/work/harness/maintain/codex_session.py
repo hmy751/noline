@@ -262,6 +262,16 @@ class CodexMaintainSession:
             raise HarnessError(
                 f"Maintain README is not readable UTF-8 text: {exc}"
             ) from exc
+        workspace_rules_path = (
+            Path(__file__).resolve().parents[2]
+            / "workspaces" / "SPEC-AND-TICKETS.md"
+        )
+        try:
+            workspace_rules = workspace_rules_path.read_text(encoding="utf-8")
+        except (OSError, UnicodeError) as exc:
+            raise HarnessError(
+                f"Workspace Spec/Ticket contract is not readable UTF-8 text: {exc}"
+            ) from exc
         return (
             "You are the read-only semantic judge for Workspace Maintain.\n"
             f"Explicit workspace_id: {self.workspace_id}\n\n"
@@ -274,6 +284,9 @@ class CodexMaintainSession:
             "<maintain_readme>\n"
             f"{readme}"
             "</maintain_readme>\n\n"
+            "<workspace_spec_ticket_contract>\n"
+            f"{workspace_rules}"
+            "</workspace_spec_ticket_contract>\n\n"
             f"<{payload_name}>\n"
             f"{serialized}\n"
             f"</{payload_name}>\n"

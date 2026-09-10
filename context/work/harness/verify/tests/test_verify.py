@@ -31,6 +31,33 @@ class VerifyTests(WorkspaceFixture):
         self.assertNotIn("INVALID_RECOVER_CONTRACT_SECRET", completed.stdout)
         self.assertEqual(recover_path.read_bytes(), original_recover)
 
+    def test_canonical_basis_is_not_limited_to_recover_project_layers(
+        self,
+    ) -> None:
+        (self.project_root / "PRODUCT.md").write_text(
+            "PROJECT_ROOT_NORMATIVE_OWNER\n", encoding="utf-8"
+        )
+        (self.project_root / "src" / "value.txt").write_text(
+            "expected\n", encoding="utf-8"
+        )
+        contract = copy.deepcopy(self.verify_contract)
+        contract["canonical_basis"] = ["PRODUCT.md"]
+        self.write_work_json(
+            "workspaces/001-example/verify.json", contract
+        )
+
+        completed = self.run_cli("verify")
+
+        self.assertEqual(
+            completed.returncode, 0, completed.stdout + completed.stderr
+        )
+        receipt = json.loads(
+            self.receipt_files()[0].read_text(encoding="utf-8")
+        )
+        self.assertEqual(
+            receipt["canonical_basis_files"][0]["path"], "PRODUCT.md"
+        )
+
     def test_uses_project_root_for_evidence_and_command_cwd(self) -> None:
         decoy_src = self.work_root / "src"
         decoy_tests = self.work_root / "tests"
@@ -489,7 +516,13 @@ class VerifyTests(WorkspaceFixture):
         self.assertEqual(status["finished_at"], receipt["finished_at"])
 
     def test_captures_canonical_basis_before_command_deletes_it(self) -> None:
-        basis_path = self.project_root / "context" / "project" / "overview.md"
+        basis_path = (
+            self.project_root
+            / "context"
+            / "project"
+            / "common"
+            / "task-context.md"
+        )
         expected_bytes = basis_path.read_bytes()
         delete_basis_test = self.project_root / "tests" / "test_delete_basis.py"
         delete_basis_test.write_text(
@@ -497,7 +530,7 @@ class VerifyTests(WorkspaceFixture):
             "import unittest\n\n"
             "class DeleteBasisTests(unittest.TestCase):\n"
             "    def test_delete_then_fail(self):\n"
-            "        Path('context/project/overview.md').unlink()\n"
+            "        Path('context/project/common/task-context.md').unlink()\n"
             "        self.fail('intentional failure after basis deletion')\n",
             encoding="utf-8",
         )
@@ -521,7 +554,10 @@ class VerifyTests(WorkspaceFixture):
             self.receipt_files()[0].read_text(encoding="utf-8")
         )
         basis_snapshot = receipt["canonical_basis_files"][0]
-        self.assertEqual(basis_snapshot["path"], "context/project/overview.md")
+        self.assertEqual(
+            basis_snapshot["path"],
+            "context/project/common/task-context.md",
+        )
         self.assertEqual(basis_snapshot["size"], len(expected_bytes))
         self.assertEqual(
             basis_snapshot["sha256"], hashlib.sha256(expected_bytes).hexdigest()

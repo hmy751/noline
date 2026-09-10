@@ -135,6 +135,11 @@ class CodexMaintainSessionTests(unittest.TestCase):
         readme = (module_root / "README.md").read_text(encoding="utf-8")
         self.assertIn("Explicit workspace_id: 007-clean-room", prompt)
         self.assertIn(readme, prompt)
+        self.assertIn(
+            (module_root.parents[1] / "workspaces" / "SPEC-AND-TICKETS.md")
+            .read_text(encoding="utf-8"),
+            prompt,
+        )
         self.assertIn("BOUNDED_BOOTSTRAP_MARKER", prompt)
         self.assertIn("Do not call tools", prompt)
         self.assertIn("run tests or evals", prompt)

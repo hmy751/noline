@@ -224,10 +224,13 @@ def _is_allowed_change_path(relative_path: str) -> tuple[bool, bool]:
 
     parts = PurePosixPath(relative_path).parts
     if (
-        len(parts) == 3
-        and parts[:2] == ("current", "memory")
-        and parts[2].endswith(".md")
-        and parts[2] not in {".md", "..md"}
+        parts[:2] == ("current", "memory")
+        and (
+            len(parts) == 3
+            or (len(parts) == 4 and parts[2] in {"spec", "tickets"})
+        )
+        and parts[-1].endswith(".md")
+        and parts[-1] not in {".md", "..md"}
     ):
         return True, False
     if parts in {
@@ -452,19 +455,29 @@ def _prepare_changes(
         == ("current", "memory")
         and change.relative_path != "current/memory/index.md"
     ]
-    if new_memory_topics:
+    # Ticket bodies are discovered through their own index; Spec and other
+    # memory topics remain linked directly from the memory entry point.
+    topics_by_index: dict[str, list[_PreparedChange]] = {}
+    for change in new_memory_topics:
+        parts = PurePosixPath(change.relative_path).parts
+        if len(parts) == 4 and parts[2] == "tickets" and parts[3] != "index.md":
+            index_path = "current/memory/tickets/index.md"
+        else:
+            index_path = "current/memory/index.md"
+        topics_by_index.setdefault(index_path, []).append(change)
+    for index_path, indexed_topics in topics_by_index.items():
         memory_index = next(
             (
                 change
                 for change in prepared
-                if change.relative_path == "current/memory/index.md"
+                if change.relative_path == index_path
             ),
             None,
         )
         if memory_index is None:
             fail(
                 "a new Workspace memory topic requires the same decision to "
-                "update current/memory/index.md"
+                f"update {index_path}"
             )
         linked_targets = _local_markdown_targets(
             memory_index.target,
@@ -473,12 +486,12 @@ def _prepare_changes(
         )
         missing = [
             change.relative_path
-            for change in new_memory_topics
+            for change in indexed_topics
             if change.target.resolve(strict=False) not in linked_targets
         ]
         if missing:
             fail(
-                "current/memory/index.md must link every new Workspace memory "
+                f"{index_path} must link every new Workspace memory "
                 f"topic: {missing}"
             )
 

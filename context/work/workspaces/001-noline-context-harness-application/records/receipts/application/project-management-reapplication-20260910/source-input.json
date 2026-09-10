@@ -1,0 +1,20 @@
+{
+  "source_root": "/Users/hammyeong-yeon/Desktop/context-harness",
+  "source_commit": "87d21023f6acd8ae709322d48da9851594f9acb0",
+  "reference_dirty": true,
+  "authorization": "User requested source layout changes, then explicitly requested reapplication: 재적용까지해",
+  "files": {
+    ".agents/skills/apply-context-harness/SKILL.md": "dbbe31c08b57f5117d4a2b3053ff818cf8e3e0ef44add2d1ec13c12253f4611c",
+    ".agents/skills/apply-context-harness/references/application-contract.md": "85884f8c2b549a307da1d3ee4c067294e08b6524a3ba82addfc7cd16d3266037",
+    "reference-project/.agents/skills/README.md": "e9c2f9c21497c39468371ddb53b2b5e8993a60230d2c2394012f42cd33e617c3",
+    "reference-project/.agents/skills/update-project-context/SKILL.md": "8e005fc4a59775ba6c0604a993f6489da27d5c20f2b8b5f2304548154965e00c",
+    "reference-project/AGENTS.md": "9a4daa850bf714410d90d06d031e1c8982cd9dc3e25da35cc3091b1daedcfbb1",
+    "reference-project/README.md": "c5496c4e0735d70830d1548274bc9720b825a7a65e42e9e1ede15cc58f4d387d",
+    "reference-project/context/README.md": "625114b0133ec98628b556f8629e4993662f719d85a189763ea25d0111db74e0",
+    "reference-project/context/project/MAINTENANCE.md": "8e18abd443468d211d4b6d2a3f055e64e4e3e90145833904e035b114872f0223",
+    "reference-project/context/project/README.md": "3318e59fae036290fa9f27d03ba16a2024a19bf2fc970cb900f9dc60d39089f7",
+    "reference-project/context/work/AGENTS.md": "e9cd375f3bca0e2ceb9107233ad3074a24abbb70e434033fdf89826aa7882473",
+    "reference-project/context/work/workspaces/README.md": "97f4e21b78d19157553420bf7d5c4be916dc8664cf378c4de36c019b202b2d2e"
+  },
+  "diff": "source.diff"
+}

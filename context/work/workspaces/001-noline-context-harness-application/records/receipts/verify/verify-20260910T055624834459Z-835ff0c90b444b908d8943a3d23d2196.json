@@ -1,0 +1,688 @@
+{
+  "argv": [
+    "node",
+    "scripts/check-harness.mjs",
+    "--no-git-diff"
+  ],
+  "canonical_basis_capture": "before_verification",
+  "canonical_basis_collected_at": "2026-09-10T05:56:24.789Z",
+  "canonical_basis_files": [
+    {
+      "path": ".claude/harness/README.md",
+      "sha256": "53e1927b1f71726286a9fa80f887d29f9fd29fc81764b0cc481b0c163898af33",
+      "size": 11327
+    },
+    {
+      "path": ".claude/decisions/2026-09-09-context-harness-upgrade.md",
+      "sha256": "5024683394c52a9a519f44b1703ab41bed8983d428e35ff98cfe22675cd86a08",
+      "size": 2983
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/spec/04-quality-and-completion.md",
+      "sha256": "dfb40520de37403ba11e8c758321b72715e8563401c0c4d5f2fd52b158ccdc79",
+      "size": 1826
+    }
+  ],
+  "claim": "Noline의 현재 지침·Context Harness regular input과 실행 시 관찰한 bridge·경로 구조가 정해진 구조 검사를 통과한다. 선언 파일 freshness는 이후 directory·symlink topology, Git index 또는 제품 동작을 증명하지 않는다.",
+  "evidence_capture": "before_verification",
+  "evidence_collected_at": "2026-09-10T05:56:24.789Z",
+  "evidence_files": [
+    {
+      "path": ".claude/README.md",
+      "sha256": "5d2758427edae9b4a3fbadd3cb0e7c4e14b4d2dc3b34f16de969a20a3743523e",
+      "size": 6561
+    },
+    {
+      "path": ".claude/agents/noline-context-collector.md",
+      "sha256": "7fa4719b1e1664a6fdccefe9e0eddc804d7afcc004e1af5cfe4c8d59a733df6d",
+      "size": 1591
+    },
+    {
+      "path": ".claude/agents/noline-harness-observer.md",
+      "sha256": "0165e95d0e38bf517e447573a2300cad9247962ac262a7a904b668990f585e4e",
+      "size": 2247
+    },
+    {
+      "path": ".claude/agents/noline-policy-checker.md",
+      "sha256": "55582f2e846652776179f305e0194b3c696cfff8483939dfe3d4156af810d1fb",
+      "size": 2067
+    },
+    {
+      "path": ".claude/audits/2026-05-06-harness-execution-plan.md",
+      "sha256": "7bf57bec6eb49e20e4e7d7a2dac4c8b928e77276e3f2252c31d937a728db3ee7",
+      "size": 6668
+    },
+    {
+      "path": ".claude/context/README.md",
+      "sha256": "929dd0e58bbeab04f603d3a7123c73d9117b23ac14beb050a682a42e2f5e58d6",
+      "size": 2819
+    },
+    {
+      "path": ".claude/context/activation-system.md",
+      "sha256": "5f8f08f66b4024d26cf9cafcc97ec5b4652ec93ab5c7de5a6848b833e43265e9",
+      "size": 5534
+    },
+    {
+      "path": ".claude/context/api-data.md",
+      "sha256": "3c5e7d92570aa64b491b619d01a7e04264e220f135f1677946bd2531e0e91c77",
+      "size": 3501
+    },
+    {
+      "path": ".claude/context/architecture.md",
+      "sha256": "2cbb8aa0c9e3117178f28f725b4ae4e830d968f71e0c685c17b1f08522f023cc",
+      "size": 13286
+    },
+    {
+      "path": ".claude/context/components.md",
+      "sha256": "e80f9588fbf14a19257a3c80b0a0f071fe6be882cdbceda22656aaa1cd15c60b",
+      "size": 2832
+    },
+    {
+      "path": ".claude/context/currency.md",
+      "sha256": "d6baa393f760f69211811517fe62f05a0bf4efe8934a7df59a57c22a1c470639",
+      "size": 2000
+    },
+    {
+      "path": ".claude/context/error-handling.md",
+      "sha256": "d2bf1f8ed3df80de386804abc6c4f6649cd7b96580db2bd0690a9abceaf05ef7",
+      "size": 3802
+    },
+    {
+      "path": ".claude/context/form.md",
+      "sha256": "c28b218fa6073b526a07eeb77e77758cb0dc69da1e2c89c39ed3959026b7d8fa",
+      "size": 2343
+    },
+    {
+      "path": ".claude/context/manual-input.md",
+      "sha256": "0f3446b98c4a4ad31272d1f57d8b33eada7b339f12eaa462999f875e1c387ebf",
+      "size": 2962
+    },
+    {
+      "path": ".claude/context/offline-map.md",
+      "sha256": "8d36d03f024c1c2b1b46568f9bdd6771631d0685d353a62ff99e68949c6860fc",
+      "size": 10496
+    },
+    {
+      "path": ".claude/context/offline-routing.md",
+      "sha256": "c0f7cec4cf265a9504b3ffa1a7d01a77a97ac5ffbedac72e194adb506a56e1d2",
+      "size": 32626
+    },
+    {
+      "path": ".claude/context/policy-architecture.md",
+      "sha256": "b30674c67bc560a2f676b736847131fae1c7ab7fd593f646d32457b75d552b7a",
+      "size": 3358
+    },
+    {
+      "path": ".claude/context/selective-activation-architecture.md",
+      "sha256": "2753471b4cfb72a890c5f1cdad680640a665123c30940449994b6d0789f1b848",
+      "size": 3913
+    },
+    {
+      "path": ".claude/context/time.md",
+      "sha256": "aa5bb698910ec6a6e16d93b79b87cd9b452367fe43cddb4ffc70a4a3d222b4a7",
+      "size": 2350
+    },
+    {
+      "path": ".claude/context/typescript.md",
+      "sha256": "1a202390f08c1bf4271de10019dd6d01b7ece4faef4977adac5a8f9fd5e25691",
+      "size": 11218
+    },
+    {
+      "path": ".claude/decisions/002-offline-map-integration.md",
+      "sha256": "b054360a0ae1f47b7f6d1db127f7adcb13e00a728447b6c75002a07bfcbe26be",
+      "size": 11297
+    },
+    {
+      "path": ".claude/decisions/003-offline-routing-integration.md",
+      "sha256": "3125e1fdffbb17cb80ec83e9c82ad5d1d8b7732483cd06d7eecfb69009eef7b3",
+      "size": 13720
+    },
+    {
+      "path": ".claude/decisions/2025-11-20-data-service-separation.md",
+      "sha256": "6e11418e9204d774affa9b01c04f36d25d3af1398c9952278065765268ecac20",
+      "size": 7106
+    },
+    {
+      "path": ".claude/decisions/2025-11-20-deactivation-sync-queue-safety.md",
+      "sha256": "b5ade5a7d06af9f133cd4747ac598aba91b082367e4d2f1e14baf4ea0da82e0a",
+      "size": 16135
+    },
+    {
+      "path": ".claude/decisions/2025-11-20-policy-layer-separation.md",
+      "sha256": "58dbf57a54fa8c0b6a0970e08ceb24426af13ac8b008ebed131cd0b4715ea7db",
+      "size": 7001
+    },
+    {
+      "path": ".claude/decisions/2025-11-24-store-layer-refinement.md",
+      "sha256": "86d024a2292594027429aa936b138c02d3c0083ed22546b387c2f2acb3098a75",
+      "size": 7957
+    },
+    {
+      "path": ".claude/decisions/2025-12-23-auth-axios-factory.md",
+      "sha256": "b78758828251e812644a6ab08d169125707ef938acf3e2eb8faed46bdfd3bf45",
+      "size": 3585
+    },
+    {
+      "path": ".claude/decisions/2026-03-21-terminology-unification.md",
+      "sha256": "c19cd9551b8704e35b5d9bfa4f86df6b969598a29d95bf4597dff2f5304ab88b",
+      "size": 5227
+    },
+    {
+      "path": ".claude/decisions/2026-05-06-ai-harness-restructure.md",
+      "sha256": "7834c8c7a022a73a340852e631578d159df382924e7c2bb37a76a295e7d7b480",
+      "size": 3871
+    },
+    {
+      "path": ".claude/decisions/2026-05-06-commit-message-convention.md",
+      "sha256": "6f32ace73f72867f67db867cab5b5a29dfe3055a4b09ff0ed7d0da78be74f22d",
+      "size": 1633
+    },
+    {
+      "path": ".claude/decisions/2026-05-06-harness-execution-cleanup.md",
+      "sha256": "58f2309d05ef548988e053c99a1445f64ce7b04448ae69603333e1517487f537",
+      "size": 2210
+    },
+    {
+      "path": ".claude/decisions/2026-05-06-harness-execution-layer.md",
+      "sha256": "5dd0d309ec80121f0a47416ea23db79e97f246ac0af2aaece6196a696d7aa7b2",
+      "size": 3268
+    },
+    {
+      "path": ".claude/decisions/2026-05-06-harness-layer-model.md",
+      "sha256": "6aed932c874afd1336465db7abffd1b4134d983b0191ebe51aa1be10dea1f538",
+      "size": 3622
+    },
+    {
+      "path": ".claude/decisions/2026-05-06-workspace-guide-harness-contract.md",
+      "sha256": "2362c7164d4dd6da69f50d929be3ba49e607be6414e88dd1221122ede2189afa",
+      "size": 1926
+    },
+    {
+      "path": ".claude/decisions/2026-09-04-context-harness-application.md",
+      "sha256": "ab8de46e69d8d1ff1b3fdc15d82d671e41f1bd06607107f936c49b36a355f0ad",
+      "size": 2190
+    },
+    {
+      "path": ".claude/guards/README.md",
+      "sha256": "5775315697042dcef04379276e5c65cd8788d33e8929bec0ed05395ecd8bcf6b",
+      "size": 4882
+    },
+    {
+      "path": ".claude/hooks/maintain.py",
+      "sha256": "d4eb1568598798bf1f30c3307110e3b06c59b0469e2bd346f3220ace66bb2cce",
+      "size": 384
+    },
+    {
+      "path": ".claude/rules/README.md",
+      "sha256": "803fe4a1fff9ec91989042b4cd9e4e94e2007ae41dd04f4b2ac0ee6368d79b13",
+      "size": 2634
+    },
+    {
+      "path": ".claude/rules/activation-router.md",
+      "sha256": "962440ce646e5dc1009d8034a230200ff3322a9abbcebd0885c1f4babb70e132",
+      "size": 1062
+    },
+    {
+      "path": ".claude/rules/auth-user-scope.md",
+      "sha256": "60ba5227766b72544c1944b5eadc0d2ac55de6ae8e8d7b7fac9fdff26aa812ba",
+      "size": 888
+    },
+    {
+      "path": ".claude/rules/client-side-id.md",
+      "sha256": "4bf2a60e9111ae5df5ae79ad777efcc682e58fe4d90527205e88eab940e25e76",
+      "size": 888
+    },
+    {
+      "path": ".claude/rules/iso-time.md",
+      "sha256": "eeb7b27586e3ef3742c8d80186929f586ddd98b1389b31b25deba62f57e4f7ba",
+      "size": 891
+    },
+    {
+      "path": ".claude/rules/policy-ui.md",
+      "sha256": "2482a3d209b64e58472cda66a0f88e4627f9cb65bd58b23240507bc816fc65f9",
+      "size": 877
+    },
+    {
+      "path": ".claude/rules/schema-first.md",
+      "sha256": "63028f7ea09f4c4abbf0d2eaa4046c74f7f5b04e0da7d8b1ce5d7ed468b3804b",
+      "size": 889
+    },
+    {
+      "path": ".claude/rules/transaction-sync-queue.md",
+      "sha256": "9393eb30ce6d9e1cbd1330c2d13ceb4a071e626878c68be4604bd41cd1ed06b5",
+      "size": 979
+    },
+    {
+      "path": ".claude/runbooks/README.md",
+      "sha256": "3028ecd72a4467a30976ce2aedd0d9e0e960b4d3b8d6896f304c9491d8e01934",
+      "size": 5632
+    },
+    {
+      "path": ".claude/settings.json",
+      "sha256": "016d24d6639bd38a77191d3777da3e8f116bfd990aab2f09254dbc32d58a98e1",
+      "size": 1364
+    },
+    {
+      "path": ".claude/skills/README.md",
+      "sha256": "7bbb9a131e13b6588b8038b13c013e7170a3b130649a16c7dd6b13dec617bdc0",
+      "size": 4008
+    },
+    {
+      "path": ".claude/skills/create-context-workspace/SKILL.md",
+      "sha256": "fd4a4b741071dfc21898ce4b05fa2609296ea76fa0d752a0f91e6ac50e1ae1e5",
+      "size": 7383
+    },
+    {
+      "path": ".claude/skills/create-context-workspace/agents/openai.yaml",
+      "sha256": "d19244825c7bd72a786a17b143fd423f1f09fc3bc3a33528fe1fba6271273e4a",
+      "size": 391
+    },
+    {
+      "path": ".claude/skills/explanation-recovery/SKILL.md",
+      "sha256": "9f3981002424b9e967e98cf8b13c05671f50271fb430e492a8acec749e6668ec",
+      "size": 7028
+    },
+    {
+      "path": ".claude/skills/explanation-recovery/agents/openai.yaml",
+      "sha256": "90b68d63cd06b9e30965ad929cb2fa1eae83a54a4121f56ef77a7033795d99ac",
+      "size": 314
+    },
+    {
+      "path": ".claude/skills/noline-work/SKILL.md",
+      "sha256": "7cf7ade9bd44ede4728972724ac87ddd1b20f03578438afcd6f9f319f22f4e00",
+      "size": 5463
+    },
+    {
+      "path": ".claude/skills/reconsider-work/SKILL.md",
+      "sha256": "d9334a21831dbd311b69f1eb4ac5f1a576bec7e6cd185f695cc0eea569077404",
+      "size": 12530
+    },
+    {
+      "path": ".claude/skills/reconsider-work/agents/openai.yaml",
+      "sha256": "5b41c363ce1dca4739f48f1c5c5b52c412e64f83aa87524ee1b5faf997c80f88",
+      "size": 325
+    },
+    {
+      "path": ".claude/skills/update-project-context/SKILL.md",
+      "sha256": "8e005fc4a59775ba6c0604a993f6489da27d5c20f2b8b5f2304548154965e00c",
+      "size": 2854
+    },
+    {
+      "path": ".claude/skills/update-project-context/agents/openai.yaml",
+      "sha256": "6948937f8e1c773ad8f3819639bcfec17be0f72dcc0ba4cfbd0de8cf32fcf6dd",
+      "size": 410
+    },
+    {
+      "path": ".claude/skills/work-artifact-briefing/SKILL.md",
+      "sha256": "5ccf61c506591e4f34df09c997738aa60b3bb3cb6c937100606b600c72b3a5fb",
+      "size": 11071
+    },
+    {
+      "path": ".claude/skills/work-artifact-briefing/agents/openai.yaml",
+      "sha256": "dfcebd4263c703c2302cf488296719a38fe784ed8d9ffd7dc26d9068beade2d2",
+      "size": 328
+    },
+    {
+      "path": ".claude/skills/work-discussion/SKILL.md",
+      "sha256": "b3b0e00ba1a15663dd796ad8177ddc7a00ae9ab6604fb27867e8feed8aecdffb",
+      "size": 11868
+    },
+    {
+      "path": ".claude/skills/work-discussion/agents/openai.yaml",
+      "sha256": "eb96e6e8a257d6351d831abac1a15bfdceb6e991acdeb17929ab539edfa38035",
+      "size": 295
+    },
+    {
+      "path": ".codex/agents/noline-context-collector.toml",
+      "sha256": "3e36c9e363e13ec72f3fdd02032a687523049cb155df2c7c9047131522546765",
+      "size": 1116
+    },
+    {
+      "path": ".codex/agents/noline-harness-observer.toml",
+      "sha256": "395d72e880d34cc6b2b494416ed3c13bcb983a015f2dfe5e8e0b7f5b85ec0a8e",
+      "size": 1777
+    },
+    {
+      "path": ".codex/agents/noline-policy-checker.toml",
+      "sha256": "8968463c5dc6a1291e5761233aedb482d303fadc0914f450164a49c9e53d3dc1",
+      "size": 1325
+    },
+    {
+      "path": ".codex/config.toml",
+      "sha256": "c3046fc85372bf78906bffcef45ed9bfa8380aea56cf5902b2e845b0ccc5c792",
+      "size": 317
+    },
+    {
+      "path": ".codex/hooks.json",
+      "sha256": "d57434fc33b56fe0a71fcf234a3f4e360bd703705d62cffd08108c6f650f116b",
+      "size": 1305
+    },
+    {
+      "path": ".codex/hooks/maintain.py",
+      "sha256": "34a116dd5860335f0b69e32daca3286d317ec518a5b02c4324053114193d56b1",
+      "size": 436
+    },
+    {
+      "path": ".codex/maintain.json",
+      "sha256": "d90cb30f290c4eeb5a27ca3d96cb0864553e054acd194e1c71e57099f23b720d",
+      "size": 48
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "cdee30eed20e570f66e528d278d23a0608ca8b0cfa93bacd23299d3c41e86dae",
+      "size": 11259
+    },
+    {
+      "path": "README.md",
+      "sha256": "62dc9778e7123b9e6e7c887a51742ec7252c01ca326d5f5f400abee0e100ac37",
+      "size": 31729
+    },
+    {
+      "path": "START_GUIDE.md",
+      "sha256": "0c0f4f67659538813536d4b1cddb7af9b417bb7575bf6a6693e1bd86c805f92d",
+      "size": 10417
+    },
+    {
+      "path": "apps/client/CLAUDE.md",
+      "sha256": "8c0d2613a9cd74202809f6f466b792031dd532c19fa5e7f68dd4549f7fbc9350",
+      "size": 4447
+    },
+    {
+      "path": "apps/server/CLAUDE.md",
+      "sha256": "11655d326c6d1d4f2ee04ac33928938dbd8b2d884dd4a9d7617064ae1de9e6dc",
+      "size": 3631
+    },
+    {
+      "path": "context/README.md",
+      "sha256": "72242e95045d889260d00601da9b688d70873ed3384a3b264be5e0ae0213a786",
+      "size": 1824
+    },
+    {
+      "path": "context/project/MAINTENANCE.md",
+      "sha256": "8e18abd443468d211d4b6d2a3f055e64e4e3e90145833904e035b114872f0223",
+      "size": 5812
+    },
+    {
+      "path": "context/project/README.md",
+      "sha256": "f47763b5a54fb0eaac5652ffac03d4a61c9c2296e1017ac0eefcaf7c135e1b74",
+      "size": 6808
+    },
+    {
+      "path": "context/project/common/README.md",
+      "sha256": "5322d7efc77f4ebfd6aa3670db35a28f629787ccd05f0dd467c8023385c9a8c9",
+      "size": 465
+    },
+    {
+      "path": "context/project/common/product.md",
+      "sha256": "f486ccd2715218b70f6c1992aa0034fa4ef5ab888683fe5826243a535ca1e11b",
+      "size": 3692
+    },
+    {
+      "path": "context/project/current/README.md",
+      "sha256": "0b3a9dc1211c90a5bdbf2a5ca8b8e0aabab28e7bad2e2229393093f818d2170c",
+      "size": 504
+    },
+    {
+      "path": "context/project/current/architecture.md",
+      "sha256": "265e3461359fdc7b09903eba617d36f7e73b8760f0257348443381922987f287",
+      "size": 3632
+    },
+    {
+      "path": "context/project/decisions/0001-selective-local-first.md",
+      "sha256": "138a1130daafda5151329b34c76521c861baf8edde84690e25e2ca9e61335931",
+      "size": 2102
+    },
+    {
+      "path": "context/project/decisions/README.md",
+      "sha256": "8149bdde90338b554f000a0a72a35eb1bb3245eb019196653eba27826538ddf5",
+      "size": 2042
+    },
+    {
+      "path": "context/project/guidance/README.md",
+      "sha256": "4f38c088330990bbe0f745e2c32d86ca827ae3f8d2aee31a5c7333984940ec14",
+      "size": 2278
+    },
+    {
+      "path": "context/project/guidance/explanation-and-evidence-criteria.md",
+      "sha256": "2e6fa681900d1d1e28e3ec520ae22e073761ddde7e04a1272cf50e99c58ede83",
+      "size": 6123
+    },
+    {
+      "path": "context/work/AGENTS.md",
+      "sha256": "1c3818be299e1b7d9ec6d9583d99672e54136b0f442ee3184333088de04172b2",
+      "size": 11987
+    },
+    {
+      "path": "context/work/README.md",
+      "sha256": "a0df36a6bfe9a0aeed15b1b0a005340f712c28080ed993c41f63617ec17e0c8a",
+      "size": 1368
+    },
+    {
+      "path": "context/work/harness/README.md",
+      "sha256": "192ee2a982e29a306f1646356829ce309f3992c98e1641041c3b438c9fa8ed1a",
+      "size": 5964
+    },
+    {
+      "path": "context/work/harness/maintain/README.md",
+      "sha256": "f0d4459e771c0af5c5dfb7e28e2d5d7f5c5af15291fbc70340a3d33af88e83c8",
+      "size": 15276
+    },
+    {
+      "path": "context/work/harness/maintain/SESSION-BINDING-AND-LIFECYCLE.md",
+      "sha256": "c397b0b81dde65944558009a68c20e63838c1c4fc1ea49e57fdfb8c1f255d753",
+      "size": 15829
+    },
+    {
+      "path": "context/work/harness/recover/README.md",
+      "sha256": "3624acaab9bae896125d5bc85c9bc3c53dd8df2fa7c01c0cabcab3930a4cba8b",
+      "size": 5494
+    },
+    {
+      "path": "context/work/harness/validation/README.md",
+      "sha256": "3f347bee28033f414b3ddd66d4d67d71e8e6ccd9fc90ee1e25ff5b918482847e",
+      "size": 1535
+    },
+    {
+      "path": "context/work/harness/verify/README.md",
+      "sha256": "1eb15e8be5c8d75cae0bddd536b4079ba034bc6dfdf7e753dbdfae1680cadf6b",
+      "size": 4392
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/README.md",
+      "sha256": "632bd973711327480c3652386bb4c07ac924de425c7403952fc5d2ca597a443f",
+      "size": 1201
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/index.md",
+      "sha256": "fad778804ef6b7bada3e11d6afd02d4e2f3785ac755f439f3534c316578db70d",
+      "size": 1458
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/project-context.md",
+      "sha256": "2840d3163cd6fc7521050a106a95df7fa911981745f1862fd5ab5ac9a2045471",
+      "size": 1087
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/spec/01-problem-goal-scope.md",
+      "sha256": "0961985384c705e71075aa7d544913901caccabc01ee35c80aee1041eafb94d5",
+      "size": 1040
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/spec/02-behavior-and-cases.md",
+      "sha256": "5ca4395831be093bcdcabcb659ed1744d0b3163c807167b5495d77907f619dbc",
+      "size": 1267
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/spec/03-concepts-and-contracts.md",
+      "sha256": "2aa165419145b78e9c99c7374a0364e9fd52cad7ec891db58b7b5961f3660efe",
+      "size": 1248
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/spec/05-constraints-design-assumptions.md",
+      "sha256": "b6a04b7b8311ffa7aa11820a64bd8a25a5dce928f3d8989f5e247b4394f7234c",
+      "size": 1670
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/tickets/001-upgrade.md",
+      "sha256": "9ee04accc90fc74573d65f64fc69ca480acf20e17f828811c4d6bdc167ca174d",
+      "size": 1933
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/tickets/002-document-transition.md",
+      "sha256": "4d3d6db29b32e4e61992a2fbc672e98489dfbc1a128af0a9de01be47ef868152",
+      "size": 1315
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/tickets/003-project-management-contract.md",
+      "sha256": "6bf530f1b580bc30f1aa8ebe2df97fd5cc63f634a73cd3c597dea66d91eb5c31",
+      "size": 1500
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/tickets/index.md",
+      "sha256": "acd3aede546a9292fb629f892b9e726e8723d538a2d8fedb6eac8cdfab58256f",
+      "size": 625
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/state/index.md",
+      "sha256": "155dd3cd4ee384f9542653d1e4ed897d3090382f11be0a21071a5eb38472d9bf",
+      "size": 2581
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/output/index.md",
+      "sha256": "ef7bbadc81b70112805659b7543e99481e0f9de4eee655834f245c23f115ea2f",
+      "size": 2503
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/2026-09-04-01-initial-application.md",
+      "sha256": "0c15ce820a025cb3324f6abf87ae2af5f1fe3dcc7e756cb90a369df48d0e117c",
+      "size": 2353
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/2026-09-04-02-validation.md",
+      "sha256": "470dc2e82c45f79f5fb13aa9efafde89307bf57d4f80102eed6894a010920ea4",
+      "size": 4577
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/2026-09-09-01-reference-upgrade.md",
+      "sha256": "2b020373ff833fd430bf52a3c0570afa70cf634ad29ffff1fc2fd8c07beeb8a6",
+      "size": 6683
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/2026-09-10-01-document-transition.md",
+      "sha256": "3c79e4b43466b4733642eb434390cded43d61565d0c6d1dc53f453c1e0259384",
+      "size": 8525
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/2026-09-10-02-project-management-contract.md",
+      "sha256": "88d8448fe7c40ec1234afc1681a47c15a2794e769a12b5d7d8c29913d0481d1c",
+      "size": 8192
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/README.md",
+      "sha256": "4369338f3bcc0631a55c3bed29cc7c77ebad5e72d65698f65293600ed42b628a",
+      "size": 1046
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/README.md",
+      "sha256": "08b6ebb2bfde35e98afdc2327a786965bdaa3c9122492a9b0928da5f7e71ac3e",
+      "size": 504
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/harness-tests/README.md",
+      "sha256": "15045e95b2d20b7c93d9f5ac11619006fd8432f239d1868f5e523153c215dc45",
+      "size": 855
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/recover.json",
+      "sha256": "bdaf1c744339d6f38df104136b9b0ad7865084aea19eb8ea8305fb36b777c6cd",
+      "size": 772
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/source/index.md",
+      "sha256": "cc93ea40fb3e287d239a225c74c478b6ce850c7ddcf9ae850900ab68d6bdce31",
+      "size": 1204
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/verify.json",
+      "sha256": "2d515334e8d09b61c3f20c30f3645578b890cf5d806970bcb02b660e86f0b67f",
+      "size": 7972
+    },
+    {
+      "path": "context/work/workspaces/CREATE-AND-TRANSITION.md",
+      "sha256": "bbb2b0fe1c9dd80d2b4258ea8d3595ee617c4250a298069cb08d9b910a6fa5c2",
+      "size": 12464
+    },
+    {
+      "path": "context/work/workspaces/README.md",
+      "sha256": "97f4e21b78d19157553420bf7d5c4be916dc8664cf378c4de36c019b202b2d2e",
+      "size": 8337
+    },
+    {
+      "path": "context/work/workspaces/SPEC-AND-TICKETS.md",
+      "sha256": "5bf952a44487f42f311c14d0c11c1f1392f2050b31a584e400b5a9b64cb35d6f",
+      "size": 14185
+    },
+    {
+      "path": "packages/schema/CLAUDE.md",
+      "sha256": "d11f80d0db5c225a78150b1177100b6e580cd10076a63addafb5fc0602c142e6",
+      "size": 3310
+    },
+    {
+      "path": "packages/ui/CLAUDE.md",
+      "sha256": "cd37e8f1aadc7a6ac68c230abd26c510609550f69bcdbbd7b6c5af104b2db654",
+      "size": 2899
+    },
+    {
+      "path": "scripts/check-harness.mjs",
+      "sha256": "09e853dbb84b43b2914f682298caf55aee46960f95b21fff89e9c8ddccc4141f",
+      "size": 10864
+    }
+  ],
+  "exit_code": 0,
+  "finished_at": "2026-09-10T05:56:24.833Z",
+  "normalization": {
+    "output_root_token": "<OUTPUT_ROOT>",
+    "stderr_replacements": 0,
+    "stdout_replacements": 0
+  },
+  "output_capture": {
+    "encoding": "utf-8",
+    "errors": "replace",
+    "limit_unit": "characters",
+    "max_chars_per_stream": 20000,
+    "stderr": {
+      "observed_chars": 0,
+      "persisted_chars": 0,
+      "read_error": null,
+      "truncated": false
+    },
+    "stdout": {
+      "observed_chars": 22,
+      "persisted_chars": 22,
+      "read_error": null,
+      "truncated": false
+    }
+  },
+  "process_returncode": 0,
+  "result": "pass",
+  "runtime_environment": {
+    "command_cwd": "<OUTPUT_ROOT>",
+    "os_name": "posix",
+    "platform_machine": "arm64",
+    "platform_system": "Darwin",
+    "python_implementation": "CPython",
+    "python_version": "3.14.3",
+    "verification_receipt_schema_version": 2,
+    "verify_contract_schema_version": 2
+  },
+  "schema_version": 2,
+  "snapshot_sha256": "8937ecf139558bc51f1418c0d71c35dd52867005355471bee59df6dd68658d8d",
+  "started_at": "2026-09-10T05:56:24.800Z",
+  "stderr": "",
+  "stdout": "Harness check passed.\n",
+  "timeout": {
+    "timed_out": false,
+    "timeout_seconds": 90.0
+  },
+  "workspace_id": "001-noline-context-harness-application"
+}

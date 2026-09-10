@@ -1,0 +1,168 @@
+{
+  "source_reference_commit": "87d21023f6acd8ae709322d48da9851594f9acb0",
+  "reference_dirty": false,
+  "baseline_receipt": "/private/tmp/preflight-20260910T034554982054Z-ea1d544844714f7bafca4c45e01d5ad3.json",
+  "baseline_index_sha256": "6e6be44a38a1e6726ff851c973d9bf02ce58e215b8cb727357b0523dab951663",
+  "scope": "승인된 이식 문서 구성·전환과 직접 정합성",
+  "changes": [
+    {
+      "path": "context/project/README.md",
+      "action": "modify",
+      "before_sha256": "80c265c7bb61984929355cbc0f79585ea8152b8b139f550d4df03b1ffaa22bd8"
+    },
+    {
+      "path": "context/project/common/product.md",
+      "action": "modify",
+      "before_sha256": "67cdfd00cb175ada5ab17ace2e6127dcee2c35f7968dabe26e298d28bb50148c"
+    },
+    {
+      "path": "context/project/current/architecture.md",
+      "action": "modify",
+      "before_sha256": "1a0503ae25067eca4f0859ca41e4c386c9e93698ad849e28426a5aeaac056d9b"
+    },
+    {
+      "path": "context/project/guidance/README.md",
+      "action": "modify",
+      "before_sha256": "497fb8860729c02ddd788bf95f5cbae78d98d38e0890fbc4dcbb45d66ec62301"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/spec/01-problem-goal-scope.md",
+      "action": "modify",
+      "before_sha256": "098fefcfa7d0d441f8b096bee3b9022b68b5be0ac987a30918e46dfb4ab1f00b"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/spec/02-behavior-and-cases.md",
+      "action": "modify",
+      "before_sha256": "8f3319a45aed9e0b6b228fc10d302cd388daaed4778465089d48110ed81c0630"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/spec/04-quality-and-completion.md",
+      "action": "modify",
+      "before_sha256": "0b6e382d2c93792f8812fd2af306c7081d1f56fbac8afff17516fdbaa88cda6c"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/spec/05-constraints-design-assumptions.md",
+      "action": "modify",
+      "before_sha256": "aa34f9753c3af019aa4b3f408e4ca3860fd182ed88ccf03685cb0d02f7723dd7"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/tickets/index.md",
+      "action": "modify",
+      "before_sha256": "aa522fa5e0740f0dbadcdf361cea0cfd4da5c766edc6ab12adf866cea3409b7a"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/tickets/002-document-transition.md",
+      "action": "add",
+      "before_sha256": null
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/output/index.md",
+      "action": "modify",
+      "before_sha256": "c3ca40020a6804e6382f836184af1e92f92a0bd80ffd6858d75fdc226639dd3b"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/state/index.md",
+      "action": "modify",
+      "before_sha256": "d24fca8720751eb96c538d832b5185ff6430b96e8249d38c57cccc877edd26a7"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/README.md",
+      "action": "modify",
+      "before_sha256": "6fcd9b2c97559e4249d896a072a0a08c23d998ecb5517d43677c68be00e8141d"
+    },
+    {
+      "path": ".claude/decisions/2026-09-09-context-harness-upgrade.md",
+      "action": "modify",
+      "before_sha256": "adf976cf6ff5a8c2a3714f9efe661d35d56419326db8d1858e18d420973dcf65"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/2026-09-10-01-document-transition.md",
+      "action": "add",
+      "before_sha256": null
+    },
+    {
+      "path": "context/project/overview.md",
+      "action": "delete",
+      "before_sha256": "fc9985f92d0ecbc1d339787f510d43efbc0769246376d0910d8b1cb9a1548f1a"
+    },
+    {
+      "path": "context/project/prd.md",
+      "action": "delete",
+      "before_sha256": "9978d34253c790dc644729f470e69a18b4d1315e153e511f91f343fe43556dfc"
+    },
+    {
+      "path": "context/project/architecture.md",
+      "action": "delete",
+      "before_sha256": "e3cc66fe293e17fcd5b0b5bc24099f4f7752a2f63f4d717d6cd73c133f5f604e"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/verify.json",
+      "action": "modify",
+      "before_sha256": "9353d3c3ea89a31f0fda618669dd13ae848d29bdf106bc2f3b67da69f3b8f6c5"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/preflight/preflight-20260910T034554982054Z-ea1d544844714f7bafca4c45e01d5ad3.json",
+      "action": "add",
+      "before_sha256": null
+    }
+  ],
+  "excluded": [
+    "제품 코드",
+    "기존 상세 .claude/context/rules/guards/runbooks",
+    "runtime 구현·tests",
+    "skills·공통 기준 본문·tool config·wrappers",
+    "host activation",
+    "stage·commit",
+    "다른 Workspace·source snapshot·과거 receipts"
+  ],
+  "reference_responsibilities": {
+    "Project": "기존 common/current/guidance 유지·대체 문서 유효 내용 통합",
+    "Work/Workspace": "기존 active Work의 Spec·state·output·Ticket·기록 설명 적응",
+    "Recover": "기존 schema와 선택 유지·explicit/default 재검증",
+    "Maintain": "실행 의미·binding 미변경, Main 수동 내용 검토",
+    "Verify": "기존 argv 유지, 삭제/추가 Markdown을 regular input closure에 반영",
+    "validation": "실행 계약 미변경으로 전체 테스트 재실행 제외"
+  },
+  "skills": {
+    "create-context-workspace": "기존 Noline .claude 원본과 .agents 상대 bridge 유지; payload·discovery 의미 변경 없음",
+    "update-project-context": "기존 Noline .claude 원본과 .agents 상대 bridge 유지; payload·discovery 의미 변경 없음",
+    "work-discussion": "기존 Noline .claude 원본과 .agents 상대 bridge 유지; payload·discovery 의미 변경 없음",
+    "reconsider-work": "기존 Noline .claude 원본과 .agents 상대 bridge 유지; payload·discovery 의미 변경 없음",
+    "work-artifact-briefing": "기존 Noline .claude 원본과 .agents 상대 bridge 유지; payload·discovery 의미 변경 없음",
+    "explanation-recovery": "기존 Noline .claude 원본과 .agents 상대 bridge 유지; payload·discovery 의미 변경 없음"
+  },
+  "live_consumers": [
+    "001-noline-context-harness-application"
+  ],
+  "bound_runtime_directories_exist": false,
+  "residue_terms": [
+    "context/project/overview.md",
+    "context/project/prd.md",
+    "context/project/architecture.md",
+    "001-default-timeout",
+    "0001-default-timeout",
+    "common/prd.md"
+  ],
+  "old_document_handling": "세 파일은 현재 역할/호환 consumer 없음. 전환 preamble 제외 본문이 HEAD와 동일함을 대조, Git 이력으로 보존하고 현재 경로 제거.",
+  "layers_without_body": [],
+  "validation": [
+    "baseline 보호 hash·index",
+    "직접 node scripts/check-harness.mjs",
+    "local lexical/resolved link·semantic target",
+    "삭제 경로 및 source sample residue",
+    "explicit/default Recover",
+    "Verify regular read closure",
+    "구조 Verify와 후속 Recover"
+  ],
+  "proof_ceiling": "정적 문서·구조와 선언 snapshot. actual host/제품 기능/acceptance 미확인. stage·commit·activation 없음",
+  "result_artifacts": [
+    "context/work/workspaces/001-noline-context-harness-application/records/receipts/application/document-transition-final-recover-20260910.json",
+    "context/work/workspaces/001-noline-context-harness-application/records/receipts/application/document-transition-input-closure-20260910.json",
+    "context/work/workspaces/001-noline-context-harness-application/records/receipts/application/document-transition-links-20260910.json",
+    "context/work/workspaces/001-noline-context-harness-application/records/receipts/application/document-transition-manifest-20260910.json",
+    "context/work/workspaces/001-noline-context-harness-application/records/receipts/application/document-transition-validation-20260910.json",
+    "context/work/workspaces/001-noline-context-harness-application/records/receipts/verify/verify-20260910T035611188866Z-b0ce311e32474001a7ec5423c0f58869.json",
+    "context/work/workspaces/001-noline-context-harness-application/current/state/status.json"
+  ],
+  "main_semantic_review": "Main이 Git의 이전 세 본문, 실제 common/current/guidance와 전환 diff를 대조했다. 이번 문서 전환 범위에서 내용 귀속·파일 처리에 추가 수정할 문제를 발견하지 못했다."
+}

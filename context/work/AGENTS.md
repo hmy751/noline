@@ -51,21 +51,22 @@ Project agent role 등록만으로 automatic lifecycle·warm reuse·매 response
 - Harness 자체 회귀 검증은 `harness/validation/`에서 변경한다. 공통 test fixture는 `harness/testing.py`에만 둔다.
 - Recover와 Verify에서 실제로 같은 의미로 사용하는 Workspace 식별·안전한 접근·status 인계 계약만 `harness/workspace_contract.py`에 둔다.
 - 한 책임만 사용하는 코드를 공유 영역으로 올리지 않는다.
-- Project 기준은 `../project/`, 제품 코드·테스트는 Project root의 `src/`와 `tests/`에 두고 Harness 아래로 옮기거나 복제하지 않는다.
-- `../project/README.md`와 `../project/overview.md`는 실제 Project common context의 최소 진입점이다. 기존 제품 문서를 그대로 복사하거나 링크만 나열하지 않고 여러 Workspace가 공유할 목적·구조·제약·채택 결정과 상세 Owner의 우선순위를 실제 내용으로 유지한다.
-- 상세 제품 Owner, 코드나 채택 결정이 바뀌면 `../project/overview.md`를 다시 대조한다. 충돌한 overview를 최신 사실처럼 두지 않는다.
+- Project 기준은 `../project/`, 제품 코드·테스트는 Project root의 `apps/`·`packages/`와 해당 Owner에 두고 Harness 아래로 옮기거나 복제하지 않는다.
+- `../project/README.md`는 `common/current/guidance` 물리 layer, 실제 내용과 Owner 우선순위를 찾는 안정된 routing anchor다. 각 Workspace는 이 anchor와 현재 goal에 필요한 layer 문서를 선택하며, README나 link 목록만으로 내용 충분성을 대신하지 않는다.
+- Project의 제품·domain 본문은 root 평면 파일이 아니라 주 책임에 맞는 `common/`, `current/`, `guidance/`에 두고, 선택 이유·재검토 신호는 `decisions/`에 둔다. Context 자체의 작성·복원·갱신 기준은 [`../project/MAINTENANCE.md`](../project/MAINTENANCE.md)를 해당 관리 작업에서 직접 읽는다. 상세 제품 Owner, 코드나 채택 결정이 바뀌면 영향받는 Project content와 이를 선택하는 live consumer를 다시 대조한다.
 - Workspace `current/`, `source/`, `output/`, `records/`의 의미를 Harness가 독점 정의하지 않는다. 사람이 읽는 날짜별 records와 `records/receipts/<종류>/`의 기계 증거를 분리하고, Harness가 생성하더라도 receipt의 보존 Owner는 해당 Workspace로 유지한다.
-- 작업별 Project context 선택은 `recover.json`, 검증 claim·canonical basis·고정 argv·evidence·실행 제한은 `verify.json`에서 변경한다. 사람의 다음 행동은 machine 계약이 아니라 사람용 current가 소유한다. Recover가 선택하는 Project context는 `context/project/` 아래 regular Markdown으로 제한한다.
+- 작업별 Project context 선택은 `recover.json`, 검증 claim·canonical basis·고정 argv·evidence·실행 제한은 `verify.json`에서 변경한다. 사람의 다음 행동은 machine 계약이 아니라 사람용 current가 소유한다. Recover가 선택하는 Project context는 root `context/project/README.md`와 `common/`, `current/`, `guidance/`, `decisions/` 아래 regular Markdown으로 제한한다.
+- Project 문서의 path·책임을 크게 바꿀 때에는 [`Workspace collection 계약`](workspaces/README.md)의 live consumer reconciliation을 적용한다. Active/default Recover consumer뿐 아니라 current generation에 explicit session-bound된 Workspace도 확인하고, 역사 Workspace 비동기화 원칙은 live consumer에서 내려온 뒤에만 적용한다.
 - Project 문서·제품 evidence·검증 cwd는 Project root 기준, Workspace index·current·source·output·records는 이 Work root 기준으로 해석한다.
 - 분석 메모·후보·비교·탈락안·선택 근거는 `records/` 바로 아래 날짜별 기록에 누적하고, 제품 검증 JSON은 `records/receipts/verify/`에 둔다. Goal을 위해 선택된 현재 산출물은 Workspace `output/index.md`에서 찾게 한다.
 - 실제 산출물이 Project root의 코드·문서·테스트라면 Workspace `output/`에 복제하지 않고 `output/index.md`에서 canonical 상대 경로를 연결한다.
 
 ## 검증
 
-전체 제품·Harness 검증은 Project root에서 다음 명령으로 실행한다.
+전체 Harness 검증은 Project root에서 다음 명령으로 실행한다. Noline 제품 검증은 해당 app/package guide를 따른다.
 
 ```bash
-python3 -m unittest discover -s . -p 'test_*.py' -v
+python3 -B -m unittest discover -s context/work/harness -t . -p 'test_*.py' -v
 ```
 
 Harness 책임 재배치 뒤의 `recover → verify → recover` 연결은 실제 active Workspace가 아니라 임시 fixture를 쓰는 다음 Harness validation으로 확인한다.

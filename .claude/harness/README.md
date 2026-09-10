@@ -139,3 +139,7 @@ pnpm harness:check
 agent/skill 파일은 discoverable 역할 정의일 뿐, 자동 team runner가 아니다. 여러 agent를 팀처럼 쓰려면 `noline-work`의 Team Workflow처럼 메인 작업자가 호출 순서, 병렬화, 결과 통합을 명시한다.
 
 새 실행자는 반복 사용으로 모양이 충분히 안정된 뒤에만 추가한다. agent나 skill이 커지면 내용을 owning docs로 되돌리고 실행자는 읽을 자료와 출력 형식만 남긴다.
+
+## Context Harness 보완
+
+[Project layer](../../context/project/README.md)와 [Spec·Ticket](../../context/work/workspaces/SPEC-AND-TICKETS.md)이 지속 내용과 유지 책임을 소유한다. [운영 skill 색인](../skills/README.md)은 생성·Project 갱신·논의·재판단·작업물 설명·설명 복구를 연결한다. `.claude/skills/` 원본과 `.agents/skills/` 상대 bridge를 유지하며 기존 dispatcher·agents와 각 host adapter를 대체하지 않는다. 적용 선택은 [2026-09-09 Decision](../decisions/2026-09-09-context-harness-upgrade.md)에 있다.

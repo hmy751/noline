@@ -172,3 +172,11 @@ pnpm harness:check
 ## Claude Commands
 
 문서 관리 command 자료는 [commands/](./.claude/commands/)에 있다. Codex 작업에서는 참고 자료로만 읽고, Claude 전용 실행 전제를 그대로 재현하지 않는다.
+
+## Context Harness 운영 진입
+
+- `context/work/`의 Workspace·Harness를 다룰 때 [Work 지침](context/work/AGENTS.md)을 먼저 읽는다.
+- Project 의미·현재 구현·조건부 기준의 구조와 권위 관계는 [Project README](context/project/README.md)를 따른다. 작성·복원·갱신 작업은 [Project 관리 계약](context/project/MAINTENANCE.md)을 직접 읽고, 여러 Work에 계속 유효할 변화나 누락 복원은 [update-project-context](.claude/skills/update-project-context/SKILL.md)로 연결한다. Workspace Maintain과의 책임 경계는 Project README에서 찾는다.
+- 작업 생성·논의·재판단·작업물 설명·설명 복구는 [skill 색인](.claude/skills/README.md)의 각 호출 조건을 따른다. 새 독립·후속 Workspace 생성에는 create-context-workspace를 사용하고 기존 Workspace 수정에는 다시 호출하지 않는다.
+- Spec·Ticket·state와 Main·Maintain의 역할은 [운영 기준](context/work/workspaces/SPEC-AND-TICKETS.md)이 소유한다. 스킬 호출을 session activation이나 실제 문서 반영으로 간주하지 않는다.
+- Maintain 연결·전환·해제는 [session binding 계약](context/work/harness/maintain/SESSION-BINDING-AND-LIFECYCLE.md)을 따른다. Main은 사용자가 명시한 현재 session에만 control을 실행하며 subagent에게 위임하지 않는다. active index나 대화 주제로 binding을 추론하지 않는다.

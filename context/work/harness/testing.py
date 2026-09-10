@@ -33,10 +33,18 @@ class WorkspaceFixture(unittest.TestCase):
             self.work_root / "harness",
             ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
         )
-        for directory in ("context/project", "src", "tests"):
+        for directory in (
+            "context/project/common",
+            "context/project/current",
+            "context/project/guidance",
+            "context/project/decisions",
+            "src",
+            "tests",
+        ):
             (self.project_root / directory).mkdir(parents=True, exist_ok=True)
         for directory in (
-            "workspaces/001-example/current/memory",
+            "workspaces/001-example/current/memory/spec",
+            "workspaces/001-example/current/memory/tickets",
             "workspaces/001-example/current/state",
             "workspaces/001-example/source",
             "workspaces/001-example/output",
@@ -45,13 +53,35 @@ class WorkspaceFixture(unittest.TestCase):
         ):
             (self.work_root / directory).mkdir(parents=True, exist_ok=True)
 
-        (self.project_root / "context" / "project" / "overview.md").write_text(
-            "PROJECT_OVERVIEW_CONTEXT\n", encoding="utf-8"
+        shutil.copyfile(
+            HARNESS_SOURCE.parent / "workspaces" / "SPEC-AND-TICKETS.md",
+            self.work_root / "workspaces" / "SPEC-AND-TICKETS.md",
         )
-        (
-            self.project_root / "context" / "project" / "not-selected.md"
-        ).write_text(
-            "UNSELECTED_PROJECT_SECRET\n", encoding="utf-8"
+
+        (self.project_root / "context" / "project" / "README.md").write_text(
+            "PROJECT_ROUTING_CONTEXT\n", encoding="utf-8"
+        )
+        project_context_root = self.project_root / "context" / "project"
+        (project_context_root / "common" / "README.md").write_text(
+            "PROJECT_COMMON_ROUTING\n", encoding="utf-8"
+        )
+        (project_context_root / "common" / "task-context.md").write_text(
+            "PROJECT_COMMON_CONTEXT\n", encoding="utf-8"
+        )
+        (project_context_root / "current" / "README.md").write_text(
+            "PROJECT_CURRENT_ROUTING\n", encoding="utf-8"
+        )
+        (project_context_root / "current" / "task-state.md").write_text(
+            "PROJECT_CURRENT_CONTEXT\n", encoding="utf-8"
+        )
+        (project_context_root / "guidance" / "README.md").write_text(
+            "UNSELECTED_PROJECT_GUIDANCE_ROUTING\n", encoding="utf-8"
+        )
+        (project_context_root / "guidance" / "not-selected.md").write_text(
+            "UNSELECTED_PROJECT_GUIDANCE\n", encoding="utf-8"
+        )
+        (project_context_root / "decisions" / "README.md").write_text(
+            "UNSELECTED_PROJECT_DECISIONS_ROUTING\n", encoding="utf-8"
         )
         (self.project_root / "src" / "value.txt").write_text(
             "wrong\n", encoding="utf-8"
@@ -131,20 +161,28 @@ class WorkspaceFixture(unittest.TestCase):
             "workspace_id": "001-example",
         }
         self.recover_contract = {
-            "schema_version": 4,
+            "schema_version": 6,
             "workspace_id": "001-example",
             "project_context": [
                 {
-                    "path": "context/project/overview.md",
-                    "reason": "fixture에서 필요한 유일한 Project 기준",
-                }
+                    "path": "context/project/README.md",
+                    "reason": "fixture의 Project 책임 routing anchor",
+                },
+                {
+                    "path": "context/project/common/task-context.md",
+                    "reason": "fixture goal에 지속해서 필요한 Project 기준",
+                },
+                {
+                    "path": "context/project/current/task-state.md",
+                    "reason": "fixture goal이 의존하는 현재 Project 상태",
+                },
             ],
         }
         self.verify_contract = {
             "schema_version": 2,
             "workspace_id": "001-example",
             "claim": "제품 값이 Project의 기대값과 일치한다.",
-            "canonical_basis": ["context/project/overview.md"],
+            "canonical_basis": ["context/project/common/task-context.md"],
             "verification": {
                 "argv": [
                     "python3",
@@ -177,13 +215,22 @@ class WorkspaceFixture(unittest.TestCase):
         (memory / "index.md").write_text(
             "WORKSPACE_MEMORY_INDEX\n", encoding="utf-8"
         )
-        (memory / "02-constraints.md").write_text(
-            "WORKSPACE_MEMORY_CONSTRAINTS\n", encoding="utf-8"
+        for name, content in (
+            ("01-problem-goal-scope.md", "WORKSPACE_SPEC_GOAL"),
+            ("02-behavior-and-cases.md", "WORKSPACE_SPEC_BEHAVIOR"),
+            ("03-concepts-and-contracts.md", "WORKSPACE_SPEC_CONTRACTS"),
+            ("04-quality-and-completion.md", "WORKSPACE_SPEC_QUALITY"),
+            ("05-constraints-design-assumptions.md", "WORKSPACE_SPEC_DESIGN"),
+        ):
+            (memory / "spec" / name).write_text(content + "\n", encoding="utf-8")
+        (memory / "tickets" / "index.md").write_text(
+            "WORKSPACE_TICKET_INDEX\n\n- [Example](001-example.md)\n",
+            encoding="utf-8",
         )
-        (memory / "01-goal.md").write_text(
-            "WORKSPACE_MEMORY_GOAL\n", encoding="utf-8"
+        (memory / "tickets" / "001-example.md").write_text(
+            "UNLOADED_TICKET_BODY\n", encoding="utf-8"
         )
-        (memory / "03-project-context.md").write_text(
+        (memory / "project-context.md").write_text(
             "WORKSPACE_MEMORY_PROJECT_CONTEXT\n", encoding="utf-8"
         )
         (memory / "notes.txt").write_text(

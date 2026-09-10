@@ -16,3 +16,5 @@ python3 -m context.work.harness verify
 ```
 
 작업 지침과 session activation 정책은 [`AGENTS.md`](AGENTS.md), Workspace 생성·전환은 [`workspaces/CREATE-AND-TRANSITION.md`](workspaces/CREATE-AND-TRANSITION.md), Harness 내부 경계는 [`harness/README.md`](harness/README.md)에서 시작한다.
+
+Workspace의 Work당 Spec 하나, 실행할 Ticket과 Main·Maintain의 유지 관계는 [Spec·Ticket 계약](workspaces/SPEC-AND-TICKETS.md)을 따른다.

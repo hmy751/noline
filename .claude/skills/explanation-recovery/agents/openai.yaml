@@ -1,0 +1,6 @@
+interface:
+  display_name: "설명 복구본"
+  short_description: "놓친 전제와 중간 논리부터 AI 설명을 다시 연결합니다"
+  default_prompt: "$explanation-recovery를 사용해 방금 설명에서 제가 놓친 부분부터 다시 연결해 주세요."
+policy:
+  allow_implicit_invocation: true

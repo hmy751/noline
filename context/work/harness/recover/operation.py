@@ -29,14 +29,21 @@ from ..workspace_contract import (
 )
 
 
-RECOVER_CONTRACT_SCHEMA_VERSION = 4
+RECOVER_CONTRACT_SCHEMA_VERSION = 6
 RECOVERY_PACKET_SCHEMA_VERSION = 6
 PROJECT_CONTEXT_ROOT = "context/project"
-REQUIRED_PROJECT_CONTEXT_PATH = "context/project/overview.md"
+REQUIRED_PROJECT_CONTEXT_PATH = "context/project/README.md"
+PROJECT_CONTEXT_CONTENT_LAYERS = frozenset(
+    {"common", "current", "guidance", "decisions"}
+)
 REQUIRED_MEMORY_FILES = (
-    "01-goal.md",
-    "02-constraints.md",
-    "03-project-context.md",
+    "spec/01-problem-goal-scope.md",
+    "spec/02-behavior-and-cases.md",
+    "spec/03-concepts-and-contracts.md",
+    "spec/04-quality-and-completion.md",
+    "spec/05-constraints-design-assumptions.md",
+    "project-context.md",
+    "tickets/index.md",
 )
 
 
@@ -89,6 +96,14 @@ def _load_recover_contract(
             fail(
                 "Project context path must be selected from context/project/"
             )
+        if path != REQUIRED_PROJECT_CONTEXT_PATH and (
+            len(parts) < 4 or parts[2] not in PROJECT_CONTEXT_CONTENT_LAYERS
+        ):
+            fail(
+                "Project context path must be context/project/README.md or "
+                "selected from context/project/common/, current/, guidance/, "
+                "or decisions/"
+            )
         if PurePosixPath(path).suffix != ".md":
             fail("Project context path must be a .md file")
         if path in seen_paths:
@@ -110,7 +125,7 @@ def _load_recover_contract(
 
     if REQUIRED_PROJECT_CONTEXT_PATH not in seen_paths:
         fail(
-            "project_context must select context/project/overview.md"
+            "project_context must select context/project/README.md"
         )
 
     return {
@@ -126,6 +141,12 @@ def _load_memory(
     directory_relative = f"{identity.workspace_path}/current/memory"
     directory = resolve_directory_without_symlinks(
         work_root, directory_relative, "Workspace memory directory"
+    )
+    spec_directory = resolve_directory_without_symlinks(
+        work_root, f"{directory_relative}/spec", "Workspace Spec directory"
+    )
+    resolve_directory_without_symlinks(
+        work_root, f"{directory_relative}/tickets", "Workspace Ticket directory"
     )
     index_path = f"{directory_relative}/index.md"
     memory_index = {
@@ -148,10 +169,21 @@ def _load_memory(
         )
 
     entries: list[dict[str, str]] = []
-    for candidate in sorted(directory.iterdir(), key=lambda path: path.name):
-        if candidate.name == "index.md" or not candidate.name.endswith(".md"):
-            continue
-        relative_path = f"{directory_relative}/{candidate.name}"
+    # Spec is the default work definition. Ticket bodies are selected by the
+    # reader from the index; arbitrary nested memory is not recursively loaded.
+    candidates = [
+        f"spec/{path.name}"
+        for path in sorted(spec_directory.iterdir(), key=lambda path: path.name)
+        if path.name.endswith(".md")
+    ]
+    candidates.extend(
+        path.name
+        for path in sorted(directory.iterdir(), key=lambda path: path.name)
+        if path.name != "index.md" and path.name.endswith(".md")
+    )
+    candidates.append("tickets/index.md")
+    for name in candidates:
+        relative_path = f"{directory_relative}/{name}"
         entries.append(
             {
                 "path": relative_path,
@@ -159,7 +191,7 @@ def _load_memory(
                 "content": read_text_without_symlinks(
                     work_root,
                     relative_path,
-                    f"Workspace memory context {candidate.name}",
+                    f"Workspace memory context {name}",
                 ),
             }
         )

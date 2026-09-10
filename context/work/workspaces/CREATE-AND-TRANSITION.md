@@ -18,13 +18,13 @@ Repo-local [`create-context-workspace` skill](../../../.agents/skills/create-con
 ## 생성 workflow
 
 1. 사용자가 정한 새 goal, 완료 장면, 범위와 하지 않을 것을 먼저 고정한다. 새 Workspace id나 goal을 안전하게 추론할 수 없거나 검증 기준·source 권위의 선택이 결과를 바꾼다면 관련 write 전에 사용자에게 묻는다.
-2. 현재 Project context와 새 goal에 실제로 이어지는 predecessor의 current, 선택된 output, 정확한 source와 필요한 record만 확인한다. 관련 이유가 없는 다른 Workspace를 넓게 탐색하지 않는다.
+2. `context/project/README.md`에서 Project의 `common/current/guidance` 물리 layer와 `decisions`의 관계를 찾고, 관련 layer README에서 새 goal의 판단을 바꾸는 실제 문서를 선택한다. Root와 layer README 자체를 충분한 내용 payload로 보지 않으며, guidance는 적용 조건이 맞을 때만 고른다. 그 뒤 새 goal에 실제로 이어지는 predecessor의 current, 선택된 output, 정확한 source와 필요한 record만 확인하며 관련 이유가 없는 다른 Workspace를 넓게 탐색하지 않는다.
 3. 후보마다 그것을 모르면 새 goal, 계속 지킬 제약, 첫 판단, 현재 산출물의 의미 또는 다음 행동이 달라지는지 판단한다. 지금도 유효한지, 원문을 직접 다시 읽어야 하는지, 실제 canonical과 Owner가 어디인지 함께 확인한다.
-4. 다음 재진입에 계속 적용되는 의미는 링크로 대신하지 않고 새 Workspace의 적절한 current Owner에 직접 서술한다. Goal에 관한 의미는 goal에, 계속 지킬 제약은 constraints에, 현재 열린 판단과 다음 행동은 사람용 state에 둔다.
+4. 다음 재진입에 계속 적용되는 의미는 링크로 대신하지 않고 새 Workspace의 적절한 current Owner에 직접 서술한다. [Spec과 Ticket](SPEC-AND-TICKETS.md)에 따라 Work당 하나의 Spec을 다섯 파일로 구성한다. Work의 결과·공통 계약·품질 기준·제약과 공통 설계는 Spec에, 이번 실행의 결과·범위·맥락·설계·확인 방법과 진행·실제 결과는 필요한 Ticket에, 전체 상황과 다음 행동은 사람용 state에 둔다. Spec의 각 관점을 조사·논의로 구체화하되 미정 부분은 가정·열린 판단으로 드러내고 근거 없이 채우지 않는다. Ticket이 아직 없으면 색인에 없다고 적고 빈 작업을 만들어 채우지 않는다. 초기 구성은 Main/생성 skill이 맡고 이후 문서 유지에는 Spec·Ticket의 Main·Maintain 관계를 적용한다.
 5. 원문 전체가 기본 current에는 불필요하지만 특정 판단 전에 직접 읽어야 한다면 `source/index.md`에 원래 canonical과 provenance를 선택한다. Recover가 읽는 current에도 exact canonical 경로나 직접 링크, 문서의 역할, 필요한 이유와 읽을 시점을 함께 남긴다. Source나 current의 링크만으로 필수 재진입 의미 자체를 대신하지 않는다.
 6. Predecessor만 소유하는 당시 선택 이유나 상세 과정은 복제하지 않고 exact output·record·source를 단방향으로 가리킨다. 관련 있어도 새 goal의 판단과 행동을 바꾸지 않는 과거 상태, 세부 과정, 후보와 실행 기록은 predecessor에 그대로 둔다.
 7. 과거의 특정 범주가 successor에도 계속 적용된다고 오해할 가능성이 있고 그 오해가 현재 판단을 바꾼다면, 빠진 파일을 전부 열거하지 않고 그 범주와 지금 적용하지 않는 이유·현재 영향만 successor current에 적는다. 선택·제외 판단을 나중에 재검토할 필요가 있으면 새 Workspace record에 남긴다.
-8. [`Workspace 내부 경계`](README.md#workspace-내부-경계)에 맞춰 사람용 진입점, machine identity와 Recover·Verify 계약, current·source·output·records를 완성한다. 기존 Workspace의 파일이나 값을 통째로 복제하지 않고, live schema와 새 goal에 맞는 Project context·검증 claim·evidence·상태를 각각 구성한다. 아직 제품 Verify를 실행하지 않았다면 machine status는 receipt나 성공을 가장하지 않는다.
+8. [`Workspace 내부 경계`](README.md#workspace-내부-경계)에 맞춰 사람용 진입점, machine identity와 Recover·Verify 계약, current·source·output·records를 완성한다. 기존 Workspace의 파일이나 값을 통째로 복제하지 않고, live schema와 새 goal에 맞는 root Project routing anchor·실제 layer 문서 선택·검증 claim·evidence·상태를 각각 구성한다. `recover.json`의 Project 선택은 root README와 허용된 `common/`, `current/`, `guidance/`, `decisions/` 경로만 사용한다. 사람용 current는 `workspace.json`의 identity, `recover.json`의 선택, `verify.json`의 실행 계약, `status.json`의 마지막 결과·receipt cursor와 Recover가 계산하는 freshness를 혼동하지 않는다. 아직 제품 Verify를 실행하지 않았다면 machine status는 receipt나 성공을 가장하지 않는다.
 
 ## Workspace 사이의 참조 경계
 
@@ -38,12 +38,16 @@ Repo-local [`create-context-workspace` skill](../../../.agents/skills/create-con
 
 생성한 Workspace를 작업 대상으로 전환하기 전에 predecessor를 보지 못한 새 주체에게 그 Workspace의 explicit bounded Recover packet만 제공하고 다음을 확인한다.
 
-- 현재 goal, 제약, 실제 상태와 다음 판단을 설명할 수 있는가.
+- Spec의 목표·제약·완료 기준, Workspace의 실제 상태와 다음 판단을 설명할 수 있는가. Ticket 색인에서 필요한 실행 본문을 찾을 수 있는가.
 - 이전 작업에서 현재 의미로 이어받은 것과, 계속 적용된다고 오해할 수 있지만 의도적으로 이어받지 않은 범주를 구분할 수 있는가.
 - 추가 원문이 필요하다면 exact 접근점, 역할, 이유와 어느 판단 전에 읽을지를 알 수 있는가.
+- Project routing anchor 밖에서 이 goal에 필요한 `common` 제품 의미, `current` 지원 경계, 적용 조건이 맞는 `guidance`와 현재 판단에 영향을 주는 Decision을 설명할 실제 선택 문서와 이유가 있는가.
+- Current와 output의 local target이 존재하며, label·주변 설명이 말하는 실제 Owner를 가리키는가.
 - Predecessor 전체를 다시 Recover하거나 연쇄적으로 거슬러 올라가지 않고 첫 행동을 시작할 수 있는가.
 
-가능하면 생성자의 warm 이해를 공유하지 않는 별도 주체가 검토한다. 별도 주체를 사용할 수 없으면 생성자가 packet 밖 자료를 다시 열지 않고 같은 질문을 점검하되 더 약한 증거임을 밝힌다. 부족하면 Recover가 과거를 더 읽게 하지 않고 successor의 current와 source 선택을 보완한다. 파일 존재와 schema validation만으로 의미 충분성을 통과했다고 주장하지 않는다.
+가능하면 생성자의 warm 이해를 공유하지 않는 별도 주체가 검토한다. 별도 주체를 사용할 수 없으면 생성자가 packet 밖 자료를 다시 열지 않고 같은 질문을 점검하되 더 약한 증거임을 밝힌다. 부족하면 Recover가 과거를 더 읽게 하지 않고 successor의 current와 Project·source 선택을 보완한다. 파일 존재와 schema validation만으로 의미 충분성이나 semantic target을 통과했다고 주장하지 않는다.
+
+새 Workspace 생성과 함께 Project 문서의 path·책임·authority도 바꿨다면 [`Workspace collection 계약`](README.md#project-context-변경과-live-consumer)의 영향을 받는 live consumer를 함께 reconcile한다. 단순 Workspace 생성만으로 Project 전체 consumer scan을 요구하지 않는다.
 
 ## 생성과 활성화 경계
 

@@ -1,0 +1,127 @@
+{
+  "checked_at": "2026-09-10T03:57:29.055650+00:00",
+  "workspace_id": "001-noline-context-harness-application",
+  "verify_result": {
+    "finished_at": "2026-09-10T03:56:11.188Z",
+    "receipt": "workspaces/001-noline-context-harness-application/records/receipts/verify/verify-20260910T035611188866Z-b0ce311e32474001a7ec5423c0f58869.json",
+    "result": "pass",
+    "schema_version": 3,
+    "status": "verification_passed",
+    "workspace_id": "001-noline-context-harness-application"
+  },
+  "explicit_freshness": {
+    "status": "fresh",
+    "snapshot_file_count": 122,
+    "changed_file_count": 0,
+    "missing_file_count": 0,
+    "unavailable_file_count": 0
+  },
+  "default_freshness": {
+    "status": "fresh",
+    "snapshot_file_count": 122,
+    "changed_file_count": 0,
+    "missing_file_count": 0,
+    "unavailable_file_count": 0
+  },
+  "identical_loaded_context": true,
+  "loaded_context_paths": [
+    {
+      "path_base": "work_root",
+      "path": "workspaces/001-noline-context-harness-application/current/memory/index.md"
+    },
+    {
+      "path_base": "work_root",
+      "path": "workspaces/001-noline-context-harness-application/current/memory/spec/01-problem-goal-scope.md"
+    },
+    {
+      "path_base": "work_root",
+      "path": "workspaces/001-noline-context-harness-application/current/memory/spec/02-behavior-and-cases.md"
+    },
+    {
+      "path_base": "work_root",
+      "path": "workspaces/001-noline-context-harness-application/current/memory/spec/03-concepts-and-contracts.md"
+    },
+    {
+      "path_base": "work_root",
+      "path": "workspaces/001-noline-context-harness-application/current/memory/spec/04-quality-and-completion.md"
+    },
+    {
+      "path_base": "work_root",
+      "path": "workspaces/001-noline-context-harness-application/current/memory/spec/05-constraints-design-assumptions.md"
+    },
+    {
+      "path_base": "work_root",
+      "path": "workspaces/001-noline-context-harness-application/current/memory/project-context.md"
+    },
+    {
+      "path_base": "work_root",
+      "path": "workspaces/001-noline-context-harness-application/current/memory/tickets/index.md"
+    },
+    {
+      "path_base": "work_root",
+      "path": "workspaces/001-noline-context-harness-application/current/state/index.md"
+    },
+    {
+      "path_base": "work_root",
+      "path": "workspaces/001-noline-context-harness-application/current/state/status.json"
+    },
+    {
+      "path_base": "work_root",
+      "path": "workspaces/001-noline-context-harness-application/output/index.md"
+    },
+    {
+      "path_base": "project_root",
+      "path": "context/project/README.md"
+    },
+    {
+      "path_base": "project_root",
+      "path": "context/project/common/product.md"
+    },
+    {
+      "path_base": "project_root",
+      "path": "context/project/current/architecture.md"
+    },
+    {
+      "path_base": "project_root",
+      "path": "context/project/decisions/0001-selective-local-first.md"
+    }
+  ],
+  "explicit_control_paths": [
+    {
+      "path_base": "work_root",
+      "path": "workspaces/001-noline-context-harness-application/workspace.json"
+    },
+    {
+      "path_base": "work_root",
+      "path": "workspaces/001-noline-context-harness-application/recover.json"
+    },
+    {
+      "path_base": "work_root",
+      "path": "workspaces/001-noline-context-harness-application/records/receipts/verify/verify-20260910T035611188866Z-b0ce311e32474001a7ec5423c0f58869.json"
+    }
+  ],
+  "default_control_paths": [
+    {
+      "path_base": "work_root",
+      "path": "workspaces/index.json"
+    },
+    {
+      "path_base": "work_root",
+      "path": "workspaces/001-noline-context-harness-application/workspace.json"
+    },
+    {
+      "path_base": "work_root",
+      "path": "workspaces/001-noline-context-harness-application/recover.json"
+    },
+    {
+      "path_base": "work_root",
+      "path": "workspaces/001-noline-context-harness-application/records/receipts/verify/verify-20260910T035611188866Z-b0ce311e32474001a7ec5423c0f58869.json"
+    }
+  ],
+  "head_preserved": true,
+  "git_index_preserved": true,
+  "staged_paths": [],
+  "host_runtime_directories_absent": true,
+  "maintain_state": "activation_pending",
+  "proof_ceiling": "선언된 122개 regular snapshot의 현재 일치. Directory/symlink topology·새 입력 탐지·사람용 current 최신성·제품/host acceptance를 freshness로 증명하지 않는다."
+}

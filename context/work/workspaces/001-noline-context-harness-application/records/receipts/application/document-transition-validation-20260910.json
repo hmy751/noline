@@ -1,0 +1,75 @@
+{
+  "baseline_path_count": 609,
+  "preserved_unowned_count": 591,
+  "unexpected_changed": [],
+  "index_unchanged": true,
+  "preflight_copy_equal": true,
+  "live_consumers": [
+    "001-noline-context-harness-application"
+  ],
+  "runtime_directories_absent": true,
+  "loaded_context_count": 15,
+  "explicit_default_differences": [
+    "/control_paths"
+  ],
+  "link_count": 112,
+  "bad_links": [],
+  "regular_reads": 110,
+  "declared_paths": 122,
+  "missing_input_paths": [],
+  "residue_hit_paths": [
+    "context/work/workspaces/001-noline-context-harness-application/records/2026-09-10-01-document-transition.md",
+    "context/work/workspaces/001-noline-context-harness-application/records/receipts/application/document-transition-manifest-20260910.json",
+    "context/work/workspaces/001-noline-context-harness-application/records/receipts/application/input-closure-20260909.json",
+    "context/work/workspaces/001-noline-context-harness-application/records/receipts/application/paths-20260909.json",
+    "context/work/workspaces/001-noline-context-harness-application/records/receipts/preflight/preflight-20260904T063925299573Z-5699b5a055b146d8982a903e39c15c2b.json",
+    "context/work/workspaces/001-noline-context-harness-application/records/receipts/preflight/preflight-20260910T034554982054Z-ea1d544844714f7bafca4c45e01d5ad3.json",
+    "context/work/workspaces/001-noline-context-harness-application/records/receipts/verify/verify-20260909T143334748605Z-8e8696ffe7494c0982d28b66308c7cad.json",
+    "context/work/workspaces/001-noline-context-harness-application/records/receipts/verify/verify-20260909T143716897941Z-2d60fcb1b6514187b9d6455713ff37a2.json",
+    "context/work/workspaces/001-noline-context-harness-application/records/receipts/verify/verify-20260909T143800753938Z-1253979b56b74e5b95144fb136861b08.json",
+    "context/work/workspaces/001-noline-context-harness-application/source/prior-memory/03-project-context.md.txt"
+  ],
+  "residue_exact_allowlist": [
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/2026-09-10-01-document-transition.md",
+      "reason": "이번 삭제 대상과 Git 원문 보존을 명시한 전환 기록"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/application/document-transition-manifest-20260910.json",
+      "reason": "과거 또는 이번 시점의 exact path·snapshot을 보존한 machine provenance"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/application/input-closure-20260909.json",
+      "reason": "과거 또는 이번 시점의 exact path·snapshot을 보존한 machine provenance"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/application/paths-20260909.json",
+      "reason": "과거 또는 이번 시점의 exact path·snapshot을 보존한 machine provenance"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/preflight/preflight-20260904T063925299573Z-5699b5a055b146d8982a903e39c15c2b.json",
+      "reason": "과거 또는 이번 시점의 exact path·snapshot을 보존한 machine provenance"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/preflight/preflight-20260910T034554982054Z-ea1d544844714f7bafca4c45e01d5ad3.json",
+      "reason": "과거 또는 이번 시점의 exact path·snapshot을 보존한 machine provenance"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/verify/verify-20260909T143334748605Z-8e8696ffe7494c0982d28b66308c7cad.json",
+      "reason": "과거 또는 이번 시점의 exact path·snapshot을 보존한 machine provenance"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/verify/verify-20260909T143716897941Z-2d60fcb1b6514187b9d6455713ff37a2.json",
+      "reason": "과거 또는 이번 시점의 exact path·snapshot을 보존한 machine provenance"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/verify/verify-20260909T143800753938Z-1253979b56b74e5b95144fb136861b08.json",
+      "reason": "과거 또는 이번 시점의 exact path·snapshot을 보존한 machine provenance"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/source/prior-memory/03-project-context.md.txt",
+      "reason": "원문 snapshot의 이전 선택 경로; 현재 소비하지 않는 source"
+    }
+  ],
+  "unallowed_residue_paths": []
+}

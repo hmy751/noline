@@ -1,0 +1,6 @@
+interface:
+  display_name: "Project 맥락 갱신"
+  short_description: "작업에서 얻은 지속 맥락과 열린 판단을 Project 문서에 반영"
+  default_prompt: "$update-project-context를 사용해 현재 작업의 근거와 기존 Project 문서를 확인하고, 다음 작업에도 필요한 맥락과 열린 판단을 해당 책임 층에 반영해줘."
+policy:
+  allow_implicit_invocation: true

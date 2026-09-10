@@ -1,0 +1,248 @@
+{
+  "source_input": {
+    "source_root": "/Users/hammyeong-yeon/Desktop/context-harness",
+    "source_commit": "87d21023f6acd8ae709322d48da9851594f9acb0",
+    "reference_dirty": true,
+    "authorization": "User requested source layout changes, then explicitly requested reapplication: 재적용까지해",
+    "files": {
+      ".agents/skills/apply-context-harness/SKILL.md": "dbbe31c08b57f5117d4a2b3053ff818cf8e3e0ef44add2d1ec13c12253f4611c",
+      ".agents/skills/apply-context-harness/references/application-contract.md": "85884f8c2b549a307da1d3ee4c067294e08b6524a3ba82addfc7cd16d3266037",
+      "reference-project/.agents/skills/README.md": "e9c2f9c21497c39468371ddb53b2b5e8993a60230d2c2394012f42cd33e617c3",
+      "reference-project/.agents/skills/update-project-context/SKILL.md": "8e005fc4a59775ba6c0604a993f6489da27d5c20f2b8b5f2304548154965e00c",
+      "reference-project/AGENTS.md": "9a4daa850bf714410d90d06d031e1c8982cd9dc3e25da35cc3091b1daedcfbb1",
+      "reference-project/README.md": "c5496c4e0735d70830d1548274bc9720b825a7a65e42e9e1ede15cc58f4d387d",
+      "reference-project/context/README.md": "625114b0133ec98628b556f8629e4993662f719d85a189763ea25d0111db74e0",
+      "reference-project/context/project/MAINTENANCE.md": "8e18abd443468d211d4b6d2a3f055e64e4e3e90145833904e035b114872f0223",
+      "reference-project/context/project/README.md": "3318e59fae036290fa9f27d03ba16a2024a19bf2fc970cb900f9dc60d39089f7",
+      "reference-project/context/work/AGENTS.md": "e9cd375f3bca0e2ceb9107233ad3074a24abbb70e434033fdf89826aa7882473",
+      "reference-project/context/work/workspaces/README.md": "97f4e21b78d19157553420bf7d5c4be916dc8664cf378c4de36c019b202b2d2e"
+    },
+    "diff": "source.diff"
+  },
+  "source_snapshot_sha256": {
+    "source-input.json": "98191714595956d525f59da1968d5e41078242914d75af35bb8dae125d7ad4c5",
+    "source.diff": "52c387251da63e44e5bde3099d3a5bd6e3711bc86dba47e98a808f01761c0008"
+  },
+  "baseline_receipt": "/private/tmp/preflight-20260910T054516807467Z-d32ad76ba356495c8e2333e377e42c01.json",
+  "baseline_paths": 618,
+  "scope": "Project README·관리 계약 배치와 이식·갱신 읽기 경로, 직접 target 기록·정합성",
+  "changes": [
+    {
+      "path": "context/project/README.md",
+      "action": "modify",
+      "before_sha256": "fea530ae3f4982aa60824233d4de73468223ea375111c7ce1647ebd8c7b66f66"
+    },
+    {
+      "path": "context/project/MAINTENANCE.md",
+      "action": "add",
+      "before_sha256": null
+    },
+    {
+      "path": "CLAUDE.md",
+      "action": "modify",
+      "before_sha256": "3b2eb7a7ab8dca3213b09d793a21dfa006ae8cc7c88a1442bb46c914b1b0d378"
+    },
+    {
+      "path": "context/README.md",
+      "action": "modify",
+      "before_sha256": "bbf2e7ad6b470769ba4bc64afe677aa88a5ff7cc0ff46688f200a81e496086ed"
+    },
+    {
+      "path": "context/work/AGENTS.md",
+      "action": "modify",
+      "before_sha256": "8b2f89f42a4f0b3d8f1eeb95e30c7f9c3b3b239d01bb7bfdea59c6b4ebde128c"
+    },
+    {
+      "path": "context/work/workspaces/README.md",
+      "action": "modify",
+      "before_sha256": "c87570fc940a39681c78fa9a083e22ca6d69dc16dc6b9e37d63e764bb7dedd68"
+    },
+    {
+      "path": ".claude/skills/README.md",
+      "action": "modify",
+      "before_sha256": "59f3dcd434ab7aa478c928728331af1375ec38c8847d3abce148b8bf4a0b2ce9"
+    },
+    {
+      "path": ".claude/skills/update-project-context/SKILL.md",
+      "action": "modify",
+      "before_sha256": "69516d33c0c03e963333bb1b20a80ca67f1aac4291db4897790e9645d2dd4856"
+    },
+    {
+      "path": ".claude/decisions/2026-09-09-context-harness-upgrade.md",
+      "action": "modify",
+      "before_sha256": "8f0936d500273f50ded7a85c71b486c4e5efe2580098534fb6a07885d97b8b8f"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/project-context.md",
+      "action": "modify",
+      "before_sha256": "58a592040d201ca69fc003812d8f443e2b8528d8988da0db38fb2733e5bcc5a1"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/recover.json",
+      "action": "modify",
+      "before_sha256": "8eb5b620b6b1926193406badf948a2ea2219817b0b1e448bebdfa69255f0f2fd"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/tickets/index.md",
+      "action": "modify",
+      "before_sha256": "55b2a70f09d76f807d651de6b5b5a29fb36d1db19bece3dcf114c0e817e883c1"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/tickets/003-project-management-contract.md",
+      "action": "add",
+      "before_sha256": null
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/state/index.md",
+      "action": "modify",
+      "before_sha256": "a329104aa73b5b1d5fb49270f456360ff9642ca51b6dd564983174b57e1786bd"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/output/index.md",
+      "action": "modify",
+      "before_sha256": "49eb04c7f62fa75a6fdcc4aded1aaedbb6c028dbd5d3783592fbd30b2e74f3a6"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/README.md",
+      "action": "modify",
+      "before_sha256": "8874d339d10da8f650b267947493372d37d56fa3346ff0fc1ce63df2c6e9b75e"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/2026-09-10-02-project-management-contract.md",
+      "action": "add",
+      "before_sha256": null
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/verify.json",
+      "action": "modify",
+      "before_sha256": "7905a5eda85ddaa36dabbafc0bc8d24b0d9456b8e270d0b92236a5cda99f3d9b"
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/preflight/preflight-20260910T054516807467Z-d32ad76ba356495c8e2333e377e42c01.json",
+      "action": "add",
+      "before_sha256": null
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/application/project-management-reapplication-20260910/source-input.json",
+      "action": "add",
+      "before_sha256": null
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/application/project-management-reapplication-20260910/source.diff",
+      "action": "add",
+      "before_sha256": null
+    }
+  ],
+  "source_owner_mapping": [
+    {
+      "source": "reference-project/context/project/README.md",
+      "target": "context/project/README.md",
+      "action": "adapt",
+      "reason": "Noline layer·실제 Owner 보존, 관리 기준·이식 결과는 해당 Owner로 분리"
+    },
+    {
+      "source": "reference-project/context/project/MAINTENANCE.md",
+      "target": "context/project/MAINTENANCE.md",
+      "action": "install",
+      "reason": "관리 주체가 직접 읽을 기준; source bytes 동일"
+    },
+    {
+      "source": "reference-project/README.md + reference-project/AGENTS.md",
+      "target": "CLAUDE.md + context/README.md",
+      "action": "adapt",
+      "reason": "Noline root 제품 README는 유지, 기존 관리 진입점에 routing"
+    },
+    {
+      "source": "reference-project/context/README.md",
+      "target": "context/README.md",
+      "action": "adapt",
+      "reason": "Project 관리 계약 읽기 조건"
+    },
+    {
+      "source": "reference-project/context/work/AGENTS.md",
+      "target": "context/work/AGENTS.md",
+      "action": "adapt",
+      "reason": "제품본문과 context 관리 기준 구분, 기존 Noline 운영 규칙 유지"
+    },
+    {
+      "source": "reference-project/context/work/workspaces/README.md",
+      "target": "context/work/workspaces/README.md",
+      "action": "adapt",
+      "reason": "Project 구조·권위와 관리 계약의 읽기 경로 구분"
+    },
+    {
+      "source": "reference-project/.agents/skills/README.md",
+      "target": ".claude/skills/README.md",
+      "action": "adapt",
+      "reason": "Noline 원본·bridge 색인 유지, 관리 계약 링크만 갱신"
+    },
+    {
+      "source": "reference-project/.agents/skills/update-project-context/SKILL.md",
+      "target": ".claude/skills/update-project-context/SKILL.md",
+      "action": "adapt",
+      "reason": "Source bytes 동일, Noline 원본 경로와 기존 bridge 유지"
+    },
+    {
+      "source": "이식 skill 2개 파일",
+      "target": "target에 설치하지 않음",
+      "action": "apply",
+      "reason": "이번 적용 절차의 입력이며 target runtime payload가 아님"
+    }
+  ],
+  "preserved": [
+    "common/current/guidance와 제품 Decision 본문",
+    "기존 상세 .claude/context/rules/guards/runbooks",
+    "제품 코드",
+    "다른 Reference skill 5개·공통 기준·도구 연결·호출 설정",
+    "runtime·tests·host config·wrappers",
+    "이전 source/records/receipts",
+    "사용자 미커밋 변경",
+    "active id와 Recover 선택 목록"
+  ],
+  "live_consumers": [
+    "001-noline-context-harness-application"
+  ],
+  "maintain_state": "activation_pending",
+  "runtime_directories_exist": false,
+  "recover_change": "anchor 선택 이유만 갱신; MAINTENANCE 미포함, default 목록 유지",
+  "verify_change": "schema·claim·basis·argv·timeout 유지; 새 Markdown 3개를 evidence에 추가",
+  "source_sample_residue_terms": [
+    "001-default-timeout",
+    "0001-default-timeout",
+    "common/prd.md",
+    "../../src/",
+    "../../tests/"
+  ],
+  "validation": [
+    "source 11개 hash",
+    "기준 본문 보존·Main 의미 검토",
+    "Markdown lexical/resolved link·semantic target",
+    "update skill 원본·frontmatter·호출 설정·bridge·root routing",
+    "live explicit/default Recover",
+    "새 관리 계약 미포함",
+    "regular read closure",
+    "기존 파일·index 보호",
+    "구조 Verify·후속 Recover"
+  ],
+  "excluded": [
+    "full Harness tests",
+    "새 독립 review",
+    "host activation",
+    "stage·commit",
+    "제품 리팩토링·acceptance",
+    "새 Workspace·완료 전이"
+  ],
+  "proof_ceiling": "정적 문서·관리 경로·선언 snapshot. 실제 host discovery·invocation·문서 유지와 제품 기능·사람 acceptance는 미확인.",
+  "result_artifacts": [
+    "context/work/workspaces/001-noline-context-harness-application/records/receipts/application/project-management-reapplication-20260910/final-recover.json",
+    "context/work/workspaces/001-noline-context-harness-application/records/receipts/application/project-management-reapplication-20260910/input-closure.json",
+    "context/work/workspaces/001-noline-context-harness-application/records/receipts/application/project-management-reapplication-20260910/links.json",
+    "context/work/workspaces/001-noline-context-harness-application/records/receipts/application/project-management-reapplication-20260910/manifest.json",
+    "context/work/workspaces/001-noline-context-harness-application/records/receipts/application/project-management-reapplication-20260910/source-input.json",
+    "context/work/workspaces/001-noline-context-harness-application/records/receipts/application/project-management-reapplication-20260910/source.diff",
+    "context/work/workspaces/001-noline-context-harness-application/records/receipts/application/project-management-reapplication-20260910/validation.json",
+    "context/work/workspaces/001-noline-context-harness-application/current/state/status.json",
+    "context/work/workspaces/001-noline-context-harness-application/records/receipts/verify/verify-20260910T055624834459Z-835ff0c90b444b908d8943a3d23d2196.json"
+  ],
+  "main_review": "Main은 실제 target README의 Noline layer·상세 Owner, 관리 계약·갱신 skill의 승인 Source bytes와 bridge·routing을 대조했다. 별도로 baseline 602개 경로와 Git index SHA-256을 확인했고 현 범위에서 추가 수정 의견은 없었다."
+}

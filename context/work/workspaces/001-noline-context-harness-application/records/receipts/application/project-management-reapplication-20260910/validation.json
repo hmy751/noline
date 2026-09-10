@@ -1,0 +1,71 @@
+{
+  "baseline_path_count": 618,
+  "preserved_unowned_count": 602,
+  "unexpected_changed": [],
+  "index_unchanged": true,
+  "preflight_copy_equal": true,
+  "source_hashes_match": {
+    ".agents/skills/apply-context-harness/SKILL.md": true,
+    ".agents/skills/apply-context-harness/references/application-contract.md": true,
+    "reference-project/.agents/skills/README.md": true,
+    "reference-project/.agents/skills/update-project-context/SKILL.md": true,
+    "reference-project/AGENTS.md": true,
+    "reference-project/README.md": true,
+    "reference-project/context/README.md": true,
+    "reference-project/context/project/MAINTENANCE.md": true,
+    "reference-project/context/project/README.md": true,
+    "reference-project/context/work/AGENTS.md": true,
+    "reference-project/context/work/workspaces/README.md": true
+  },
+  "source_snapshot_copies_equal": {
+    "source-input.json": true,
+    "source.diff": true
+  },
+  "target_source_bytes_equal": {
+    "context/project/MAINTENANCE.md": true,
+    ".claude/skills/update-project-context/SKILL.md": true
+  },
+  "management_section_ownership": {
+    "## 내용 복원 완료 조건": true,
+    "## 갱신 시점과 관리 장치": true
+  },
+  "management_text_preserved": true,
+  "application_result_removed_from_readme": true,
+  "skill_static": {
+    "frontmatter_name": true,
+    "description": true,
+    "bridge_same_source": true,
+    "bridge_relative_target": "../../.claude/skills/update-project-context",
+    "invocation_file_preserved": true
+  },
+  "live_consumers": [
+    "001-noline-context-harness-application"
+  ],
+  "runtime_directories_absent": true,
+  "loaded_context_count": 15,
+  "same_explicit_default_context": true,
+  "project_selected": [
+    "context/project/README.md",
+    "context/project/common/product.md",
+    "context/project/current/architecture.md",
+    "context/project/decisions/0001-selective-local-first.md"
+  ],
+  "management_not_loaded_by_recover": true,
+  "link_count": 226,
+  "bad_links": [],
+  "regular_read_count": 113,
+  "declared_input_count": 125,
+  "undeclared_regular_reads": [],
+  "source_sample_hits": [],
+  "stale_management_owner_hits": [],
+  "provenance_allowlist": [
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/application/project-management-reapplication-20260910/source.diff",
+      "reason": "승인된 Source diff exact copy는 sample Project 배치와 이전 README 본문을 원자료로 보존한다."
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/application/project-management-reapplication-20260910/source-input.json",
+      "reason": "승인 판본의 source root·paths·hash를 그대로 보존한다."
+    }
+  ]
+}

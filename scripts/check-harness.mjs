@@ -15,7 +15,7 @@ const expectedExecutionAgents = [
   'noline-harness-observer',
   'noline-policy-checker',
 ];
-const expectedSkills = ['create-context-workspace', 'noline-work'];
+const expectedSkills = ['noline-work', 'create-context-workspace', 'update-project-context', 'work-discussion', 'reconsider-work', 'work-artifact-briefing', 'explanation-recovery'];
 
 function checkSymlink(linkPath, expectedTarget) {
   const absolute = path.join(root, linkPath);
@@ -125,9 +125,9 @@ function checkOnlyEntries(target, required, allowed = required) {
 }
 
 function checkExecutionSurfaces() {
-  checkOnlyEntries('.claude/skills', expectedSkills);
+  checkOnlyEntries('.claude/skills', [...expectedSkills, 'README.md']);
   checkOnlyEntries('.agents', ['skills']);
-  checkOnlyEntries('.agents/skills', expectedSkills);
+  checkOnlyEntries('.agents/skills', [...expectedSkills, 'README.md']);
   checkOnlyEntries('.claude/agents', expectedExecutionAgents.map((agent) => `${agent}.md`));
   checkOnlyEntries(
     '.codex',
@@ -136,8 +136,9 @@ function checkExecutionSurfaces() {
   );
   checkOnlyEntries('.codex/agents', expectedExecutionAgents.map((agent) => `${agent}.toml`));
 
-  checkSymlink('.agents/skills/noline-work', '../../.claude/skills/noline-work');
-  checkSymlink('.agents/skills/create-context-workspace', '../../.claude/skills/create-context-workspace');
+  for (const name of expectedSkills) {
+    checkSymlink(`.agents/skills/${name}`, `../../.claude/skills/${name}`);
+  }
 
   const skillPath = path.join(root, '.claude/skills/noline-work/SKILL.md');
   if (!fs.existsSync(skillPath)) {
@@ -177,10 +178,14 @@ function checkContextHarnessSurface() {
   const required = [
     'context/README.md',
     'context/project/README.md',
-    'context/project/overview.md',
+    'context/project/common/README.md',
+    'context/project/current/README.md',
+    'context/project/guidance/README.md',
+    'context/project/decisions/README.md',
     'context/work/README.md',
     'context/work/workspaces/README.md',
     'context/work/workspaces/CREATE-AND-TRANSITION.md',
+    'context/work/workspaces/SPEC-AND-TICKETS.md',
     'context/work/harness/README.md',
     '.codex/config.toml',
     '.codex/hooks.json',
@@ -294,7 +299,8 @@ checkContextHarnessSurface();
 checkWorkspaceGuideContract();
 checkRootPlans();
 checkMarkdownLinks();
-checkGitDiffWhitespace();
+// Durable Verify snapshots regular inputs; Git/index whitespace is checked by the default run.
+if (!process.argv.includes('--no-git-diff')) checkGitDiffWhitespace();
 
 if (failures.length > 0) {
   console.error(`Harness check failed with ${failures.length} issue(s):`);
