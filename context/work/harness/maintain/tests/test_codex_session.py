@@ -203,6 +203,8 @@ class CodexMaintainSessionTests(unittest.TestCase):
         self.assertIn("RESPONSE_DELTA_MARKER", prompt)
         self.assertIn("read-only local inspection", prompt)
         self.assertIn("relevant existing Context Owner", prompt)
+        self.assertIn("current/ for documents that directly repeat", prompt)
+        self.assertIn("`기록해 달라`는 요청만으로 그 원문을 current에 옮기지 않는다", prompt)
         self.assertIn("Do not explore other Workspaces", prompt)
         self.assertIn("Do not write files", prompt)
 
