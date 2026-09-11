@@ -1,6 +1,6 @@
 # 현재 제품 산출물
 
-완료된 01·02번 Ticket의 제품 코드 위치다. 코드는 Project의 canonical 위치에 유지한다.
+완료된 01·02·04번 Ticket의 제품 코드 위치다. 코드는 Project의 canonical 위치에 유지한다.
 
 - [currency.ts](../../../../../apps/client/src/shared/lib/currency.ts): `getCurrencyFractionDigits`로 통화별 소수 자릿수 규칙을 모았다.
 - [ExpensesScreen.tsx](../../../../../apps/client/src/screens/ExpensesScreen.tsx): 자릿수 규칙을 사용하고 `isFirstCurrencyGroup` 판단을 강조와 ‘주 통화’ 라벨에서 공유한다.
@@ -13,3 +13,10 @@ Main은 사용자 요청에 따라 커밋을 마무리하고 메시지를 `refac
 01번의 수락은 전체 Work 완료를 뜻하지 않는다. 작업 정의는 [현재 Spec](../current/memory/index.md)이 소유한다.
 
 02번의 변경 전후 fixture·독립 verifier 결과와 미확인 범위는 [02번 Ticket](../current/memory/tickets/02-city-search.md)이 소유한다. 사용자는 실제 GeoNames 연결과 전체 앱 화면 미확인, 영구 테스트 부재를 포함한 결과를 확인하고 수락했다. 02번의 완료도 전체 Work 완료를 뜻하지 않는다.
+
+## 04 — 경비 API 흐름
+
+- [expenses.ts](../../../../../apps/client/src/entities/expense/api/expenses.ts): 재전파 catch·진단 출력·반복 주석을 없애고 요청 검증·HTTP·응답 검증·반환 순서를 직접 보여 준다.
+- [expenses.test.ts](../../../../../apps/client/tests/entities/expense/api/expenses.test.ts): 다섯 remote export의 정상 흐름·검증 실패·오류 전달·HTTP 횟수를 고정한다.
+
+변경 전후 동일한 8개 검사가 통과했다. 실제 네트워크·Axios interceptor·React Native 화면은 실행하지 않았으며, 정규 ESLint와 client 전체 타입 검사의 기존 실패를 새 회귀로 덮지 않았다. 상세 근거와 사용자 수락 범위는 [04번 Ticket](../current/memory/tickets/04-expense-api.md)이 소유한다.
