@@ -6,7 +6,7 @@
 - [현재 상태와 다음 행동](current/state/index.md)
 - [원자료](source/index.md), [제품 산출물](output/index.md), [기록](records/README.md)
 
-**현재는 Workspace 구성 단계다. 제품 구현은 시작하지 않았고 실행 Ticket도 없다.** 다음 논의에서는 이름·조건식·변환·로그·타입 표현 중 좁은 첫 대상을 고른다.
+현재 작업 단계와 다음 행동은 [state](current/state/index.md), 작업 범위와 진행 방식은 [Spec](current/memory/spec/05-constraints-design-assumptions.md), 실행 후보는 [Ticket 색인](current/memory/tickets/index.md)에서 확인한다. 합의의 이유와 과정은 [기록](records/README.md)에 남긴다.
 
 같은 분석에서 [버그 확인·수정 Work](../003-bug-investigation-and-fixes/README.md)를 함께 만들었다. 두 Work는 독립된 Spec과 상태를 가지며 다른 Work의 current를 먼저 복구할 필요가 없다. 버그의 상세 재현 근거만 필요한 시점에 해당 원자료를 선택한다. 기존 `001-noline-context-harness-application`은 Context Harness 이식 작업이며 제품 리팩토링의 predecessor로 간주하지 않는다.
 
@@ -14,4 +14,4 @@
 
 명시적 재진입: `python3 -B -m context.work.harness recover 002-code-readability-refactoring --json`
 
-생성만 수행했으므로 active 기본값과 현재 session binding은 변경하지 않았다. 문서 구성은 activation이나 제품 검증 실행을 뜻하지 않는다.
+초기 생성 당시에는 active 기본값과 session binding을 변경하지 않았다. 이후 session 연결·전환은 [session binding 계약](../../harness/maintain/SESSION-BINDING-AND-LIFECYCLE.md)을 따른다. 문서 구성은 activation이나 제품 검증 실행을 뜻하지 않는다.

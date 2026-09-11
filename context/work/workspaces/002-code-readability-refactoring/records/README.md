@@ -7,4 +7,6 @@
 
 - [분석 보존 검증](2026-09-10-04-analysis-preservation-validation.md): 원문 일치·링크 외 본문 일치와 원래 경로 없는 재진입 확인.
 
+- [Ticket 경계와 진행 방식 합의](2026-09-11-01-ticket-boundary-agreement.md): 개선 관점과 코드 범위의 관계, 질문의 오해와 정정, 범위별 검증·전체 주제 검토의 사용자 채택 및 records 보완 경위.
+
 후속 분석·결정·실행 기록은 이 디렉터리에 날짜별로 남긴다. 원문·변경하지 않은 snapshot은 [source](../source/index.md), 현재 기준과 진행은 [current](../current/memory/index.md)가 소유한다.
