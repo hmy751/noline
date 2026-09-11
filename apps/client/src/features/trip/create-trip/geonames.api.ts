@@ -25,8 +25,33 @@ interface GeonamesResponse {
   geonames: Geoname[];
 }
 
+const CAPITAL_FEATURE_CODE = 'PPLC';
+const CITY_FEATURE_CODES = [CAPITAL_FEATURE_CODE, 'PPLA', 'PPLA2', 'PPL'];
+const MIN_CITY_POPULATION = 10_000;
+
 const fetcher = axios.create({
   baseURL: EXPO_PUBLIC_GEONAMES_API_URL,
+});
+
+const isSearchableCity = (geoname: Geoname): boolean => {
+  if (!geoname.name || !geoname.countryName) {
+    return false;
+  }
+
+  if (!CITY_FEATURE_CODES.includes(geoname.fcode)) {
+    return false;
+  }
+
+  return geoname.fcode === CAPITAL_FEATURE_CODE || geoname.population > MIN_CITY_POPULATION;
+};
+
+const toCity = (geoname: Geoname): City => ({
+  id: geoname.geonameId,
+  name: geoname.name,
+  country: geoname.countryName,
+  countryCode: geoname.countryCode,
+  latitude: parseFloat(geoname.lat),
+  longitude: parseFloat(geoname.lng),
 });
 
 export const searchCities = async (namePrefix: string): Promise<City[]> => {
@@ -38,31 +63,12 @@ export const searchCities = async (namePrefix: string): Promise<City[]> => {
         orderBy: 'population',
         maxRows: 10,
         username: EXPO_PUBLIC_GEONAMES_USERNAME,
-        featureCode: ['PPLC', 'PPLA', 'PPLA2', 'PPL'],
+        featureCode: CITY_FEATURE_CODES,
         style: 'full',
       },
     });
 
-    // API 응답 중 name, country 필드가 비어있지 않은 결과만 필터링
-    const validResults = response.data.geonames.filter((item) => item.name && item.countryName);
-
-    const allowedFCodes = ['PPLC', 'PPLA', 'PPLA2', 'PPL']; // 허용할 도시 등급 목록
-
-    const filteredCities = validResults.filter(
-      (item) =>
-        allowedFCodes.includes(item.fcode) &&
-        // 최소 인구 조건을 추가해 더 확실하게 필터링
-        (item.population > 10000 || item.fcode === 'PPLC'),
-    );
-
-    return filteredCities.map((item) => ({
-      id: item.geonameId,
-      name: item.name,
-      country: item.countryName,
-      countryCode: item.countryCode,
-      latitude: parseFloat(item.lat),
-      longitude: parseFloat(item.lng),
-    }));
+    return response.data.geonames.filter(isSearchableCity).map(toCity);
   } catch (error) {
     console.error('Error searching cities:', error);
     return [];

@@ -1,20 +1,22 @@
 # 현재 상태와 다음 행동
 
-사용자가 [01번 Ticket](../memory/tickets/01-expense-totals.md)의 구현 결과와 검증 한계를 확인하고 수락했다. 01번은 완료됐으며, 제품 변경은 통화별 소수 자릿수 규칙과 경비 합계의 첫 항목 판단을 정리한 두 파일이다. 산출물은 [output](../../output/index.md)에 연결한다.
+[01번 Ticket](../memory/tickets/01-expense-totals.md)은 사용자가 구현 결과와 검증 한계를 확인하고 수락해 완료됐다. 통화별 소수 자릿수 규칙과 경비 합계의 첫 항목 판단을 정리한 제품 파일은 [output](../../output/index.md)에 연결한다.
 
-Main 보고상 변경 전후 fixture의 합산·정렬·빈 목록·표시 결과는 같았고, `1.005`의 반올림 차이도 이번 변경에서 새로 생기지 않았다. `git diff --check`와 Prettier, Prettier 규칙을 제외한 변경 파일 ESLint는 통과했으며 client typecheck에는 변경 전후 같은 기존 오류 3건이 남았다. 정규 ESLint는 기존 Prettier 호환 오류로 완료되지 않았고 실제 React Native 화면 렌더도 실행하지 않았다.
+01번의 Main 보고상 변경 전후 fixture 결과는 같았고 제한된 정적 검사는 통과했다. client의 기존 타입 오류 3건은 남았으며 정규 ESLint는 기존 Prettier 호환 오류로 완료되지 않았다. 실제 React Native 화면 렌더는 실행하지 않았다. 수락은 이 한계를 포함한 01번 범위에 한정된다.
 
-사용자 수락은 위 한계를 포함한 01번 범위에 한정되며 전체 Work 완료를 뜻하지 않는다. 이번 입력에는 제품 Verify receipt가 없으므로 `status.json`을 변경하지 않는다.
+[02번 Ticket](../memory/tickets/02-city-search.md)도 사용자가 구현 결과와 검증 한계를 확인하고 수락해 완료됐다. 요청과 응답 필터가 도시 코드 목록을 공유하고, 필수 필드·수도 예외·인구 기준 판단과 `City` 변환을 같은 API 파일의 이름 있는 책임으로 분리했다. 수정 전후 직접 fixture와 별도 verifier 비교에서 요청 인자, 선별 경계, 순서, 좌표 변환과 실패 반환이 같았다. 실제 GeoNames 연결과 전체 앱 화면은 확인하지 않았으며 영구 테스트 파일은 없다.
+
+제품 Verify receipt는 제공되지 않았다. 개별 보고와 사용자 수락을 전체 Work 완료나 제품 Verify 결과로 확대하지 않는다.
 
 ## 계속 적용할 기준과 남은 범위
 
 코드 범위별 Ticket 안에서 여러 개선 관점을 바텀부터 적용하고 변경 전후 동작 보존과 개선 효과를 각각 확인한다. 실행 접근은 [작업 단위와 진행 방식](../memory/spec/05-constraints-design-assumptions.md), 전체 후보의 확인한 범위와 남은 범위 관리는 [품질·완료 판단](../memory/spec/04-quality-and-completion.md)을 따른다. 채택 원문과 정정 경위는 [합의 기록](../../records/2026-09-11-01-ticket-boundary-agreement.md)에 있다.
 
-[Ticket 색인](../memory/tickets/index.md)의 02–05번은 모두 미착수이며 후속 순서는 확정되지 않았다. [기존 후보](../memory/analysis-items.md)와 [추가 조사·후속 범위](../memory/additional-research.md)도 남아 있다. 다음 실행 범위를 하나 선택해 동작 보존과 개선 효과를 확인한다. 폼 초기화·재진입, picker, 날짜 그룹, 저장 후 처리, 공통 데이터·경로·정리, 완료 상태와 설정 등의 후속 분해를 이어가되 전체 후보 배치를 실행의 일괄 선행 조건으로 두지 않는다.
+03–05번은 미착수이며 후속 순서는 확정되지 않았다. [기존 후보](../memory/analysis-items.md)와 [추가 조사·후속 범위](../memory/additional-research.md)도 남아 있다. 폼 초기화·재진입, picker, 날짜 그룹, 저장 후 처리, 공통 데이터·경로·정리, 완료 상태와 설정 등의 후속 분해를 이어가되 전체 후보 배치를 실행의 일괄 선행 조건으로 두지 않는다.
 
 합산·정렬은 01번에서 보존을 비교한 대상이며 대표 통화의 제품 기준을 확정한 결과가 아니다. sync 재시도 설명과 조건의 충돌도 실제 요청 횟수 확인이 필요한 후보로 유지한다. 직접 걸리는 버그만 기대 동작·수정 범위·선행 관계를 연결한다.
 
-과거 타입·린트 실패와 설치 상태의 한계는 [구성 기록](../../records/2026-09-10-01-workspace-setup.md)에 있다. 01번의 제한된 검사 결과를 전체 client lint 통과나 다른 package의 검증 결과로 확대하지 않는다.
+과거 타입·린트 실패와 설치 상태의 한계는 [구성 기록](../../records/2026-09-10-01-workspace-setup.md)에 있다. 제한된 검사 결과를 전체 client lint 통과나 다른 package의 검증 결과로 확대하지 않는다.
 
 ## 원자료와 운영 경계
 

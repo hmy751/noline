@@ -16,4 +16,10 @@
 
 ## 현재 상태와 실제 결과
 
-2026-09-11 실행 전 초안. Main의 신규 코드·사용처 확인 보고에 근거한다. 외부 API 호출·제품 테스트·제품 수정 결과는 없다. 순서는 Main 제안이다.
+2026-09-11 구현·검증 뒤 사용자가 결과 설명과 검증 한계를 확인하고 수락해 완료했다.
+
+`CAPITAL_FEATURE_CODE`·`CITY_FEATURE_CODES`·`MIN_CITY_POPULATION`으로 기준을 드러내고 요청과 응답 필터가 같은 허용 코드 목록을 사용하게 했다. `isSearchableCity`는 이름·국가명, 허용 코드, 수도 예외 또는 인구 10,000 초과 조건을 판단하고, `toCity`는 GeoNames 필드를 `City` 필드와 숫자 좌표로 변환한다. 공개 `searchCities` 경계와 query hook·화면 consumer는 바꾸지 않았다.
+
+수정 전후 같은 Axios adapter fixture를 `searchCities`에 공급했다. `/searchJSON` 경로와 전체 요청 params, 네 허용 코드와 비허용 코드, 빈 이름·국가명, 인구 10,000과 10,001, 인구 1인 `PPLC`, 응답 순서, 숫자 문자열 좌표, 요청 실패 시 오류 로그 1회와 빈 배열 반환이 같았고 두 실행 모두 assertion과 함께 종료 코드 0이었다. 별도 verifier도 Git HEAD 원본과 변경본을 독립 비교해 `behavior-identical`, 전체 `supported`, actionable issue 없음으로 판정했다.
+
+Prettier, `prettier/prettier` 규칙을 제외한 대상 파일 ESLint와 `git diff --check`는 통과했다. client typecheck는 대상 파일의 새 오류 없이 기존 3건만 재현했다. 정규 ESLint는 기존 `eslint-plugin-prettier`와 Prettier 3 호환 오류로 완료하지 못했다. 실제 Axios 네트워크 직렬화, GeoNames 서비스 가용성, 전체 앱 화면은 확인하지 않았고 영구 테스트 파일이나 새 테스트 의존성은 추가하지 않았다. 외부 응답 런타임 검증과 query hook 오류 정책은 이번 범위에서 변경하지 않았다.
