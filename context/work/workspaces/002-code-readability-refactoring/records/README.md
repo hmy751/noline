@@ -9,4 +9,8 @@
 
 - [Ticket 경계와 진행 방식 합의](2026-09-11-01-ticket-boundary-agreement.md): 개선 관점과 코드 범위의 관계, 질문의 오해와 정정, 범위별 검증·전체 주제 검토의 사용자 채택 및 records 보완 경위.
 
+- [Ticket 03 테스트 전략과 설정 소유 범위](2026-09-11-02-storage-stats-test-strategy.md): 실제 hook 검증을 고른 이유, 대안별 tradeoff, 설정·디렉터리 선택과 monorepo 소유 경계.
+
+- [Ticket 03 테스트 환경 구축 결과](2026-09-11-03-storage-stats-test-setup.md): client 소유 Jest 설정과 확정 버전, smoke 검증 결과, 실행 중 확인한 제약과 아직 입증하지 않은 범위.
+
 후속 분석·결정·실행 기록은 이 디렉터리에 날짜별로 남긴다. 원문·변경하지 않은 snapshot은 [source](../source/index.md), 현재 기준과 진행은 [current](../current/memory/index.md)가 소유한다.
