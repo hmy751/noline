@@ -100,6 +100,16 @@ export function getAdditionalCurrencyCount(expenses: Expense[]): number {
 }
 
 /**
+ * 통화별 표시 소수 자릿수
+ *
+ * @param currency - 통화 코드
+ * @returns 표시할 소수 자릿수
+ */
+export function getCurrencyFractionDigits(currency: string): number {
+  return currency === 'KRW' || currency === 'JPY' ? 0 : 2;
+}
+
+/**
  * 통화 표시 포맷 (금액 + 통화 코드)
  *
  * @param amount - 금액
@@ -113,13 +123,12 @@ export function getAdditionalCurrencyCount(expenses: Expense[]): number {
  * ```
  */
 export function formatCurrencyDisplay(amount: number, currency: string): string {
-  // KRW, JPY는 소수점 없음
-  const decimals = ['KRW', 'JPY'].includes(currency) ? 0 : 2;
+  const fractionDigits = getCurrencyFractionDigits(currency);
 
   // 천 단위 구분자 추가
   const formatted = amount.toLocaleString('en-US', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
   });
 
   return `${currency} ${formatted}`;
