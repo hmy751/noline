@@ -1,0 +1,192 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "-B",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "context/work/harness",
+    "-t",
+    ".",
+    "-p",
+    "test_*.py",
+    "-v"
+  ],
+  "evidence_capture": "before_verification",
+  "evidence_captured_at": "2026-09-11T10:35:41.485323Z",
+  "execution_error": null,
+  "exit_code": 1,
+  "finished_at": "2026-09-11T10:35:51.216510Z",
+  "pattern": "test_*.py",
+  "process_returncode": 1,
+  "project_root": "/Users/hammyeong-yeon/Desktop/10_work/noline",
+  "receipt_id": "1439f46892cb4db4a4a31bc9c89f8182",
+  "receipt_type": "harness_test",
+  "result": "fail",
+  "schema_version": 1,
+  "source_files": [
+    {
+      "path": "context/work/harness/__init__.py",
+      "sha256": "565d0fb6b9679d01d7a99589fe717defb3c70fe7b0c26e3d64b3dad1a87fc95e",
+      "size": 77
+    },
+    {
+      "path": "context/work/harness/__main__.py",
+      "sha256": "7659c716a4079386ed888792d1d4692d93e7f3481bef466c2522eeed3a48976b",
+      "size": 139
+    },
+    {
+      "path": "context/work/harness/cli.py",
+      "sha256": "7332cee8583068e914a60ecc0e843f717b146bfe12e35b9264cf9e9aa3624dfd",
+      "size": 4577
+    },
+    {
+      "path": "context/work/harness/testing.py",
+      "sha256": "5f32c041b103820916df6c3bd019d565ae245f9967d85f5dfdbf740f5ea9f250",
+      "size": 12198
+    },
+    {
+      "path": "context/work/harness/workspace_contract.py",
+      "sha256": "e7d504e95e67f2234456c3d323e8ec8ecad6f77219f7e83d3a02440746603c43",
+      "size": 11832
+    },
+    {
+      "path": "context/work/harness/maintain/__init__.py",
+      "sha256": "88efd9baebe8108c4512e7d676da721edbce3026b34124a8b9be4abdaba1cc5f",
+      "size": 427
+    },
+    {
+      "path": "context/work/harness/maintain/claude_hook.py",
+      "sha256": "507d46b5344048f0596055b189b425ce5aef98419854d1ba665c1b2f85741610",
+      "size": 12994
+    },
+    {
+      "path": "context/work/harness/maintain/codex_session.py",
+      "sha256": "a488692bec31ff9de30d24beeedaf85953f45cde6b0b68d6edcebadfd66d53b2",
+      "size": 19451
+    },
+    {
+      "path": "context/work/harness/maintain/host_adapter.py",
+      "sha256": "0e78f90326c684afd5d6cb0877ae3e7bcbef74bb6ec43685c9e2a489f16e4fdc",
+      "size": 74904
+    },
+    {
+      "path": "context/work/harness/maintain/operation.py",
+      "sha256": "54b701ffd3304f871b77107a07c66406588ca096f909b7d32c0f3327266c713a",
+      "size": 23385
+    },
+    {
+      "path": "context/work/harness/maintain/tests/__init__.py",
+      "sha256": "fdf3ff857a42d025b97edbf2f7f51ded6c725b1cb15e0e77cbc4612fde784939",
+      "size": 32
+    },
+    {
+      "path": "context/work/harness/maintain/tests/test_claude_hook.py",
+      "sha256": "78238d13e9056c9576a0e7fd3e0c65364e6c76e3a28110fe98d38156ebfac4d4",
+      "size": 8656
+    },
+    {
+      "path": "context/work/harness/maintain/tests/test_cli.py",
+      "sha256": "93f6e734641912ca2c2d753a962c7852e4db94e28ce7693189e67522cdac45ea",
+      "size": 3046
+    },
+    {
+      "path": "context/work/harness/maintain/tests/test_codex_session.py",
+      "sha256": "aee530acbf7903e4ee6397c66758b9acb7fd5798d1531372aba443ab6d282acd",
+      "size": 13168
+    },
+    {
+      "path": "context/work/harness/maintain/tests/test_host_adapter.py",
+      "sha256": "95df4b05f18fe95b9ec110473afdd4df17c375b50af599a52e1e77f6028d5c06",
+      "size": 59117
+    },
+    {
+      "path": "context/work/harness/maintain/tests/test_operation.py",
+      "sha256": "07341d8747c632254d8b2a00329b6212fccc72f8377a59ebed461f8ba2593bb6",
+      "size": 20930
+    },
+    {
+      "path": "context/work/harness/recover/__init__.py",
+      "sha256": "24b87e16437958cd0a6f4e2d7e584c65246353c682496647b58a7e2aeb3e5bdf",
+      "size": 174
+    },
+    {
+      "path": "context/work/harness/recover/operation.py",
+      "sha256": "df39fe84c024dbfb510a8ba2c46f3e21b733581cf8285661d5e119668efee36c",
+      "size": 21346
+    },
+    {
+      "path": "context/work/harness/recover/tests/__init__.py",
+      "sha256": "79e929be6e13af22c01a43bfa1699d991256d4f5d9ccc72fe89b4742d40c6b68",
+      "size": 36
+    },
+    {
+      "path": "context/work/harness/recover/tests/test_recover.py",
+      "sha256": "570c8c32f23ed5686c6448c12f26cab86ff5838c4f0665116fb39c3115c117c8",
+      "size": 47218
+    },
+    {
+      "path": "context/work/harness/validation/__init__.py",
+      "sha256": "98245b0a398fc80623e196c12b2cc8512edac6779083c386d834d5625335ef17",
+      "size": 40
+    },
+    {
+      "path": "context/work/harness/validation/tests/__init__.py",
+      "sha256": "5189b7f6d69b9fb696ba82183c6bef0fc40abed3a76cf07231525da8e50bba2e",
+      "size": 68
+    },
+    {
+      "path": "context/work/harness/validation/tests/test_ephemeral_workspace_state_preservation.py",
+      "sha256": "37fb4eaf72ed220966f68f7a277850a71eb8c4d102919e9f5e4cdaae370683ad",
+      "size": 3135
+    },
+    {
+      "path": "context/work/harness/verify/__init__.py",
+      "sha256": "267cfcd4b9123c755e7087872492a0a24f816e3a912375f33eee25874cd49bd4",
+      "size": 118
+    },
+    {
+      "path": "context/work/harness/verify/operation.py",
+      "sha256": "c95c9b1f34568618c7ae5197e32b592c9e5b2b14b2a685f7e8528d4f5912acf3",
+      "size": 22974
+    },
+    {
+      "path": "context/work/harness/verify/tests/__init__.py",
+      "sha256": "e67bd61322883fc47fc6a2719b986447b2bce10c976ff7d77934c8db662527c6",
+      "size": 35
+    },
+    {
+      "path": "context/work/harness/verify/tests/test_verify.py",
+      "sha256": "9d8fc6d6a238ca45eb71c399da08efcfabc90755d746ce92c23473bfb0396dfc",
+      "size": 28393
+    }
+  ],
+  "source_root": "context/work/harness",
+  "started_at": "2026-09-11T10:35:41.490663Z",
+  "stderr": {
+    "captured_bytes": 24322,
+    "encoding": "utf-8",
+    "original_bytes": 24322,
+    "read_error": null,
+    "text": "test_bound_prompt_and_stop_use_one_generated_turn_id (context.work.harness.maintain.tests.test_claude_hook.ClaudeHookAdapterTests.test_bound_prompt_and_stop_use_one_generated_turn_id) ... ok\ntest_session_start_exports_selector_for_manual_control (context.work.harness.maintain.tests.test_claude_hook.ClaudeHookAdapterTests.test_session_start_exports_selector_for_manual_control) ... ok\ntest_subagent_lifecycle_events_do_not_touch_main_binding (context.work.harness.maintain.tests.test_claude_hook.ClaudeHookAdapterTests.test_subagent_lifecycle_events_do_not_touch_main_binding) ... ok\ntest_turn_state_rejects_runtime_root_symlink (context.work.harness.maintain.tests.test_claude_hook.ClaudeHookAdapterTests.test_turn_state_rejects_runtime_root_symlink) ... ok\ntest_unbound_events_do_not_create_claude_runtime (context.work.harness.maintain.tests.test_claude_hook.ClaudeHookAdapterTests.test_unbound_events_do_not_create_claude_runtime) ... ok\ntest_apply_reads_structured_decision_from_file (context.work.harness.maintain.tests.test_cli.MaintainCliTests.test_apply_reads_structured_decision_from_file) ... ok\ntest_apply_rejects_invalid_json_without_writing (context.work.harness.maintain.tests.test_cli.MaintainCliTests.test_apply_rejects_invalid_json_without_writing) ... ok\ntest_bootstrap_requires_explicit_workspace_and_ignores_active_index (context.work.harness.maintain.tests.test_cli.MaintainCliTests.test_bootstrap_requires_explicit_workspace_and_ignores_active_index) ... ok\ntest_command_and_untrusted_output_fail_closed (context.work.harness.maintain.tests.test_codex_session.CodexMaintainSessionTests.test_command_and_untrusted_output_fail_closed) ... ok\ntest_resolves_symlink_when_real_codex_has_sibling_tool_host (context.work.harness.maintain.tests.test_codex_session.CodexMaintainSessionTests.test_resolves_symlink_when_real_codex_has_sibling_tool_host) ... ok\ntest_restore_reuses_a_validated_persisted_thread (context.work.harness.maintain.tests.test_codex_session.CodexMaintainSessionTests.test_restore_reuses_a_validated_persisted_thread) ... ok\ntest_resume_rejects_mismatched_thread_and_invalid_combination (context.work.harness.maintain.tests.test_codex_session.CodexMaintainSessionTests.test_resume_rejects_mismatched_thread_and_invalid_combination) ... ok\ntest_resume_requires_successful_grounding (context.work.harness.maintain.tests.test_codex_session.CodexMaintainSessionTests.test_resume_requires_successful_grounding) ... ok\ntest_resume_reuses_exact_thread_id_and_decision_schema (context.work.harness.maintain.tests.test_codex_session.CodexMaintainSessionTests.test_resume_reuses_exact_thread_id_and_decision_schema) ... ok\ntest_starts_once_with_read_only_bounded_prompt (context.work.harness.maintain.tests.test_codex_session.CodexMaintainSessionTests.test_starts_once_with_read_only_bounded_prompt) ... ok\ntest_activate_cli_accepts_positional_workspace_and_project_root (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_activate_cli_accepts_positional_workspace_and_project_root) ... ok\ntest_ambiguity_and_important_update_surface_on_next_prompt (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_ambiguity_and_important_update_surface_on_next_prompt) ... ok\ntest_ambiguous_grounding_never_commits_or_claims_grounded (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_ambiguous_grounding_never_commits_or_claims_grounded) ... ok\ntest_apply_failure_blocks_later_event (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_apply_failure_blocks_later_event) ... ok\ntest_concurrent_sessions_bind_different_workspaces_or_remain_unbound (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_concurrent_sessions_bind_different_workspaces_or_remain_unbound) ... ok\ntest_control_cli_missing_session_is_a_nonzero_failure (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_control_cli_missing_session_is_a_nonzero_failure) ... ok\ntest_deactivate_keeps_captured_turn_on_old_binding_and_future_unbound (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_deactivate_keeps_captured_turn_on_old_binding_and_future_unbound) ... ok\ntest_detached_drains_wait_for_the_same_session_lock (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_detached_drains_wait_for_the_same_session_lock) ... ok\ntest_drain_reuses_exact_grounded_thread_for_later_turns (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_drain_reuses_exact_grounded_thread_for_later_turns) ... ok\ntest_duplicate_response_end_has_one_semantic_and_apply_effect (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_duplicate_response_end_has_one_semantic_and_apply_effect) ... ok\ntest_empty_explicit_session_never_falls_back_to_ambient_session (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_empty_explicit_session_never_falls_back_to_ambient_session) ... ok\ntest_explicit_activation_grounds_once_and_session_start_reuses (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_explicit_activation_grounds_once_and_session_start_reuses) ... ok\ntest_failed_initial_activation_does_not_commit_binding (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_failed_initial_activation_does_not_commit_binding) ... ok\ntest_failed_predecessor_generation_does_not_block_successor (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_failed_predecessor_generation_does_not_block_successor) ... ok\ntest_failed_successor_grounding_preserves_predecessor_binding (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_failed_successor_grounding_preserves_predecessor_binding) ... ok\ntest_failure_is_effect_once_but_never_recorded_as_completed (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_failure_is_effect_once_but_never_recorded_as_completed) ... ok\ntest_initial_activation_does_not_capture_the_unbound_current_turn (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_initial_activation_does_not_capture_the_unbound_current_turn) ... ok\ntest_late_predecessor_event_uses_its_snapshotted_thread_after_rebind (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_late_predecessor_event_uses_its_snapshotted_thread_after_rebind) ... ok\ntest_later_user_prompt_rekicks_an_unresolved_response_end (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_later_user_prompt_rekicks_an_unresolved_response_end) ... ok\ntest_legacy_failed_effect_blocks_later_event_fail_closed (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_legacy_failed_effect_blocks_later_event_fail_closed) ... ok\ntest_legacy_v1_state_and_event_continue_as_generation_one (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_legacy_v1_state_and_event_continue_as_generation_one) ... ok\ntest_next_prompt_exposes_prior_prompt_without_response_end_once (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_next_prompt_exposes_prior_prompt_without_response_end_once) ... ok\ntest_no_change_has_no_workspace_write_or_notification (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_no_change_has_no_workspace_write_or_notification) ... ok\ntest_pending_boundary_and_notice_share_one_prompt_context (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_pending_boundary_and_notice_share_one_prompt_context) ... ok\ntest_preexisting_runtime_root_symlink_is_rejected (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_preexisting_runtime_root_symlink_is_rejected) ... ok\ntest_preexisting_session_directory_symlink_is_rejected (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_preexisting_session_directory_symlink_is_rejected) ... ok\ntest_prompt_and_response_are_paired_by_stable_turn_id (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_prompt_and_response_are_paired_by_stable_turn_id) ... ok\ntest_repeat_rebind_a_to_b_to_a_creates_distinct_generations (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_repeat_rebind_a_to_b_to_a_creates_distinct_generations) ... ok\ntest_response_end_only_enqueues_and_starts_detached_drain (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_response_end_only_enqueues_and_starts_detached_drain) ... ok\ntest_runtime_root_must_be_an_internal_absolute_lexical_path (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_runtime_root_must_be_an_internal_absolute_lexical_path) ... ok\ntest_same_session_rebind_keeps_current_turn_on_a_and_next_turn_on_b (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_same_session_rebind_keeps_current_turn_on_a_and_next_turn_on_b) ... ok\ntest_semantic_failure_keeps_later_events_pending_without_rekick (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_semantic_failure_keeps_later_events_pending_without_rekick) ... ok\ntest_session_end_exposes_prompt_without_response_end (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_session_end_exposes_prompt_without_response_end) ... ok\ntest_status_cli_uses_env_or_explicit_session_without_writing (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_status_cli_uses_env_or_explicit_session_without_writing) ... ok\ntest_status_reports_unattributed_legacy_failure_explicitly (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_status_reports_unattributed_legacy_failure_explicitly) ... ok\ntest_status_retries_when_activation_adds_a_generation_mid_scan (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_status_retries_when_activation_adds_a_generation_mid_scan) ... ok\ntest_two_host_sessions_keep_runtime_and_threads_isolated (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_two_host_sessions_keep_runtime_and_threads_isolated) ... ok\ntest_unbound_session_hooks_are_quiet_and_write_nothing (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_unbound_session_hooks_are_quiet_and_write_nothing) ... ok\ntest_unpaired_event_failure_does_not_block_later_semantic_event (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_unpaired_event_failure_does_not_block_later_semantic_event) ... ok\ntest_v1_project_config_never_auto_binds_a_new_session (context.work.harness.maintain.tests.test_host_adapter.MaintainHostAdapterTests.test_v1_project_config_never_auto_binds_a_new_session) ... ok\ntest_allowed_existing_update_requires_and_matches_preimage (context.work.harness.maintain.tests.test_operation.MaintainOperationTests.test_allowed_existing_update_requires_and_matches_preimage) ... ok\ntest_bootstrap_is_explicit_and_bounded_by_recover (context.work.harness.maintain.tests.test_operation.MaintainOperationTests.test_bootstrap_is_explicit_and_bounded_by_recover) ... ok\ntest_creates_only_new_direct_dated_record_with_null_preimage (context.work.harness.maintain.tests.test_operation.MaintainOperationTests.test_creates_only_new_direct_dated_record_with_null_preimage) ... ok\ntest_decision_schema_and_outcome_combinations_are_exact (context.work.harness.maintain.tests.test_operation.MaintainOperationTests.test_decision_schema_and_outcome_combinations_are_exact) ... ok\ntest_needs_user_decision_is_zero_write (context.work.harness.maintain.tests.test_operation.MaintainOperationTests.test_needs_user_decision_is_zero_write) ... ok\ntest_new_file_requires_null_and_existing_file_requires_digest (context.work.harness.maintain.tests.test_operation.MaintainOperationTests.test_new_file_requires_null_and_existing_file_requires_digest) ... ok\ntest_new_memory_topic_requires_linked_memory_index_update (context.work.harness.maintain.tests.test_operation.MaintainOperationTests.test_new_memory_topic_requires_linked_memory_index_update) ... ok\ntest_new_spec_file_requires_memory_link_and_enters_recover (context.work.harness.maintain.tests.test_operation.MaintainOperationTests.test_new_spec_file_requires_memory_link_and_enters_recover) ... ok\ntest_no_change_preserves_every_workspace_file_byte_for_byte (context.work.harness.maintain.tests.test_operation.MaintainOperationTests.test_no_change_preserves_every_workspace_file_byte_for_byte) ... ok\ntest_rejects_invalid_record_name_and_markdown_quality (context.work.harness.maintain.tests.test_operation.MaintainOperationTests.test_rejects_invalid_record_name_and_markdown_quality) ... ok\ntest_rejects_restricted_machine_product_and_nested_paths (context.work.harness.maintain.tests.test_operation.MaintainOperationTests.test_rejects_restricted_machine_product_and_nested_paths) ... ok\ntest_rejects_stale_existing_preimage (context.work.harness.maintain.tests.test_operation.MaintainOperationTests.test_rejects_stale_existing_preimage) ... ok\ntest_rejects_symlinked_target_without_touching_target (context.work.harness.maintain.tests.test_operation.MaintainOperationTests.test_rejects_symlinked_target_without_touching_target) ... ok\ntest_spec_and_ticket_updates_reject_symlinked_parents (context.work.harness.maintain.tests.test_operation.MaintainOperationTests.test_spec_and_ticket_updates_reject_symlinked_parents) ... ok\ntest_ticket_create_update_and_recover_keep_progress_in_body (context.work.harness.maintain.tests.test_operation.MaintainOperationTests.test_ticket_create_update_and_recover_keep_progress_in_body) ... ok\ntest_accepts_current_status_and_receipt_schemas (context.work.harness.recover.tests.test_recover.RecoverTests.test_accepts_current_status_and_receipt_schemas) ... ok\ntest_accepts_nested_markdown_from_each_project_layer (context.work.harness.recover.tests.test_recover.RecoverTests.test_accepts_nested_markdown_from_each_project_layer) ... ok\ntest_accepts_nested_verify_receipt_path (context.work.harness.recover.tests.test_recover.RecoverTests.test_accepts_nested_verify_receipt_path) ... ok\ntest_active_workspace_fallback_still_validates_index (context.work.harness.recover.tests.test_recover.RecoverTests.test_active_workspace_fallback_still_validates_index) ... ok\ntest_current_receipt_reports_changed_and_missing_files_as_stale (context.work.harness.recover.tests.test_recover.RecoverTests.test_current_receipt_reports_changed_and_missing_files_as_stale) ... ok\ntest_does_not_auto_load_unselected_project_layers (context.work.harness.recover.tests.test_recover.RecoverTests.test_does_not_auto_load_unselected_project_layers) ... ok\ntest_does_not_require_or_inspect_workspace_output_artifacts (context.work.harness.recover.tests.test_recover.RecoverTests.test_does_not_require_or_inspect_workspace_output_artifacts) ... ok\ntest_does_not_require_or_inspect_workspace_source (context.work.harness.recover.tests.test_recover.RecoverTests.test_does_not_require_or_inspect_workspace_source) ... ok\ntest_explicit_workspace_does_not_require_or_read_active_index (context.work.harness.recover.tests.test_recover.RecoverTests.test_explicit_workspace_does_not_require_or_read_active_index) ... ok\ntest_keeps_workspace_and_project_context_path_bases_separate (context.work.harness.recover.tests.test_recover.RecoverTests.test_keeps_workspace_and_project_context_path_bases_separate) ... ok\ntest_loads_current_output_map_and_project_context_only (context.work.harness.recover.tests.test_recover.RecoverTests.test_loads_current_output_map_and_project_context_only) ... ok\ntest_module_help_exposes_recover_maintain_and_verify (context.work.harness.recover.tests.test_recover.RecoverTests.test_module_help_exposes_recover_maintain_and_verify) ... ok\ntest_plain_output_preserves_legacy_next_action (context.work.harness.recover.tests.test_recover.RecoverTests.test_plain_output_preserves_legacy_next_action) ... ok\ntest_plain_output_renders_state_without_verify_configuration (context.work.harness.recover.tests.test_recover.RecoverTests.test_plain_output_renders_state_without_verify_configuration) ... ok\ntest_preserves_selected_project_context_order (context.work.harness.recover.tests.test_recover.RecoverTests.test_preserves_selected_project_context_order) ... ok\ntest_rejects_invalid_state_status (context.work.harness.recover.tests.test_recover.RecoverTests.test_rejects_invalid_state_status) ... ok\ntest_rejects_missing_malformed_and_symlinked_status (context.work.harness.recover.tests.test_recover.RecoverTests.test_rejects_missing_malformed_and_symlinked_status) ... ok\ntest_rejects_non_markdown_project_context (context.work.harness.recover.tests.test_recover.RecoverTests.test_rejects_non_markdown_project_context) ... ok\ntest_rejects_non_regular_workspace_output_index (context.work.harness.recover.tests.test_recover.RecoverTests.test_rejects_non_regular_workspace_output_index) ... ok\ntest_rejects_non_verify_receipt_types_and_malformed_names (context.work.harness.recover.tests.test_recover.RecoverTests.test_rejects_non_verify_receipt_types_and_malformed_names) ... ok\ntest_rejects_project_context_outside_boundary_and_symlinks (context.work.harness.recover.tests.test_recover.RecoverTests.test_rejects_project_context_outside_boundary_and_symlinks) ... ok\ntest_rejects_receipt_symlink (context.work.harness.recover.tests.test_recover.RecoverTests.test_rejects_receipt_symlink) ... ok\ntest_rejects_recover_contract_traversal_absolute_schema_and_id (context.work.harness.recover.tests.test_recover.RecoverTests.test_rejects_recover_contract_traversal_absolute_schema_and_id) ... ok\ntest_rejects_root_flat_and_unknown_project_context_layers (context.work.harness.recover.tests.test_recover.RecoverTests.test_rejects_root_flat_and_unknown_project_context_layers) ... ok\ntest_rejects_symlinked_memory_topic_and_current_directories (context.work.harness.recover.tests.test_recover.RecoverTests.test_rejects_symlinked_memory_topic_and_current_directories) ... ok\ntest_rejects_symlinked_workspace_output_index (context.work.harness.recover.tests.test_recover.RecoverTests.test_rejects_symlinked_workspace_output_index) ... ok\ntest_rejects_unsafe_current_receipt_snapshot_paths (context.work.harness.recover.tests.test_recover.RecoverTests.test_rejects_unsafe_current_receipt_snapshot_paths) ... ok\ntest_rejects_workspace_identity_extra_responsibility (context.work.harness.recover.tests.test_recover.RecoverTests.test_rejects_workspace_identity_extra_responsibility) ... ok\ntest_requires_each_selected_project_context_file_to_exist (context.work.harness.recover.tests.test_recover.RecoverTests.test_requires_each_selected_project_context_file_to_exist) ... ok\ntest_requires_minimum_memory_files (context.work.harness.recover.tests.test_recover.RecoverTests.test_requires_minimum_memory_files) ... ok\ntest_requires_project_readme_selection_but_not_first (context.work.harness.recover.tests.test_recover.RecoverTests.test_requires_project_readme_selection_but_not_first) ... ok\ntest_requires_workspace_output_index (context.work.harness.recover.tests.test_recover.RecoverTests.test_requires_workspace_output_index) ... ok\ntest_spec_and_ticket_entry_points_reject_symlinks (context.work.harness.recover.tests.test_recover.RecoverTests.test_spec_and_ticket_entry_points_reject_symlinks) ... ok\ntest_succeeds_when_verify_contract_is_invalid (context.work.harness.recover.tests.test_recover.RecoverTests.test_succeeds_when_verify_contract_is_invalid) ... ok\ntest_ticket_body_is_selected_later_and_not_required_by_packet (context.work.harness.recover.tests.test_recover.RecoverTests.test_ticket_body_is_selected_later_and_not_required_by_packet) ... ok\ntest_validates_linked_receipt_header_without_exposing_body (context.work.harness.recover.tests.test_recover.RecoverTests.test_validates_linked_receipt_header_without_exposing_body) ... ok\ntest_ephemeral_cycle_preserves_checked_in_machine_state (context.work.harness.validation.tests.test_ephemeral_workspace_state_preservation.EphemeralWorkspaceStatePreservationTests.test_ephemeral_cycle_preserves_checked_in_machine_state) ... ok\ntest_canonical_basis_is_not_limited_to_recover_project_layers (context.work.harness.verify.tests.test_verify.VerifyTests.test_canonical_basis_is_not_limited_to_recover_project_layers) ... ok\ntest_captures_canonical_basis_before_command_deletes_it (context.work.harness.verify.tests.test_verify.VerifyTests.test_captures_canonical_basis_before_command_deletes_it) ... ok\ntest_captures_evidence_before_command_deletes_it (context.work.harness.verify.tests.test_verify.VerifyTests.test_captures_evidence_before_command_deletes_it) ... ok\ntest_normalizes_root_and_caps_persisted_output (context.work.harness.verify.tests.test_verify.VerifyTests.test_normalizes_root_and_caps_persisted_output) ... ok\ntest_persists_failure_then_pass_without_completing_or_overwriting (context.work.harness.verify.tests.test_verify.VerifyTests.test_persists_failure_then_pass_without_completing_or_overwriting) ... ok\ntest_reads_legacy_status_then_writes_machine_only_status (context.work.harness.verify.tests.test_verify.VerifyTests.test_reads_legacy_status_then_writes_machine_only_status) ... ok\ntest_rejects_symlinked_verify_receipts_directory_before_command (context.work.harness.verify.tests.test_verify.VerifyTests.test_rejects_symlinked_verify_receipts_directory_before_command) ... ok\ntest_rejects_verify_contract_schema_id_and_symlinked_evidence (context.work.harness.verify.tests.test_verify.VerifyTests.test_rejects_verify_contract_schema_id_and_symlinked_evidence) ... ok\ntest_rejects_verify_only_argv_limits_and_paths (context.work.harness.verify.tests.test_verify.VerifyTests.test_rejects_verify_only_argv_limits_and_paths) ... ok\ntest_requires_verify_receipts_directory_before_running_command (context.work.harness.verify.tests.test_verify.VerifyTests.test_requires_verify_receipts_directory_before_running_command) ... ok\ntest_runs_when_recover_contract_is_invalid (context.work.harness.verify.tests.test_verify.VerifyTests.test_runs_when_recover_contract_is_invalid) ... ok\ntest_timeout_covers_descendant_after_group_leader_exits (context.work.harness.verify.tests.test_verify.VerifyTests.test_timeout_covers_descendant_after_group_leader_exits) ... FAIL\ntest_timeout_persists_exit_124_failure_receipt_and_status (context.work.harness.verify.tests.test_verify.VerifyTests.test_timeout_persists_exit_124_failure_receipt_and_status) ... ok\ntest_uses_project_root_for_evidence_and_command_cwd (context.work.harness.verify.tests.test_verify.VerifyTests.test_uses_project_root_for_evidence_and_command_cwd) ... ok\ntest_validates_status_before_running_command (context.work.harness.verify.tests.test_verify.VerifyTests.test_validates_status_before_running_command) ... ok\n\n======================================================================\nFAIL: test_timeout_covers_descendant_after_group_leader_exits (context.work.harness.verify.tests.test_verify.VerifyTests.test_timeout_covers_descendant_after_group_leader_exits)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/hammyeong-yeon/Desktop/10_work/noline/context/work/harness/verify/tests/test_verify.py\", line 638, in test_timeout_covers_descendant_after_group_leader_exits\n    self.assertTrue(\n    ~~~~~~~~~~~~~~~^\n        descendant_pid_path.is_file(), completed.stdout + completed.stderr\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\nAssertionError: False is not true : {\n  \"workspace_id\": \"001-example\",\n  \"claim\": \"제품 값이 Project의 기대값과 일치한다.\",\n  \"result\": \"fail\",\n  \"exit_code\": 124,\n  \"receipt\": \"workspaces/001-example/records/receipts/verify/verify-20260911T103550720511Z-894513e8dd1049a197393a770befec87.json\",\n  \"status\": \"verification_failed\",\n  \"timed_out\": true\n}\n\n\n----------------------------------------------------------------------\nRan 122 tests in 9.618s\n\nFAILED (failures=1)\n",
+    "truncated": false
+  },
+  "stdout": {
+    "captured_bytes": 0,
+    "encoding": "utf-8",
+    "original_bytes": 0,
+    "read_error": null,
+    "text": "",
+    "truncated": false
+  },
+  "test_count": 122,
+  "test_framework": "python_unittest_discover",
+  "tests_start": "context/work/harness",
+  "timeout": {
+    "seconds": 300.0,
+    "termination_scope": "process_group",
+    "timed_out": false
+  },
+  "top_level": "."
+}

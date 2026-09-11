@@ -2,7 +2,9 @@
 
 2026-09-09 실행 계약·layer·운영 skill 보완과 당시 tests·독립 review는 [Reference 적용 기록](../../records/2026-09-09-01-reference-upgrade.md), 2026-09-10 이전 요약 세 문서의 내용 귀속·제거와 당시 검증은 [문서 전환 기록](../../records/2026-09-10-01-document-transition.md)에 보존한다. 이 결과를 이번 재적용의 확인으로 대신하지 않는다.
 
-2026-09-11에는 Maintainer가 current의 현재 의미와 records의 과정 근거를 구분하고 정정·단계 변화가 직접 의존한 current를 함께 확인하도록 행동 계약을 보완했다. Reference의 실제 002 사례 재시험 뒤 Noline 설치본에 적용했으며, Noline 고유 연결과 사용자의 Workspace 002 Ticket 수정은 유지했다. 적용 범위와 단위 검증은 [자료 구분 보완 기록](../../records/2026-09-11-01-maintainer-material-classification-correction.md)이 소유한다. 실제 host activation과 기존 문서의 자동 재분류는 아직 확인하지 않았다.
+Maintainer는 current의 현재 의미와 records의 과정 근거를 구분하고, 정정·단계 변화가 직접 의존한 current를 함께 확인한다. 사람용 Workspace 문서를 만들거나 갱신할 때에는 Spec·Ticket에 한정하지 않고 허용된 current·source/output 색인·records 전반에서 각 Owner와 기존 구성을 먼저 읽는다. 새 정보는 도착 순서대로 덧붙이지 않고 의미 관계에 따라 통합하며, 문서마다 같은 제목이나 정보 순서를 강제하지 않는다. [자료 구분 보완 기록](../../records/2026-09-11-01-maintainer-material-classification-correction.md)과 [문서 통합 편집 보완 기록](../../records/2026-09-11-02-maintainer-readable-editing-guidance.md)이 각각의 적용 근거를 소유한다.
+
+두 보완은 Noline 고유 연결과 사용자의 Workspace 002 변경을 유지한 채 설치본에 적용했다. 이번 문서 통합 편집 보완에서는 Maintainer 테스트 70개와 TOML parse가 통과했다. 전체 Harness 122개 중 121개가 통과했고 Reference에서도 같은 실패를 보인 Verify descendant timeout 타이밍 시험 1개는 분리 재실행에서 통과했다. 실제 semantic 재생, host activation과 기존 문서의 자동 재분류는 아직 확인하지 않았다.
 
 사용자가 승인한 dirty Source의 Project 관리 계약 배치를 재적용했다. README는 구조·실제 내용 위치·권위 관계를, `MAINTENANCE.md`는 작성·복원·갱신 기준을 맡긴다. 관리 주체가 해당 작업에서 직접 읽도록 지침과 갱신 skill을 연결하며 일반 Recover 문서 목록은 늘리지 않는다. [현재 Ticket](../memory/tickets/003-project-management-contract.md)과 [재적용 기록](../../records/2026-09-10-02-project-management-contract.md)이 이번 범위와 검증을 소유한다.
 

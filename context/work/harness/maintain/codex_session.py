@@ -270,6 +270,16 @@ class CodexMaintainSession:
             Path(__file__).resolve().parents[2]
             / "workspaces" / "SPEC-AND-TICKETS.md"
         )
+        workspace_collection_path = workspace_rules_path.with_name("README.md")
+        try:
+            workspace_collection = workspace_collection_path.read_text(
+                encoding="utf-8"
+            )
+        except (OSError, UnicodeError) as exc:
+            raise HarnessError(
+                "Workspace collection contract is not readable UTF-8 text: "
+                f"{exc}"
+            ) from exc
         try:
             workspace_rules = workspace_rules_path.read_text(encoding="utf-8")
         except (OSError, UnicodeError) as exc:
@@ -288,6 +298,9 @@ class CodexMaintainSession:
             "<maintain_readme>\n"
             f"{readme}"
             "</maintain_readme>\n\n"
+            "<workspace_collection_contract>\n"
+            f"{workspace_collection}"
+            "</workspace_collection_contract>\n\n"
             "<workspace_spec_ticket_contract>\n"
             f"{workspace_rules}"
             "</workspace_spec_ticket_contract>\n\n"

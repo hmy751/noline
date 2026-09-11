@@ -93,6 +93,8 @@ Ticket은 기능 구현·코드 개선·결함 수정 등 작업 성격에 맞�
 
 ## 갱신과 작업의 연속성
 
+Spec·Ticket·state를 포함한 사람용 Workspace 문서의 일반 작성·갱신 방식은 [Workspace collection의 사람용 문서 기준](README.md#사람용-문서-작성과-갱신)을 따른다. 이 문서는 그중 Spec·Ticket의 내용과 관계만 더 구체화한다.
+
 Spec·Ticket은 memory에 유지하며 작업 중 필요하면 고친다. Workspace와 함께 스냅샷처럼 남고, 후속 Workspace나 Project의 변화에 맞춰 계속 최신화할 의무는 없다. 다른 Workspace에서 필요한 의미를 새로 구성해도 서로 자동 전파하거나 공유 정본에 매달리지 않는다. 이 독립성은 작업 중 수정을 막는 불변성 규칙이 아니다.
 
 Main은 필요한 설계·작업 분해·위임·결과 확인·다음 행동을 조율한다. Workspace가 준비된 뒤 Spec·Ticket·state와 필요한 records의 갱신은 [Maintain](../harness/maintain/README.md)에 맡겨 같은 내용을 중복 수정하지 않는다. Maintain은 대화와 결과를 이해해 무엇을 남길지 판단하며 기록은 단순 전사에 한정되지 않는다. 이것은 독점 작성 권한이나 새로운 권한 장치가 아니며, 새 Workspace의 초기 구성은 [생성·전환](CREATE-AND-TRANSITION.md)의 Main/생성 skill 책임으로 남는다.

@@ -6,6 +6,7 @@
 - [Project 관리 계약](../../../../../context/project/MAINTENANCE.md): 작성·복원·재구성·갱신 시 직접 읽는 기준
 - [제품 기준](../../../../../context/project/common/product.md), [현재 구현 지도](../../../../../context/project/current/architecture.md): 이전 Project 요약의 유효한 내용을 통합한 현재 본문
 - [`context/work/`](../../../../../context/work/): Workspace collection과 Recover·Maintain·Verify·validation Harness
+- [Workspace 사람용 문서 작성 기준](../../README.md#사람용-문서-작성과-갱신): Maintainer가 허용된 사람용 문서 전반을 기존 구성과 의미 관계에 맞춰 통합하는 canonical
 - [`.claude/harness/README.md`](../../../../../.claude/harness/README.md): 기존 Noline AI harness와 새 운영 층의 관계
 - [`.claude/skills/create-context-workspace/SKILL.md`](../../../../../.claude/skills/create-context-workspace/SKILL.md): 설치 이후 새 Workspace를 구성하는 Claude source skill
 - [`.agents/skills/create-context-workspace`](../../../../../.agents/skills/create-context-workspace): Codex skill bridge symlink
@@ -18,4 +19,4 @@
 - [운영 skill 색인](../../../../../.claude/skills/README.md): 여섯 Reference skill과 기존 dispatcher의 원본·호출 조건·bridge
 - [Spec·Ticket 계약](../../SPEC-AND-TICKETS.md): Work 정의·실행·유지 책임의 canonical
 
-실행 계약·skill 설치와 당시 검증은 [2026-09-09 기록](../records/2026-09-09-01-reference-upgrade.md), 이전 요약의 문서 전환은 [2026-09-10 첫 기록](../records/2026-09-10-01-document-transition.md), 현재 Project 관리 계약의 재적용은 [2026-09-10 두 번째 기록](../records/2026-09-10-02-project-management-contract.md)이 연결한다.
+실행 계약·skill 설치와 당시 검증은 [2026-09-09 기록](../records/2026-09-09-01-reference-upgrade.md), 이전 요약의 문서 전환은 [2026-09-10 첫 기록](../records/2026-09-10-01-document-transition.md), 현재 Project 관리 계약의 재적용은 [2026-09-10 두 번째 기록](../records/2026-09-10-02-project-management-contract.md), Maintainer의 사람용 문서 통합 편집 보완은 [2026-09-11 기록](../records/2026-09-11-02-maintainer-readable-editing-guidance.md)이 연결한다.

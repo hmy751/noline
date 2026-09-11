@@ -140,6 +140,12 @@ class CodexMaintainSessionTests(unittest.TestCase):
             .read_text(encoding="utf-8"),
             prompt,
         )
+        self.assertIn(
+            (module_root.parents[1] / "workspaces" / "README.md").read_text(
+                encoding="utf-8"
+            ),
+            prompt,
+        )
         self.assertIn("BOUNDED_BOOTSTRAP_MARKER", prompt)
         self.assertIn("Do not call tools", prompt)
         self.assertIn("run tests or evals", prompt)
@@ -205,6 +211,9 @@ class CodexMaintainSessionTests(unittest.TestCase):
         self.assertIn("relevant existing Context Owner", prompt)
         self.assertIn("current/ for documents that directly repeat", prompt)
         self.assertIn("`기록해 달라`는 요청만으로 그 원문을 current에 옮기지 않는다", prompt)
+        self.assertIn("도착한 순서대로 옮기지 않고", prompt)
+        self.assertIn("## 사람용 문서 작성과 갱신", prompt)
+        self.assertIn("`source/index.md`, `output/index.md`, `records/README.md`", prompt)
         self.assertIn("Do not explore other Workspaces", prompt)
         self.assertIn("Do not write files", prompt)
 

@@ -18,6 +18,16 @@
 - `records/`: source와 실제 작업을 바탕으로 만든 분석·결정·실행·검증 기록의 누적층. 분석 메모·후보·비교·탈락안·선택 근거처럼 goal 산출물을 만들고 고른 사람이 읽는 기록은 이 폴더 바로 아래에 날짜와 내용을 드러내어 둔다.
 - `records/receipts/`: 기계가 만든 append-only 증거를 종류별로 격리하는 층. 제품 검증은 `verify/`, Harness 자체 검증은 `harness-tests/`, 이식 전 상태 캡처는 `preflight/`를 사용한다. 새 제품 Verify는 `records/receipts/verify/verify-*.json`에 쓰며 `status.json`의 receipt 경로는 Work root 상대다. 이전 flat `records/verify-*.json`만 기존 제품 Verify 증거의 읽기 호환 경로로 허용하고 다른 receipt 종류는 product status에 연결하지 않는다.
 
+## 사람용 문서 작성과 갱신
+
+Workspace의 사람용 Markdown은 각 파일이 맡은 역할 안에서 다음 판단과 재검토에 필요한 의미를 읽기 좋게 전달한다. 이 기준은 `current/`의 Spec·Ticket·추가 memory·state, `source/index.md`, `output/index.md`, `records/README.md`와 새 날짜별 record에 적용한다. Machine identity·계약·status·receipt, 변경하지 않는 raw source와 제품 산출물의 형식을 바꾸는 기준은 아니다.
+
+문서를 만들거나 갱신할 때는 먼저 해당 층의 Owner 역할과 대상 문서의 기존 구성, 새 내용 사이의 관계를 읽는다. 전달받은 사실을 도착한 순서대로 옮기지 않고 의미에 따라 묶으며, 기존 문서에서는 아직 유효한 내용에 새 의미를 통합한다. 겹치는 설명은 합치고 새 결과가 대체한 상태·진행 문구는 고치거나 덜어 내며, 서로 떨어져 있어 이해를 방해하는 내용은 관계가 드러나게 재배치한다. 새 record도 대화나 실행 출력을 그대로 전사하지 않고 이후 판단을 재검토하는 데 필요한 사건·근거·결과를 조직한다.
+
+문단·목록·소제목과 정보의 순서는 문서의 역할, 내용 사이의 관계와 기존 구성에 맞춰 선택한다. 모든 문서에 같은 하위 서식이나 고정 순서를 적용하지 않으며 기존 형식 유지와 새 형식 도입 중 어느 쪽도 기본값으로 삼지 않는다. 독자가 전달 순서를 다시 조립하지 않고도 그 문서가 맡은 현재 의미·판단 지점·근거 위치를 이해할 수 있는지를 본다. 출처 강도와 확인 범위는 구별하되 같은 단서를 문장마다 반복하지 않고 관련 주장을 묶는 수준에서 분명히 한다.
+
+가독성을 이유로 층의 Owner를 흐리거나 같은 설명을 `current`·`source`·`output`·`records`에 복제하지 않는다. Current에는 현재 유효한 의미를, source에는 변경하지 않은 원문과 provenance를, output에는 선택한 산출물과 canonical 위치를, records에는 이후에도 살필 과정과 상세 근거를 둔다. 기존 record는 append-only 근거이므로 다시 편집하지 않으며 새 record와 색인을 읽기 좋게 만드는 것이 과거 record 재작성을 허용하지 않는다.
+
 ## 새 Workspace 생성과 관계
 
 새 Workspace는 이전 Workspace의 후속이어도 자기 goal과 current를 소유하는 독립된 지속 단위다. Workspace 사이에 자동 동기화·역전파나 다른 Workspace의 current를 연쇄적으로 읽어야 하는 관계를 만들지 않는다.
