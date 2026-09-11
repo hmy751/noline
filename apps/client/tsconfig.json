@@ -7,6 +7,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "app", "global.d.ts", "nativewind-env.d.ts"],
+  "include": ["src", "app", "tests", "global.d.ts", "nativewind-env.d.ts"],
   "exclude": ["node_modules"]
 }

@@ -10,7 +10,7 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "test": "jest --config jest.config.cjs",
     "test:watch": "jest --config jest.config.cjs --watch",
-    "test:typecheck": "tsc --project tsconfig.test.json --noEmit"
+    "test:typecheck": "tsc --project tsconfig.json --noEmit"
   },
   "dependencies": {
     "@babel/runtime": "^7.24.8",
@@ -62,6 +62,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@jest/globals": "29.7.0",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@testing-library/react-native": "13.3.3",

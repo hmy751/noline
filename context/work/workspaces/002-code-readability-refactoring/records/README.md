@@ -13,4 +13,6 @@
 
 - [Ticket 03 테스트 환경 구축 결과](2026-09-11-03-storage-stats-test-setup.md): client 소유 Jest 설정과 확정 버전, smoke 검증 결과, 실행 중 확인한 제약과 아직 입증하지 않은 범위.
 
+- [Ticket 03 특성화 테스트와 저장 용량 리팩터링](2026-09-11-04-storage-stats-refactor.md): 에디터 진단에 맞춘 설정 보완, 변경 전 hook 계약, 같은 파일 안의 책임 분리와 React 최신 요청 처리, 검증 결과와 남은 한계.
+
 후속 분석·결정·실행 기록은 이 디렉터리에 날짜별로 남긴다. 원문·변경하지 않은 snapshot은 [source](../source/index.md), 현재 기준과 진행은 [current](../current/memory/index.md)가 소유한다.

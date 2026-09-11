@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import * as FileSystem from 'expo-file-system';
 import MapboxGL from '@rnmapbox/maps';
 
@@ -8,80 +8,133 @@ export interface StorageStats {
   totalSize: string;
 }
 
-export function useStorageStats() {
-  const [stats, setStats] = useState<StorageStats>({
-    dbSize: '0 B',
-    mapPackSize: '0 B',
-    totalSize: '0 B',
-  });
+interface DatabaseSizeResult {
+  bytes: number;
+  completed: boolean;
+}
 
-  useEffect(() => {
-    calculateStorage();
+const DATABASE_DIRECTORY_NAME = 'SQLite';
+const DATABASE_FILE_SUFFIXES = ['.db', '.db-wal', '.db-shm'] as const;
+const BYTE_UNITS = ['B', 'KB', 'MB', 'GB', 'TB'] as const;
+const BYTES_PER_UNIT = 1024;
+
+function isValidByteCount(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0;
+}
+
+function formatBytes(bytes: number): string {
+  if (!isValidByteCount(bytes) || bytes === 0) {
+    return '0 B';
+  }
+
+  const unitIndex = Math.min(Math.floor(Math.log(bytes) / Math.log(BYTES_PER_UNIT)), BYTE_UNITS.length - 1);
+  const value = Number((bytes / BYTES_PER_UNIT ** unitIndex).toFixed(1));
+  return `${value} ${BYTE_UNITS[unitIndex]}`;
+}
+
+function createStorageStats(databaseBytes: number, mapPackBytes: number): StorageStats {
+  return {
+    dbSize: formatBytes(databaseBytes),
+    mapPackSize: formatBytes(mapPackBytes),
+    totalSize: formatBytes(databaseBytes + mapPackBytes),
+  };
+}
+
+function isDatabaseStorageFile(fileName: string): boolean {
+  return DATABASE_FILE_SUFFIXES.some((suffix) => fileName.endsWith(suffix));
+}
+
+async function collectDatabaseSize(): Promise<DatabaseSizeResult> {
+  let bytes = 0;
+  const documentsDirectory = FileSystem.documentDirectory;
+
+  if (!documentsDirectory) {
+    console.warn('Failed to collect SQLite storage size: document directory is unavailable');
+    return { bytes, completed: false };
+  }
+
+  const dbDirectory = `${documentsDirectory}${DATABASE_DIRECTORY_NAME}`;
+  try {
+    const directoryInfo = await FileSystem.getInfoAsync(dbDirectory);
+    if (!directoryInfo.exists || !directoryInfo.isDirectory) {
+      return { bytes, completed: true };
+    }
+
+    const files = await FileSystem.readDirectoryAsync(dbDirectory);
+    for (const file of files) {
+      if (!isDatabaseStorageFile(file)) {
+        continue;
+      }
+
+      const fileInfo = await FileSystem.getInfoAsync(`${dbDirectory}/${file}`);
+      if (fileInfo.exists && isValidByteCount(fileInfo.size)) {
+        bytes += fileInfo.size;
+      }
+    }
+  } catch (error) {
+    console.warn('Failed to collect SQLite storage size:', error);
+    return { bytes, completed: false };
+  }
+
+  return { bytes, completed: true };
+}
+
+async function collectMapPackSize(): Promise<number> {
+  let bytes = 0;
+  const packs = await MapboxGL.offlineManager.getPacks();
+
+  for (const pack of packs) {
+    try {
+      const status = await pack.status();
+      if (status && isValidByteCount(status.completedResourceSize)) {
+        bytes += status.completedResourceSize;
+      }
+    } catch (error) {
+      console.warn('Failed to get status for pack:', pack.name, error);
+    }
+  }
+
+  return bytes;
+}
+
+async function calculateStorageStats(): Promise<StorageStats> {
+  const database = await collectDatabaseSize();
+
+  // DB 집계가 중단되면 부분 합계를 보존하고 Mapbox 조회는 시작하지 않습니다.
+  if (!database.completed) {
+    return createStorageStats(database.bytes, 0);
+  }
+
+  try {
+    const mapPackBytes = await collectMapPackSize();
+    return createStorageStats(database.bytes, mapPackBytes);
+  } catch (error) {
+    console.warn('Failed to collect offline map storage size:', error);
+    return createStorageStats(database.bytes, 0);
+  }
+}
+
+export function useStorageStats() {
+  const [stats, setStats] = useState<StorageStats>(() => createStorageStats(0, 0));
+  const latestRequestId = useRef(0);
+
+  const refresh = useCallback(async () => {
+    const requestId = ++latestRequestId.current;
+    const nextStats = await calculateStorageStats();
+
+    if (requestId === latestRequestId.current) {
+      setStats(nextStats);
+    }
   }, []);
 
-  const formatBytes = (bytes: number, decimals = 1) => {
-    if (bytes === 0) return '0 B';
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-  };
+  useEffect(() => {
+    refresh();
 
-  const calculateStorage = async () => {
-    let dbSizeBytes = 0;
-    let mapSizeBytes = 0;
+    return () => {
+      // unmount 뒤 늦게 끝난 native 조회 결과는 상태에 반영하지 않습니다.
+      latestRequestId.current += 1;
+    };
+  }, [refresh]);
 
-    try {
-      // 1. SQLite DB 용량
-      // Expo SQLite는 문서 디렉토리의 SQLite 폴더에 .db 확장자로 파일을 생성합니다.
-      // 보통 경로는 ${FileSystem.documentDirectory}SQLite/noline.db 입니다.
-      const dbDir = `${FileSystem.documentDirectory}SQLite`;
-      const dbInfo = await FileSystem.getInfoAsync(dbDir);
-
-      if (dbInfo.exists && dbInfo.isDirectory) {
-        const files = await FileSystem.readDirectoryAsync(dbDir);
-        for (const file of files) {
-          if (file.endsWith('.db') || file.endsWith('.db-wal') || file.endsWith('.db-shm')) {
-            const fileInfo = await FileSystem.getInfoAsync(`${dbDir}/${file}`);
-            if (fileInfo.exists) {
-              dbSizeBytes += fileInfo.size;
-            }
-          }
-        }
-      }
-
-      // 2. Mapbox 오프라인 팩 용량 (Mapbox에서 직접 조회)
-      // MapboxGL.offlineManager.getPacks()로 팩 목록을 가져온 후,
-      // 각 팩의 status()를 호출하여 completedResourceSize를 합산합니다.
-      const packs = await MapboxGL.offlineManager.getPacks();
-
-      for (const pack of packs) {
-        try {
-          const status = await pack.status();
-          if (status && typeof status.completedResourceSize === 'number') {
-            mapSizeBytes += status.completedResourceSize;
-          }
-        } catch (err) {
-          console.warn('Failed to get status for pack:', pack.name, err);
-        }
-      }
-
-      setStats({
-        dbSize: formatBytes(dbSizeBytes),
-        mapPackSize: formatBytes(mapSizeBytes),
-        totalSize: formatBytes(dbSizeBytes + mapSizeBytes),
-      });
-    } catch (error) {
-      console.warn('Failed to calculate storage stats:', error);
-      // Fallback display
-      setStats({
-        dbSize: formatBytes(dbSizeBytes),
-        mapPackSize: formatBytes(mapSizeBytes),
-        totalSize: formatBytes(dbSizeBytes + mapSizeBytes),
-      });
-    }
-  };
-
-  return { stats, refresh: calculateStorage };
+  return { stats, refresh };
 }
