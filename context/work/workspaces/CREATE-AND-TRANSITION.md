@@ -4,6 +4,8 @@
 
 Repo-local [`create-context-workspace` skill](../../../.agents/skills/create-context-workspace/SKILL.md)은 이 계약을 적용하는 교체 가능한 관리 장치다. Skill을 사용하지 않거나 제거해도 사람이나 다른 AI가 이 문서를 따라 같은 책임을 수행할 수 있어야 하며, skill 문장을 이 계약의 두 번째 정본으로 사용하지 않는다.
 
+새 Workspace의 사람용 문서를 구성할 때는 [문서 작성과 갱신](DOCUMENT-WRITING.md)을 직접 읽고 적용한다. 글의 내용 충분성·구성·표현은 해당 지침을 따르며, 생성 범위와 아래의 전환·검토 책임은 이 계약이 소유한다.
+
 ## 시작 조건과 책임
 
 서로 무관한 작업을 새 Workspace로 시작하거나, 현재 작업에서 이어지는 새 goal을 후속 Workspace로 분리할 때 적용한다. 기존 Workspace에 재진입하거나 그 Workspace 안의 current를 갱신하는 일에는 적용하지 않는다.

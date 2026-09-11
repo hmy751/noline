@@ -6,6 +6,8 @@ Context의 의미와 Owner는 [`Work context`](../../README.md), [`Workspace col
 
 Codex에서 main이 수동 fallback으로 부를 의미 판단 role은 [`workspace-context-maintainer.toml`](workspace-context-maintainer.toml)이다. Project root의 [`.codex/config.toml`](../../../../.codex/config.toml)은 이 하위 파일을 `workspace_context_maintainer` role로 발견하게 할 뿐 자동 session 시작, warm identity나 response-end dispatch를 보장하지 않는다. Claude Code는 [`.claude/settings.json`](../../../../.claude/settings.json)의 hook으로 같은 lifecycle 계약에 들어오며, 현재 semantic runner는 Codex implementation을 재사용한다. 자동 lifecycle은 별도의 persisted session bridge와 hook adapter가 맡는다.
 
+모델·추론 수준은 같은 role 파일의 `model`과 `model_reasoning_effort`에서 설정한다. 자동 bridge도 시작과 재개마다 이 두 값을 읽어 CLI에 명시하므로, 전역 기본값이나 기존 thread의 모델 선택에 맡기지 않는다. 설정을 읽을 수 없거나 필수 값이 없으면 기본 모델로 대체하지 않고 실패한다. 자동 bridge의 TOML 읽기에는 Python 3.11 이상이 필요하다. 설정 변경은 다음 호출부터 적용되며 이미 실행 중인 판단을 재시작하지 않는다.
+
 ## 내부 책임과 진입점
 
 Maintain 전체의 목적과 비소유 범위는 이 README가 canonical이다. 내부의 서로 다른 판단과 집행 경계는 다음 진입점에서 이어진다.
@@ -68,7 +70,9 @@ Agent는 제품 test를 대신 실행하거나 사람의 목표·acceptance·완
 
 current는 현재 유효한 뜻을 정규화해 보여 주는 층이다. 과거 전제를 `주의`, `기준 아님`, `유지하지 않는다` 같은 부정문과 긴 turn 경위로 계속 남기지 않는다. 정정이 목표·기준·문제 정의·근거 선택·접근·책임 경계를 바꾸면 무효화된 전제를 찾고, 그 전제를 직접 사용한 관련 Spec·Ticket·state·추가 memory를 제한적으로 확인한다. 영향받은 current는 유효한 현재 의미로 교정하거나 불필요한 서술을 삭제하고, 과거 전제와 교정 이유가 이후에도 필요할 때만 records로 격리한다. 정정과 무관한 목표·계약·검증된 결과는 유지한다.
 
-사람용 Workspace 문서를 만들거나 갱신할 때는 [Workspace collection의 작성·갱신 기준](../../workspaces/README.md#사람용-문서-작성과-갱신)을 적용한다. 문서의 역할·기존 구성·내용 관계에 맞는 표현 선택은 agent가 맡고, guarded apply는 가독성을 기계적으로 판정하지 않는다. Spec·Ticket·state의 상세 의미는 [Spec과 Ticket](../../workspaces/SPEC-AND-TICKETS.md)이 계속 소유한다.
+사람용 Workspace 문서를 만들거나 갱신할 때는 [문서 작성과 갱신](../../workspaces/DOCUMENT-WRITING.md)을 적용한다. 문서 목적에 맞는 내용의 충분성·구성·표현 판단은 agent가 맡고, guarded apply는 이를 기계적으로 판정하지 않는다. Spec·Ticket·state의 상세 의미는 [Spec과 Ticket](../../workspaces/SPEC-AND-TICKETS.md)이 계속 소유한다. Codex bridge는 정본 파일에서 읽은 작성 지침 본문을 grounding과 후속 판단 입력에 포함한다. 입력에 본문이 있으면 이를 사용하며 같은 파일을 다시 읽지 않고, 본문이 제공되지 않는 수동 경로에서만 직접 읽는다.
+
+입력만으로 요청한 기록의 중요한 의미를 복원하기 어려우면 아래의 허용된 근거 읽기 범위에서 보완한다. 보완할 수 없는 자료와 그 때문에 남기지 못한 의미는 `unresolved`에 구체적으로 반환하며, 확인한 부분의 반영과 기록 요청 전체의 충족을 구별한다. 이를 다른 session의 원문 자동 수집이나 기본 탐색 범위 확대로 해석하지 않는다.
 
 state를 갱신할 때는 그 파일 전체에서 이미 끝났거나 뒤 단계가 대체한 진행 경위·접수 이력·일회성 보고를 함께 확인한다. 현재 단계, 다음 행동, 계속 유효한 제약, 실제 결과와 미확인만 남기고, 이후에도 필요한 과거 경위는 records 링크로 압축한다. 이 정리는 갱신 중인 state 안에 한정하며 다른 current를 포괄 정리하는 계기로 삼지 않는다.
 

@@ -93,7 +93,7 @@ Ticket은 기능 구현·코드 개선·결함 수정 등 작업 성격에 맞�
 
 ## 갱신과 작업의 연속성
 
-Spec·Ticket·state를 포함한 사람용 Workspace 문서의 일반 작성·갱신 방식은 [Workspace collection의 사람용 문서 기준](README.md#사람용-문서-작성과-갱신)을 따른다. 이 문서는 그중 Spec·Ticket의 내용과 관계만 더 구체화한다.
+Spec·Ticket·state의 글을 작성하거나 갱신할 때는 [문서 작성과 갱신](DOCUMENT-WRITING.md)을 직접 읽고 적용한다. 일반적인 내용 충분성·표현·편집 기준은 그 문서가, 작업 정의와 실행·상태의 상세 의미는 이 문서가 소유한다.
 
 Spec·Ticket은 memory에 유지하며 작업 중 필요하면 고친다. Workspace와 함께 스냅샷처럼 남고, 후속 Workspace나 Project의 변화에 맞춰 계속 최신화할 의무는 없다. 다른 Workspace에서 필요한 의미를 새로 구성해도 서로 자동 전파하거나 공유 정본에 매달리지 않는다. 이 독립성은 작업 중 수정을 막는 불변성 규칙이 아니다.
 

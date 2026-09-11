@@ -1,0 +1,154 @@
+{
+  "captured_at": "2026-09-11T12:59:22.529377Z",
+  "git": {
+    "branch": "refactor/codebase",
+    "dirty_entries": [
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": ".pnpm-store/v11/index.db",
+        "sha256": "04db8e97a641d7b9e0dca1ce5ff3b12441c078a16333c1dd45dac6082403aa37",
+        "size": 8192,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": null,
+        "index_oid": null,
+        "kind": "file",
+        "path": "apps/client/tests/features/profile/hooks/useStorageStats.test.ts",
+        "sha256": "3b0f0125452992bf13026b8541b1bdbd41117ecf366475d162ce8c806eeda9fe",
+        "size": 5587,
+        "states": [
+          "untracked"
+        ]
+      },
+      {
+        "head_oid": "9fa672b90bfcf2343327d1a3ae8d47ee58299d8f",
+        "index_oid": "9fa672b90bfcf2343327d1a3ae8d47ee58299d8f",
+        "kind": "file",
+        "path": "context/work/workspaces/002-code-readability-refactoring/current/memory/tickets/03-storage-stats.md",
+        "sha256": "20646952f93f6682473610c5e421f8bcf010642bbbeed8e474887c7bc3604e54",
+        "size": 4945,
+        "states": [
+          "worktree"
+        ]
+      },
+      {
+        "head_oid": "9d1f762be1aa76f6136ee25d2a744c76d508601f",
+        "index_oid": "9d1f762be1aa76f6136ee25d2a744c76d508601f",
+        "kind": "file",
+        "path": "context/work/workspaces/002-code-readability-refactoring/output/index.md",
+        "sha256": "d3388ed4795148302f8b779cf057721f503058f0fd1ae99ca8821c90c6acdfde",
+        "size": 2107,
+        "states": [
+          "worktree"
+        ]
+      }
+    ],
+    "head": "653f8b8ad11c18d6c7eaa4da71ea4bdfcc956225",
+    "status_porcelain_v1": " M context/work/workspaces/002-code-readability-refactoring/current/memory/tickets/03-storage-stats.md\n M context/work/workspaces/002-code-readability-refactoring/output/index.md\n?? .pnpm-store/v11/index.db\n?? apps/client/tests/features/profile/hooks/useStorageStats.test.ts\n"
+  },
+  "instruction_files": [
+    {
+      "head_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "index_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "kind": "symlink",
+      "link_target": "CLAUDE.md",
+      "path": "AGENTS.md",
+      "sha256": "6ebdb617a8104a7756d0cf36578ab01103dc9f07e4dc6feb751296b9c402faf7",
+      "size": 9
+    },
+    {
+      "head_oid": "14592a0c00574cf8b4592d849bda1e9f65b1c1f3",
+      "index_oid": "14592a0c00574cf8b4592d849bda1e9f65b1c1f3",
+      "kind": "file",
+      "path": "CLAUDE.md",
+      "sha256": "e38d602970bb042668935f8533f892840ce27a729832bce63c27a4d908a7c8da",
+      "size": 11294
+    },
+    {
+      "head_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "index_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "kind": "symlink",
+      "link_target": "CLAUDE.md",
+      "path": "apps/client/AGENTS.md",
+      "sha256": "6ebdb617a8104a7756d0cf36578ab01103dc9f07e4dc6feb751296b9c402faf7",
+      "size": 9
+    },
+    {
+      "head_oid": "db78aa05bffc512a4e1064c828bbe3bd1fe51378",
+      "index_oid": "db78aa05bffc512a4e1064c828bbe3bd1fe51378",
+      "kind": "file",
+      "path": "apps/client/CLAUDE.md",
+      "sha256": "5b4f390a6da4f2bc3dcb9f6d1989dcaeceea67c7ad49ca54838e5d5ef3e61394",
+      "size": 4459
+    },
+    {
+      "head_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "index_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "kind": "symlink",
+      "link_target": "CLAUDE.md",
+      "path": "apps/server/AGENTS.md",
+      "sha256": "6ebdb617a8104a7756d0cf36578ab01103dc9f07e4dc6feb751296b9c402faf7",
+      "size": 9
+    },
+    {
+      "head_oid": "702c9495b0c172c90e1f40aadabab433f3eec71f",
+      "index_oid": "702c9495b0c172c90e1f40aadabab433f3eec71f",
+      "kind": "file",
+      "path": "apps/server/CLAUDE.md",
+      "sha256": "5a213e1eeb6913a57bdf77bbe0f8efa014dcd8fee6c0f72307de3eef1a55e733",
+      "size": 3643
+    },
+    {
+      "head_oid": "72b4ddc635784f988068306c5a02179cb7388110",
+      "index_oid": "72b4ddc635784f988068306c5a02179cb7388110",
+      "kind": "file",
+      "path": "context/work/AGENTS.md",
+      "sha256": "1c106955c398da83894a186fd3f23d03a3a9c4845a293be92fdea6db2226861a",
+      "size": 13448
+    },
+    {
+      "head_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "index_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "kind": "symlink",
+      "link_target": "CLAUDE.md",
+      "path": "packages/schema/AGENTS.md",
+      "sha256": "6ebdb617a8104a7756d0cf36578ab01103dc9f07e4dc6feb751296b9c402faf7",
+      "size": 9
+    },
+    {
+      "head_oid": "df8a3c862dc47aba8447f79d32e8628c51df3fb5",
+      "index_oid": "df8a3c862dc47aba8447f79d32e8628c51df3fb5",
+      "kind": "file",
+      "path": "packages/schema/CLAUDE.md",
+      "sha256": "0fc32382914caf2127751ef90961e4b63679658d9e2a424cf1096cbb0e7b27ee",
+      "size": 3322
+    },
+    {
+      "head_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "index_oid": "681311eb9cf453d0faddf3aacaec7357e97ba8e9",
+      "kind": "symlink",
+      "link_target": "CLAUDE.md",
+      "path": "packages/ui/AGENTS.md",
+      "sha256": "6ebdb617a8104a7756d0cf36578ab01103dc9f07e4dc6feb751296b9c402faf7",
+      "size": 9
+    },
+    {
+      "head_oid": "accb9ddeae8f28542b3ef59d65f932c21c5ec323",
+      "index_oid": "accb9ddeae8f28542b3ef59d65f932c21c5ec323",
+      "kind": "file",
+      "path": "packages/ui/CLAUDE.md",
+      "sha256": "07576c62930e84f5d33b45260fdbf9ecc4fb69edbbd3d03749546216e05f5ac2",
+      "size": 2911
+    }
+  ],
+  "project_root": "/Users/hammyeong-yeon/Desktop/10_work/noline",
+  "proof_ceiling": "This receipt captures observed paths and bytes during one local capture pass. It is not an atomic snapshot; concurrent changes may make fields internally inconsistent. It does not establish authorship, intent, or a pre-existing immutable history.",
+  "receipt_id": "04d13c0075fe4632b2a1b35bb0453a2e",
+  "receipt_type": "context_harness_preflight",
+  "schema_version": 1
+}

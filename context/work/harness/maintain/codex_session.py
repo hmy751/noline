@@ -135,6 +135,7 @@ class CodexMaintainSession:
                 "--sandbox",
                 "read-only",
                 "--ignore-user-config",
+                *self._model_options(),
                 "-C",
                 str(self.project_root),
                 "-c",
@@ -177,6 +178,7 @@ class CodexMaintainSession:
                 thread_id,
                 "--json",
                 "--ignore-user-config",
+                *self._model_options(),
                 "-c",
                 "features.hooks=false",
                 "--output-schema",
@@ -286,6 +288,13 @@ class CodexMaintainSession:
             raise HarnessError(
                 f"Workspace Spec/Ticket contract is not readable UTF-8 text: {exc}"
             ) from exc
+        writing_rules_path = workspace_rules_path.with_name("DOCUMENT-WRITING.md")
+        try:
+            writing_rules = writing_rules_path.read_text(encoding="utf-8")
+        except (OSError, UnicodeError) as exc:
+            raise HarnessError(
+                f"Workspace writing contract is not readable UTF-8 text: {exc}"
+            ) from exc
         return (
             "You are the read-only semantic judge for Workspace Maintain.\n"
             f"Explicit workspace_id: {self.workspace_id}\n\n"
@@ -295,12 +304,18 @@ class CodexMaintainSession:
             "tests or evals, access external systems, stage, commit, or push. "
             "Return only the JSON object required by the supplied "
             "output schema.\n\n"
+            "The contract texts below are provided in full from their "
+            "canonical files. Use these supplied texts without reopening "
+            "the same contract files through tools.\n\n"
             "<maintain_readme>\n"
             f"{readme}"
             "</maintain_readme>\n\n"
             "<workspace_collection_contract>\n"
             f"{workspace_collection}"
             "</workspace_collection_contract>\n\n"
+            "<workspace_writing_contract>\n"
+            f"{writing_rules}"
+            "</workspace_writing_contract>\n\n"
             "<workspace_spec_ticket_contract>\n"
             f"{workspace_rules}"
             "</workspace_spec_ticket_contract>\n\n"
@@ -308,6 +323,35 @@ class CodexMaintainSession:
             f"{serialized}\n"
             f"</{payload_name}>\n"
         )
+
+    def _model_options(self) -> list[str]:
+        """Share the manual role's model settings on every CLI invocation."""
+
+        try:
+            import tomllib
+        except ModuleNotFoundError as exc:
+            raise HarnessError(
+                "Codex Maintain requires Python 3.11 or newer to read its "
+                "role configuration"
+            ) from exc
+        config_path = self._resource_path("workspace-context-maintainer.toml")
+        try:
+            config = tomllib.loads(config_path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, tomllib.TOMLDecodeError) as exc:
+            raise HarnessError(
+                f"Maintain role configuration is not readable valid TOML: {exc}"
+            ) from exc
+        model = expect_nonempty_string(config.get("model"), "Maintain role model")
+        effort = expect_nonempty_string(
+            config.get("model_reasoning_effort"),
+            "Maintain role model_reasoning_effort",
+        )
+        return [
+            "--model",
+            model,
+            "-c",
+            f"model_reasoning_effort={json.dumps(effort)}",
+        ]
 
     def _resource_path(self, filename: str) -> Path:
         path = Path(__file__).resolve().with_name(filename)

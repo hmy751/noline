@@ -5,6 +5,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from unittest import mock
 
 from context.work.harness.maintain.codex_session import CodexMaintainSession
 from context.work.harness.workspace_contract import HarnessError
@@ -117,6 +118,10 @@ class CodexMaintainSessionTests(unittest.TestCase):
                 "--sandbox",
                 "read-only",
                 "--ignore-user-config",
+                "--model",
+                "gpt-5.6-sol",
+                "-c",
+                'model_reasoning_effort="high"',
                 "-C",
                 str(self.project_root.resolve()),
                 "-c",
@@ -147,6 +152,11 @@ class CodexMaintainSessionTests(unittest.TestCase):
             prompt,
         )
         self.assertIn("BOUNDED_BOOTSTRAP_MARKER", prompt)
+        self.assertIn(
+            (module_root.parents[1] / "workspaces" / "DOCUMENT-WRITING.md")
+            .read_text(encoding="utf-8"),
+            prompt,
+        )
         self.assertIn("Do not call tools", prompt)
         self.assertIn("run tests or evals", prompt)
         self.assertIn("access external systems", prompt)
@@ -192,6 +202,10 @@ class CodexMaintainSessionTests(unittest.TestCase):
                 THREAD_ID,
                 "--json",
                 "--ignore-user-config",
+                "--model",
+                "gpt-5.6-sol",
+                "-c",
+                'model_reasoning_effort="high"',
                 "-c",
                 "features.hooks=false",
                 "--output-schema",
@@ -211,11 +225,95 @@ class CodexMaintainSessionTests(unittest.TestCase):
         self.assertIn("relevant existing Context Owner", prompt)
         self.assertIn("current/ for documents that directly repeat", prompt)
         self.assertIn("`기록해 달라`는 요청만으로 그 원문을 current에 옮기지 않는다", prompt)
-        self.assertIn("도착한 순서대로 옮기지 않고", prompt)
-        self.assertIn("## 사람용 문서 작성과 갱신", prompt)
-        self.assertIn("`source/index.md`, `output/index.md`, `records/README.md`", prompt)
+        self.assertIn(
+            (module_root.parents[1] / "workspaces" / "DOCUMENT-WRITING.md")
+            .read_text(encoding="utf-8"),
+            prompt,
+        )
         self.assertIn("Do not explore other Workspaces", prompt)
         self.assertIn("Do not write files", prompt)
+
+    def test_reads_role_model_settings_again_on_resume(self) -> None:
+        runner = ScriptedRunner(
+            [
+                {"stdout": self.started(), "last_message": grounding()},
+                {"stdout": self.started(), "last_message": no_change_decision()},
+            ]
+        )
+        session = self.new_session(runner)
+        config_path = self.temp_root / "role.toml"
+        resource_path = session._resource_path
+
+        def resource(filename: str) -> Path:
+            if filename == "workspace-context-maintainer.toml":
+                return config_path
+            return resource_path(filename)
+
+        with mock.patch.object(session, "_resource_path", side_effect=resource):
+            config_path.write_text(
+                'model = "fixture-model-one"\nmodel_reasoning_effort = "medium"\n',
+                encoding="utf-8",
+            )
+            session.start({"workspace_id": "007-clean-room"})
+            config_path.write_text(
+                'model = "fixture-model-two"\nmodel_reasoning_effort = "high"\n',
+                encoding="utf-8",
+            )
+            session.resume({"main_response": "delta"})
+
+        for call, model, effort in (
+            (runner.calls[0], "fixture-model-one", "medium"),
+            (runner.calls[1], "fixture-model-two", "high"),
+        ):
+            command = call[0]
+            self.assertEqual(command[command.index("--model") + 1], model)
+            self.assertIn(f'model_reasoning_effort="{effort}"', command)
+
+    def test_invalid_role_settings_do_not_fall_back_to_cli_defaults(self) -> None:
+        cases = [
+            (None, "not readable valid TOML"),
+            (b"\xff", "not readable valid TOML"),
+            (b"model = [", "not readable valid TOML"),
+            (b'model_reasoning_effort = "high"', "Maintain role model"),
+            (b'model = "gpt-5.6-terra"', "Maintain role model_reasoning_effort"),
+            (b'model = 7\nmodel_reasoning_effort = "high"', "Maintain role model"),
+            (
+                b'model = "gpt-5.6-terra"\nmodel_reasoning_effort = ""',
+                "Maintain role model_reasoning_effort",
+            ),
+        ]
+        for index, (content, error) in enumerate(cases):
+            for restored in (False, True):
+                with self.subTest(index=index, restored=restored):
+                    runner = ScriptedRunner([])
+                    session = (
+                        CodexMaintainSession.restore(
+                            self.project_root,
+                            "007-clean-room",
+                            thread_id=THREAD_ID,
+                            runner=runner,
+                            codex_executable="fixture-codex",
+                        )
+                        if restored else self.new_session(runner)
+                    )
+                    config_path = self.temp_root / f"role-{index}.toml"
+                    if content is not None:
+                        config_path.write_bytes(content)
+                    resource_path = session._resource_path
+
+                    def resource(filename: str) -> Path:
+                        if filename == "workspace-context-maintainer.toml":
+                            return config_path
+                        return resource_path(filename)
+
+                    with mock.patch.object(
+                        session, "_resource_path", side_effect=resource
+                    ), self.assertRaisesRegex(HarnessError, error):
+                        if restored:
+                            session.resume({"main_response": "delta"})
+                        else:
+                            session.start({"workspace_id": "007-clean-room"})
+                    self.assertEqual(runner.calls, [])
 
     def test_resolves_symlink_when_real_codex_has_sibling_tool_host(self) -> None:
         bundle = self.temp_root / "bundle"
@@ -350,6 +448,9 @@ class CodexMaintainSessionTests(unittest.TestCase):
 
         self.assertEqual(session.thread_id, THREAD_ID)
         self.assertEqual(runner.calls[0][0][2:4], ["resume", THREAD_ID])
+        command = runner.calls[0][0]
+        self.assertEqual(command[command.index("--model") + 1], "gpt-5.6-sol")
+        self.assertIn('model_reasoning_effort="high"', command)
         with self.assertRaisesRegex(HarnessError, "unsupported characters"):
             CodexMaintainSession.restore(
                 self.project_root,

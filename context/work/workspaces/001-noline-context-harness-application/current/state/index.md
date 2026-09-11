@@ -1,15 +1,23 @@
 # 현재 이식 상태
 
-2026-09-09 실행 계약·layer·운영 skill 보완과 당시 tests·독립 review는 [Reference 적용 기록](../../records/2026-09-09-01-reference-upgrade.md), 2026-09-10 이전 요약 세 문서의 내용 귀속·제거와 당시 검증은 [문서 전환 기록](../../records/2026-09-10-01-document-transition.md)에 보존한다. 이 결과를 이번 재적용의 확인으로 대신하지 않는다.
+## 문서 작성 기준과 Maintainer 설정
 
-Maintainer는 current의 현재 의미와 records의 과정 근거를 구분하고, 정정·단계 변화가 직접 의존한 current를 함께 확인한다. 사람용 Workspace 문서를 만들거나 갱신할 때에는 Spec·Ticket에 한정하지 않고 허용된 current·source/output 색인·records 전반에서 각 Owner와 기존 구성을 먼저 읽는다. 새 정보는 도착 순서대로 덧붙이지 않고 의미 관계에 따라 통합하며, 문서마다 같은 제목이나 정보 순서를 강제하지 않는다. [자료 구분 보완 기록](../../records/2026-09-11-01-maintainer-material-classification-correction.md)과 [문서 통합 편집 보완 기록](../../records/2026-09-11-02-maintainer-readable-editing-guidance.md)이 각각의 적용 근거를 소유한다.
+Workspace 사람용 문서의 내용 충분성·선택 이유와 조건 보존·구성·갱신 기준은 [문서 작성과 갱신](../../../DOCUMENT-WRITING.md)이 소유한다. Workspace README는 층·Owner·보존 경계와 읽기 경로를 맡고, Spec·Ticket과 생성·전환 기준은 각 절차 안에서 새 지침을 적용한다. 모든 문서에 같은 목차나 정보 순서를 강제하지 않는다.
 
-두 보완은 Noline 고유 연결과 사용자의 Workspace 002 변경을 유지한 채 설치본에 적용했다. 이번 문서 통합 편집 보완에서는 Maintainer 테스트 70개와 TOML parse가 통과했다. 전체 Harness 122개 중 121개가 통과했고 Reference에서도 같은 실패를 보인 Verify descendant timeout 타이밍 시험 1개는 분리 재실행에서 통과했다. 실제 semantic 재생, host activation과 기존 문서의 자동 재분류는 아직 확인하지 않았다.
+Maintainer는 [역할 설정](../../../../harness/maintain/workspace-context-maintainer.toml)의 Sol high를 사용하도록 설정됐다. 자동 runner도 시작·재개마다 같은 값을 읽고 작성 지침 정본의 전체 본문을 입력에 한 번 포함한다. 본문이 제공된 경우 같은 파일을 다시 읽지 않으며, 수동 경로에서 본문이 없으면 직접 읽는다. Python 3.11 이상이 필요하고 다음 호출부터 설정이 적용된다. 실행 중인 호출을 재시작하거나 session binding을 변경하지 않았다.
 
-사용자가 승인한 dirty Source의 Project 관리 계약 배치를 재적용했다. README는 구조·실제 내용 위치·권위 관계를, `MAINTENANCE.md`는 작성·복원·갱신 기준을 맡긴다. 관리 주체가 해당 작업에서 직접 읽도록 지침과 갱신 skill을 연결하며 일반 Recover 문서 목록은 늘리지 않는다. [현재 Ticket](../memory/tickets/003-project-management-contract.md)과 [재적용 기록](../../records/2026-09-10-02-project-management-contract.md)이 이번 범위와 검증을 소유한다.
+Source `5f6db35`의 변경을 Noline 고유 설명·Claude Code 연결·증거 수집 routing과 기존 제품 작업을 유지하며 반영했다. Maintain 72개, 전체 Harness 재검사 124개와 직접 구조 검사가 통과했다. 첫 전체 검사의 기존 timeout 실패, 독립 검토와 적용 범위는 [이번 기록](../../records/2026-09-11-03-workspace-writing-and-maintainer-settings.md)에서 확인한다. 실제 Noline host의 모델 호출·문서 작성 품질과 자동 반영까지 확인한 결과는 아니다.
 
-Source hash와 기준 보존·읽기 경로·skill 연결, 직접 구조 검사와 explicit/default Recover, regular input closure·기존 파일 보호 대조가 통과했다. Main도 실제 target의 Noline layer·상세 Owner, 관리 계약·갱신 skill의 Source bytes·bridge·routing을 확인하고 별도로 baseline 602개 경로와 Git index 보존을 대조했다. 현 범위에서 추가 수정 의견은 없었다. 최종 문서 뒤 실행한 구조 Verify의 result는 아래 machine cursor에서 찾고 다음 Recover가 현재 snapshot 일치를 계산한다. 다음 행동은 Main이 최종 실제 변경·보호·Verify와 Recover 근거를 회수하는 것이다. Active Workspace id와 선택한 제품 문서는 유지한다. 두 host runtime 디렉터리는 이번 baseline에서도 없으며 actual-host trust·explicit activation·같은 generation의 event receipt가 없는 `activation_pending` 상태다.
+## 이전 설치에서 유지하는 결과
 
-[status.json](status.json)은 마지막 Verify result·receipt cursor·시각만 소유한다. [verify.json](../../verify.json)은 claim·basis·argv·evidence를, [recover.json](../../recover.json)은 Project 선택을, [workspace.json](../../workspace.json)은 identity를 맡는다. Recover가 계산하는 freshness는 선언 snapshot의 현재 일치이며 사람용 상태의 최신성이나 undeclared input을 증명하지 않는다.
+Project README는 구조·내용 위치·권위 관계를, `MAINTENANCE.md`는 작성·복원·갱신 기준을 소유한다. 관리 주체가 이를 직접 읽고 일반 Recover 문서 목록은 늘리지 않는다. 관련 [Ticket](../memory/tickets/003-project-management-contract.md)은 기존 Project 관리 계약 적용을 맡으며, 이번 작성 지침·실행 설정 보완의 상세는 위 새 기록에 남겼다.
 
-제품 리팩토링·상세 문서 전체 정비, 실제 host skill discovery·invocation·문서 유지, 제품 기능과 사람 acceptance, stage·commit·Workspace 완료는 이번 재적용의 결과가 아니다.
+실행 계약·layer·운영 skill 보완은 [Reference 적용 기록](../../records/2026-09-09-01-reference-upgrade.md), 이전 요약 세 문서의 내용 귀속·제거는 [문서 전환 기록](../../records/2026-09-10-01-document-transition.md), Project 관리 기준 배치와 당시 검증은 [재적용 기록](../../records/2026-09-10-02-project-management-contract.md)에 보존한다. Maintainer의 current·records 구분과 직접 영향받는 current 갱신, 기존 구성에 통합하는 편집 기준도 유지한다. 각각 [자료 구분](../../records/2026-09-11-01-maintainer-material-classification-correction.md)과 [통합 편집](../../records/2026-09-11-02-maintainer-readable-editing-guidance.md) 기록이 근거를 소유한다.
+
+## 운영과 검증의 경계
+
+명시·기본 Recover는 이 Workspace의 같은 context 15개를 읽는다. 새 작성 지침은 Recover 선택에 추가하지 않고 작성 시점과 Maintainer 입력에서 소비한다. Active id와 Project 선택은 유지한다. 기존 Verify receipt는 현재 snapshot과 달라 stale이며, 이번 Harness 검사로 제품 검증을 갱신하거나 fresh로 바꾸지 않았다.
+
+[status.json](status.json)은 마지막 Verify result·receipt cursor·시각만, [verify.json](../../verify.json)은 claim·basis·argv·evidence를, [recover.json](../../recover.json)은 Project 선택을, [workspace.json](../../workspace.json)은 identity를 소유한다. Recover freshness는 선언 snapshot의 현재 일치이며 사람용 문서의 최신성이나 선언하지 않은 입력을 증명하지 않는다.
+
+이번 적용에서 host trust·activation·deactivation과 runtime 변경은 수행하지 않았다. 기존 host 연결 상태를 새로 확인한 것으로 보고하지 않으며, 실제 다음 호출의 모델·문서 유지 효과는 해당 Noline session에서 관찰할 후속 사항이다. 제품 리팩토링·상세 문서 전체 정비, 실제 skill discovery·invocation, 제품 acceptance와 Workspace 완료는 이번 적용 범위 밖이다.

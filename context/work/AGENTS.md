@@ -17,6 +17,7 @@ python3 -m context.work.harness verify
 - Verify의 목적·입력·출력·상태 반영 범위는 [`harness/verify/README.md`](harness/verify/README.md)가 정의한다.
 - Harness 자체 회귀 검증의 범위는 [`harness/validation/README.md`](harness/validation/README.md)가 정의한다.
 - 지속 Workspace의 내부 관계는 [`workspaces/README.md`](workspaces/README.md)와 각 Workspace README가 정의한다.
+- Workspace의 사람용 문서를 작성·갱신할 때는 [`문서 작성과 갱신`](workspaces/DOCUMENT-WRITING.md)을 직접 읽는다. 글의 기준은 그 문서가 소유하고 실제 작성 책임과 허용 범위는 해당 작업·Maintain 계약을 따른다.
 
 ## 책임과 활성 시점
 

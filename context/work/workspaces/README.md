@@ -15,18 +15,14 @@
 - `current/`: 다음 작업자가 이어받을 현재 유효 context와 machine status. `current/memory/`는 Spec 다섯 파일, Ticket 색인·본문, Project context 선택을 소유하고 `current/state/`는 Workspace 전체 상황과 다음 행동을 소유한다. 구성·내용·읽기·갱신 기준은 [Spec과 Ticket](SPEC-AND-TICKETS.md)이 정의한다. 현재 status schema `3`은 최근 제품 검증의 기계 결과와 receipt cursor만 소유하며, 과거 schema `2`는 기존 기록 복구를 위해 읽기 호환한다.
 - `source/`: 이 Workspace가 작업 입력으로 선택한 원문, 변경하지 않은 snapshot, provenance를 분리·보존하는 층. `source/index.md`를 최소 inventory로 두며 별도 원자료가 없으면 그 사실과 Project canonical을 복제하지 않은 경계를 적는다. 원자료의 저자와 정본 권위는 원래 출처에 남으며, Workspace는 선택 범위·사용 시점·무결성·재접근 경로를 관리한다. 현재 판단, 분석, 결정, 실행·검증 기록은 두지 않는다.
 - `output/`: Workspace goal을 위해 선택된 현재 산출물을 찾는 층. `output/index.md`를 최소 산출물 지도로 두고, 실제 산출물이 Project root의 코드·문서·테스트에 있으면 복제하지 않고 canonical 상대 경로를 연결한다. Workspace 안에서만 소유하는 goal 산출물은 이 폴더에 직접 둘 수 있다. 아직 선택된 산출물이 없으면 index에 없다고 명시한다.
-- `records/`: source와 실제 작업을 바탕으로 만든 분석·결정·실행·검증 기록의 누적층. 분석 메모·후보·비교·탈락안·선택 근거처럼 goal 산출물을 만들고 고른 사람이 읽는 기록은 이 폴더 바로 아래에 날짜와 내용을 드러내어 둔다.
+- `records/`: source와 실제 작업을 바탕으로 만든 분석·결정·실행·검증 기록의 누적층. 분석 메모·후보·비교·탈락안·선택 근거처럼 goal 산출물을 만들고 고른 사람이 읽는 기록은 이 폴더 바로 아래에 날짜와 내용을 드러내어 둔다. 기존 날짜별 record는 append-only 근거로 보존하며, 보완은 새 record와 색인에 연결한다.
 - `records/receipts/`: 기계가 만든 append-only 증거를 종류별로 격리하는 층. 제품 검증은 `verify/`, Harness 자체 검증은 `harness-tests/`, 이식 전 상태 캡처는 `preflight/`를 사용한다. 새 제품 Verify는 `records/receipts/verify/verify-*.json`에 쓰며 `status.json`의 receipt 경로는 Work root 상대다. 이전 flat `records/verify-*.json`만 기존 제품 Verify 증거의 읽기 호환 경로로 허용하고 다른 receipt 종류는 product status에 연결하지 않는다.
 
-## 사람용 문서 작성과 갱신
+## 문서 관리 기준
 
-Workspace의 사람용 Markdown은 각 파일이 맡은 역할 안에서 다음 판단과 재검토에 필요한 의미를 읽기 좋게 전달한다. 이 기준은 `current/`의 Spec·Ticket·추가 memory·state, `source/index.md`, `output/index.md`, `records/README.md`와 새 날짜별 record에 적용한다. Machine identity·계약·status·receipt, 변경하지 않는 raw source와 제품 산출물의 형식을 바꾸는 기준은 아니다.
+Workspace 문서의 내용·구성·작성·갱신 기준은 [문서 작성과 갱신](DOCUMENT-WRITING.md)이 소유한다. 문서를 만들거나 고치는 주체는 이 기준을 직접 읽고 적용한다.
 
-문서를 만들거나 갱신할 때는 먼저 해당 층의 Owner 역할과 대상 문서의 기존 구성, 새 내용 사이의 관계를 읽는다. 전달받은 사실을 도착한 순서대로 옮기지 않고 의미에 따라 묶으며, 기존 문서에서는 아직 유효한 내용에 새 의미를 통합한다. 겹치는 설명은 합치고 새 결과가 대체한 상태·진행 문구는 고치거나 덜어 내며, 서로 떨어져 있어 이해를 방해하는 내용은 관계가 드러나게 재배치한다. 새 record도 대화나 실행 출력을 그대로 전사하지 않고 이후 판단을 재검토하는 데 필요한 사건·근거·결과를 조직한다.
-
-문단·목록·소제목과 정보의 순서는 문서의 역할, 내용 사이의 관계와 기존 구성에 맞춰 선택한다. 모든 문서에 같은 하위 서식이나 고정 순서를 적용하지 않으며 기존 형식 유지와 새 형식 도입 중 어느 쪽도 기본값으로 삼지 않는다. 독자가 전달 순서를 다시 조립하지 않고도 그 문서가 맡은 현재 의미·판단 지점·근거 위치를 이해할 수 있는지를 본다. 출처 강도와 확인 범위는 구별하되 같은 단서를 문장마다 반복하지 않고 관련 주장을 묶는 수준에서 분명히 한다.
-
-가독성을 이유로 층의 Owner를 흐리거나 같은 설명을 `current`·`source`·`output`·`records`에 복제하지 않는다. Current에는 현재 유효한 의미를, source에는 변경하지 않은 원문과 provenance를, output에는 선택한 산출물과 canonical 위치를, records에는 이후에도 살필 과정과 상세 근거를 둔다. 기존 record는 append-only 근거이므로 다시 편집하지 않으며 새 record와 색인을 읽기 좋게 만드는 것이 과거 record 재작성을 허용하지 않는다.
+[Spec과 Ticket](SPEC-AND-TICKETS.md)은 작업 정의·개별 실행·전체 상태의 상세 의미와 유지 관계를, [생성·전환](CREATE-AND-TRANSITION.md)은 새 Workspace를 구성하고 연결하는 절차를 소유한다. 작성 지침은 각 문서의 Owner와 해당 절차 안에서 적용한다.
 
 ## 새 Workspace 생성과 관계
 

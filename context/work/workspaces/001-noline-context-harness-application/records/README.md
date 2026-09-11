@@ -13,3 +13,5 @@
 - [2026-09-10 Project 관리 계약 재적용](2026-09-10-02-project-management-contract.md): 승인된 dirty Source 판본, README·관리 기준·읽기 경로와 직접 검증
 - [2026-09-11 Maintainer 자료 구분 보완](2026-09-11-01-maintainer-material-classification-correction.md): current·records 의미 경계, 정정·단계 영향 범위와 설치본 단위 검증
 - [2026-09-11 Maintainer 문서 통합 편집 보완](2026-09-11-02-maintainer-readable-editing-guidance.md): 사람용 Workspace 문서 전반의 맥락적 편집 기준, 자동 prompt 연결, 기존 변경 보호와 검증 범위
+
+- [2026-09-11 작성 지침과 Maintainer 설정 적용](2026-09-11-03-workspace-writing-and-maintainer-settings.md): 작성 기준 Owner 분리·소비 경로, 실행 설정과 기존 작업 보호·검증
