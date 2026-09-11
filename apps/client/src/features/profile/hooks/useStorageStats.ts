@@ -49,7 +49,7 @@ async function collectDatabaseSize(): Promise<DatabaseSizeResult> {
   const documentsDirectory = FileSystem.documentDirectory;
 
   if (!documentsDirectory) {
-    console.warn('Failed to collect SQLite storage size: document directory is unavailable');
+    console.warn('SQLite 저장 용량을 계산할 수 없습니다: 문서 디렉터리를 사용할 수 없습니다.');
     return { bytes, completed: false };
   }
 
@@ -72,7 +72,7 @@ async function collectDatabaseSize(): Promise<DatabaseSizeResult> {
       }
     }
   } catch (error) {
-    console.warn('Failed to collect SQLite storage size:', error);
+    console.warn('SQLite 저장 용량을 계산하지 못했습니다:', error);
     return { bytes, completed: false };
   }
 
@@ -90,7 +90,7 @@ async function collectMapPackSize(): Promise<number> {
         bytes += status.completedResourceSize;
       }
     } catch (error) {
-      console.warn('Failed to get status for pack:', pack.name, error);
+      console.warn('지도 팩 상태를 가져오지 못했습니다:', pack.name, error);
     }
   }
 
@@ -109,7 +109,7 @@ async function calculateStorageStats(): Promise<StorageStats> {
     const mapPackBytes = await collectMapPackSize();
     return createStorageStats(database.bytes, mapPackBytes);
   } catch (error) {
-    console.warn('Failed to collect offline map storage size:', error);
+    console.warn('오프라인 지도 저장 용량을 계산하지 못했습니다:', error);
     return createStorageStats(database.bytes, 0);
   }
 }
