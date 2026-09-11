@@ -24,4 +24,6 @@
 
 변경 파일은 Prettier 검사와 Prettier rule을 제외한 나머지 ESLint 검사를 통과했다. 정상 ESLint는 기존 `prettier.resolveConfig.sync is not a function` 호환 오류로 실행되지 않았다. Client 전체 TypeScript 검사에서는 기존에 기록된 Mapbox 관련 3건만 다시 나타났고 변경 파일의 새 오류는 보고되지 않았다. 동시에 진행 중인 03번 Ticket의 변경이 있어 clean working tree는 주장하지 않는다.
 
-사용자는 재전파 catch에 오류 처리 책임이 없고 조회 API의 console 출력이 제거된다는 경계를 확인한 뒤 결과 기록을 요청했다. Main은 위 근거와 미확인 범위를 포함해 04번 Ticket의 완료 조건이 충족됐다고 판단했고, 사용자가 수락해 완료했다. 이 수락은 전체 가독성 Work의 완료나 제품 Verify를 뜻하지 않는다. Main은 이 응답 시점의 변경 사항을 아직 커밋하지 않았다고 보고했다.
+사용자는 재전파 catch에 오류 처리 책임이 없고 조회 API의 console 출력이 제거된다는 경계를 확인한 뒤 결과 기록을 요청했다. Main은 위 근거와 미확인 범위를 포함해 04번 Ticket의 완료 조건이 충족됐다고 판단했고, 사용자가 수락해 완료했다. 이 수락은 전체 가독성 Work의 완료나 제품 Verify를 뜻하지 않는다.
+
+사용자 요청에 따라 Main은 Ticket 04 관련 파일 다섯 개만 `dce576f refactor(client): 경비 API 흐름 정리`로 커밋했다고 보고했다. 보고 시점의 작업 트리에는 별도 Ticket 05 변경과 `output/index.md`의 다른 미커밋 변경이 남아 있어 clean 상태는 아니다. Maintain은 커밋 내용과 작업 트리를 독립 확인하지 않았다.

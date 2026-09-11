@@ -6,7 +6,7 @@
 
 [02번 Ticket](../memory/tickets/02-city-search.md)도 사용자가 구현 결과와 검증 한계를 확인하고 수락해 완료됐다. 요청과 응답 필터가 도시 코드 목록을 공유하고, 필수 필드·수도 예외·인구 기준 판단과 `City` 변환을 같은 API 파일의 이름 있는 책임으로 분리했다. 수정 전후 직접 fixture와 별도 verifier 비교에서 요청 인자, 선별 경계, 순서, 좌표 변환과 실패 반환이 같았다. 실제 GeoNames 연결과 전체 앱 화면은 확인하지 않았으며 영구 테스트 파일은 없다.
 
-[04번 Ticket](../memory/tickets/04-expense-api.md)은 사용자가 재전파 catch와 로그 제거의 의미, 검증 한계를 확인하고 수락해 완료됐다. 다섯 remote API export에서 요청 검증·HTTP·응답 검증·반환 순서를 직접 보이게 했고, 수정 전후 동일한 8개 Jest 검사가 통과했다. fetcher를 mock한 검사이므로 실제 네트워크·Axios interceptor·React Native 화면은 확인하지 않았다. 제품 파일은 [output](../../output/index.md)에 연결한다.
+[04번 Ticket](../memory/tickets/04-expense-api.md)은 사용자가 재전파 catch와 로그 제거의 의미, 검증 한계를 확인하고 수락해 완료됐다. 다섯 remote API export에서 요청 검증·HTTP·응답 검증·반환 순서를 직접 보이게 했고, 수정 전후 동일한 8개 Jest 검사가 통과했다. fetcher를 mock한 검사이므로 실제 네트워크·Axios interceptor·React Native 화면은 확인하지 않았다. 제품 파일은 [output](../../output/index.md)에 연결한다. Main은 사용자 요청에 따라 Ticket 04 관련 파일만 `dce576f`로 커밋했다고 보고했다.
 
 제품 Verify receipt는 제공되지 않았다. 개별 보고와 사용자 수락을 전체 Work 완료나 제품 Verify 결과로 확대하지 않는다.
 
