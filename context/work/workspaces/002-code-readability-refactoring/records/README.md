@@ -25,4 +25,6 @@
 
 - [일반화한 Ticket 계약 후보의 fresh-Main 계획 검토](2026-09-12-05-generalized-candidate-fresh-main-review.md): 현재 후보만 받은 새 Main들의 다섯 사례 계획과 reviewer의 목표 해석·작업 발견·범위·완료 근거 판단, 계획 단계에 한정된 입증 범위.
 
+- [대화 맥락 없는 새 세션의 Ticket 재구성 검토](2026-09-12-06-fresh-session-ticket-recomposition-review.md): 실제 Workspace의 남은 Ticket 재구성안, 저장된 기준에서 복원된 책임 범위, Main이 확인한 성과와 실행 전 보완할 세 간격.
+
 후속 분석·결정·실행 기록은 이 디렉터리에 날짜별로 남긴다. 원문·변경하지 않은 snapshot은 [source](../source/index.md), 현재 기준과 진행은 [current](../current/memory/index.md)가 소유한다.

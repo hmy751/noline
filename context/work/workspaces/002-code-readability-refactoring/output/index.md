@@ -16,6 +16,8 @@
 
 기존 `context/work/workspaces/SPEC-AND-TICKETS.md`는 과거 링크를 새 진입점으로 연결하는 위치 안내로 남아 있다. `HISTORY.md`는 기준 자체를 변경할 때 읽는 배경 Owner이며 일반 Ticket 실행이나 Maintain의 매 판단 입력에 추가되지 않는다. 실제 구현·완료 행동의 후속 검증과 이 Workspace 전체의 사용자 acceptance는 아직 남아 있다.
 
+공통 운영 기준, 하네스 소비 경로와 이번 재검토의 관련 Workspace 문서는 `d7223b7 feat(harness): Spec·Ticket 실행 기준 강화`로 커밋됐다. read-only commit 조회로 전체 해시 `d7223b7b6622f625e26f7e7457f6eb1373cf91d9`과 관련 파일 포함을 확인했다. Main은 작업 트리가 clean이었다고 보고했다. Maintain 관련 검사 9개와 링크 검사는 통과했다고 보고됐으며, 전체 124개 검사에서는 기존 시간 제한 검사 한 건이 간헐적으로 실패하고 단독 실행은 통과했다.
+
 ## 01 — 경비 합계 표시
 
 - [currency.ts](../../../../../apps/client/src/shared/lib/currency.ts): `getCurrencyFractionDigits`로 통화별 소수 자릿수 규칙을 모았다.
