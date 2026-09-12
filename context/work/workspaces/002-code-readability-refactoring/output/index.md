@@ -18,6 +18,8 @@
 
 공통 운영 기준, 하네스 소비 경로와 이번 재검토의 관련 Workspace 문서는 `d7223b7 feat(harness): Spec·Ticket 실행 기준 강화`로 커밋됐다. read-only commit 조회로 전체 해시 `d7223b7b6622f625e26f7e7457f6eb1373cf91d9`과 관련 파일 포함을 확인했다. Main은 작업 트리가 clean이었다고 보고했다. Maintain 관련 검사 9개와 링크 검사는 통과했다고 보고됐으며, 전체 124개 검사에서는 기존 시간 제한 검사 한 건이 간헐적으로 실패하고 단독 실행은 통과했다.
 
+이후 사용자는 fresh-session 보고에서 드러난 세 간격을 Ticket 구성안이 아니라 공통 지침에 보완하려던 것이라고 정정했다. Main은 Ticket 문서와 제품 구현은 바꾸지 않고 실행 기준과 Ticket 작성 기준에 실제 달라질 결과의 정의, 분리한 일의 성립·선행·담당 관계, 구성안 단계의 목표·담당·미배정·미확인 대조를 추가했다고 보고했다. 이 후속 보완은 `c902230 docs(harness): 티켓 결과와 선행 관계 판단 기준 보완`으로 커밋됐으며 read-only 조회에서 전체 해시 `c90223012b7135d2a221cf4a97036872111f6df0`, 부모 `d7223b7b6622f625e26f7e7457f6eb1373cf91d9`와 공통 실행·Ticket 기준 파일의 포함을 확인했다. Ticket 본문과 제품 코드 파일은 커밋에 포함되지 않았다. 하네스 직접 검사와 `git diff --check`는 통과했다고 Main이 보고했지만 Maintain은 재실행하지 않았고, 대화 맥락 없는 새 세션의 독립 재검증은 아직 없다.
+
 ## 01 — 경비 합계 표시
 
 - [currency.ts](../../../../../apps/client/src/shared/lib/currency.ts): `getCurrencyFractionDigits`로 통화별 소수 자릿수 규칙을 모았다.

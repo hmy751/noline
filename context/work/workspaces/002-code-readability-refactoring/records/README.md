@@ -27,4 +27,8 @@
 
 - [대화 맥락 없는 새 세션의 Ticket 재구성 검토](2026-09-12-06-fresh-session-ticket-recomposition-review.md): 실제 Workspace의 남은 Ticket 재구성안, 저장된 기준에서 복원된 책임 범위, Main이 확인한 성과와 실행 전 보완할 세 간격.
 
+- [지침 보완 범위 정정과 후속 반영](2026-09-12-07-guidance-scope-correction.md): Ticket 구성안을 직접 고치는 것으로 해석한 오류, 사용자의 공통 지침 보완 정정, 실행 기준·Ticket 작성 기준에 추가된 결과·분리·구성안 관계와 재검증 한계.
+
+- [남은 Ticket 06–17 구성 확정](2026-09-12-08-remaining-ticket-definition.md): 보완된 공통 기준과 현재 Spec·코드에 따라 구현 전 생성한 남은 Ticket, 05 보존, 선행·차단 관계와 현재 미배정 범위.
+
 후속 분석·결정·실행 기록은 이 디렉터리에 날짜별로 남긴다. 원문·변경하지 않은 snapshot은 [source](../source/index.md), 현재 기준과 진행은 [current](../current/memory/index.md)가 소유한다.
