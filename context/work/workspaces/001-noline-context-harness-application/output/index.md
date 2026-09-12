@@ -18,6 +18,6 @@
 이 지도는 설치 산출물을 찾게 할 뿐, 실제 Codex·Claude Code host activation, 제품 acceptance, commit 또는 Workspace 완료를 뜻하지 않는다.
 
 - [운영 skill 색인](../../../../../.claude/skills/README.md): 여섯 Reference skill과 기존 dispatcher의 원본·호출 조건·bridge
-- [Spec·Ticket 계약](../../SPEC-AND-TICKETS.md): Work 정의·실행·유지 책임의 canonical
+- [Spec·Ticket 계약](../../spec-and-tickets/README.md): Work 정의·실행·유지 책임의 canonical
 
 실행 계약·skill 설치와 당시 검증은 [2026-09-09 기록](../records/2026-09-09-01-reference-upgrade.md), 이전 요약의 문서 전환은 [2026-09-10 첫 기록](../records/2026-09-10-01-document-transition.md), 현재 Project 관리 계약의 재적용은 [2026-09-10 두 번째 기록](../records/2026-09-10-02-project-management-contract.md), Maintainer의 사람용 문서 통합 편집 보완은 [앞선 기록](../records/2026-09-11-02-maintainer-readable-editing-guidance.md), 작성 지침 분리와 실행 설정 반영은 [후속 적용 기록](../records/2026-09-11-03-workspace-writing-and-maintainer-settings.md)이 연결한다.

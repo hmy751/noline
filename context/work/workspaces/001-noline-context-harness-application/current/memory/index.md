@@ -1,6 +1,6 @@
 # Workspace memory map
 
-이 폴더는 이번 작업의 Spec, 실행할 Ticket과 선택한 Project 맥락을 유지한다. Spec·Ticket은 필요하면 수정하며 Workspace와 함께 남긴다. Ticket의 정의·진행은 한 문서에서 다루고, 전체 상황·판단·다음 행동은 [state](../state/index.md), 상세 과정은 records가 맡는다. [구성·관리 기준](../../../SPEC-AND-TICKETS.md)을 따른다.
+이 폴더는 이번 작업의 Spec, 실행할 Ticket과 선택한 Project 맥락을 유지한다. Spec·Ticket은 필요하면 수정하며 Workspace와 함께 남긴다. Ticket의 정의·진행은 한 문서에서 다루고, 전체 상황·판단·다음 행동은 [state](../state/index.md), 상세 과정은 records가 맡는다. [구성·관리 기준](../../../spec-and-tickets/README.md)을 따른다.
 
 ## 현재 문서
 

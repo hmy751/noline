@@ -53,9 +53,9 @@ class WorkspaceFixture(unittest.TestCase):
         ):
             (self.work_root / directory).mkdir(parents=True, exist_ok=True)
 
-        shutil.copyfile(
-            HARNESS_SOURCE.parent / "workspaces" / "SPEC-AND-TICKETS.md",
-            self.work_root / "workspaces" / "SPEC-AND-TICKETS.md",
+        shutil.copytree(
+            HARNESS_SOURCE.parent / "workspaces" / "spec-and-tickets",
+            self.work_root / "workspaces" / "spec-and-tickets",
         )
 
         (self.project_root / "context" / "project" / "README.md").write_text(

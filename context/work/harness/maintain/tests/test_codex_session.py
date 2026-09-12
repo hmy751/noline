@@ -140,11 +140,19 @@ class CodexMaintainSessionTests(unittest.TestCase):
         readme = (module_root / "README.md").read_text(encoding="utf-8")
         self.assertIn("Explicit workspace_id: 007-clean-room", prompt)
         self.assertIn(readme, prompt)
-        self.assertIn(
-            (module_root.parents[1] / "workspaces" / "SPEC-AND-TICKETS.md")
-            .read_text(encoding="utf-8"),
-            prompt,
-        )
+        for name in (
+            "README.md",
+            "EXECUTION-CRITERIA.md",
+            "SPEC.md",
+            "TICKET.md",
+            "MAINTENANCE.md",
+        ):
+            with self.subTest(contract=name):
+                self.assertIn(
+                    (module_root.parents[1] / "workspaces" / "spec-and-tickets" / name)
+                    .read_text(encoding="utf-8"),
+                    prompt,
+                )
         self.assertIn(
             (module_root.parents[1] / "workspaces" / "README.md").read_text(
                 encoding="utf-8"
@@ -221,6 +229,19 @@ class CodexMaintainSessionTests(unittest.TestCase):
             (module_root / "README.md").read_text(encoding="utf-8"), prompt
         )
         self.assertIn("RESPONSE_DELTA_MARKER", prompt)
+        for name in (
+            "README.md",
+            "EXECUTION-CRITERIA.md",
+            "SPEC.md",
+            "TICKET.md",
+            "MAINTENANCE.md",
+        ):
+            with self.subTest(contract=name):
+                self.assertIn(
+                    (module_root.parents[1] / "workspaces" / "spec-and-tickets" / name)
+                    .read_text(encoding="utf-8"),
+                    prompt,
+                )
         self.assertIn("read-only local inspection", prompt)
         self.assertIn("relevant existing Context Owner", prompt)
         self.assertIn("current/ for documents that directly repeat", prompt)

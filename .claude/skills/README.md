@@ -19,7 +19,7 @@
 
 ## Context와 문서 갱신
 
-작업을 다루는 스킬은 root [AGENTS.md](../../AGENTS.md)에서 관련 context를 찾고, [Spec·Ticket 계약](../../context/work/workspaces/SPEC-AND-TICKETS.md)의 내용·읽기·Main·Maintain 관계를 적용한다. 새 Workspace 초기 구성과 준비된 Workspace의 문서 유지를 구별한다. 자동 연결이 없을 때의 허용된 문서 반영은 같은 계약이 연결하는 Maintain 수동 fallback을 따른다. 스킬 설치·호출은 session activation이나 실제 문서 반영을 뜻하지 않는다.
+작업을 다루는 스킬은 root [AGENTS.md](../../AGENTS.md)에서 관련 context를 찾고, [Spec·Ticket 계약](../../context/work/workspaces/spec-and-tickets/README.md)의 내용·읽기·Main·Maintain 관계를 적용한다. 새 Workspace 초기 구성과 준비된 Workspace의 문서 유지를 구별한다. 자동 연결이 없을 때의 허용된 문서 반영은 같은 계약이 연결하는 Maintain 수동 fallback을 따른다. 스킬 설치·호출은 session activation이나 실제 문서 반영을 뜻하지 않는다.
 
 `work-discussion`, `work-artifact-briefing`, `explanation-recovery`는 각 호출 조건에 따라 [설명과 근거 기준](../../context/project/guidance/explanation-and-evidence-criteria.md)을 함께 읽는다. 이 기준의 범위·수명·consumer 관계는 [guidance 색인](../../context/project/guidance/README.md)이 연결한다. `reconsider-work`나 모든 Recover에 새 필수 입력으로 추가하지 않는다.
 

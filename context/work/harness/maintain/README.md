@@ -70,7 +70,9 @@ Agent는 제품 test를 대신 실행하거나 사람의 목표·acceptance·완
 
 current는 현재 유효한 뜻을 정규화해 보여 주는 층이다. 과거 전제를 `주의`, `기준 아님`, `유지하지 않는다` 같은 부정문과 긴 turn 경위로 계속 남기지 않는다. 정정이 목표·기준·문제 정의·근거 선택·접근·책임 경계를 바꾸면 무효화된 전제를 찾고, 그 전제를 직접 사용한 관련 Spec·Ticket·state·추가 memory를 제한적으로 확인한다. 영향받은 current는 유효한 현재 의미로 교정하거나 불필요한 서술을 삭제하고, 과거 전제와 교정 이유가 이후에도 필요할 때만 records로 격리한다. 정정과 무관한 목표·계약·검증된 결과는 유지한다.
 
-사람용 Workspace 문서를 만들거나 갱신할 때는 [문서 작성과 갱신](../../workspaces/DOCUMENT-WRITING.md)을 적용한다. 문서 목적에 맞는 내용의 충분성·구성·표현 판단은 agent가 맡고, guarded apply는 이를 기계적으로 판정하지 않는다. Spec·Ticket·state의 상세 의미는 [Spec과 Ticket](../../workspaces/SPEC-AND-TICKETS.md)이 계속 소유한다. Codex bridge는 정본 파일에서 읽은 작성 지침 본문을 grounding과 후속 판단 입력에 포함한다. 입력에 본문이 있으면 이를 사용하며 같은 파일을 다시 읽지 않고, 본문이 제공되지 않는 수동 경로에서만 직접 읽는다.
+사람용 Workspace 문서를 만들거나 갱신할 때는 [문서 작성과 갱신](../../workspaces/DOCUMENT-WRITING.md)을 적용한다. 문서 목적에 맞는 내용의 충분성·구성·표현 판단은 agent가 맡고, guarded apply는 이를 기계적으로 판정하지 않는다.
+
+Spec·Ticket·state의 상세 의미는 [Spec과 Ticket](../../workspaces/spec-and-tickets/README.md)이 소유한다. 그 디렉터리의 진입·실행 기준·Spec 작성·Ticket 작성·갱신 기준을 함께 적용한다. 입력에 본문이 있으면 이를 사용하며 같은 파일을 다시 읽지 않고, 본문이 제공되지 않는 수동 경로에서는 직접 읽는다.
 
 입력만으로 요청한 기록의 중요한 의미를 복원하기 어려우면 아래의 허용된 근거 읽기 범위에서 보완한다. 보완할 수 없는 자료와 그 때문에 남기지 못한 의미는 `unresolved`에 구체적으로 반환하며, 확인한 부분의 반영과 기록 요청 전체의 충족을 구별한다. 이를 다른 session의 원문 자동 수집이나 기본 탐색 범위 확대로 해석하지 않는다.
 
@@ -80,7 +82,9 @@ state를 갱신할 때는 그 파일 전체에서 이미 끝났거나 뒤 단계
 
 임시 전달 파일, session 산출물이나 제거될 수 있는 경로를 current의 지속 근거로 삼지 않는다. 현재 의미는 Owner 본문에 직접 적고, 해당 원문의 최소 발췌·출처·판단 과정이 current 변경 뒤에도 필요하면 Workspace가 소유하는 새 record에 보존한다. 허용된 Owner로 충분히 보존할 수 없는 원문이 필요하면 가능한 current 변경의 범위를 과장하지 말고 그 필요를 `unresolved`에 남긴다.
 
-Spec·Ticket도 기존 기록·갱신 책임에 포함한다. 대화에서 정해진 내용을 처음 문서로 만들거나 결과를 반영할 수 있으며 Main만 작성하도록 제한하지 않는다. Main이 필요한 설계·작업 분해·위임·결과 확인과 다음 행동을 조율한다. Maintain은 실행자 선택·dispatch·작업 재계획을 맡지 않는다. 상세 내용 기준은 [Spec과 Ticket](../../workspaces/SPEC-AND-TICKETS.md)을 따른다. Codex bridge는 이 canonical을 Maintain README와 함께 규칙 입력으로 제공하므로 grounding 중 추가 탐색 없이 읽을 수 있다. 개별 Workspace의 읽기 범위는 기존 bounded Recover packet으로 유지한다.
+Spec·Ticket도 기존 기록·갱신 책임에 포함한다. 대화에서 정해진 내용을 처음 문서로 만들거나 결과를 반영할 수 있으며 Main만 작성하도록 제한하지 않는다. Main이 필요한 설계·작업 분해·위임·결과 확인과 다음 행동을 조율한다. Maintain은 실행자 선택·dispatch·작업 재계획을 맡지 않는다.
+
+Codex bridge는 `spec-and-tickets/`의 다섯 정본 문서와 문서 작성 지침을 Maintain README와 함께 grounding과 매 후속 판단 입력에 제공한다. 따라서 문서 분리 뒤에도 링크만 받은 상태로 판단하지 않는다. 개별 Workspace의 읽기 범위는 기존 bounded Recover packet으로 유지한다.
 
 기존 Owner와 이번 delta에 명시된 로컬 파일은 필요한 범위에서 읽어 Ticket 본문·실제 preimage·관련 근거를 확인할 수 있다. 정정이나 단계 변화에서는 무효화된 전제나 달라진 상태를 직접 서술한 선택된 Workspace의 current 문서도 제한적으로 찾아 읽을 수 있다. Main이 받은 subagent 결과나 다른 세션의 대화가 자동으로 입력되지는 않는다. 입력에 연결된 결과와 출처만 보존하고, 다른 실행자가 직접 수정했을 수 있는 문서는 현재 내용과 SHA-256을 확인한다. 비동기 반영을 접수했다는 사실만으로 실행에 사용할 Spec·Ticket이 준비됐다고 하지 않는다.
 

@@ -4,7 +4,7 @@
 
 Workspace의 `README.md`, `current/`의 Spec·Ticket·추가 memory·state, `source/index.md`, `output/index.md`, `records/README.md`와 새 날짜별 record에 적용한다. 이 문서 같은 Workspace 운영 지침을 작성할 때도 같은 기준을 사용한다. 아래 관점은 문서마다 채워야 하는 고정 목차나 서식이 아니다.
 
-문서 층의 의미·Owner와 보존 경계는 [Workspace collection](README.md), Spec·Ticket·state의 상세 내용은 [Spec과 Ticket](SPEC-AND-TICKETS.md)이 소유한다. 이 기준은 기존 작성 책임자가 적용하며, [Maintain](../harness/maintain/README.md)은 허용된 문서에 이를 적용하는 관리 장치다. Machine 계약·status·receipt의 형식, raw source의 보존, 제품 산출물의 기준이나 작성 권한을 바꾸지 않는다.
+문서 층의 의미·Owner와 보존 경계는 [Workspace collection](README.md), Spec·Ticket·state의 상세 내용은 [Spec과 Ticket](spec-and-tickets/README.md)이 소유한다. 이 기준은 기존 작성 책임자가 적용하며, [Maintain](../harness/maintain/README.md)은 허용된 문서에 이를 적용하는 관리 장치다. Machine 계약·status·receipt의 형식, raw source의 보존, 제품 산출물의 기준이나 작성 권한을 바꾸지 않는다.
 
 ## 문서가 맡은 설명
 

@@ -12,7 +12,7 @@
 - `workspace.json`: Workspace id와 schema를 가진 machine identity
 - `recover.json` schema `6`: Project-root 상대 경로로 Recover가 읽을 Project Markdown과 선택 이유. 안정된 routing anchor인 `context/project/README.md`를 포함하고, 나머지는 `common/`, `current/`, `guidance/`, `decisions/` 아래에서 현재 goal에 필요한 실제 문서만 선택한다. Root 평면 본문과 미허용 layer는 선택할 수 없으며 문서 순서는 Workspace가 정한다.
 - `verify.json` schema `2`: Verify가 연결할 구체적인 claim, 그 claim의 Project canonical basis, 고정 argv, evidence와 실행 제한. 사람의 다음 행동은 두지 않는다.
-- `current/`: 다음 작업자가 이어받을 현재 유효 context와 machine status. `current/memory/`는 Spec 다섯 파일, Ticket 색인·본문, Project context 선택을 소유하고 `current/state/`는 Workspace 전체 상황과 다음 행동을 소유한다. 구성·내용·읽기·갱신 기준은 [Spec과 Ticket](SPEC-AND-TICKETS.md)이 정의한다. 현재 status schema `3`은 최근 제품 검증의 기계 결과와 receipt cursor만 소유하며, 과거 schema `2`는 기존 기록 복구를 위해 읽기 호환한다.
+- `current/`: 다음 작업자가 이어받을 현재 유효 context와 machine status. `current/memory/`는 Spec 다섯 파일, Ticket 색인·본문, Project context 선택을 소유하고 `current/state/`는 Workspace 전체 상황과 다음 행동을 소유한다. 구성·내용·읽기·갱신 기준은 [Spec과 Ticket](spec-and-tickets/README.md)이 정의한다. 현재 status schema `3`은 최근 제품 검증의 기계 결과와 receipt cursor만 소유하며, 과거 schema `2`는 기존 기록 복구를 위해 읽기 호환한다.
 - `source/`: 이 Workspace가 작업 입력으로 선택한 원문, 변경하지 않은 snapshot, provenance를 분리·보존하는 층. `source/index.md`를 최소 inventory로 두며 별도 원자료가 없으면 그 사실과 Project canonical을 복제하지 않은 경계를 적는다. 원자료의 저자와 정본 권위는 원래 출처에 남으며, Workspace는 선택 범위·사용 시점·무결성·재접근 경로를 관리한다. 현재 판단, 분석, 결정, 실행·검증 기록은 두지 않는다.
 - `output/`: Workspace goal을 위해 선택된 현재 산출물을 찾는 층. `output/index.md`를 최소 산출물 지도로 두고, 실제 산출물이 Project root의 코드·문서·테스트에 있으면 복제하지 않고 canonical 상대 경로를 연결한다. Workspace 안에서만 소유하는 goal 산출물은 이 폴더에 직접 둘 수 있다. 아직 선택된 산출물이 없으면 index에 없다고 명시한다.
 - `records/`: source와 실제 작업을 바탕으로 만든 분석·결정·실행·검증 기록의 누적층. 분석 메모·후보·비교·탈락안·선택 근거처럼 goal 산출물을 만들고 고른 사람이 읽는 기록은 이 폴더 바로 아래에 날짜와 내용을 드러내어 둔다. 기존 날짜별 record는 append-only 근거로 보존하며, 보완은 새 record와 색인에 연결한다.
@@ -22,7 +22,7 @@
 
 Workspace 문서의 내용·구성·작성·갱신 기준은 [문서 작성과 갱신](DOCUMENT-WRITING.md)이 소유한다. 문서를 만들거나 고치는 주체는 이 기준을 직접 읽고 적용한다.
 
-[Spec과 Ticket](SPEC-AND-TICKETS.md)은 작업 정의·개별 실행·전체 상태의 상세 의미와 유지 관계를, [생성·전환](CREATE-AND-TRANSITION.md)은 새 Workspace를 구성하고 연결하는 절차를 소유한다. 작성 지침은 각 문서의 Owner와 해당 절차 안에서 적용한다.
+[Spec과 Ticket](spec-and-tickets/README.md)은 작업 정의·개별 실행·전체 상태의 상세 의미와 유지 관계를, [생성·전환](CREATE-AND-TRANSITION.md)은 새 Workspace를 구성하고 연결하는 절차를 소유한다. 작성 지침은 각 문서의 Owner와 해당 절차 안에서 적용한다.
 
 ## 새 Workspace 생성과 관계
 

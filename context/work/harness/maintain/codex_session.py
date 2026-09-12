@@ -268,11 +268,8 @@ class CodexMaintainSession:
             raise HarnessError(
                 f"Maintain README is not readable UTF-8 text: {exc}"
             ) from exc
-        workspace_rules_path = (
-            Path(__file__).resolve().parents[2]
-            / "workspaces" / "SPEC-AND-TICKETS.md"
-        )
-        workspace_collection_path = workspace_rules_path.with_name("README.md")
+        workspaces_root = Path(__file__).resolve().parents[2] / "workspaces"
+        workspace_collection_path = workspaces_root / "README.md"
         try:
             workspace_collection = workspace_collection_path.read_text(
                 encoding="utf-8"
@@ -283,12 +280,24 @@ class CodexMaintainSession:
                 f"{exc}"
             ) from exc
         try:
-            workspace_rules = workspace_rules_path.read_text(encoding="utf-8")
+            workspace_rules = "\n\n".join(
+                f"### spec-and-tickets/{name}\n\n"
+                + (workspaces_root / "spec-and-tickets" / name).read_text(
+                    encoding="utf-8"
+                )
+                for name in (
+                    "README.md",
+                    "EXECUTION-CRITERIA.md",
+                    "SPEC.md",
+                    "TICKET.md",
+                    "MAINTENANCE.md",
+                )
+            )
         except (OSError, UnicodeError) as exc:
             raise HarnessError(
                 f"Workspace Spec/Ticket contract is not readable UTF-8 text: {exc}"
             ) from exc
-        writing_rules_path = workspace_rules_path.with_name("DOCUMENT-WRITING.md")
+        writing_rules_path = workspaces_root / "DOCUMENT-WRITING.md"
         try:
             writing_rules = writing_rules_path.read_text(encoding="utf-8")
         except (OSError, UnicodeError) as exc:
