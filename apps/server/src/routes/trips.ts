@@ -8,6 +8,7 @@ import { tripResponse, tripListResponse } from '@repo/schema/responses/trip';
 import { scheduleEntity } from '@repo/schema/entities/schedule';
 import { scheduleListResponse } from '@repo/schema/responses/schedule';
 import { requireAuth } from '../middleware/auth.js';
+import { serializeSchedule } from '../serializers/schedule.js';
 import { sendInternalError } from '../utils/http-errors.js';
 
 const router = Router();
@@ -336,13 +337,7 @@ router.get('/:tripId/schedules', requireAuth, async (req: Request, res: Response
 
     // ISO string으로 변환 및 Entity 검증
     const validatedSchedules = allSchedules.map((schedule) => {
-      const validated = scheduleEntity.safeParse({
-        ...schedule,
-        scheduledAt: schedule.scheduledAt.toISOString(),
-        createdAt: schedule.createdAt.toISOString(),
-        updatedAt: schedule.updatedAt.toISOString(),
-        deletedAt: schedule.deletedAt?.toISOString() || null,
-      });
+      const validated = scheduleEntity.safeParse(serializeSchedule(schedule));
 
       if (!validated.success) {
         console.error('Schedule validation error:', validated.error);
@@ -447,13 +442,7 @@ router.post('/:id/activate', requireAuth, async (req: Request, res: Response) =>
       updatedAt: t.updatedAt.toISOString(),
     }));
 
-    const validatedSchedules = tripSchedules.map((schedule) => ({
-      ...schedule,
-      scheduledAt: schedule.scheduledAt.toISOString(),
-      createdAt: schedule.createdAt.toISOString(),
-      updatedAt: schedule.updatedAt.toISOString(),
-      deletedAt: schedule.deletedAt?.toISOString() || null,
-    }));
+    const validatedSchedules = tripSchedules.map(serializeSchedule);
 
     const validatedExpenses = tripExpenses.map((expense) => ({
       ...expense,

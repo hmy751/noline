@@ -6,6 +6,7 @@ import { createScheduleRequest, updateScheduleRequest } from '@repo/schema/reque
 import { scheduleResponse, scheduleListResponse } from '@repo/schema/responses/schedule';
 import { scheduleEntity } from '@repo/schema/entities/schedule';
 import { requireAuth } from '../middleware/auth.js';
+import { serializeSchedule } from '../serializers/schedule.js';
 import { sendInternalError } from '../utils/http-errors.js';
 
 const router = Router();
@@ -45,13 +46,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
     // Zod로 응답 데이터 검증
     const validatedSchedule = scheduleResponse.safeParse({
       success: true,
-      data: {
-        ...newSchedule,
-        scheduledAt: newSchedule.scheduledAt.toISOString(),
-        createdAt: newSchedule.createdAt.toISOString(),
-        updatedAt: newSchedule.updatedAt.toISOString(),
-        deletedAt: newSchedule.deletedAt?.toISOString() || null,
-      },
+      data: serializeSchedule(newSchedule),
     });
 
     if (!validatedSchedule.success) {
@@ -86,13 +81,7 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
 
     // ISO string으로 변환 및 Entity 검증
     const validatedSchedules = allSchedules.map((schedule) => {
-      const validated = scheduleEntity.safeParse({
-        ...schedule,
-        scheduledAt: schedule.scheduledAt.toISOString(),
-        createdAt: schedule.createdAt.toISOString(),
-        updatedAt: schedule.updatedAt.toISOString(),
-        deletedAt: schedule.deletedAt?.toISOString() || null,
-      });
+      const validated = scheduleEntity.safeParse(serializeSchedule(schedule));
 
       if (!validated.success) {
         console.error('Schedule validation error:', validated.error);
@@ -142,13 +131,7 @@ router.get('/:id', requireAuth, async (req: Request, res: Response) => {
     }
 
     // ISO string으로 변환 및 Entity 검증
-    const validated = scheduleEntity.safeParse({
-      ...schedule,
-      scheduledAt: schedule.scheduledAt.toISOString(),
-      createdAt: schedule.createdAt.toISOString(),
-      updatedAt: schedule.updatedAt.toISOString(),
-      deletedAt: schedule.deletedAt?.toISOString() || null,
-    });
+    const validated = scheduleEntity.safeParse(serializeSchedule(schedule));
 
     if (!validated.success) {
       console.error('Schedule validation error:', validated.error);
@@ -241,13 +224,7 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
     // Zod로 응답 데이터 검증
     const validatedSchedule = scheduleResponse.safeParse({
       success: true,
-      data: {
-        ...updatedSchedule,
-        scheduledAt: updatedSchedule.scheduledAt.toISOString(),
-        createdAt: updatedSchedule.createdAt.toISOString(),
-        updatedAt: updatedSchedule.updatedAt.toISOString(),
-        deletedAt: updatedSchedule.deletedAt?.toISOString() || null,
-      },
+      data: serializeSchedule(updatedSchedule),
     });
 
     if (!validatedSchedule.success) {

@@ -1,6 +1,6 @@
 # 현재 산출물
 
-이 Workspace에서 선택한 현재 산출물은 공통 Spec·Ticket 운영 기준과 완료된 01·02·04번 Ticket의 제품 코드다. 실제 파일은 Project의 canonical 위치에 유지한다. 산출물 연결은 전체 Work 완료나 제품 Verify 통과를 뜻하지 않으며 작업 정의와 현재 상황은 [현재 context](../current/memory/index.md)와 [state](../current/state/index.md)가 소유한다.
+이 Workspace에서 선택한 현재 산출물은 공통 Spec·Ticket 운영 기준, 완료된 01·02·04번 Ticket의 제품 코드와 Ticket 05의 서버 테스트 기반이다. 실제 파일은 Project의 canonical 위치에 유지한다. 산출물 연결은 전체 Work 완료나 제품 Verify 통과를 뜻하지 않으며 작업 정의와 현재 상황은 [현재 context](../current/memory/index.md)와 [state](../current/state/index.md)가 소유한다.
 
 ## 공통 Spec·Ticket 운영 기준
 
@@ -57,3 +57,5 @@ Main이 보고한 커밋은 `dce576f refactor(client): 경비 API 흐름 정리`
 - [공용 테스트 app 준비](../../../../../apps/server/tests/support/test-app.ts): 실제 app import 전에 DB·auth ESM module을 대체하고 route별 fixture와 DB 호출 기록을 제공한다.
 
 Node 20.18.1에서 2개 file의 2개 test와 server build가 통과했다. 실제 PostgreSQL·JWT·배포 process는 검사하지 않았고 기존 `places.ts:138` 타입 오류 때문에 server 전체 typecheck는 실패했다. 이 기반은 Ticket 05의 제품 결과가 아니라 이후 날짜 직렬화·schema·ownership 변경을 비교할 첫 산출물이다. 정확한 구성과 한계는 [구축 기록](../records/2026-09-13-02-server-test-setup.md)이 소유한다.
+
+사용자 요청에 따라 이 서버 테스트 기반과 Ticket 05의 현재 계약·관련 기록은 `fe5722a test(server): add schedule API contract foundation`으로 커밋됐다. read-only 조회에서 전체 해시 `fe5722a0da4dc8234827d5e0da6dee9375c43298`, 부모 `70155641b2bda13df6b905b58ebbe414fa5ee0ed`와 보고된 15개 파일의 포함을 확인했다. Node 20.18.1의 2개 테스트와 `git diff --check` 통과는 Main의 보고이며 Maintain은 재실행하지 않았다. Main은 이 커밋의 staging 잔여는 없지만 관련 없는 별도 변경 때문에 전체 작업 트리는 clean하지 않다고 보고했다.

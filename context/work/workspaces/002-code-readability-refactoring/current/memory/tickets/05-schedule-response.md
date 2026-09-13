@@ -48,8 +48,12 @@ Vitest만 사용하는 helper 단위 검사는 순수 날짜 변환을 확인할
 
 ## 현재 상태와 실제 결과
 
-서버 test dependency와 script, Vitest Node 환경 설정, exported app을 사용하는 Schedule route 계약 테스트를 추가했다. 정확한 설치 버전은 Vitest 4.1.11, Vite 6.4.3, Supertest 7.2.2, `@types/supertest` 7.2.1이다. Node 20.18.1에서 health 응답과 Schedule 목록의 status·envelope·네 날짜 JSON을 검사한 2개 test가 통과했고 server build도 통과했다. 실제 구성과 결과는 [테스트 기반 실행 기록](../../../records/2026-09-13-02-server-test-setup.md)에 있다.
+서버 test dependency와 script, Vitest Node 환경 설정, exported app을 사용하는 Schedule route 계약 테스트를 추가했다. 정확한 설치 버전은 Vitest 4.1.11, Vite 6.4.3, Supertest 7.2.2, `@types/supertest` 7.2.1이다. Node 20.18.1에서 health 응답과 Schedule 목록의 status·envelope·네 날짜 JSON을 검사한 최초 2개 test가 통과했고 server build도 통과했다. 실제 구성과 결과는 [테스트 기반 실행 기록](../../../records/2026-09-13-02-server-test-setup.md)에 있다.
+
+Main은 이어서 제품 변경 전 일곱 Schedule 응답 경로의 특성화 검사를 먼저 통과시킨 뒤 `apps/server/src/serializers/schedule.ts`에 순수 `serializeSchedule`을 추가하고, 생성·목록·단건·수정·Trip 하위 목록·activation·sync pull의 일곱 소비 지점에 있던 네 날짜 변환을 모두 이 함수로 교체했다고 보고했다. 같은 route 계약 검사가 공통화 전후 모두 통과했고 serializer 단위 검사 2개를 포함해 3개 test file의 10개 test, server build와 `git diff --check`가 통과했다. 이 결과는 아직 커밋되지 않았고 사용자가 수락하지 않았다.
+
+날짜 직렬화 함수는 DB `Date`를 API ISO 문자열 또는 null로 바꾸는 책임만 맡는다. response schema 적용 방식과 ownership·soft-delete query는 이번 단계에서 변경하지 않았으며, HTTP·오류 처리·Zod 검증을 serializer 안으로 옮기지 않았다. 순수 직렬화 변경은 현재 route 계약 검사와 단위 검사로 비교했고, 실제 PostgreSQL 통합 검사는 ownership·soft-delete 작업에서 수행할 근거로 남긴다.
 
 현재 검사는 DB와 auth module을 대체하므로 PostgreSQL query, 실제 JWT, listener·proxy·배포 process를 입증하지 않는다. 기존 server `typecheck`는 이번 변경과 무관한 `src/routes/places.ts:138`의 Google Maps `Language` 타입 오류로 실패했다. 이 오류를 Schedule 작업에 숨겨 고치거나 새 회귀로 분류하지 않는다.
 
-다음 실행은 제품 코드를 바꾸기 전에 일곱 Schedule 소비 지점, response schema 적용 누락, ownership·soft-delete 차단 사례를 이 기반 위에 특성화하는 것이다. 그 뒤 날짜 직렬화 공통 책임, response boundary 검증, endpoint별 접근 조건을 구현하고 mock route 검사와 PostgreSQL 통합 검사의 증명 범위를 나눠 확인한다. 서버 전체 오류 처리 재설계는 이번 Ticket 밖에 남긴다.
+다음 실행은 2번 response schema 적용 누락을 특성화하고 endpoint별 바깥 응답 schema를 일관되게 적용하는 것이다. 그 뒤 3번 ownership·soft-delete의 기대 동작과 다른 사용자·삭제 데이터 차단 사례를 확정해 route 검사와 격리된 PostgreSQL 통합 검사로 구현을 입증한다. 부모 Trip 미존재와 타 사용자 소유를 같은 404로 처리할지는 아직 사용자 결정이 필요하다. 서버 전체 오류 처리 재설계는 이번 Ticket 밖에 남긴다.

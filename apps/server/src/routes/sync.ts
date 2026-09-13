@@ -9,6 +9,7 @@ import {
   syncPushResponseSchema,
 } from '@repo/schema/sync/sync-status';
 import { requireAuth } from '../middleware/auth.js';
+import { serializeSchedule } from '../serializers/schedule.js';
 
 const router = Router();
 
@@ -104,13 +105,7 @@ router.get('/pull', requireAuth, async (req: Request, res: Response) => {
       updatedAt: trip.updatedAt.toISOString(),
     }));
 
-    const schedulesFormatted = schedulesData.map((schedule) => ({
-      ...schedule,
-      scheduledAt: schedule.scheduledAt.toISOString(),
-      createdAt: schedule.createdAt.toISOString(),
-      updatedAt: schedule.updatedAt.toISOString(),
-      deletedAt: schedule.deletedAt?.toISOString() || null,
-    }));
+    const schedulesFormatted = schedulesData.map(serializeSchedule);
 
     const expensesFormatted = expensesData.map((expense) => ({
       ...expense,
