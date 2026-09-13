@@ -18,7 +18,15 @@ fresh-session 검토 뒤 사용자는 발견된 간격을 개별 Ticket 구성�
 
 [03번 Ticket](../memory/tickets/03-storage-stats.md)은 구현 결과를 보존하고 있으나 사용자의 최종 수락 전이다.
 
-[05번 Ticket](../memory/tickets/05-schedule-response.md)은 구현 전 별도 판단 단계다. Schedule 날짜 직렬화가 일곱 소비 지점에 분산돼 있고 기존 Node 내장 module mock 계획은 고정 런타임에서 실행할 수 없다는 Main 보고를 바탕으로, 공통 추출 없이 유지할지 공유 직렬화 책임으로 재정의할지와 검증 기반을 정해야 한다. 기존 Ticket 문서와 제품 구현은 유지한다.
+[05번 Ticket](../memory/tickets/05-schedule-response.md)은 서버 검사 기반 구축을 마치고 제품 변경 전 특성화를 넓히는 단계다. Vitest 4.1.11, Node 20 호환 Vite 6.4.3, Supertest 7.2.2와 타입 선언을 server package에 exact dependency로 두고 client Jest와 분리했다. app import 전에 DB·auth module을 대체한 뒤 exported Express app의 health와 Schedule 목록 응답을 검사하는 2개 test가 실제 Node 20.18.1에서 통과했고 server build도 통과했다. 선택 이유와 증명 경계는 [전략 결정](../../records/2026-09-13-01-server-test-strategy.md), 실제 구성·실행 결과는 [구축 기록](../../records/2026-09-13-02-server-test-setup.md)에 있다.
+
+Schedule 주변에서 논의한 1–5는 Workspace Ticket 번호가 아니라 날짜 직렬화, response schema 적용, ownership·soft-delete, 오류 처리, 서버 테스트 기반의 다섯 책임 후보다. 사용자는 1–3을 Ticket 05에서 모두 처리하고 5를 먼저 수행하기로 확정했다. 날짜 변환·schema 판정·접근 query는 서로 다른 책임으로 유지하며 하나의 범용 helper로 합치지 않는다. 서버 error envelope부터 client 오류 변환과 UI 표시까지 이어지는 4의 공통화는 이번 Ticket에서 제외한다.
+
+소유권·soft-delete도 Ticket 05의 명시 범위가 됐다. 중첩 일정 조회는 현재 `tripId`만 조건으로 사용하고 Schedule 생성은 부모 Trip의 소유자·삭제 상태를 확인하지 않으며, activation child query도 Schedule·Expense 사용자 조건이 없다. DB foreign key만으로 parent와 child의 `userId` 일치는 강제되지 않는다. 일반 조회의 soft-deleted row 제외와 sync pull의 tombstone 포함은 같은 조건으로 통일하지 않는다. 실제 PostgreSQL 재현과 통합 검사 방식은 아직 마련하지 않았다.
+
+다음 실행은 제품 코드를 바꾸기 전에 나머지 Schedule 소비 지점, response schema 적용 누락, 다른 사용자·soft-delete 사례를 route 검사로 고정하는 것이다. 그 뒤 세 제품 책임을 구현하고 ownership query는 별도 PostgreSQL 통합 근거로 확인한다. 기존 server `typecheck`는 이번 변경과 무관한 `src/routes/places.ts:138` 타입 오류로 실패하므로 Schedule 회귀와 구별한다.
+
+서버 설정에서는 별도 확인 후보가 생겼다. Main은 `tsup` 단일 번들 뒤 환경 파일 상대 경로가 실제 `apps/server/.env.production`이 아니라 `apps/.env.production`을 가리킨다고 재구성했고, 외부 환경변수 주입이 없다면 시작 검사에서 종료될 가능성이 있다고 보고했다. 실제 프로덕션 프로세스는 기동하지 않았다. Node 버전 강제, 내부 import 확장자 혼합과 개발용 PostgreSQL만 제공하는 Docker 구성도 테스트 기반과 배포 조건을 정할 때 확인해야 하며, 이를 Ticket 05의 날짜 직렬화 수정으로 함께 처리하지 않는다.
 
 대화 맥락 없는 fresh session의 06–17 제안은 보완된 공통 기준, 현재 Spec·분석·코드와 독립 조사 결과에 다시 대조했다. 사용자는 05를 그대로 둔 채 나머지 Ticket을 구현 전에 먼저 문서화하는 구성을 확인하고, 공통 `spec-and-tickets` 기준을 마지막으로 읽은 뒤 생성하도록 지시했다. 이에 따라 [Ticket 색인](../memory/tickets/index.md)과 06–17 본문을 만들었다. 제품 코드·제품 test는 변경하지 않았고 새 Ticket의 실행·검증·사용자 수락도 아직 없다.
 

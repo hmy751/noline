@@ -31,4 +31,8 @@
 
 - [남은 Ticket 06–17 구성 확정](2026-09-12-08-remaining-ticket-definition.md): 보완된 공통 기준과 현재 Spec·코드에 따라 구현 전 생성한 남은 Ticket, 05 보존, 선행·차단 관계와 현재 미배정 범위.
 
+- [서버 테스트 기반과 Schedule 응답 검증 방식 결정](2026-09-13-01-server-test-strategy.md): Vitest 4.1.11·Supertest 7.2.2 채택, Node/Jest 등 대안과 역할별 tradeoff, ESM mock·route 계약·PostgreSQL 통합 검사의 증명 경계.
+
+- [서버 테스트 기반 구축과 Ticket 05 범위 확정](2026-09-13-02-server-test-setup.md): Node 20 호환 exact dependency·ESM mock·Express 계약 test의 실제 적용, 실행 결과·기존 typecheck 실패와 날짜 직렬화·schema·ownership 범위 확정.
+
 후속 분석·결정·실행 기록은 이 디렉터리에 날짜별로 남긴다. 원문·변경하지 않은 snapshot은 [source](../source/index.md), 현재 기준과 진행은 [current](../current/memory/index.md)가 소유한다.

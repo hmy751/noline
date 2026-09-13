@@ -10,7 +10,7 @@ Ticket은 관련된 여러 개선 관점을 함께 다룰 코드 범위다. [작
 - [02 — 도시 검색의 선별 조건과 변환](02-city-search.md) — 요청과 필터의 동일 기준, 수도 예외와 변환 의미를 드러내는 범위.
 - [03 — 저장 용량의 집계·부분 실패·표시](03-storage-stats.md) — 부분 결과와 실패 정책을 보존하면서 집계·표시·React 연결 책임을 드러내는 범위.
 - [04 — 경비 API의 요청·검증·반환 흐름](04-expense-api.md) — 오류 책임을 유지하면서 부수 표현을 줄이는 범위.
-- [05 — 서버 일정 응답의 날짜 변환](05-schedule-response.md) — Schedule 날짜 직렬화의 일곱 소비 지점을 별도로 판단하는 범위. 이번 재구성에서 문서와 구현을 바꾸지 않는다.
+- [05 — 서버 Schedule 응답과 접근 경계](05-schedule-response.md) — 서버 검사 기반 위에서 일곱 날짜 직렬화, response schema 적용, ownership·soft-delete 조건을 함께 구현·입증하는 범위. 서버 전체 오류 처리 재설계는 제외한다.
 - [06 — Trip·Schedule client API 경계](06-client-api-boundaries.md) — client 요청·응답 검증과 오류 전달을 직접 읽고 검증할 수 있게 하는 범위.
 - [07 — 일정 생성·수정 입력 생명주기](07-schedule-form-lifecycle.md) — 초기값·장소·picker·재진입의 값 Owner를 분명히 하는 범위.
 - [08 — 경비 생성·수정 입력 생명주기](08-expense-form-lifecycle.md) — 늦은 기본 통화·날짜·연결 일정·재진입의 입력 기준을 분명히 하는 범위.

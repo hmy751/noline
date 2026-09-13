@@ -47,3 +47,13 @@ Main은 사용자 요청에 따라 기록과 커밋을 마무리했다고 보고
 변경 전후 동일한 8개 검사가 통과했다. 실제 네트워크·Axios interceptor·React Native 화면은 실행하지 않았으며, 정규 ESLint와 client 전체 타입 검사의 기존 실패를 새 회귀로 덮지 않았다. 상세 근거와 사용자 수락 범위는 [04번 Ticket](../current/memory/tickets/04-expense-api.md)이 소유한다.
 
 Main이 보고한 커밋은 `dce576f refactor(client): 경비 API 흐름 정리`이며 Ticket 04 관련 파일 다섯 개만 포함했다. 보고 시점의 작업 트리에는 별도 Ticket 05와 `output/index.md`의 다른 미커밋 변경이 남아 있었다. 이 커밋 내용과 Git 상태는 Maintain이 독립 확인하지 않았다.
+
+## 05 — 서버 테스트 기반
+
+- [server package](../../../../../apps/server/package.json): Vitest·Vite·Supertest exact dependency와 일회·watch test 명령을 소유한다.
+- [Vitest 설정](../../../../../apps/server/vitest.config.ts): Node test 환경, server test 검색 범위와 test-only 환경변수를 정의한다.
+- [서버 앱 smoke 테스트](../../../../../apps/server/tests/app.smoke.test.ts): exported Express app과 `/api/health`의 기본 연결을 검사한다.
+- [Schedule API 응답 계약 테스트](../../../../../apps/server/tests/routes/schedules.response-contract.test.ts): Schedule 목록의 status·응답 구조·날짜 JSON을 검사한다.
+- [공용 테스트 app 준비](../../../../../apps/server/tests/support/test-app.ts): 실제 app import 전에 DB·auth ESM module을 대체하고 route별 fixture와 DB 호출 기록을 제공한다.
+
+Node 20.18.1에서 2개 file의 2개 test와 server build가 통과했다. 실제 PostgreSQL·JWT·배포 process는 검사하지 않았고 기존 `places.ts:138` 타입 오류 때문에 server 전체 typecheck는 실패했다. 이 기반은 Ticket 05의 제품 결과가 아니라 이후 날짜 직렬화·schema·ownership 변경을 비교할 첫 산출물이다. 정확한 구성과 한계는 [구축 기록](../records/2026-09-13-02-server-test-setup.md)이 소유한다.
