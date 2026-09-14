@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "workspace_id": "004-project-context-contracts-and-guidance",
+  "claim": "선언한 recover.json이 당시 Python 표준 JSON 파서로 읽히는 JSON이다. Workspace schema, 링크, 내용 충분성, 제품 합의, 지침의 실제 효과나 Work 완료를 증명하지 않는다.",
+  "canonical_basis": [
+    "context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/spec/04-quality-and-completion.md"
+  ],
+  "verification": {
+    "argv": [
+      "python3", "-B", "-m", "json.tool",
+      "context/work/workspaces/004-project-context-contracts-and-guidance/recover.json"
+    ],
+    "evidence_paths": [
+      "context/work/workspaces/004-project-context-contracts-and-guidance/recover.json"
+    ],
+    "timeout_seconds": 10,
+    "max_output_chars": 10000
+  }
+}

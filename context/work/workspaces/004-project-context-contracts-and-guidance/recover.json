@@ -1,0 +1,26 @@
+{
+  "schema_version": 6,
+  "workspace_id": "004-project-context-contracts-and-guidance",
+  "project_context": [
+    {
+      "path": "context/project/README.md",
+      "reason": "Project의 주제별 진입과 내용·관리 책임을 찾는다. 연결된 초안 전체를 수락된 제품 계약으로 보지 않는다."
+    },
+    {
+      "path": "context/project/common/product.md",
+      "reason": "Selective Local-First와 사용자 데이터 보존이라는 제품 전제를 유지한다. 날짜 설명의 세부 지위는 이 Work의 확인된 불일치를 함께 적용한다."
+    },
+    {
+      "path": "context/project/common/currency.md",
+      "reason": "통화 분리의 유효한 의미와 표시·정밀도 미합의를 논의한다. 기존 정책 누락이 있는 검토 대상 초안이다."
+    },
+    {
+      "path": "context/project/common/date-and-time.md",
+      "reason": "날짜 제품 의미의 미합의를 확인한다. client local 입력이 date-only를 강제한다는 문장은 코드와 모순된다는 Spec의 경고를 우선 확인한다."
+    },
+    {
+      "path": "context/project/guidance/api-contracts.md",
+      "reason": "Schedule·Expense의 경계와 서버 오류 미합의를 검토한다. 완성된 Project 계약으로 일괄 승인하지 않고 실제 경로와 대조한다."
+    }
+  ]
+}

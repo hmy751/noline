@@ -1,0 +1,254 @@
+# 시험 산출물과 직접 코드의 원문 발췌 — 텍스트 보존본
+
+2026-09-14 Main이 작업 트리에서 직접 추출했다. 기준 HEAD는 2937c252a735ecc6edbe1d3516659fcf459da970이며 Project 본문은 그 이후 미커밋 시험 산출물이다. 각 SHA-256은 발췌가 아니라 확보 당시 원본 파일 전체의 해시다. 이 파일은 분석을 넣지 않은 원문 보존본이며 현재 기준으로 자동 적용하지 않는다.
+
+## 날짜 본문
+
+원본: `context/project/common/date-and-time.md`
+
+SHA-256: `f6cd8671f6110aa204d610a300bac75ce65c3c2beaa310a8692d345cbcb1933e`
+
+원본 7–20줄:
+
+~~~text
+현재 `@repo/schema`와 서버 serializer는 다음 표현을 요구한다.
+
+- Schedule의 `scheduledAt`과 Trip의 `startDate`·`endDate`, Trip·Schedule·Expense의 `createdAt`·`updatedAt`·`deletedAt`은 timezone offset을 포함한 ISO 8601 datetime 문자열이다.
+- Expense의 발생일 `date`는 시각과 timezone이 없는 `YYYY-MM-DD` 문자열이다.
+- PostgreSQL row가 `Date`인 경우 서버 response boundary에서 각 API 표현으로 직렬화한다. Schedule·Trip의 datetime은 `toISOString()`으로, Expense 발생일은 날짜 부분으로 변환한다.
+- 화면용 locale 문자열은 저장·전송 값으로 사용하지 않고 표시 boundary에서 만든다.
+
+이 구분은 [Schedule schema](../../../packages/schema/src/entities/schedule.ts), [Trip schema](../../../packages/schema/src/entities/trip.ts), [Expense schema](../../../packages/schema/src/entities/expense.ts)와 세 [server serializer](../../../apps/server/src/serializers/)에서 확인된다. Schedule 응답의 일곱 소비 경로와 activation의 Expense 표현은 [Workspace 002의 실행 기록](../../work/workspaces/002-code-readability-refactoring/records/2026-09-14-01-schedule-serialization-and-response-contract.md)에서 변경·검증 범위를 확인할 수 있다.
+
+## 아직 정하지 않은 제품 의미
+
+Root 불변식, 기존 ISO Time rule과 [이전 Time context](../../../.claude/context/time.md)는 날짜를 포함한 시간 값을 모두 timezone 포함 datetime으로 설명한다. 반면 현재 Expense schema와 client local 입력은 `date`를 날짜 전용 값으로 강제한다. 어느 쪽이 Expense 발생일의 장기 domain 의미인지, Trip 시작·종료일도 일정 시각과 같은 datetime이어야 하는지는 이번 Owner 이동에서 새로 선택하지 않았다.
+
+따라서 관련 변경은 현재 field-specific schema를 사실상의 실행 계약으로 대조하되, 기존 일괄 정책을 근거로 Expense `date`를 datetime으로 바꾸거나 현재 구현만 보고 Project-wide date-only 예외를 채택하지 않는다. 이 충돌을 해소하려면 사용자가 날짜를 어떤 현지 날짜·시각으로 인식해야 하는지, timezone 이동과 동기화에서 어떤 값을 보존할지 먼저 결정해야 한다.
+~~~
+
+## Current의 검사 서술
+
+원본: `context/project/current/architecture.md`
+
+SHA-256: `26967cbc65f5ed3845291c3d16c69dba2b84fe5fc6c8bd7602cd554dfd03a0e0`
+
+원본 13–19줄:
+
+~~~text
+## 현재 테스트 표면과 증명 범위
+
+Client는 `apps/client`가 Expo/Jest 환경과 `tests/`를 소유한다. 실제 hook을 React 환경에서 실행하는 저장 용량 검사와 fetcher를 대체한 Expense remote API 검사가 있다. 2026-09-14 재실행에서 3 suites·18 tests가 통과했다. 이 결과는 FileSystem·Mapbox native module, 실제 Axios interceptor·network와 React Native 화면을 실행한 증거가 아니다.
+
+Server는 `apps/server`가 Vitest와 Supertest route 검사, serializer 단위 검사와 별도 PostgreSQL 통합 실행기를 소유한다. DB·auth module을 대체한 일반 검사는 Express middleware·routing·status·JSON을 확인하며, 2026-09-14 포트 bind가 허용된 환경에서 8 files·29 tests가 통과했다. 제한된 sandbox에서는 Supertest의 임시 listener가 `EPERM`으로 실패했으므로 이를 제품 assertion 실패와 구별한다. Schedule 접근 경계의 PostgreSQL 14 검사 4개 통과는 [Workspace 실행 기록](../../work/workspaces/002-code-readability-refactoring/records/2026-09-14-03-schedule-access-boundary.md)에 보존돼 있으며 이번 갱신에서는 Docker 통합 검사를 다시 실행하지 않았다.
+
+현재 `apps/client` 전체 `test:typecheck`는 Mapbox 관련 기존 오류 3개, server `typecheck`는 `routes/places.ts`의 Google Maps `Language` 기존 오류 1개로 실패한다. Server build는 2026-09-14 다시 통과했다. 이 실패들은 이번 문서 변경이나 Ticket 01–05 코드의 새 회귀로 분류하지 않는다. 정확한 경로와 오류는 실제 typecheck 출력에서 다시 확인한다.
+~~~
+
+## 통화 새 본문
+
+원본: `context/project/common/currency.md`
+
+SHA-256: `e4be7fe26e58e351f35bedb5ba9d1ae182a94bfda0670f35eb58c2929cfa1f2f`
+
+원본 1–23줄:
+
+~~~text
+# 통화와 금액의 제품 의미
+
+경비 입력·합계·표시를 만들거나 바꿀 때 읽는다. 이 문서는 통화를 분리해 다루는 제품 의미와 현재 확인된 표시 경계를 소유한다. 실제 helper와 화면 구현은 [client source](../../../apps/client/src/shared/lib/currency.ts)가, 반영 배경과 제한된 검증은 [Workspace 002 Ticket 01](../../work/workspaces/002-code-readability-refactoring/current/memory/tickets/01-expense-totals.md)이 소유한다.
+
+## 여러 통화를 환산 없이 보존한다
+
+Trip의 `baseCurrency`는 그 여행에서 새 Expense를 입력할 때 우선하는 기본 통화다. Expense는 자기 `currency`와 금액을 그대로 가지며, 서로 다른 통화의 금액을 하나의 환산 합계로 섞지 않는다. 합계는 통화별로 분리해 보여 준다. 환산 총액을 새로 제공하려면 환율 source, 환율을 확보하지 못한 오프라인 동작과 환산 기준 시점을 먼저 결정해야 한다.
+
+경비 합계 목록은 Trip의 `baseCurrency`가 실제 목록에 있으면 그 그룹을 먼저 둔다. 기본 통화 경비가 없으면 첫 항목은 다른 통화 중 명목 숫자 합계가 큰 그룹이다. 따라서 화면의 첫 항목을 `baseCurrency인가`로 해석하거나 helper의 결과를 “가장 많이 사용된 통화”로 일반화하면 안 된다. 현재 화면은 첫 항목을 강조하고 ‘주 통화’라고 표시하지만, 이 라벨이 기본 통화·사용 빈도·환산 가치 중 무엇을 뜻해야 하는지는 별도 제품 기준으로 확정되지 않았다.
+
+## 현재 표시 규칙과 금액 정밀도는 구별한다
+
+현재 공용 표시 규칙은 KRW·JPY를 소수 0자리, 그 밖의 통화를 2자리로 보여 준다. `getCurrencyFractionDigits`가 이 자릿수를 소유하며 공용 `formatCurrencyDisplay`와 경비 합계 화면이 함께 사용한다. 이 규칙은 표시 자릿수에 관한 현재 답이지, 입력 가능한 금액의 scale이나 저장 정밀도·합산·반올림 시점을 정한 계약은 아니다.
+
+현재 `Expense.amount` schema는 숫자 문자열이라는 형식과 소수 자릿수를 제한하지 않고, client 합계는 문자열을 JavaScript `number`로 바꾸어 계산하며, PostgreSQL은 `decimal(10,2)`로 저장한다. 경비 합계 화면의 `toFixed`와 공용 formatter의 locale formatting은 `1.005 USD` 같은 입력에서 서로 다른 문자열을 만들 수 있다. Workspace 002는 이 차이를 새로 만들지 않고 기존 표시를 보존했을 뿐, 어느 결과가 제품상 옳은지 결정하지 않았다.
+
+금액 처리 작업에서는 입력 검증, client 계산, DB precision, 표시 반올림을 한 계약으로 함께 대조한다. 단순한 formatter 교체로 현재 화면 문자열을 조용히 바꾸거나 Ticket 01의 동작 보존 결과를 Project-wide 금액 정책으로 확대하지 않는다.
+
+## 권위와 다시 확인할 때
+
+이 범위의 현재 제품 의미는 이 문서가 소유한다. [이전 Currency context](../../../.claude/context/currency.md)는 과거 진입 링크를 이 본문으로 연결하고 현재 코드 위치만 안내한다. 화면별 배치와 구현은 code가 소유하며, 본문과 다르면 제품 결정을 자동 변경하지 말고 실제 consumer와 근거를 대조한다.
+
+‘주 통화’의 의미, 허용할 금액 scale, 합산·반올림 시점이나 환산 기능을 정하는 작업에서는 사용자 또는 제품 책임자의 선택이 필요하다. 그 선택이 생기면 이 본문과 관련 schema·저장·표시 가이드를 함께 갱신한다.
+~~~
+
+## 기존 API·날짜 runbook
+
+원본: `.claude/runbooks/README.md`
+
+SHA-256: `3028ecd72a4467a30976ce2aedd0d9e0e960b4d3b8d6896f304c9491d8e01934`
+
+원본 47–55줄:
+
+~~~text
+## <a id="api-endpoint"></a>API endpoint 추가
+
+server route와 client-facing API contract를 바꿀 때 사용한다.
+
+1. `packages/schema` request/response schema에서 시작한다.
+2. route boundary에서 Zod로 request를 parse한다.
+3. row를 읽거나 쓰기 전에 auth와 user ownership을 확인한다.
+4. sync-owned create flow에서는 client-created ID를 보존한다.
+5. client API hook/repository를 갱신하되 Data Layer routing을 우회하지 않는다.
+~~~
+
+원본 67–73줄:
+
+~~~text
+## <a id="datetime-utils"></a>날짜/시간 처리
+
+1. 저장/전송 값은 timezone이 있는 ISO 8601 datetime string으로 유지한다.
+2. format은 표시 boundary에서만 적용한다.
+3. 새 formatter를 만들기 전에 shared datetime utility를 찾는다.
+4. 분리된 form date/time field는 submit 시 ISO 값으로 결합한다.
+5. persistence를 만질 때 SQLite/PostgreSQL field 의미를 확인한다.
+~~~
+
+## Expense 생성 form
+
+원본: `apps/client/src/features/expense/create-expense/schema.ts`
+
+SHA-256: `972128d4fab5d794242c7393e8e83c52263cf050434a86a932385868e1f4f360`
+
+원본 10–17줄:
+
+~~~text
+export const createExpenseFormSchema = z.object({
+  title: z.string().min(1, '제목을 입력해주세요'),
+  amount: z.string().min(1, '금액을 입력해주세요'),
+  currency: z.string().min(1, '통화를 선택해주세요'),
+  category: z.string().min(1, '카테고리를 선택해주세요'),
+  date: z.string().datetime({ offset: true }), // ✅ ISO 8601 datetime with timezone
+  scheduleId: z.string().optional(), // 일정 연결 (선택)
+});
+~~~
+
+## Expense 생성·수정 요청
+
+원본: `packages/schema/src/requests/expense.ts`
+
+SHA-256: `2acb78cd7148ef26b09b8ce8a7fcca3b07575c598d99abee9b1681432c9d3895`
+
+원본 13–38줄:
+
+~~~text
+export const createExpenseRequest = expenseEntity
+  .pick({
+    id: true, // ✨ 클라이언트가 생성한 ULID
+    userId: true,
+    tripId: true,
+    scheduleId: true,
+    title: true,
+    amount: true,
+    currency: true,
+    category: true,
+    date: true,
+    hasReceipt: true, // TODO: 영수증 업로드 기능 구현 전까지 항상 false
+    receiptUrl: true, // TODO: 영수증 업로드 기능 구현 전까지 항상 null
+  })
+  .extend({
+    // 요청 시에는 userId를 optional로 (테스트용)
+    userId: z.string().ulid().optional(),
+    // 필수 필드 검증 추가
+    title: z.string().min(1, 'Title is required'),
+    amount: z.string().min(1, 'Amount is required'),
+    currency: z.string().default('USD'),
+    category: z.string().min(1, 'Category is required'),
+    date: z.string().min(1, 'Date is required'),
+    hasReceipt: z.boolean().default(false), // TODO: 영수증 업로드 기능 구현 시 활성화
+    receiptUrl: z.string().nullable().default(null), // TODO: 영수증 업로드 기능 구현 시 활성화
+  });
+~~~
+
+원본 45–56줄:
+
+~~~text
+export const updateExpenseRequest = expenseEntity
+  .pick({
+    title: true,
+    amount: true,
+    currency: true,
+    category: true,
+    date: true,
+    scheduleId: true,
+    hasReceipt: true,
+    receiptUrl: true,
+  })
+  .partial();
+~~~
+
+## Expense local 생성 저장
+
+원본: `apps/client/src/entities/expense/lib/expense-local.ts`
+
+SHA-256: `ad4b4279227dd77aad2a397733b8ead2e32ab8312f91ff8246f7dd2e2c5ca105`
+
+원본 99–131줄:
+
+~~~text
+  const newExpense = {
+    id,
+    userId,
+    tripId: data.tripId,
+    scheduleId: data.scheduleId || null,
+    title: data.title,
+    amount: data.amount,
+    currency: data.currency || 'USD',
+    category: data.category,
+    date: data.date,
+    hasReceipt: data.hasReceipt || false,
+    receiptUrl: data.receiptUrl || null,
+    createdAt: now,
+    updatedAt: now,
+    deletedAt: null,
+    version: 1,
+  };
+
+  await withTransaction(async () => {
+    await db.insert(expenses).values(newExpense as typeof expenses.$inferInsert);
+    await addToSyncQueue('expenses', id, 'CREATE', {
+      id,
+      userId,
+      tripId: data.tripId,
+      scheduleId: data.scheduleId,
+      title: data.title,
+      amount: data.amount,
+      currency: data.currency,
+      category: data.category,
+      date: data.date,
+      hasReceipt: data.hasReceipt,
+      receiptUrl: data.receiptUrl,
+    });
+~~~
+
+## 이전 통화 기준
+
+원본: `git show 2937c25:.claude/context/currency.md`, 26–43줄.
+
+~~~text
+## Display Rules
+
+- 통화별 합계를 별도 줄로 표시한다.
+- 대표 금액을 하나만 보여야 하는 카드에서는 가장 중요한 통화 하나와 나머지 개수를 함께 표시한다.
+- 환산 총액이 필요한 기능을 만들기 전에는 exchange rate source와 offline behavior를 먼저 결정한다.
+
+## Form Rules
+
+- Expense 생성 폼의 기본 통화는 Trip `baseCurrency`다.
+- 사용자는 Expense별 currency를 바꿀 수 있어야 한다.
+- 오프라인 manual input에서도 currency는 필수 입력으로 유지한다.
+
+## 체크리스트
+
+- [ ] 서로 다른 currency를 합산하지 않았는가?
+- [ ] 새 Expense 기본값이 Trip `baseCurrency`를 우선하는가?
+- [ ] UI가 금액과 currency code/symbol을 함께 보여주는가?
+- [ ] 환율/환산 기능을 추가한다면 offline 정책과 source decision을 먼저 남겼는가?
+~~~
