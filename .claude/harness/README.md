@@ -11,7 +11,7 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
 | 레이어 | Owner | 역할 | 읽는 방식 |
 | --- | --- | --- | --- |
 | Root guide | [../../CLAUDE.md](../../CLAUDE.md) | 프로젝트 정체성, bridge, 빠른 탐색, 핵심 불변식 | 항상 작게 유지 |
-| Context Harness | [../../context/README.md](../../context/README.md) | Project common context, 지속 Workspace와 Recover·Maintain·Verify 운영 | `.claude/context/`의 제품 설명 Owner와 분리 |
+| Context Harness | [../../context/README.md](../../context/README.md) | Project context, 지속 Workspace와 Recover·Maintain·Verify 운영 | 승인된 주제별 Owner 이동과 미이동 범위를 Project 계약에서 구분 |
 | Workspace guides | `apps/*/CLAUDE.md`, `packages/*/CLAUDE.md` | app/package별 구현 규칙과 명령 | 경로에 따라 읽음 |
 | Document map | [../README.md](../README.md) | `.claude` corpus의 역할과 읽는 순서 | 문서 작업 시 시작점 |
 | Rules | [../rules/](../rules/) | 짧고 검증 가능한 task/path 규칙 | 작업/경로에 따라 읽음 |
@@ -83,7 +83,7 @@ workspace guide는 짧게 유지한다. 긴 feature 설명, 교육용 예시, �
 4. reference project에서 영향을 받았다면 표면 형식을 복사하지 말고 Noline의 역할 모델로 번역한다.
 5. `rules/`는 짧고 검증 가능하게, `context/`는 깊은 설명을 보존하게, `runbooks/`는 실행 순서만 빠르게 유지한다.
 6. 이후 작업 방식에 영향을 주는 하네스 변경은 [decisions/](../decisions/)에 기록한다.
-7. Context Harness는 `.claude/context/`의 깊은 제품 설명을 복제하지 않고, 상세 Owner를 우선하는 Project common context와 Work state만 소유한다.
+7. Context Harness는 기존 깊은 제품 설명을 기본적으로 복제하지 않는다. 승인된 주제별 Owner 이동은 Project 관리 계약에 따라 현재 의미와 authority를 함께 전환하고, 미이동 범위는 기존 상세 Owner를 유지한다.
 
 ## 커밋 메시지 기준
 

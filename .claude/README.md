@@ -20,13 +20,13 @@
 | 위치 | 역할 | 읽는 방식 |
 | --- | --- | --- |
 | [harness/](harness/) | Claude/Codex bridge, 문서 owner, 하네스 변경 규칙 | AI/developer 운영 구조를 바꿀 때 먼저 읽는다. |
-| [../context/](../context/) | Project common context, Workspace current/source/output/records, Recover·Maintain·Verify | 지속 작업을 복구하거나 새 Context Workspace를 만들 때 읽는다. `.claude/context/`의 제품 설명 Owner와 다르다. |
+| [../context/](../context/) | 승인된 주제의 Project-wide 의미·current canonical, Workspace current/source/output/records, Recover·Maintain·Verify | 지속 작업을 복구하거나 새 Context Workspace를 만들 때 읽는다. 주제별 Owner 이동과 미이동 범위는 [Project context](../context/project/README.md)에서 확인한다. |
 | [skills/](skills/README.md) | Context Harness 운영 스킬과 deprecated 스킬 이력 | 각 스킬의 호출 조건을 따른다. `noline-work`는 deprecated이며 호출하지 않는다. |
 | [agents/](agents/) | Claude report-only 실행자 | context 수집, policy drift 점검, harness observer가 필요할 때만 사용한다. |
 | [rules/](rules/) | 짧고 검증 가능한 task/path 규칙 | 관련 코드 수정 중 scoped rule로 읽는다. |
 | [guards/](guards/) | 데이터 손실, sync 누락, auth 누락처럼 비용이 큰 실수 방지 지도 | 코드 변경 전후 체크용으로 읽는다. |
 | [runbooks/](runbooks/) | 반복 작업별 시작 순서 | 작업 시작 1-5분 안에 무엇을 확인할지 정한다. |
-| [context/](context/) | 깊은 아키텍처, cross-cutting engineering context, 기능별 동작/edge case | rule/runbook만으로 부족할 때 열고 코드와 대조한다. |
+| [context/](context/) | Owner가 이동하지 않은 깊은 아키텍처·기능 설명과 이동 뒤 남은 구현 배경·호환 routing | rule/runbook만으로 부족할 때 열고, 주제별 현재 canonical과 코드를 대조한다. |
 | [commands/](commands/) | Claude command reference와 문서 관리 workflow | Claude 전용 command 자료다. Codex command로 자동 이식하지 않는다. 먼저 [commands/README.md](commands/README.md)를 확인한다. |
 | [decisions/](decisions/) | 정책, 용어, 구조 변경의 이유 | 현재 정책의 근거로 읽되, source 문서가 더 최신이면 source를 우선한다. |
 | [sessions/](sessions/) | 설계/구현 세션 기록 | 왜 그런 선택을 했는지 확인하는 기록이다. active policy로 바로 사용하지 않는다. |

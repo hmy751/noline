@@ -22,11 +22,25 @@ Project context를 새로 만들거나 크게 재구성한 뒤에는 구조와 l
 
 ## 변경 범위와 근거
 
-기존 상세 Owner를 `context/project/`로 완전히 옮기는 것은 별도의 승인된 Owner migration이다.
+기존 상세 Owner의 현재 의미를 `context/project/`로 옮기는 것은 승인된 Owner migration이다. 승인은 문서 묶음 전체가 아니라 특정 주제·책임 범위로 한정할 수 있다. 이미 승인된 범위는 같은 이동 여부를 다시 묻지 않고 아래 기준으로 끝까지 전환하며, 그 승인을 관련 없는 상세 문서 정비로 넓히지 않는다.
 
 현재 답을 찾는 canonical에도 근거와 열린 판단이 함께 있을 수 있다. 초안·과거 기록·현재 구현의 존재만으로 제품 요구나 Project-wide 지침이 채택되지는 않는다. 과거 자료는 현재 뜻과 대체 관계를 대조할 근거로 사용하고, 당시 계획을 현재 작업 지시로 되살리지 않는다.
 
 현재 권위가 확인되었거나 사용자가 재구성을 허용한 기존 의미는 출처를 추적할 수 있게 복원한다. 근거 있는 내용의 재서술, 확인된 구현 변화에 따른 현재 요약 갱신, 미정·미확인·충돌의 구체적 보존은 새로운 제품 결정을 내리는 것과 구분한다. 새로운 제품 목적·핵심 domain 의미·중요 제약이나 상충하는 근거 사이의 선택은 사용자 또는 명시된 책임자가 결정한다. 이미 승인된 범위의 반영을 위해 같은 결정을 다시 요청하지 않는다. 미해결 부분이 있으면 그 부분의 확정만 남겨 두고, 근거가 지지하는 나머지 맥락은 보존한다.
+
+## 승인된 주제별 Owner 이동
+
+승인된 주제를 옮길 때에는 작업한 Ticket, Workspace, 회의나 evidence 묶음을 그대로 문서 책임으로 삼지 않는다. 그것들은 조사 범위와 근거일 수는 있지만, Project 문서는 다음 작업이 반복해서 찾을 지속 주제, 판단 질문, 수명과 갱신 Owner를 기준으로 구성한다.
+
+1. 이동할 주제의 현재 질문, 의미 범위, 소비자와 기존 canonical을 먼저 고정한다.
+2. 지속되는 제품·사용자·domain 의미는 `common/`, 교체되는 구현·지원·proof 경계는 `current/`, 특정 작업에서만 적용하는 조건부 판단은 `guidance/`에 나눈다. 중요한 선택 이유와 재검토 신호가 현재 답과 별도로 필요할 때만 `decisions/`를 사용한다.
+3. 서로 다른 책임·수명·갱신 Owner를 같은 Ticket이나 원자료에서 나왔다는 이유로 한 문서에 합치지 않는다. 반대로 한 질문을 닫는 짧은 내용까지 파일 수를 늘리기 위해 기계적으로 쪼개지 않는다.
+4. 각 내용 문서는 자신이 맡은 범위의 실제 뜻, 현재 답과 경계, 필요한 근거와 재검토 신호를 본문으로 설명한다. 링크는 구현 상세·원문·검증을 다시 확인하는 경로이며, 링크를 열어야만 문서가 맡은 의미를 조립할 수 있다면 이동은 미완성이다.
+5. 기존 canonical의 유효한 뜻을 새 Owner에 통합한 뒤 이전 문서는 실제 남은 역할에 따라 구현 상세 Owner, 근거·역사 기록, 호환 routing으로 좁히거나 현재 Project의 문서 규칙에 따라 이동·제거한다. 같은 현재 답을 소유하는 두 active canonical을 이유 없이 남기지 않는다.
+6. 미정인 제품 선택은 구체적으로 열어 두고 근거가 지지하는 나머지를 먼저 옮긴다. Owner 이동을 새로운 제품 결정을 몰래 확정하는 수단으로 사용하지 않는다.
+7. Layer README와 root routing을 갱신하고, path·책임·authority 변화에 영향받는 live Workspace의 선택과 사람용 current·output을 [`Workspace collection의 reconciliation 계약`](../work/workspaces/README.md)에 따라 맞춘다. 과거 Workspace 전체를 역동기화하지 않는다.
+
+완료 여부는 새 파일의 존재가 아니라, 처음 보는 주체가 선택된 Project 문서만으로 해당 주제의 현재 의미와 판단 경계를 설명할 수 있는지, 그리고 이전 문서와의 authority 관계가 하나로 닫혔는지로 판단한다.
 
 ## 갱신 시점과 관리 장치
 
@@ -37,3 +51,5 @@ Project context를 새로 만들거나 크게 재구성한 뒤에는 구조와 l
 이 skill은 위 관리 기준을 실행하는 절차를 맡으며 Workspace Maintain과 별개다. Workspace Maintain의 쓰기 범위를 Project 문서로 넓히지 않는다. 현재 Workspace의 Project 선택을 바꿀 필요가 있으면 그 Owner에게 연결하고, Project path·책임·authority 변경으로 live consumer가 영향을 받으면 [`Workspace collection의 reconciliation 계약`](../work/workspaces/README.md)을 따른다. 소비 경로에서 내려온 과거 Workspace는 역동기화하지 않는다.
 
 Skill을 교체하거나 제거해도 사람이 이 문서와 각 내용 Owner의 계약을 따라 같은 갱신 책임을 수행할 수 있어야 한다. Skill의 호출 경로는 root [`AGENTS.md`](../../AGENTS.md)가 연결하며, 정적 설치 확인은 실제 session의 discovery·invocation이나 의미 판단의 충분성을 증명하지 않는다.
+
+작성과 책임 배치에 `ai-system_instruction-clarity.md: 적용`, `ai-system_context-ownership-boundary.md: 적용`, `ai-system_responsibility-cohesion.md: 적용`, `ai-system_human-readable-structure.md: 적용`.

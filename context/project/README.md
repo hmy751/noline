@@ -32,11 +32,11 @@ context/project/
 
 ### `common/`
 
-작업이 바뀌어도 계속 필요한 제품 목적, 사용자 장면, domain 관계·불변성, 제품 기준과 Project-wide 제약을 둔다. 구현 현황이나 한 Workspace의 목표를 섞지 않는다. 제품 의미를 바꾸는 주체가 갱신하며, 기존 상세 canonical을 옮기지 않은 경우에는 그 Owner와 충돌 우선순위를 함께 밝힌다.
+작업이 바뀌어도 계속 필요한 제품 목적, 사용자 장면, domain 관계·불변성, 제품 기준과 Project-wide 제약을 둔다. 구현 현황이나 한 Workspace의 목표를 섞지 않는다. 각 내용 문서는 자신이 소유하는 주제 범위와 현재 authority를 밝힌다. 기존 상세 canonical을 옮기지 않은 범위는 그 Owner와 충돌 우선순위를, 승인된 주제별 Owner 이동을 마친 범위는 이전 문서와 구현·검증 Owner의 역할을 함께 밝힌다.
 
 ### `current/`
 
-현재 구현·지원·미지원 범위, 연결 구조, 위험과 proof boundary처럼 상세 Owner 변화에 맞춰 교체해야 하는 Project-level 지도를 둔다. 마지막 대조 시점·대상, 상세 코드·테스트 Owner, stale 신호와 갱신 책임을 찾을 수 있어야 한다. 현재 지도가 실제 Owner와 충돌하면 실제 Owner를 기준으로 claim 범위를 좁히고 이 층을 갱신한다.
+현재 구현·지원·미지원 범위, 연결 구조, 위험과 proof boundary처럼 실제 구현과 검증 변화에 맞춰 교체해야 하는 Project-level 지도를 둔다. 마지막 대조 시점·대상, 상세 코드·테스트 Owner, stale 신호와 갱신 책임을 찾을 수 있어야 한다. 이 층으로 Owner가 이동된 현재 의미와 코드·테스트가 소유하는 구현 사실을 구별한다. 둘이 충돌하면 명시된 authority와 직접 근거를 대조해 claim 범위를 좁히고 이 층을 갱신한다.
 
 ### `guidance/`
 
@@ -55,7 +55,9 @@ context/project/
 
 ## Authority와 작업 경계
 
-기존 README·STATUS·docs가 상세 제품 사실을 소유하는 Project에서는 그 문서를 domain canonical로 유지한다. Project context는 여러 Workspace의 판단에 필요한 의미를 실제 내용으로 다시 서술하되 원문을 문단째 복제하거나 Owner를 이동하지 않는다.
+각 Project 내용 문서는 자신이 명시한 주제와 의미 범위의 canonical이다. 기존 README·STATUS·docs는 Owner 이동이 승인되지 않은 범위와 구현 상세의 canonical로 유지한다. Project context는 여러 Workspace의 판단에 필요한 의미를 실제 내용으로 다시 서술하되 원문을 문단째 복제하지 않는다.
+
+사용자가 한정한 주제의 Owner를 이 경계로 옮기도록 승인했다면 그 범위의 현재 의미는 대응하는 Project 내용 문서가 소유한다. 이전 문서는 구현 상세·근거·역사·호환 routing 중 실제 남은 역할만 맡고, 같은 현재 답을 소유하는 경쟁 canonical로 남지 않는다. 주제별 이동은 다른 제품 문서 전체의 이동 승인이 아니며, 구체적인 전환 방법은 [`MAINTENANCE.md`](MAINTENANCE.md)가 소유한다.
 
 한 Workspace에만 해당하는 목표·현재 상태·분석·후보·검증 이력은 이 층으로 올리지 않는다. 첫 Workspace의 작업 장면도 상세 Owner가 Project 전체에 적용됨을 뒷받침할 때만 Project context로 일반화한다.
 

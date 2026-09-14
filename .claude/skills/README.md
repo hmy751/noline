@@ -5,7 +5,7 @@
 ## 설치된 역할과 진입점
 
 - [create-context-workspace](create-context-workspace/SKILL.md): 새 독립 Workspace의 초기 구성과 재진입 검토. [생성·전환 계약](../../context/work/workspaces/CREATE-AND-TRANSITION.md)을 적용한다.
-- [update-project-context](update-project-context/SKILL.md): 여러 Workspace에 지속될 맥락의 갱신·누락 복원. [Project 관리 계약](../../context/project/MAINTENANCE.md)을 적용한다.
+- [update-project-context](update-project-context/SKILL.md): 여러 Workspace에 지속될 맥락의 갱신·누락 복원과 승인된 주제별 Owner 이동. [Project 관리 계약](../../context/project/MAINTENANCE.md)을 적용한다.
 - [work-discussion](work-discussion/SKILL.md): 사용자가 직접 호출했을 때 Work의 결과·선택을 구체화하고 Spec에 연결한다. 일반 작업 대화에서 자동으로 인터뷰를 시작하지 않는다.
 - [reconsider-work](reconsider-work/SKILL.md): 실제 결과·새 조건·변경 부담·막힘에 따라 현재 판단과 후속 행동을 다시 본다.
 - [work-artifact-briefing](work-artifact-briefing/SKILL.md): 기존 작업물의 역할·연결·상태와 근거가 뒷받침하는 범위를 조사해 설명한다.
