@@ -11,6 +11,22 @@
       "reason": "활성 여행의 오프라인 입력 보존, 데이터와 서비스의 책임, 기존 제품 제약을 작업에서 유지한다."
     },
     {
+      "path": "context/project/guidance/behavior-preserving-refactoring.md",
+      "reason": "동작을 보존하는 리팩터링의 범위 설정, 영향 소비자 확인, 검증 상한과 기존 실패 분리를 적용한다."
+    },
+    {
+      "path": "context/project/guidance/api-contracts.md",
+      "reason": "Schema·serializer·response boundary와 user scope·soft delete·sync의 API 계약을 적용한다."
+    },
+    {
+      "path": "context/project/common/date-and-time.md",
+      "reason": "필드별 date-only와 timezone datetime 계약을 구별하고 열린 제품 선택을 넘겨짚지 않는다."
+    },
+    {
+      "path": "context/project/common/currency.md",
+      "reason": "다중 통화 의미, 현재 표시 자릿수와 아직 확정되지 않은 금액 정밀도 선택을 구별한다."
+    },
+    {
       "path": "context/project/current/architecture.md",
       "reason": "제품 코드의 현재 책임과 지원 경계, 제품 검사와 Harness 검사의 증명 범위를 구별한다."
     }
