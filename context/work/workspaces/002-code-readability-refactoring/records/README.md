@@ -43,4 +43,8 @@
 
 - [05 완료 뒤 남은 Ticket 점검과 장면 순서 재배치](2026-09-14-04-ticket-scene-reordering.md): 기존 06–17의 책임 보존, 새 앱 진입 06·저장 후 연결 보완, 현재 06–18 대응, 실제 선행 관계와 003 담당 연결. 이전 기록의 Ticket 번호는 이 대응으로 읽는다.
 
+- [Project context 구성·읽기·갱신 방향 합의](2026-09-14-05-project-context-structure-reading-and-maintenance.md): 세 폴더 유지의 경위, 주제별 가이드와 common·guidance의 본문 소유, current의 관리비용과 열린 검증, 주제별 읽기·영향별 갱신, 읽기용 스킬·기준 reference의 후속 설계 방향.
+
+- [외부 자료를 참고한 Project context 반영 기준과 재구성 검증 방향](2026-09-14-06-project-context-reference-insights-and-retest-direction.md): Matt·Peter 자료에서 참고한 내용 선별·분리·읽기 조건과 조사 한계, 후속 지침·스킬·reference 반영 기준, current를 유지한 채 원복·재구성 테스트에서 역할을 재판단할 방향.
+
 후속 분석·결정·실행 기록은 이 디렉터리에 날짜별로 남긴다. 원문·변경하지 않은 snapshot은 [source](../source/index.md), 현재 기준과 진행은 [current](../current/memory/index.md)가 소유한다.

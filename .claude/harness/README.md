@@ -143,4 +143,4 @@ agent/skill 파일은 discoverable 역할 정의일 뿐, 자동 team runner가 �
 
 ## Context Harness 보완
 
-[Project layer](../../context/project/README.md)와 [Spec·Ticket](../../context/work/workspaces/spec-and-tickets/README.md)이 지속 내용과 유지 책임을 소유한다. [운영 skill 색인](../skills/README.md)은 생성·Project 갱신·논의·재판단·작업물 설명·설명 복구를 연결한다. `.claude/skills/` 원본과 `.agents/skills/` 상대 bridge를 유지하며 report-only agents와 각 host adapter를 대체하지 않는다. 적용 선택은 [2026-09-09 Decision](../decisions/2026-09-09-context-harness-upgrade.md)에 있다.
+[Project layer](../../context/project/README.md)와 [Spec·Ticket](../../context/work/workspaces/spec-and-tickets/README.md)이 지속 내용과 유지 책임을 소유한다. [운영 skill 색인](../skills/README.md)은 생성·Project 읽기/갱신·논의·재판단·작업물 설명·설명 복구를 연결한다. `.claude/skills/` 원본과 `.agents/skills/` 상대 bridge를 유지하며 report-only agents와 각 host adapter를 대체하지 않는다. 최초 적용은 [2026-09-09 Decision](../decisions/2026-09-09-context-harness-upgrade.md), Project 본문의 구성·읽기·갱신 책임 보완은 [2026-09-14 Decision](../decisions/2026-09-14-project-context-authoring-and-reading.md)에 있다.

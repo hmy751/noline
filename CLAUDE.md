@@ -176,6 +176,7 @@ pnpm harness:check
 ## Context Harness 운영 진입
 
 - `context/work/`의 Workspace·Harness를 다룰 때 [Work 지침](context/work/AGENTS.md)을 먼저 읽는다.
+- 관련 작업의 Project 본문을 선택하고 계약·예외·현재 차이를 이해·적용해야 할 때 [read-project-context](.claude/skills/read-project-context/SKILL.md)를 호출 조건에 따라 사용한다. 이미 확보한 맥락으로 충분한 작업에는 반복 호출하지 않는다. 읽기 기준과 주제별 진입은 [Project README](context/project/README.md)에서 찾으며 모든 층을 일괄 읽지 않는다.
 - Project 의미·현재 구현·조건부 기준의 구조와 권위 관계는 [Project README](context/project/README.md)를 따른다. 작성·복원·갱신·승인된 주제별 Owner 이동은 [Project 관리 계약](context/project/MAINTENANCE.md)을 직접 읽고, 여러 Work에 계속 유효할 변화·누락 복원·승인된 Owner 이동은 [update-project-context](.claude/skills/update-project-context/SKILL.md)로 연결한다. Workspace Maintain과의 책임 경계는 Project README에서 찾는다.
 - 작업 생성·논의·재판단·작업물 설명·설명 복구는 [skill 색인](.claude/skills/README.md)의 각 호출 조건을 따른다. 새 독립·후속 Workspace 생성에는 create-context-workspace를 사용하고 기존 Workspace 수정에는 다시 호출하지 않는다.
 - Spec·Ticket·state와 Main·Maintain의 역할은 [운영 기준](context/work/workspaces/spec-and-tickets/README.md)이 소유한다. 스킬 호출을 session activation이나 실제 문서 반영으로 간주하지 않는다.

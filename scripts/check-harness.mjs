@@ -15,7 +15,7 @@ const expectedExecutionAgents = [
   'noline-harness-observer',
   'noline-policy-checker',
 ];
-const expectedSkills = ['noline-work', 'create-context-workspace', 'update-project-context', 'work-discussion', 'reconsider-work', 'work-artifact-briefing', 'explanation-recovery'];
+const expectedSkills = ['noline-work', 'create-context-workspace', 'read-project-context', 'update-project-context', 'work-discussion', 'reconsider-work', 'work-artifact-briefing', 'explanation-recovery'];
 
 function checkSymlink(linkPath, expectedTarget) {
   const absolute = path.join(root, linkPath);
@@ -168,6 +168,10 @@ function checkContextHarnessSurface() {
   const required = [
     'context/README.md',
     'context/project/README.md',
+    'context/project/MAINTENANCE.md',
+    'context/project/REFERENCE/README.md',
+    'context/project/REFERENCE/composition.md',
+    'context/project/REFERENCE/reading.md',
     'context/project/common/README.md',
     'context/project/current/README.md',
     'context/project/guidance/README.md',

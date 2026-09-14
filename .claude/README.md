@@ -13,7 +13,7 @@
 3. 코드 작업이면 [rules/README.md](rules/README.md)에서 관련 compact rule을 고른다.
 4. 비용이 큰 실수는 [guards/README.md](guards/README.md)에서 전후로 점검한다.
 5. 반복 작업은 [runbooks/README.md](runbooks/README.md)에서 시작 순서와 관련 문서를 찾는다.
-6. 판단이 애매할 때만 [context/README.md](context/README.md), decision, history 문서로 내려간다.
+6. 관련 작업의 의미·계약·현재 차이를 이해할 때 [Project 주제별 진입](../context/project/README.md)에서 본문을 선택한다. 아직 이동하지 않은 상세는 [context/README.md](context/README.md)에서 찾고, 선택 이유나 과거 근거가 필요할 때 decision·history로 내려간다. 호출 조건이 맞으면 [읽기 스킬](skills/read-project-context/SKILL.md)을 사용한다.
 
 ## 역할 구분
 
@@ -56,6 +56,7 @@ Codex bridge:
 | Policy-driven UI | [rules/policy-ui.md](rules/policy-ui.md) |
 | Repeated task flow | [runbooks/README.md](runbooks/README.md) |
 | 운영 스킬과 호출 조건 | [skills/README.md](skills/README.md) |
+| Project 본문 선택과 적용 | [Project 읽기 경로](../context/project/README.md), [read-project-context](skills/read-project-context/SKILL.md) |
 | Context Workspace 생성·전환 | [../context/work/workspaces/CREATE-AND-TRANSITION.md](../context/work/workspaces/CREATE-AND-TRANSITION.md), [create-context-workspace](skills/create-context-workspace/SKILL.md) |
 | Deep architecture/feature context | [context/README.md](context/README.md) |
 
