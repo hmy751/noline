@@ -17,4 +17,4 @@
 python3 -B -m context.work.harness recover 004-project-context-contracts-and-guidance --json
 ```
 
-`workspace.json`은 identity, `recover.json`은 Project 입력 선택, `verify.json`은 제한된 기계 검사 계약이다. 사람의 다음 행동은 state에 있고 `status.json`의 초기 값은 Verify 미실행을 뜻한다. 현재 session은 004에 binding generation 1로 명시 연결돼 있다. 다른 세션의 연결은 이어받지 않으므로 필요하면 그 세션을 대상으로 다시 명시한다.
+`workspace.json`은 identity, `recover.json`은 Project 입력 선택, `verify.json`은 제한된 기계 검사 계약이다. 사람의 다음 행동은 state에 있고 `status.json`의 초기 값은 Verify 미실행을 뜻한다. 이번 Main session의 004 binding generation 1은 마무리 시 해제했다. 다음 session에서 이어 갈 때에는 그 session을 004에 다시 명시 연결한다.

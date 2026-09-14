@@ -39,4 +39,6 @@ API 공통 계약과 기능별 적용을 한 흐름으로 구성한 점, 리팩�
 
 재검토에서 선택한 최소 수정을 `update-project-context`의 기존 완료 확인에 통합했다. 변경 뒤 기존 Owner와 영향받은 기존 작업 진입점에서 각각 시작해 의미 보존과 변경된 기준·열린 판단으로의 도달성을 확인하도록 문장을 명확히 했다. 별도 단계·필수 보고 양식·자동 검사는 추가하지 않았다.
 
-Main이 현재 Project 문서를 직접 보완하면서 이 기준을 적용해 통화 의미, API·날짜·통화 routing과 004 live consumer를 맞췄다. 이는 현재 누락을 해소한 근거지만 다른 실행 주체에서도 최소 문구가 재발을 줄이는지는 아직 확인하지 않았다. 다음 실제 독립 갱신에서 같은 누락이 반복되는지 확인한 뒤 Ticket 완료와 추가 장치의 필요성을 판단한다. 앞선 원인·실행·검증 한계는 [작업 기록](../../../records/2026-09-14-02-guidance-failure-analysis-and-retest.md), 당시 기준 선택은 [결정 기록](../../../../../../../.claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md)에 남아 있다.
+Main이 현재 Project 문서를 직접 보완하면서 이 기준을 적용해 통화 의미, API·날짜·통화 routing과 004 live consumer를 맞췄다. Main 보고에 따르면 `git diff --check`, Harness 검사와 004 explicit Recover가 모두 통과했고 Recover가 통화·날짜·API 본문을 실제로 선택하는 것도 확인했다. 이 결과는 현재 문서의 형식·연결·재진입을 뒷받침하지만, Main이 직접 보완한 실행이므로 다른 실행 주체에서도 최소 문구가 재발을 줄인다는 효과 검증은 아니다.
+
+최소 지침 수정과 현재 문서 보완은 commit `33bde33` (`docs(context): Project 계약과 읽기 경로 정비`)에 포함됐다. 다음 실제 독립 갱신에서 같은 누락이 반복되는지 확인한 뒤 Ticket 완료와 추가 장치의 필요성을 판단한다. 앞선 원인·실행·검증 한계는 [작업 기록](../../../records/2026-09-14-02-guidance-failure-analysis-and-retest.md), 당시 기준 선택은 [결정 기록](../../../../../../../.claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md)에 남아 있다.
