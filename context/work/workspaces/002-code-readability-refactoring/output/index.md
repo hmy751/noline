@@ -69,6 +69,14 @@ Node 20.18.1에서 2개 file의 2개 test와 server build가 통과했다. 실�
 
 이 response schema 변경과 관련 기록은 `9d48b95 refactor(server): enforce schedule response contracts`로 커밋됐다. 이 저장 경계는 Ticket 05의 3번 ownership·soft-delete 완료를 뜻하지 않는다.
 
+후속 ownership·soft-delete 단계에서는 Schedule 생성과 Trip 하위 목록에서 부모 Trip 접근을 먼저 확인하고, 중첩 목록과 activation의 Schedule·Expense query에 자식 user scope와 일반 조회의 non-deleted 조건을 적용했다. Schedule 수정·삭제는 실제 UPDATE 자체가 `id + userId + deletedAt IS NULL`을 만족할 때만 변경하도록 정리했다.
+
+- [PostgreSQL 통합 검사](../../../../../apps/server/tests/integration/schedules.access-boundary.test.ts): 사용자 A/B, 삭제된 부모·자식, 교차 소유 자식과 실제 scoped UPDATE를 확인한다.
+- [통합 Vitest 설정](../../../../../apps/server/vitest.integration.config.ts), [Drizzle test 설정](../../../../../apps/server/drizzle.integration.config.ts): 일반 mock test와 실제 PostgreSQL 범위를 분리한다.
+- [일회성 PostgreSQL 구성](../../../../../apps/server/docker-compose.test.yml), [실행기](../../../../../apps/server/scripts/run-integration-tests.mjs): 개발 DB를 사용하지 않고 PostgreSQL 14 시작·schema 적용·검사·폐기를 조립한다.
+
+변경 전 mock route 검사 네 개에서 현재 차이를 확인했고, 수정 후 server unit·route 29개 test와 PostgreSQL integration 4개 test, server build와 형식 검사가 통과했다. 실제 JWT·배포 process와 기존 `places.ts:138` typecheck 오류는 남아 있다. 상세 근거는 [접근 경계 실행 기록](../records/2026-09-14-03-schedule-access-boundary.md)이 소유한다. 사용자는 상세 결과와 검증 한계를 확인한 뒤 이 3번 결과의 기록과 커밋을 요청했다.
+
 ## 16 — Trip·Expense 직렬화 선행 조각
 
 - [Trip serializer](../../../../../apps/server/src/serializers/trip.ts): Trip DB row의 다섯 시간 값을 API ISO datetime 또는 null로 변환한다.

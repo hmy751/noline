@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
-import { db, schedules } from '../db/index.js';
+import { db, schedules, trips } from '../db/index.js';
 import { eq, and, sql, isNull } from 'drizzle-orm';
 import { createScheduleRequest, updateScheduleRequest } from '@repo/schema/requests/schedule';
 import { deleteScheduleResponse, scheduleListResponse, scheduleResponse } from '@repo/schema/responses/schedule';
@@ -25,13 +25,27 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
     }
 
     const { id, tripId, title, location, address, scheduledAt, latitude, longitude } = validationResult.data;
+    const userId = req.userId!;
+
+    const [parentTrip] = await db
+      .select({ id: trips.id })
+      .from(trips)
+      .where(and(eq(trips.id, tripId), eq(trips.userId, userId), isNull(trips.deletedAt)))
+      .limit(1);
+
+    if (!parentTrip) {
+      return res.status(404).json({
+        error: 'Not found',
+        message: 'Trip not found or you do not have permission to add schedules to it',
+      });
+    }
 
     // 일정 생성 (Client-Side ID: 클라이언트가 생성한 ID 사용)
     const [newSchedule] = await db
       .insert(schedules)
       .values({
         id, // ✅ 클라이언트가 생성한 ID 사용
-        userId: req.userId!, // 인증된 사용자 ID 사용
+        userId, // 인증된 사용자 ID 사용
         tripId,
         title,
         location,
@@ -158,19 +172,6 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
 
     const { title, location, address, scheduledAt, latitude, longitude } = validationResult.data;
 
-    // 일정 존재 여부 및 소유권 확인 (soft delete 체크)
-    const [existingSchedule] = await db
-      .select()
-      .from(schedules)
-      .where(and(eq(schedules.id, scheduleId), eq(schedules.userId, userId), isNull(schedules.deletedAt)));
-
-    if (!existingSchedule) {
-      return res.status(404).json({
-        error: 'Not found',
-        message: 'Schedule not found or you do not have permission to edit it',
-      });
-    }
-
     // 업데이트할 필드 준비
     const updateData: any = {
       updatedAt: new Date(),
@@ -200,8 +201,15 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
     const [updatedSchedule] = await db
       .update(schedules)
       .set(updateData)
-      .where(eq(schedules.id, scheduleId))
+      .where(and(eq(schedules.id, scheduleId), eq(schedules.userId, userId), isNull(schedules.deletedAt)))
       .returning();
+
+    if (!updatedSchedule) {
+      return res.status(404).json({
+        error: 'Not found',
+        message: 'Schedule not found or you do not have permission to edit it',
+      });
+    }
 
     // Zod로 응답 데이터 검증
     const validatedSchedule = scheduleResponse.safeParse({
@@ -227,19 +235,6 @@ router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
     const scheduleId = req.params.id;
     const userId = req.userId!;
 
-    // 일정 존재 여부 및 소유권 확인
-    const [existingSchedule] = await db
-      .select()
-      .from(schedules)
-      .where(and(eq(schedules.id, scheduleId), eq(schedules.userId, userId), isNull(schedules.deletedAt)));
-
-    if (!existingSchedule) {
-      return res.status(404).json({
-        error: 'Not found',
-        message: 'Schedule not found or you do not have permission to delete it',
-      });
-    }
-
     // ✅ Soft Delete: deletedAt 설정 (Selective Local-First sync)
     const [deletedSchedule] = await db
       .update(schedules)
@@ -248,8 +243,15 @@ router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
         updatedAt: new Date(),
         version: sql`${schedules.version} + 1`, // ✅ version 증가
       })
-      .where(eq(schedules.id, scheduleId))
+      .where(and(eq(schedules.id, scheduleId), eq(schedules.userId, userId), isNull(schedules.deletedAt)))
       .returning();
+
+    if (!deletedSchedule) {
+      return res.status(404).json({
+        error: 'Not found',
+        message: 'Schedule not found or you do not have permission to delete it',
+      });
+    }
 
     const response = {
       success: true,

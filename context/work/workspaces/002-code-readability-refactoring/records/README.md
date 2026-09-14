@@ -39,4 +39,6 @@
 
 - [Trip·Expense 직렬화 책임 분리](2026-09-14-02-trip-expense-serialization.md): Ticket 16에서 선행한 좁은 변환 조각, Trip 다섯 곳·Expense 여섯 곳의 공통 serializer 적용, 변경 전후 검사와 남은 response·ownership 경계.
 
+- [Schedule 소유권·soft-delete 접근 경계](2026-09-14-03-schedule-access-boundary.md): 부모·자식 user scope, scoped mutation, 일반 조회와 sync 삭제 전파의 구분, 일회성 PostgreSQL 14 통합 검사와 검증 한계.
+
 후속 분석·결정·실행 기록은 이 디렉터리에 날짜별로 남긴다. 원문·변경하지 않은 snapshot은 [source](../source/index.md), 현재 기준과 진행은 [current](../current/memory/index.md)가 소유한다.

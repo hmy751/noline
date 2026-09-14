@@ -9,6 +9,7 @@
     "build": "tsup",
     "start": "NODE_ENV=production node dist/index.js",
     "test": "vitest run",
+    "test:integration": "node scripts/run-integration-tests.mjs",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist",

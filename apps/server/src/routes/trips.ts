@@ -310,12 +310,26 @@ router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
 router.get('/:tripId/schedules', requireAuth, async (req: Request, res: Response) => {
   try {
     const { tripId } = req.params;
+    const userId = req.userId!;
+
+    const [trip] = await db
+      .select({ id: trips.id })
+      .from(trips)
+      .where(and(eq(trips.id, tripId), eq(trips.userId, userId), isNull(trips.deletedAt)))
+      .limit(1);
+
+    if (!trip) {
+      return res.status(404).json({
+        error: 'Not found',
+        message: 'Trip not found or you do not have permission to access it',
+      });
+    }
 
     // 여행에 속한 모든 일정 조회 (scheduledAt 순으로 정렬)
     const allSchedules = await db
       .select()
       .from(schedules)
-      .where(eq(schedules.tripId, tripId))
+      .where(and(eq(schedules.tripId, tripId), eq(schedules.userId, userId), isNull(schedules.deletedAt)))
       .orderBy(schedules.scheduledAt);
 
     // DB 표현을 API 표현으로 직렬화
@@ -383,7 +397,7 @@ router.post('/:id/activate', requireAuth, async (req: Request, res: Response) =>
         version: schedules.version,
       })
       .from(schedules)
-      .where(and(eq(schedules.tripId, tripId), isNull(schedules.deletedAt)));
+      .where(and(eq(schedules.tripId, tripId), eq(schedules.userId, userId), isNull(schedules.deletedAt)));
 
     // 여행의 모든 경비 조회 (Soft Delete 제외)
     const tripExpenses = await db
@@ -405,7 +419,7 @@ router.post('/:id/activate', requireAuth, async (req: Request, res: Response) =>
         version: expenses.version,
       })
       .from(expenses)
-      .where(and(eq(expenses.tripId, tripId), isNull(expenses.deletedAt)));
+      .where(and(eq(expenses.tripId, tripId), eq(expenses.userId, userId), isNull(expenses.deletedAt)));
 
     // DB 표현을 API 표현으로 직렬화
     const serializedTrips = allTrips.map(serializeTrip);
