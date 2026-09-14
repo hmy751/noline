@@ -7,10 +7,16 @@
 작업·주제에 맞는 본문에서 시작하고, 그 본문의 읽기 조건에 따라 필요한 상세만 추가한다. 세 층은 책임과 관리 경계이며 모든 작업의 공통 읽기 순서가 아니다.
 
 - 제품 목적, 여행 데이터의 관계와 보존할 제약을 판단할 때: [제품 의미와 공통 기준](common/product.md)
+- 경비의 통화 분리, 합계·대표 표시와 금액 정밀도 경계를 판단할 때: [통화와 금액의 제품 의미](common/currency.md)
+- 날짜 필드의 datetime/date-only 계약과 열린 제품 판단을 확인할 때: [날짜와 시각의 데이터 의미](common/date-and-time.md)
 - client·server·schema·UI의 현재 책임과 지원·검증 범위를 확인할 때: [현재 구조와 지원 경계](current/architecture.md)
+- 여행 생성의 GeoNames 요청·도시 선별·실패 반환을 바꿀 때: [도시 검색의 현재 경계](current/city-search.md)
+- 프로필의 SQLite·Mapbox 저장 용량 집계와 refresh를 바꿀 때: [저장 용량 집계의 현재 경계](current/storage-statistics.md)
+- request·response schema, serializer, Schedule·Expense API와 접근 경계를 변경할 때: [API 계약과 변경 가이드](guidance/api-contracts.md)
+- 기존 동작을 유지하는 코드 가독성 리팩터링을 계획·구현·검증할 때: [동작을 보존하는 코드 리팩터링](guidance/behavior-preserving-refactoring.md)
 - 설명·논의에서 주장과 실제 근거의 관계를 다룰 때: [설명과 근거 기준](guidance/explanation-and-evidence-criteria.md)의 적용 조건
 - Selective Local-First를 선택한 이유가 필요할 때: [선택 근거](decisions/0001-selective-local-first.md)
-- API·통화·날짜·동기화 등 아직 Project로 옮기지 않은 상세 주제: [기존 Noline 작업 진입점](../../.claude/runbooks/README.md)과 [상세 맥락 색인](../../.claude/context/README.md)
+- 동기화·폼·지도·정책 UI 등 아직 Project로 옮기지 않은 상세 주제: [기존 Noline 작업 진입점](../../.claude/runbooks/README.md)과 [상세 맥락 색인](../../.claude/context/README.md)
 
 본문이 추가되거나 책임이 이동하면 이 주제별 경로도 실제 Owner에 맞춘다. 없는 가이드를 이미 구성된 것처럼 연결하지 않는다. 각 층의 전체 목록은 [common](common/README.md), [current](current/README.md), [guidance](guidance/README.md), [decisions](decisions/README.md)에서 찾는다.
 

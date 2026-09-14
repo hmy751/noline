@@ -12,7 +12,7 @@
 
 오류는 [.claude 오류 가이드](../../../../../../../.claude/context/error-handling.md), [client fetcher](../../../../../../../apps/client/src/shared/api/fetcher.ts), [server routes](../../../../../../../apps/server/src/routes/), [error middleware](../../../../../../../apps/server/src/middleware/errorHandler.ts)를 연결해 본다. Client가 해석할 status·code·message와 서버의 변환 책임을 논의하고, 단순 catch 정리로 공개 오류 계약을 바꾸지 않는다.
 
-기존 통화 선택·금액과 통화 표시 기준의 누락과 날짜 본문의 사실 오류는 새 제품 선택과 구별해 바로잡을 수 있다. 다만 먼저 시험 원문과 수정 영향을 보존해 Ticket 02의 원인 대조를 가능하게 한다. 제품 코드 수정이나 기존 003 Ticket의 실행은 이 Ticket의 문서 합의만으로 완료되지 않는다.
+기존 통화 선택·금액과 통화 표시 기준의 누락과 날짜 본문의 사실 오류는 새 제품 선택과 구별해 바로잡을 수 있다. 제품 코드 수정이나 기존 003 Ticket의 실행은 이 Ticket의 문서 합의만으로 완료되지 않는다.
 
 ## 완료 확인
 
@@ -20,4 +20,8 @@
 
 ## 현재 상태
 
-실행 전이다. Main의 코드 대조로 날짜 표현의 분리와 문서 오류를 확인했으나 제품 의미를 선택하지 않았다. 원문은 [source](../../../source/index.md), 현재 평가와 근거 한계는 [생성 기록](../../../records/2026-09-14-01-workspace-setup-and-review-basis.md)에 있다.
+다른 세션이 작성한 Project 문서를 Main이 기존 Owner와 실제 작업 진입점에서 다시 대조해 직접 보완했다. `current/architecture.md`의 실행 기록화와 날짜 본문의 사실 오류는 이미 해소돼 있었고, 남아 있던 통화 code/symbol 표시와 대표 금액·나머지 통화 개수 의미를 기존 기준에 맞게 복원했다. API·날짜·통화 runbook과 server/client guide도 새 Project Owner와 현재 경계에 연결했다.
+
+보완한 통화·날짜·API 본문과 리팩터링·도시 검색·저장 용량·architecture 문서는 현재 Project 기준으로 채택했다. 기존 `.claude` 문서는 구현 위치와 호환 진입을 맡으며 004의 Recover·Project 선택·state·output도 이 권위 관계에 맞췄다.
+
+Ticket의 남은 일은 새로운 제품 선택이다. 날짜의 장기 의미, 금액 정밀도와 `주 통화` 라벨, 서버 오류 계약은 현재 구현 차이와 사용자 결과를 설명한 뒤 합의해야 한다. 이 항목은 문서 보완으로 자동 결정하지 않았으며 합의 전까지 열린 판단으로 유지한다.

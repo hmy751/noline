@@ -48,11 +48,12 @@ local/remote state, pending sync, activation, deletion path가 어긋날 때 사
 
 server route와 client-facing API contract를 바꿀 때 사용한다.
 
-1. `packages/schema` request/response schema에서 시작한다.
-2. route boundary에서 Zod로 request를 parse한다.
-3. row를 읽거나 쓰기 전에 auth와 user ownership을 확인한다.
-4. sync-owned create flow에서는 client-created ID를 보존한다.
-5. client API hook/repository를 갱신하되 Data Layer routing을 우회하지 않는다.
+1. [API 계약과 변경 가이드](../../context/project/guidance/api-contracts.md)에서 request·response·serializer·접근 경계를 확인한다.
+2. `packages/schema` request/response schema에서 시작한다.
+3. route boundary에서 Zod로 request를 parse한다.
+4. row를 읽거나 쓰기 전에 auth와 user ownership을 확인한다.
+5. sync-owned create flow에서는 client-created ID를 보존한다.
+6. client API hook/repository를 갱신하되 Data Layer routing을 우회하지 않는다.
 
 ## <a id="form-pattern"></a>Form 구현
 
@@ -66,18 +67,20 @@ client form과 manual input flow에 사용한다.
 
 ## <a id="datetime-utils"></a>날짜/시간 처리
 
-1. 저장/전송 값은 timezone이 있는 ISO 8601 datetime string으로 유지한다.
-2. format은 표시 boundary에서만 적용한다.
-3. 새 formatter를 만들기 전에 shared datetime utility를 찾는다.
-4. 분리된 form date/time field는 submit 시 ISO 값으로 결합한다.
-5. persistence를 만질 때 SQLite/PostgreSQL field 의미를 확인한다.
+1. [날짜와 시각의 데이터 의미](../../context/project/common/date-and-time.md)에서 필드가 한 시점인지 달력 날짜인지와 현재 경계 차이를 확인한다.
+2. 한 시점을 나타내는 저장/전송 값은 timezone이 있는 ISO 8601 datetime string으로 유지한다.
+3. format은 표시 boundary에서만 적용한다.
+4. 새 formatter를 만들기 전에 shared datetime utility를 찾는다.
+5. 분리된 form date/time field가 한 시점을 나타내면 submit 시 ISO 값으로 결합한다.
+6. persistence를 만질 때 SQLite/PostgreSQL field 의미를 확인한다.
 
 ## <a id="currency-utils"></a>통화/금액 표시
 
-1. 표시는 `formatCurrencyDisplay`를 사용한다.
-2. 통화별 묶음은 `groupExpensesByCurrency`를 사용한다.
-3. 대표 통화가 필요할 때만 `getPrimaryCurrency`를 사용한다.
-4. 새 제품 정책 없이 exchange-rate conversion을 추가하지 않는다.
+1. [통화와 금액의 제품 의미](../../context/project/common/currency.md)에서 통화 분리, 대표 표시와 정밀도 경계를 확인한다.
+2. 표시는 `formatCurrencyDisplay`를 사용한다.
+3. 통화별 묶음은 `groupExpensesByCurrency`를 사용한다.
+4. 대표 통화가 필요할 때만 `getPrimaryCurrency`를 사용한다.
+5. 새 제품 정책 없이 exchange-rate conversion을 추가하지 않는다.
 
 ## <a id="component-guide"></a>UI 컴포넌트 작성
 

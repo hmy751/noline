@@ -15,7 +15,7 @@
 
 | 작업 | 먼저 볼 문서 |
 | --- | --- |
-| API endpoint 추가/수정 | [API endpoint runbook](../../.claude/runbooks/README.md#api-endpoint), [Schema First rule](../../.claude/rules/schema-first.md) |
+| API endpoint 추가/수정 | [API 계약과 변경 가이드](../../context/project/guidance/api-contracts.md), [API endpoint runbook](../../.claude/runbooks/README.md#api-endpoint), [Schema First rule](../../.claude/rules/schema-first.md) |
 | auth/user ownership | [Auth/User Scope rule](../../.claude/rules/auth-user-scope.md), [Guard Map](../../.claude/guards/README.md) |
 | client-created ID create flow | [Client-Side ID rule](../../.claude/rules/client-side-id.md) |
 | sync endpoint | [Transaction + Sync Queue rule](../../.claude/rules/transaction-sync-queue.md), [Sync debug runbook](../../.claude/runbooks/README.md#sync-debug) |

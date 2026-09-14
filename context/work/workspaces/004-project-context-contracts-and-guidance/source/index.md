@@ -9,4 +9,4 @@
 
 지침의 고정 비교 기준은 Git commit `2937c252a735ecc6edbe1d3516659fcf459da970`이다. `git show 2937c25:context/project/REFERENCE/composition.md`와 `git show 2937c25:context/project/MAINTENANCE.md`로 시험 당시 기준을 확인한다. 기존 의미의 원문은 `git show 2937c25:.claude/context/currency.md`, `git show 2937c25:.claude/context/time.md`, `git show 2937c25:.claude/context/api-data.md`로 확인한다. 현재 작업 트리는 그 이후 미커밋 시험 결과여서 commit 내용과 같지 않다.
 
-새 Project 본문과 현재 `.claude` 문서는 실제 수정할 Owner에서 읽는다. 원실행 세션의 전체 도구 기록은 004에 수집하지 않았다. 사용자가 붙여넣은 결과 보고와 Main이 직접 확인한 사실의 차이는 [생성 기록](../records/2026-09-14-01-workspace-setup-and-review-basis.md)에 남긴다. Archive나 다른 Work 전체를 기본 입력으로 가져오지 않는다.
+시험 Project 본문과 그때 수정된 `.claude` 문서는 Ticket 02의 대조가 끝난 뒤 사용자 요청으로 원복했다. 원실행 세션의 전체 도구 기록은 004에 수집하지 않았으며 필요한 원문은 이 source와 기준 commit에서 다시 확인한다. 사용자가 붙여넣은 결과 보고와 Main이 직접 확인한 사실의 차이는 [생성 기록](../records/2026-09-14-01-workspace-setup-and-review-basis.md), 실제 원복 범위는 [원복 기록](../records/2026-09-14-03-trial-draft-revert.md)에 남긴다. Archive나 다른 Work 전체를 기본 입력으로 가져오지 않는다.

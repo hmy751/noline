@@ -1,6 +1,6 @@
 # 이 Work를 이어 읽기
 
-먼저 아래 Spec 전체로 목표와 판단 경계를 확인한다. Project 입력에는 아직 검토 중인 본문이 포함되므로 그 문구만으로 제품 선택이나 완료를 이어받지 않는다.
+먼저 아래 Spec 전체로 목표와 판단 경계를 확인한다. 다른 세션이 만든 Project 제품 문서는 Main이 기존 Owner와 실제 진입점에서 다시 대조해 통화 표시 의미와 routing을 보완했고, 현재 통화·날짜·API 기준으로 채택했다. Recover는 이 세 본문을 제품 공통 기준과 함께 읽는다. 날짜의 장기 의미, 금액 정밀도·`주 통화` 라벨과 서버 오류 계약은 아직 사용자 선택이 필요하며 [Project 선택](project-context.md)과 [Ticket 01](tickets/01-product-contract-agreements.md)에서 현재 차이를 확인한다.
 
 - [문제·목표·범위](spec/01-problem-goal-scope.md)
 - [요구 동작과 대표 사례](spec/02-behavior-and-cases.md)

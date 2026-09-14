@@ -18,4 +18,6 @@ Project 전체의 정체성·물리 층·권위 관계는 [Project README](../RE
 
 선택 배경과 보류한 판단은 [구성·읽기 기준 결정](../../../.claude/decisions/2026-09-14-project-context-authoring-and-reading.md)에 있다. 세부 기준을 크게 바꿀 때 확인하되 일반 제품 작업의 필수 읽기로 추가하지 않는다. 특히 `current`의 독립적인 효용은 재구성 결과로 확인할 대상이며, 이 reference는 제거·축소나 문서 수를 미리 정하지 않는다.
 
+첫 적용의 실패와 후속 재시험에서 확정한 검증 관계는 [의미·사실·진입 경로 검증 결정](../../../.claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md)에 있다. 일반 제품 작업의 입력은 이 이력이 아니라 위 기준과 관련 주제 본문이다.
+
 책임과 관리 장치의 관계에 `ai-system_context-ownership-boundary.md: 적용`, `ai-system_responsibility-cohesion.md: 적용`, `ai-system_harness-rippability.md: 적용`.

@@ -6,6 +6,10 @@
 
 ## 현재 지침과 소비자
 
+[동작을 보존하는 코드 리팩터링](behavior-preserving-refactoring.md)은 기존 동작을 유지하며 표현·흐름·책임과 여러 소비 지점의 수정 부담을 줄일 때 읽는다. 변경 전후의 동작 보존과 개선 효과를 따로 판단하고, mock·native·DB 등 검증 경계의 상한을 구별한다.
+
+[API 계약과 변경 가이드](api-contracts.md)는 client API, server route, 공유 schema, serializer와 user scope를 추가·수정·리팩터링할 때 읽는다. Schedule과 Expense의 구체적인 적용, 일반 조회와 sync의 soft-delete 차이, 현재 오류 정책의 열린 충돌을 함께 설명한다.
+
 [설명과 근거 기준](explanation-and-evidence-criteria.md)은 사용자가 의미와 실제 근거의 관계를 이해하고 다음 판단을 만들 수 있게 하는 조건부 기준이다. 제품 의미·현재 구현·완료 판단의 정본을 대체하지 않는다. 적용 범위·재검토 신호·제거 조건은 그 본문이 소유한다.
 
 - [work-discussion](../../../.agents/skills/work-discussion/SKILL.md): 명시 호출로 Work의 결과·선택을 구체화할 때 읽는다.
@@ -22,4 +26,4 @@
 
 ## 기존 Noline 실행 기준
 
-[Rules](../../../.claude/rules/README.md), [Guards](../../../.claude/guards/README.md), [Runbooks](../../../.claude/runbooks/README.md)는 기존 작업·경로별 정책 Owner로 유지한다. 이 폴더의 설명 기준이 이들을 대체하거나 모든 작업의 필수 절차를 늘리지 않는다.
+[Rules](../../../.claude/rules/README.md), [Guards](../../../.claude/guards/README.md), [Runbooks](../../../.claude/runbooks/README.md)는 compact guard와 반복 작업 진입을 유지한다. 이번에 편입한 통화·날짜·API·동작 보존 리팩터링의 충분한 현재 의미와 적용 계약은 위 Project 본문이 소유하고, 기존 경로는 해당 본문으로 이어져야 한다. 아직 옮기지 않은 정책은 기존 Owner가 계속 소유한다.

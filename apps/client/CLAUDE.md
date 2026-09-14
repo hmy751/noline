@@ -42,7 +42,7 @@
 - UI나 feature screen에서 SQLite/API를 직접 골라 Local/Remote routing을 우회하지 않는다.
 - local mutation과 `sync_queue` 추가는 가능한 한 같은 `withTransaction` 안에 둔다.
 - create flow는 `generateId()`와 client-created ID 전략을 따른다.
-- 날짜/시간은 저장/전송 boundary에서 ISO 8601 datetime with timezone을 유지한다.
+- 날짜/시간은 [날짜와 시각의 데이터 의미](../../context/project/common/date-and-time.md)에서 필드 의미와 현재 경계 차이를 확인하고, 한 시점을 나타내는 값은 저장/전송 boundary에서 ISO 8601 datetime with timezone을 유지한다.
 - offline/active/inactive 제한은 `useAppPolicy`, `PolicyErrorDisplay`, `NetworkStatusIndicator` 같은 기존 policy primitive를 먼저 확인한다.
 - Map/Search/Directions 같은 Service Layer는 sync-owned Data Entity처럼 취급하지 않는다.
 

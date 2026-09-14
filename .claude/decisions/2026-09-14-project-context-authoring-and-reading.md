@@ -42,3 +42,5 @@ Active/default인 001의 기본·명시 Recover와 session-bound된 002의 명�
 `pnpm harness:check`는 환경의 의존성 설치 단계에서 중단돼 `node scripts/check-harness.mjs`를 직접 실행했다. 직접 검사에서 남은 실패는 원복으로 제거한 통화 본문을 가리키는 위 구성 기록의 과거 링크 한 건이다. 기존 날짜별 기록을 고치거나 링크 검사를 완화하지 않았다. 새 지침·스킬·현재 진입점의 링크와 bridge 검사는 통과했으나 전체 하네스 검사 통과로 보고하지 않는다.
 
 이번 확인은 지침 설치와 소비 경로의 정합성까지다. 새 작업 주체의 본문 구성·읽기·갱신 효과와 `current`의 독립적인 효용은 후속 적용에서 확인한다.
+
+후속 재시험에서 드러난 실패 원인과 의미·사실·진입 경로 검증 기준은 [Project context 갱신의 의미·사실·진입 경로 검증](2026-09-14-project-context-semantic-and-routing-verification.md)에 기록했다.

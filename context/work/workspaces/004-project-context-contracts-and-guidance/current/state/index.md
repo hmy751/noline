@@ -1,11 +1,11 @@
 # 현재 상태와 다음 행동
 
-004를 생성했고 두 Ticket의 정의와 판단 근거를 준비했다. 제품 계약의 새로운 합의, 지침 수정과 재시험은 아직 시작하지 않았다. 실제 작업 트리에는 `2937c25` 이후 다른 세션의 Project·`.claude` 초안과 002의 별도 변경이 남아 있다. 이 생성은 그 파일들을 수정하거나 커밋하지 않는다.
+Main이 다른 세션의 Project 문서를 기존 Owner와 실제 작업 진입점에서 다시 대조해 남은 누락을 직접 보완했다. 통화 본문에는 금액과 currency code/symbol 동시 표시, 대표 금액과 나머지 통화 개수 표시를 복원했다. API·날짜·통화 runbook과 server/client guide는 새 Project Owner 및 날짜의 현재 경계 차이로 이어진다.
 
-다음 세션은 Recover 뒤 [01 제품 계약](../memory/tickets/01-product-contract-agreements.md)과 [02 지침 실패 분석](../memory/tickets/02-guidance-failure-analysis-and-retest.md)을 읽고 현재 diff·지침을 대조한다. 날짜 사실 오류와 기존 의미 누락처럼 사용자 선택 없이 판별 가능한 부분부터 근거를 확인하고, 제품 선택이 필요한 질문을 사용자에게 연결한다. 지침 쪽은 문제가 어떤 기준에서 걸러졌어야 하는지 확인한 뒤 수정과 재시험을 진행한다. 두 결과의 순서는 상황에 맞게 조정하되 어느 한쪽으로 다른 쪽의 완료를 대신하지 않는다.
+통화·날짜·API 본문과 `current/architecture.md`, 도시 검색·저장 용량 current, 동작 보존 리팩터링 guidance를 현재 Project 기준으로 채택했다. 기존 `.claude` 통화·시간·API/Data 문서는 구현 위치와 호환 진입을 맡는다. 004 Recover·Project 선택·output도 이 권위 관계에 맞췄다.
 
-Current의 파일 수를 줄이거나 없애는 목표는 없다. 현재 초안을 완성된 기준으로 받아들이지 말고 Spec이 구별한 유효한 의미·사실 오류·미합의를 적용한다. 테스트 pass는 제품 선택이나 문서 품질을 증명하지 않는다.
+[01 제품 계약](../memory/tickets/01-product-contract-agreements.md)의 남은 작업은 날짜의 장기 의미, 금액 정밀도와 `주 통화` 라벨, 서버 오류 계약의 사용자 선택이다. 현재 구현 차이와 사용자 결과를 대조해 선택한 뒤 관련 기준과 남은 구현 차이에 반영한다.
 
-기존 Main의 002 Maintain 실패·pending은 해결되지 않았다. 필요한 의미는 004에 직접 기록했으며 그 runtime을 새 Work의 최신성으로 이어받지 않는다. 기본 Workspace는 001이고 현재 Main 연결도 002에 남는다. 새 세션에서 004를 선택·연결하는 일은 별도다.
+Ticket 02의 최소 지침 수정은 `update-project-context`에 반영했다. 기존 Owner와 기존 작업 진입점에서 시작하는 확인을 이번 보완에 적용해 현재 누락은 해소했다. 다른 실행 주체에서도 재발이 줄어드는지는 다음 독립 Project 갱신에서 확인한다.
 
-`status.json`은 Verify 미실행 상태이며 제품·지침 작업 준비 완료나 수락을 뜻하지 않는다. 생성과 재진입 검토의 실제 결과는 [생성 기록](../../records/2026-09-14-01-workspace-setup-and-review-basis.md)에 이어 남긴다.
+`status.json`은 Workspace Verify 미실행 상태다. 문서 보완과 Owner 이동의 현재 반영은 확인했지만 열린 제품 선택과 Workspace 전체 완료, 실제 제품 동작 acceptance는 아직 남아 있다. 현재 session은 004에 binding generation 1로 명시 연결돼 있다.
