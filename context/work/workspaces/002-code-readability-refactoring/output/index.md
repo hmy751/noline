@@ -77,7 +77,7 @@ Node 20.18.1에서 2개 file의 2개 test와 server build가 통과했다. 실�
 
 변경 전 mock route 검사 네 개에서 현재 차이를 확인했고, 수정 후 server unit·route 29개 test와 PostgreSQL integration 4개 test, server build와 형식 검사가 통과했다. 실제 JWT·배포 process와 기존 `places.ts:138` typecheck 오류는 남아 있다. 상세 근거는 [접근 경계 실행 기록](../records/2026-09-14-03-schedule-access-boundary.md)이 소유한다. 사용자는 상세 결과와 검증 한계를 확인한 뒤 이 3번 결과의 기록과 커밋을 요청했다.
 
-## 16 — Trip·Expense 직렬화 선행 조각
+## 17 — Trip·Expense 직렬화 선행 조각 (당시 16)
 
 - [Trip serializer](../../../../../apps/server/src/serializers/trip.ts): Trip DB row의 다섯 시간 값을 API ISO datetime 또는 null로 변환한다.
 - [Expense serializer](../../../../../apps/server/src/serializers/expense.ts): Expense DB row의 날짜·receipt boolean·세 시간 값을 API entity 표현으로 변환한다.
@@ -85,4 +85,4 @@ Node 20.18.1에서 2개 file의 2개 test와 server build가 통과했다. 실�
 - [Trip route 계약 검사](../../../../../apps/server/tests/routes/trips.response-contract.test.ts), [Expense route 계약 검사](../../../../../apps/server/tests/routes/expenses.response-contract.test.ts), [Sync 계약 검사](../../../../../apps/server/tests/routes/sync.response-contract.test.ts): 공통화 전후 CRUD·sync 응답의 기존 표현을 비교한다.
 - [Trip serializer 단위 검사](../../../../../apps/server/tests/serializers/trip.test.ts), [Expense serializer 단위 검사](../../../../../apps/server/tests/serializers/expense.test.ts): 각 변환과 null·false 경계를 직접 검사한다.
 
-이 결과는 사용자가 Ticket 05의 3번보다 먼저 실행하도록 선택한 Ticket 16의 좁은 조각이다. response schema 중복, request·update 계약, 오류와 ownership은 완료하지 않았다. 최종 server test 8개 파일의 25개 test, build와 정적 형식 검사의 상세·한계는 [실행 기록](../records/2026-09-14-02-trip-expense-serialization.md)이 소유한다.
+이 결과는 사용자가 Ticket 05의 3번보다 먼저 실행하도록 선택한 [17번 Ticket(당시 16번)](../current/memory/tickets/17-server-data-route-boundaries.md)의 좁은 조각이며 `fd1db26`으로 저장됐다. response schema 중복, request·update 계약, 오류와 ownership은 이 조각에서 완료하지 않았다. 최종 server test 8개 파일의 25개 test, build와 정적 형식 검사의 상세·한계는 [실행 기록](../records/2026-09-14-02-trip-expense-serialization.md)이 소유한다. 번호 재배치는 새 제품 산출물이 아니다.

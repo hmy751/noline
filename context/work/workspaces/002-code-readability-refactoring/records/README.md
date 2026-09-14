@@ -41,4 +41,6 @@
 
 - [Schedule 소유권·soft-delete 접근 경계](2026-09-14-03-schedule-access-boundary.md): 부모·자식 user scope, scoped mutation, 일반 조회와 sync 삭제 전파의 구분, 일회성 PostgreSQL 14 통합 검사와 검증 한계.
 
+- [05 완료 뒤 남은 Ticket 점검과 장면 순서 재배치](2026-09-14-04-ticket-scene-reordering.md): 기존 06–17의 책임 보존, 새 앱 진입 06·저장 후 연결 보완, 현재 06–18 대응, 실제 선행 관계와 003 담당 연결. 이전 기록의 Ticket 번호는 이 대응으로 읽는다.
+
 후속 분석·결정·실행 기록은 이 디렉터리에 날짜별로 남긴다. 원문·변경하지 않은 snapshot은 [source](../source/index.md), 현재 기준과 진행은 [current](../current/memory/index.md)가 소유한다.

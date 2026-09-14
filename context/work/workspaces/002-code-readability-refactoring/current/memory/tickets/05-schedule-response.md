@@ -33,7 +33,7 @@ Trip activation에는 단순한 검증 누락을 넘어 현재 Expense DB 표현
 - 일곱 소비 지점이 공유하는 DB row → API Schedule entity 직렬화만 공통 책임으로 만들고 endpoint별 envelope·오류·인증·조회 조립은 호출부에 유지한다.
 - Schedule 생성·수정과 sync pull의 기존 바깥 response schema 적용은 유지한다. 목록·단건·Trip 하위 목록에서는 중간 `scheduleEntity.safeParse`를 제거하고 `scheduleResponse` 또는 `scheduleListResponse`가 내부 entity까지 한 번 검사하게 한다.
 - DELETE는 `deleteScheduleResponse`, Trip activation은 전체 응답 조립 뒤 `activateTripResponse`를 실제 response boundary에 적용한다. 계약 실패는 기존 route의 catch와 `sendInternalError`를 통해 500으로 막고 범용 validation helper나 새 오류 envelope를 만들지 않는다.
-- activation Expense는 해당 응답 계약을 만족하는 데 필요한 `date`의 날짜 문자열, `hasReceipt`의 boolean, 생성·수정·삭제 시각의 ISO 문자열 변환만 endpoint 안에서 수행한다. 전체 Expense serializer와 다른 Expense endpoint 공통화는 [16번](16-server-data-route-boundaries.md)의 별도 범위로 남긴다.
+- activation Expense는 해당 응답 계약을 만족하는 데 필요한 `date`의 날짜 문자열, `hasReceipt`의 boolean, 생성·수정·삭제 시각의 ISO 문자열 변환만 endpoint 안에서 수행한다. 전체 Expense serializer와 다른 Expense endpoint 공통화는 [17번](17-server-data-route-boundaries.md)의 별도 범위로 남긴다.
 - Schedule 생성은 부모 Trip의 인증 사용자 소유와 non-deleted 상태를 확인한다. 일반 목록·단건·수정·삭제·중첩 목록·activation은 각 의미에 맞는 user scope와 soft-delete 조건을 검사한다. sync pull의 삭제 전파 의미는 보존한다.
 - 변경 전후 endpoint의 status·JSON·schema 결과·네 날짜 문자열을 같은 조건으로 비교하고, 접근 차단은 다른 사용자의 parent·child 및 soft-deleted row 사례로 확인한다.
 - helper 단위 검사와 mock route 검사가 실제 PostgreSQL 제약·query 결과를 대신하지 않으므로 ownership·soft-delete SQL은 격리된 PostgreSQL 통합 검사로 추가 입증한다.
@@ -73,8 +73,8 @@ Main은 2번 제품 변경 전에 DELETE 정상·계약 실패, 실제 Expense�
 
 Main은 수정 후 server test 3개 파일의 13개 test, server `tsup` build와 `git diff --check`가 모두 통과했다고 보고했다. server 전체 typecheck에는 기존 `src/routes/places.ts:138`의 Google `Language` 타입 오류 하나만 남았다고 보고했으며, Maintain은 이 검사들을 재실행하지 않았다. 사용자는 이 2번 결과와 관련 기록을 `9d48b95 refactor(server): enforce schedule response contracts`로 커밋했다.
 
-3번 전에 요청한 Trip·Expense 직렬화는 [16번](16-server-data-route-boundaries.md)의 좁은 조각으로 선행했다. Trip 다섯 소비 지점과 Expense 여섯 소비 지점이 각각 공통 serializer를 사용하며, response schema 중복·오류·ownership은 함께 바꾸지 않았다. 상세 결과와 검증 한계는 [실행 기록](../../../records/2026-09-14-02-trip-expense-serialization.md)이 소유한다.
+3번 전에 요청한 Trip·Expense 직렬화는 [17번(당시 16번)](17-server-data-route-boundaries.md)의 좁은 조각으로 선행했다. Trip 다섯 소비 지점과 Expense 여섯 소비 지점이 각각 공통 serializer를 사용하며, response schema 중복·오류·ownership은 함께 바꾸지 않았다. 상세 결과와 검증 한계는 [실행 기록](../../../records/2026-09-14-02-trip-expense-serialization.md)이 소유한다.
 
 이후 3번 ownership·soft-delete를 구현했다. Schedule 생성과 Trip 하위 목록은 부모 Trip의 `id + userId + deletedAt IS NULL`을 먼저 확인하고, 중첩 목록과 activation의 자식 query도 인증 사용자 소유와 일반 조회의 non-deleted 조건을 함께 적용한다. 수정·삭제는 선행 SELECT 뒤 ID만으로 변경하던 흐름을 실제 UPDATE에 `id + userId + deletedAt IS NULL`을 넣는 단일 scoped mutation으로 바꿨다. 부모 Trip의 미존재·타 사용자 소유·삭제 상태는 동일한 404로 처리한다. Sync pull의 soft-delete 전파는 유지했다.
 
-변경 전 mock route 검사 네 개에서 생성 201, 중첩 목록 200, 수정·삭제 500의 차이가 재현됐고 수정 후 server unit·route 29개 test가 통과했다. 별도 tmpfs PostgreSQL 14에 현재 Drizzle schema와 사용자 A/B·삭제·교차 소유 데이터를 넣은 integration 4개 test도 통과했으며 실행 후 컨테이너와 network를 제거했다. server build와 형식 검사는 통과했고, typecheck는 기존 `places.ts:138` 오류만 남았다. [접근 경계 실행 기록](../../../records/2026-09-14-03-schedule-access-boundary.md)이 구성·결과·증명 한계를 소유한다. 사용자는 상세 설명 뒤 이 3번 결과의 기록과 커밋을 요청했다. 이 저장 경계로 Ticket 05가 맡은 세 제품 결과의 구현은 마무리하지만, 서버 전체 오류 처리 재설계와 Ticket 16의 남은 response boundary는 별도 범위로 남긴다.
+변경 전 mock route 검사 네 개에서 생성 201, 중첩 목록 200, 수정·삭제 500의 차이가 재현됐고 수정 후 server unit·route 29개 test가 통과했다. 별도 tmpfs PostgreSQL 14에 현재 Drizzle schema와 사용자 A/B·삭제·교차 소유 데이터를 넣은 integration 4개 test도 통과했으며 실행 후 컨테이너와 network를 제거했다. server build와 형식 검사는 통과했고, typecheck는 기존 `places.ts:138` 오류만 남았다. [접근 경계 실행 기록](../../../records/2026-09-14-03-schedule-access-boundary.md)이 구성·결과·증명 한계를 소유한다. 사용자는 상세 설명 뒤 이 3번 결과의 기록과 커밋을 요청했다. 이 저장 경계로 Ticket 05가 맡은 세 제품 결과의 구현은 마무리하지만, 서버 전체 오류 처리 재설계와 [17번(당시 16번)](17-server-data-route-boundaries.md)의 남은 response boundary는 별도 범위로 남긴다.

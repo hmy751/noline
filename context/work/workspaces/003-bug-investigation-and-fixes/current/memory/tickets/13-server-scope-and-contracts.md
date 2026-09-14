@@ -24,4 +24,6 @@
 
 ## 현재 상태와 실제 결과
 
-구성됨, 실행 전. 위 확인 계획을 수행하거나 제품 코드를 수정한 상태가 아니다. 기존 조사 근거는 위에 연결했으며, 실행할 때 현재 코드·환경과 수정 전 조건을 다시 대조한다.
+003에서의 추가 실행은 아직 없다. 다만 이후 [002-05](../../../../002-code-readability-refactoring/current/memory/tickets/05-schedule-response.md)에서 Schedule 직렬화·response schema와 부모 Trip/자식 user scope·soft-delete·scoped UPDATE를 완료했다. activation Expense 날짜·boolean과 전체 response 검증, activation의 Schedule·Expense user filter도 포함한다. server unit·route 29개와 PostgreSQL 14 integration 4개 test의 결과는 [접근 경계 기록](../../../../002-code-readability-refactoring/records/2026-09-14-03-schedule-access-boundary.md)을 사용하며 이번 문서 갱신에서 재실행하지 않았다.
+
+[002-17(당시 16)](../../../../002-code-readability-refactoring/current/memory/tickets/17-server-data-route-boundaries.md)의 Trip·Expense serializer도 이미 반영됐다. 이 완료 범위는 재구현하지 않고 회귀 대조군으로 사용한다. Trip·Expense·Sync의 남은 접근·요청·응답 경계, 실제 JWT, 전체 client parser 왕복과 오류 종류 소비 검증은 남아 있다. 따라서 외부 Work의 선행 결과만으로 이 Ticket 전체나 003 전체를 완료로 표시하지 않는다.

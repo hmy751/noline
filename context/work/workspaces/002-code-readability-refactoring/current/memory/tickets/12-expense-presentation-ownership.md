@@ -1,4 +1,4 @@
-# 15 — 경비 카테고리 표시와 컴포넌트 Owner
+# 12 — 경비 카테고리 표시와 컴포넌트 Owner
 
 ## 맡은 결과와 범위
 
@@ -17,7 +17,7 @@
 - ExpensesScreen과 일정의 경비 목록에서 실제 사용하는 카드 Owner와 export 경로가 하나의 기준으로 설명된다.
 - 상세 화면의 관광·쇼핑·식사·교통·숙박·체험·기타·fallback 표현과 기존 목록의 markup·interaction을 변경 전후 비교한다.
 - 동일 카테고리 palette를 함께 수정해야 하는 위치가 줄고, 의도적으로 다른 표현은 이름과 variant에서 이유가 드러난다.
-- 같은 이름의 competing component/export는 제거·이관·명시적 유지 중 중 하나로 판정되고 그 근거가 Ticket 결과에 남는다.
+- 같은 이름의 competing component/export는 제거·이관·명시적 유지 중 하나로 판정되고 그 근거가 Ticket 결과에 남는다.
 - render fixture 또는 snapshot, `rg` 사용처 확인, 관련 정적 검사와 client typecheck를 실행한다. 실제 기기 시각 확인이 없으면 미확인으로 남긴다.
 
 ## 현재 상태와 실제 결과
