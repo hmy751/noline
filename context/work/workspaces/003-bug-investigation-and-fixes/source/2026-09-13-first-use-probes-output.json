@@ -1,0 +1,154 @@
+{
+  "kind": "isolated-source-probes-not-device-e2e",
+  "runAt": "2026-09-13T08:30:45.296Z",
+  "versions": {
+    "node": "v24.16.0",
+    "typescript": "5.3.3",
+    "axios": "1.12.2",
+    "react": "18.3.1"
+  },
+  "sourceSha256": {
+    "apps/client/src/shared/services/auth/auth-interceptor.ts": "6d2dae82114393c44f067f578725ef27ab9935483301856af09df9e0a53c19bc",
+    "apps/client/src/shared/api/fetcher.ts": "b1e7103c9b9bac4eaaf1d84065d3b217350557d2c3c618241f4465c79bfa92b5",
+    "apps/client/src/shared/services/sync/api.ts": "2436cac768781d8c25da2a0b1365d4240368d3267dea360d9c22be8a859df7c9",
+    "apps/client/app/_layout.tsx": "663314dd29089526d26c792732f083a8ed7ddf94e34aa74e2d2448d98da22e76",
+    "apps/client/src/entities/trip/utils/selectMainTrip.ts": "f23a4b6c57671582393c0fa0174a7f3ee409470e6e1f2080e435cffb0e0a1f6f",
+    "apps/client/src/shared/services/offline-prep/router.ts": "2ecfdb4dbcc619bd742f47faab6d1b422f3680e9c731cff6ca553bab71d453e0",
+    "apps/client/src/entities/schedule/repository/schedule-repository.ts": "a5603a701f8155a3e6454465ce6832947abfe5372672985ef5f50ede20f8d3e9",
+    "apps/client/src/entities/expense/repository/expense-repository.ts": "ce1936d712fc6d6ebdbb9a5c7c478fe6c488b9534cace3a2e5cce6821159141b",
+    "apps/client/src/shared/services/auth/logout-service.ts": "f1b48abdd15d9ac6cfc275c0ddb2bd9fce24ba6af6c83bf2c97532a89e71a3f7",
+    "apps/client/src/features/expense/create-expense/useCreateExpenseForm.ts": "051bd7dc19a208a2d211c011806fe1972be2f2386ffada4418f4d13b3d725a28",
+    "apps/client/src/shared/services/sync/engine.ts": "46220355235a1fd68cafbf5a763a00a249cea91db8a39711e0737e45b6e1bdee"
+  },
+  "results": [
+    {
+      "scenario": "refresh-success-response-shape",
+      "observed": {
+        "refreshCalls": 1,
+        "normalResult": {
+          "success": true,
+          "data": [
+            {
+              "id": "fixture-trip"
+            }
+          ]
+        },
+        "refreshedResult": [
+          {
+            "id": "fixture-trip"
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "sync-401-valid-refresh-available",
+      "observed": {
+        "sessionExpired": true,
+        "refreshAttempts": 0,
+        "error": "AuthRequiredError"
+      }
+    },
+    {
+      "scenario": "refresh-network-failure",
+      "observed": {
+        "sessionExpired": true,
+        "ordinaryError": {
+          "name": "APIError",
+          "code": "UNKNOWN_ERROR",
+          "message": "알 수 없는 에러가 발생했습니다"
+        }
+      }
+    },
+    {
+      "scenario": "relogin-destination-authenticated-expired",
+      "observed": {
+        "redirects": [
+          "/(tabs)"
+        ]
+      }
+    },
+    {
+      "scenario": "trip-list-effect-after-user-selected-B",
+      "observed": {
+        "selectedBefore": "B",
+        "selectedAfter": "A"
+      }
+    },
+    {
+      "scenario": "inactive-trip-create-then-edit-schedule",
+      "observed": {
+        "created": {
+          "id": "new-item",
+          "tripId": "inactive-trip"
+        },
+        "updateError": "Schedule not found: new-item",
+        "remoteUpdateCalls": 0
+      }
+    },
+    {
+      "scenario": "inactive-trip-create-then-edit-expense",
+      "observed": {
+        "created": {
+          "id": "new-item",
+          "tripId": "inactive-trip"
+        },
+        "updateError": "Expense not found: new-item",
+        "remoteUpdateCalls": 0
+      }
+    },
+    {
+      "scenario": "logout-with-failed-unsent-item",
+      "observed": {
+        "failedOnly": {
+          "hasPending": false,
+          "pendingCount": 0,
+          "failedCount": 1
+        },
+        "result": {
+          "success": true,
+          "message": "로그아웃되었습니다."
+        },
+        "calls": [
+          "serverLogout",
+          "clearSyncQueue",
+          "resetDatabase",
+          "clearAuth",
+          "clearQueryCache"
+        ]
+      }
+    },
+    {
+      "scenario": "logout-pending-control",
+      "observed": {
+        "pendingResult": {
+          "success": false,
+          "hasPendingSync": true,
+          "pendingCount": 1,
+          "message": "동기화되지 않은 데이터가 1개 있습니다. 로그아웃하면 이 데이터는 손실됩니다."
+        },
+        "calls": []
+      }
+    },
+    {
+      "scenario": "expense-trip-data-arrives-after-form-mount",
+      "observed": {
+        "tripCurrency": "JPY",
+        "before": "USD",
+        "after": "USD"
+      }
+    },
+    {
+      "scenario": "manual-sync-push-fails-no-active-trip",
+      "observed": {
+        "states": [
+          "IN_PROGRESS",
+          "FAILED"
+        ],
+        "result": {
+          "success": true,
+          "message": "동기화가 완료되었습니다."
+        }
+      }
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # 발견한 버그 확인·수정의 현재 작업 정의
 
-이 Work의 Spec은 다음 다섯 파일 전체다. 후보 목록은 Spec이 선택한 조사 범위를 구체화하며 아직 실행 Ticket은 없다.
+이 Work의 Spec은 다음 다섯 파일 전체다. 후보 목록은 조사 근거와 담당 연결을, Ticket은 각 실행이 맡은 결과·검증·실제 상태를 구체화한다.
 
 - [문제·목표·범위](spec/01-problem-goal-scope.md)
 - [요구 동작과 대표 사례](spec/02-behavior-and-cases.md)

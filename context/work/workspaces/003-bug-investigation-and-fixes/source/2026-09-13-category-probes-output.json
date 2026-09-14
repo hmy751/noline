@@ -1,0 +1,642 @@
+{
+  "executedAt": "2026-09-13T09:18:08.752Z",
+  "node": "v24.16.0",
+  "typescript": "5.3.3",
+  "hashes": {
+    "apps/client/src/entities/trip/data/keys.ts": "3f6435776a1870d55fb08596caadd6c0ef7ae600ea21b3d8be37a870f72e80b8",
+    "apps/client/src/entities/schedule/data/keys.ts": "a6230ce83479a68d63bd9c74af29b79d7eb2e2dedd4193c9123db7fad653426d",
+    "apps/client/src/entities/expense/data/keys.ts": "ed5efc2f2985466c0265d8568373c433af4a9ae21f5091fea3742e5c7dfb3ab7",
+    "apps/client/src/entities/route/data/keys.ts": "fc441bb0150186e7ff3ce4296531957b8cb63e71441c8e4df9931451af654882",
+    "apps/client/src/shared/services/sync/queue.ts": "b3953a3cfd1f3558d2f4657c963ca7921dbe2460e289cd5b51ac405823c0c125",
+    "apps/client/src/entities/trip/data/useActivateTrip.ts": "ab5567e55d49965fbb36389a6d71e4098165581795a0c5d27b78bf3bcc7c25fc",
+    "apps/client/src/entities/trip/data/useDeactivateTrip.ts": "c5432e07732cf1acf5ac63755f5a34de4bcf47fc3451431ca31fa2317d79ba4e",
+    "apps/client/src/shared/services/sync/cleanup-job.ts": "c7b8b9aee112c578eee956a340bf62f103a4535e508aad7d37e9c5a988787189",
+    "apps/client/src/shared/services/offline-prep/metadata.ts": "030cbdae139cdc1e84704a86eee5167a8c8f165420907c96997a1da4aa16af0f",
+    "apps/client/src/entities/trip/lib/trip-local.ts": "bfa4432adb8cdafdea905fad8d74d8870931a9d7d51c1148f31926096c1e412c",
+    "apps/client/src/entities/schedule/lib/schedule-local.ts": "a3fb7a4afdf32e0fdf93cdbab879aedceebc7d984a8c3a8dbe94c08488b65413",
+    "apps/client/src/entities/expense/lib/expense-local.ts": "ad4b4279227dd77aad2a397733b8ead2e32ab8312f91ff8246f7dd2e2c5ca105",
+    "apps/client/src/shared/services/offline-prep/router.ts": "2ecfdb4dbcc619bd742f47faab6d1b422f3680e9c731cff6ca553bab71d453e0",
+    "apps/client/src/shared/services/directions/route-downloader.ts": "15d8f3a921791507378ef5adfd97f777082c73386da5634dfa1f338051f09e0a",
+    "apps/client/src/shared/db/utils.ts": "8ab897239a2b16778a71160c97d166fbdfa65c34947474cbc3acc7a46fb10077",
+    "apps/client/src/shared/services/sync/engine.ts": "46220355235a1fd68cafbf5a763a00a249cea91db8a39711e0737e45b6e1bdee",
+    "apps/client/src/shared/services/offline-map/download.ts": "092963e0110bb9519478d6e899347f7a3c9da4b906413cc23ef3414fd5e40fc7",
+    "apps/client/src/shared/services/offline-map/cleanup.ts": "5c04ccf35239860937364a59194bd968b46684825aa20c2d774555a4ee345891",
+    "node_modules/@rnmapbox/maps/src/modules/offline/offlineManager.ts": "0d0707fb6c010003d63d8171c7703726fd6f6b4d9b55426ade9b741237274be4",
+    "node_modules/@rnmapbox/maps/ios/RNMBX/Offline/RNMBXOfflineModule.swift": "e7302ce1c0ffbae978b76fa258e2b5ca61f42c784cc898c3acbceaee17e5ef7b",
+    "apps/client/src/shared/lib/datetime.ts": "9a402334450b137c7955b0bdaf666d2753e19d75c5e6615e7c1002e3de415a6c",
+    "apps/client/src/shared/lib/currency.ts": "b154ffa58a468005c8f5bb4569601f2c60d98dcea5ba985550d810905a5b58c8",
+    "apps/client/src/screens/ScheduleDetailScreen.tsx": "552cbe1cba2a17b68cb28a7fae2ed6ea106dd45bfce77db54803bcf200de9eca",
+    "apps/client/src/entities/trip/ui/ActivationProgressDrawer.tsx": "4ee8ad992b8c36705f1607e707caad50954ea12f6b98a04bf5cd07576518c7c1",
+    "apps/client/src/screens/LoginScreen.tsx": "aedfef234a392519f08e39b3d3a7584ef3c7c06bd44ae13aee6c9528356dfcab",
+    "apps/client/src/features/schedule/create-schedule/useLocationSearch.ts": "168cb59b64516e35d1a00f105c5c13a16e1bc49c58777e6d148e79b69f8b659c",
+    "apps/client/app/_layout.tsx": "663314dd29089526d26c792732f083a8ed7ddf94e34aa74e2d2448d98da22e76",
+    "apps/client/src/screens/ScheduleScreen.tsx": "018101dcb5cfbc0a3ff77bec51e11d0306bb4f252f9fbfaf9d176524abe4176a",
+    "apps/client/src/screens/ExpensesScreen.tsx": "fa10a0db397e468b43b8f29be9afb5eb8d9fcda44f945adce8768ba95b46ce46",
+    "apps/client/src/entities/schedule/repository/schedule-repository.ts": "a5603a701f8155a3e6454465ce6832947abfe5372672985ef5f50ede20f8d3e9",
+    "apps/client/src/entities/expense/repository/expense-repository.ts": "ce1936d712fc6d6ebdbb9a5c7c478fe6c488b9534cace3a2e5cce6821159141b",
+    "apps/client/src/shared/policy/constants.ts": "a00a5bc8e33604fa6ffd9fc7f1bd9cde281cd9b29afc9edf181520b9df030442",
+    "apps/client/src/shared/hooks/map/useMyLocation.ts": "f88d8f63ae84bcb0f310c707addc45c5a0170f5b862b6e7983c0c2bacfaf2dae"
+  },
+  "limits": [
+    "in-memory DB adapter; no real SQL constraints/transactions",
+    "no native UI, OAuth, network or user data",
+    "known-defect assertions are not fixed-behavior acceptance"
+  ],
+  "results": [
+    {
+      "scenario": "first-activation-data-control",
+      "kind": "control",
+      "observed": {
+        "activation": {
+          "id": "fixture-1",
+          "tripId": "A",
+          "userId": "U",
+          "isActivated": true,
+          "activatedAt": "2026-09-13T09:00:00.000Z",
+          "deactivatedAt": null,
+          "expiresAt": "2026-10-10T00:00:00.000Z",
+          "syncStatus": "COMPLETED",
+          "lastSyncAt": "2026-09-13T09:00:00.000Z",
+          "syncProgress": 100,
+          "dataDownloaded": true,
+          "mapDownloaded": false,
+          "cleanupPending": false,
+          "createdAt": "2026-09-13T09:00:00.000Z",
+          "updatedAt": "2026-09-13T09:00:00.000Z"
+        },
+        "schedules": 1,
+        "calls": {
+          "maps": 1,
+          "routes": 1
+        }
+      }
+    },
+    {
+      "scenario": "retry-activation-while-map-not-ready",
+      "kind": "defect-observed",
+      "observed": {
+        "mapDownloaded": false,
+        "callsAfterTwoActivations": {
+          "maps": 1,
+          "routes": 2
+        }
+      }
+    },
+    {
+      "scenario": "defer-cleanup-reactivate-drain-cleanup",
+      "kind": "defect-observed",
+      "observed": {
+        "activation": {
+          "id": "fixture-1",
+          "tripId": "A",
+          "userId": "U",
+          "isActivated": true,
+          "activatedAt": "2026-09-13T09:00:00.000Z",
+          "deactivatedAt": null,
+          "expiresAt": "2026-10-10T00:00:00.000Z",
+          "syncStatus": "COMPLETED",
+          "lastSyncAt": "2026-09-13T09:00:00.000Z",
+          "syncProgress": 100,
+          "dataDownloaded": true,
+          "mapDownloaded": false,
+          "cleanupPending": false,
+          "createdAt": "2026-09-13T09:00:00.000Z",
+          "updatedAt": "2026-09-13T09:00:00.000Z"
+        },
+        "schedule": {
+          "id": "S",
+          "tripId": "A",
+          "userId": "U",
+          "title": "saved",
+          "location": "place",
+          "scheduledAt": "2026-10-01T01:00:00.000Z",
+          "latitude": "35",
+          "longitude": "139",
+          "deletedAt": "2026-09-13T09:00:00.000Z",
+          "version": 2,
+          "updatedAt": "2026-09-13T09:00:00.000Z"
+        }
+      }
+    },
+    {
+      "scenario": "reactivation-map-fails-but-old-ready-retained",
+      "kind": "defect-observed",
+      "observed": {
+        "status": "ready",
+        "activation": {
+          "tripId": "A",
+          "userId": "U",
+          "isActivated": true,
+          "mapDownloaded": true,
+          "cleanupPending": false,
+          "activatedAt": "2026-09-13T09:00:00.000Z",
+          "deactivatedAt": null,
+          "expiresAt": "2026-10-10T00:00:00.000Z",
+          "syncStatus": "COMPLETED",
+          "lastSyncAt": "2026-09-13T09:00:00.000Z",
+          "syncProgress": 100,
+          "dataDownloaded": true,
+          "updatedAt": "2026-09-13T09:00:00.000Z"
+        }
+      }
+    },
+    {
+      "scenario": "first-activation-server-failure-control",
+      "kind": "control",
+      "observed": {
+        "activations": 0,
+        "schedules": 0
+      }
+    },
+    {
+      "scenario": "edit-trip-dates-clears-local-coordinates",
+      "kind": "defect-observed",
+      "observed": {
+        "trip": {
+          "id": "A",
+          "userId": "U",
+          "name": "A",
+          "destination": "Tokyo",
+          "country": "JP",
+          "latitude": null,
+          "longitude": null,
+          "cityId": 1,
+          "startDate": "2026-10-01T00:00:00.000Z",
+          "endDate": "2026-10-05T00:00:00.000Z",
+          "deletedAt": null,
+          "updatedAt": "2026-09-13T09:00:00.000Z",
+          "version": 1
+        },
+        "payload": "{\"endDate\":\"2026-10-05T00:00:00.000Z\"}"
+      }
+    },
+    {
+      "scenario": "schedule-title-edit-preserves-coordinates-control",
+      "kind": "control",
+      "observed": {
+        "id": "S",
+        "tripId": "A",
+        "userId": "U",
+        "title": "renamed",
+        "location": "place",
+        "scheduledAt": "2026-10-01T01:00:00.000Z",
+        "latitude": "35",
+        "longitude": "139",
+        "deletedAt": null,
+        "version": 2,
+        "updatedAt": "2026-09-13T09:00:00.000Z"
+      }
+    },
+    {
+      "scenario": "local-expense-crud-schedule-delete-control",
+      "kind": "control",
+      "observed": {
+        "queue": [
+          {
+            "table": "trips",
+            "action": "UPDATE",
+            "payload": "{\"endDate\":\"2026-10-05T00:00:00.000Z\"}"
+          },
+          {
+            "table": "schedules",
+            "action": "UPDATE",
+            "payload": "{\"title\":\"renamed\"}"
+          },
+          {
+            "table": "expenses",
+            "action": "CREATE",
+            "payload": "{\"id\":\"E\",\"userId\":\"U\",\"tripId\":\"A\",\"scheduleId\":\"S\",\"title\":\"Lunch\",\"amount\":\"1000\",\"currency\":\"JPY\",\"category\":\"식사\",\"date\":\"2026-10-01T00:00:00.000Z\"}"
+          },
+          {
+            "table": "expenses",
+            "action": "UPDATE",
+            "payload": "{\"amount\":\"1200\"}"
+          },
+          {
+            "table": "expenses",
+            "action": "DELETE",
+            "payload": "{\"tripId\":\"A\"}"
+          },
+          {
+            "table": "schedules",
+            "action": "DELETE",
+            "payload": "{\"tripId\":\"A\"}"
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "delete-last-active-trip-leaves-activation",
+      "kind": "defect-observed",
+      "observed": {
+        "visibleTrips": 0,
+        "hasAnyActivatedTrip": true,
+        "activation": {
+          "tripId": "A",
+          "userId": "U",
+          "isActivated": true
+        }
+      }
+    },
+    {
+      "scenario": "child-router-online-offline-active-inactive-control",
+      "kind": "control",
+      "observed": {
+        "calls": [
+          "local",
+          "remote",
+          "local"
+        ],
+        "offlineInactive": "blocked"
+      }
+    },
+    {
+      "scenario": "route-three-profiles-control",
+      "kind": "control",
+      "observed": {
+        "calls": 3,
+        "normal": {
+          "downloaded": 3
+        }
+      }
+    },
+    {
+      "scenario": "route-existing-ids-changed-coordinates-skipped",
+      "kind": "defect-observed",
+      "observed": {
+        "calls": 0,
+        "moved": {
+          "downloaded": 0
+        }
+      }
+    },
+    {
+      "scenario": "route-equator-coordinate-zero-omitted",
+      "kind": "defect-observed",
+      "observed": {
+        "calls": 0,
+        "zero": {
+          "downloaded": 0
+        }
+      }
+    },
+    {
+      "scenario": "all-directions-fail-resolves-zero",
+      "kind": "defect-observed",
+      "observed": {
+        "calls": 3,
+        "failed": {
+          "downloaded": 0
+        }
+      }
+    },
+    {
+      "scenario": "failed-write-not-retried-next-push",
+      "kind": "defect-observed",
+      "observed": {
+        "pushesAfterTwoRuns": 1,
+        "queue": [
+          {
+            "id": "fixture-1",
+            "tableName": "schedules",
+            "recordId": "S",
+            "action": "UPDATE",
+            "payload": "{\"title\":\"unsent edit\"}",
+            "status": "FAILED",
+            "retryCount": 1,
+            "createdAt": "2026-09-13T09:00:00.000Z",
+            "updatedAt": "2026-09-13T09:00:00.000Z"
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "failed-unsent-edit-overwritten-by-pull",
+      "kind": "defect-observed",
+      "observed": {
+        "local": {
+          "id": "S",
+          "tripId": "A",
+          "userId": "U",
+          "title": "saved",
+          "location": "place",
+          "scheduledAt": "2026-10-01T01:00:00.000Z",
+          "latitude": "35",
+          "longitude": "139",
+          "deletedAt": null,
+          "version": 1
+        },
+        "retainedQueue": [
+          {
+            "id": "fixture-1",
+            "tableName": "schedules",
+            "recordId": "S",
+            "action": "UPDATE",
+            "payload": "{\"title\":\"unsent edit\"}",
+            "status": "FAILED",
+            "retryCount": 1,
+            "createdAt": "2026-09-13T09:00:00.000Z",
+            "updatedAt": "2026-09-13T09:00:00.000Z"
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "restart-with-in-progress-is-not-picked-up",
+      "kind": "defect-observed",
+      "observed": {
+        "additionalPushes": 0,
+        "status": "IN_PROGRESS"
+      }
+    },
+    {
+      "scenario": "map-ready-before-native-download-completion",
+      "kind": "defect-observed",
+      "observed": {
+        "percentage": 0,
+        "mapDownloaded": true
+      }
+    },
+    {
+      "scenario": "map-progress-ten-percent-still-ready",
+      "kind": "defect-observed",
+      "observed": {
+        "tripId": "A",
+        "isActivated": true,
+        "mapDownloaded": true,
+        "syncProgress": 10,
+        "updatedAt": "2026-09-13T09:18:08.168Z"
+      }
+    },
+    {
+      "scenario": "map-cleanup-leaves-ready-flag",
+      "kind": "defect-observed",
+      "observed": {
+        "nativePacks": 0,
+        "offlineCities": 0,
+        "mapDownloaded": true
+      }
+    },
+    {
+      "scenario": "cached-city-reused-without-checking-native-pack",
+      "kind": "defect-observed",
+      "observed": {
+        "nativeReadCalls": 0,
+        "nativePacks": 0,
+        "mapDownloaded": true
+      }
+    },
+    {
+      "scenario": "schedule-detail-show-on-map-button",
+      "kind": "defect-observed",
+      "observed": {
+        "routeCalls": 0,
+        "logs": [
+          [
+            "Show on map:",
+            "S"
+          ]
+        ]
+      }
+    },
+    {
+      "scenario": "schedule-detail-add-expense-link-control",
+      "kind": "control",
+      "observed": {
+        "route": "/create-expense?tripId=A&scheduleId=S&date=2026-10-01"
+      }
+    },
+    {
+      "scenario": "activation-error-drawer-still-says-wait",
+      "kind": "defect-observed",
+      "observed": {
+        "text": [
+          "오프라인 준비 중...",
+          "50% 완료",
+          "data",
+          "map",
+          "failed",
+          "잠시만 기다려주세요..."
+        ],
+        "footerButtons": 0,
+        "note": "native Drawer close gesture is not tested"
+      }
+    },
+    {
+      "scenario": "google-login-cancel-returns-idle-control",
+      "kind": "control",
+      "observed": {
+        "serverCalls": 0,
+        "logins": 0,
+        "disabled": false
+      }
+    },
+    {
+      "scenario": "google-login-success-calls-auth-store-control",
+      "kind": "control",
+      "observed": {
+        "serverCalls": 1,
+        "logins": 1
+      }
+    },
+    {
+      "scenario": "place-search-and-detail-contract-control",
+      "kind": "control",
+      "observed": [
+        {
+          "id": "P",
+          "name": "Cafe",
+          "address": "Tokyo",
+          "latitude": 35,
+          "longitude": 139,
+          "placeId": "P"
+        }
+      ]
+    },
+    {
+      "scenario": "place-details-failure-returns-selectable-zero-coordinates",
+      "kind": "defect-observed",
+      "observed": [
+        {
+          "id": "P",
+          "name": "Cafe",
+          "address": "Tokyo",
+          "latitude": 0,
+          "longitude": 0
+        }
+      ]
+    },
+    {
+      "scenario": "database-init-fails-but-app-ready-auth-not-initialized",
+      "kind": "defect-observed",
+      "observed": {
+        "authCalls": 0,
+        "ready": true
+      }
+    },
+    {
+      "scenario": "shorten-trip-range-hides-existing-schedule",
+      "kind": "defect-observed",
+      "observed": {
+        "storedSchedule": {
+          "id": "S",
+          "tripId": "A",
+          "userId": "U",
+          "title": "saved",
+          "location": "place",
+          "scheduledAt": "2026-10-01T01:00:00.000Z",
+          "latitude": "35",
+          "longitude": "139",
+          "deletedAt": null,
+          "version": 1
+        },
+        "renderedGroups": [
+          {
+            "date": "2026-10-02",
+            "dateLabel": "2026-10-02",
+            "schedules": []
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "outside-trip-range-expense-remains-visible-control",
+      "kind": "control",
+      "observed": {
+        "groups": [
+          {
+            "date": "2026-10-01",
+            "dateLabel": "2026-10-01",
+            "items": [
+              {
+                "id": "E",
+                "date": "2026-10-01T12:00:00.000Z"
+              }
+            ],
+            "isInTripRange": false
+          },
+          {
+            "date": "2026-10-02",
+            "dateLabel": "2026-10-02",
+            "items": [],
+            "isInTripRange": true
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "inactive-schedule-delete-blocked-before-api",
+      "kind": "defect-observed",
+      "observed": {
+        "remoteCalls": 0
+      }
+    },
+    {
+      "scenario": "inactive-expense-delete-and-linked-query-blocked-before-api",
+      "kind": "defect-observed",
+      "observed": {
+        "remoteCalls": 0
+      }
+    },
+    {
+      "scenario": "currency-independent-totals-control",
+      "kind": "control",
+      "observed": {
+        "totals": [
+          {
+            "currency": "JPY",
+            "amount": 3000
+          },
+          {
+            "currency": "USD",
+            "amount": 5.25
+          }
+        ],
+        "jpy": "JPY 3,000"
+      }
+    },
+    {
+      "scenario": "offline-create-policy-control",
+      "kind": "control",
+      "observed": {
+        "trip": {
+          "allowed": false,
+          "reason": "인터넷 연결이 필요합니다 (통화 및 도시 정보 설정)"
+        },
+        "schedule": {
+          "allowed": true,
+          "mode": "manual-only",
+          "reason": "장소 검색을 사용할 수 없어요. 직접 입력해주세요.",
+          "validation": {
+            "required": [
+              "title",
+              "scheduledAt"
+            ],
+            "optional": [
+              "location"
+            ],
+            "enforced": {
+              "latitude": null,
+              "longitude": null
+            }
+          }
+        },
+        "expense": {
+          "allowed": false,
+          "reason": "여행을 활성화해주세요"
+        }
+      }
+    },
+    {
+      "scenario": "location-permission-denied-control",
+      "kind": "control",
+      "observed": {
+        "requested": 0,
+        "moved": 0,
+        "alerts": [
+          [
+            "권한 필요",
+            "현재 위치를 확인하려면 위치 권한이 필요합니다."
+          ]
+        ],
+        "isLoading": false
+      }
+    },
+    {
+      "scenario": "date-roundtrip-Asia/Seoul",
+      "kind": "control",
+      "observed": {
+        "timezone": "Asia/Seoul",
+        "requested": "2026-09-13",
+        "storedSchedule": "2026-09-13T00:00:00.000Z",
+        "shownScheduleDate": "2026-09-13",
+        "storedDate": "2026-09-13T00:00:00.000Z",
+        "shownDate": "2026-09-13"
+      }
+    },
+    {
+      "scenario": "date-roundtrip-America/Los_Angeles",
+      "kind": "defect-observed",
+      "observed": {
+        "timezone": "America/Los_Angeles",
+        "requested": "2026-09-13",
+        "storedSchedule": "2026-09-12T16:00:00.000Z",
+        "shownScheduleDate": "2026-09-12",
+        "storedDate": "2026-09-13T00:00:00.000Z",
+        "shownDate": "2026-09-12"
+      }
+    },
+    {
+      "scenario": "date-roundtrip-UTC",
+      "kind": "control",
+      "observed": {
+        "timezone": "UTC",
+        "requested": "2026-09-13",
+        "storedSchedule": "2026-09-13T09:00:00.000Z",
+        "shownScheduleDate": "2026-09-13",
+        "storedDate": "2026-09-13T00:00:00.000Z",
+        "shownDate": "2026-09-13"
+      }
+    }
+  ]
+}
