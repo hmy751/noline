@@ -35,4 +35,6 @@
 
 - [서버 테스트 기반 구축과 Ticket 05 범위 확정](2026-09-13-02-server-test-setup.md): Node 20 호환 exact dependency·ESM mock·Express 계약 test의 실제 적용, 실행 결과·기존 typecheck 실패와 날짜 직렬화·schema·ownership 범위 확정.
 
+- [Schedule 직렬화와 응답 계약 적용](2026-09-14-01-schedule-serialization-and-response-contract.md): 일곱 Schedule 소비 경로의 변경 전 특성화, 공통 serializer 책임, response schema 중복·누락 정리, activation Expense 계약 보정과 검증 한계.
+
 후속 분석·결정·실행 기록은 이 디렉터리에 날짜별로 남긴다. 원문·변경하지 않은 snapshot은 [source](../source/index.md), 현재 기준과 진행은 [current](../current/memory/index.md)가 소유한다.

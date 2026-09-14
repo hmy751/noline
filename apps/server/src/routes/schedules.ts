@@ -3,8 +3,7 @@ import type { Request, Response } from 'express';
 import { db, schedules } from '../db/index.js';
 import { eq, and, sql, isNull } from 'drizzle-orm';
 import { createScheduleRequest, updateScheduleRequest } from '@repo/schema/requests/schedule';
-import { scheduleResponse, scheduleListResponse } from '@repo/schema/responses/schedule';
-import { scheduleEntity } from '@repo/schema/entities/schedule';
+import { deleteScheduleResponse, scheduleListResponse, scheduleResponse } from '@repo/schema/responses/schedule';
 import { requireAuth } from '../middleware/auth.js';
 import { serializeSchedule } from '../serializers/schedule.js';
 import { sendInternalError } from '../utils/http-errors.js';
@@ -79,20 +78,11 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
       .where(and(...conditions))
       .orderBy(schedules.scheduledAt);
 
-    // ISO string으로 변환 및 Entity 검증
-    const validatedSchedules = allSchedules.map((schedule) => {
-      const validated = scheduleEntity.safeParse(serializeSchedule(schedule));
+    // DB 표현을 API 표현으로 직렬화
+    const serializedSchedules = allSchedules.map(serializeSchedule);
 
-      if (!validated.success) {
-        console.error('Schedule validation error:', validated.error);
-        throw new Error('Invalid schedule data');
-      }
-
-      return validated.data;
-    });
-
-    // 정책: 전체 응답 구조 검증
-    const response = { success: true as const, data: validatedSchedules };
+    // Entity를 포함한 전체 응답 계약을 한 번에 검증
+    const response = { success: true as const, data: serializedSchedules };
     const validatedResponse = scheduleListResponse.safeParse(response);
 
     if (!validatedResponse.success) {
@@ -130,16 +120,8 @@ router.get('/:id', requireAuth, async (req: Request, res: Response) => {
       });
     }
 
-    // ISO string으로 변환 및 Entity 검증
-    const validated = scheduleEntity.safeParse(serializeSchedule(schedule));
-
-    if (!validated.success) {
-      console.error('Schedule validation error:', validated.error);
-      throw new Error('Invalid schedule data');
-    }
-
-    // 정책: 전체 응답 구조 검증
-    const response = { success: true as const, data: validated.data };
+    // DB 표현을 API 표현으로 직렬화한 뒤 전체 응답 계약을 한 번에 검증
+    const response = { success: true as const, data: serializeSchedule(schedule) };
     const validatedResponse = scheduleResponse.safeParse(response);
 
     if (!validatedResponse.success) {
@@ -269,14 +251,21 @@ router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
       .where(eq(schedules.id, scheduleId))
       .returning();
 
-    // 정책: 모든 API 응답은 { success, data } 구조를 따른다
-    res.status(200).json({
+    const response = {
       success: true,
       data: {
         id: deletedSchedule.id,
         deletedAt: deletedSchedule.deletedAt?.toISOString(),
       },
-    });
+    };
+    const validatedResponse = deleteScheduleResponse.safeParse(response);
+
+    if (!validatedResponse.success) {
+      console.error('Schedule delete response validation error:', validatedResponse.error);
+      throw new Error('Invalid schedule delete response data');
+    }
+
+    res.status(200).json(validatedResponse.data);
   } catch (error) {
     console.error('Error deleting schedule:', error);
     sendInternalError(res, 'Failed to delete schedule', error);

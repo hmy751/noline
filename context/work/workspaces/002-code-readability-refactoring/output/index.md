@@ -1,6 +1,6 @@
 # 현재 산출물
 
-이 Workspace에서 선택한 현재 산출물은 공통 Spec·Ticket 운영 기준, 완료된 01·02·04번 Ticket의 제품 코드와 Ticket 05의 서버 테스트 기반이다. 실제 파일은 Project의 canonical 위치에 유지한다. 산출물 연결은 전체 Work 완료나 제품 Verify 통과를 뜻하지 않으며 작업 정의와 현재 상황은 [현재 context](../current/memory/index.md)와 [state](../current/state/index.md)가 소유한다.
+이 Workspace에서 선택한 현재 산출물은 공통 Spec·Ticket 운영 기준, 완료된 01·02·04번 Ticket의 제품 코드와 Ticket 05의 서버 테스트 기반·Schedule 날짜 직렬화·response schema 적용 결과다. 실제 파일은 Project의 canonical 위치에 유지한다. 산출물 연결은 전체 Work 완료나 제품 Verify 통과를 뜻하지 않으며 작업 정의와 현재 상황은 [현재 context](../current/memory/index.md)와 [state](../current/state/index.md)가 소유한다.
 
 ## 공통 Spec·Ticket 운영 기준
 
@@ -48,14 +48,21 @@ Main은 사용자 요청에 따라 기록과 커밋을 마무리했다고 보고
 
 Main이 보고한 커밋은 `dce576f refactor(client): 경비 API 흐름 정리`이며 Ticket 04 관련 파일 다섯 개만 포함했다. 보고 시점의 작업 트리에는 별도 Ticket 05와 `output/index.md`의 다른 미커밋 변경이 남아 있었다. 이 커밋 내용과 Git 상태는 Maintain이 독립 확인하지 않았다.
 
-## 05 — 서버 테스트 기반
+## 05 — 서버 테스트 기반과 Schedule 응답 경계
 
 - [server package](../../../../../apps/server/package.json): Vitest·Vite·Supertest exact dependency와 일회·watch test 명령을 소유한다.
 - [Vitest 설정](../../../../../apps/server/vitest.config.ts): Node test 환경, server test 검색 범위와 test-only 환경변수를 정의한다.
 - [서버 앱 smoke 테스트](../../../../../apps/server/tests/app.smoke.test.ts): exported Express app과 `/api/health`의 기본 연결을 검사한다.
-- [Schedule API 응답 계약 테스트](../../../../../apps/server/tests/routes/schedules.response-contract.test.ts): Schedule 목록의 status·응답 구조·날짜 JSON을 검사한다.
+- [Schedule API 응답 계약 테스트](../../../../../apps/server/tests/routes/schedules.response-contract.test.ts): 생성·목록·단건·수정·Trip 하위 목록·activation·sync pull의 status·응답 구조·날짜 JSON을 비교한다.
+- [Schedule serializer](../../../../../apps/server/src/serializers/schedule.ts): DB Schedule row의 네 날짜를 API ISO 문자열 또는 null로 바꾸는 순수 변환을 소유한다.
+- [Schedule serializer 단위 테스트](../../../../../apps/server/tests/serializers/schedule.test.ts): 필수 날짜와 nullable `deletedAt` 변환을 검사한다.
+- [Schedule route](../../../../../apps/server/src/routes/schedules.ts), [Trip route](../../../../../apps/server/src/routes/trips.ts), [Sync route](../../../../../apps/server/src/routes/sync.ts): 일곱 Schedule 응답 소비 지점에서 같은 serializer를 사용한다.
 - [공용 테스트 app 준비](../../../../../apps/server/tests/support/test-app.ts): 실제 app import 전에 DB·auth ESM module을 대체하고 route별 fixture와 DB 호출 기록을 제공한다.
 
 Node 20.18.1에서 2개 file의 2개 test와 server build가 통과했다. 실제 PostgreSQL·JWT·배포 process는 검사하지 않았고 기존 `places.ts:138` 타입 오류 때문에 server 전체 typecheck는 실패했다. 이 기반은 Ticket 05의 제품 결과가 아니라 이후 날짜 직렬화·schema·ownership 변경을 비교할 첫 산출물이다. 정확한 구성과 한계는 [구축 기록](../records/2026-09-13-02-server-test-setup.md)이 소유한다.
 
 사용자 요청에 따라 이 서버 테스트 기반과 Ticket 05의 현재 계약·관련 기록은 `fe5722a test(server): add schedule API contract foundation`으로 커밋됐다. read-only 조회에서 전체 해시 `fe5722a0da4dc8234827d5e0da6dee9375c43298`, 부모 `70155641b2bda13df6b905b58ebbe414fa5ee0ed`와 보고된 15개 파일의 포함을 확인했다. Node 20.18.1의 2개 테스트와 `git diff --check` 통과는 Main의 보고이며 Maintain은 재실행하지 않았다. Main은 이 커밋의 staging 잔여는 없지만 관련 없는 별도 변경 때문에 전체 작업 트리는 clean하지 않다고 보고했다.
+
+사용자 요청에 따라 Schedule 날짜 직렬화 공통화와 관련 test·Workspace 현재 문서는 `7dd2521 refactor(server): centralize schedule serialization`으로 커밋됐다. read-only Git 조회에서 전체 해시 `7dd25211d18bcb100850295670e566c432f64da8`, 부모 `fe5722a0da4dc8234827d5e0da6dee9375c43298`과 `schedules.ts`, `trips.ts`, `sync.ts`, 새 serializer, 3개 test file 및 Ticket·state·output 포함을 확인했다. 3개 test file의 10개 test와 server build 통과는 Main의 보고이며 Maintain은 재실행하지 않았다. response schema 적용과 ownership·soft-delete는 다음 단계로 남고, 이 커밋만으로 Ticket 05 전체 완료나 사용자 acceptance가 되지는 않는다.
+
+후속 response schema 단계에서는 세 Schedule GET 경로의 중간 `scheduleEntity` 검증을 제거하고 바깥 `scheduleResponse` 또는 `scheduleListResponse`가 entity를 포함한 전체 응답을 한 번 검사하게 했다. Schedule DELETE에는 `deleteScheduleResponse`, Trip activation에는 `activateTripResponse`를 연결했다. activation Expense의 `date`와 `hasReceipt`도 현재 공유 계약에 맞는 날짜 문자열과 boolean으로 보정했다. 변경 전 세 실패 사례와 수정 후 server test 3개 파일의 13개 test, server build와 diff 검사는 [실행 기록](../records/2026-09-14-01-schedule-serialization-and-response-contract.md)에 정리돼 있다.

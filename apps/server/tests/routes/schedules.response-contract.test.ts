@@ -1,4 +1,6 @@
 import type { Application } from 'express';
+import { deleteScheduleResponse } from '@repo/schema/responses/schedule';
+import { activateTripResponse } from '@repo/schema/responses/trip';
 import request from 'supertest';
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import {
@@ -15,7 +17,9 @@ import {
 
 const TRIP_ID = '01ARZ3NDEKTSV4RRFFQ69G5FAC';
 const SCHEDULE_ID = '01ARZ3NDEKTSV4RRFFQ69G5FAB';
+const EXPENSE_ID = '01ARZ3NDEKTSV4RRFFQ69G5FAD';
 const SCHEDULED_AT = '2026-09-20T01:30:00.000Z';
+const EXPENSE_DATE = '2026-09-20';
 const CREATED_AT = '2026-09-13T02:00:00.000Z';
 const UPDATED_AT = '2026-09-13T03:00:00.000Z';
 
@@ -59,6 +63,33 @@ const tripRow = {
   updatedAt: new Date(UPDATED_AT),
   deletedAt: null,
   version: 1,
+};
+
+const expenseRow = {
+  id: EXPENSE_ID,
+  userId: TEST_USER_ID,
+  tripId: TRIP_ID,
+  scheduleId: SCHEDULE_ID,
+  title: 'Lunch',
+  amount: '12000.00',
+  currency: 'KRW',
+  category: 'food',
+  date: new Date(`${EXPENSE_DATE}T00:00:00.000Z`),
+  hasReceipt: 1,
+  receiptUrl: null,
+  createdAt: new Date(CREATED_AT),
+  updatedAt: new Date(UPDATED_AT),
+  deletedAt: null,
+  version: 1,
+};
+
+const serializedExpense = {
+  ...expenseRow,
+  date: EXPENSE_DATE,
+  hasReceipt: true,
+  createdAt: CREATED_AT,
+  updatedAt: UPDATED_AT,
+  deletedAt: null,
 };
 
 let app: Application;
@@ -127,6 +158,30 @@ describe('Schedule 기본 API 응답 계약', () => {
     expect(dbSelectMock).toHaveBeenCalledOnce();
     expect(dbUpdateMock).toHaveBeenCalledOnce();
   });
+
+  it('삭제된 Schedule을 삭제 응답 계약으로 반환한다', async () => {
+    const deletedAt = new Date('2026-09-13T04:00:00.000Z');
+    setSelectResults([scheduleRow]);
+    setUpdateResult([{ ...scheduleRow, deletedAt }]);
+
+    const response = await request(app).delete(`/api/schedules/${SCHEDULE_ID}`).expect(200);
+
+    expect(response.body).toEqual({
+      success: true,
+      data: {
+        id: SCHEDULE_ID,
+        deletedAt: deletedAt.toISOString(),
+      },
+    });
+    expect(deleteScheduleResponse.safeParse(response.body).success).toBe(true);
+  });
+
+  it('계약에 맞지 않는 Schedule 삭제 결과를 성공 응답으로 노출하지 않는다', async () => {
+    setSelectResults([scheduleRow]);
+    setUpdateResult([{ ...scheduleRow, id: 'invalid-id', deletedAt: null }]);
+
+    await request(app).delete(`/api/schedules/${SCHEDULE_ID}`).expect(500);
+  });
 });
 
 describe('Schedule을 포함하는 연관 API 응답 계약', () => {
@@ -139,18 +194,37 @@ describe('Schedule을 포함하는 연관 API 응답 계약', () => {
     expect(dbSelectMock).toHaveBeenCalledOnce();
   });
 
-  it('Trip 활성화 응답에 포함된 Schedule 날짜를 ISO 문자열로 반환한다', async () => {
-    setSelectResults([tripRow], [tripRow], [scheduleRow], []);
+  it('Trip 활성화 응답 전체를 선언된 데이터 계약에 맞게 반환한다', async () => {
+    setSelectResults([tripRow], [tripRow], [scheduleRow], [expenseRow]);
 
     const response = await request(app).post(`/api/trips/${TRIP_ID}/activate`).expect(200);
 
-    expect(response.body).toMatchObject({
+    expect(response.body).toEqual({
       success: true,
       data: {
+        trips: [
+          {
+            ...tripRow,
+            startDate: tripRow.startDate.toISOString(),
+            endDate: tripRow.endDate.toISOString(),
+            createdAt: CREATED_AT,
+            updatedAt: UPDATED_AT,
+            deletedAt: null,
+          },
+        ],
         schedules: [serializedSchedule],
+        expenses: [serializedExpense],
       },
+      message: 'Trip activated successfully (1 trips, 1 schedules, 1 expenses)',
     });
+    expect(activateTripResponse.safeParse(response.body).success).toBe(true);
     expect(dbSelectMock).toHaveBeenCalledTimes(4);
+  });
+
+  it('계약에 맞지 않는 Trip 활성화 결과를 성공 응답으로 노출하지 않는다', async () => {
+    setSelectResults([tripRow], [tripRow], [{ ...scheduleRow, id: 'invalid-id' }], []);
+
+    await request(app).post(`/api/trips/${TRIP_ID}/activate`).expect(500);
   });
 
   it('Sync pull 응답에 포함된 삭제 Schedule 날짜도 ISO 문자열로 반환한다', async () => {

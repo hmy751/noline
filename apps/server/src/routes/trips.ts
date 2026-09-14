@@ -4,8 +4,7 @@ import { db, trips, schedules, expenses } from '../db/index.js';
 import { desc, sql, eq, and, isNull } from 'drizzle-orm';
 import { createTripRequest, updateTripRequest } from '@repo/schema/requests/trip';
 import { tripEntity } from '@repo/schema/entities/trip';
-import { tripResponse, tripListResponse } from '@repo/schema/responses/trip';
-import { scheduleEntity } from '@repo/schema/entities/schedule';
+import { activateTripResponse, tripListResponse, tripResponse } from '@repo/schema/responses/trip';
 import { scheduleListResponse } from '@repo/schema/responses/schedule';
 import { requireAuth } from '../middleware/auth.js';
 import { serializeSchedule } from '../serializers/schedule.js';
@@ -335,20 +334,11 @@ router.get('/:tripId/schedules', requireAuth, async (req: Request, res: Response
       .where(eq(schedules.tripId, tripId))
       .orderBy(schedules.scheduledAt);
 
-    // ISO string으로 변환 및 Entity 검증
-    const validatedSchedules = allSchedules.map((schedule) => {
-      const validated = scheduleEntity.safeParse(serializeSchedule(schedule));
+    // DB 표현을 API 표현으로 직렬화
+    const serializedSchedules = allSchedules.map(serializeSchedule);
 
-      if (!validated.success) {
-        console.error('Schedule validation error:', validated.error);
-        throw new Error('Invalid schedule data');
-      }
-
-      return validated.data;
-    });
-
-    // 정책: 전체 응답 구조 검증
-    const response = { success: true as const, data: validatedSchedules };
+    // Entity를 포함한 전체 응답 계약을 한 번에 검증
+    const response = { success: true as const, data: serializedSchedules };
     const validatedResponse = scheduleListResponse.safeParse(response);
 
     if (!validatedResponse.success) {
@@ -433,8 +423,8 @@ router.post('/:id/activate', requireAuth, async (req: Request, res: Response) =>
       .from(expenses)
       .where(and(eq(expenses.tripId, tripId), isNull(expenses.deletedAt)));
 
-    // ISO string으로 변환
-    const validatedTrips = allTrips.map((t) => ({
+    // DB 표현을 API 표현으로 직렬화
+    const serializedTrips = allTrips.map((t) => ({
       ...t,
       startDate: t.startDate.toISOString(),
       endDate: t.endDate.toISOString(),
@@ -442,24 +432,34 @@ router.post('/:id/activate', requireAuth, async (req: Request, res: Response) =>
       updatedAt: t.updatedAt.toISOString(),
     }));
 
-    const validatedSchedules = tripSchedules.map(serializeSchedule);
+    const serializedSchedules = tripSchedules.map(serializeSchedule);
 
-    const validatedExpenses = tripExpenses.map((expense) => ({
+    const serializedExpenses = tripExpenses.map((expense) => ({
       ...expense,
+      date: expense.date.toISOString().split('T')[0],
+      hasReceipt: expense.hasReceipt === 1,
       createdAt: expense.createdAt.toISOString(),
       updatedAt: expense.updatedAt.toISOString(),
-      deletedAt: expense.deletedAt?.toISOString() || null,
+      deletedAt: expense.deletedAt?.toISOString() ?? null,
     }));
 
-    res.status(200).json({
+    const response = {
       success: true,
       data: {
-        trips: validatedTrips,
-        schedules: validatedSchedules,
-        expenses: validatedExpenses,
+        trips: serializedTrips,
+        schedules: serializedSchedules,
+        expenses: serializedExpenses,
       },
-      message: `Trip activated successfully (${validatedTrips.length} trips, ${validatedSchedules.length} schedules, ${validatedExpenses.length} expenses)`,
-    });
+      message: `Trip activated successfully (${serializedTrips.length} trips, ${serializedSchedules.length} schedules, ${serializedExpenses.length} expenses)`,
+    };
+    const validatedResponse = activateTripResponse.safeParse(response);
+
+    if (!validatedResponse.success) {
+      console.error('Trip activation response validation error:', validatedResponse.error);
+      throw new Error('Invalid trip activation response data');
+    }
+
+    res.status(200).json(validatedResponse.data);
   } catch (error) {
     console.error('Error activating trip:', error);
     sendInternalError(res, 'Failed to activate trip', error);

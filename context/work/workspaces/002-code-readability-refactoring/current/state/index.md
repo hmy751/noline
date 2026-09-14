@@ -18,13 +18,15 @@ fresh-session 검토 뒤 사용자는 발견된 간격을 개별 Ticket 구성�
 
 [03번 Ticket](../memory/tickets/03-storage-stats.md)은 구현 결과를 보존하고 있으나 사용자의 최종 수락 전이다.
 
-[05번 Ticket](../memory/tickets/05-schedule-response.md)은 서버 검사 기반과 1번 Schedule 날짜 직렬화 공통화를 마치고 2번 response schema 적용으로 진행하는 단계다. 테스트 기반은 `fe5722a test(server): add schedule API contract foundation`으로 커밋됐으며, 현재 날짜 직렬화 변경은 아직 커밋되지 않았다.
+[05번 Ticket](../memory/tickets/05-schedule-response.md)은 서버 검사 기반과 1번 Schedule 날짜 직렬화 공통화를 커밋했고, 2번 response schema 적용을 구현한 뒤 결과를 구체화하는 단계다. 테스트 기반은 `fe5722a test(server): add schedule API contract foundation`, 날짜 직렬화 공통화는 `7dd2521 refactor(server): centralize schedule serialization`으로 커밋됐으며 2번 변경은 아직 커밋되지 않았다.
 
-Main은 제품 변경 전에 생성·목록·단건·수정·Trip 하위 목록·activation·sync pull의 일곱 응답 경로를 특성화한 뒤 `serializeSchedule`을 도입해 네 날짜 변환을 일곱 소비 지점 모두에서 교체했다고 보고했다. 공통화 전후 같은 route 계약 검사가 통과했고 serializer 단위 검사 2개를 포함해 3개 file의 10개 test, server build와 `git diff --check`가 통과했다. response schema 적용과 ownership·soft-delete query는 이 단계에서 변경하지 않았으며, 기존 `places.ts:138` 타입 오류 때문에 server 전체 typecheck는 계속 실패한다.
+Main은 제품 변경 전에 생성·목록·단건·수정·Trip 하위 목록·activation·sync pull의 일곱 응답 경로를 특성화한 뒤 `serializeSchedule`을 도입해 네 날짜 변환을 일곱 소비 지점 모두에서 교체했다고 보고했다. 공통화 전후 같은 route 계약 검사가 통과했고 serializer 단위 검사 2개를 포함해 3개 file의 10개 test, server build와 `git diff --check`가 통과했다.
 
-Schedule 주변에서 논의한 1–5는 Workspace Ticket 번호가 아니라 날짜 직렬화, response schema 적용, ownership·soft-delete, 오류 처리, 서버 테스트 기반의 다섯 책임 후보다. 사용자는 1–3을 Ticket 05에서 모두 처리하고 5를 먼저 수행하기로 확정했다. 5와 1은 구현됐고, 날짜 변환·schema 판정·접근 query는 서로 다른 책임으로 유지한다. 서버 error envelope부터 client 오류 변환과 UI 표시까지 이어지는 4의 공통화는 이번 Ticket에서 제외한다.
+2번에서는 먼저 DELETE 계약 실패, activation Expense 표현과 잘못된 activation Schedule을 드러내는 검사를 추가했으며 제품 수정 전 총 3개 검사가 실패했다고 Main이 보고했다. 이어 세 Schedule GET 경로의 중복 entity 검증을 제거하고 바깥 response schema만 사용하게 했으며, DELETE에 `deleteScheduleResponse`, activation 전체에 `activateTripResponse`를 연결했다. activation Expense는 현재 계약에 필요한 날짜 문자열과 receipt boolean만 endpoint 안에서 변환했고 전체 Trip·Expense serializer로 범위를 넓히지 않았다. 수정 후 server test 3개 파일의 13개 test, server `tsup` build와 `git diff --check`가 통과했다고 Main이 보고했다. 기존 `places.ts:138` 타입 오류 때문에 server 전체 typecheck는 계속 실패하며, Maintain은 이 검사들을 재실행하지 않았다.
 
-다음 실행은 2번 response schema 적용 누락을 특성화하고 endpoint별 바깥 응답 schema를 일관되게 적용하는 것이다. 그 뒤 3번 ownership·soft-delete의 기대 동작과 다른 사용자·삭제 데이터 차단 사례를 확정하고, 실제 PostgreSQL query 의미를 격리된 통합 검사로 입증한다. 부모 Trip 미존재와 타 사용자 소유를 동일한 404로 처리할지는 아직 사용자 결정이 필요하다.
+Schedule 주변에서 논의한 1–5는 Workspace Ticket 번호가 아니라 날짜 직렬화, response schema 적용, ownership·soft-delete, 오류 처리, 서버 테스트 기반의 다섯 책임 후보다. 사용자는 1–3을 Ticket 05에서 모두 처리하고 5를 먼저 수행하기로 확정했다. 5와 1은 커밋됐고 2는 구현됐으며, 날짜 변환·schema 판정·접근 query는 서로 다른 책임으로 유지한다. 서버 error envelope부터 client 오류 변환과 UI 표시까지 이어지는 4의 공통화는 이번 Ticket에서 제외한다.
+
+사용자는 2번 결과와 관련 기록을 커밋한 뒤 3번 ownership·soft-delete 전에 Trip·Expense 직렬화 책임을 더 다듬기로 했다. 다음 실행은 실제 Trip·Expense 응답 소비 지점과 반복 변환·schema 적용 상태를 대조해 activation의 현재 계약 보정과 전체 serializer 공통화 범위를 구별하는 것이다. 그 결과를 확정한 뒤 3번의 다른 사용자·삭제 데이터 차단 사례와 격리된 PostgreSQL 통합 검사로 진행한다. 부모 Trip 미존재와 타 사용자 소유를 동일한 404로 처리할지는 아직 사용자 결정이 필요하다.
 
 서버 설정에서는 별도 확인 후보가 생겼다. Main은 `tsup` 단일 번들 뒤 환경 파일 상대 경로가 실제 `apps/server/.env.production`이 아니라 `apps/.env.production`을 가리킨다고 재구성했고, 외부 환경변수 주입이 없다면 시작 검사에서 종료될 가능성이 있다고 보고했다. 실제 프로덕션 프로세스는 기동하지 않았다. Node 버전 강제, 내부 import 확장자 혼합과 개발용 PostgreSQL만 제공하는 Docker 구성도 테스트 기반과 배포 조건을 정할 때 확인해야 하며, 이를 Ticket 05의 날짜 직렬화 수정으로 함께 처리하지 않는다.
 
