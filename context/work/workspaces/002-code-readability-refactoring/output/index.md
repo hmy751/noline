@@ -66,3 +66,15 @@ Node 20.18.1에서 2개 file의 2개 test와 server build가 통과했다. 실�
 사용자 요청에 따라 Schedule 날짜 직렬화 공통화와 관련 test·Workspace 현재 문서는 `7dd2521 refactor(server): centralize schedule serialization`으로 커밋됐다. read-only Git 조회에서 전체 해시 `7dd25211d18bcb100850295670e566c432f64da8`, 부모 `fe5722a0da4dc8234827d5e0da6dee9375c43298`과 `schedules.ts`, `trips.ts`, `sync.ts`, 새 serializer, 3개 test file 및 Ticket·state·output 포함을 확인했다. 3개 test file의 10개 test와 server build 통과는 Main의 보고이며 Maintain은 재실행하지 않았다. response schema 적용과 ownership·soft-delete는 다음 단계로 남고, 이 커밋만으로 Ticket 05 전체 완료나 사용자 acceptance가 되지는 않는다.
 
 후속 response schema 단계에서는 세 Schedule GET 경로의 중간 `scheduleEntity` 검증을 제거하고 바깥 `scheduleResponse` 또는 `scheduleListResponse`가 entity를 포함한 전체 응답을 한 번 검사하게 했다. Schedule DELETE에는 `deleteScheduleResponse`, Trip activation에는 `activateTripResponse`를 연결했다. activation Expense의 `date`와 `hasReceipt`도 현재 공유 계약에 맞는 날짜 문자열과 boolean으로 보정했다. 변경 전 세 실패 사례와 수정 후 server test 3개 파일의 13개 test, server build와 diff 검사는 [실행 기록](../records/2026-09-14-01-schedule-serialization-and-response-contract.md)에 정리돼 있다.
+
+이 response schema 변경과 관련 기록은 `9d48b95 refactor(server): enforce schedule response contracts`로 커밋됐다. 이 저장 경계는 Ticket 05의 3번 ownership·soft-delete 완료를 뜻하지 않는다.
+
+## 16 — Trip·Expense 직렬화 선행 조각
+
+- [Trip serializer](../../../../../apps/server/src/serializers/trip.ts): Trip DB row의 다섯 시간 값을 API ISO datetime 또는 null로 변환한다.
+- [Expense serializer](../../../../../apps/server/src/serializers/expense.ts): Expense DB row의 날짜·receipt boolean·세 시간 값을 API entity 표현으로 변환한다.
+- [Trip route](../../../../../apps/server/src/routes/trips.ts), [Expense route](../../../../../apps/server/src/routes/expenses.ts), [Sync route](../../../../../apps/server/src/routes/sync.ts): Trip 다섯 곳과 Expense 여섯 곳에서 같은 entity serializer를 사용한다.
+- [Trip route 계약 검사](../../../../../apps/server/tests/routes/trips.response-contract.test.ts), [Expense route 계약 검사](../../../../../apps/server/tests/routes/expenses.response-contract.test.ts), [Sync 계약 검사](../../../../../apps/server/tests/routes/sync.response-contract.test.ts): 공통화 전후 CRUD·sync 응답의 기존 표현을 비교한다.
+- [Trip serializer 단위 검사](../../../../../apps/server/tests/serializers/trip.test.ts), [Expense serializer 단위 검사](../../../../../apps/server/tests/serializers/expense.test.ts): 각 변환과 null·false 경계를 직접 검사한다.
+
+이 결과는 사용자가 Ticket 05의 3번보다 먼저 실행하도록 선택한 Ticket 16의 좁은 조각이다. response schema 중복, request·update 계약, 오류와 ownership은 완료하지 않았다. 최종 server test 8개 파일의 25개 test, build와 정적 형식 검사의 상세·한계는 [실행 기록](../records/2026-09-14-02-trip-expense-serialization.md)이 소유한다.

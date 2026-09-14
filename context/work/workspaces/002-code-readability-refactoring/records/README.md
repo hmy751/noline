@@ -37,4 +37,6 @@
 
 - [Schedule 직렬화와 응답 계약 적용](2026-09-14-01-schedule-serialization-and-response-contract.md): 일곱 Schedule 소비 경로의 변경 전 특성화, 공통 serializer 책임, response schema 중복·누락 정리, activation Expense 계약 보정과 검증 한계.
 
+- [Trip·Expense 직렬화 책임 분리](2026-09-14-02-trip-expense-serialization.md): Ticket 16에서 선행한 좁은 변환 조각, Trip 다섯 곳·Expense 여섯 곳의 공통 serializer 적용, 변경 전후 검사와 남은 response·ownership 경계.
+
 후속 분석·결정·실행 기록은 이 디렉터리에 날짜별로 남긴다. 원문·변경하지 않은 snapshot은 [source](../source/index.md), 현재 기준과 진행은 [current](../current/memory/index.md)가 소유한다.

@@ -9,7 +9,9 @@ import {
   syncPushResponseSchema,
 } from '@repo/schema/sync/sync-status';
 import { requireAuth } from '../middleware/auth.js';
+import { serializeExpense } from '../serializers/expense.js';
 import { serializeSchedule } from '../serializers/schedule.js';
+import { serializeTrip } from '../serializers/trip.js';
 
 const router = Router();
 
@@ -97,24 +99,11 @@ router.get('/pull', requireAuth, async (req: Request, res: Response) => {
     });
 
     // ✅ Date 객체를 ISO string으로 변환
-    const tripsFormatted = tripsData.map((trip) => ({
-      ...trip,
-      startDate: trip.startDate.toISOString(),
-      endDate: trip.endDate.toISOString(),
-      createdAt: trip.createdAt.toISOString(),
-      updatedAt: trip.updatedAt.toISOString(),
-    }));
+    const tripsFormatted = tripsData.map(serializeTrip);
 
     const schedulesFormatted = schedulesData.map(serializeSchedule);
 
-    const expensesFormatted = expensesData.map((expense) => ({
-      ...expense,
-      hasReceipt: expense.hasReceipt === 1, // integer → boolean
-      date: expense.date.toISOString().split('T')[0], // Date → ISO date string
-      createdAt: expense.createdAt.toISOString(),
-      updatedAt: expense.updatedAt.toISOString(),
-      deletedAt: expense.deletedAt?.toISOString() || null,
-    }));
+    const expensesFormatted = expensesData.map(serializeExpense);
 
     // 서버 시간 반환 (다음 동기화의 기준점)
     const serverTime = new Date().toISOString();

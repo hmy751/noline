@@ -6,6 +6,7 @@ import { createExpenseRequest, updateExpenseRequest } from '@repo/schema/request
 import { expenseEntity } from '@repo/schema/entities/expense';
 import { expenseListResponse, expenseResponse } from '@repo/schema/responses/expense';
 import { requireAuth } from '../middleware/auth.js';
+import { serializeExpense } from '../serializers/expense.js';
 import { sendInternalError } from '../utils/http-errors.js';
 
 const router = Router();
@@ -36,14 +37,7 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
 
     // Zod로 응답 데이터 검증
     const validatedExpenses = expenseList.map((expense) => {
-      const validated = expenseEntity.safeParse({
-        ...expense,
-        hasReceipt: expense.hasReceipt === 1,
-        date: expense.date.toISOString().split('T')[0],
-        createdAt: expense.createdAt.toISOString(),
-        updatedAt: expense.updatedAt.toISOString(),
-        deletedAt: expense.deletedAt?.toISOString() || null,
-      });
+      const validated = expenseEntity.safeParse(serializeExpense(expense));
 
       if (!validated.success) {
         console.error('Expense validation error:', validated.error);
@@ -108,14 +102,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
       .returning();
 
     // Zod로 응답 데이터 검증
-    const validated = expenseEntity.safeParse({
-      ...newExpense,
-      hasReceipt: newExpense.hasReceipt === 1, // integer → boolean
-      date: newExpense.date.toISOString().split('T')[0], // Date → ISO date string
-      createdAt: newExpense.createdAt.toISOString(),
-      updatedAt: newExpense.updatedAt.toISOString(),
-      deletedAt: newExpense.deletedAt?.toISOString() || null,
-    });
+    const validated = expenseEntity.safeParse(serializeExpense(newExpense));
 
     if (!validated.success) {
       console.error('Expense validation error:', validated.error);
@@ -153,14 +140,7 @@ router.get('/:id', requireAuth, async (req: Request, res: Response) => {
     }
 
     // Zod로 응답 데이터 검증
-    const validated = expenseEntity.safeParse({
-      ...expense,
-      hasReceipt: expense.hasReceipt === 1, // integer → boolean
-      date: expense.date.toISOString().split('T')[0], // Date → ISO date string
-      createdAt: expense.createdAt.toISOString(),
-      updatedAt: expense.updatedAt.toISOString(),
-      deletedAt: expense.deletedAt?.toISOString() || null,
-    });
+    const validated = expenseEntity.safeParse(serializeExpense(expense));
 
     if (!validated.success) {
       console.error('Expense validation error:', validated.error);
@@ -232,14 +212,7 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
     }
 
     // Zod로 응답 데이터 검증
-    const validated = expenseEntity.safeParse({
-      ...updatedExpense,
-      hasReceipt: updatedExpense.hasReceipt === 1,
-      date: updatedExpense.date.toISOString().split('T')[0],
-      createdAt: updatedExpense.createdAt.toISOString(),
-      updatedAt: updatedExpense.updatedAt.toISOString(),
-      deletedAt: updatedExpense.deletedAt?.toISOString() || null,
-    });
+    const validated = expenseEntity.safeParse(serializeExpense(updatedExpense));
 
     if (!validated.success) {
       console.error('Expense validation error:', validated.error);

@@ -7,7 +7,9 @@ import { tripEntity } from '@repo/schema/entities/trip';
 import { activateTripResponse, tripListResponse, tripResponse } from '@repo/schema/responses/trip';
 import { scheduleListResponse } from '@repo/schema/responses/schedule';
 import { requireAuth } from '../middleware/auth.js';
+import { serializeExpense } from '../serializers/expense.js';
 import { serializeSchedule } from '../serializers/schedule.js';
+import { serializeTrip } from '../serializers/trip.js';
 import { sendInternalError } from '../utils/http-errors.js';
 
 const router = Router();
@@ -47,13 +49,7 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
 
     // Zod로 응답 데이터 검증
     const validatedTrips = allTrips.map((trip) => {
-      const validated = tripEntity.safeParse({
-        ...trip,
-        startDate: trip.startDate.toISOString(),
-        endDate: trip.endDate.toISOString(),
-        createdAt: trip.createdAt.toISOString(),
-        updatedAt: trip.updatedAt.toISOString(),
-      });
+      const validated = tripEntity.safeParse(serializeTrip(trip));
 
       if (!validated.success) {
         console.error('Trip validation error:', validated.error);
@@ -138,13 +134,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
     // Zod로 응답 데이터 검증
     const validatedTrip = tripResponse.safeParse({
       success: true,
-      data: {
-        ...newTrip,
-        startDate: newTrip.startDate.toISOString(),
-        endDate: newTrip.endDate.toISOString(),
-        createdAt: newTrip.createdAt.toISOString(),
-        updatedAt: newTrip.updatedAt.toISOString(),
-      },
+      data: serializeTrip(newTrip),
     });
 
     if (!validatedTrip.success) {
@@ -256,13 +246,7 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
     // Zod로 응답 데이터 검증
     const validatedTrip = tripResponse.safeParse({
       success: true,
-      data: {
-        ...updatedTrip,
-        startDate: updatedTrip.startDate.toISOString(),
-        endDate: updatedTrip.endDate.toISOString(),
-        createdAt: updatedTrip.createdAt.toISOString(),
-        updatedAt: updatedTrip.updatedAt.toISOString(),
-      },
+      data: serializeTrip(updatedTrip),
     });
 
     if (!validatedTrip.success) {
@@ -424,24 +408,11 @@ router.post('/:id/activate', requireAuth, async (req: Request, res: Response) =>
       .where(and(eq(expenses.tripId, tripId), isNull(expenses.deletedAt)));
 
     // DB 표현을 API 표현으로 직렬화
-    const serializedTrips = allTrips.map((t) => ({
-      ...t,
-      startDate: t.startDate.toISOString(),
-      endDate: t.endDate.toISOString(),
-      createdAt: t.createdAt.toISOString(),
-      updatedAt: t.updatedAt.toISOString(),
-    }));
+    const serializedTrips = allTrips.map(serializeTrip);
 
     const serializedSchedules = tripSchedules.map(serializeSchedule);
 
-    const serializedExpenses = tripExpenses.map((expense) => ({
-      ...expense,
-      date: expense.date.toISOString().split('T')[0],
-      hasReceipt: expense.hasReceipt === 1,
-      createdAt: expense.createdAt.toISOString(),
-      updatedAt: expense.updatedAt.toISOString(),
-      deletedAt: expense.deletedAt?.toISOString() ?? null,
-    }));
+    const serializedExpenses = tripExpenses.map(serializeExpense);
 
     const response = {
       success: true,

@@ -22,4 +22,8 @@ method·허용 필드·ownership은 공개 동작과 보안에 영향을 줄 수
 
 ## 현재 상태와 실제 결과
 
-Ticket 문서만 구성했고 server 제품 코드·test·설정은 변경하지 않았다. 공개 계약·ownership은 정적 코드상 동작 확인 후보로 미배정이며, 실행 가능한 server 검증 방식과 재현된 차이의 조건부 책임 배치가 선행한다. 05의 문서·구현·상태는 그대로다.
+사용자는 Ticket 05의 3번 ownership·soft-delete 전에 이 Ticket의 DB row → API entity 직렬화 조각을 먼저 다듬기로 했다. Main은 Trip 변환 다섯 소비 지점과 Expense 변환 여섯 소비 지점을 확인하고, 각각 `serializeTrip`, `serializeExpense`로 수렴시켰다. Schedule은 기존 `serializeSchedule`을 유지하고 activation과 sync가 세 entity serializer를 조합한다.
+
+공통화 전 Trip·Expense CRUD와 sync pull의 route 특성화 검사 8개가 통과했다. serializer 단위 검사는 구현 전 module 부재로 실패한 뒤 구현 후 통과했으며, 최종 server test 8개 파일의 25개 test, server build, 변경 파일 Prettier와 `git diff --check`가 통과했다. server 전체 typecheck에는 기존 `places.ts:138` 오류가 남았다. 상세 범위와 한계는 [실행 기록](../../../records/2026-09-14-02-trip-expense-serialization.md)에 있다.
+
+이번 선행 조각은 변환 책임만 맡는다. Trip·Expense의 중복 entity/response parse, 누락된 response schema, request·update 계약, 오류 전달, ownership·soft-delete와 sync schema는 변경하지 않았다. 따라서 이 결과만으로 Ticket 16을 완료하거나 공개 계약·접근 경계를 검증했다고 판단하지 않는다.
