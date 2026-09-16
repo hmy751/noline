@@ -16,3 +16,5 @@
 Ticket 경계와 진행 방식의 채택 원문·정정 경위는 [합의 기록](../../records/2026-09-11-01-ticket-boundary-agreement.md)에 있다. 실행 기준은 Spec의 제약·현재 설계·가정, 전체 분석 관점의 검토 기준은 품질·완료 판단에서 읽는다.
 
 원문과 상세 재현 근거는 [source](../../source/index.md), 분석·합의·구성 검토는 [records](../../records/README.md), 실제 제품 산출물은 [output](../../output/index.md)에서 찾는다.
+
+현재 우선 범위인 [Ticket 06](tickets/06-app-startup-lifecycle.md)은 네트워크 관측·Router·제한 화면·sync 시작의 연결을 맡는다. unknown·10초 안내·중앙 쓰기 차단·화면용 debug와 003 분리 범위의 조정 이유는 [네트워크 정책 합의 기록](../../records/2026-09-16-01-network-policy-and-implementation-boundaries.md)에 있다. 구현 전 기준이며 제품 완료는 아니다.

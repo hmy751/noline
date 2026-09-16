@@ -47,4 +47,6 @@
 
 - [외부 자료를 참고한 Project context 반영 기준과 재구성 검증 방향](2026-09-14-06-project-context-reference-insights-and-retest-direction.md): Matt·Peter 자료에서 참고한 내용 선별·분리·읽기 조건과 조사 한계, 후속 지침·스킬·reference 반영 기준, current를 유지한 채 원복·재구성 테스트에서 역할을 재판단할 방향.
 
+- [Ticket 06 네트워크 정책과 구현 범위 합의](2026-09-16-01-network-policy-and-implementation-boundaries.md): Selective Local-First의 대상별 분기, unknown과 10초 안내, 제한·복구 화면, Router 중앙 차단, 일반 요청 오류·캐시 관리의 범위 축소, 화면용 debug 선택과 NetInfo·환경 조사 한계. 자동 반영 누락 뒤 Main이 복원한 현재 기준의 근거다.
+
 후속 분석·결정·실행 기록은 이 디렉터리에 날짜별로 남긴다. 원문·변경하지 않은 snapshot은 [source](../source/index.md), 현재 기준과 진행은 [current](../current/memory/index.md)가 소유한다.

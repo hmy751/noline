@@ -16,7 +16,7 @@
 
 ## 앱 진입과 여행 선택·활성화
 
-- [06 — 앱 준비·인증 상태·첫 화면·초기 작업 연결](06-app-startup-lifecycle.md) — 새 범위. 준비·라우팅·대표 여행 적용·sync/cleanup 시작 조건의 책임을 드러낸다.
+- [06 — 앱 준비·인증 상태·첫 화면·초기 작업 연결](06-app-startup-lifecycle.md) — 네트워크 관측·unknown·제한 화면·Router 차단·debug 표시와 sync 시작 연결을 먼저 다루고, 나머지 준비·라우팅·initializer 연결을 이어 간다.
 - [07 — Trip·Schedule client API 경계](07-client-api-boundaries.md) — 기존 06. 요청·응답 검증·오류 전달을 직접 읽고 검증하게 한다.
 - [08 — 날짜 범위·그룹·대표 여행 계산](08-date-selection-grouping.md) — 기존 10. 대표 여행의 순수 계산과 일정·경비 날짜 경계를 함께 관리한다.
 - [09 — 활성화와 offline-prep 완료 상태](09-activation-readiness.md) — 기존 14. data·map·route 준비와 terminal UI가 실제 완료 의미를 드러내게 한다.
@@ -44,7 +44,7 @@
 
 ## 003 결함 Ticket과의 연결
 
-002는 이해·수정 부담을 줄이는 결과를, [003](../../../../003-bug-investigation-and-fixes/current/memory/tickets/index.md)은 확인된 결함의 동작 수정을 맡는다. 같은 파일을 만지더라도 기대 동작·구현 책임과 회귀 근거를 먼저 맞추고 중복 수정하지 않는다. 아래는 실제 담당 연결이며 003 전체가 완료됐다는 뜻도, 버그 수정을 002에 자동 허용한다는 뜻도 아니다. 관련 결함이 남아 있어도 독립 특성화·구조 정리는 가능하지만 그 결함이 필요한 결과를 막으면 해당 완료는 열어 둔다.
+002는 이해·수정 부담을 줄이는 결과를, [003](../../../../003-bug-investigation-and-fixes/current/memory/tickets/index.md)은 확인된 결함의 동작 수정을 맡는 것이 기본 배치다. 2026-09-15~16 사용자 선택으로 **06의 네트워크·정책 연결과 직접 필요한 대상 Router 분기·inactive child 선조회 정상화는 002에서 함께 수행**한다. 아래 003-01·03·07 연결은 이 범위에서 재현 근거로 사용하고 별도 구현을 기다리는 조건으로 두지 않는다. 14는 06의 Router 결과를 재사용한다. 이 예외가 003 전체나 나머지 DB·auth·sync·cleanup 결함을 옮기는 것은 아니다. 같은 파일을 만지더라도 담당과 회귀 근거를 맞춰 중복 수정하지 않으며, 필요한 미해결이 있으면 해당 완료는 열어 둔다.
 
 - 앱 준비·첫 화면·선택: 002-06·08은 [003-01 준비 실패](../../../../003-bug-investigation-and-fixes/current/memory/tickets/01-startup-and-error-recovery.md), [003-02 인증 복구](../../../../003-bug-investigation-and-fixes/current/memory/tickets/02-auth-account-recovery.md), [003-03 여행 선택·수정](../../../../003-bug-investigation-and-fixes/current/memory/tickets/03-trip-management.md)과 연결한다.
 - 입력·표시·날짜: 002-10·11·13은 [003-06 form 상태](../../../../003-bug-investigation-and-fixes/current/memory/tickets/06-form-state-and-defaults.md), 002-08은 [003-08 날짜 의미·기간 밖 접근](../../../../003-bug-investigation-and-fixes/current/memory/tickets/08-date-and-range-consistency.md)을 사용한다. 같은 ID 재열기의 정상 근거도 유지한다.

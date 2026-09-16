@@ -12,7 +12,7 @@ sync push·pull·cleanup의 전부 성공, 부분 실패, 인증 중단과 재�
 
 부분 실패의 정상 반환과 FAILED·IN_PROGRESS 제외는 [003-11](../../../../003-bug-investigation-and-fixes/current/memory/tickets/11-sync-retry-recovery.md)에서 분리 재현했고, 해당 Ticket이 실패·재시도·중단 복구를 맡는다. Axios retry 횟수·간격과 동시 trigger의 실제 요청 검증은 여전히 남아 있다. 인증 갱신은 [003-02](../../../../003-bug-investigation-and-fixes/current/memory/tickets/02-auth-account-recovery.md), cursor·미전송 수정 충돌 정책은 [003-12](../../../../003-bug-investigation-and-fixes/current/memory/tickets/12-pull-consistency.md)의 책임이다. 이 Ticket의 typed pull 소비를 그 정책 해결로 확대하지 않는다.
 
-schema parse와 상태 모델의 구조는 독립적으로 조사할 수 있지만, 실패가 성공으로 표시되거나 retry 계약과 실제 횟수가 다르면 sync 완료 의미를 달성했다고 할 수 없다. 14의 queue 계약과 003의 직접 필요한 결과를 사용하고 같은 코드의 동작 수정을 중복 수행하지 않는다. [06번](06-app-startup-lifecycle.md)은 준비 후 시작 접점만 맡고 engine·provider 내부 실행 책임은 이 Ticket에 남는다. 미사용 설정·helper는 자동 삭제하거나 계획 기능을 자동 구현하지 않는다.
+schema parse와 상태 모델의 구조는 독립적으로 조사할 수 있지만, 실패가 성공으로 표시되거나 retry 계약과 실제 횟수가 다르면 sync 완료 의미를 달성했다고 할 수 없다. 14의 queue 계약과 003의 직접 필요한 결과를 사용하고 같은 코드의 동작 수정을 중복 수행하지 않는다. [06번](06-app-startup-lifecycle.md)은 DB·auth 준비, 실제 confirmed online, debug 쓰기 차단과 동시 trigger를 조합한 provider 시작·중복 실행 방지를 맡는다. 이 Ticket은 그 결과를 재사용하고 engine의 push·pull·queue 재시도·결과 해석과 provider의 결과 표시에 집중한다. 06의 시작 차단을 sync 내부 실패 복구 완료로 해석하지 않는다. 미사용 설정·helper는 자동 삭제하거나 계획 기능을 자동 구현하지 않는다.
 
 ## 완료 조건과 확인 방법
 
