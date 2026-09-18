@@ -1,31 +1,28 @@
-import React, { createContext, useContext, useEffect, useRef, useState, useCallback } from 'react';
-import { useNetworkStatus } from '@/shared/store/network';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+
+import { networkStore, useRealNetworkStatus, type NetworkStatus } from '@/shared/store/network';
 import { syncData } from './engine';
 
-/**
- * SyncProvider Context
- *
- * 동기화 상태와 수동 트리거 제공
- */
 interface SyncContextValue {
   isSyncing: boolean;
   lastSyncedAt: Date | null;
   triggerManualSync: () => Promise<void>;
 }
 
-const SyncContext = createContext<SyncContextValue | undefined>(undefined);
+interface SyncProviderProps {
+  children: React.ReactNode;
+  enablePeriodicSync?: boolean;
+  syncInterval?: number;
+}
 
-/**
- * useSyncContext Hook
- *
- * 컴포넌트에서 동기화 상태와 수동 트리거 접근
- *
- * @example
- * ```tsx
- * const { isSyncing, triggerManualSync } = useSyncContext();
- * ```
- */
-export function useSyncContext() {
+type SyncReason = 'app-startup' | 'online-transition' | 'manual' | 'periodic';
+
+type SyncSkipReason = 'already-running' | 'network-offline' | 'network-unknown' | 'override-active';
+
+const DEFAULT_SYNC_INTERVAL_MS = 5 * 60 * 1000;
+const SyncContext = createContext<SyncContextValue | null>(null);
+
+export function useSyncContext(): SyncContextValue {
   const context = useContext(SyncContext);
   if (!context) {
     throw new Error('useSyncContext must be used within SyncProvider');
@@ -33,138 +30,123 @@ export function useSyncContext() {
   return context;
 }
 
-/**
- * 동기화 Provider
- *
- * 앱 전체를 감싸서 자동 동기화 기능 제공 (Push + Pull)
- * - 네트워크 상태 감지
- * - 오프라인 → 온라인 전환 시 자동 동기화
- * - 앱 시작 시 한 번 동기화
- * - 주기적 동기화 (선택적)
- * - 디버그 모드: 강제 온라인/오프라인 설정 가능
- *
- * @example
- * ```tsx
- * <SyncProvider enablePeriodicSync={false}>
- *   <App />
- * </SyncProvider>
- * ```
- */
-interface SyncProviderProps {
-  children: React.ReactNode;
-  enablePeriodicSync?: boolean; // 주기적 동기화 활성화 (기본: false)
-  syncInterval?: number; // 주기적 동기화 간격 (ms, 기본: 5분)
-}
-
 export function SyncProvider({
   children,
   enablePeriodicSync = false,
-  syncInterval = 5 * 60 * 1000, // 5분
+  syncInterval = DEFAULT_SYNC_INTERVAL_MS,
 }: SyncProviderProps) {
-  // useNetworkStatus가 이제 Override 상태까지 포함하여 반환함
-  const networkStatus = useNetworkStatus();
-
+  const networkStatus = useRealNetworkStatus();
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);
-  const previousStatusRef = useRef<'online' | 'offline'>('online');
 
-  /**
-   * 동기화 실행 함수 (중복 실행 방지)
-   */
-  const executeSync = useCallback(
-    async (reason: string) => {
-      if (isSyncing) {
-        console.log('⏭️ [SyncProvider] Sync already in progress, skipping...');
-        return;
-      }
+  const previousNetworkStatusRef = useRef<NetworkStatus | null>(null);
+  const syncingRef = useRef(false);
 
-      try {
-        setIsSyncing(true);
-        console.log(`🔄 [SyncProvider] Sync triggered: ${reason}`);
+  const executeSync = useCallback(async (reason: SyncReason) => {
+    const blockReason = getSyncBlockReason();
 
-        await syncData(); // Push + Pull
+    if (blockReason) {
+      logSyncSkipped(reason, blockReason);
+      return;
+    }
 
-        const now = new Date();
-        setLastSyncedAt(now);
+    if (syncingRef.current) {
+      logSyncSkipped(reason, 'already-running');
+      return;
+    }
 
-        console.log(`✅ [SyncProvider] Sync completed: ${reason}`, {
-          lastSyncedAt: now.toISOString(),
-        });
-      } catch (error) {
-        console.error(`❌ [SyncProvider] Sync failed: ${reason}`, error);
-      } finally {
-        setIsSyncing(false);
-      }
-    },
-    [isSyncing],
-  );
+    syncingRef.current = true;
+    setIsSyncing(true);
 
-  /**
-   * 수동 동기화 트리거 (UI에서 호출)
-   */
-  const triggerManualSync = useCallback(async () => {
-    await executeSync('Manual trigger');
-  }, [executeSync]);
+    const startedAt = Date.now();
+    logSyncStarted(reason);
 
-  /**
-   * 1️⃣ 앱 시작 시 동기화 (온라인 상태일 때)
-   */
+    try {
+      await syncData();
+
+      const syncedAt = new Date();
+      setLastSyncedAt(syncedAt);
+      logSyncCompleted(reason, Date.now() - startedAt, syncedAt);
+    } catch (error) {
+      logSyncFailed(reason, error, Date.now() - startedAt);
+    } finally {
+      syncingRef.current = false;
+      setIsSyncing(false);
+    }
+  }, []);
+
+  const triggerManualSync = useCallback(() => executeSync('manual'), [executeSync]);
+
   useEffect(() => {
-    if (networkStatus === 'online') {
-      console.log('🚀 [SyncProvider] Initial sync on app start');
-      executeSync('App startup');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // 빈 배열: 앱 시작 시 한 번만
+    const previousStatus = previousNetworkStatusRef.current;
+    previousNetworkStatusRef.current = networkStatus;
 
-  /**
-   * 2️⃣ 네트워크 상태 변경 감지 → 복구 시 동기화
-   */
-  useEffect(() => {
-    const previousStatus = previousStatusRef.current;
-
-    // 오프라인 → 온라인 전환 감지
-    if (previousStatus === 'offline' && networkStatus === 'online') {
-      console.log('🌐 [SyncProvider] Network recovered → Starting sync');
-      executeSync('Network recovery');
+    if (networkStatus !== 'online' || previousStatus === 'online') {
+      return;
     }
 
-    // 온라인 → 오프라인 전환 로그
-    if (previousStatus === 'online' && networkStatus === 'offline') {
-      console.log('📴 [SyncProvider] Network offline → Sync paused');
-    }
-
-    // 현재 상태 저장
-    previousStatusRef.current = networkStatus;
+    const reason: SyncReason = previousStatus === null ? 'app-startup' : 'online-transition';
+    void executeSync(reason);
   }, [networkStatus, executeSync]);
 
-  /**
-   * 3️⃣ 주기적 동기화 (선택적)
-   */
   useEffect(() => {
-    if (!enablePeriodicSync) return;
+    if (!enablePeriodicSync) {
+      return;
+    }
 
-    console.log(`⏰ [SyncProvider] Periodic sync enabled (${syncInterval / 1000}s interval)`);
+    logPeriodicSyncEnabled(syncInterval);
 
     const intervalId = setInterval(() => {
-      if (networkStatus === 'online') {
-        executeSync('Periodic sync');
-      } else {
-        console.log('⏭️ [SyncProvider] Skipping periodic sync (offline)');
-      }
+      void executeSync('periodic');
     }, syncInterval);
 
     return () => clearInterval(intervalId);
-  }, [enablePeriodicSync, syncInterval, networkStatus, executeSync]);
+  }, [enablePeriodicSync, syncInterval, executeSync]);
 
-  /**
-   * Context Value
-   */
-  const value: SyncContextValue = {
-    isSyncing,
-    lastSyncedAt,
-    triggerManualSync,
-  };
+  const value = useMemo<SyncContextValue>(
+    () => ({ isSyncing, lastSyncedAt, triggerManualSync }),
+    [isSyncing, lastSyncedAt, triggerManualSync],
+  );
 
   return <SyncContext.Provider value={value}>{children}</SyncContext.Provider>;
+}
+
+function getSyncBlockReason(): SyncSkipReason | null {
+  if (networkStore.override !== null) {
+    return 'override-active';
+  }
+
+  if (networkStore.realStatus === 'offline') {
+    return 'network-offline';
+  }
+
+  if (networkStore.realStatus === 'unknown') {
+    return 'network-unknown';
+  }
+
+  return null;
+}
+
+function logSyncStarted(reason: SyncReason) {
+  console.info('[Sync] started', { reason });
+}
+
+function logSyncCompleted(reason: SyncReason, durationMs: number, syncedAt: Date) {
+  console.info('[Sync] completed', {
+    reason,
+    durationMs,
+    syncedAt: syncedAt.toISOString(),
+  });
+}
+
+function logSyncFailed(reason: SyncReason, error: unknown, durationMs: number) {
+  console.error('[Sync] failed', { reason, durationMs, error });
+}
+
+function logSyncSkipped(reason: SyncReason, skipReason: SyncSkipReason) {
+  console.debug('[Sync] skipped', { reason, skipReason });
+}
+
+function logPeriodicSyncEnabled(intervalMs: number) {
+  console.info('[Sync] periodic sync enabled', { intervalMs });
 }

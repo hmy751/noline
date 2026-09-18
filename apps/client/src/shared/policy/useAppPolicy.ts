@@ -9,7 +9,14 @@ import { useMemo } from 'react';
 import { useDisplayNetworkStatus } from '@/shared/store/network';
 import { useGetTripActivation } from '@/entities/trip/data/useGetTripActivation';
 import { TRIP_POLICIES, SCHEDULE_POLICIES, EXPENSE_POLICIES, SERVICE_POLICIES } from './constants';
-import type { CRUDPermission, ServiceConfig, PolicyKey, ActivationStatus } from './types';
+import type { CRUDPermission, CRUDOperationPolicies, ServiceConfig, PolicyKey, ActivationStatus } from './types';
+
+interface CRUDPermissions {
+  create: CRUDPermission;
+  read: CRUDPermission;
+  update: CRUDPermission;
+  delete: CRUDPermission;
+}
 
 /**
  * App Policy Context
@@ -17,24 +24,9 @@ import type { CRUDPermission, ServiceConfig, PolicyKey, ActivationStatus } from 
  * 모든 Entity의 CRUD 정책 + Service 설정
  */
 export interface AppPolicyContext {
-  trip: {
-    create: CRUDPermission;
-    read: CRUDPermission;
-    update: CRUDPermission;
-    delete: CRUDPermission;
-  };
-  schedule: {
-    create: CRUDPermission;
-    read: CRUDPermission;
-    update: CRUDPermission;
-    delete: CRUDPermission;
-  };
-  expense: {
-    create: CRUDPermission;
-    read: CRUDPermission;
-    update: CRUDPermission;
-    delete: CRUDPermission;
-  };
+  trip: CRUDPermissions;
+  schedule: CRUDPermissions;
+  expense: CRUDPermissions;
   service: ServiceConfig;
 }
 
@@ -66,41 +58,31 @@ export interface AppPolicyContext {
 export function useAppPolicy(tripId?: string): AppPolicyContext {
   const networkStatus = useDisplayNetworkStatus();
 
-  // 기존 Hook 재사용 (Single Source of Truth)
   const { data: activation } = useGetTripActivation(tripId ?? '');
 
-  // Activation Status 계산
   const isActivated = activation?.isActivated ?? false;
   const activationStatus: ActivationStatus = tripId && isActivated ? 'active' : 'inactive';
 
-  // PolicyKey 계산: "online_active" | "offline_inactive" 등
   // unknown도 Remote 기능을 열지 않는다. 현재 4-state 권한 표의 제한 모드를 재사용한다.
   const policyNetworkStatus = networkStatus === 'online' ? 'online' : 'offline';
   const policyKey: PolicyKey = `${policyNetworkStatus}_${activationStatus}`;
 
-  // useMemo로 불필요한 객체 재생성 방지
   return useMemo(
     () => ({
-      trip: {
-        create: TRIP_POLICIES.create[policyKey],
-        read: TRIP_POLICIES.read[policyKey],
-        update: TRIP_POLICIES.update[policyKey],
-        delete: TRIP_POLICIES.delete[policyKey],
-      },
-      schedule: {
-        create: SCHEDULE_POLICIES.create[policyKey],
-        read: SCHEDULE_POLICIES.read[policyKey],
-        update: SCHEDULE_POLICIES.update[policyKey],
-        delete: SCHEDULE_POLICIES.delete[policyKey],
-      },
-      expense: {
-        create: EXPENSE_POLICIES.create[policyKey],
-        read: EXPENSE_POLICIES.read[policyKey],
-        update: EXPENSE_POLICIES.update[policyKey],
-        delete: EXPENSE_POLICIES.delete[policyKey],
-      },
+      trip: selectCRUDPermissions(TRIP_POLICIES, policyKey),
+      schedule: selectCRUDPermissions(SCHEDULE_POLICIES, policyKey),
+      expense: selectCRUDPermissions(EXPENSE_POLICIES, policyKey),
       service: SERVICE_POLICIES[policyKey],
     }),
     [policyKey],
   );
+}
+
+function selectCRUDPermissions(policies: CRUDOperationPolicies, key: PolicyKey): CRUDPermissions {
+  return {
+    create: policies.create[key],
+    read: policies.read[key],
+    update: policies.update[key],
+    delete: policies.delete[key],
+  };
 }
