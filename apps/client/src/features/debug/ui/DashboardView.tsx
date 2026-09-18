@@ -2,7 +2,33 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { Pressable } from '@repo/ui';
 import { Database, Wifi, WifiOff, RotateCcw, RefreshCw, Upload } from 'lucide-react-native';
-import { useNetworkControl, useRealNetworkStatus } from '@/shared/store/network';
+import {
+  useNetworkCheck,
+  useNetworkControl,
+  useDisplayNetworkStatus,
+  useRealNetworkStatus,
+} from '@/shared/store/network';
+
+const NETWORK_STATUS_DISPLAY = {
+  online: {
+    Icon: Wifi,
+    color: '#228B22',
+    textClassName: 'text-primary',
+    label: '🟢 온라인',
+  },
+  offline: {
+    Icon: WifiOff,
+    color: '#BF4040',
+    textClassName: 'text-destructive',
+    label: '🔴 오프라인',
+  },
+  unknown: {
+    Icon: Wifi,
+    color: '#666',
+    textClassName: 'text-muted-foreground',
+    label: '⚪ 미확정',
+  },
+};
 
 interface DashboardViewProps {
   stats: { pending: number; inProgress: number; failed: number; total: number } | null;
@@ -18,29 +44,33 @@ interface DashboardViewProps {
 }
 
 export function DashboardView({ stats, counts, onRefresh, onManualSync }: DashboardViewProps) {
-  const { overrideStatus, setOverrideOnline, setOverrideOffline, clearOverride } = useNetworkControl();
+  const { overrideStatus, setOverrideOnline, setOverrideOffline, setOverrideUnknown, clearOverride } =
+    useNetworkControl();
   const realNetworkStatus = useRealNetworkStatus();
-  const effectiveStatus = overrideStatus ?? realNetworkStatus;
+  const displayStatus = useDisplayNetworkStatus();
+  const { checkStatus, isRefreshing, refresh } = useNetworkCheck();
+
+  const { Icon: StatusIcon, color, textClassName, label } = NETWORK_STATUS_DISPLAY[displayStatus];
 
   return (
     <View className='gap-md'>
       {/* Network Status Card */}
       <View className='rounded-lg bg-card p-md border border-card-border'>
         <View className='flex-row items-center gap-xs mb-sm'>
-          {effectiveStatus === 'online' ? <Wifi size={20} color='#228B22' /> : <WifiOff size={20} color='#BF4040' />}
+          <StatusIcon size={20} color={color} />
           <Text className='text-title-medium text-foreground'>네트워크 상태</Text>
         </View>
         <View className='gap-2xs mb-sm'>
           <Text className='text-body text-foreground'>
-            현재 상태:{' '}
-            <Text
-              className={effectiveStatus === 'online' ? 'text-primary font-semibold' : 'text-destructive font-semibold'}
-            >
-              {effectiveStatus === 'online' ? '🟢 온라인' : '🔴 오프라인'}
-            </Text>
+            현재 상태: <Text className={`${textClassName} font-semibold`}>{label}</Text>
           </Text>
           <Text className='text-label text-muted-foreground'>실제 네트워크: {realNetworkStatus}</Text>
           {overrideStatus && <Text className='text-label text-muted-foreground'>⚠️ 강제 설정: {overrideStatus}</Text>}
+          {realNetworkStatus === 'unknown' && (
+            <Text className='text-label text-muted-foreground'>
+              {checkStatus === 'unavailable' ? '인터넷 연결을 확인할 수 없어요' : '인터넷 연결 확인 중'}
+            </Text>
+          )}
         </View>
         <View className='flex-row gap-xs'>
           <Pressable
@@ -59,6 +89,9 @@ export function DashboardView({ stats, counts, onRefresh, onManualSync }: Dashbo
             <WifiOff size={14} color='#BF4040' />
             <Text className='text-label text-destructive'>오프라인</Text>
           </Pressable>
+          <Pressable variant='outline' className='flex-1 py-xs' onPress={setOverrideUnknown}>
+            <Text className='text-label text-muted-foreground'>미확정</Text>
+          </Pressable>
           <Pressable
             variant='outline'
             className='flex-1 flex-row items-center justify-center gap-xs py-xs rounded-lg border border-card-border'
@@ -68,6 +101,9 @@ export function DashboardView({ stats, counts, onRefresh, onManualSync }: Dashbo
             <Text className='text-label text-muted-foreground'>실제</Text>
           </Pressable>
         </View>
+        <Pressable variant='outline' className='mt-sm' onPress={refresh} disabled={isRefreshing}>
+          {isRefreshing ? '재확인 중...' : '실제 연결 재확인'}
+        </Pressable>
       </View>
 
       {/* DB Stats Card */}

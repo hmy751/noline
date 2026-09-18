@@ -1,124 +1,96 @@
 import '../styles/global.css';
-import { Stack, useRouter, useSegments } from 'expo-router';
+
+import React, { useEffect, useState } from 'react';
 import { useColorScheme } from 'react-native';
+import { Stack, useRouter, useSegments } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { PortalHost } from '@rn-primitives/portal';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
-import * as SplashScreen from 'expo-splash-screen';
 import MapboxGL from '@rnmapbox/maps';
-import { initializeDatabase } from '@/shared/db';
-import { SyncProvider } from '@/shared/services/sync/provider';
-import { useOfflineMapCleanup } from '@/shared/services/offline-map';
 
-import { networkStore } from '@/shared/store/network';
-import { queryClient } from '@/shared/lib/queryClient';
-import { useTripStore } from '@/shared/store';
-import { useGetTrips, selectMainTrip } from '@/entities/trip';
-import { processPendingCleanups } from '@/shared/services/sync/cleanup-job';
-import { useAuthStore } from '@/shared/store/auth';
+import { selectMainTrip, useGetTrips } from '@/entities/trip';
 import { SessionExpiredBanner } from '@/shared/components';
+import { initializeDatabase } from '@/shared/db';
+import { queryClient } from '@/shared/lib/queryClient';
+import { useOfflineMapCleanup } from '@/shared/services/offline-map';
+import { processPendingCleanups } from '@/shared/services/sync/cleanup-job';
+import { SyncProvider } from '@/shared/services/sync/provider';
+import { useTripStore } from '@/shared/store';
+import { useAuthStore } from '@/shared/store/auth';
+import { networkStore } from '@/shared/store/network';
 
-// Splash 화면을 수동으로 제어하기 위해 자동 숨김 방지
-SplashScreen.preventAutoHideAsync();
+const PENDING_CLEANUP_DELAY_MS = 2_000;
 
-// Mapbox 접근 토큰 설정 (런타임 초기화)
+void SplashScreen.preventAutoHideAsync();
+
 MapboxGL.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_PUBLIC_ACCESS_TOKEN!);
 
-/**
- * 인증된 상태에서만 실행되는 컴포넌트들
- *
- * - InitializeMainTrip: useGetTrips 호출 (인증 필요)
- * - OfflineMapCleanupTrigger: 오프라인 맵 정리
- * - PendingCleanupTrigger: 대기 중인 정리 작업 처리
- */
 function AuthenticatedInitializers() {
-  const { isAuthenticated } = useAuthStore();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  // 인증되지 않았으면 아무것도 렌더링하지 않음
   if (!isAuthenticated) {
     return null;
   }
 
   return (
     <>
-      <InitializeMainTrip />
-      <OfflineMapCleanupTrigger />
-      <PendingCleanupTrigger />
+      <MainTripInitializer />
+      <OfflineMapCleanupInitializer />
+      <PendingCleanupInitializer />
     </>
   );
 }
 
-function InitializeMainTrip() {
-  const { setSelectedTripId } = useTripStore();
+function MainTripInitializer() {
+  const setSelectedTripId = useTripStore((state) => state.setSelectedTripId);
+
   const { data: trips = [], isLoading, isError, error } = useGetTrips();
 
   useEffect(() => {
-    console.log(`📋 [InitializeMainTrip] isLoading=${isLoading}, isError=${isError}, trips.length=${trips.length}`);
-
     if (isError) {
-      console.log('📋 [InitializeMainTrip] Error loading trips:', error);
+      console.error('[Trip] initial load failed', { error });
     }
 
-    if (trips.length > 0) {
-      const mainTrip = selectMainTrip(trips);
-      if (mainTrip) {
-        setSelectedTripId(mainTrip.id);
-        console.log('✅ Main trip selected:', mainTrip.name);
-      } else {
-        setSelectedTripId(trips[0].id);
-        console.log('✅ First trip selected:', trips[0].name);
+    if (trips.length === 0) {
+      if (!isLoading && !isError) {
+        console.debug('[Trip] no trips available for initial selection');
       }
-    } else if (!isLoading && !isError) {
-      console.log('📋 [InitializeMainTrip] No trips found (empty array returned from query)');
+
+      return;
     }
-  }, [trips, setSelectedTripId, isLoading, isError, error]);
+
+    const mainTrip = selectMainTrip(trips);
+    const selectedTrip = mainTrip ?? trips[0];
+
+    setSelectedTripId(selectedTrip.id);
+
+    console.debug('[Trip] initial selection completed', {
+      tripId: selectedTrip.id,
+      source: mainTrip ? 'main' : 'first',
+    });
+  }, [trips, isLoading, isError, error, setSelectedTripId]);
 
   return null;
 }
 
-function OfflineMapCleanupTrigger() {
+function OfflineMapCleanupInitializer() {
   useOfflineMapCleanup();
+
   return null;
 }
 
 /**
- * Pending Cleanup 재시도 트리거
+ * 인증 이후 미완료 cleanup 작업을 다시 확인한다.
  *
- * 앱 시작 시 cleanupPending = true인 여행을 찾아서
- * sync_queue가 비어있으면 cleanup 실행
- *
- * 실행 타이밍:
- * - 앱 최초 시작 시 1회
- * - DB 초기화 완료 후
- * - SyncProvider 마운트 후 (네트워크 상태 확인 가능)
+ * 지연 실행은 다른 초기화 작업과의 동시 실행을 줄이기 위한 것이며,
+ * DB나 sync 준비 완료 자체를 보장하지는 않는다.
  */
-function PendingCleanupTrigger() {
+function PendingCleanupInitializer() {
   useEffect(() => {
-    const retryPendingCleanups = async () => {
-      try {
-        console.log('🧹 [App] Checking for pending cleanups on app start...');
-        const processedCount = await processPendingCleanups();
-
-        if (processedCount > 0) {
-          console.log(`✅ [App] Processed ${processedCount} pending cleanups on app start`);
-          // React Query 캐시 무효화
-          queryClient.invalidateQueries({ queryKey: ['trip'] });
-          queryClient.invalidateQueries({ queryKey: ['schedule'] });
-          queryClient.invalidateQueries({ queryKey: ['expense'] });
-        } else {
-          console.log('✅ [App] No pending cleanups found');
-        }
-      } catch (error) {
-        console.error('⚠️ [App] Failed to process pending cleanups on app start:', error);
-        // 실패해도 앱 시작은 계속 진행
-      }
-    };
-
-    // 약간의 지연 후 실행 (DB 초기화와 SyncProvider 준비 대기)
     const timer = setTimeout(() => {
-      retryPendingCleanups();
-    }, 2000);
+      void runPendingCleanups();
+    }, PENDING_CLEANUP_DELAY_MS);
 
     return () => clearTimeout(timer);
   }, []);
@@ -126,34 +98,65 @@ function PendingCleanupTrigger() {
   return null;
 }
 
-/**
- * 인증 상태 기반 라우팅
- *
- * - 비인증: (auth)/login으로 리다이렉트
- * - 인증: (tabs)로 리다이렉트
- * - 초기화 전: 아무것도 하지 않음 (Splash 유지)
- */
+async function runPendingCleanups() {
+  try {
+    const processedCount = await processPendingCleanups();
+
+    if (processedCount === 0) {
+      console.debug('[Cleanup] no pending cleanups');
+      return;
+    }
+
+    console.info('[Cleanup] pending cleanups processed', {
+      count: processedCount,
+    });
+
+    // 캐시 갱신은 cleanup 완료와 독립적으로 실행한다.
+    void queryClient.invalidateQueries({ queryKey: ['trip'] });
+    void queryClient.invalidateQueries({
+      queryKey: ['schedule'],
+    });
+    void queryClient.invalidateQueries({
+      queryKey: ['expense'],
+    });
+  } catch (error) {
+    // cleanup 실패가 앱 진입을 막아서는 안 된다.
+    console.error('[Cleanup] pending cleanup failed', {
+      error,
+    });
+  }
+}
+
 function AuthRouter() {
   const router = useRouter();
   const segments = useSegments();
-  const { isAuthenticated, isInitialized } = useAuthStore();
+
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isInitialized = useAuthStore((state) => state.isInitialized);
 
   useEffect(() => {
-    // 아직 초기화 중이면 리다이렉트 하지 않음
     if (!isInitialized) {
       return;
     }
 
-    // 현재 auth 그룹에 있는지 확인
-    const inAuthGroup = segments[0] === '(auth)';
+    const isAuthRoute = segments[0] === '(auth)';
 
-    if (!isAuthenticated && !inAuthGroup) {
-      // 비인증 상태 + auth 그룹 밖 → 로그인 화면으로
-      console.log('🔐 [Router] Not authenticated, redirecting to login');
+    if (!isAuthenticated && !isAuthRoute) {
+      console.debug('[AuthRouter] redirect', {
+        reason: 'unauthenticated',
+        target: 'login',
+      });
+
       router.replace('/(auth)/login');
-    } else if (isAuthenticated && inAuthGroup) {
-      // 인증 상태 + auth 그룹 안 → 메인 화면으로
-      console.log('🔐 [Router] Authenticated, redirecting to home');
+      return;
+    }
+
+    if (isAuthenticated && isAuthRoute) {
+      console.debug('[AuthRouter] redirect', {
+        reason: 'authenticated',
+        target: 'home',
+      });
+
       router.replace('/(tabs)');
     }
   }, [isAuthenticated, isInitialized, segments, router]);
@@ -163,8 +166,10 @@ function AuthRouter() {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+
   const [isAppReady, setIsAppReady] = useState(false);
-  const { init: initAuth } = useAuthStore();
+
+  const initAuth = useAuthStore((state) => state.init);
 
   useEffect(() => {
     networkStore.init();
@@ -172,38 +177,44 @@ export default function RootLayout() {
     return () => networkStore.cleanup();
   }, []);
 
-  // 앱 초기화 (DB, 폰트, 인증 등)
   useEffect(() => {
-    const prepareApp = async () => {
-      try {
-        console.log('🚀 Preparing app...');
+    async function prepareApp() {
+      const startedAt = Date.now();
+      let phase: 'database' | 'auth' = 'database';
 
-        // 1. 로컬 DB 초기화
+      try {
         await initializeDatabase();
 
-        // 2. Auth Store 초기화 (SecureStore에서 토큰 복원)
+        phase = 'auth';
         await initAuth();
 
-        console.log('✅ App is ready!');
+        console.info('[AppBootstrap] completed', {
+          durationMs: Date.now() - startedAt,
+        });
       } catch (error) {
-        console.error('❌ Failed to prepare app:', error);
+        console.error('[AppBootstrap] failed', {
+          phase,
+          durationMs: Date.now() - startedAt,
+          error,
+        });
       } finally {
-        // 초기화 완료 (성공/실패 무관)
+        // 성공 여부와 관계없이 준비 시도가 끝나면 진입을 이어간다.
+        // DB·인증 실패 후의 화면·기능 허용 정책을 보장하는 flag는 아니다.
         setIsAppReady(true);
       }
-    };
+    }
 
-    prepareApp();
+    void prepareApp();
   }, [initAuth]);
 
-  // 앱 준비 완료 시 Splash 화면 숨기기
   useEffect(() => {
-    if (isAppReady) {
-      SplashScreen.hideAsync();
+    if (!isAppReady) {
+      return;
     }
+
+    void SplashScreen.hideAsync();
   }, [isAppReady]);
 
-  // Splash 화면 유지 (초기화 완료 전까지)
   if (!isAppReady) {
     return null;
   }
@@ -212,8 +223,8 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
         <SyncProvider>
-          {/* 세션 만료 배너 (상단에 표시) */}
           <SessionExpiredBanner />
+
           <Stack
             screenOptions={{
               headerShown: false,
@@ -225,11 +236,9 @@ export default function RootLayout() {
             <Stack.Screen name='(auth)' />
             <Stack.Screen name='(tabs)' />
           </Stack>
-          {/* Portal Host for Select and other portal-based components */}
+
           <PortalHost />
-          {/* Auth Router: 인증 상태에 따라 자동 리다이렉트 */}
           <AuthRouter />
-          {/* 인증된 상태에서만 실행되는 초기화 컴포넌트들 */}
           <AuthenticatedInitializers />
         </SyncProvider>
       </QueryClientProvider>

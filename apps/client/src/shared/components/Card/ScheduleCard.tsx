@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, type GestureResponderEvent } from 'react-native';
 import { Card, cn, Pressable } from '@repo/ui';
 import { MapPin, Wallet, MoreVertical, AlertCircle } from 'lucide-react-native';
 import { networkStore } from '@/shared/store/network';
@@ -14,7 +14,7 @@ interface ScheduleCardProps {
   currency?: string;
   className?: string;
   onPress?: () => void;
-  onMenuPress?: (event: any) => void;
+  onMenuPress?: (event: GestureResponderEvent) => void;
 }
 
 export function ScheduleCard({

@@ -8,9 +8,13 @@
  * - offline_inactive: 오프라인 + 비활성 (읽기 전용)
  */
 
-export type NetworkStatus = 'online' | 'offline';
+import type { NetworkStatus } from '@/shared/store/network';
+
+export type { NetworkStatus } from '@/shared/store/network';
 export type ActivationStatus = 'active' | 'inactive';
-export type PolicyKey = `${NetworkStatus}_${ActivationStatus}`;
+
+// 실제 관측은 세 상태이며, 기존 권한 표는 unknown의 제한 모드를 offline과 공유한다.
+export type PolicyKey = `${Exclude<NetworkStatus, 'unknown'>}_${ActivationStatus}`;
 
 /**
  * CRUD Operation Mode
@@ -51,20 +55,9 @@ export interface CRUDOperationPolicies {
   delete: Record<PolicyKey, CRUDPermission>;
 }
 
-/**
- * Trip Policies
- */
-export interface TripPolicies extends CRUDOperationPolicies {}
-
-/**
- * Schedule Policies
- */
-export interface SchedulePolicies extends CRUDOperationPolicies {}
-
-/**
- * Expense Policies
- */
-export interface ExpensePolicies extends CRUDOperationPolicies {}
+export type TripPolicies = CRUDOperationPolicies;
+export type SchedulePolicies = CRUDOperationPolicies;
+export type ExpensePolicies = CRUDOperationPolicies;
 
 /**
  * Service Layer Configuration
