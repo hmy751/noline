@@ -1,20 +1,27 @@
-import { drizzle } from 'drizzle-orm/expo-sqlite';
+import { drizzle, type ExpoSQLiteDatabase } from 'drizzle-orm/expo-sqlite';
 import * as SQLite from 'expo-sqlite';
 import * as schema from './schema';
 
-/**
- * SQLite DB 인스턴스
- * - expo-sqlite를 사용한 로컬 DB
- * - DB 파일명: noline.db
- */
-const expoDb = SQLite.openDatabaseSync('noline.db');
+let databaseConnection: SQLite.SQLiteDatabase | undefined;
 
-/**
- * Drizzle ORM 클라이언트
- * - 타입 안전한 쿼리 작성 가능
- * - schema를 통해 테이블 정의 연결
- */
-export const db = drizzle(expoDb, { schema });
+let database: ExpoSQLiteDatabase<typeof schema> | undefined;
+
+/** 스키마 준비에 성공한 DB만 제공한다. 호출만으로 초기화를 시작하지 않는다. */
+export function getDatabase(): ExpoSQLiteDatabase<typeof schema> {
+  if (!database) {
+    throw new Error('로컬 DB 준비가 완료되지 않았습니다.');
+  }
+  return database;
+}
+
+function getDatabaseConnection(): SQLite.SQLiteDatabase {
+  if (!databaseConnection) {
+    const connection = SQLite.openDatabaseSync('noline.db');
+    databaseConnection = connection;
+  }
+
+  return databaseConnection;
+}
 
 /**
  * DB 초기화 함수
@@ -22,8 +29,13 @@ export const db = drizzle(expoDb, { schema });
  * - 테이블 생성 SQL 실행
  */
 export async function initializeDatabase() {
+  if (database) {
+    return;
+  }
+
   try {
-    console.log('📦 Initializing local database...');
+    console.log('[Database] Initializing local database...');
+    const expoDb = getDatabaseConnection();
 
     // Trips 테이블 생성
     expoDb.execSync(`
@@ -199,9 +211,10 @@ export async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_trip_activations_expires_at ON trip_activations(expires_at);
     `);
 
-    console.log('✅ Local database initialized successfully');
+    database = drizzle(expoDb, { schema });
+    console.log('[Database] Local database initialized successfully');
   } catch (error) {
-    console.error('❌ Failed to initialize database:', error);
+    console.error('[Database] Failed to initialize database:', error);
     throw error;
   }
 }
@@ -212,7 +225,9 @@ export async function initializeDatabase() {
  * - 테이블 재생성
  */
 export async function resetDatabase() {
-  console.log('🔄 Resetting database...');
+  database = undefined;
+  console.log('[Database] Resetting database...');
+  const expoDb = getDatabaseConnection();
 
   expoDb.execSync(`DROP TABLE IF EXISTS trip_activations;`);
   expoDb.execSync(`DROP TABLE IF EXISTS routes;`);
@@ -225,7 +240,7 @@ export async function resetDatabase() {
 
   await initializeDatabase();
 
-  console.log('✅ Database reset complete');
+  console.log('[Database] Database reset complete');
 }
 
 // Export schema for type inference

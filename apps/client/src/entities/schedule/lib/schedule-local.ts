@@ -1,8 +1,6 @@
-// ========================================
 // Schedule Local DataSource - SQLite 로컬 DB 작업
-// ========================================
 
-import { db, schedules } from '@/shared/db';
+import { getDatabase, schedules } from '@/shared/db';
 import { eq, and, isNull, sql } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
@@ -15,14 +13,14 @@ import type { Schedule, CreateScheduleRequest, UpdateScheduleRequest } from '../
  * - scheduledAt 기준 오름차순 정렬
  */
 export const getSchedulesLocal = async (tripId: string): Promise<Schedule[]> => {
-  const scheduleList = await db
+  const scheduleList = await getDatabase()
     .select()
     .from(schedules)
     .where(and(isNull(schedules.deletedAt), eq(schedules.tripId, tripId)))
     .orderBy(schedules.scheduledAt)
     .all();
 
-  console.log(`📋 Schedules loaded from local DB: ${scheduleList.length} items`);
+  console.log(`[ScheduleLocal] Schedules loaded from local DB: ${scheduleList.length} items`);
   return scheduleList;
 };
 
@@ -30,14 +28,14 @@ export const getSchedulesLocal = async (tripId: string): Promise<Schedule[]> => 
  * 로컬 DB에서 특정 일정 조회
  */
 export const getScheduleByIdLocal = async (id: string): Promise<Schedule | undefined> => {
-  const schedule = await db
+  const schedule = await getDatabase()
     .select()
     .from(schedules)
     .where(and(isNull(schedules.deletedAt), eq(schedules.id, id)))
     .get();
 
   if (schedule) {
-    console.log(`📋 Schedule loaded from local DB: ${schedule.id}`);
+    console.log(`[ScheduleLocal] Schedule loaded from local DB: ${schedule.id}`);
   }
   return schedule;
 };
@@ -46,7 +44,7 @@ export const getScheduleByIdLocal = async (id: string): Promise<Schedule | undef
  * 로컬 DB에서 여행의 일정 개수 조회
  */
 export const getScheduleCountLocal = async (tripId: string): Promise<number> => {
-  const result = await db
+  const result = await getDatabase()
     .select()
     .from(schedules)
     .where(and(eq(schedules.tripId, tripId), isNull(schedules.deletedAt)))
@@ -85,7 +83,9 @@ export const createScheduleLocal = async (data: CreateScheduleRequest): Promise<
   };
 
   await withTransaction(async () => {
-    await db.insert(schedules).values(newSchedule as typeof schedules.$inferInsert);
+    await getDatabase()
+      .insert(schedules)
+      .values(newSchedule as typeof schedules.$inferInsert);
     await addToSyncQueue('schedules', id, 'CREATE', {
       id,
       userId,
@@ -99,7 +99,7 @@ export const createScheduleLocal = async (data: CreateScheduleRequest): Promise<
     });
   });
 
-  console.log(`✅ Schedule created locally: ${id} - ${rest.title}`);
+  console.log(`[ScheduleLocal] Schedule created locally: ${id} - ${rest.title}`);
   return newSchedule;
 };
 
@@ -120,14 +120,14 @@ export const updateScheduleLocal = async (id: string, data: UpdateScheduleReques
   };
 
   await withTransaction(async () => {
-    await db.update(schedules).set(dbData).where(eq(schedules.id, id));
+    await getDatabase().update(schedules).set(dbData).where(eq(schedules.id, id));
     await addToSyncQueue('schedules', id, 'UPDATE', data);
   });
 
-  console.log(`✅ Schedule updated locally: ${id}`);
+  console.log(`[ScheduleLocal] Schedule updated locally: ${id}`);
 
   // 업데이트된 전체 entity 조회하여 반환
-  const updated = await db.select().from(schedules).where(eq(schedules.id, id)).get();
+  const updated = await getDatabase().select().from(schedules).where(eq(schedules.id, id)).get();
   return updated!;
 };
 
@@ -141,7 +141,7 @@ export const updateScheduleLocal = async (id: string, data: UpdateScheduleReques
 export const deleteScheduleLocal = async (id: string): Promise<{ id: string; deletedAt: string }> => {
   const now = getCurrentISOString();
 
-  const existing = await db
+  const existing = await getDatabase()
     .select({ tripId: schedules.tripId })
     .from(schedules)
     .where(eq(schedules.id, id))
@@ -149,7 +149,7 @@ export const deleteScheduleLocal = async (id: string): Promise<{ id: string; del
   const tripId = existing?.tripId ?? null;
 
   await withTransaction(async () => {
-    await db
+    await getDatabase()
       .update(schedules)
       .set({
         deletedAt: now,
@@ -161,7 +161,7 @@ export const deleteScheduleLocal = async (id: string): Promise<{ id: string; del
     await addToSyncQueue('schedules', id, 'DELETE', { tripId });
   });
 
-  console.log(`✅ Schedule deleted locally (soft): ${id}`);
+  console.log(`[ScheduleLocal] Schedule deleted locally (soft): ${id}`);
   return { id, deletedAt: now };
 };
 
@@ -169,6 +169,10 @@ export const deleteScheduleLocal = async (id: string): Promise<{ id: string; del
  * 로컬 DB에서 일정의 tripId 조회 (라우팅용)
  */
 export const getScheduleTripIdLocal = async (id: string): Promise<string | null> => {
-  const schedule = await db.select({ tripId: schedules.tripId }).from(schedules).where(eq(schedules.id, id)).get();
+  const schedule = await getDatabase()
+    .select({ tripId: schedules.tripId })
+    .from(schedules)
+    .where(eq(schedules.id, id))
+    .get();
   return schedule?.tripId ?? null;
 };

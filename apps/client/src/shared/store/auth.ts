@@ -1,144 +1,102 @@
 import { create } from 'zustand';
-import {
-  getAuthData,
-  saveAuthData,
-  updateTokens,
-  clearAuthData,
-  hasAuthData,
-  type UserInfo,
-} from '../services/auth/token-storage';
-
-// ========================================
-// Types
-// ========================================
+import { getAuthData, saveAuthData, updateTokens, clearAuthData, type UserInfo } from '../services/auth/token-storage';
 
 interface AuthState {
-  // State
   userId: string | null;
   userInfo: UserInfo | null;
   isAuthenticated: boolean;
   isSessionExpired: boolean;
-  isInitialized: boolean;
-
-  // Actions
-  init: () => Promise<void>;
+  restoreSessionOnce: () => Promise<void>;
   login: (data: { accessToken: string; refreshToken: string; userId: string; userInfo?: UserInfo }) => Promise<void>;
   logout: () => Promise<void>;
   refreshTokens: (data: { accessToken: string; refreshToken: string }) => Promise<void>;
   setSessionExpired: (expired: boolean) => void;
 }
 
-// ========================================
-// Store
-// ========================================
-
-export const useAuthStore = create<AuthState>((set, get) => ({
-  // Initial State
+const SIGNED_OUT_STATE = {
   userId: null,
   userInfo: null,
   isAuthenticated: false,
   isSessionExpired: false,
-  isInitialized: false,
+};
 
-  /**
-   * 앱 시작 시 SecureStore에서 인증 데이터 복원
-   * - 토큰 존재 여부만 확인 (만료 무시 - 오프라인 지원)
-   * - user 정보도 함께 복원 (오프라인에서 프로필 표시)
-   */
-  init: async () => {
-    if (get().isInitialized) return;
+export function createAuthStore() {
+  return create<AuthState>((set) => {
+    let sessionRestore: Promise<void> | null = null;
 
-    try {
-      const { userId, accessToken, userInfo } = await getAuthData();
+    // 오프라인 진입을 위해 서버 검증 없이 저장된 사용자와 토큰의 존재로 복원한다.
+    async function restoreStoredSession() {
+      try {
+        const { userId, accessToken, userInfo } = await getAuthData();
 
-      if (userId && accessToken) {
-        console.log('🔐 [AuthStore] Restored auth from SecureStore');
+        if (!userId || !accessToken) {
+          console.log('[AuthStore] session not found');
+          set(SIGNED_OUT_STATE);
+          return;
+        }
+
+        console.log('[AuthStore] session restored');
         set({
           userId,
           userInfo,
           isAuthenticated: true,
           isSessionExpired: false,
-          isInitialized: true,
         });
-      } else {
-        console.log('🔐 [AuthStore] No auth data found');
-        set({
-          userId: null,
-          userInfo: null,
-          isAuthenticated: false,
-          isSessionExpired: false,
-          isInitialized: true,
-        });
+      } catch (error) {
+        console.error('[AuthStore] session restore failed', { error });
+        // 읽기 실패는 로그인 화면으로 보내되 저장된 인증 정보는 지우지 않는다.
+        set(SIGNED_OUT_STATE);
       }
-    } catch (error) {
-      console.error('🔐 [AuthStore] Failed to restore auth:', error);
-      set({
-        userId: null,
-        userInfo: null,
-        isAuthenticated: false,
-        isSessionExpired: false,
-        isInitialized: true,
-      });
     }
-  },
 
-  /**
-   * 로그인 성공 시 토큰 + user 정보 저장 + 상태 업데이트
-   */
-  login: async (data) => {
-    await saveAuthData(data);
-    console.log('🔐 [AuthStore] Login successful');
-    set({
-      userId: data.userId,
-      userInfo: data.userInfo ?? null,
-      isAuthenticated: true,
-      isSessionExpired: false,
-    });
-  },
+    return {
+      ...SIGNED_OUT_STATE,
+      restoreSessionOnce: () => {
+        // 완료 후에도 재사용해 이후 로그인·로그아웃 상태를 저장소 값으로 덮지 않는다.
+        if (!sessionRestore) {
+          sessionRestore = restoreStoredSession();
+        }
 
-  /**
-   * 로그아웃 시 토큰 + user 정보 삭제 + 상태 초기화
-   */
-  logout: async () => {
-    await clearAuthData();
-    console.log('🔐 [AuthStore] Logout completed');
-    set({
-      userId: null,
-      userInfo: null,
-      isAuthenticated: false,
-      isSessionExpired: false,
-    });
-  },
+        return sessionRestore;
+      },
 
-  /**
-   * 토큰 갱신 성공 시 새 토큰 저장
-   */
-  refreshTokens: async (data) => {
-    await updateTokens(data);
-    console.log('🔐 [AuthStore] Tokens refreshed');
-    set({
-      isSessionExpired: false,
-    });
-  },
+      login: async (data) => {
+        await saveAuthData(data);
+        console.log('[AuthStore] logged in', { userId: data.userId });
+        set({
+          userId: data.userId,
+          userInfo: data.userInfo ?? null,
+          isAuthenticated: true,
+          isSessionExpired: false,
+        });
+      },
 
-  /**
-   * 세션 만료 상태 설정
-   * - 401 에러 + refresh 실패 시 true로 설정
-   * - 재로그인 성공 시 false로 복구
-   */
-  setSessionExpired: (expired) => {
-    console.log(`🔐 [AuthStore] Session expired: ${expired}`);
-    set({ isSessionExpired: expired });
-  },
-}));
+      logout: async () => {
+        await clearAuthData();
+        console.log('[AuthStore] logged out');
+        set(SIGNED_OUT_STATE);
+      },
 
-// ========================================
-// Non-React Access Helper
-// ========================================
+      refreshTokens: async (data) => {
+        await updateTokens(data);
+        console.log('[AuthStore] tokens refreshed');
+        set({
+          isSessionExpired: false,
+        });
+      },
 
-/**
- * 비-React 환경(일반 함수 등)에서 상태 접근을 위한 헬퍼
- */
+      // 인증 갱신까지 실패했을 때 세션 만료 안내에 사용한다.
+      setSessionExpired: (expired) => {
+        console.log('[AuthStore] session expiry changed', { expired });
+        set({ isSessionExpired: expired });
+      },
+    };
+  });
+}
+
+export const useAuthStore = createAuthStore();
+
+// React 밖의 서비스에서 동일한 인증 상태와 action을 사용한다.
 export const authStore = {
   get userId() {
     return useAuthStore.getState().userId;
@@ -152,11 +110,8 @@ export const authStore = {
   get isSessionExpired() {
     return useAuthStore.getState().isSessionExpired;
   },
-  get isInitialized() {
-    return useAuthStore.getState().isInitialized;
-  },
-  async init() {
-    await useAuthStore.getState().init();
+  async restoreSessionOnce() {
+    await useAuthStore.getState().restoreSessionOnce();
   },
   async login(data: { accessToken: string; refreshToken: string; userId: string; userInfo?: UserInfo }) {
     await useAuthStore.getState().login(data);

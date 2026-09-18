@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { db, trips, tripActivations, schedules, expenses } from '@/shared/db';
+import { getDatabase, trips, tripActivations, schedules, expenses } from '@/shared/db';
 import { eq, sql } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import apiClient from '@/shared/api/fetcher';
@@ -20,11 +20,6 @@ import { hasPendingTasksForTrip, getPendingTasksForTrip } from '@/shared/service
  * - 오프라인 지도 삭제
  * - 서버에 비활성화 알림 (선택적)
  *
- * @example
- * ```tsx
- * const { mutate: deactivateTrip, isPending } = useDeactivateTrip();
- * deactivateTrip({ tripId, cleanupData: true });
- * ```
  */
 export const useDeactivateTrip = () => {
   const queryClient = useQueryClient();
@@ -33,39 +28,39 @@ export const useDeactivateTrip = () => {
     mutationFn: async ({ tripId, cleanupData = false }: { tripId: string; cleanupData?: boolean }) => {
       const now = getCurrentISOString();
 
-      // 1. 여행 정보 조회
-      const trip = await db.select().from(trips).where(eq(trips.id, tripId)).get();
+      // 여행 정보 조회
+      const trip = await getDatabase().select().from(trips).where(eq(trips.id, tripId)).get();
 
       if (!trip) {
         throw new Error(`Trip not found: ${tripId}`);
       }
 
-      // 2. 이미 비활성화된 경우 스킵 (tripActivations 테이블 확인)
-      const existingActivation = await db
+      // 이미 비활성화된 경우 스킵 (tripActivations 테이블 확인)
+      const existingActivation = await getDatabase()
         .select()
         .from(tripActivations)
         .where(eq(tripActivations.tripId, tripId))
         .get();
 
       if (!existingActivation?.isActivated) {
-        console.log(`✅ Trip already deactivated: ${tripId}`);
+        console.log(`[TripActivation] Trip already deactivated: ${tripId}`);
         return { tripId, alreadyDeactivated: true };
       }
 
-      // 3. sync_queue 체크: PENDING 작업이 있는지 확인
+      // sync_queue 체크: PENDING 작업이 있는지 확인
       const hasPending = await hasPendingTasksForTrip(tripId);
 
       if (hasPending && cleanupData) {
         const pendingTasks = await getPendingTasksForTrip(tripId);
-        console.log(`⏳ Sync queue has ${pendingTasks.length} pending tasks - deferring cleanup`);
+        console.log(`[TripActivation] Sync queue has ${pendingTasks.length} pending tasks - deferring cleanup`);
       }
 
-      // 4. 트랜잭션: 로컬 DB 업데이트
+      // 트랜잭션: 로컬 DB 업데이트
       let cleanupExecuted = false;
 
       await withTransaction(async () => {
-        // 4-1. 활성화 레코드 업데이트 (tripActivations만 사용)
-        await db
+        // 활성화 레코드 업데이트 (tripActivations만 사용)
+        await getDatabase()
           .update(tripActivations)
           .set({
             isActivated: false,
@@ -76,11 +71,11 @@ export const useDeactivateTrip = () => {
           })
           .where(eq(tripActivations.tripId, tripId));
 
-        // 4-2. 데이터 정리 (선택적)
+        // 데이터 정리 (선택적)
         // PENDING 작업이 없으면 즉시 Soft delete 실행
         if (cleanupData && !hasPending) {
           // Soft delete: schedules
-          await db
+          await getDatabase()
             .update(schedules)
             .set({
               deletedAt: now,
@@ -90,7 +85,7 @@ export const useDeactivateTrip = () => {
             .where(eq(schedules.tripId, tripId));
 
           // Soft delete: expenses
-          await db
+          await getDatabase()
             .update(expenses)
             .set({
               deletedAt: now,
@@ -100,30 +95,32 @@ export const useDeactivateTrip = () => {
             .where(eq(expenses.tripId, tripId));
 
           cleanupExecuted = true;
-          console.log(`🗑️ Local data soft-deleted for trip: ${tripId}`);
+          console.log(`[TripActivation] Local data soft-deleted for trip: ${tripId}`);
         }
       });
 
-      // 4-3. 오프라인 지도 정리 (선택적, 트랜잭션 외부에서 실행)
+      // 오프라인 지도 정리 (선택적, 트랜잭션 외부에서 실행)
       // cleanup이 즉시 실행된 경우에만 지도도 삭제
       if (cleanupData && cleanupExecuted) {
         try {
           await cleanupOfflineMapForTrip(tripId);
         } catch (error) {
-          console.error(`⚠️ Failed to cleanup offline map (ignored):`, error);
+          console.error(`[TripActivation] Failed to cleanup offline map (ignored):`, error);
           // 지도 정리 실패해도 비활성화는 성공으로 처리
         }
       }
 
-      // 5. 서버에 비활성화 알림 (선택적, 실패해도 무시)
+      // 서버에 비활성화 알림 (선택적, 실패해도 무시)
       try {
         await apiClient.post(`/api/trips/${tripId}/deactivate`);
-        console.log(`📤 Deactivation notified to server: ${tripId}`);
+        console.log(`[TripActivation] Deactivation notified to server: ${tripId}`);
       } catch (error) {
-        console.warn(`⚠️ Failed to notify deactivation to server (ignored):`, error);
+        console.warn(`[TripActivation] Failed to notify deactivation to server (ignored):`, error);
       }
 
-      console.log(`✅ Trip deactivated: ${tripId} (cleanup: ${cleanupData}, executed: ${cleanupExecuted})`);
+      console.log(
+        `[TripActivation] Trip deactivated: ${tripId} (cleanup: ${cleanupData}, executed: ${cleanupExecuted})`,
+      );
 
       return {
         tripId,
@@ -143,11 +140,11 @@ export const useDeactivateTrip = () => {
         queryClient.invalidateQueries({ queryKey: scheduleQueryKeys.base });
         queryClient.invalidateQueries({ queryKey: expenseQueryKeys.base });
         queryClient.invalidateQueries({ queryKey: routeQueryKeys.base });
-        console.log(`✅ Trip deactivation completed: ${data.tripId}`);
+        console.log(`[TripActivation] Trip deactivation completed: ${data.tripId}`);
       }
     },
     onError: (error) => {
-      console.error('❌ Failed to deactivate trip:', error);
+      console.error('[TripActivation] Failed to deactivate trip:', error);
     },
   });
 };

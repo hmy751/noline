@@ -1,8 +1,6 @@
-// ========================================
 // Trip Local DataSource - SQLite 로컬 DB 작업
-// ========================================
 
-import { db, trips } from '@/shared/db';
+import { getDatabase, trips } from '@/shared/db';
 import { eq, and, isNull, desc, sql } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
@@ -18,18 +16,18 @@ import type { Trip, CreateTripRequest, UpdateTripRequest } from '../model';
 export const getTripsLocal = async (): Promise<Trip[]> => {
   const userId = authStore.userId;
   if (!userId) {
-    console.log('📋 No authenticated user, returning empty trips');
+    console.log('[TripLocal] No authenticated user, returning empty trips');
     return [];
   }
 
-  const tripList = await db
+  const tripList = await getDatabase()
     .select()
     .from(trips)
     .where(and(isNull(trips.deletedAt), eq(trips.userId, userId)))
     .orderBy(desc(trips.updatedAt))
     .all();
 
-  console.log(`📋 Trips loaded from local DB: ${tripList.length} items for user ${userId}`);
+  console.log(`[TripLocal] Trips loaded from local DB: ${tripList.length} items for user ${userId}`);
   return tripList;
 };
 
@@ -37,7 +35,7 @@ export const getTripsLocal = async (): Promise<Trip[]> => {
  * 로컬 DB에서 특정 여행 조회
  */
 export const getTripByIdLocal = async (id: string): Promise<Trip | undefined> => {
-  return await db.select().from(trips).where(eq(trips.id, id)).get();
+  return await getDatabase().select().from(trips).where(eq(trips.id, id)).get();
 };
 
 /**
@@ -71,7 +69,9 @@ export const createTripLocal = async (data: CreateTripRequest): Promise<Trip> =>
   };
 
   await withTransaction(async () => {
-    await db.insert(trips).values(newTrip as typeof trips.$inferInsert);
+    await getDatabase()
+      .insert(trips)
+      .values(newTrip as typeof trips.$inferInsert);
     await addToSyncQueue('trips', id, 'CREATE', {
       id,
       userId,
@@ -87,7 +87,7 @@ export const createTripLocal = async (data: CreateTripRequest): Promise<Trip> =>
     });
   });
 
-  console.log(`✅ Trip created locally: ${id} - ${data.name}`);
+  console.log(`[TripLocal] Trip created locally: ${id} - ${data.name}`);
   return newTrip;
 };
 
@@ -107,14 +107,14 @@ export const updateTripLocal = async (id: string, data: UpdateTripRequest): Prom
   };
 
   await withTransaction(async () => {
-    await db.update(trips).set(dbData).where(eq(trips.id, id));
+    await getDatabase().update(trips).set(dbData).where(eq(trips.id, id));
     await addToSyncQueue('trips', id, 'UPDATE', data);
   });
 
-  console.log(`✅ Trip updated locally: ${id}`);
+  console.log(`[TripLocal] Trip updated locally: ${id}`);
 
   // 업데이트된 전체 entity 조회하여 반환
-  const updated = await db.select().from(trips).where(eq(trips.id, id)).get();
+  const updated = await getDatabase().select().from(trips).where(eq(trips.id, id)).get();
   return updated!;
 };
 
@@ -125,7 +125,7 @@ export const deleteTripLocal = async (id: string): Promise<{ id: string; deleted
   const now = getCurrentISOString();
 
   await withTransaction(async () => {
-    await db
+    await getDatabase()
       .update(trips)
       .set({
         deletedAt: now,
@@ -137,6 +137,6 @@ export const deleteTripLocal = async (id: string): Promise<{ id: string; deleted
     await addToSyncQueue('trips', id, 'DELETE', null);
   });
 
-  console.log(`✅ Trip deleted locally (soft): ${id}`);
+  console.log(`[TripLocal] Trip deleted locally (soft): ${id}`);
   return { id, deletedAt: now };
 };

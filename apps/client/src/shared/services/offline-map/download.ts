@@ -7,7 +7,7 @@
 
 import MapboxGL from '@rnmapbox/maps';
 import { eq } from 'drizzle-orm';
-import { db, offlineCities, trips, tripActivations } from '@/shared/db';
+import { getDatabase, offlineCities, trips, tripActivations } from '@/shared/db';
 import type { NewOfflineCity } from '@/shared/db/schema';
 import { queryClient } from '@/shared/lib/queryClient';
 
@@ -18,10 +18,10 @@ import { queryClient } from '@/shared/lib/queryClient';
  * @returns Promise<void>
  */
 export async function downloadOfflineMapInBackground(tripId: string): Promise<void> {
-  console.log(`🗺️ Starting background map download for trip: ${tripId}`);
+  console.log(`[OfflineMapDownload] Starting background map download for trip: ${tripId}`);
 
-  // 1. Trip의 cityId, destination, coordinates 조회
-  const trip = await db
+  // Trip의 cityId, destination, coordinates 조회
+  const trip = await getDatabase()
     .select({
       cityId: trips.cityId,
       destination: trips.destination,
@@ -37,12 +37,16 @@ export async function downloadOfflineMapInBackground(tripId: string): Promise<vo
     throw new Error('Trip에 도시 정보가 없습니다.');
   }
 
-  // 2. 이미 다운로드된 지도가 있는지 확인
-  const existingCity = await db.select().from(offlineCities).where(eq(offlineCities.cityId, trip.cityId)).get();
+  // 이미 다운로드된 지도가 있는지 확인
+  const existingCity = await getDatabase()
+    .select()
+    .from(offlineCities)
+    .where(eq(offlineCities.cityId, trip.cityId))
+    .get();
 
   if (existingCity) {
     // 이미 있으면 referenceCount만 증가
-    await db
+    await getDatabase()
       .update(offlineCities)
       .set({
         referenceCount: existingCity.referenceCount + 1,
@@ -52,7 +56,7 @@ export async function downloadOfflineMapInBackground(tripId: string): Promise<vo
       .run();
 
     // mapDownloaded 플래그 업데이트
-    await db
+    await getDatabase()
       .update(tripActivations)
       .set({
         mapDownloaded: true,
@@ -61,11 +65,13 @@ export async function downloadOfflineMapInBackground(tripId: string): Promise<vo
       .where(eq(tripActivations.tripId, tripId))
       .run();
 
-    console.log(`✅ Reusing existing offline map: ${trip.cityId} (ref count: ${existingCity.referenceCount + 1})`);
+    console.log(
+      `[OfflineMapDownload] Reusing existing offline map: ${trip.cityId} (ref count: ${existingCity.referenceCount + 1})`,
+    );
     return;
   }
 
-  // 3. 새로 다운로드
+  // 새로 다운로드
   const regionName = `offline_city_${trip.cityId}`;
   const centerLat = parseFloat(trip.latitude);
   const centerLng = parseFloat(trip.longitude);
@@ -95,7 +101,7 @@ export async function downloadOfflineMapInBackground(tripId: string): Promise<vo
 
     const progressListener = async (offlineRegion: any, status: any) => {
       const percentage = Math.round(status.percentage);
-      console.log('[OfflineMap] Download progress:', {
+      console.log('[OfflineMapDownload] Download progress:', {
         percentage,
         completedTileCount: status.completedTileCount,
       });
@@ -104,7 +110,7 @@ export async function downloadOfflineMapInBackground(tripId: string): Promise<vo
       if (percentage >= lastUpdatedProgress + 10 || percentage === 100) {
         lastUpdatedProgress = percentage;
         try {
-          await db
+          await getDatabase()
             .update(tripActivations)
             .set({
               syncProgress: percentage,
@@ -116,13 +122,13 @@ export async function downloadOfflineMapInBackground(tripId: string): Promise<vo
           // UI 갱신 요청
           queryClient.invalidateQueries({ queryKey: ['trip'] });
         } catch (e) {
-          console.error('[OfflineMap] Failed to update progress:', e);
+          console.error('[OfflineMapDownload] Failed to update progress:', e);
         }
       }
     };
 
     const errorListener = (offlineRegion: any, error: any) => {
-      console.error('[OfflineMap] Download error:', error);
+      console.error('[OfflineMapDownload] Download error:', error);
       throw new Error(`오프라인 지도 다운로드 실패: ${error.message}`);
     };
 
@@ -147,12 +153,12 @@ export async function downloadOfflineMapInBackground(tripId: string): Promise<vo
       throw new Error('다운로드된 오프라인 팩을 찾을 수 없습니다.');
     }
 
-    console.log('✅ New offline pack created:', regionName);
+    console.log('[OfflineMapDownload] New offline pack created:', regionName);
   } else {
-    console.log('♻️ Reusing existing offline pack:', regionName);
+    console.log('[OfflineMapDownload] Reusing existing offline pack:', regionName);
   }
 
-  // 4. DB에 저장
+  // DB에 저장
   const now = new Date().toISOString();
   const newOfflineCity: NewOfflineCity = {
     cityId: trip.cityId,
@@ -173,10 +179,10 @@ export async function downloadOfflineMapInBackground(tripId: string): Promise<vo
     updatedAt: now,
   };
 
-  await db.insert(offlineCities).values(newOfflineCity).run();
+  await getDatabase().insert(offlineCities).values(newOfflineCity).run();
 
-  // 5. mapDownloaded 플래그 업데이트
-  await db
+  // mapDownloaded 플래그 업데이트
+  await getDatabase()
     .update(tripActivations)
     .set({
       mapDownloaded: true,
@@ -189,5 +195,5 @@ export async function downloadOfflineMapInBackground(tripId: string): Promise<vo
   queryClient.invalidateQueries({ queryKey: ['trip'] });
   queryClient.invalidateQueries({ queryKey: ['offline-city'] });
 
-  console.log(`✅ Offline map download completed for trip: ${tripId}`);
+  console.log(`[OfflineMapDownload] Offline map download completed for trip: ${tripId}`);
 }

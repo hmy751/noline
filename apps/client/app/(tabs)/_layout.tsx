@@ -4,12 +4,7 @@ import { Home, Calendar, Wallet, User } from 'lucide-react-native';
 import { useAuthStore } from '@/shared/store/auth';
 
 export default function TabsLayout() {
-  const { isAuthenticated, isInitialized } = useAuthStore();
-
-  // 초기화 전이면 대기 (Splash 화면 유지)
-  if (!isInitialized) {
-    return null;
-  }
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   // 비인증이면 로그인 화면으로 리다이렉트
   if (!isAuthenticated) {

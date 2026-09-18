@@ -1,8 +1,6 @@
-// ========================================
 // Expense Local DataSource - SQLite 로컬 DB 작업
-// ========================================
 
-import { db, expenses, schedules } from '@/shared/db';
+import { getDatabase, expenses, schedules } from '@/shared/db';
 import { eq, and, isNull, desc, sql } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
@@ -18,18 +16,18 @@ import type { Expense, CreateExpenseRequest, UpdateExpenseRequest } from '../mod
 export const getAllExpensesLocal = async (): Promise<Expense[]> => {
   const userId = authStore.userId;
   if (!userId) {
-    console.log('📋 No authenticated user, returning empty expenses');
+    console.log('[ExpenseLocal] No authenticated user, returning empty expenses');
     return [];
   }
 
-  const expenseList = await db
+  const expenseList = await getDatabase()
     .select()
     .from(expenses)
     .where(and(isNull(expenses.deletedAt), eq(expenses.userId, userId)))
     .orderBy(desc(expenses.createdAt))
     .all();
 
-  console.log(`📋 All expenses loaded from local DB: ${expenseList.length} items for user ${userId}`);
+  console.log(`[ExpenseLocal] All expenses loaded from local DB: ${expenseList.length} items for user ${userId}`);
   return expenseList;
 };
 
@@ -39,14 +37,14 @@ export const getAllExpensesLocal = async (): Promise<Expense[]> => {
  * - createdAt 기준 내림차순 정렬
  */
 export const getExpensesByTripIdLocal = async (tripId: string): Promise<Expense[]> => {
-  const expenseList = await db
+  const expenseList = await getDatabase()
     .select()
     .from(expenses)
     .where(and(isNull(expenses.deletedAt), eq(expenses.tripId, tripId)))
     .orderBy(desc(expenses.createdAt))
     .all();
 
-  console.log(`📋 Trip expenses loaded from local DB: ${expenseList.length} items`);
+  console.log(`[ExpenseLocal] Trip expenses loaded from local DB: ${expenseList.length} items`);
   return expenseList;
 };
 
@@ -54,14 +52,14 @@ export const getExpensesByTripIdLocal = async (tripId: string): Promise<Expense[
  * 로컬 DB에서 일정별 경비 조회
  */
 export const getExpensesByScheduleIdLocal = async (scheduleId: string): Promise<Expense[]> => {
-  const expenseList = await db
+  const expenseList = await getDatabase()
     .select()
     .from(expenses)
     .where(and(isNull(expenses.deletedAt), eq(expenses.scheduleId, scheduleId)))
     .orderBy(desc(expenses.createdAt))
     .all();
 
-  console.log(`📋 Schedule expenses loaded from local DB: ${expenseList.length} items`);
+  console.log(`[ExpenseLocal] Schedule expenses loaded from local DB: ${expenseList.length} items`);
   return expenseList;
 };
 
@@ -69,14 +67,14 @@ export const getExpensesByScheduleIdLocal = async (scheduleId: string): Promise<
  * 로컬 DB에서 특정 경비 조회
  */
 export const getExpenseByIdLocal = async (id: string): Promise<Expense | undefined> => {
-  return await db.select().from(expenses).where(eq(expenses.id, id)).get();
+  return await getDatabase().select().from(expenses).where(eq(expenses.id, id)).get();
 };
 
 /**
  * scheduleId로 tripId 조회 (라우팅용)
  */
 export const getTripIdByScheduleIdLocal = async (scheduleId: string): Promise<string | null> => {
-  const schedule = await db
+  const schedule = await getDatabase()
     .select({ tripId: schedules.tripId })
     .from(schedules)
     .where(eq(schedules.id, scheduleId))
@@ -115,7 +113,9 @@ export const createExpenseLocal = async (data: CreateExpenseRequest): Promise<Ex
   };
 
   await withTransaction(async () => {
-    await db.insert(expenses).values(newExpense as typeof expenses.$inferInsert);
+    await getDatabase()
+      .insert(expenses)
+      .values(newExpense as typeof expenses.$inferInsert);
     await addToSyncQueue('expenses', id, 'CREATE', {
       id,
       userId,
@@ -131,7 +131,7 @@ export const createExpenseLocal = async (data: CreateExpenseRequest): Promise<Ex
     });
   });
 
-  console.log(`✅ Expense created locally: ${id} - ${data.title}`);
+  console.log(`[ExpenseLocal] Expense created locally: ${id} - ${data.title}`);
   return newExpense;
 };
 
@@ -142,7 +142,7 @@ export const updateExpenseLocal = async (id: string, data: UpdateExpenseRequest)
   const now = getCurrentISOString();
 
   await withTransaction(async () => {
-    await db
+    await getDatabase()
       .update(expenses)
       .set({
         ...data,
@@ -154,10 +154,10 @@ export const updateExpenseLocal = async (id: string, data: UpdateExpenseRequest)
     await addToSyncQueue('expenses', id, 'UPDATE', data);
   });
 
-  console.log(`✅ Expense updated locally: ${id}`);
+  console.log(`[ExpenseLocal] Expense updated locally: ${id}`);
 
   // 업데이트된 전체 entity 조회하여 반환
-  const updated = await db.select().from(expenses).where(eq(expenses.id, id)).get();
+  const updated = await getDatabase().select().from(expenses).where(eq(expenses.id, id)).get();
   return updated!;
 };
 
@@ -171,7 +171,7 @@ export const updateExpenseLocal = async (id: string, data: UpdateExpenseRequest)
 export const deleteExpenseLocal = async (id: string): Promise<{ id: string; deletedAt: string }> => {
   const now = getCurrentISOString();
 
-  const existing = await db
+  const existing = await getDatabase()
     .select({ tripId: expenses.tripId })
     .from(expenses)
     .where(eq(expenses.id, id))
@@ -179,7 +179,7 @@ export const deleteExpenseLocal = async (id: string): Promise<{ id: string; dele
   const tripId = existing?.tripId ?? null;
 
   await withTransaction(async () => {
-    await db
+    await getDatabase()
       .update(expenses)
       .set({
         deletedAt: now,
@@ -191,7 +191,7 @@ export const deleteExpenseLocal = async (id: string): Promise<{ id: string; dele
     await addToSyncQueue('expenses', id, 'DELETE', { tripId });
   });
 
-  console.log(`✅ Expense deleted locally (Soft Delete): ${id}`);
+  console.log(`[ExpenseLocal] Expense deleted locally (Soft Delete): ${id}`);
   return { id, deletedAt: now };
 };
 
@@ -199,6 +199,10 @@ export const deleteExpenseLocal = async (id: string): Promise<{ id: string; dele
  * 로컬 DB에서 경비의 tripId 조회 (라우팅용)
  */
 export const getExpenseTripIdLocal = async (id: string): Promise<string | null> => {
-  const expense = await db.select({ tripId: expenses.tripId }).from(expenses).where(eq(expenses.id, id)).get();
+  const expense = await getDatabase()
+    .select({ tripId: expenses.tripId })
+    .from(expenses)
+    .where(eq(expenses.id, id))
+    .get();
   return expense?.tripId ?? null;
 };

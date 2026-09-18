@@ -1,78 +1,100 @@
-import { db, tripActivations, schedules, expenses } from '@/shared/db';
+import { getDatabase, tripActivations, schedules, expenses } from '@/shared/db';
 import { eq, sql, and, isNotNull, lt } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { hasPendingTasksForTrip } from './queue';
 import { cleanupOfflineMapForTrip } from '@/shared/services/offline-map';
+import { queryClient } from '@/shared/lib/queryClient';
 import { SOFT_DELETE_VACUUM_DAYS } from '@/shared/lib/lifecycle';
 
-/**
- * Background Cleanup Job
- *
- * - cleanupPending = true인 여행 조회
- * - sync_queue에 PENDING 작업이 남아있는지 확인
- * - 모두 동기화 완료되면 Soft delete 실행
- * - 오프라인 지도 삭제
- * - cleanupPending = false로 업데이트
- *
- * 실행 시점:
- * 1. 앱 시작 시 (미완료 cleanup 재시도)
- * 2. Background sync 완료 후 (pushChanges 성공 후)
- */
+let activeCleanup: Promise<number> | null = null;
+let pauseCount = 0;
 
-/**
- * 지연된 cleanup 작업 처리
- *
- * cleanupPending = true인 여행을 찾아서
- * sync_queue가 비어있으면 실제 cleanup 실행
- *
- * @returns 처리된 여행 수
- */
-export async function processPendingCleanups(): Promise<number> {
+/** 앱 시작·sync가 요청한 정리를 공유하며 캐시 후처리도 한 번만 수행한다. */
+export function processPendingCleanups(): Promise<number> {
+  if (pauseCount > 0) {
+    return Promise.resolve(0);
+  }
+  if (activeCleanup) {
+    return activeCleanup;
+  }
+
+  activeCleanup = runPendingCleanups()
+    .then((processedCount) => {
+      if (processedCount > 0) {
+        // 캐시 재조회 완료는 정리 완료와 별개이며 실패해도 정리 결과를 바꾸지 않는다.
+        void Promise.all([
+          queryClient.invalidateQueries({ queryKey: ['trip'] }),
+          queryClient.invalidateQueries({ queryKey: ['schedule'] }),
+          queryClient.invalidateQueries({ queryKey: ['expense'] }),
+        ]).catch((error) => console.error('[Cleanup] cache refresh failed', error));
+      }
+
+      return processedCount;
+    })
+    .finally(() => {
+      activeCleanup = null;
+    });
+  return activeCleanup;
+}
+
+/** 로컬 세션을 비우는 동안 새 정리를 막고 이미 시작한 정리의 종료를 기다린다. */
+export async function withPendingCleanupsPaused<T>(operation: () => Promise<T>): Promise<T> {
+  pauseCount++;
   try {
-    // 1. cleanupPending = true인 여행 조회
-    const pendingCleanups = await db
+    // 정리 실패는 실행부에서 기록한다. 실패로 끝나도 로그아웃 자체는 진행한다.
+    await activeCleanup?.catch(() => undefined);
+    return await operation();
+  } finally {
+    pauseCount--;
+  }
+}
+
+/** 미완료 정리를 순회한다. 미동기화 보호·soft delete·지도 정리는 여행별 실행에서 처리한다. */
+async function runPendingCleanups(): Promise<number> {
+  try {
+    // cleanupPending = true인 여행 조회
+    const pendingCleanups = await getDatabase()
       .select()
       .from(tripActivations)
       .where(eq(tripActivations.cleanupPending, true))
       .all();
 
     if (pendingCleanups.length === 0) {
-      console.log('✅ No pending cleanups');
+      console.log('[Cleanup] No pending cleanups');
       return 0;
     }
 
-    console.log(`🔄 Processing ${pendingCleanups.length} pending cleanups...`);
+    console.log(`[Cleanup] Processing ${pendingCleanups.length} pending cleanups...`);
 
     let processedCount = 0;
 
-    // 2. 각 여행에 대해 cleanup 시도
     for (const activation of pendingCleanups) {
       try {
         await processCleanupForTrip(activation.tripId);
         processedCount++;
       } catch (error) {
-        console.error(`❌ Failed to process cleanup for trip ${activation.tripId}:`, error);
+        console.error(`[Cleanup] Failed to process cleanup for trip ${activation.tripId}:`, error);
         // 개별 여행 cleanup 실패해도 다음 여행 계속 처리
       }
     }
 
-    console.log(`✅ Processed ${processedCount}/${pendingCleanups.length} cleanups`);
+    console.log(`[Cleanup] Processed ${processedCount}/${pendingCleanups.length} cleanups`);
 
-    // 3. Cleanup 완료 후 Vacuum 실행 (7일 이상 지난 Soft delete 레코드 Hard delete)
+    // Cleanup 완료 후 Vacuum 실행 (7일 이상 지난 Soft delete 레코드 Hard delete)
     try {
       const vacuumResult = await vacuumDeletedRecords();
       const totalVacuumed = vacuumResult.schedules + vacuumResult.expenses;
       if (totalVacuumed > 0) {
-        console.log(`✅ Vacuumed ${totalVacuumed} old deleted records`);
+        console.log(`[Cleanup] Vacuumed ${totalVacuumed} old deleted records`);
       }
     } catch (error) {
-      console.error('⚠️ Failed to vacuum deleted records (ignored):', error);
+      console.error('[Cleanup] Failed to vacuum deleted records (ignored):', error);
       // Vacuum 실패해도 cleanup은 성공으로 처리
     }
 
     return processedCount;
   } catch (error) {
-    console.error('❌ Failed to process pending cleanups:', error);
+    console.error('[Cleanup] Failed to process pending cleanups:', error);
     throw error;
   }
 }
@@ -85,20 +107,20 @@ export async function processPendingCleanups(): Promise<number> {
 async function processCleanupForTrip(tripId: string): Promise<void> {
   const now = getCurrentISOString();
 
-  // 1. sync_queue에 PENDING 작업이 있는지 확인
+  // sync_queue에 PENDING 작업이 있는지 확인
   const hasPending = await hasPendingTasksForTrip(tripId);
 
   if (hasPending) {
-    console.log(`⏳ Trip ${tripId} still has pending sync tasks - skipping cleanup`);
+    console.log(`[Cleanup] Trip ${tripId} still has pending sync tasks - skipping cleanup`);
     return;
   }
 
-  // 2. 모든 작업이 동기화 완료됨 → Soft delete 실행
-  console.log(`🗑️ All sync tasks completed for trip ${tripId} - executing cleanup`);
+  // 모든 작업이 동기화 완료됨 → Soft delete 실행
+  console.log(`[Cleanup] All sync tasks completed for trip ${tripId} - executing cleanup`);
 
   await withTransaction(async () => {
-    // 2-1. Soft delete: schedules
-    await db
+    // Soft delete: schedules
+    await getDatabase()
       .update(schedules)
       .set({
         deletedAt: now,
@@ -107,8 +129,8 @@ async function processCleanupForTrip(tripId: string): Promise<void> {
       })
       .where(eq(schedules.tripId, tripId));
 
-    // 2-2. Soft delete: expenses
-    await db
+    // Soft delete: expenses
+    await getDatabase()
       .update(expenses)
       .set({
         deletedAt: now,
@@ -117,8 +139,8 @@ async function processCleanupForTrip(tripId: string): Promise<void> {
       })
       .where(eq(expenses.tripId, tripId));
 
-    // 2-3. cleanupPending 플래그 제거
-    await db
+    // cleanupPending 플래그 제거
+    await getDatabase()
       .update(tripActivations)
       .set({
         cleanupPending: false,
@@ -126,15 +148,15 @@ async function processCleanupForTrip(tripId: string): Promise<void> {
       })
       .where(eq(tripActivations.tripId, tripId));
 
-    console.log(`✅ Local data soft-deleted for trip: ${tripId}`);
+    console.log(`[Cleanup] Local data soft-deleted for trip: ${tripId}`);
   });
 
-  // 3. 오프라인 지도 삭제 (트랜잭션 외부)
+  // 오프라인 지도 삭제 (트랜잭션 외부)
   try {
     await cleanupOfflineMapForTrip(tripId);
-    console.log(`✅ Offline map cleaned up for trip: ${tripId}`);
+    console.log(`[Cleanup] Offline map cleaned up for trip: ${tripId}`);
   } catch (error) {
-    console.error(`⚠️ Failed to cleanup offline map for trip ${tripId} (ignored):`, error);
+    console.error(`[Cleanup] Failed to cleanup offline map for trip ${tripId} (ignored):`, error);
     // 지도 정리 실패해도 cleanup은 성공으로 처리
   }
 }
@@ -150,11 +172,11 @@ async function processCleanupForTrip(tripId: string): Promise<void> {
 export async function forceCleanupTrip(tripId: string): Promise<void> {
   const now = getCurrentISOString();
 
-  console.warn(`⚠️ Force cleanup for trip: ${tripId} (sync_queue ignored)`);
+  console.warn(`[Cleanup] Force cleanup for trip: ${tripId} (sync_queue ignored)`);
 
   await withTransaction(async () => {
     // Soft delete: schedules
-    await db
+    await getDatabase()
       .update(schedules)
       .set({
         deletedAt: now,
@@ -164,7 +186,7 @@ export async function forceCleanupTrip(tripId: string): Promise<void> {
       .where(eq(schedules.tripId, tripId));
 
     // Soft delete: expenses
-    await db
+    await getDatabase()
       .update(expenses)
       .set({
         deletedAt: now,
@@ -174,7 +196,7 @@ export async function forceCleanupTrip(tripId: string): Promise<void> {
       .where(eq(expenses.tripId, tripId));
 
     // cleanupPending 플래그 제거
-    await db
+    await getDatabase()
       .update(tripActivations)
       .set({
         cleanupPending: false,
@@ -187,10 +209,10 @@ export async function forceCleanupTrip(tripId: string): Promise<void> {
   try {
     await cleanupOfflineMapForTrip(tripId);
   } catch (error) {
-    console.error(`⚠️ Failed to cleanup offline map (ignored):`, error);
+    console.error(`[Cleanup] Failed to cleanup offline map (ignored):`, error);
   }
 
-  console.log(`✅ Force cleanup completed for trip: ${tripId}`);
+  console.log(`[Cleanup] Force cleanup completed for trip: ${tripId}`);
 }
 
 /**
@@ -211,33 +233,37 @@ export async function vacuumDeletedRecords(): Promise<{ schedules: number; expen
     thresholdDate.setDate(thresholdDate.getDate() - SOFT_DELETE_VACUUM_DAYS);
     const thresholdISO = thresholdDate.toISOString();
 
-    console.log(`🧹 [Vacuum] Starting vacuum for records deleted before ${thresholdISO}`);
+    console.log(`[Cleanup] Starting vacuum for records deleted before ${thresholdISO}`);
 
     let schedulesDeleted = 0;
     let expensesDeleted = 0;
 
     await withTransaction(async () => {
-      // 1. Hard delete: schedules (deletedAt이 7일 이전)
-      const schedulesToDelete = await db
+      // Hard delete: schedules (deletedAt이 7일 이전)
+      const schedulesToDelete = await getDatabase()
         .select({ id: schedules.id })
         .from(schedules)
         .where(and(isNotNull(schedules.deletedAt), lt(schedules.deletedAt, thresholdISO)))
         .all();
 
       if (schedulesToDelete.length > 0) {
-        await db.delete(schedules).where(and(isNotNull(schedules.deletedAt), lt(schedules.deletedAt, thresholdISO)));
+        await getDatabase()
+          .delete(schedules)
+          .where(and(isNotNull(schedules.deletedAt), lt(schedules.deletedAt, thresholdISO)));
         schedulesDeleted = schedulesToDelete.length;
       }
 
-      // 2. Hard delete: expenses (deletedAt이 7일 이전)
-      const expensesToDelete = await db
+      // Hard delete: expenses (deletedAt이 7일 이전)
+      const expensesToDelete = await getDatabase()
         .select({ id: expenses.id })
         .from(expenses)
         .where(and(isNotNull(expenses.deletedAt), lt(expenses.deletedAt, thresholdISO)))
         .all();
 
       if (expensesToDelete.length > 0) {
-        await db.delete(expenses).where(and(isNotNull(expenses.deletedAt), lt(expenses.deletedAt, thresholdISO)));
+        await getDatabase()
+          .delete(expenses)
+          .where(and(isNotNull(expenses.deletedAt), lt(expenses.deletedAt, thresholdISO)));
         expensesDeleted = expensesToDelete.length;
       }
     });
@@ -246,15 +272,15 @@ export async function vacuumDeletedRecords(): Promise<{ schedules: number; expen
 
     if (totalDeleted > 0) {
       console.log(
-        `✅ [Vacuum] Completed: ${schedulesDeleted} schedules, ${expensesDeleted} expenses (total: ${totalDeleted})`,
+        `[Cleanup] Completed: ${schedulesDeleted} schedules, ${expensesDeleted} expenses (total: ${totalDeleted})`,
       );
     } else {
-      console.log('✅ [Vacuum] No records to vacuum');
+      console.log('[Cleanup] No records to vacuum');
     }
 
     return { schedules: schedulesDeleted, expenses: expensesDeleted };
   } catch (error) {
-    console.error('❌ [Vacuum] Failed to vacuum deleted records:', error);
+    console.error('[Cleanup] Failed to vacuum deleted records:', error);
     throw error;
   }
 }

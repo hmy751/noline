@@ -7,7 +7,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { eq } from 'drizzle-orm';
 import MapboxGL from '@rnmapbox/maps';
 
-import { db } from '@/shared/db';
+import { getDatabase } from '@/shared/db';
 import { offlineCities } from '@/shared/db/schema';
 
 import { offlineCityKeys } from './keys';
@@ -29,17 +29,21 @@ export function useDecrementOfflineCityReference() {
 
   return useMutation({
     mutationFn: async ({ cityId }: DecrementReferenceParams) => {
-      // 1. 현재 참조 카운트 조회
-      const offlineCity = await db.select().from(offlineCities).where(eq(offlineCities.cityId, cityId)).get();
+      // 현재 참조 카운트 조회
+      const offlineCity = await getDatabase()
+        .select()
+        .from(offlineCities)
+        .where(eq(offlineCities.cityId, cityId))
+        .get();
 
       if (!offlineCity) {
-        console.warn(`[DecrementReference] City ${cityId} not found`);
+        console.warn(`[OfflineCity] City ${cityId} not found`);
         return;
       }
 
       const newReferenceCount = offlineCity.referenceCount - 1;
 
-      // 2. 참조 카운트가 0이 되면 삭제
+      // 참조 카운트가 0이 되면 삭제
       if (newReferenceCount <= 0) {
         // Mapbox 오프라인 팩 삭제
         if (offlineCity.mapboxRegionName) {
@@ -49,21 +53,21 @@ export function useDecrementOfflineCityReference() {
 
             if (pack) {
               await MapboxGL.offlineManager.deletePack(offlineCity.mapboxRegionName);
-              console.log(`[DecrementReference] Deleted Mapbox pack: ${offlineCity.mapboxRegionName}`);
+              console.log(`[OfflineCity] Deleted Mapbox pack: ${offlineCity.mapboxRegionName}`);
             }
           } catch (error) {
-            console.error('[DecrementReference] Failed to delete Mapbox pack:', error);
+            console.error('[OfflineCity] Failed to delete Mapbox pack:', error);
             // Mapbox 삭제 실패해도 DB는 삭제 진행
           }
         }
 
         // DB에서 삭제
-        await db.delete(offlineCities).where(eq(offlineCities.cityId, cityId)).run();
+        await getDatabase().delete(offlineCities).where(eq(offlineCities.cityId, cityId)).run();
 
-        console.log(`[DecrementReference] Deleted offline city: ${offlineCity.cityName} (${cityId})`);
+        console.log(`[OfflineCity] Deleted offline city: ${offlineCity.cityName} (${cityId})`);
       } else {
-        // 3. 참조 카운트만 감소
-        await db
+        // 참조 카운트만 감소
+        await getDatabase()
           .update(offlineCities)
           .set({
             referenceCount: newReferenceCount,
@@ -72,7 +76,7 @@ export function useDecrementOfflineCityReference() {
           .where(eq(offlineCities.cityId, cityId))
           .run();
 
-        console.log(`[DecrementReference] Decremented reference count for city ${cityId}: ${newReferenceCount}`);
+        console.log(`[OfflineCity] Decremented reference count for city ${cityId}: ${newReferenceCount}`);
       }
     },
     onSuccess: () => {
@@ -80,7 +84,7 @@ export function useDecrementOfflineCityReference() {
       queryClient.invalidateQueries({ queryKey: offlineCityKeys.all() });
     },
     onError: (error) => {
-      console.error('[useDecrementOfflineCityReference] Error:', error);
+      console.error('[OfflineCity] Error:', error);
     },
   });
 }

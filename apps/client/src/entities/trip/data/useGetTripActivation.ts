@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { db, tripActivations } from '@/shared/db';
+import { getDatabase, tripActivations } from '@/shared/db';
 import { eq, and } from 'drizzle-orm';
 import { tripQueryKeys } from './keys';
 import { authStore } from '@/shared/store/auth';
@@ -12,25 +12,22 @@ import { authStore } from '@/shared/store/auth';
  *
  * @param tripId 여행 ID
  *
- * @example
- * ```tsx
- * const { data: activation, isLoading } = useGetTripActivation(tripId);
- * if (activation?.isActivated) {
- *   // 활성화된 여행
- * }
- * ```
  */
 export const useGetTripActivation = (tripId: string) => {
   return useQuery({
     queryKey: tripQueryKeys.activation(tripId),
     queryFn: async () => {
-      const activation = await db.select().from(tripActivations).where(eq(tripActivations.tripId, tripId)).get();
+      const activation = await getDatabase()
+        .select()
+        .from(tripActivations)
+        .where(eq(tripActivations.tripId, tripId))
+        .get();
 
       if (!activation) {
         return null;
       }
 
-      console.log(`📋 Trip activation loaded: ${tripId} (activated: ${activation.isActivated})`);
+      console.log(`[TripActivation] Trip activation loaded: ${tripId} (activated: ${activation.isActivated})`);
       return activation;
     },
     enabled: !!tripId,
@@ -45,10 +42,6 @@ export const useGetTripActivation = (tripId: string) => {
  * - 동시에 1개만 활성화 가능하므로, 현재 활성화된 여행 반환
  * - userId 필터링으로 다중 사용자 환경 지원
  *
- * @example
- * ```tsx
- * const { data: activeTrip } = useGetActiveTrip();
- * ```
  */
 export const useGetActiveTrip = () => {
   return useQuery({
@@ -58,22 +51,22 @@ export const useGetActiveTrip = () => {
 
       // 인증되지 않은 상태면 null 반환
       if (!userId) {
-        console.log(`📋 [useGetActiveTrip] No authenticated user`);
+        console.log(`[TripActivation] No authenticated user`);
         return null;
       }
 
-      const activation = await db
+      const activation = await getDatabase()
         .select()
         .from(tripActivations)
         .where(and(eq(tripActivations.isActivated, true), eq(tripActivations.userId, userId)))
         .get();
 
       if (!activation) {
-        console.log(`📋 No active trip found for user ${userId}`);
+        console.log(`[TripActivation] No active trip found for user ${userId}`);
         return null;
       }
 
-      console.log(`📋 Active trip loaded: ${activation.tripId} for user ${userId}`);
+      console.log(`[TripActivation] Active trip loaded: ${activation.tripId} for user ${userId}`);
       return activation;
     },
     staleTime: 1 * 60 * 1000, // 1분

@@ -6,13 +6,12 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { generateId } from '@/shared/services/id/ulid';
-import { db } from '@/shared/db';
-import { routes } from '@/shared/db/schema';
+import { getDatabase } from '@/shared/db';
+import { routes, type NewRoute } from '@/shared/db/schema';
 import { getDirections, type MapboxProfile } from '@/shared/services/directions/mapbox';
-import type { NewRoute } from '@/shared/db/schema';
 import { routeQueryKeys } from './keys';
 
-interface Schedule {
+interface ScheduleCoordinates {
   id: string;
   latitude?: number;
   longitude?: number;
@@ -20,7 +19,7 @@ interface Schedule {
 
 interface DownloadRoutesParams {
   tripId: string;
-  schedules: Schedule[];
+  schedules: ScheduleCoordinates[];
   accommodationCoords?: { latitude: number; longitude: number };
 }
 
@@ -49,7 +48,7 @@ export function useAutoDownloadRoutes() {
         return { downloaded: 0 };
       }
 
-      // 1. 숙소 → 첫 일정 (있는 경우)
+      // 숙소 → 첫 일정 (있는 경우)
       if (accommodationCoords && schedulesWithCoords[0]) {
         const firstSchedule = schedulesWithCoords[0];
 
@@ -76,12 +75,15 @@ export function useAutoDownloadRoutes() {
               version: 1,
             });
           } catch (error) {
-            console.error(`Failed to download route (accommodation → ${firstSchedule.id}, ${profile}):`, error);
+            console.error(
+              `[Routes] Failed to download route (accommodation → ${firstSchedule.id}, ${profile}):`,
+              error,
+            );
           }
         }
       }
 
-      // 2. 일정 → 일정 경로들
+      // 일정 → 일정 경로들
       for (let i = 0; i < schedulesWithCoords.length - 1; i++) {
         const currentSchedule = schedulesWithCoords[i];
         const nextSchedule = schedulesWithCoords[i + 1];
@@ -109,25 +111,28 @@ export function useAutoDownloadRoutes() {
               version: 1,
             });
           } catch (error) {
-            console.error(`Failed to download route (${currentSchedule.id} → ${nextSchedule.id}, ${profile}):`, error);
+            console.error(
+              `[Routes] Failed to download route (${currentSchedule.id} → ${nextSchedule.id}, ${profile}):`,
+              error,
+            );
           }
         }
       }
 
-      // 3. DB에 일괄 저장
+      // DB에 일괄 저장
       if (newRoutes.length > 0) {
-        await db.insert(routes).values(newRoutes).run();
+        await getDatabase().insert(routes).values(newRoutes).run();
       }
 
       return { downloaded: newRoutes.length };
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (result, variables) => {
       // 경로 캐시 무효화
       queryClient.invalidateQueries({ queryKey: routeQueryKeys.byTrip(variables.tripId) });
-      console.log(`✅ Downloaded ${_.downloaded} routes for trip ${variables.tripId}`);
+      console.log('[Routes] download completed', { tripId: variables.tripId, downloaded: result.downloaded });
     },
     onError: (error) => {
-      console.error('Failed to download routes:', error);
+      console.error('[Routes] Failed to download routes:', error);
     },
   });
 }

@@ -2,9 +2,9 @@
 
 ## 맡은 결과와 범위
 
-앱을 켰을 때 네트워크·DB·인증 준비, Splash 해제, 첫 화면 선택과 인증 후 작업 시작이 어떤 조건으로 이어지는지 가까운 코드에서 이해하고 수정할 수 있게 한다. 서로 다른 boolean·effect·고정 지연에서 준비 상태를 다시 추론하는 부담을 줄이고 각 소비자가 필요한 상태를 사용하게 한다. 범용 startup framework나 폴더 재편은 목표로 삼지 않는다.
+앱을 켰을 때 네트워크·DB·인증 준비, Splash 해제, 첫 화면 선택과 인증 후 작업 시작이 어떤 조건으로 이어지는지 가까운 코드에서 이해하고 수정할 수 있게 한다. 서로 다른 boolean·effect·고정 지연에서 준비 상태를 다시 추론하는 부담을 줄이고 각 소비자가 필요한 상태를 사용하게 한다. 범용 startup framework나 폴더 재편 자체는 목표로 삼지 않는다. 앱 전체 준비 책임은 `application`에 두고, 해당 기능의 규칙·서비스와 화면 구성을 각 Owner에 연결한다.
 
-Ticket의 네트워크 계약은 **관측과 실제 요청·화면·sync 시작의 연결**이다. 현재 실행은 확대 구현 철회 뒤 사용자가 파일별로 확인하는 코드 품질 보완이며, 아래 전체 계약의 미구현을 자동 추가 작업으로 삼지 않는다. 2026-09-15~16 논의에서 사용자는 Network Store 내부 개선과 정책 구체화를 먼저 선택했고, 직접 필요한 수정은 003으로 분리하지 않고 여기서 함께 수행하기로 했다. 첫 Store 단계와 필요한 소비부 호환 수정을 구현했다. 선택 이유와 조사 근거는 [논의 기록](../../../records/2026-09-16-01-network-policy-and-implementation-boundaries.md)에 있다.
+Ticket의 네트워크 계약은 **관측과 실제 요청·화면·sync 시작의 연결**이다. 현재 실행은 파일별 품질 보완에 이어 사용자가 채택한 DB 실패 재시도·인증 복원·여행 선택·cleanup 종료 조율과 초기화 책임 정리다. 아래 네트워크 전체 계약의 미구현은 남은 범위로 관리하며 자동으로 구현을 확대하지 않는다. 2026-09-15~16 논의에서 사용자는 Network Store 내부 개선과 정책 구체화를 먼저 선택했고, 직접 필요한 수정은 003으로 분리하지 않고 여기서 함께 수행하기로 했다. 첫 Store 단계와 필요한 소비부 호환 수정을 구현했다. 선택 이유와 조사 근거는 [논의 기록](../../../records/2026-09-16-01-network-policy-and-implementation-boundaries.md)에 있다.
 
 첫 범위가 만들 결과는 다음과 같다.
 
@@ -16,7 +16,7 @@ Ticket의 네트워크 계약은 **관측과 실제 요청·화면·sync 시작�
 
 [14번](14-local-mutation-router-transaction.md)과 겹치는 대상 여행별 Router 분기·inactive child의 Local 선조회 문제는 이 연결을 막는 범위에서 함께 정상화한다. 14는 그 결과를 재사용하고 Local mutation·queue 원자성과 타입·cache invalidation의 나머지 범위를 맡는다. [15번](15-sync-result-retry-pull-types.md)은 sync push·pull·FAILED 재시도와 결과 의미, [16번](16-unsynced-data-cleanup.md)은 cleanup 보존 조건, [08번](08-date-selection-grouping.md)은 대표 여행의 순수 계산을 계속 맡는다. 003 자료는 관련 재현 근거로 사용하며 003 전체를 이번 수정 범위로 옮기지 않는다.
 
-DB·auth 실패 처리, 인증 route guard, Splash와 나머지 initializer 연결은 Ticket 06의 후속 범위다. 다만 첫 sync에 실제 DB 사용 가능·인증 준비가 필요한 조건과 네트워크 변화에 따른 선택 유지는 이번 연결에 포함한다.
+DB·auth 실패 정책과 Splash·준비 경계, 여행 선택 적용과 pending cleanup 연결은 구현했다. 인증 route guard 전체와 login·logout·override 변화에 따른 sync 시작 연결은 남는다. DB 준비 실패 때 진입을 막는 동작과 진행 중 pending cleanup을 기다리는 세션 종료는 사용자가 이번 범위에서 명시적으로 채택했다.
 
 ## 실행 맥락과 현재 코드의 차이
 
@@ -25,11 +25,11 @@ Noline은 Selective Local-First다. 활성 여행의 Trip·Schedule·Expense는 
 앞선 Main 조사와 이번 문서 대조에서 확인한 구현 출발점은 다음과 같다. 실행 기기에서 재현한 전체 제품 결과로 확대하지 않는다.
 
 - [Network Store](../../../../../../../apps/client/src/shared/store/network.ts)는 초기 unknown, 순수 관측 변환, listener 기반 init과 cleanup, 10초 확인 불가 안내·수동 refresh를 구현했다. 실제 실행 상태와 화면 override의 읽기 경계를 구별한다. 초기의 임시 online·null 축약·앱의 추가 fetch는 제거했다.
-- [Root](../../../../../../../apps/client/app/_layout.tsx)는 첫 네트워크 결과를 기다리지 않고 DB·auth 초기화를 이어간다. 준비 flag와 실제 성공 여부, 반복 초기화·cleanup의 연결을 구별할 필요가 있다.
+- [Root](../../../../../../../apps/client/app/_layout.tsx)는 앱 구성을 보여 주고, [AppInitialization](../../../../../../../apps/client/src/application/AppInitialization.tsx)이 네트워크 감지 수명과 DB→인증 복원→준비 완료를 소유한다. 첫 네트워크 결과를 기다리지 않는다. DB 준비 실패에는 Provider·화면을 연결하지 않고 실패·재시도 화면을 보여 준다.
 - [Activation Router](../../../../../../../apps/client/src/shared/services/offline-prep/router.ts)는 실제 online일 때만 Remote를 열도록 호환 수정했고, override 중 Router mutation은 Local/Remote 모두 거부한다. Trip mutation의 전역 활성 여행 존재 판단은 여전히 수정 대상 여행의 활성 여부와 달라 후속 정상화가 필요하다.
 - [Schedule repository](../../../../../../../apps/client/src/entities/schedule/repository/schedule-repository.ts)와 [Expense repository](../../../../../../../apps/client/src/entities/expense/repository/expense-repository.ts)의 update/delete는 tripId를 찾기 위한 Local 선조회 때문에 inactive Remote 경로가 실패할 수 있다.
 - [Policy hook](../../../../../../../apps/client/src/shared/policy/useAppPolicy.ts)은 unknown의 제한 모드를 기존 offline 권한 표로 처리해 없는 key 조회를 막았다. unknown 안내 이유·내용 제한과 활성 여부 로딩의 후속 연결은 남아 있다.
-- [SyncProvider](../../../../../../../apps/client/src/shared/services/sync/provider.tsx)의 시작 조건과 중복 방지는 Store·Root 준비 조건에 연결해야 한다. syncStrategy 선언의 존재만으로 실행 조건이 적용됐다고 보지 않는다.
+- [SyncProvider](../../../../../../../apps/client/src/shared/services/sync/provider.tsx)는 DB 준비와 인증 복원 시도 완료 뒤 mount된다. 로그인 여부와 login·logout·override 해제 변화까지 시작 조건으로 연결하는 것은 남는다. syncStrategy 선언의 존재만으로 실행 조건이 적용됐다고 보지 않는다.
 - [QueryClient](../../../../../../../apps/client/src/shared/lib/queryClient.ts)와 조회 화면에는 이전 서버 응답이 남을 수 있다. 요청 중단만으로 제한 화면이 나타나지는 않으며, 조회 불가가 빈 목록과 합쳐지지 않아야 한다.
 - 폼의 일반 오류 안내가 Router의 제한 이유를 덮을 수 있다. 대표 수정 Drawer는 성공 때 닫고 실패 때 일반 안내를 하지만 모든 생성·삭제 경로의 입력 유지까지 검증된 것은 아니다.
 
@@ -108,7 +108,20 @@ debug override가 없는 정상 동작에서 활성 여행은 unknown/offline이
 5. sync 시작 조건은 DB 사용 가능, auth 초기화·인증 완료, 실제 online, debug 쓰기 차단 해제와 동시 실행 여부를 함께 확인한다. provider mount와 네트워크 복구가 겹쳐도 같은 실행을 중복 시작하지 않게 한다. engine 결과·queue 재시도 내부는 15의 범위다.
 6. background→active에서 현재 연결을 한 번 재확인하는 연결을 검토한다. 이전에 online/offline이었어도 foreground에서 stale할 수 있으므로 unknown만 재확인한다는 초기 후보를 고정하지 않는다. 별도 주기 polling이나 foreground 진입 때 강제 unknown은 추가하지 않는다.
 
-네트워크 신호가 늦어도 진입할 수 있다는 합의와 DB·auth 자체가 실패한 경우의 진입 정책은 구별한다. 나머지 startup 범위의 상세 결정은 첫 결과 이후 이어 간다.
+네트워크 신호가 늦어도 진입할 수 있다는 합의와 DB 실패 진입 정책은 구별한다. DB 준비 성공은 인증 복원과 화면 연결의 선행 조건이다. 인증 복원은 사용자·토큰이 없거나 보안 저장소 읽기에 실패해도 비인증 상태로 완료한다. 저장소 읽기 실패만으로 저장된 정보를 지우거나 서버 토큰 검증을 추가하지 않는다.
+
+### 현재 startup 계약과 책임
+
+- 앱 준비 완료는 DB 사용 가능과 인증 복원 시도의 완료다. 로그인 여부·네트워크 확정·지도 준비·sync 완료를 뜻하지 않는다. 여행이 없거나 활성 여행이 없어도 SQLite 연결·스키마는 준비한다. DB의 존재와 로컬에 준비된 여행 내용은 다른 조건이다.
+- `AppInitialization`은 준비 상태·실행 중 중복 방지·해제된 화면의 늦은 완료 억제·Splash·DB 실패 안내와 재시도를 함께 소유한다. 재시도는 DB와 인증 준비를 이어가는 같은 실행이며 reset이나 데이터 삭제를 하지 않는다. 네트워크 구독은 재시도 중 유지한다.
+- Auth Store는 보안 저장소와 인증 상태를 다루며 `restoreSessionOnce` Promise를 Store 생애 동안 공유한다. 완료 후 복원을 다시 실행해 login/logout 상태를 덮지 않는다. 앱 진입·Splash 책임은 Store에 넣지 않는다.
+- `_layout.tsx`의 `AppNavigation`은 Stack과 인증 리다이렉트, `AuthenticatedEffects`는 로그인 수명에 연결할 여행 선택·지도 정리·pending cleanup hook을 모은다. 앱 전체 준비를 feature에 넣지 않고 `application`으로 분리한 이유는 여러 기능을 조율하는 책임이기 때문이다. 기능별 규칙을 application으로 이동하지 않는다.
+- `getDatabase()`는 스키마 준비 성공 뒤에만 DB 객체를 제공한다. 초기화 전·준비 실패 뒤·reset 실패 뒤에는 오류를 던진다. reset 시작 시 준비 상태를 폐기한다. 이미 소비자가 얻어 간 객체의 작업 취소·SQL migration은 별도 계약으로 남는다.
+- 여행 선택은 사용자의 선택을 유지한다. 성공한 Remote 목록이며 실제 online이고 조회 중이 아닐 때 기존 선택의 제거를 확인하면 다른 기본 여행으로 전환한다. 남은 여행이 없으면 선택을 해제한다. Local 목록·조회 실패/진행 중·offline/unknown에서는 기존 선택을 보존하고 연결 복구만으로 바꾸지 않는다. Repository의 실제 조회 출처를 사용한다.
+- pending cleanup은 startup과 sync가 같은 진행 중 Promise를 공유한다. 공통 실행이 캐시 재조회도 한 번 요청한다. 로그인 후 지연 예약은 hook이 소유하며 준비 완료를 기다리는 조건이 아니다.
+- 로그아웃·회원 탈퇴의 로컬 세션 종료는 새 pending cleanup을 막고 진행 중 정리의 성공·실패 종료를 기다린 뒤 큐·DB·인증·여행 선택·캐시를 비운다. 종료가 실패해도 일시 중단은 해제한다. 전체 sync·지도 만료 정리의 중단이나 데이터 보존 안전성을 추가로 보장하지 않는다.
+
+초기화와 인증의 분리는 코드 위치를 벌리기 위한 것이 아니라 앱 준비의 순서·실패·UI와 인증 저장소·상태의 변경 이유를 각 책임 안에 모으기 위한 것이다. 추가 필수 준비 단계는 `AppInitialization`, 화면 이동은 `AppNavigation`, 로그인 후 작업의 연결은 `AuthenticatedEffects`, 개별 규칙은 해당 Entity·서비스에서 변경한다. 범용 작업 등록기나 다른 초기화 파일의 일괄 분리는 도입하지 않았다.
 
 ## 완료 조건과 확인 방법
 
@@ -128,17 +141,17 @@ debug override가 없는 정상 동작에서 활성 여행은 unknown/offline이
 
 ## 현재 상태와 실제 결과
 
-2026-09-18 현재는 사용자와 파일별로 검토한 가독성·책임 정리와 명시적으로 채택한 Network Store·SyncProvider 변경을 저장했다. 앞선 확대 워커 구현은 철회된 이력으로 보존하며, 배경 네트워크 계약의 전체 구현을 이번 품질 변경의 완료 조건으로 확대하지 않는다. 상세 선택·검증·커밋 경계는 [파일별 검토와 레이아웃 기록](../../../records/2026-09-18-01-network-provider-layout-review-and-commits.md)에 있다.
+DB 실패 재시도·인증 복원·여행 선택·pending cleanup 조율과 `application` 분리, 독립 코드 스타일 리뷰 기준 반영을 구현했다. Ticket 전체 완료와 사용자 최종 수락은 남는다. 선택과 반복 보완의 이유, 변경 전 실패 증거, 리뷰의 채택·후속 범위는 [앱 초기화·리뷰·스타일 기록](../../../records/2026-09-18-02-app-initialization-and-style.md)이 소유한다.
 
-- Network Store는 realStatus/useRealNetworkStatus와 useDisplayNetworkStatus를 구분한다. private session 안에서 구독·unknown 안내·공유 refresh Promise를 관리하며 performRefresh의 관측 반영은 요청 실패 catch 밖에서 수행한다. enum 전환은 아래 추후 메모만 유지한다.
-- Policy는 unknown에 기존 offline 권한 표를 사용하며 CRUD 권한 선택 중복과 타입 중복을 정리했다. Router는 실제 online Remote·override 쓰기 차단을 유지한다. 대상 Trip mutation의 전역 활성 판단 문제는 남아 있다.
-- SyncProvider는 ref 잠금으로 같은 렌더의 중복 진입을 막고 실패 시 잠금을 해제한다. 완료된 실행 뒤 재실행, 기존 성공 시각 유지, 주기 타이머 수명은 테스트했다. 후속 동시 호출은 기존 실행을 기다리지 않고 반환한다. DB/auth 준비 연결과 DebugScreen의 engine 직접 수동 호출은 남는다.
-- Root는 초기화·인증 라우팅·인증 후 작업을 같은 `_layout.tsx`에서 관리한다. 사용자 결정에 따라 별도 features/application 폴더나 컴포넌트 파일로 분리하지 않았다. initializer 이름·Store 구독·cleanup 함수·로그를 정리했고 DB/auth 실패 진입과 여행 선택의 기존 동작은 확장하지 않았다.
-- Debug 표시·재확인, Home 예제 제거, ScheduleCard 이벤트 타입과 Policy 타입 정리를 함께 저장했다.
+기존 Network Store·Policy·Router·SyncProvider 결과는 유지한다. 이번 변경은 준비 경계 안에 Provider를 배치해 DB·복원 전 mount를 막았지만 Provider의 인증 구독·login/logout/override 해제 연결과 Debug engine 직접 호출을 해결한 것은 아니다. 대상 Trip 분기와 inactive child Local 선조회, 제한·복구 화면 전체도 미완료다.
 
-레이아웃 테스트 15개는 개선 전후 통과했다. 최종 전체 client Jest는 8개 suite·108개 test 통과이며, 현재 Provider 테스트 9개는 mock 엔진 기준이다. 남은 6개 제품/테스트 파일의 Prettier 통과, ESLint는 Prettier 연동 규칙 제외 시 오류 0개·경고 9개다. client typecheck에는 기존 지도 오류 3개가 남는다. 실제 기기·native·SQLite·서버, 복구 후 선택 보존 전체, DB/auth 실패 UX는 검증하지 않았다.
+코드 표현에는 기존 Prettier 설정, 의미가 바뀌는 단계의 빈 줄, guard 중괄호, 실제 범위가 드러나는 이름, 이유·계약·예외 중심 주석, 모듈과 이벤트를 드러내는 로그를 적용했다. 캐시 요청과 완료를 구별하고 스타일 정리를 위해 `await`를 추가하지 않았다. 공개 진입점에서 내부 구현으로 이어지는 함수 배치를 정리했다. 테스트는 시나리오별로 묶고 경우별 입력 객체·실제 실행 경계의 Promise를 사용한다. 새 비동기 `void` 표시는 기존 `no-void` 규칙과 충돌해 일괄 추가하지 않았다.
 
-제품 저장 경계는 `c578446`(Network), `6efdfed`(Policy·Router·Provider와 테스트), `0ce6f4d`(레이아웃·테스트와 남은 화면/타입)다. Ticket 06 전체 구현·최종 수락은 남는다. 기록은 사용자 요청의 수동 반영이며 자동 Maintain freshness·실패 generation·machine status를 갱신하지 않는다.
+Main이 직접 실행한 최종 client Jest는 **14개 suite·154개 test 통과**다. Layout 26개, 인증 Store 7개, DB 준비 8개, 여행 선택 9개, 목록 출처 2개, cleanup 수명 7개와 Tabs 보호 2개를 포함한다. 코드 스타일 정리 전후 동일한 전체 154개 test가 통과했다. 변경된 TypeScript 39개 파일의 ESLint는 Prettier 연동 규칙 제외 시 오류 0개·경고 26개이고 별도 Prettier와 diff 검사는 통과했다. client 타입 검사에는 기존 Mapbox 좌표와 OfflinePack 필드 오류 3개가 남는다.
+
+검사는 native·SQLite·보안 저장소·서버를 mock한 범위다. 실제 Expo 화면·기기 DB 보존/이관·서버 전송 증거는 아니다. 기존 저장 경계 `c578446`·`6efdfed`·`0ce6f4d` 이후 startup·스타일 개선과 관련 테스트·Workspace 기록을 `refactor(client): 앱 초기화 경계와 실패 복구 흐름 정리` 커밋으로 함께 저장했다. SQL·transaction·cleanup 내부 보존 조건과 `any`·단언의 전면 정리는 별도 후속 범위로 남긴다.
+
+다음으로 판단할 startup 범위는 DB 준비·인증 상태·실제 online·override 해제의 sync 시작 연결과 Debug 수동 호출의 우회다. 인증 route guard 전체, 대상별 Router·inactive child 분기, 제한/복구 화면과 foreground 재확인은 아래 네트워크 계약의 남은 범위다. 08의 대표 여행 계산, 14의 실제 SQLite 원자성, 15의 엔진 결과/재시도, 16의 보존 조건을 이번 시작 연결과 혼동하지 않는다.
 
 ## 추후 개선 메모 — NetworkStatus enum 전환
 

@@ -6,7 +6,7 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { generateId } from '@/shared/services/id/ulid';
-import { db, routes, type NewRoute } from '@/shared/db';
+import { getDatabase, routes, type NewRoute } from '@/shared/db';
 import { getDirections, type MapboxProfile, type Coordinate } from '@/shared/services/directions';
 import { routeQueryKeys } from './keys';
 
@@ -30,12 +30,12 @@ export function useSaveRoute() {
 
   return useMutation({
     mutationFn: async ({ tripId, fromScheduleId, toScheduleId, from, to, profile = 'walking' }: SaveRouteParams) => {
-      console.log(`🛣️ Saving route: ${fromScheduleId || 'accommodation'} → ${toScheduleId} (${profile})`);
+      console.log(`[Routes] Saving route: ${fromScheduleId || 'accommodation'} → ${toScheduleId} (${profile})`);
 
-      // 1. Mapbox Directions API 호출
+      // Mapbox Directions API 호출
       const directions = await getDirections({ from, to, profile });
 
-      // 2. DB 저장
+      // DB 저장
       const now = new Date().toISOString();
       const newRoute: NewRoute = {
         id: generateId(),
@@ -52,9 +52,9 @@ export function useSaveRoute() {
         version: 1,
       };
 
-      await db.insert(routes).values(newRoute).run();
+      await getDatabase().insert(routes).values(newRoute).run();
 
-      console.log(`✅ Route saved: ${directions.distance}m, ${directions.duration}s`);
+      console.log(`[Routes] Route saved: ${directions.distance}m, ${directions.duration}s`);
 
       return newRoute;
     },

@@ -44,7 +44,7 @@
 
 ## 003 결함 Ticket과의 연결
 
-002는 이해·수정 부담을 줄이는 결과를, [003](../../../../003-bug-investigation-and-fixes/current/memory/tickets/index.md)은 확인된 결함의 동작 수정을 맡는 것이 기본 배치다. 2026-09-15~16 사용자 선택으로 **06의 네트워크·정책 연결과 직접 필요한 대상 Router 분기·inactive child 선조회 정상화는 002에서 함께 수행**한다. 아래 003-01·03·07 연결은 이 범위에서 재현 근거로 사용하고 별도 구현을 기다리는 조건으로 두지 않는다. 14는 06의 Router 결과를 재사용한다. 이 예외가 003 전체나 나머지 DB·auth·sync·cleanup 결함을 옮기는 것은 아니다. 같은 파일을 만지더라도 담당과 회귀 근거를 맞춰 중복 수정하지 않으며, 필요한 미해결이 있으면 해당 완료는 열어 둔다.
+002는 이해·수정 부담을 줄이는 결과를, [003](../../../../003-bug-investigation-and-fixes/current/memory/tickets/index.md)은 확인된 결함의 동작 수정을 맡는 것이 기본 배치다. 2026-09-15~16 사용자 선택으로 **06의 네트워크·정책 연결과 직접 필요한 대상 Router 분기·inactive child 선조회 정상화는 002에서 함께 수행**한다. 아래 003-01·03·07 연결은 이 범위에서 재현 근거로 사용하고 별도 구현을 기다리는 조건으로 두지 않는다. 14는 06의 Router 결과를 재사용한다. 앱 준비에서는 사용자가 명시적으로 채택한 DB 실패 재시도·인증 복원·여행 선택과 pending cleanup 종료 조율도 06에서 수행한다. 이 예외는 003 전체나 SQL migration·전체 sync 취소·cleanup 내부 보존 계약을 옮기는 허용이 아니다. 현재 계약과 선택 근거는 06 본문과 연결된 최신 기록이 소유한다. 같은 파일을 만지더라도 담당과 회귀 근거를 맞춰 중복 수정하지 않으며, 필요한 미해결이 있으면 해당 완료는 열어 둔다.
 
 - 앱 준비·첫 화면·선택: 002-06·08은 [003-01 준비 실패](../../../../003-bug-investigation-and-fixes/current/memory/tickets/01-startup-and-error-recovery.md), [003-02 인증 복구](../../../../003-bug-investigation-and-fixes/current/memory/tickets/02-auth-account-recovery.md), [003-03 여행 선택·수정](../../../../003-bug-investigation-and-fixes/current/memory/tickets/03-trip-management.md)과 연결한다.
 - 입력·표시·날짜: 002-10·11·13은 [003-06 form 상태](../../../../003-bug-investigation-and-fixes/current/memory/tickets/06-form-state-and-defaults.md), 002-08은 [003-08 날짜 의미·기간 밖 접근](../../../../003-bug-investigation-and-fixes/current/memory/tickets/08-date-and-range-consistency.md)을 사용한다. 같은 ID 재열기의 정상 근거도 유지한다.

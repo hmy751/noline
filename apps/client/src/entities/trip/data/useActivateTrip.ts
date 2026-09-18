@@ -1,5 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { db, trips, tripActivations, schedules as schedulesTable, expenses as expensesTable } from '@/shared/db';
+import {
+  getDatabase,
+  trips,
+  tripActivations,
+  schedules as schedulesTable,
+  expenses as expensesTable,
+} from '@/shared/db';
 import { eq } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import apiClient from '@/shared/api/fetcher';
@@ -21,11 +27,6 @@ import type { Trip } from '../model/types';
  * - 동시에 1개 여행만 활성화 가능 (기존 활성화된 여행 자동 비활성화)
  * - 오프라인 지도 다운로드 백그라운드 실행
  *
- * @example
- * ```tsx
- * const { mutate: activateTrip, isPending } = useActivateTrip();
- * activateTrip(tripId);
- * ```
  */
 export const useActivateTrip = () => {
   const queryClient = useQueryClient();
@@ -34,41 +35,49 @@ export const useActivateTrip = () => {
     mutationFn: async (tripId: string) => {
       const now = getCurrentISOString();
 
-      // 1. 이미 활성화된 경우 - 경로만 다운로드하고 종료
-      const existingActivation = db.select().from(tripActivations).where(eq(tripActivations.tripId, tripId)).get();
+      // 이미 활성화된 경우 - 경로만 다운로드하고 종료
+      const existingActivation = getDatabase()
+        .select()
+        .from(tripActivations)
+        .where(eq(tripActivations.tripId, tripId))
+        .get();
 
       if (existingActivation?.isActivated) {
-        console.log(`✅ Trip already activated: ${tripId}, checking routes...`);
+        console.log(`[TripActivation] Trip already activated: ${tripId}, checking routes...`);
 
         // 이미 활성화되어 있어도 경로 다운로드는 시도 (없는 경로만 다운로드됨)
-        const localSchedules = db.select().from(schedulesTable).where(eq(schedulesTable.tripId, tripId)).all();
+        const localSchedules = getDatabase()
+          .select()
+          .from(schedulesTable)
+          .where(eq(schedulesTable.tripId, tripId))
+          .all();
         if (localSchedules.length > 0) {
           downloadRoutesForSchedules({ tripId, schedules: localSchedules }).catch((error) => {
-            console.error('❌ Route download failed for already activated trip:', error);
+            console.error('[TripActivation] Route download failed for already activated trip:', error);
           });
         }
 
         return { tripId, alreadyActivated: true };
       }
 
-      // 2. 서버에서 여행 데이터 Pull (모든 Trip + 일정, 경비)
+      // 서버에서 여행 데이터 Pull (모든 Trip + 일정, 경비)
       const response = await apiClient.post(`/api/trips/${tripId}/activate`);
 
       const { trips: allTrips = [], schedules = [], expenses = [] } = response.data;
 
-      // 3. 활성화하려는 여행 정보 찾기 (서버 응답에서)
+      // 활성화하려는 여행 정보 찾기 (서버 응답에서)
       const trip = allTrips.find((t: Trip) => t.id === tripId);
 
       if (!trip) {
         throw new Error(`Trip not found in server response: ${tripId}`);
       }
 
-      // 4. 트랜잭션: 로컬 DB 업데이트
+      // 트랜잭션: 로컬 DB 업데이트
       await withTransaction(async () => {
-        // 4-1. 모든 Trip 메타데이터 저장 (upsert)
+        // 모든 Trip 메타데이터 저장 (upsert)
         if (allTrips.length > 0) {
           for (const tripData of allTrips) {
-            await db
+            await getDatabase()
               .insert(trips)
               .values(tripData)
               .onConflictDoUpdate({
@@ -79,11 +88,11 @@ export const useActivateTrip = () => {
                 },
               });
           }
-          console.log(`💾 Saved ${allTrips.length} trips to local DB`);
+          console.log(`[TripActivation] Saved ${allTrips.length} trips to local DB`);
         }
 
-        // 4-2. 기존 활성화 레코드 비활성화 (1-Trip 제한, tripActivations만 사용)
-        await db
+        // 기존 활성화 레코드 비활성화 (1-Trip 제한, tripActivations만 사용)
+        await getDatabase()
           .update(tripActivations)
           .set({
             isActivated: false,
@@ -92,11 +101,11 @@ export const useActivateTrip = () => {
           })
           .where(eq(tripActivations.isActivated, true));
 
-        // 4-5. 활성화 레코드 생성 또는 업데이트 (upsert)
+        // 활성화 레코드 생성 또는 업데이트 (upsert)
         const expiresAt = new Date(trip.endDate);
         expiresAt.setDate(expiresAt.getDate() + TRIP_ACTIVATION_GRACE_DAYS);
 
-        await db
+        await getDatabase()
           .insert(tripActivations)
           .values({
             id: generateId(),
@@ -130,10 +139,10 @@ export const useActivateTrip = () => {
             },
           });
 
-        // 4-5. Pull된 데이터 로컬 DB에 저장 (Last-Write-Wins)
+        // Pull된 데이터 로컬 DB에 저장 (Last-Write-Wins)
         if (schedules.length > 0) {
           for (const schedule of schedules) {
-            await db
+            await getDatabase()
               .insert(schedulesTable)
               .values(schedule)
               .onConflictDoUpdate({
@@ -144,12 +153,12 @@ export const useActivateTrip = () => {
                 },
               });
           }
-          console.log(`💾 Saved ${schedules.length} schedules to local DB`);
+          console.log(`[TripActivation] Saved ${schedules.length} schedules to local DB`);
         }
 
         if (expenses.length > 0) {
           for (const expense of expenses) {
-            await db
+            await getDatabase()
               .insert(expensesTable)
               .values(expense)
               .onConflictDoUpdate({
@@ -160,20 +169,22 @@ export const useActivateTrip = () => {
                 },
               });
           }
-          console.log(`💾 Saved ${expenses.length} expenses to local DB`);
+          console.log(`[TripActivation] Saved ${expenses.length} expenses to local DB`);
         }
       });
 
-      console.log(`✅ Trip activated: ${tripId} (${schedules.length} schedules, ${expenses.length} expenses)`);
+      console.log(
+        `[TripActivation] Trip activated: ${tripId} (${schedules.length} schedules, ${expenses.length} expenses)`,
+      );
 
       // 백그라운드로 오프라인 지도 다운로드 시작 (비동기, UI 블로킹 방지)
       downloadOfflineMapInBackground(tripId).catch((error) => {
-        console.error('❌ Background map download failed:', error);
+        console.error('[TripActivation] Background map download failed:', error);
       });
 
       // 백그라운드로 경로 다운로드 (Mapbox Directions API)
       downloadRoutesForSchedules({ tripId, schedules }).catch((error) => {
-        console.error('❌ Background route download failed:', error);
+        console.error('[TripActivation] Background route download failed:', error);
       });
 
       return { tripId, alreadyActivated: false, schedules, expenses };
@@ -188,11 +199,11 @@ export const useActivateTrip = () => {
         queryClient.invalidateQueries({ queryKey: scheduleQueryKeys.list(data.tripId) });
         queryClient.invalidateQueries({ queryKey: expenseQueryKeys.byTrip(data.tripId) });
         queryClient.invalidateQueries({ queryKey: routeQueryKeys.byTrip(data.tripId) });
-        console.log(`✅ Trip activation completed: ${data.tripId}`);
+        console.log(`[TripActivation] Trip activation completed: ${data.tripId}`);
       }
     },
     onError: (error) => {
-      console.error('❌ Failed to activate trip:', error);
+      console.error('[TripActivation] Failed to activate trip:', error);
     },
   });
 };

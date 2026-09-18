@@ -27,6 +27,7 @@
 
 | Area | Client가 소유하는 것 | 다른 owner로 보낼 것 |
 | --- | --- | --- |
+| `application/*` | 앱 전체 준비 순서·실패·재시도와 실행 수명 조합 | 여행 선택 규칙은 entity, DB·인증·cleanup 실행은 각 shared 모듈 |
 | `entities/*/model` | schema에서 `z.infer`로 client model 연결 | schema shape 자체는 `packages/schema` |
 | `entities/*/api` | remote 호출과 response validation | 서버 route 정책은 `apps/server` |
 | `entities/*/lib` | SQLite datasource와 local mutation | 공통 transaction 정책은 rule |
@@ -50,6 +51,7 @@
 
 ```text
 apps/client/src/
+├── application/       # 앱 전체 준비와 실행 수명 조합 (Expo 라우트는 app/)
 ├── entities/          # model/api/lib/repository/data/ui
 ├── features/          # user workflow slices
 ├── screens/           # screen-level composition

@@ -77,18 +77,20 @@ Node 20.18.1에서 2개 file의 2개 test와 server build가 통과했다. 실�
 
 변경 전 mock route 검사 네 개에서 현재 차이를 확인했고, 수정 후 server unit·route 29개 test와 PostgreSQL integration 4개 test, server build와 형식 검사가 통과했다. 실제 JWT·배포 process와 기존 `places.ts:138` typecheck 오류는 남아 있다. 상세 근거는 [접근 경계 실행 기록](../records/2026-09-14-03-schedule-access-boundary.md)이 소유한다. 사용자는 상세 결과와 검증 한계를 확인한 뒤 이 3번 결과의 기록과 커밋을 요청했다.
 
-## 06 — 네트워크 기반과 가독성·품질 보완
+## 06 — 네트워크 기반과 앱 준비·인증 후 작업 연결
 
-- [Network Store](../../../../../apps/client/src/shared/store/network.ts): unknown 관측 변환, 구독 lifecycle, 10초 안내·재확인, real/display API와 private session을 소유한 action factory.
-- [Root](../../../../../apps/client/app/_layout.tsx), [Debug](../../../../../apps/client/src/features/debug/ui/DashboardView.tsx): 네트워크 시작·정리와 실제/강제 상태 진단·재확인.
-- [Router](../../../../../apps/client/src/shared/services/offline-prep/router.ts), [Policy](../../../../../apps/client/src/shared/policy/useAppPolicy.ts), [SyncProvider](../../../../../apps/client/src/shared/services/sync/provider.tsx): 새 상태와 실제/표시 분리에 필요한 소비부 호환, Provider 초기·online 전환 effect 통합.
-- [Store 검사](../../../../../apps/client/tests/shared/store/network.test.ts), [Router 검사](../../../../../apps/client/tests/shared/services/offline-prep/router-network.test.ts), [Policy 검사](../../../../../apps/client/tests/shared/policy/useAppPolicy-network.test.ts), [SyncProvider 검사](../../../../../apps/client/tests/shared/services/sync/provider-network.test.tsx): 제어한 관측·timer와 mock 실행 경계의 회귀 증거.
+코드는 앱 구성→준비 경계→개별 규칙 순으로 읽는다.
 
-- [Layout 검사](../../../../../apps/client/tests/app/layout.test.tsx): DB→auth 순서, unknown 진입, 인증 라우팅과 지연 cleanup의 실제 Root 연결을 native/서비스 mock 환경에서 검사한다.
+- [Root](../../../../../apps/client/app/_layout.tsx): Provider·Stack·인증 리다이렉트와 로그인 수명에 연결할 작업을 보여 준다.
+- [AppInitialization](../../../../../apps/client/src/application/AppInitialization.tsx): 네트워크 감지 수명, DB→인증 복원→준비 완료, Splash·실패 안내·재시도를 소유한다.
+- [DB](../../../../../apps/client/src/shared/db/index.ts), [Auth Store](../../../../../apps/client/src/shared/store/auth.ts): 준비 뒤 접근만 허용하는 `getDatabase`와 생애에 한 번 수행하는 `restoreSessionOnce`의 실제 계약을 읽는다.
+- [여행 선택](../../../../../apps/client/src/entities/trip/data/useTripSelection.ts), [목록 hook](../../../../../apps/client/src/entities/trip/data/useGetTrips.ts), [Trip Repository](../../../../../apps/client/src/entities/trip/repository/trip-repository.ts): 실제 Local/Remote 출처와 사용자 선택 보존·서버 제거 확인 후 전환을 연결한다.
+- [pending cleanup hook](../../../../../apps/client/src/shared/services/sync/usePendingCleanups.ts), [cleanup-job](../../../../../apps/client/src/shared/services/sync/cleanup-job.ts), [logout-service](../../../../../apps/client/src/shared/services/auth/logout-service.ts): 지연 예약, 공유 실행·캐시 후처리, 진행 중 정리를 기다리는 로컬 세션 종료를 읽는다.
+- [Network Store](../../../../../apps/client/src/shared/store/network.ts), [Policy](../../../../../apps/client/src/shared/policy/useAppPolicy.ts), [Router](../../../../../apps/client/src/shared/services/offline-prep/router.ts), [SyncProvider](../../../../../apps/client/src/shared/services/sync/provider.tsx), [Debug 표시](../../../../../apps/client/src/features/debug/ui/DashboardView.tsx): 앞서 저장한 unknown 관측·실제/표시 경계와 소비 연결의 기반이다. Provider의 인증 시작 조건과 Debug engine 직접 호출은 남는다.
 
-Provider는 ref 잠금과 상태 변화에 재시작하지 않는 선택적 주기 타이머를 사용한다. Root는 별도 파일로 분리하지 않고 initializer와 인증 리다이렉트를 내부에 유지한다. 표시 훅 변경은 HomeScreen·TripDateForm·NetworkStatusIndicator에 연결했고 Debug의 미확정 표시·override·재확인을 추가했다. ScheduleCard의 비구독 실제 getter는 남는다.
+검증은 [Layout](../../../../../apps/client/tests/app/layout.test.tsx)·[Tabs](../../../../../apps/client/tests/app/tabs-layout.test.tsx)의 통합 연결에서 시작하고, [DB 준비](../../../../../apps/client/tests/shared/db/startup.test.ts)·[인증 복원](../../../../../apps/client/tests/shared/store/auth.test.ts)·[여행 선택](../../../../../apps/client/tests/entities/trip/data/useTripSelection.test.tsx)·[목록 출처](../../../../../apps/client/tests/entities/trip/data/useGetTrips.test.tsx)·[cleanup 수명](../../../../../apps/client/tests/shared/services/sync/cleanup-lifecycle.test.ts)의 세부 경우로 내려간다. 기존 [Store](../../../../../apps/client/tests/shared/store/network.test.ts)·[Router](../../../../../apps/client/tests/shared/services/offline-prep/router-network.test.ts)·[Policy](../../../../../apps/client/tests/shared/policy/useAppPolicy-network.test.ts)·[Provider](../../../../../apps/client/tests/shared/services/sync/provider-network.test.tsx) 검사는 유지한다.
 
-저장 경계는 `c578446`, `6efdfed`, `0ce6f4d`다. 전체 client Jest 8개 suite·108개 test가 통과했으며 실제 기기·SQLite·서버 실행을 증명하지 않는다. DB/auth 준비·Debug 수동 sync 우회와 전체 소비 연결은 후속 판단이다. 최신 결과와 파일 분리 보류 이유는 [2026-09-18 실행 기록](../records/2026-09-18-01-network-provider-layout-review-and-commits.md)과 [Ticket 06](../current/memory/tickets/06-app-startup-lifecycle.md)에 있다. 기존 81개·90개 검사와 확대 구현 검증은 각각의 과거 기록으로 보존한다.
+Main이 실행한 최신 전체 client Jest는 14개 suite·154개 test 통과다. native·기기 SQLite·서버 실행 증거는 아니다. 기존 저장 경계는 `c578446`·`6efdfed`·`0ce6f4d`이고 startup·스타일 보완과 관련 테스트·Workspace 기록은 `refactor(client): 앱 초기화 경계와 실패 복구 흐름 정리` 커밋으로 함께 저장했다. 현재 계약·남은 책임은 [Ticket 06](../current/memory/tickets/06-app-startup-lifecycle.md), 선택과 리뷰의 근거는 [앱 초기화·스타일 기록](../records/2026-09-18-02-app-initialization-and-style.md)에서 확인한다.
 
 ## 17 — Trip·Expense 직렬화 선행 조각 (당시 16)
 

@@ -1,4 +1,4 @@
-import { db, trips, schedules, expenses, type Trip, type Schedule, type Expense } from './index';
+import { getDatabase, trips, schedules, expenses, type Trip, type Schedule, type Expense } from './index';
 
 /**
  * 트랜잭션 헬퍼 함수
@@ -7,71 +7,40 @@ import { db, trips, schedules, expenses, type Trip, type Schedule, type Expense 
  * - 둘 중 하나라도 실패하면 전체 롤백
  * - 데이터 정합성 보장
  *
- * @example
- * ```ts
- * await withTransaction(async () => {
- *   // 1. 데이터 저장
- *   await db.insert(trips).values(newTrip);
- *
- *   // 2. sync_queue 기록
- *   await db.insert(syncQueue).values(queueItem);
- * });
- * ```
  */
 export async function withTransaction<T>(callback: () => Promise<T>): Promise<T> {
-  return db.transaction(async (_tx) => {
+  return getDatabase().transaction(async (_tx) => {
     return await callback();
   });
 }
 
-/**
- * 현재 시간을 ISO string으로 반환
- * - SQLite TEXT 필드에 저장
- */
 export function getCurrentISOString(): string {
   return new Date().toISOString();
 }
 
-/**
- * Date를 ISO string으로 변환
- */
+/** Date는 ISO로 변환하고 문자열 입력은 검증 없이 그대로 반환한다. */
 export function dateToISOString(date: Date | string | null): string | null {
-  if (!date) return null;
-  if (typeof date === 'string') return date; // 이미 ISO string
+  if (!date) {
+    return null;
+  }
+  if (typeof date === 'string') {
+    return date; // 이미 ISO string
+  }
   return date.toISOString();
 }
+// Pull 결과를 upsert한다. 생성 시각은 보존하고 서버의 삭제 상태와 version을 반영한다.
 
-// ========================================
-// Upsert 헬퍼 함수 (Pull 동기화용)
-// ========================================
-
-/**
- * 여행 데이터 Upsert (Pull 동기화용)
- *
- * 서버에서 받은 여행 데이터를 로컬 DB에 반영
- * - 존재하면 업데이트
- * - 없으면 삽입
- * - deletedAt이 있는 레코드도 그대로 저장 (Soft Delete 반영)
- *
- * @param records - 서버에서 받은 여행 데이터 배열
- *
- * @example
- * ```ts
- * const serverTrips = await fetchFromServer();
- * await upsertTrips(serverTrips);
- * ```
- */
 export async function upsertTrips(records: Trip[]): Promise<void> {
   if (records.length === 0) {
-    console.log('📭 [Upsert] No trips to upsert');
+    console.log('[Database] No trips to upsert');
     return;
   }
 
-  console.log(`📥 [Upsert] Upserting ${records.length} trips...`);
+  console.log(`[Database] Upserting ${records.length} trips...`);
 
   for (const record of records) {
     try {
-      await db
+      await getDatabase()
         .insert(trips)
         .values(record)
         .onConflictDoUpdate({
@@ -87,47 +56,30 @@ export async function upsertTrips(records: Trip[]): Promise<void> {
             startDate: record.startDate,
             endDate: record.endDate,
             updatedAt: record.updatedAt,
-            deletedAt: record.deletedAt, // ✨ Soft Delete 반영
+            deletedAt: record.deletedAt,
             version: record.version,
-            // createdAt은 업데이트 안 함 (불변)
           },
         });
     } catch (error) {
-      console.error(`❌ [Upsert] Failed to upsert trip ${record.id}:`, error);
+      console.error(`[Database] Failed to upsert trip ${record.id}:`, error);
       throw error;
     }
   }
 
-  console.log(`✅ [Upsert] ${records.length} trips upserted successfully`);
+  console.log(`[Database] ${records.length} trips upserted successfully`);
 }
 
-/**
- * 일정 데이터 Upsert (Pull 동기화용)
- *
- * 서버에서 받은 일정 데이터를 로컬 DB에 반영
- * - 존재하면 업데이트
- * - 없으면 삽입
- * - deletedAt이 있는 레코드도 그대로 저장 (Soft Delete 반영)
- *
- * @param records - 서버에서 받은 일정 데이터 배열
- *
- * @example
- * ```ts
- * const serverSchedules = await fetchFromServer();
- * await upsertSchedules(serverSchedules);
- * ```
- */
 export async function upsertSchedules(records: Schedule[]): Promise<void> {
   if (records.length === 0) {
-    console.log('📭 [Upsert] No schedules to upsert');
+    console.log('[Database] No schedules to upsert');
     return;
   }
 
-  console.log(`📥 [Upsert] Upserting ${records.length} schedules...`);
+  console.log(`[Database] Upserting ${records.length} schedules...`);
 
   for (const record of records) {
     try {
-      await db
+      await getDatabase()
         .insert(schedules)
         .values(record)
         .onConflictDoUpdate({
@@ -138,51 +90,34 @@ export async function upsertSchedules(records: Schedule[]): Promise<void> {
             title: record.title,
             location: record.location,
             address: record.address,
-            scheduledAt: record.scheduledAt, // ✅ ISO string
+            scheduledAt: record.scheduledAt,
             latitude: record.latitude,
             longitude: record.longitude,
             updatedAt: record.updatedAt,
-            deletedAt: record.deletedAt, // ✨ Soft Delete 반영
+            deletedAt: record.deletedAt,
             version: record.version,
-            // createdAt은 업데이트 안 함 (불변)
           },
         });
     } catch (error) {
-      console.error(`❌ [Upsert] Failed to upsert schedule ${record.id}:`, error);
+      console.error(`[Database] Failed to upsert schedule ${record.id}:`, error);
       throw error;
     }
   }
 
-  console.log(`✅ [Upsert] ${records.length} schedules upserted successfully`);
+  console.log(`[Database] ${records.length} schedules upserted successfully`);
 }
 
-/**
- * 경비 데이터 Upsert (Pull 동기화용)
- *
- * 서버에서 받은 경비 데이터를 로컬 DB에 반영
- * - 존재하면 업데이트
- * - 없으면 삽입
- * - deletedAt이 있는 레코드도 그대로 저장 (Soft Delete 반영)
- *
- * @param records - 서버에서 받은 경비 데이터 배열
- *
- * @example
- * ```ts
- * const serverExpenses = await fetchFromServer();
- * await upsertExpenses(serverExpenses);
- * ```
- */
 export async function upsertExpenses(records: Expense[]): Promise<void> {
   if (records.length === 0) {
-    console.log('📭 [Upsert] No expenses to upsert');
+    console.log('[Database] No expenses to upsert');
     return;
   }
 
-  console.log(`📥 [Upsert] Upserting ${records.length} expenses...`);
+  console.log(`[Database] Upserting ${records.length} expenses...`);
 
   for (const record of records) {
     try {
-      await db
+      await getDatabase()
         .insert(expenses)
         .values(record)
         .onConflictDoUpdate({
@@ -195,20 +130,19 @@ export async function upsertExpenses(records: Expense[]): Promise<void> {
             amount: record.amount,
             currency: record.currency,
             category: record.category,
-            date: record.date, // ✅ ISO date string
+            date: record.date,
             hasReceipt: record.hasReceipt,
             receiptUrl: record.receiptUrl,
             updatedAt: record.updatedAt,
-            deletedAt: record.deletedAt, // ✨ Soft Delete 반영
+            deletedAt: record.deletedAt,
             version: record.version,
-            // createdAt은 업데이트 안 함 (불변)
           },
         });
     } catch (error) {
-      console.error(`❌ [Upsert] Failed to upsert expense ${record.id}:`, error);
+      console.error(`[Database] Failed to upsert expense ${record.id}:`, error);
       throw error;
     }
   }
 
-  console.log(`✅ [Upsert] ${records.length} expenses upserted successfully`);
+  console.log(`[Database] ${records.length} expenses upserted successfully`);
 }

@@ -15,3 +15,5 @@ local upsert·cleanup·경로 다운로드의 공통화는 동일한 입력·출
 Ticket 06에서 함께 사용할 의미는 다음과 같다. 실제 네트워크 관측은 online/offline/unknown이며 unknown은 초기뿐 아니라 이후 미확정 관측도 포함한다. 여행 활성화와 현재 화면에서 선택한 여행은 다른 값이다. React Query의 이전 서버 응답 캐시와 활성 여행의 Local SQLite도 다른 역할이며 캐시 존재가 오프라인 접근 허용을 뜻하지 않는다.
 
 Router의 정책 거부는 요청을 시작하지 않았다는 결과이며, 이미 전송한 HTTP 요청의 실패와 구별한다. 제한 이유는 기존 오류 흐름으로 전달하고 버튼마다 같은 검사를 복제하지 않는다. Debug override는 화면용 값으로 실제 요청을 허용하는 근거가 아니며, override 중 쓰기 차단은 별도 조건이다. 정확한 상태 변환·동작과 책임 연결은 [Ticket 06](../tickets/06-app-startup-lifecycle.md)을 따른다.
+
+앱 준비 완료는 DB 사용 가능과 인증 복원 시도의 완료이며, 로그인·네트워크 확정·sync 완료와 다르다. 앱 준비 조율은 `application`, 인증 정보와 상태는 Auth Store, 기능별 선택·정리 규칙은 해당 Entity·서비스가 소유한다. 앱 전체 책임과 하위 기능의 책임을 함께 바꾸지 않는다. `getDatabase`는 초기화 성공 뒤 접근 계약이고 `restoreSessionOnce`는 Store 생애에 한 번 수행하는 복원 계약이다. Repository의 실제 조회 출처는 현재 연결 상태나 화면 override에서 추정하지 않는다.

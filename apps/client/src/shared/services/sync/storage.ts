@@ -1,4 +1,4 @@
-import { db } from '@/shared/db';
+import { getDatabase } from '@/shared/db';
 import { syncMetadata } from '@/shared/db/schema';
 import { eq } from 'drizzle-orm';
 import { getCurrentISOString } from '@/shared/db/utils';
@@ -19,17 +19,10 @@ const LAST_SYNCED_KEY = 'lastSyncedAt';
  *
  * @returns {Promise<Date | null>} 마지막 동기화 시간 (없으면 null)
  *
- * @example
- * const lastSyncedAt = await getLastSyncedAt();
- * if (lastSyncedAt) {
- *   console.log('Last synced:', lastSyncedAt.toISOString());
- * } else {
- *   console.log('Never synced');
- * }
  */
 export async function getLastSyncedAt(): Promise<Date | null> {
   try {
-    const result = await db.select().from(syncMetadata).where(eq(syncMetadata.key, LAST_SYNCED_KEY)).get();
+    const result = await getDatabase().select().from(syncMetadata).where(eq(syncMetadata.key, LAST_SYNCED_KEY)).get();
 
     if (!result) {
       return null;
@@ -37,7 +30,7 @@ export async function getLastSyncedAt(): Promise<Date | null> {
 
     return new Date(result.value);
   } catch (error) {
-    console.error('❌ [Storage] Failed to get lastSyncedAt:', error);
+    console.error('[SyncStorage] Failed to get lastSyncedAt:', error);
     return null;
   }
 }
@@ -47,15 +40,13 @@ export async function getLastSyncedAt(): Promise<Date | null> {
  *
  * @param {Date} date - 저장할 날짜
  *
- * @example
- * await setLastSyncedAt(new Date());
  */
 export async function setLastSyncedAt(date: Date): Promise<void> {
   try {
     const now = getCurrentISOString();
 
     // Upsert: 존재하면 업데이트, 없으면 삽입
-    await db
+    await getDatabase()
       .insert(syncMetadata)
       .values({
         key: LAST_SYNCED_KEY,
@@ -70,24 +61,22 @@ export async function setLastSyncedAt(date: Date): Promise<void> {
         },
       });
 
-    console.log('✅ [Storage] lastSyncedAt saved:', date.toISOString());
+    console.log('[SyncStorage] lastSyncedAt saved:', date.toISOString());
   } catch (error) {
-    console.error('❌ [Storage] Failed to set lastSyncedAt:', error);
+    console.error('[SyncStorage] Failed to set lastSyncedAt:', error);
   }
 }
 
 /**
  * 마지막 동기화 시간 삭제 (디버그용)
  *
- * @example
- * await clearLastSyncedAt();
  */
 export async function clearLastSyncedAt(): Promise<void> {
   try {
-    await db.delete(syncMetadata).where(eq(syncMetadata.key, LAST_SYNCED_KEY));
+    await getDatabase().delete(syncMetadata).where(eq(syncMetadata.key, LAST_SYNCED_KEY));
 
-    console.log('✅ [Storage] lastSyncedAt cleared');
+    console.log('[SyncStorage] lastSyncedAt cleared');
   } catch (error) {
-    console.error('❌ [Storage] Failed to clear lastSyncedAt:', error);
+    console.error('[SyncStorage] Failed to clear lastSyncedAt:', error);
   }
 }

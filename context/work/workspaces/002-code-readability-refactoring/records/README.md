@@ -60,3 +60,5 @@
 후속 분석·결정·실행 기록은 이 디렉터리에 날짜별로 남긴다. 원문·변경하지 않은 snapshot은 [source](../source/index.md), 현재 기준과 진행은 [current](../current/memory/index.md)가 소유한다.
 
 - [파일별 검토·Provider 보완·레이아웃 검사와 커밋](2026-09-18-01-network-provider-layout-review-and-commits.md): 사용자 승인 코드 교체, 레이아웃 내부 유지 결정, 현재 108개 검사와 분리 커밋, 철회 이력 및 남은 정책 연결.
+
+- [앱 초기화의 실패 정책·책임 정리·독립 리뷰와 스타일 반영](2026-09-18-02-app-initialization-and-style.md): DB/auth 실패와 선택·종료 정책의 사용자 결정, application 분리 이유, 테스트 우선 구현·리뷰 반영 경계, 154개 검사와 남은 startup 범위.

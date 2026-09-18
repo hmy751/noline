@@ -6,7 +6,7 @@
  */
 
 import { generateId } from '@/shared/services/id/ulid';
-import { db } from '@/shared/db';
+import { getDatabase } from '@/shared/db';
 import { routes } from '@/shared/db/schema';
 import { queryClient } from '@/shared/lib/queryClient';
 import { routeQueryKeys } from '@/entities/route/data/keys';
@@ -14,7 +14,7 @@ import { getDirections, type MapboxProfile } from './mapbox';
 import type { NewRoute } from '@/shared/db/schema';
 import { eq } from 'drizzle-orm';
 
-interface Schedule {
+interface ScheduleCoordinates {
   id: string;
   latitude?: number | string | null;
   longitude?: number | string | null;
@@ -22,7 +22,7 @@ interface Schedule {
 
 interface DownloadRoutesParams {
   tripId: string;
-  schedules: Schedule[];
+  schedules: ScheduleCoordinates[];
   accommodationCoords?: { latitude: number; longitude: number };
 }
 
@@ -57,12 +57,12 @@ export async function downloadRoutesForSchedules({
     .filter((s) => s.latitude && s.longitude && !isNaN(s.latitude) && !isNaN(s.longitude));
 
   if (schedulesWithCoords.length === 0) {
-    console.log('📍 No schedules with coordinates, skipping route download');
+    console.log('[Routes] No schedules with coordinates, skipping route download');
     return { downloaded: 0 };
   }
 
   // 기존 경로 조회 (중복 다운로드 방지)
-  const existingRoutes = db.select().from(routes).where(eq(routes.tripId, tripId)).all();
+  const existingRoutes = getDatabase().select().from(routes).where(eq(routes.tripId, tripId)).all();
 
   // 경로 존재 여부 체크 헬퍼
   const routeExists = (fromId: string | null, toId: string, profile: MapboxProfile) => {
@@ -70,10 +70,10 @@ export async function downloadRoutesForSchedules({
   };
 
   console.log(
-    `📍 Downloading routes for ${schedulesWithCoords.length} schedules (existing: ${existingRoutes.length})...`,
+    `[Routes] Downloading routes for ${schedulesWithCoords.length} schedules (existing: ${existingRoutes.length})...`,
   );
 
-  // 1. 숙소 → 첫 일정 (있는 경우)
+  // 숙소 → 첫 일정 (있는 경우)
   if (accommodationCoords && schedulesWithCoords[0]) {
     const firstSchedule = schedulesWithCoords[0];
 
@@ -105,12 +105,12 @@ export async function downloadRoutesForSchedules({
           version: 1,
         });
       } catch (error) {
-        console.error(`Failed to download route (accommodation → ${firstSchedule.id}, ${profile}):`, error);
+        console.error(`[Routes] Failed to download route (accommodation → ${firstSchedule.id}, ${profile}):`, error);
       }
     }
   }
 
-  // 2. 일정 → 일정 경로들
+  // 일정 → 일정 경로들
   for (let i = 0; i < schedulesWithCoords.length - 1; i++) {
     const currentSchedule = schedulesWithCoords[i];
     const nextSchedule = schedulesWithCoords[i + 1];
@@ -143,19 +143,22 @@ export async function downloadRoutesForSchedules({
           version: 1,
         });
       } catch (error) {
-        console.error(`Failed to download route (${currentSchedule.id} → ${nextSchedule.id}, ${profile}):`, error);
+        console.error(
+          `[Routes] Failed to download route (${currentSchedule.id} → ${nextSchedule.id}, ${profile}):`,
+          error,
+        );
       }
     }
   }
 
-  // 3. DB에 일괄 저장
+  // DB에 일괄 저장
   if (newRoutes.length > 0) {
-    await db.insert(routes).values(newRoutes).run();
+    await getDatabase().insert(routes).values(newRoutes).run();
 
     // ✅ UI 갱신 요청 (지도 경로 표시)
     queryClient.invalidateQueries({ queryKey: routeQueryKeys.byTrip(tripId) });
 
-    console.log(`✅ Downloaded ${newRoutes.length} routes for trip ${tripId}`);
+    console.log(`[Routes] Downloaded ${newRoutes.length} routes for trip ${tripId}`);
   }
 
   return { downloaded: newRoutes.length };

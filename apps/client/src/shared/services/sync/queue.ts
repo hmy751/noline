@@ -1,5 +1,5 @@
 import { eq, and } from 'drizzle-orm';
-import { db } from '@/shared/db';
+import { getDatabase } from '@/shared/db';
 import { syncQueue, type NewSyncQueueItem, type SyncQueueItem } from '@/shared/db/schema';
 import { generateId } from '../id/ulid';
 import { getCurrentISOString } from '@/shared/db/utils';
@@ -15,13 +15,6 @@ import { getCurrentISOString } from '@/shared/db/utils';
  * @param action - 작업 타입 ('CREATE', 'UPDATE', 'DELETE')
  * @param payload - 서버로 전송할 데이터 (객체)
  *
- * @example
- * ```ts
- * await withTransaction(async () => {
- *   await db.insert(trips).values(newTrip);
- *   await addToSyncQueue('trips', newTrip.id, 'CREATE', newTrip);
- * });
- * ```
  */
 export async function addToSyncQueue(
   tableName: string,
@@ -41,9 +34,9 @@ export async function addToSyncQueue(
     createdAt: getCurrentISOString(),
   };
 
-  await db.insert(syncQueue).values(queueItem);
+  await getDatabase().insert(syncQueue).values(queueItem);
 
-  console.log(`✅ Sync queue added: ${action} ${tableName}/${recordId}`);
+  console.log(`[SyncQueue] Sync queue added: ${action} ${tableName}/${recordId}`);
 
   return queueItem.id;
 }
@@ -57,7 +50,7 @@ export async function addToSyncQueue(
  * @returns PENDING 상태의 sync_queue 항목 배열
  */
 export async function getPendingTasks(): Promise<SyncQueueItem[]> {
-  const tasks = await db
+  const tasks = await getDatabase()
     .select()
     .from(syncQueue)
     .where(eq(syncQueue.status, 'PENDING'))
@@ -74,7 +67,7 @@ export async function getPendingTasks(): Promise<SyncQueueItem[]> {
  * @returns sync_queue 항목 또는 null
  */
 export async function getTaskById(taskId: string): Promise<SyncQueueItem | null> {
-  const tasks = await db.select().from(syncQueue).where(eq(syncQueue.id, taskId)).limit(1).all();
+  const tasks = await getDatabase().select().from(syncQueue).where(eq(syncQueue.id, taskId)).limit(1).all();
 
   return tasks[0] || null;
 }
@@ -101,9 +94,9 @@ export async function updateTaskStatus(
     updateData.retryCount = retryCount;
   }
 
-  await db.update(syncQueue).set(updateData).where(eq(syncQueue.id, taskId));
+  await getDatabase().update(syncQueue).set(updateData).where(eq(syncQueue.id, taskId));
 
-  console.log(`🔄 Task ${taskId} status updated: ${status}`);
+  console.log(`[SyncQueue] Task ${taskId} status updated: ${status}`);
 }
 
 /**
@@ -114,9 +107,9 @@ export async function updateTaskStatus(
  * @param taskId - sync_queue 작업 ID
  */
 export async function deleteTask(taskId: string): Promise<void> {
-  await db.delete(syncQueue).where(eq(syncQueue.id, taskId));
+  await getDatabase().delete(syncQueue).where(eq(syncQueue.id, taskId));
 
-  console.log(`✅ Task ${taskId} deleted (synced successfully)`);
+  console.log(`[SyncQueue] Task ${taskId} deleted (synced successfully)`);
 }
 
 /**
@@ -129,7 +122,7 @@ export async function deleteTask(taskId: string): Promise<void> {
  * @returns PENDING 작업 존재 여부
  */
 export async function hasPendingTask(tableName: string, recordId: string): Promise<boolean> {
-  const tasks = await db
+  const tasks = await getDatabase()
     .select()
     .from(syncQueue)
     .where(and(eq(syncQueue.tableName, tableName), eq(syncQueue.recordId, recordId), eq(syncQueue.status, 'PENDING')))
@@ -147,7 +140,7 @@ export async function hasPendingTask(tableName: string, recordId: string): Promi
  * @returns FAILED 상태의 sync_queue 항목 배열
  */
 export async function getFailedTasks(): Promise<SyncQueueItem[]> {
-  const tasks = await db
+  const tasks = await getDatabase()
     .select()
     .from(syncQueue)
     .where(eq(syncQueue.status, 'FAILED'))
@@ -165,7 +158,7 @@ export async function getFailedTasks(): Promise<SyncQueueItem[]> {
  * @param taskId - sync_queue 작업 ID
  */
 export async function retryFailedTask(taskId: string): Promise<void> {
-  await db
+  await getDatabase()
     .update(syncQueue)
     .set({
       status: 'PENDING',
@@ -173,7 +166,7 @@ export async function retryFailedTask(taskId: string): Promise<void> {
     })
     .where(eq(syncQueue.id, taskId));
 
-  console.log(`🔄 Task ${taskId} reset to PENDING for retry`);
+  console.log(`[SyncQueue] Task ${taskId} reset to PENDING for retry`);
 }
 
 /**
@@ -182,9 +175,9 @@ export async function retryFailedTask(taskId: string): Promise<void> {
  * ⚠️ 주의: 동기화되지 않은 데이터가 손실될 수 있음
  */
 export async function clearSyncQueue(): Promise<void> {
-  await db.delete(syncQueue);
+  await getDatabase().delete(syncQueue);
 
-  console.log('🗑️ Sync queue cleared');
+  console.log('[SyncQueue] Sync queue cleared');
 }
 
 /**
@@ -198,7 +191,7 @@ export async function getSyncQueueStats(): Promise<{
   failed: number;
   total: number;
 }> {
-  const allTasks = await db.select().from(syncQueue).all();
+  const allTasks = await getDatabase().select().from(syncQueue).all();
 
   const stats = {
     pending: allTasks.filter((t) => t.status === 'PENDING').length,
@@ -207,7 +200,7 @@ export async function getSyncQueueStats(): Promise<{
     total: allTasks.length,
   };
 
-  console.log('📊 Sync Queue Stats:', stats);
+  console.log('[SyncQueue] Sync Queue Stats:', stats);
 
   return stats;
 }
@@ -220,16 +213,9 @@ export async function getSyncQueueStats(): Promise<{
  * @param tripId - 여행 ID
  * @returns 해당 여행의 PENDING 상태 sync_queue 항목 배열
  *
- * @example
- * ```ts
- * const pendingTasks = await getPendingTasksForTrip(tripId);
- * if (pendingTasks.length > 0) {
- *   console.log('동기화 대기 중인 작업:', pendingTasks.length);
- * }
- * ```
  */
 export async function getPendingTasksForTrip(tripId: string): Promise<SyncQueueItem[]> {
-  const tasks = await db
+  const tasks = await getDatabase()
     .select()
     .from(syncQueue)
     .where(eq(syncQueue.status, 'PENDING'))
@@ -264,13 +250,6 @@ export async function getPendingTasksForTrip(tripId: string): Promise<SyncQueueI
  * @param tripId - 여행 ID
  * @returns PENDING 작업 존재 여부
  *
- * @example
- * ```ts
- * const hasPending = await hasPendingTasksForTrip(tripId);
- * if (hasPending) {
- *   // cleanup 지연 필요
- * }
- * ```
  */
 export async function hasPendingTasksForTrip(tripId: string): Promise<boolean> {
   const tasks = await getPendingTasksForTrip(tripId);

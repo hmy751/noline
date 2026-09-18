@@ -14,4 +14,6 @@ README 개선, 신규 기능 전반, 폴더·계층 재편 자체, 버그 전체
 
 2026-09-15~16에 사용자는 [Ticket 06](../tickets/06-app-startup-lifecycle.md)의 네트워크 관측·정책·실제 소비 연결을 먼저 수행하고, 직접 필요한 수정은 003으로 분리하지 않고 여기서 함께 하기로 선택했다. 이 범위에서는 unknown 상태, 비활성 여행 제한·복구 UX, Router 중앙 차단과 기존 오류 안내, 화면용 debug override 분리를 구현한다. 기존 온라인 비활성 여행의 Remote 경로를 막는 대상 분기·Local 선조회 결함도 함께 정상화한다. 이 선택은 모든 버그나 sync·cleanup 내부 문제를 흡수하는 허용이 아니며, 상세 경계와 완료 조건은 Ticket 06이 소유한다. [합의 기록](../../../records/2026-09-16-01-network-policy-and-implementation-boundaries.md)에 선택 이유가 있다.
 
+Ticket 06의 앱 준비에서는 사용자가 DB 실패 진입 차단·데이터 삭제 없는 재시도, 인증 복원 실패의 로그인 진입, 정상 서버 목록에서 선택한 여행이 제거된 경우 다른 여행 전환, 진행 중 pending cleanup을 기다리는 로그아웃/탈퇴를 채택했다. 이 공개 동작의 변화와 앱 전체 준비를 `application`으로 분리하는 책임 정리는 이번 범위에 포함한다. 전면 계층 재편·sync 전체 취소·SQL migration·cleanup 내부 보존 계약까지 확장하는 허용은 아니다. [현재 계약](../tickets/06-app-startup-lifecycle.md)과 [선택 근거](../../../records/2026-09-18-02-app-initialization-and-style.md)를 함께 적용한다.
+
 현재 진행과 다음 행동은 [state](../../state/index.md), 실행 범위와 개별 결과의 진입점은 [Ticket 색인](../tickets/index.md)이 소유한다. 최초 방향의 원문은 [사용자 발췌](../../../source/user-direction.md), 목표 보강에 사용한 분석은 [보존본](../../../source/codebase-analysis/README.md)에 있다. 사용자는 source를 읽어 배경을 보강하되 무조건 따르지는 말라고 했고, 보강된 목표를 수용했다. 현재 목표와 변경 판단은 이 Spec을 기준으로 한다.

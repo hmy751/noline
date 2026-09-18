@@ -3,7 +3,7 @@ import { getPendingTasks, deleteTask, updateTaskStatus, retryFailedTask } from '
 import { getLastSyncedAt, setLastSyncedAt } from './storage';
 import { upsertTrips, upsertSchedules, upsertExpenses } from '@/shared/db/utils';
 import { queryClient } from '@/shared/lib/queryClient';
-import { db, tripActivations } from '@/shared/db';
+import { getDatabase, tripActivations } from '@/shared/db';
 import { eq } from 'drizzle-orm';
 import { processPendingCleanups } from './cleanup-job';
 import { AuthRequiredError } from '@/shared/services/auth';
@@ -63,23 +63,23 @@ async function pushTaskToServer(
  */
 export async function pushChanges(): Promise<void> {
   try {
-    // 1. PENDING 작업 조회 (FIFO 순서)
+    // PENDING 작업 조회 (FIFO 순서)
     const tasks = await getPendingTasks();
 
     if (tasks.length === 0) {
-      console.log('📭 [Sync] No pending tasks');
+      console.log('[Sync] No pending tasks');
       return;
     }
 
-    console.log(`📤 [Sync] Starting push: ${tasks.length} tasks`);
+    console.log(`[Sync] Starting push: ${tasks.length} tasks`);
 
     // 인증 에러 발생 여부 추적
     let authErrorOccurred = false;
 
-    // 2. 순차적으로 처리
+    // 순차적으로 처리
     for (const task of tasks) {
       try {
-        console.log(`🔄 [Sync] Processing: ${task.action} ${task.tableName}/${task.recordId}`);
+        console.log(`[Sync] Processing: ${task.action} ${task.tableName}/${task.recordId}`);
 
         // 상태 변경: PENDING → IN_PROGRESS
         await updateTaskStatus(task.id, 'IN_PROGRESS');
@@ -94,11 +94,11 @@ export async function pushChanges(): Promise<void> {
         // 성공 시 sync_queue에서 삭제
         await deleteTask(task.id);
 
-        console.log(`✅ [Sync] Success: ${task.action} ${task.tableName}/${task.recordId}`);
+        console.log(`[Sync] Success: ${task.action} ${task.tableName}/${task.recordId}`);
       } catch (error) {
-        // 7. AuthRequiredError: PENDING 유지 + 루프 중단
+        // AuthRequiredError: PENDING 유지 + 루프 중단
         if (error instanceof AuthRequiredError) {
-          console.warn(`🔐 [Sync] AuthRequiredError: ${task.tableName}/${task.recordId} - keeping PENDING`);
+          console.warn(`[Sync] AuthRequiredError: ${task.tableName}/${task.recordId} - keeping PENDING`);
           // 상태를 다시 PENDING으로 복구 (IN_PROGRESS → PENDING)
           await retryFailedTask(task.id);
           // 인증 에러 플래그 설정
@@ -107,37 +107,30 @@ export async function pushChanges(): Promise<void> {
           break;
         }
 
-        // 8. 그 외 에러: FAILED로 변경
-        console.error(`❌ [Sync] Failed: ${task.action} ${task.tableName}/${task.recordId}`, error);
+        // 그 외 에러: FAILED로 변경
+        console.error(`[Sync] Failed: ${task.action} ${task.tableName}/${task.recordId}`, error);
         await updateTaskStatus(task.id, 'FAILED', task.retryCount + 1);
       }
     }
 
     // 인증 에러 발생 시 cleanup 건너뛰기
     if (authErrorOccurred) {
-      console.log('⏭️ [Sync] Skipping cleanup due to auth error');
+      console.log('[Sync] Skipping cleanup due to auth error');
       return;
     }
 
-    console.log(`✅ [Sync] Push completed`);
+    console.log(`[Sync] Push completed`);
 
-    // 9. Push 완료 후 pending cleanup 처리
+    // Push 완료 후 pending cleanup 처리
     try {
-      console.log('🧹 [Sync] Checking for pending cleanups...');
-      const processedCount = await processPendingCleanups();
-      if (processedCount > 0) {
-        console.log(`✅ [Sync] Processed ${processedCount} pending cleanups`);
-        // React Query 캐시 무효화 (cleanup으로 deletedAt 업데이트됨)
-        queryClient.invalidateQueries({ queryKey: ['trip'] });
-        queryClient.invalidateQueries({ queryKey: ['schedule'] });
-        queryClient.invalidateQueries({ queryKey: ['expense'] });
-      }
+      console.log('[Sync] Checking for pending cleanups...');
+      await processPendingCleanups();
     } catch (error) {
-      console.error('⚠️ [Sync] Failed to process pending cleanups (ignored):', error);
+      console.error('[Sync] Failed to process pending cleanups (ignored):', error);
       // cleanup 실패해도 Push는 성공으로 처리
     }
   } catch (error) {
-    console.error('❌ [Sync] Push failed:', error);
+    console.error('[Sync] Push failed:', error);
   }
 }
 
@@ -152,11 +145,11 @@ export async function pushChanges(): Promise<void> {
  */
 export async function pullChanges(): Promise<void> {
   try {
-    // 1. 마지막 동기화 시간 조회
+    // 마지막 동기화 시간 조회
     const lastSyncedAt = await getLastSyncedAt();
 
-    // 2. 활성화된 여행 ID 조회 (tripActivations 테이블 사용)
-    const activatedTrips = await db
+    // 활성화된 여행 ID 조회 (tripActivations 테이블 사용)
+    const activatedTrips = await getDatabase()
       .select({ tripId: tripActivations.tripId })
       .from(tripActivations)
       .where(eq(tripActivations.isActivated, true));
@@ -165,16 +158,16 @@ export async function pullChanges(): Promise<void> {
     // ✅ 활성화된 여행이 없으면 Pull 건너뛰기
     // (비활성 상태에서는 로컬 DB에 데이터를 저장하지 않음)
     if (activatedTripIds.length === 0) {
-      console.log('⏭️ [Sync] Skipping pull: No activated trips');
+      console.log('[Sync] Skipping pull: No activated trips');
       return;
     }
 
-    console.log('📥 [Sync] Starting pull...', {
+    console.log('[Sync] Starting pull...', {
       lastSyncedAt: lastSyncedAt?.toISOString() || 'Never synced (초기 동기화)',
       activatedTripIds,
     });
 
-    // 3. 서버에서 데이터 가져오기 (이 시점에 activatedTripIds.length > 0 임이 보장됨)
+    // 서버에서 데이터 가져오기 (이 시점에 activatedTripIds.length > 0 임이 보장됨)
     const response = await syncApiClient.get('/api/sync/pull', {
       params: {
         lastSyncedAt: lastSyncedAt?.toISOString(),
@@ -185,14 +178,14 @@ export async function pullChanges(): Promise<void> {
     // 정책: 서버 응답은 { success, data } 구조
     const { trips, schedules, expenses, serverTime } = response.data.data;
 
-    console.log('📥 [Sync] Received from server:', {
+    console.log('[Sync] Received from server:', {
       trips: trips?.length || 0,
       schedules: schedules?.length || 0,
       expenses: expenses?.length || 0,
       serverTime,
     });
 
-    // 3. 로컬 DB에 Upsert (ISO string 그대로 저장)
+    // 로컬 DB에 Upsert (ISO string 그대로 저장)
     if (trips && trips.length > 0) {
       const normalizedTrips = (trips as Array<Record<string, unknown>>).map((trip) => ({
         ...trip,
@@ -220,19 +213,19 @@ export async function pullChanges(): Promise<void> {
       await upsertExpenses(normalizedExpenses as never[]);
     }
 
-    // 4. React Query 캐시 무효화 → UI 자동 갱신
+    // React Query 캐시 무효화 → UI 자동 갱신
     queryClient.invalidateQueries({ queryKey: ['trip'] });
     queryClient.invalidateQueries({ queryKey: ['schedule'] });
     queryClient.invalidateQueries({ queryKey: ['expense'] });
 
-    console.log('✅ [Sync] React Query cache invalidated');
+    console.log('[Sync] cache refresh requested');
 
-    // 5. 마지막 동기화 시간 업데이트
+    // 마지막 동기화 시간 업데이트
     await setLastSyncedAt(new Date(serverTime));
 
-    console.log('✅ [Sync] Pull completed');
+    console.log('[Sync] Pull completed');
   } catch (error) {
-    console.error('❌ [Sync] Pull failed:', error);
+    console.error('[Sync] Pull failed:', error);
     throw error;
   }
 }
@@ -250,14 +243,10 @@ export async function pullChanges(): Promise<void> {
  *
  * push는 가볍기 때문에 pull과 같이 동작하는것으로 결정, 다만 순서는 지켜야 됨
  *
- * @example
- * ```typescript
- * await syncData();  // Push → Pull 순차 실행
- * ```
  */
 export async function syncData(): Promise<void> {
   try {
-    console.log('🔄 [Sync] Starting full sync (Push + Pull)...');
+    console.log('[Sync] Starting full sync (Push + Pull)...');
 
     // Push 먼저! (로컬 변경사항 전송)
     await pushChanges();
@@ -265,9 +254,9 @@ export async function syncData(): Promise<void> {
     // Pull 나중! (서버 최신 데이터 가져오기)
     await pullChanges();
 
-    console.log('✅ [Sync] Full sync completed');
+    console.log('[Sync] Full sync completed');
   } catch (error) {
-    console.error('❌ [Sync] Full sync failed:', error);
+    console.error('[Sync] Full sync failed:', error);
     throw error;
   }
 }
@@ -277,14 +266,10 @@ export async function syncData(): Promise<void> {
  *
  * 사용자가 명시적으로 동기화를 실행할 때 사용
  *
- * @example
- * ```typescript
- * <Button onPress={triggerSync}>수동 동기화</Button>
- * ```
  */
 export async function triggerSync(): Promise<{ success: boolean; message: string }> {
   try {
-    console.log('🔄 [Sync] Manual sync triggered');
+    console.log('[Sync] Manual sync triggered');
 
     await syncData(); // Push + Pull
 
@@ -293,7 +278,7 @@ export async function triggerSync(): Promise<{ success: boolean; message: string
       message: '동기화가 완료되었습니다.',
     };
   } catch (error) {
-    console.error('❌ [Sync] Manual sync failed:', error);
+    console.error('[Sync] Manual sync failed:', error);
 
     return {
       success: false,

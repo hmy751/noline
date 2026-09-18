@@ -6,7 +6,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { eq } from 'drizzle-orm';
 
-import { db } from '@/shared/db';
+import { getDatabase } from '@/shared/db';
 import { offlineCities, trips } from '@/shared/db/schema';
 
 import { offlineCityKeys } from './keys';
@@ -20,21 +20,27 @@ export function useOfflineCity(tripId: string | null) {
   return useQuery({
     queryKey: offlineCityKeys.byTrip(tripId ?? ''),
     queryFn: async () => {
-      if (!tripId) return null;
+      if (!tripId) {
+        return null;
+      }
 
-      // 1. Trip의 cityId 조회
-      const trip = await db.select({ cityId: trips.cityId }).from(trips).where(eq(trips.id, tripId)).get();
+      // Trip의 cityId 조회
+      const trip = await getDatabase().select({ cityId: trips.cityId }).from(trips).where(eq(trips.id, tripId)).get();
 
       if (!trip?.cityId) {
         return null; // 도시 정보 없음
       }
 
-      // 2. offlineCities 조회
-      const offlineCity = await db.select().from(offlineCities).where(eq(offlineCities.cityId, trip.cityId)).get();
+      // offlineCities 조회
+      const offlineCity = await getDatabase()
+        .select()
+        .from(offlineCities)
+        .where(eq(offlineCities.cityId, trip.cityId))
+        .get();
 
       return offlineCity ?? null;
     },
     enabled: !!tripId,
-    staleTime: Infinity, // 로컬 DB이므로 항상 최신
+    staleTime: Infinity,
   });
 }
