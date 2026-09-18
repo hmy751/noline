@@ -49,4 +49,14 @@
 
 - [Ticket 06 네트워크 정책과 구현 범위 합의](2026-09-16-01-network-policy-and-implementation-boundaries.md): Selective Local-First의 대상별 분기, unknown과 10초 안내, 제한·복구 화면, Router 중앙 차단, 일반 요청 오류·캐시 관리의 범위 축소, 화면용 debug 선택과 NetInfo·환경 조사 한계. 자동 반영 누락 뒤 Main이 복원한 현재 기준의 근거다.
 
+- [Network Store 첫 단계 구현](2026-09-16-02-network-store-first-step.md): unknown 관측·10초 안내·재확인과 lifecycle, 실제/화면 상태 분리, 필수 Router·Policy·Sync 호환, mock 회귀 검사와 남은 실제 소비 연결.
+
+- [Network Store 첫 결과의 가독성 보완](2026-09-16-03-network-store-readability.md): 기능 구현 뒤 남은 요청 수명·실패 처리·Router 분기·debug 상태 표현의 읽기 부담과 같은 동작을 유지한 내부 책임 정리.
+
+- [네트워크 품질 개선·전문가 리뷰·다음 세션 인계](2026-09-17-01-network-quality-review-and-handoff.md): 실제/표시 API 이름, action factory의 private session, Router 대조 검사·Provider effect 보완, 현재 90개 검사와 최신 미해결 sync 지적, 소스·권한·미커밋 경계를 연결한 prepared 인계 packet.
+
+- [네트워크 소비 연결 구현과 철회](2026-09-17-02-network-consumer-quality-improvements.md): 당시 구현·독립 검증과 사용자 범위 정정에 따른 전체 원복. 현재 적용된 제품 산출물로 읽지 않는다.
+
 후속 분석·결정·실행 기록은 이 디렉터리에 날짜별로 남긴다. 원문·변경하지 않은 snapshot은 [source](../source/index.md), 현재 기준과 진행은 [current](../current/memory/index.md)가 소유한다.
+
+- [파일별 검토·Provider 보완·레이아웃 검사와 커밋](2026-09-18-01-network-provider-layout-review-and-commits.md): 사용자 승인 코드 교체, 레이아웃 내부 유지 결정, 현재 108개 검사와 분리 커밋, 철회 이력 및 남은 정책 연결.

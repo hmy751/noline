@@ -4,7 +4,7 @@
 
 앱을 켰을 때 네트워크·DB·인증 준비, Splash 해제, 첫 화면 선택과 인증 후 작업 시작이 어떤 조건으로 이어지는지 가까운 코드에서 이해하고 수정할 수 있게 한다. 서로 다른 boolean·effect·고정 지연에서 준비 상태를 다시 추론하는 부담을 줄이고 각 소비자가 필요한 상태를 사용하게 한다. 범용 startup framework나 폴더 재편은 목표로 삼지 않는다.
 
-현재 우선 실행은 **네트워크 관측과 실제 요청·화면·sync 시작의 연결**이다. 2026-09-15~16 논의에서 사용자는 Network Store 내부 개선과 정책 구체화를 먼저 선택했고, 직접 필요한 수정은 003으로 분리하지 않고 여기서 함께 수행하기로 했다. 구현은 아직 시작하지 않았다. 선택 이유와 조사 근거는 [논의 기록](../../../records/2026-09-16-01-network-policy-and-implementation-boundaries.md)에 있다.
+Ticket의 네트워크 계약은 **관측과 실제 요청·화면·sync 시작의 연결**이다. 현재 실행은 확대 구현 철회 뒤 사용자가 파일별로 확인하는 코드 품질 보완이며, 아래 전체 계약의 미구현을 자동 추가 작업으로 삼지 않는다. 2026-09-15~16 논의에서 사용자는 Network Store 내부 개선과 정책 구체화를 먼저 선택했고, 직접 필요한 수정은 003으로 분리하지 않고 여기서 함께 수행하기로 했다. 첫 Store 단계와 필요한 소비부 호환 수정을 구현했다. 선택 이유와 조사 근거는 [논의 기록](../../../records/2026-09-16-01-network-policy-and-implementation-boundaries.md)에 있다.
 
 첫 범위가 만들 결과는 다음과 같다.
 
@@ -24,11 +24,11 @@ Noline은 Selective Local-First다. 활성 여행의 Trip·Schedule·Expense는 
 
 앞선 Main 조사와 이번 문서 대조에서 확인한 구현 출발점은 다음과 같다. 실행 기기에서 재현한 전체 제품 결과로 확대하지 않는다.
 
-- [Network Store](../../../../../../../apps/client/src/shared/store/network.ts)는 초기 realStatus가 online이다. init은 명시적 NetInfo.fetch와 listener를 시작한 뒤 반환하며 fetch 실패를 처리하지 않는다. null은 offline으로 축약한다. realStatus와 overrideStatus 필드는 있지만 화면과 Router 모두 override가 우선인 값을 읽는다.
+- [Network Store](../../../../../../../apps/client/src/shared/store/network.ts)는 초기 unknown, 순수 관측 변환, listener 기반 init과 cleanup, 10초 확인 불가 안내·수동 refresh를 구현했다. 실제 실행 상태와 화면 override의 읽기 경계를 구별한다. 초기의 임시 online·null 축약·앱의 추가 fetch는 제거했다.
 - [Root](../../../../../../../apps/client/app/_layout.tsx)는 첫 네트워크 결과를 기다리지 않고 DB·auth 초기화를 이어간다. 준비 flag와 실제 성공 여부, 반복 초기화·cleanup의 연결을 구별할 필요가 있다.
-- [Activation Router](../../../../../../../apps/client/src/shared/services/offline-prep/router.ts)는 정확히 offline일 때만 Remote를 거부한다. unknown 타입만 추가하면 서버 요청이 통과할 수 있다. Trip mutation의 전역 활성 여행 존재 판단은 수정 대상 여행의 활성 여부와 다르다.
+- [Activation Router](../../../../../../../apps/client/src/shared/services/offline-prep/router.ts)는 실제 online일 때만 Remote를 열도록 호환 수정했고, override 중 Router mutation은 Local/Remote 모두 거부한다. Trip mutation의 전역 활성 여행 존재 판단은 여전히 수정 대상 여행의 활성 여부와 달라 후속 정상화가 필요하다.
 - [Schedule repository](../../../../../../../apps/client/src/entities/schedule/repository/schedule-repository.ts)와 [Expense repository](../../../../../../../apps/client/src/entities/expense/repository/expense-repository.ts)의 update/delete는 tripId를 찾기 위한 Local 선조회 때문에 inactive Remote 경로가 실패할 수 있다.
-- [Policy hook](../../../../../../../apps/client/src/shared/policy/useAppPolicy.ts)은 기존 online/offline 정책을 소비한다. 활성 여부가 아직 로딩 중인 상태를 비활성 확정처럼 취급하지 않는 연결도 확인해야 한다.
+- [Policy hook](../../../../../../../apps/client/src/shared/policy/useAppPolicy.ts)은 unknown의 제한 모드를 기존 offline 권한 표로 처리해 없는 key 조회를 막았다. unknown 안내 이유·내용 제한과 활성 여부 로딩의 후속 연결은 남아 있다.
 - [SyncProvider](../../../../../../../apps/client/src/shared/services/sync/provider.tsx)의 시작 조건과 중복 방지는 Store·Root 준비 조건에 연결해야 한다. syncStrategy 선언의 존재만으로 실행 조건이 적용됐다고 보지 않는다.
 - [QueryClient](../../../../../../../apps/client/src/shared/lib/queryClient.ts)와 조회 화면에는 이전 서버 응답이 남을 수 있다. 요청 중단만으로 제한 화면이 나타나지는 않으며, 조회 불가가 빈 목록과 합쳐지지 않아야 한다.
 - 폼의 일반 오류 안내가 Router의 제한 이유를 덮을 수 있다. 대표 수정 Drawer는 성공 때 닫고 실패 때 일반 안내를 하지만 모든 생성·삭제 경로의 입력 유지까지 검증된 것은 아니다.
@@ -128,8 +128,26 @@ debug override가 없는 정상 동작에서 활성 여행은 unknown/offline이
 
 ## 현재 상태와 실제 결과
 
-네트워크·Router·Policy·Sync·화면의 조사와 정책 인터뷰를 마쳤고, 2026-09-16에 누락된 합의를 이 Ticket·Spec·state·기록에 통합했다. 제품 코드·영구 test는 아직 변경하지 않았다. 구현·제품 검증·Ticket 06 최종 수락은 남아 있다.
+2026-09-18 현재는 사용자와 파일별로 검토한 가독성·책임 정리와 명시적으로 채택한 Network Store·SyncProvider 변경을 저장했다. 앞선 확대 워커 구현은 철회된 이력으로 보존하며, 배경 네트워크 계약의 전체 구현을 이번 품질 변경의 완료 조건으로 확대하지 않는다. 상세 선택·검증·커밋 경계는 [파일별 검토와 레이아웃 기록](../../../records/2026-09-18-01-network-provider-layout-review-and-commits.md)에 있다.
 
-앞선 Main은 임시 초기화 특성화 뒤 기존 client baseline 18개 test 통과와 NetInfo 11.4.1의 mock 관측 결과를 보고했다. 이는 당시의 제한된 검사이며 이번 문서 갱신에서 재실행한 결과가 아니다. 실제 Expo·native 통합과 실기기 발생 빈도, 실행 환경의 데이터 격리는 미확인이다.
+- Network Store는 realStatus/useRealNetworkStatus와 useDisplayNetworkStatus를 구분한다. private session 안에서 구독·unknown 안내·공유 refresh Promise를 관리하며 performRefresh의 관측 반영은 요청 실패 catch 밖에서 수행한다. enum 전환은 아래 추후 메모만 유지한다.
+- Policy는 unknown에 기존 offline 권한 표를 사용하며 CRUD 권한 선택 중복과 타입 중복을 정리했다. Router는 실제 online Remote·override 쓰기 차단을 유지한다. 대상 Trip mutation의 전역 활성 판단 문제는 남아 있다.
+- SyncProvider는 ref 잠금으로 같은 렌더의 중복 진입을 막고 실패 시 잠금을 해제한다. 완료된 실행 뒤 재실행, 기존 성공 시각 유지, 주기 타이머 수명은 테스트했다. 후속 동시 호출은 기존 실행을 기다리지 않고 반환한다. DB/auth 준비 연결과 DebugScreen의 engine 직접 수동 호출은 남는다.
+- Root는 초기화·인증 라우팅·인증 후 작업을 같은 `_layout.tsx`에서 관리한다. 사용자 결정에 따라 별도 features/application 폴더나 컴포넌트 파일로 분리하지 않았다. initializer 이름·Store 구독·cleanup 함수·로그를 정리했고 DB/auth 실패 진입과 여행 선택의 기존 동작은 확장하지 않았다.
+- Debug 표시·재확인, Home 예제 제거, ScheduleCard 이벤트 타입과 Policy 타입 정리를 함께 저장했다.
 
-다음 행동은 위 구현 접근을 현재 코드의 실제 호출부에 연결해 최소 변경 범위와 회귀 사례를 확정하고 첫 네트워크 범위를 구현하는 것이다. 트랜잭션·sync 내부 실패·cleanup·나머지 startup 결과까지 완료한 것으로 확대하지 않는다.
+레이아웃 테스트 15개는 개선 전후 통과했다. 최종 전체 client Jest는 8개 suite·108개 test 통과이며, 현재 Provider 테스트 9개는 mock 엔진 기준이다. 남은 6개 제품/테스트 파일의 Prettier 통과, ESLint는 Prettier 연동 규칙 제외 시 오류 0개·경고 9개다. client typecheck에는 기존 지도 오류 3개가 남는다. 실제 기기·native·SQLite·서버, 복구 후 선택 보존 전체, DB/auth 실패 UX는 검증하지 않았다.
+
+제품 저장 경계는 `c578446`(Network), `6efdfed`(Policy·Router·Provider와 테스트), `0ce6f4d`(레이아웃·테스트와 남은 화면/타입)다. Ticket 06 전체 구현·최종 수락은 남는다. 기록은 사용자 요청의 수동 반영이며 자동 Maintain freshness·실패 generation·machine status를 갱신하지 않는다.
+
+## 추후 개선 메모 — NetworkStatus enum 전환
+
+2026-09-18 사용자는 enum 전환을 추후 개선 후보로 메모하도록 요청했다. 이번에는 영향 범위만 확인했으며 현재 구현 범위에 추가하거나 enum으로 변경하지 않았다. 목적은 문자열로 반복하는 네트워크 상태 표현을 명시적인 멤버로 읽기 쉽게 만드는 것이다.
+
+전환을 검토할 때는 `NetworkStatus.ONLINE = 'online'`, `OFFLINE = 'offline'`, `UNKNOWN = 'unknown'`처럼 기존 문자열 값을 유지한다. `NetworkCheckStatus`는 이 후보에 포함하지 않는다. 아래 경로는 `apps/client/` 기준이다.
+
+- **최소 수정 5개 파일:** `src/shared/store/network.ts`와 테스트 `tests/shared/store/network.test.ts`, `tests/shared/services/offline-prep/router-network.test.ts`, `tests/shared/services/sync/provider-network.test.tsx`, `tests/shared/policy/useAppPolicy-network.test.ts`. 상태 대입·함수 인자·타입 지정 테스트 표의 문자열을 enum 멤버로 바꿔야 한다. Main은 실제 파일을 수정하지 않고 컴파일러 메모리에서 타입만 enum으로 치환해 이 다섯 파일의 타입 오류 발생을 확인했다.
+- **비교 표현까지 통일할 때 추가 8개 파일:** `src/shared/services/sync/provider.tsx`, `src/shared/services/offline-prep/router.ts`, `src/shared/policy/useAppPolicy.ts`, `src/screens/HomeScreen/index.tsx`, `src/features/trip/create-trip/TripDateForm.tsx`, `src/shared/components/Card/ScheduleCard.tsx`, `src/shared/components/Navigation/NetworkStatusIndicator.tsx`, `src/features/debug/ui/DashboardView.tsx`. 기존 문자열 비교는 유지할 수 있으므로 모두 필수 수정은 아니다.
+- **타입·export 연결 확인 2개 파일:** `src/shared/policy/types.ts`, `src/shared/policy/index.ts`. `PolicyKey`의 unknown 제외·문자열 조합과 현재 type-only export를 확인한다. 정책 경유로 enum 값을 사용할 경우에는 값 export도 검토한다.
+
+최소 수정은 5개, 표현·타입 연결까지 검토할 범위는 총 15개 파일이다. 현재 직접 사용 범위는 클라이언트 내부이며 서버·schema·DB 변경은 필요하지 않다. 실제 도입 시에는 문자열 값과 정책 key, 연결 판정·요청 조건을 유지하고 기존 네트워크 관련 테스트 및 client 타입 검사로 호환성을 확인한다. enum 도입 자체가 문자열 상수 방식보다 읽기·변경 부담을 줄이는지는 실행 시 다시 판단한다.

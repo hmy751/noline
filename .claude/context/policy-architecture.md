@@ -26,7 +26,9 @@ offline_active
 offline_inactive
 ```
 
-`useAppPolicy(tripId)`는 현재 `useNetworkStatus()`와 `useGetTripActivation(tripId)`를 조합해 `PolicyKey`를 만들고, `TRIP_POLICIES`, `SCHEDULE_POLICIES`, `EXPENSE_POLICIES`, `SERVICE_POLICIES`에서 현재 권한을 반환한다.
+Network Store의 관측 상태는 `online/offline/unknown`이다. 현재 `useAppPolicy(tripId)`는 화면용 `useDisplayNetworkStatus()`와 `useGetTripActivation(tripId)`를 조합하되, unknown의 권한 모드는 기존 offline 항목을 재사용한다. 따라서 미확정 상태에서 없는 policy key를 조회하거나 온라인 서비스 모드를 열지 않는다. unknown의 안내 시간·재확인은 Store의 `checkStatus`·`refresh`가 따로 제공한다.
+
+이 4-state 표의 재사용은 권한 모드에 한정된다. 실제 unknown을 offline으로 바꾸지 않으며, 비활성 여행의 내용 제한·이유 표시와 활성 여부 로딩의 연결은 [Ticket 06](../../context/work/workspaces/002-code-readability-refactoring/current/memory/tickets/06-app-startup-lifecycle.md)의 후속 구현에 남아 있다. 실제 요청 판단은 화면 override와 구별하며 Router는 실제 online에서만 Remote를 실행한다.
 
 ## 책임 경계
 

@@ -77,6 +77,19 @@ Node 20.18.1에서 2개 file의 2개 test와 server build가 통과했다. 실�
 
 변경 전 mock route 검사 네 개에서 현재 차이를 확인했고, 수정 후 server unit·route 29개 test와 PostgreSQL integration 4개 test, server build와 형식 검사가 통과했다. 실제 JWT·배포 process와 기존 `places.ts:138` typecheck 오류는 남아 있다. 상세 근거는 [접근 경계 실행 기록](../records/2026-09-14-03-schedule-access-boundary.md)이 소유한다. 사용자는 상세 결과와 검증 한계를 확인한 뒤 이 3번 결과의 기록과 커밋을 요청했다.
 
+## 06 — 네트워크 기반과 가독성·품질 보완
+
+- [Network Store](../../../../../apps/client/src/shared/store/network.ts): unknown 관측 변환, 구독 lifecycle, 10초 안내·재확인, real/display API와 private session을 소유한 action factory.
+- [Root](../../../../../apps/client/app/_layout.tsx), [Debug](../../../../../apps/client/src/features/debug/ui/DashboardView.tsx): 네트워크 시작·정리와 실제/강제 상태 진단·재확인.
+- [Router](../../../../../apps/client/src/shared/services/offline-prep/router.ts), [Policy](../../../../../apps/client/src/shared/policy/useAppPolicy.ts), [SyncProvider](../../../../../apps/client/src/shared/services/sync/provider.tsx): 새 상태와 실제/표시 분리에 필요한 소비부 호환, Provider 초기·online 전환 effect 통합.
+- [Store 검사](../../../../../apps/client/tests/shared/store/network.test.ts), [Router 검사](../../../../../apps/client/tests/shared/services/offline-prep/router-network.test.ts), [Policy 검사](../../../../../apps/client/tests/shared/policy/useAppPolicy-network.test.ts), [SyncProvider 검사](../../../../../apps/client/tests/shared/services/sync/provider-network.test.tsx): 제어한 관측·timer와 mock 실행 경계의 회귀 증거.
+
+- [Layout 검사](../../../../../apps/client/tests/app/layout.test.tsx): DB→auth 순서, unknown 진입, 인증 라우팅과 지연 cleanup의 실제 Root 연결을 native/서비스 mock 환경에서 검사한다.
+
+Provider는 ref 잠금과 상태 변화에 재시작하지 않는 선택적 주기 타이머를 사용한다. Root는 별도 파일로 분리하지 않고 initializer와 인증 리다이렉트를 내부에 유지한다. 표시 훅 변경은 HomeScreen·TripDateForm·NetworkStatusIndicator에 연결했고 Debug의 미확정 표시·override·재확인을 추가했다. ScheduleCard의 비구독 실제 getter는 남는다.
+
+저장 경계는 `c578446`, `6efdfed`, `0ce6f4d`다. 전체 client Jest 8개 suite·108개 test가 통과했으며 실제 기기·SQLite·서버 실행을 증명하지 않는다. DB/auth 준비·Debug 수동 sync 우회와 전체 소비 연결은 후속 판단이다. 최신 결과와 파일 분리 보류 이유는 [2026-09-18 실행 기록](../records/2026-09-18-01-network-provider-layout-review-and-commits.md)과 [Ticket 06](../current/memory/tickets/06-app-startup-lifecycle.md)에 있다. 기존 81개·90개 검사와 확대 구현 검증은 각각의 과거 기록으로 보존한다.
+
 ## 17 — Trip·Expense 직렬화 선행 조각 (당시 16)
 
 - [Trip serializer](../../../../../apps/server/src/serializers/trip.ts): Trip DB row의 다섯 시간 값을 API ISO datetime 또는 null로 변환한다.
