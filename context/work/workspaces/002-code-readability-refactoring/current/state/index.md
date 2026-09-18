@@ -20,15 +20,19 @@ Project Context 후보 구성에는 Ticket 01–05와 관련 records·output·�
 
 Project-wide 판단으로 남은 항목은 Expense 날짜 계약, 금액 반올림·정밀도와 서버 오류 처리의 목표 구조다. Project Context의 실제 반영은 이 Workspace Maintain의 소유 범위가 아니며 완료로 간주하지 않는다.
 
-## Ticket 06 — 앱 준비·복원·선택·정리 연결 구현
+## Ticket 06 — 초기화·sync 기반 구현, 후속 인증 설계 확정
 
-[Ticket 06](../memory/tickets/06-app-startup-lifecycle.md)은 DB 실패 안내·재시도, 인증 복원, 여행 선택 보존과 서버 제거 확인 후 전환, pending cleanup 공유 실행과 로그아웃/탈퇴 종료 조율을 구현했다. 앱 전체 준비의 상태·순서·Splash·실패/재시도는 `application/AppInitialization`에 모으고 `_layout.tsx`는 화면·Provider·인증 후 작업 연결을 보여 준다. Auth Store는 보안 저장소와 인증 상태를 소유한다. 독립 리뷰를 바탕으로 함수 배치·이름·주석·로그·테스트 구조를 보완했다.
+[Ticket 06](../memory/tickets/06-app-startup-lifecycle.md)의 DB 실패 재시도·인증 복원·여행 선택·pending cleanup과 application 책임 분리, sync 시작 조건·Debug 경계·진행 중 sync 종료 대기는 구현했다. 앞선 앱 초기화·스타일 결과는 `8a1a3ea`, sync 연결 결과는 `029adb6`에 저장돼 있다. 마지막 구현 시 Main이 보고한 검사는 client Jest 18개 suite·185개 test 통과, 변경 TypeScript 16개 파일의 ESLint 오류 0개·기존 경고 3개와 포맷·diff 통과다. 기존 지도 관련 타입 오류 3개와 실제 기기·native·SQLite 보존·서버 전송 미확인은 남아 있다. 이 수치를 아래 새 인증 설계의 검증으로 사용하지 않는다.
 
-Main이 직접 실행한 최신 전체 client Jest는 18개 suite·185개 test 통과다. 이번 sync 연결의 TypeScript 16개 파일 ESLint 오류는 0개·기존 경고는 3개이고 별도 포맷·diff 검사는 통과했다. 타입 검사에는 기존 지도 관련 오류 3개만 남는다. 실제 기기·native·SQLite 데이터 보존·서버 전송은 미확인이다. 앞선 앱 초기화·스타일 구현과 기록은 `8a1a3ea`로 저장했고 이번 sync 연결의 코드·테스트·관련 기록은 `refactor(client): sync 시작 조건과 세션 종료 순서 연결` 커밋으로 함께 저장했다.
+후속으로 SecureStore 세션 기록과 `initializing`·`signed-out`·`signed-in`·`reauth-required`·`restore-failed`, 초기 복원의 실행 수명, 재로그인 진입·계정 경계·늦은 토큰 응답 처리를 확정했다. 재로그인이 필요해도 같은 계정의 활성 여행 Local CRUD를 유지하고 별도 이용 기한을 두지 않는다. 다른 계정 전환 시 이전 로컬 데이터와 미전송 큐를 폐기한다. 요청 당시 세션이 끝난 갱신 응답은 같은 계정 재로그인 뒤에도 적용하지 않는다.
 
-sync 시작은 DB 사용 가능·인증·세션 만료 여부·실제 online·override 해제·종료 일시 중단 조건으로 연결했다. 자동·주기·Debug 수동 실행은 공통 잠금을 사용한다. 사용자는 종료 확정 뒤 새 실행을 막고 진행 중 sync의 성공·실패 종료를 기다리는 정책을 추가로 채택했다. 서버 세션 종료 뒤 기존 cleanup 대기와 로컬 정리로 이어진다. 강제 종료의 대기 표시·DB reset 실패 뒤 sync 거절도 포함한다. 새 범위와 변경 전 실패·검증 한계는 [sync 기록](../../records/2026-09-18-03-sync-start-and-session-teardown.md)이 소유한다. 다음 검토 후보는 **인증 route guard 전체**이며 아직 실행 범위로 확정하지 않았다.
+다중 기기 제어와 로그아웃 도중 앱 강제 종료를 복구하는 진행 표시·재개 장치는 제외한다. 기존 로그아웃의 대기·정리·일반 오류 처리는 유지한다. 채택·철회와 사용자 정정의 이유는 [인증 논의 기록](../../records/2026-09-18-04-auth-session-policy-and-decisions.md)에서 읽는다.
 
-Ticket 06에는 인증 route guard 전체, 대상별 Trip Router 분기·inactive child Local 선조회, 제한/복구 화면 전체와 foreground 재확인이 남는다. 이 남은 범위는 이번 sync 연결에 포함하지 않았다. 초기화·선택·cleanup의 현재 계약은 Ticket, 선택 이유·리뷰 반영과 검증의 상세는 [초기화·스타일 기록](../../records/2026-09-18-02-app-initialization-and-style.md), 코드 읽기 경로는 [output](../../output/index.md)이 소유한다. Ticket 전체의 최종 수락과 Workspace 완료는 아직 없다.
+**다음 행동은 Ticket 06의 후속 인증 절을 읽고 시나리오 테스트부터 작성하는 것**이다. 저장·복원·일반 API/sync·로그인 화면과 root guard·계정 전환을 함께 연결해야 한다. 기존 낱개 키의 이관·큐 귀속·세션 식별의 구체 방식은 실제 코드에서 정한다. 이번 요청에서는 문서를 반영했으며 이 후속 설계의 제품 코드·테스트는 아직 변경하지 않았다.
+
+재진입은 [Spec의 동작·사례](../memory/spec/02-behavior-and-cases.md)와 Ticket 06에서 현재 기준을 읽고, 이유가 필요하면 인증 논의 기록으로 내려간다. 이전 초기화·스타일과 sync 검증의 근거는 [초기화 기록](../../records/2026-09-18-02-app-initialization-and-style.md)·[sync 기록](../../records/2026-09-18-03-sync-start-and-session-teardown.md), 제품 코드 위치는 [output](../../output/index.md)에 있다. 원문 전체나 임시 파일 없이 이 문서들로 이어 갈 수 있게 유지한다.
+
+대상별 Trip Router·inactive child Local 선조회, 제한/복구 화면 전체와 foreground 재확인은 06의 다른 남은 범위다. 새 인증 연결에 필요한 계정 경계는 이번 후속 작업에서 다루고, 엔진 전체 결과·재시도와 cleanup 보존 내부는 15·16에서 이어 간다. Ticket 06 전체의 최종 수락과 Workspace 완료는 아직 없다.
 
 ## 그 밖의 남은 리팩토링
 

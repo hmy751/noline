@@ -64,3 +64,5 @@
 - [앱 초기화의 실패 정책·책임 정리·독립 리뷰와 스타일 반영](2026-09-18-02-app-initialization-and-style.md): DB/auth 실패와 선택·종료 정책의 사용자 결정, application 분리 이유, 테스트 우선 구현·리뷰 반영 경계, 154개 검사와 남은 startup 범위.
 
 - [sync 시작 조건과 세션 종료 대기 연결](2026-09-18-03-sync-start-and-session-teardown.md): 추가 승인한 진행 중 sync 종료 순서, 테스트 우선 실패 근거, 공통 실행·Debug·강제 종료 표시와 185개 검사, 남은 엔진 내부 한계.
+
+- [인증 만료 후 로컬 이용과 세션 모델 결정 과정](2026-09-18-04-auth-session-policy-and-decisions.md): 로컬 CRUD 지속과 대안 비교, SecureStore 세션 기록·다섯 상태·초기화 수명, 기간 제한 없음·다른 계정 전환 시 폐기·늦은 갱신 응답 방어 채택, 앱 종료 중 로그아웃 복구 제외와 구현 전 경계.

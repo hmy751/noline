@@ -17,4 +17,4 @@ Ticket 경계와 진행 방식의 채택 원문·정정 경위는 [합의 기록
 
 원문과 상세 재현 근거는 [source](../../source/index.md), 분석·합의·구성 검토는 [records](../../records/README.md), 실제 제품 산출물은 [output](../../output/index.md)에서 찾는다.
 
-현재 우선 범위인 [Ticket 06](tickets/06-app-startup-lifecycle.md)은 네트워크 관측·Router·제한 화면·sync 시작의 연결을 맡는다. unknown·10초 안내·중앙 쓰기 차단·화면용 debug와 003 분리 범위의 조정 이유는 [네트워크 정책 합의 기록](../../records/2026-09-16-01-network-policy-and-implementation-boundaries.md)에 있다. 구현 전 기준이며 제품 완료는 아니다.
+앱 준비·인증·네트워크 관측·Router·제한 화면·sync 연결의 실행 정의는 [Ticket 06](tickets/06-app-startup-lifecycle.md)에 있다. 네트워크 범위를 정한 이유는 [네트워크 정책 기록](../../records/2026-09-16-01-network-policy-and-implementation-boundaries.md), 세션·재로그인 정책과 상태 모델을 구체화한 과정은 [인증 논의 기록](../../records/2026-09-18-04-auth-session-policy-and-decisions.md)에서 읽는다. 현재 진행과 다음 행동은 state가 소유한다.
