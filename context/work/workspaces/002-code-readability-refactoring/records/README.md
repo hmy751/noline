@@ -62,3 +62,5 @@
 - [파일별 검토·Provider 보완·레이아웃 검사와 커밋](2026-09-18-01-network-provider-layout-review-and-commits.md): 사용자 승인 코드 교체, 레이아웃 내부 유지 결정, 현재 108개 검사와 분리 커밋, 철회 이력 및 남은 정책 연결.
 
 - [앱 초기화의 실패 정책·책임 정리·독립 리뷰와 스타일 반영](2026-09-18-02-app-initialization-and-style.md): DB/auth 실패와 선택·종료 정책의 사용자 결정, application 분리 이유, 테스트 우선 구현·리뷰 반영 경계, 154개 검사와 남은 startup 범위.
+
+- [sync 시작 조건과 세션 종료 대기 연결](2026-09-18-03-sync-start-and-session-teardown.md): 추가 승인한 진행 중 sync 종료 순서, 테스트 우선 실패 근거, 공통 실행·Debug·강제 종료 표시와 185개 검사, 남은 엔진 내부 한계.

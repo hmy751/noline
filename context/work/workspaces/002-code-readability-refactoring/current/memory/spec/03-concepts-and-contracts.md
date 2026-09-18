@@ -17,3 +17,5 @@ Ticket 06에서 함께 사용할 의미는 다음과 같다. 실제 네트워크
 Router의 정책 거부는 요청을 시작하지 않았다는 결과이며, 이미 전송한 HTTP 요청의 실패와 구별한다. 제한 이유는 기존 오류 흐름으로 전달하고 버튼마다 같은 검사를 복제하지 않는다. Debug override는 화면용 값으로 실제 요청을 허용하는 근거가 아니며, override 중 쓰기 차단은 별도 조건이다. 정확한 상태 변환·동작과 책임 연결은 [Ticket 06](../tickets/06-app-startup-lifecycle.md)을 따른다.
 
 앱 준비 완료는 DB 사용 가능과 인증 복원 시도의 완료이며, 로그인·네트워크 확정·sync 완료와 다르다. 앱 준비 조율은 `application`, 인증 정보와 상태는 Auth Store, 기능별 선택·정리 규칙은 해당 Entity·서비스가 소유한다. 앱 전체 책임과 하위 기능의 책임을 함께 바꾸지 않는다. `getDatabase`는 초기화 성공 뒤 접근 계약이고 `restoreSessionOnce`는 Store 생애에 한 번 수행하는 복원 계약이다. Repository의 실제 조회 출처는 현재 연결 상태나 화면 override에서 추정하지 않는다.
+
+sync 실행의 조건·현재 작업·종료 대기는 sync lifecycle 서비스가 소유하며 Provider는 상태 구독과 자동·주기 요청을 연결한다. DB 준비 상태는 DB 모듈에서 읽으며 화면의 준비 완료를 재추정하지 않는다. `skipped`는 엔진을 시작하지 않은 결과, `completed`는 엔진 Promise가 resolve한 결과, `failed`는 reject한 결과다. 엔진 내부가 오류를 잡는 현재 한계 때문에 `completed`를 모든 작업의 서버 반영 성공으로 확대하지 않는다. 엔진 결과 의미와 재시도는 Ticket 15가 계속 맡는다.

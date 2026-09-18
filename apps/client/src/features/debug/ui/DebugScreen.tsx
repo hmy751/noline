@@ -16,7 +16,8 @@ import {
 } from '@/shared/db';
 import type { Trip, Schedule, Expense, SyncQueueItem, OfflineCity, TripActivation } from '@/shared/db/schema';
 import { getSyncQueueStats } from '@/shared/services/sync/queue';
-import { triggerSync } from '@/shared/services/sync/engine';
+import { useSyncContext } from '@/shared/services/sync/provider';
+import type { SyncSkipReason } from '@/shared/services/sync/lifecycle';
 import { DashboardView } from './DashboardView';
 import { DataInspectorView } from './DataInspectorView';
 import { ToolsView } from './ToolsView';
@@ -24,7 +25,19 @@ import { Pressable } from '@repo/ui';
 
 type ViewMode = 'dashboard' | 'inspector' | 'tools';
 
+const SYNC_SKIP_MESSAGES: Record<SyncSkipReason, string> = {
+  'already-running': '이미 동기화가 진행 중입니다.',
+  'session-ending': '로그아웃 또는 회원 탈퇴가 진행 중입니다.',
+  'database-not-ready': '로컬 DB 준비가 완료되지 않았습니다. 앱을 다시 실행해 주세요.',
+  'signed-out': '로그인 후 동기화할 수 있습니다.',
+  'session-expired': '다시 로그인한 후 동기화할 수 있습니다.',
+  'network-offline': '네트워크 연결 후 다시 시도해 주세요.',
+  'network-unknown': '네트워크 연결을 확인한 후 다시 시도해 주세요.',
+  'override-active': '네트워크 강제 설정을 해제한 후 동기화할 수 있습니다.',
+};
+
 export default function DebugScreen() {
+  const { triggerManualSync } = useSyncContext();
   const [refreshing, setRefreshing] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('dashboard');
 
@@ -131,13 +144,15 @@ export default function DebugScreen() {
 
   const handleManualSync = async () => {
     try {
-      const result = await triggerSync();
+      const result = await triggerManualSync();
 
-      if (result.success) {
-        await loadData(); // 데이터 새로고침
-        Alert.alert('✅ 성공', result.message);
+      if (result.status === 'completed') {
+        await loadData();
+        Alert.alert('✅ 성공', '동기화가 완료되었습니다.');
+      } else if (result.status === 'skipped') {
+        Alert.alert('동기화 보류', SYNC_SKIP_MESSAGES[result.reason]);
       } else {
-        Alert.alert('❌ 실패', result.message);
+        Alert.alert('❌ 실패', '동기화에 실패했습니다.');
       }
     } catch (error) {
       console.error('[Debug] Manual sync error:', error);

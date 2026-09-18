@@ -6,6 +6,10 @@ let databaseConnection: SQLite.SQLiteDatabase | undefined;
 
 let database: ExpoSQLiteDatabase<typeof schema> | undefined;
 
+export function isDatabaseReady(): boolean {
+  return database !== undefined;
+}
+
 /** 스키마 준비에 성공한 DB만 제공한다. 호출만으로 초기화를 시작하지 않는다. */
 export function getDatabase(): ExpoSQLiteDatabase<typeof schema> {
   if (!database) {

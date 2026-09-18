@@ -1,6 +1,7 @@
 import axios, { type AxiosInstance, type AxiosError } from 'axios';
 import { EXPO_PUBLIC_API_URL } from '@env';
-import { getAccessToken, AuthRequiredError } from '@/shared/services/auth';
+import { getAccessToken } from '@/shared/services/auth/token-storage';
+import { AuthRequiredError } from '@/shared/services/auth/auth-interceptor';
 import { authStore } from '@/shared/store/auth';
 
 /**

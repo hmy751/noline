@@ -6,7 +6,7 @@ import { queryClient } from '@/shared/lib/queryClient';
 import { getDatabase, tripActivations } from '@/shared/db';
 import { eq } from 'drizzle-orm';
 import { processPendingCleanups } from './cleanup-job';
-import { AuthRequiredError } from '@/shared/services/auth';
+import { AuthRequiredError } from '@/shared/services/auth/auth-interceptor';
 
 /**
  * Sync push 대상 테이블 → 서버 endpoint 매핑.
@@ -258,31 +258,5 @@ export async function syncData(): Promise<void> {
   } catch (error) {
     console.error('[Sync] Full sync failed:', error);
     throw error;
-  }
-}
-
-/**
- * 수동 동기화 트리거 (디버깅용)
- *
- * 사용자가 명시적으로 동기화를 실행할 때 사용
- *
- */
-export async function triggerSync(): Promise<{ success: boolean; message: string }> {
-  try {
-    console.log('[Sync] Manual sync triggered');
-
-    await syncData(); // Push + Pull
-
-    return {
-      success: true,
-      message: '동기화가 완료되었습니다.',
-    };
-  } catch (error) {
-    console.error('[Sync] Manual sync failed:', error);
-
-    return {
-      success: false,
-      message: '동기화에 실패했습니다.',
-    };
   }
 }

@@ -46,12 +46,15 @@ export default function ProfileScreen() {
             text: '계속 로그아웃',
             style: 'destructive',
             onPress: async () => {
-              // 강제 로그아웃
-              const forceResult = await performLogout({ force: true });
-              if (!forceResult.success) {
-                Alert.alert('오류', forceResult.message || '로그아웃에 실패했습니다.');
+              setIsLoggingOut(true);
+              try {
+                const forceResult = await performLogout({ force: true });
+                if (!forceResult.success) {
+                  Alert.alert('오류', forceResult.message || '로그아웃에 실패했습니다.');
+                }
+              } finally {
+                setIsLoggingOut(false);
               }
-              setIsLoggingOut(false);
             },
           },
         ]);
@@ -102,11 +105,15 @@ export default function ProfileScreen() {
             text: '계속 삭제',
             style: 'destructive',
             onPress: async () => {
-              const forceResult = await performDeleteAccount({ force: true });
-              if (!forceResult.success) {
-                Alert.alert('오류', forceResult.message || '계정 삭제에 실패했습니다.');
+              setIsDeletingAccount(true);
+              try {
+                const forceResult = await performDeleteAccount({ force: true });
+                if (!forceResult.success) {
+                  Alert.alert('오류', forceResult.message || '계정 삭제에 실패했습니다.');
+                }
+              } finally {
+                setIsDeletingAccount(false);
               }
-              setIsDeletingAccount(false);
             },
           },
         ]);

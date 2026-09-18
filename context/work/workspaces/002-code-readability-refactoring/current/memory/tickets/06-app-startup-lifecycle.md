@@ -4,7 +4,7 @@
 
 앱을 켰을 때 네트워크·DB·인증 준비, Splash 해제, 첫 화면 선택과 인증 후 작업 시작이 어떤 조건으로 이어지는지 가까운 코드에서 이해하고 수정할 수 있게 한다. 서로 다른 boolean·effect·고정 지연에서 준비 상태를 다시 추론하는 부담을 줄이고 각 소비자가 필요한 상태를 사용하게 한다. 범용 startup framework나 폴더 재편 자체는 목표로 삼지 않는다. 앱 전체 준비 책임은 `application`에 두고, 해당 기능의 규칙·서비스와 화면 구성을 각 Owner에 연결한다.
 
-Ticket의 네트워크 계약은 **관측과 실제 요청·화면·sync 시작의 연결**이다. 현재 실행은 파일별 품질 보완에 이어 사용자가 채택한 DB 실패 재시도·인증 복원·여행 선택·cleanup 종료 조율과 초기화 책임 정리다. 아래 네트워크 전체 계약의 미구현은 남은 범위로 관리하며 자동으로 구현을 확대하지 않는다. 2026-09-15~16 논의에서 사용자는 Network Store 내부 개선과 정책 구체화를 먼저 선택했고, 직접 필요한 수정은 003으로 분리하지 않고 여기서 함께 수행하기로 했다. 첫 Store 단계와 필요한 소비부 호환 수정을 구현했다. 선택 이유와 조사 근거는 [논의 기록](../../../records/2026-09-16-01-network-policy-and-implementation-boundaries.md)에 있다.
+Ticket의 네트워크 계약은 **관측과 실제 요청·화면·sync 시작의 연결**이다. 현재 실행은 파일별 품질 보완에 이어 사용자가 채택한 DB 실패 재시도·인증 복원·여행 선택·cleanup 종료 조율과 초기화 책임 정리, sync 시작 조건·세션 종료 대기 연결이다. 아래 네트워크 전체 계약의 미구현은 남은 범위로 관리하며 자동으로 구현을 확대하지 않는다. 2026-09-15~16 논의에서 사용자는 Network Store 내부 개선과 정책 구체화를 먼저 선택했고, 직접 필요한 수정은 003으로 분리하지 않고 여기서 함께 수행하기로 했다. 첫 Store 단계와 필요한 소비부 호환 수정을 구현했다. 선택 이유와 조사 근거는 [논의 기록](../../../records/2026-09-16-01-network-policy-and-implementation-boundaries.md)에 있다.
 
 첫 범위가 만들 결과는 다음과 같다.
 
@@ -16,7 +16,7 @@ Ticket의 네트워크 계약은 **관측과 실제 요청·화면·sync 시작�
 
 [14번](14-local-mutation-router-transaction.md)과 겹치는 대상 여행별 Router 분기·inactive child의 Local 선조회 문제는 이 연결을 막는 범위에서 함께 정상화한다. 14는 그 결과를 재사용하고 Local mutation·queue 원자성과 타입·cache invalidation의 나머지 범위를 맡는다. [15번](15-sync-result-retry-pull-types.md)은 sync push·pull·FAILED 재시도와 결과 의미, [16번](16-unsynced-data-cleanup.md)은 cleanup 보존 조건, [08번](08-date-selection-grouping.md)은 대표 여행의 순수 계산을 계속 맡는다. 003 자료는 관련 재현 근거로 사용하며 003 전체를 이번 수정 범위로 옮기지 않는다.
 
-DB·auth 실패 정책과 Splash·준비 경계, 여행 선택 적용과 pending cleanup 연결은 구현했다. 인증 route guard 전체와 login·logout·override 변화에 따른 sync 시작 연결은 남는다. DB 준비 실패 때 진입을 막는 동작과 진행 중 pending cleanup을 기다리는 세션 종료는 사용자가 이번 범위에서 명시적으로 채택했다.
+DB·auth 실패 정책과 Splash·준비 경계, 여행 선택 적용·pending cleanup 연결, 인증·실제 online·override 해제의 sync 시작 조건과 Debug 우회 제거를 구현했다. 사용자는 진행 중 sync도 성공·실패 종료를 기다린 뒤 서버 세션과 로컬 DB를 정리하도록 이번 범위를 추가로 채택했다. 인증 route guard 전체와 아래 나머지 네트워크 소비 연결은 남는다.
 
 ## 실행 맥락과 현재 코드의 차이
 
@@ -29,7 +29,7 @@ Noline은 Selective Local-First다. 활성 여행의 Trip·Schedule·Expense는 
 - [Activation Router](../../../../../../../apps/client/src/shared/services/offline-prep/router.ts)는 실제 online일 때만 Remote를 열도록 호환 수정했고, override 중 Router mutation은 Local/Remote 모두 거부한다. Trip mutation의 전역 활성 여행 존재 판단은 여전히 수정 대상 여행의 활성 여부와 달라 후속 정상화가 필요하다.
 - [Schedule repository](../../../../../../../apps/client/src/entities/schedule/repository/schedule-repository.ts)와 [Expense repository](../../../../../../../apps/client/src/entities/expense/repository/expense-repository.ts)의 update/delete는 tripId를 찾기 위한 Local 선조회 때문에 inactive Remote 경로가 실패할 수 있다.
 - [Policy hook](../../../../../../../apps/client/src/shared/policy/useAppPolicy.ts)은 unknown의 제한 모드를 기존 offline 권한 표로 처리해 없는 key 조회를 막았다. unknown 안내 이유·내용 제한과 활성 여부 로딩의 후속 연결은 남아 있다.
-- [SyncProvider](../../../../../../../apps/client/src/shared/services/sync/provider.tsx)는 DB 준비와 인증 복원 시도 완료 뒤 mount된다. 로그인 여부와 login·logout·override 해제 변화까지 시작 조건으로 연결하는 것은 남는다. syncStrategy 선언의 존재만으로 실행 조건이 적용됐다고 보지 않는다.
+- [SyncProvider](../../../../../../../apps/client/src/shared/services/sync/provider.tsx)는 DB 준비와 인증 복원 시도 완료 뒤 mount되며 인증·세션 만료·실제 관측·override·종료 일시 중단을 구독한다. [sync lifecycle](../../../../../../../apps/client/src/shared/services/sync/lifecycle.ts)이 실행 순간의 DB 준비·인증·연결 조건, 공유 잠금과 종료 대기를 소유한다. 자동·주기·Debug 수동 실행이 같은 경계를 통과한다.
 - [QueryClient](../../../../../../../apps/client/src/shared/lib/queryClient.ts)와 조회 화면에는 이전 서버 응답이 남을 수 있다. 요청 중단만으로 제한 화면이 나타나지는 않으며, 조회 불가가 빈 목록과 합쳐지지 않아야 한다.
 - 폼의 일반 오류 안내가 Router의 제한 이유를 덮을 수 있다. 대표 수정 Drawer는 성공 때 닫고 실패 때 일반 안내를 하지만 모든 생성·삭제 경로의 입력 유지까지 검증된 것은 아니다.
 
@@ -123,6 +123,14 @@ debug override가 없는 정상 동작에서 활성 여행은 unknown/offline이
 
 초기화와 인증의 분리는 코드 위치를 벌리기 위한 것이 아니라 앱 준비의 순서·실패·UI와 인증 저장소·상태의 변경 이유를 각 책임 안에 모으기 위한 것이다. 추가 필수 준비 단계는 `AppInitialization`, 화면 이동은 `AppNavigation`, 로그인 후 작업의 연결은 `AuthenticatedEffects`, 개별 규칙은 해당 Entity·서비스에서 변경한다. 범용 작업 등록기나 다른 초기화 파일의 일괄 분리는 도입하지 않았다.
 
+### sync 시작과 세션 종료 계약
+
+DB가 사용 가능하고 로그인 상태이며 세션 만료가 아니고, 실제 online·override 해제·세션 종료 중이 아닐 때 새 sync를 시작한다. 로그인·인증 복구·online 확정·override 해제에서 실행 불가→가능 변화가 생기면 Provider가 자동 요청한다. 일반 rerender·실행 완료는 재요청 이유가 아니다. 실행 중 동시 요청은 보류하며 추가 실행을 예약하지 않는다. 주기 타이머는 기존 opt-in과 간격을 유지한다.
+
+종료 확정은 기존 미동기화 확인을 통과하거나 사용자가 강제 종료를 선택한 시점이다. 먼저 새 sync를 막고 진행 중 실행의 성공·실패 종료를 기다린 뒤 서버 로그아웃/계정 삭제를 요청한다. 그다음 기존 pending cleanup 중단·종료 대기 안에서 큐→DB→인증→여행 선택→캐시를 비운다. 서버 로그아웃 실패 시 로컬 종료 진행, 서버 계정 삭제 실패 시 로컬 유지라는 기존 차이는 보존한다. 실패 때 일시 중단은 해제하지만 DB 준비 상태가 해제됐으면 새 sync를 계속 거절한다. 진행 중 HTTP 취소·새 종료 timeout·엔진 결과/재시도 개선은 추가하지 않는다.
+
+Debug 수동 실행은 Context를 사용하며 보류를 성공으로 표시하지 않고 이유를 안내한다. 강제 로그아웃/탈퇴 확인 후에도 기존 진행 표시와 버튼 비활성화를 유지한다. 선택 근거와 테스트 우선 수행은 [sync 시작·종료 기록](../../../records/2026-09-18-03-sync-start-and-session-teardown.md)에서 확인한다.
+
 ## 완료 조건과 확인 방법
 
 첫 범위는 Store 선언만 바꾸거나 Router 단위 검사만 통과한 상태로 완료하지 않는다. 실제 소비 연결까지 다음 사례로 확인한다.
@@ -141,17 +149,17 @@ debug override가 없는 정상 동작에서 활성 여행은 unknown/offline이
 
 ## 현재 상태와 실제 결과
 
-DB 실패 재시도·인증 복원·여행 선택·pending cleanup 조율과 `application` 분리, 독립 코드 스타일 리뷰 기준 반영을 구현했다. Ticket 전체 완료와 사용자 최종 수락은 남는다. 선택과 반복 보완의 이유, 변경 전 실패 증거, 리뷰의 채택·후속 범위는 [앱 초기화·리뷰·스타일 기록](../../../records/2026-09-18-02-app-initialization-and-style.md)이 소유한다.
+DB 실패 재시도·인증 복원·여행 선택·pending cleanup 조율과 `application` 분리, 독립 코드 스타일 리뷰 기준 반영을 구현했고, 후속으로 sync 시작·Debug 경계·진행 중 sync 종료 대기를 연결했다. Ticket 전체 완료와 사용자 최종 수락은 남는다. 앞선 선택·리뷰는 [앱 초기화 기록](../../../records/2026-09-18-02-app-initialization-and-style.md), 이번 범위 추가와 테스트 우선 근거는 [sync 연결 기록](../../../records/2026-09-18-03-sync-start-and-session-teardown.md)이 소유한다.
 
-기존 Network Store·Policy·Router·SyncProvider 결과는 유지한다. 이번 변경은 준비 경계 안에 Provider를 배치해 DB·복원 전 mount를 막았지만 Provider의 인증 구독·login/logout/override 해제 연결과 Debug engine 직접 호출을 해결한 것은 아니다. 대상 Trip 분기와 inactive child Local 선조회, 제한·복구 화면 전체도 미완료다.
+기존 Network Store·Policy·Router 기반은 유지한다. Provider의 인증 구독·login/logout/override 해제 연결과 Debug engine 직접 호출을 이번 후속 변경으로 해결했다. 실행 잠금과 종료 대기는 React 밖에서도 공유한다. 새 logout→lifecycle→engine 의존이 Auth barrel을 통해 돌아오지 않도록 엔진·sync API는 실제 인증 모듈을 직접 참조한다. 대상 Trip 분기와 inactive child Local 선조회, 제한·복구 화면 전체는 미완료다.
 
 코드 표현에는 기존 Prettier 설정, 의미가 바뀌는 단계의 빈 줄, guard 중괄호, 실제 범위가 드러나는 이름, 이유·계약·예외 중심 주석, 모듈과 이벤트를 드러내는 로그를 적용했다. 캐시 요청과 완료를 구별하고 스타일 정리를 위해 `await`를 추가하지 않았다. 공개 진입점에서 내부 구현으로 이어지는 함수 배치를 정리했다. 테스트는 시나리오별로 묶고 경우별 입력 객체·실제 실행 경계의 Promise를 사용한다. 새 비동기 `void` 표시는 기존 `no-void` 규칙과 충돌해 일괄 추가하지 않았다.
 
-Main이 직접 실행한 최종 client Jest는 **14개 suite·154개 test 통과**다. Layout 26개, 인증 Store 7개, DB 준비 8개, 여행 선택 9개, 목록 출처 2개, cleanup 수명 7개와 Tabs 보호 2개를 포함한다. 코드 스타일 정리 전후 동일한 전체 154개 test가 통과했다. 변경된 TypeScript 39개 파일의 ESLint는 Prettier 연동 규칙 제외 시 오류 0개·경고 26개이고 별도 Prettier와 diff 검사는 통과했다. client 타입 검사에는 기존 Mapbox 좌표와 OfflinePack 필드 오류 3개가 남는다.
+Main이 직접 실행한 최신 전체 client Jest는 **18개 suite·185개 test 통과**다. Provider 15개, 공통 sync 실행 10개, sync/세션 종료 9개, Debug 경계 4개, 강제 종료 대기 표시 2개와 기존 startup·선택·cleanup 검사를 포함한다. 변경한 TypeScript 16개 파일의 ESLint는 Prettier 연동 규칙 제외 시 오류 0개·기존 경고 3개이며 별도 포맷·diff 검사는 통과했다. 타입 검사에는 기존 Mapbox 좌표·OfflinePack 필드 오류 3개만 남는다. 앞선 스타일 변경 전후 154개 통과는 이전 기록의 검사 시점으로 보존한다.
 
-검사는 native·SQLite·보안 저장소·서버를 mock한 범위다. 실제 Expo 화면·기기 DB 보존/이관·서버 전송 증거는 아니다. 기존 저장 경계 `c578446`·`6efdfed`·`0ce6f4d` 이후 startup·스타일 개선과 관련 테스트·Workspace 기록을 `refactor(client): 앱 초기화 경계와 실패 복구 흐름 정리` 커밋으로 함께 저장했다. SQL·transaction·cleanup 내부 보존 조건과 `any`·단언의 전면 정리는 별도 후속 범위로 남긴다.
+검사는 native·SQLite·보안 저장소·서버를 mock한 범위다. 실제 Expo 화면·기기 DB 보존/이관·서버 전송 증거는 아니다. 앞선 startup·스타일 구현은 `8a1a3ea`로 저장했고 이번 sync 연결의 코드·테스트·관련 기록은 `refactor(client): sync 시작 조건과 세션 종료 순서 연결` 커밋으로 함께 저장했다. 엔진이 내부에서 오류를 잡고 resolve하는 기존 한계는 남아 있어 새 `completed`도 모든 작업의 전송 성공을 증명하지 않는다. SQL·transaction·엔진 결과/재시도·cleanup 내부 보존과 `any`·단언 전면 정리는 각 후속 범위다.
 
-다음으로 판단할 startup 범위는 DB 준비·인증 상태·실제 online·override 해제의 sync 시작 연결과 Debug 수동 호출의 우회다. 인증 route guard 전체, 대상별 Router·inactive child 분기, 제한/복구 화면과 foreground 재확인은 아래 네트워크 계약의 남은 범위다. 08의 대표 여행 계산, 14의 실제 SQLite 원자성, 15의 엔진 결과/재시도, 16의 보존 조건을 이번 시작 연결과 혼동하지 않는다.
+다음 검토 후보는 인증 route guard 전체다. 대상별 Router·inactive child 분기, 제한/복구 화면과 foreground 재확인도 아래 네트워크 계약의 남은 범위다. 다음 후보의 선택은 사용자와 이어서 판단하며 이번 변경으로 구현하지 않는다. 08의 대표 여행 계산, 14의 실제 SQLite 원자성, 15의 엔진 결과/재시도, 16의 보존 조건을 이번 시작·종료 조율과 혼동하지 않는다.
 
 ## 추후 개선 메모 — NetworkStatus enum 전환
 

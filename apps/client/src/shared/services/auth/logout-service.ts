@@ -3,6 +3,7 @@ import { logout as logoutApi, deleteAccount } from './auth-api';
 import { authStore } from '@/shared/store/auth';
 import { useTripStore } from '@/shared/store/useTripStore';
 import { withPendingCleanupsPaused } from '@/shared/services/sync/cleanup-job';
+import { withSyncPaused } from '@/shared/services/sync/lifecycle';
 import { resetDatabase } from '@/shared/db';
 import { queryClient } from '@/shared/lib/queryClient';
 
@@ -59,16 +60,18 @@ export async function performLogout(options: LogoutOptions = {}): Promise<Logout
       };
     }
 
-    // 서버 로그아웃 (Refresh Token 무효화)
-    try {
-      await logoutApi();
-      console.log('[AuthSession] Server logout successful');
-    } catch (error) {
-      // 서버 로그아웃 실패해도 로컬 로그아웃은 진행
-      console.warn('[AuthSession] Server logout failed (continuing with local logout):', error);
-    }
+    await withSyncPaused(async () => {
+      // 실행 중 sync가 사용하는 서버 세션도 종료 대기 뒤 무효화한다.
+      try {
+        await logoutApi();
+        console.log('[AuthSession] Server logout successful');
+      } catch (error) {
+        // 서버 로그아웃 실패해도 로컬 로그아웃은 진행한다.
+        console.warn('[AuthSession] Server logout failed (continuing with local logout):', error);
+      }
 
-    await clearLocalSession();
+      await clearLocalSession();
+    });
 
     console.log('[AuthSession] Logout completed successfully');
 
@@ -113,11 +116,12 @@ export async function performDeleteAccount(options: LogoutOptions = {}): Promise
       };
     }
 
-    // 서버 계정 삭제 API 호출 (CASCADE로 모든 데이터 삭제)
-    await deleteAccount();
-    console.log('[AuthSession] Server account deleted');
-
-    await clearLocalSession();
+    await withSyncPaused(async () => {
+      // 서버 계정 삭제에 실패하면 로컬 세션은 유지한다.
+      await deleteAccount();
+      console.log('[AuthSession] Server account deleted');
+      await clearLocalSession();
+    });
 
     console.log('[AuthSession] Account deletion completed successfully');
 

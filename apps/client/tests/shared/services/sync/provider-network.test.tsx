@@ -5,6 +5,7 @@ import { act, renderHook } from '@testing-library/react-native';
 import { networkStore, useNetworkStore } from '@/shared/store/network';
 import { SyncProvider, useSyncContext } from '@/shared/services/sync/provider';
 import { syncData } from '@/shared/services/sync/engine';
+import { useAuthStore } from '@/shared/store/auth';
 
 jest.mock('@react-native-community/netinfo', () => ({
   __esModule: true,
@@ -12,6 +13,8 @@ jest.mock('@react-native-community/netinfo', () => ({
 }));
 
 jest.mock('@/shared/services/sync/engine', () => ({ syncData: jest.fn() }));
+jest.mock('@/shared/services/auth/token-storage', () => ({}));
+jest.mock('@/shared/db', () => ({ isDatabaseReady: () => true }));
 
 const syncMock = jest.mocked(syncData);
 
@@ -20,6 +23,7 @@ function SyncWrapper({ children }: { children: React.ReactNode }) {
 }
 
 beforeEach(() => {
+  useAuthStore.setState({ isAuthenticated: true, isSessionExpired: false, userId: 'user-1' });
   useNetworkStore.setState({ realStatus: 'unknown', overrideStatus: null });
   syncMock.mockResolvedValue(undefined);
   jest.spyOn(console, 'log').mockImplementation(() => undefined);
@@ -34,6 +38,110 @@ afterEach(() => {
 });
 
 describe('SyncProvider의 실제 네트워크 소비', () => {
+  it('로그인·online 확정·강제 설정 해제가 함께 반영돼도 한 번만 자동 실행한다', async () => {
+    useAuthStore.setState({ isAuthenticated: false });
+    useNetworkStore.setState({ realStatus: 'unknown', overrideStatus: 'online' });
+    renderHook(() => useSyncContext(), { wrapper: SyncWrapper });
+
+    await act(async () => {
+      useAuthStore.setState({ isAuthenticated: true });
+      useNetworkStore.setState({ realStatus: 'online', overrideStatus: null });
+    });
+    expect(syncMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('진행 중 Provider를 다시 mount해도 같은 실행 상태를 읽고 새 엔진 실행을 시작하지 않는다', async () => {
+    useNetworkStore.setState({ realStatus: 'online' });
+    let finishSync!: () => void;
+    syncMock.mockReturnValueOnce(
+      new Promise<void>((resolve) => {
+        finishSync = resolve;
+      }),
+    );
+    const first = renderHook(() => useSyncContext(), { wrapper: SyncWrapper });
+    await act(async () => {
+      await Promise.resolve();
+    });
+    first.unmount();
+    const second = renderHook(() => useSyncContext(), { wrapper: SyncWrapper });
+
+    await act(async () => {
+      await expect(second.result.current.triggerManualSync()).resolves.toEqual({
+        status: 'skipped',
+        reason: 'already-running',
+      });
+    });
+    expect(second.result.current.isSyncing).toBe(true);
+    expect(syncMock).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      finishSync();
+    });
+    expect(second.result.current.isSyncing).toBe(false);
+  });
+
+  it('로그인 전에는 자동·수동 실행을 막고 같은 online 상태에서 로그인하면 자동 실행한다', async () => {
+    useAuthStore.setState({ isAuthenticated: false, userId: null });
+    useNetworkStore.setState({ realStatus: 'online' });
+    const { result } = renderHook(() => useSyncContext(), { wrapper: SyncWrapper });
+
+    await act(async () => {
+      await result.current.triggerManualSync();
+    });
+    expect(syncMock).not.toHaveBeenCalled();
+
+    await act(async () => {
+      useAuthStore.setState({ isAuthenticated: true, userId: 'user-1' });
+    });
+    expect(syncMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('실제 online에서 강제 설정만 해제해도 자동 실행한다', async () => {
+    useNetworkStore.setState({ realStatus: 'online', overrideStatus: 'offline' });
+    renderHook(() => useSyncContext(), { wrapper: SyncWrapper });
+    expect(syncMock).not.toHaveBeenCalled();
+
+    await act(async () => {
+      networkStore.setOverride(null);
+    });
+    expect(syncMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('로그아웃 후에는 네트워크 복구와 수동 요청으로 새 실행을 시작하지 않는다', async () => {
+    useNetworkStore.setState({ realStatus: 'online' });
+    const { result } = renderHook(() => useSyncContext(), { wrapper: SyncWrapper });
+    await act(async () => {
+      await Promise.resolve();
+    });
+    syncMock.mockClear();
+
+    await act(async () => {
+      useAuthStore.setState({ isAuthenticated: false, userId: null });
+      useNetworkStore.setState({ realStatus: 'offline' });
+    });
+    await act(async () => {
+      useNetworkStore.setState({ realStatus: 'online' });
+      await result.current.triggerManualSync();
+    });
+    expect(syncMock).not.toHaveBeenCalled();
+  });
+
+  it('세션 만료 중에는 시작하지 않고 인증이 복구되면 자동 실행한다', async () => {
+    useAuthStore.setState({ isSessionExpired: true });
+    useNetworkStore.setState({ realStatus: 'online' });
+    const { result } = renderHook(() => useSyncContext(), { wrapper: SyncWrapper });
+
+    await act(async () => {
+      await result.current.triggerManualSync();
+    });
+    expect(syncMock).not.toHaveBeenCalled();
+
+    await act(async () => {
+      useAuthStore.setState({ isSessionExpired: false });
+    });
+    expect(syncMock).toHaveBeenCalledTimes(1);
+  });
+
   it('같은 렌더에서 수동 실행을 연속 요청해도 한 번만 시작하고 완료 후 다시 실행할 수 있다', async () => {
     useNetworkStore.setState({ realStatus: 'online' });
     const { result } = renderHook(() => useSyncContext(), { wrapper: SyncWrapper });
@@ -52,6 +160,7 @@ describe('SyncProvider의 실제 네트워크 소비', () => {
       // state 갱신이 렌더에 반영되기 전에 같은 실행 함수를 연속 호출한다.
       const first = result.current.triggerManualSync();
       const second = result.current.triggerManualSync();
+      await Promise.resolve();
       expect(syncMock).toHaveBeenCalledTimes(1);
       finishSync();
       await Promise.all([first, second]);
@@ -104,6 +213,9 @@ describe('SyncProvider의 실제 네트워크 소비', () => {
       ),
     });
 
+    await act(async () => {
+      await Promise.resolve();
+    });
     await act(async () => {
       jest.advanceTimersByTime(500);
       finishSync();
@@ -167,6 +279,9 @@ describe('SyncProvider의 실제 네트워크 소비', () => {
     );
     const { result, rerender } = renderHook(() => useSyncContext(), { wrapper: SyncWrapper });
 
+    await act(async () => {
+      await Promise.resolve();
+    });
     expect(result.current.isSyncing).toBe(true);
     expect(syncMock).toHaveBeenCalledTimes(1);
 
@@ -199,7 +314,7 @@ describe('SyncProvider의 실제 네트워크 소비', () => {
     expect(syncMock).not.toHaveBeenCalled();
   });
 
-  it('실제 online이어도 override 중 전송하지 않고 해제 뒤 수동 실행할 수 있다', async () => {
+  it('실제 online이어도 override 중 전송하지 않고 해제 자동 실행 뒤 수동 실행할 수 있다', async () => {
     useNetworkStore.setState({ realStatus: 'online', overrideStatus: 'unknown' });
     const { result } = renderHook(() => useSyncContext(), { wrapper: SyncWrapper });
 
@@ -211,9 +326,12 @@ describe('SyncProvider의 실제 네트워크 소비', () => {
 
     await act(async () => {
       networkStore.setOverride(null);
+    });
+    expect(syncMock).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
       await result.current.triggerManualSync();
     });
-
-    expect(syncMock).toHaveBeenCalledTimes(1);
+    expect(syncMock).toHaveBeenCalledTimes(2);
   });
 });

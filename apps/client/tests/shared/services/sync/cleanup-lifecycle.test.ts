@@ -28,6 +28,7 @@ jest.mock('@/shared/services/sync/queue', () => ({
 }));
 jest.mock('@/shared/services/offline-map', () => ({ cleanupOfflineMapForTrip: jest.fn() }));
 jest.mock('@/shared/services/auth/auth-api', () => ({ logout: jest.fn(), deleteAccount: jest.fn() }));
+jest.mock('@/shared/services/sync/engine', () => ({ syncData: jest.fn() }));
 jest.mock('@/shared/store/auth', () => ({ authStore: { logout: jest.fn() } }));
 jest.mock('@/shared/lib/queryClient', () => ({
   queryClient: { invalidateQueries: jest.fn(async () => undefined), clear: jest.fn() },

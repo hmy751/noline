@@ -72,3 +72,11 @@ Layout은 실제 Root·Auth/Network Store·SyncProvider·재시도 버튼을 연
 Layout 테스트는 준비·네트워크 수명·인증 변화·여행 선택·정리 예약으로 묶었다. 여행 선택 테스트는 문자열에 따른 분기 대신 경우별 입력 객체를 제공한다. cleanup 종료 조율 테스트의 반복 microtask 대기는 실제 일시 중단 진입을 관찰하는 Promise로 교체했다. React 업데이트를 반영하는 helper는 준비 완료를 보장하는 이름 대신 `flushReactUpdates`로 명명했다.
 
 정리 전후 전체 client Jest 14개 suite·154개 test가 통과했다. 변경된 TypeScript 파일 39개의 ESLint는 Prettier 연동 규칙 제외 시 오류 0개·경고 26개이며, 직전 27개에서 미사용 import 경고 1개를 제거했다. 별도 Prettier 검사와 `git diff --check`도 통과했다. 타입 검사는 기존 Mapbox 좌표·OfflinePack 필드 오류 3개가 유지된다. 이 결과는 자동 검사 범위의 회귀 확인이며 실제 기기 동작이나 Ticket 전체 완료를 의미하지 않는다.
+
+## 후속 선택 — sync 시작 조건과 세션 종료 대기
+
+사용자는 구현 전 논의에서 진행 중 sync가 DB 정리 뒤에 쓰는 충돌을 피하도록, 종료 확정 뒤 새 sync를 막고 기존 실행의 성공·실패 종료를 기다린 뒤 서버 세션과 로컬 DB를 정리하는 제안에 “그래 그렇게 하자”라고 답했다. 앞서 후속 범위로 남긴 sync 시작 연결·Debug 직접 호출·sync 종료 대기를 이번에 수행하도록 범위를 추가했다. 기존 선택과 검사 결과는 당시 이력으로 유지한다.
+
+새 sync는 DB 사용 가능·로그인·세션 만료 아님·실제 online·override 해제·세션 종료 중 아님을 실행 직전에 확인한다. Provider는 조건 변화에 따른 자동 요청을 연결하고 자동·주기·Debug 수동 요청은 공통 실행 잠금을 사용한다. 종료는 sync 대기→서버 로그아웃/계정 삭제→pending cleanup 대기→로컬 정리 순서다. 강제 종료도 sync 대기를 유지하며, 미동기화 안내로 보류하면 실행을 중단하지 않는다. 서버 로그아웃 실패 시 로컬 종료, 서버 계정 삭제 실패 시 로컬 유지의 기존 차이는 보존한다.
+
+변경 전 실패 시나리오와 종료 선택 이유, DB reset 실패의 실행 차단·강제 종료 대기 표시, 최신 전체 client Jest 18개 suite·185개 test 통과와 검사 한계는 [sync 시작·종료 기록](../../context/work/workspaces/002-code-readability-refactoring/records/2026-09-18-03-sync-start-and-session-teardown.md)에 남겼다. 현재 코드의 읽기 경로는 [output](../../context/work/workspaces/002-code-readability-refactoring/output/index.md)에서 찾는다. 엔진 내부 오류 집계·재시도와 실제 기기·서버 전송 확인은 여전히 후속 범위이며, `completed`는 엔진 Promise의 정상 반환을 뜻한다.

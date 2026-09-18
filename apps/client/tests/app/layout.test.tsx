@@ -43,7 +43,7 @@ jest.mock('expo-router', () => {
 });
 jest.mock('@rn-primitives/portal', () => ({ PortalHost: () => null }));
 jest.mock('@/shared/components', () => ({ SessionExpiredBanner: () => null }));
-jest.mock('@/shared/db', () => ({ initializeDatabase: jest.fn() }));
+jest.mock('@/shared/db', () => ({ initializeDatabase: jest.fn(), isDatabaseReady: () => true }));
 jest.mock('@/shared/services/offline-map', () => ({ useOfflineMapCleanup: jest.fn() }));
 jest.mock('@/shared/services/sync/cleanup-job', () => ({ processPendingCleanups: jest.fn() }));
 jest.mock('@/shared/services/sync/engine', () => ({ syncData: jest.fn(async () => undefined) }));

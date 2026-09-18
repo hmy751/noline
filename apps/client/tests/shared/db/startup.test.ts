@@ -36,19 +36,23 @@ function expectNoDataDeletion() {
 
 describe('재시도 가능한 앱 DB 준비', () => {
   it('준비 전 접근은 DB를 열지 않고 명확한 오류로 거절한다', () => {
+    expect(database.isDatabaseReady()).toBe(false);
     expect(() => database.getDatabase()).toThrow('로컬 DB 준비가 완료되지 않았습니다.');
     expect(openDatabase).not.toHaveBeenCalled();
   });
 
   it('SQL 준비 중과 실패 뒤에는 클라이언트를 공개하지 않고 재시도 성공 뒤에만 제공한다', async () => {
     execSync.mockImplementationOnce(() => {
+      expect(database.isDatabaseReady()).toBe(false);
       expect(() => database.getDatabase()).toThrow('로컬 DB 준비가 완료되지 않았습니다.');
       throw new Error('SQL 실패');
     });
     await expect(database.initializeDatabase()).rejects.toThrow('SQL 실패');
+    expect(database.isDatabaseReady()).toBe(false);
     expect(() => database.getDatabase()).toThrow('로컬 DB 준비가 완료되지 않았습니다.');
 
     await database.initializeDatabase();
+    expect(database.isDatabaseReady()).toBe(true);
     expect(database.getDatabase()).toBe(client);
   });
 
@@ -60,6 +64,7 @@ describe('재시도 가능한 앱 DB 준비', () => {
     });
 
     await expect(database.resetDatabase()).rejects.toThrow('reset 실패');
+    expect(database.isDatabaseReady()).toBe(false);
     expect(() => database.getDatabase()).toThrow('로컬 DB 준비가 완료되지 않았습니다.');
     await database.initializeDatabase();
     expect(database.getDatabase()).toBe(client);

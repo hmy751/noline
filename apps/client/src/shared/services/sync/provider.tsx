@@ -1,12 +1,13 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useRef } from 'react';
 
-import { networkStore, useRealNetworkStatus, type NetworkStatus } from '@/shared/store/network';
-import { syncData } from './engine';
+import { useAuthStore } from '@/shared/store/auth';
+import { useNetworkStore } from '@/shared/store/network';
+import { executeSync, getSyncBlockReason, useSyncLifecycleStore, type SyncResult } from './lifecycle';
 
 interface SyncContextValue {
   isSyncing: boolean;
   lastSyncedAt: Date | null;
-  triggerManualSync: () => Promise<void>;
+  triggerManualSync: () => Promise<SyncResult>;
 }
 
 interface SyncProviderProps {
@@ -14,10 +15,6 @@ interface SyncProviderProps {
   enablePeriodicSync?: boolean;
   syncInterval?: number;
 }
-
-type SyncReason = 'app-startup' | 'online-transition' | 'manual' | 'periodic';
-
-type SyncSkipReason = 'already-running' | 'network-offline' | 'network-unknown' | 'override-active';
 
 const DEFAULT_SYNC_INTERVAL_MS = 5 * 60 * 1000;
 const SyncContext = createContext<SyncContextValue | null>(null);
@@ -35,118 +32,48 @@ export function SyncProvider({
   enablePeriodicSync = false,
   syncInterval = DEFAULT_SYNC_INTERVAL_MS,
 }: SyncProviderProps) {
-  const networkStatus = useRealNetworkStatus();
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [lastSyncedAt, setLastSyncedAt] = useState<Date | null>(null);
-
-  const previousNetworkStatusRef = useRef<NetworkStatus | null>(null);
-  const syncingRef = useRef(false);
-
-  const executeSync = useCallback(async (reason: SyncReason) => {
-    const blockReason = getSyncBlockReason();
-
-    if (blockReason) {
-      logSyncSkipped(reason, blockReason);
-      return;
-    }
-
-    if (syncingRef.current) {
-      logSyncSkipped(reason, 'already-running');
-      return;
-    }
-
-    syncingRef.current = true;
-    setIsSyncing(true);
-
-    const startedAt = Date.now();
-    logSyncStarted(reason);
-
-    try {
-      await syncData();
-
-      const syncedAt = new Date();
-      setLastSyncedAt(syncedAt);
-      logSyncCompleted(reason, Date.now() - startedAt, syncedAt);
-    } catch (error) {
-      logSyncFailed(reason, error, Date.now() - startedAt);
-    } finally {
-      syncingRef.current = false;
-      setIsSyncing(false);
-    }
-  }, []);
-
-  const triggerManualSync = useCallback(() => executeSync('manual'), [executeSync]);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isSessionExpired = useAuthStore((state) => state.isSessionExpired);
+  const networkStatus = useNetworkStore((state) => state.realStatus);
+  const overrideStatus = useNetworkStore((state) => state.overrideStatus);
+  const isPaused = useSyncLifecycleStore((state) => state.isPaused);
+  const isSyncing = useSyncLifecycleStore((state) => state.isSyncing);
+  const lastSyncedAt = useSyncLifecycleStore((state) => state.lastSyncedAt);
+  const previousEligibilityRef = useRef<boolean | null>(null);
 
   useEffect(() => {
-    const previousStatus = previousNetworkStatusRef.current;
-    previousNetworkStatusRef.current = networkStatus;
+    const eligible = getSyncBlockReason() === null;
+    const previousEligibility = previousEligibilityRef.current;
+    previousEligibilityRef.current = eligible;
 
-    if (networkStatus !== 'online' || previousStatus === 'online') {
+    if (!eligible || previousEligibility === true) {
       return;
     }
 
-    const reason: SyncReason = previousStatus === null ? 'app-startup' : 'online-transition';
-    void executeSync(reason);
-  }, [networkStatus, executeSync]);
+    void executeSync(previousEligibility === null ? 'app-startup' : 'conditions-ready');
+  }, [isAuthenticated, isSessionExpired, networkStatus, overrideStatus, isPaused]);
 
   useEffect(() => {
     if (!enablePeriodicSync) {
       return;
     }
 
-    logPeriodicSyncEnabled(syncInterval);
-
+    console.info('[Sync] periodic sync enabled', { intervalMs: syncInterval });
     const intervalId = setInterval(() => {
       void executeSync('periodic');
     }, syncInterval);
 
     return () => clearInterval(intervalId);
-  }, [enablePeriodicSync, syncInterval, executeSync]);
+  }, [enablePeriodicSync, syncInterval]);
 
   const value = useMemo<SyncContextValue>(
     () => ({ isSyncing, lastSyncedAt, triggerManualSync }),
-    [isSyncing, lastSyncedAt, triggerManualSync],
+    [isSyncing, lastSyncedAt],
   );
 
   return <SyncContext.Provider value={value}>{children}</SyncContext.Provider>;
 }
 
-function getSyncBlockReason(): SyncSkipReason | null {
-  if (networkStore.override !== null) {
-    return 'override-active';
-  }
-
-  if (networkStore.realStatus === 'offline') {
-    return 'network-offline';
-  }
-
-  if (networkStore.realStatus === 'unknown') {
-    return 'network-unknown';
-  }
-
-  return null;
-}
-
-function logSyncStarted(reason: SyncReason) {
-  console.info('[Sync] started', { reason });
-}
-
-function logSyncCompleted(reason: SyncReason, durationMs: number, syncedAt: Date) {
-  console.info('[Sync] completed', {
-    reason,
-    durationMs,
-    syncedAt: syncedAt.toISOString(),
-  });
-}
-
-function logSyncFailed(reason: SyncReason, error: unknown, durationMs: number) {
-  console.error('[Sync] failed', { reason, durationMs, error });
-}
-
-function logSyncSkipped(reason: SyncReason, skipReason: SyncSkipReason) {
-  console.debug('[Sync] skipped', { reason, skipReason });
-}
-
-function logPeriodicSyncEnabled(intervalMs: number) {
-  console.info('[Sync] periodic sync enabled', { intervalMs });
+function triggerManualSync(): Promise<SyncResult> {
+  return executeSync('manual');
 }

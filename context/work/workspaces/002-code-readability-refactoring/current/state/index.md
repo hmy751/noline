@@ -24,15 +24,15 @@ Project-wide 판단으로 남은 항목은 Expense 날짜 계약, 금액 반올�
 
 [Ticket 06](../memory/tickets/06-app-startup-lifecycle.md)은 DB 실패 안내·재시도, 인증 복원, 여행 선택 보존과 서버 제거 확인 후 전환, pending cleanup 공유 실행과 로그아웃/탈퇴 종료 조율을 구현했다. 앱 전체 준비의 상태·순서·Splash·실패/재시도는 `application/AppInitialization`에 모으고 `_layout.tsx`는 화면·Provider·인증 후 작업 연결을 보여 준다. Auth Store는 보안 저장소와 인증 상태를 소유한다. 독립 리뷰를 바탕으로 함수 배치·이름·주석·로그·테스트 구조를 보완했다.
 
-Main이 직접 실행한 최신 전체 client Jest는 14개 suite·154개 test 통과다. 변경된 TypeScript 39개 파일의 ESLint 오류는 0개·경고는 26개이며 Prettier 규칙은 도구 연동 오류 때문에 별도로 검사했다. 포맷·diff 검사는 통과했고 타입 검사에는 기존 지도 관련 오류 3개만 남는다. 실제 기기·native·SQLite 데이터 보존·서버 실행은 미확인이다. 앱 초기화·스타일 개선과 관련 테스트·Workspace 기록은 `refactor(client): 앱 초기화 경계와 실패 복구 흐름 정리` 커밋으로 함께 저장했다. 기존 Network·Provider 저장 결과는 유지한다.
+Main이 직접 실행한 최신 전체 client Jest는 18개 suite·185개 test 통과다. 이번 sync 연결의 TypeScript 16개 파일 ESLint 오류는 0개·기존 경고는 3개이고 별도 포맷·diff 검사는 통과했다. 타입 검사에는 기존 지도 관련 오류 3개만 남는다. 실제 기기·native·SQLite 데이터 보존·서버 전송은 미확인이다. 앞선 앱 초기화·스타일 구현과 기록은 `8a1a3ea`로 저장했고 이번 sync 연결의 코드·테스트·관련 기록은 `refactor(client): sync 시작 조건과 세션 종료 순서 연결` 커밋으로 함께 저장했다.
 
-다음 실행 후보는 **DB 준비·인증 상태·실제 online·override 해제에 따른 SyncProvider 시작/해제와 Debug 수동 sync의 우회 연결**이다. DB 준비와 인증 복원 시도 완료 뒤 Provider가 mount되는 결과는 만들었지만, 비인증 시작 차단과 login/logout 반응까지 해결한 것은 아니다. 현재 startup 결과의 사용자 검토와 함께 다음 범위를 구체화한다.
+sync 시작은 DB 사용 가능·인증·세션 만료 여부·실제 online·override 해제·종료 일시 중단 조건으로 연결했다. 자동·주기·Debug 수동 실행은 공통 잠금을 사용한다. 사용자는 종료 확정 뒤 새 실행을 막고 진행 중 sync의 성공·실패 종료를 기다리는 정책을 추가로 채택했다. 서버 세션 종료 뒤 기존 cleanup 대기와 로컬 정리로 이어진다. 강제 종료의 대기 표시·DB reset 실패 뒤 sync 거절도 포함한다. 새 범위와 변경 전 실패·검증 한계는 [sync 기록](../../records/2026-09-18-03-sync-start-and-session-teardown.md)이 소유한다. 다음 검토 후보는 **인증 route guard 전체**이며 아직 실행 범위로 확정하지 않았다.
 
-Ticket 06에는 인증 route guard 전체, 대상별 Trip Router 분기·inactive child Local 선조회, 제한/복구 화면 전체와 foreground 재확인이 남는다. 이 미구현을 근거로 이번 기록 작업 중 제품 변경을 추가하지 않는다. 초기화·선택·cleanup의 현재 계약은 Ticket, 선택 이유·리뷰 반영과 검증의 상세는 [최신 기록](../../records/2026-09-18-02-app-initialization-and-style.md), 코드 읽기 경로는 [output](../../output/index.md)이 소유한다. Ticket 전체의 최종 수락과 Workspace 완료는 아직 없다.
+Ticket 06에는 인증 route guard 전체, 대상별 Trip Router 분기·inactive child Local 선조회, 제한/복구 화면 전체와 foreground 재확인이 남는다. 이 남은 범위는 이번 sync 연결에 포함하지 않았다. 초기화·선택·cleanup의 현재 계약은 Ticket, 선택 이유·리뷰 반영과 검증의 상세는 [초기화·스타일 기록](../../records/2026-09-18-02-app-initialization-and-style.md), 코드 읽기 경로는 [output](../../output/index.md)이 소유한다. Ticket 전체의 최종 수락과 Workspace 완료는 아직 없다.
 
 ## 그 밖의 남은 리팩토링
 
-Ticket 06–16의 제품 구현과 Ticket 17의 남은 request·response·ownership·오류 경계는 미완료다. Ticket 06의 DB·auth 실패 처리와 선택 적용은 위 결과에 포함하며, 남은 routing·sync·네트워크 소비 연결은 해당 Ticket에서 이어 간다.
+Ticket 06–16의 제품 구현과 Ticket 17의 남은 request·response·ownership·오류 경계는 미완료다. Ticket 06의 DB·auth 실패 처리와 선택 적용은 위 결과에 포함하며, 남은 routing·네트워크 소비 연결은 06, 엔진 결과/재시도는 15에서 이어 간다.
 
 Ticket 07의 독립 API export, 08의 순수 계산과 12의 표시 Owner 조사도 다른 후속 구현 전체를 기다리지 않는다. 10·11의 입력과 14의 cache 계약은 13이 사용하고, 13·14·15의 결과는 09의 전체 준비 완료에 필요하다. 14·15는 16의 보존 조건에 연결된다.
 
