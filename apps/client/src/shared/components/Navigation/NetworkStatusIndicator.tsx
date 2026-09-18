@@ -1,6 +1,6 @@
 import { View, Text } from 'react-native';
 import { Wifi, WifiOff } from 'lucide-react-native';
-import { useNetworkStatus } from '@/shared/store/network';
+import { useDisplayNetworkStatus } from '@/shared/store/network';
 
 /**
  * 네트워크 상태 인디케이터 (헤더 우측)
@@ -9,7 +9,7 @@ import { useNetworkStatus } from '@/shared/store/network';
  * - 알 수 없음: 회색 Wifi 아이콘 + "확인 중"
  */
 export function NetworkStatusIndicator() {
-  const networkStatus = useNetworkStatus();
+  const networkStatus = useDisplayNetworkStatus();
 
   if (networkStatus === 'online') {
     return (

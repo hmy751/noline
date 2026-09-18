@@ -13,7 +13,7 @@ import { useRouter } from 'expo-router';
 import { generateId } from '@/shared/services/id/ulid';
 import { dateToISODateTime } from '@/shared/lib/datetime';
 import { getCurrencyByCountryCode } from '@/shared/lib/country-currency';
-import { useNetworkStatus } from '@/shared/store/network';
+import { useDisplayNetworkStatus } from '@/shared/store/network';
 
 type TripDateFormProps = {
   city: City;
@@ -23,7 +23,7 @@ export default function TripDateForm({ city }: TripDateFormProps) {
   const router = useRouter();
   const [pickerVisible, setPickerVisible] = useState(false);
   const [currentPicker, setCurrentPicker] = useState<'start' | 'end' | null>(null);
-  const networkStatus = useNetworkStatus();
+  const networkStatus = useDisplayNetworkStatus();
   const isOnline = networkStatus === 'online';
 
   const { control, handleSubmit, setValue, watch } = useForm<TripDateFormData>({

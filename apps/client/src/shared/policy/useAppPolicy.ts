@@ -6,7 +6,7 @@
  */
 
 import { useMemo } from 'react';
-import { useNetworkStatus } from '@/shared/store/network';
+import { useDisplayNetworkStatus } from '@/shared/store/network';
 import { useGetTripActivation } from '@/entities/trip/data/useGetTripActivation';
 import { TRIP_POLICIES, SCHEDULE_POLICIES, EXPENSE_POLICIES, SERVICE_POLICIES } from './constants';
 import type { CRUDPermission, ServiceConfig, PolicyKey, ActivationStatus } from './types';
@@ -64,7 +64,7 @@ export interface AppPolicyContext {
  * ```
  */
 export function useAppPolicy(tripId?: string): AppPolicyContext {
-  const networkStatus = useNetworkStatus();
+  const networkStatus = useDisplayNetworkStatus();
 
   // 기존 Hook 재사용 (Single Source of Truth)
   const { data: activation } = useGetTripActivation(tripId ?? '');
@@ -74,7 +74,9 @@ export function useAppPolicy(tripId?: string): AppPolicyContext {
   const activationStatus: ActivationStatus = tripId && isActivated ? 'active' : 'inactive';
 
   // PolicyKey 계산: "online_active" | "offline_inactive" 등
-  const policyKey: PolicyKey = `${networkStatus}_${activationStatus}`;
+  // unknown도 Remote 기능을 열지 않는다. 현재 4-state 권한 표의 제한 모드를 재사용한다.
+  const policyNetworkStatus = networkStatus === 'online' ? 'online' : 'offline';
+  const policyKey: PolicyKey = `${policyNetworkStatus}_${activationStatus}`;
 
   // useMemo로 불필요한 객체 재생성 방지
   return useMemo(

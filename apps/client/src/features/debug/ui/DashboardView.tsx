@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { Pressable } from '@repo/ui';
 import { Database, Wifi, WifiOff, RotateCcw, RefreshCw, Upload } from 'lucide-react-native';
-import { useNetworkControl, useNetworkStatus } from '@/shared/store/network';
+import { useNetworkControl, useRealNetworkStatus } from '@/shared/store/network';
 
 interface DashboardViewProps {
   stats: { pending: number; inProgress: number; failed: number; total: number } | null;
@@ -19,7 +19,7 @@ interface DashboardViewProps {
 
 export function DashboardView({ stats, counts, onRefresh, onManualSync }: DashboardViewProps) {
   const { overrideStatus, setOverrideOnline, setOverrideOffline, clearOverride } = useNetworkControl();
-  const realNetworkStatus = useNetworkStatus();
+  const realNetworkStatus = useRealNetworkStatus();
   const effectiveStatus = overrideStatus ?? realNetworkStatus;
 
   return (

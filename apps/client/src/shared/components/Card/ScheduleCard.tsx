@@ -31,7 +31,7 @@ export function ScheduleCard({
   onMenuPress,
 }: ScheduleCardProps) {
   // 온라인 상태 + 좌표 없음 → 경고 표시
-  const showLocationWarning = networkStore.status === 'online' && !latitude;
+  const showLocationWarning = networkStore.realStatus === 'online' && !latitude;
 
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.95}>

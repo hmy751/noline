@@ -166,14 +166,17 @@ export default function RootLayout() {
   const [isAppReady, setIsAppReady] = useState(false);
   const { init: initAuth } = useAuthStore();
 
+  useEffect(() => {
+    networkStore.init();
+
+    return () => networkStore.cleanup();
+  }, []);
+
   // 앱 초기화 (DB, 폰트, 인증 등)
   useEffect(() => {
     const prepareApp = async () => {
       try {
         console.log('🚀 Preparing app...');
-
-        // 0. 네트워크 스토어 초기화
-        networkStore.init();
 
         // 1. 로컬 DB 초기화
         await initializeDatabase();

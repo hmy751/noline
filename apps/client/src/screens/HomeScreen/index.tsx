@@ -5,13 +5,13 @@ import { Pressable } from '@repo/ui';
 import { ChevronRight, Plus } from 'lucide-react-native';
 import { TripsSection } from './TripsSection';
 import { Alert } from 'react-native';
-import { useNetworkStatus } from '@/shared/store/network';
+import { useDisplayNetworkStatus } from '@/shared/store/network';
 import { useGetTrips } from '@/entities/trip';
 import { useState, useCallback } from 'react';
 
 export default function HomeScreen() {
   // 네트워크 상태
-  const networkStatus = useNetworkStatus();
+  const networkStatus = useDisplayNetworkStatus();
   const isOnline = networkStatus === 'online';
 
   // Pull-to-Refresh
