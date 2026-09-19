@@ -12,14 +12,14 @@ import { expenseQueryKeys } from '@/entities/expense/data/keys';
  * @example
  * ```tsx
  * const { mutate, isPending } = useDeleteSchedule();
- * mutate('schedule-id');
+ * mutate({ id: 'schedule-id', tripId: 'trip-id' });
  * ```
  */
 export const useDeleteSchedule = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => ScheduleRepository.delete(id),
+    mutationFn: ({ id, tripId }: { id: string; tripId: string }) => ScheduleRepository.delete(id, tripId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: scheduleQueryKeys.base,
@@ -34,7 +34,7 @@ export const useDeleteSchedule = () => {
       });
     },
     onError: (error) => {
-      console.error('❌ Failed to delete schedule:', error);
+      console.error('[Schedule] Failed to delete schedule', error);
     },
   });
 };

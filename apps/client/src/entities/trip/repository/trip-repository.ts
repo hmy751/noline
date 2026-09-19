@@ -1,6 +1,11 @@
 // Trip Repository - 활성화 상태에 따른 Local/Remote 분기
 
-import { routeTripQuery, routeTripMutation } from '@/shared/services/offline-prep/router';
+import {
+  routeTripQuery,
+  routeTripMutation,
+  routeChildQuery,
+  routeChildMutation,
+} from '@/shared/services/offline-prep/router';
 import * as TripLocal from '../lib/trip-local';
 import * as TripApi from '../api/trips';
 import type { Trip, CreateTripRequest, UpdateTripRequest, DeleteTripResponse } from '../model';
@@ -29,7 +34,7 @@ export const TripRepository = {
   },
 
   getById: async (id: string): Promise<Trip | undefined> => {
-    return await routeTripQuery({
+    return await routeChildQuery(id, {
       local: () => TripLocal.getTripByIdLocal(id),
       remote: async () => {
         // TODO: fetchTripById API 필요시 추가
@@ -47,14 +52,14 @@ export const TripRepository = {
   },
 
   update: async (id: string, data: UpdateTripRequest): Promise<Trip> => {
-    return await routeTripMutation({
+    return await routeChildMutation(id, {
       local: () => TripLocal.updateTripLocal(id, data),
       remote: () => TripApi.fetchUpdateTrip(id, data),
     });
   },
 
   delete: async (id: string): Promise<DeleteTripResponse> => {
-    return await routeTripMutation({
+    return await routeChildMutation(id, {
       local: () => TripLocal.deleteTripLocal(id),
       remote: () => TripApi.fetchDeleteTrip(id),
     });

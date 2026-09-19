@@ -25,14 +25,15 @@ export const useUpdateExpense = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateExpenseRequest }) => ExpenseRepository.update(id, data),
+    mutationFn: ({ id, tripId, data }: { id: string; tripId: string; data: UpdateExpenseRequest }) =>
+      ExpenseRepository.update(id, tripId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: expenseQueryKeys.base,
       });
     },
     onError: (error) => {
-      console.error('❌ Failed to update expense:', error);
+      console.error('[Expense] Failed to update expense', error);
     },
   });
 };

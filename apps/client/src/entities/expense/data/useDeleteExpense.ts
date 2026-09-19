@@ -10,21 +10,21 @@ import { expenseQueryKeys } from './keys';
  * @example
  * ```tsx
  * const { mutate, isPending } = useDeleteExpense();
- * mutate('expense-id');
+ * mutate({ id: 'expense-id', tripId: 'trip-id' });
  * ```
  */
 export const useDeleteExpense = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => ExpenseRepository.delete(id),
+    mutationFn: ({ id, tripId }: { id: string; tripId: string }) => ExpenseRepository.delete(id, tripId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: expenseQueryKeys.base,
       });
     },
     onError: (error) => {
-      console.error('❌ Failed to delete expense:', error);
+      console.error('[Expense] Failed to delete expense', error);
     },
   });
 };

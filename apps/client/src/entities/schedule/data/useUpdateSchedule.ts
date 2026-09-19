@@ -25,7 +25,8 @@ export const useUpdateSchedule = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateScheduleRequest }) => ScheduleRepository.update(id, data),
+    mutationFn: ({ id, tripId, data }: { id: string; tripId: string; data: UpdateScheduleRequest }) =>
+      ScheduleRepository.update(id, tripId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: scheduleQueryKeys.base,
@@ -36,7 +37,7 @@ export const useUpdateSchedule = () => {
       });
     },
     onError: (error) => {
-      console.error('❌ Failed to update schedule:', error);
+      console.error('[Schedule] Failed to update schedule', error);
     },
   });
 };

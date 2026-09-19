@@ -35,17 +35,9 @@ export const ExpenseRepository = {
 
   /**
    * 일정별 경비 조회
-   * - scheduleId로 tripId를 먼저 조회하여 라우팅 결정
+   * - 호출 화면이 전달한 tripId로 로컬 선조회 없이 라우팅
    */
-  getByScheduleId: async (scheduleId: string): Promise<Expense[]> => {
-    // 1. scheduleId로 tripId 조회
-    const tripId = await ExpenseLocal.getTripIdByScheduleIdLocal(scheduleId);
-
-    if (!tripId) {
-      throw new Error(`Schedule not found: ${scheduleId}`);
-    }
-
-    // 2. tripId로 라우팅 적용
+  getByScheduleId: async (scheduleId: string, tripId: string): Promise<Expense[]> => {
     return await routeChildQuery(tripId, {
       local: () => ExpenseLocal.getExpensesByScheduleIdLocal(scheduleId),
       remote: () => ExpenseApi.fetchExpensesByScheduleId(scheduleId),
@@ -64,16 +56,9 @@ export const ExpenseRepository = {
 
   /**
    * 경비 수정
-   * - tripId를 먼저 조회하여 라우팅 결정
+   * - 화면이 이미 알고 있는 tripId로 로컬 선조회 없이 라우팅
    */
-  update: async (id: string, data: UpdateExpenseRequest): Promise<Expense> => {
-    // 1. 경비의 tripId 조회 (라우팅을 위해 필요)
-    const tripId = await ExpenseLocal.getExpenseTripIdLocal(id);
-
-    if (!tripId) {
-      throw new Error(`Expense not found: ${id}`);
-    }
-
+  update: async (id: string, tripId: string, data: UpdateExpenseRequest): Promise<Expense> => {
     return await routeChildMutation(tripId, {
       local: () => ExpenseLocal.updateExpenseLocal(id, data),
       remote: () => ExpenseApi.fetchUpdateExpense(id, data),
@@ -82,16 +67,9 @@ export const ExpenseRepository = {
 
   /**
    * 경비 삭제 (Soft Delete)
-   * - tripId를 먼저 조회하여 라우팅 결정
+   * - 화면이 이미 알고 있는 tripId로 로컬 선조회 없이 라우팅
    */
-  delete: async (id: string): Promise<{ id: string; deletedAt: string }> => {
-    // 1. 경비의 tripId 조회 (라우팅을 위해 필요)
-    const tripId = await ExpenseLocal.getExpenseTripIdLocal(id);
-
-    if (!tripId) {
-      throw new Error(`Expense not found: ${id}`);
-    }
-
+  delete: async (id: string, tripId: string): Promise<{ id: string; deletedAt: string }> => {
     return await routeChildMutation(tripId, {
       local: () => ExpenseLocal.deleteExpenseLocal(id),
       remote: () => ExpenseApi.fetchDeleteExpense(id),

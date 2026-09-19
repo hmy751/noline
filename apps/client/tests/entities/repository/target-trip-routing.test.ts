@@ -1,0 +1,112 @@
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+
+import { ExpenseRepository } from '@/entities/expense/repository/expense-repository';
+import * as ExpenseApi from '@/entities/expense/api/expenses';
+import * as ExpenseLocal from '@/entities/expense/lib/expense-local';
+import { ScheduleRepository } from '@/entities/schedule/repository/schedule-repository';
+import * as ScheduleApi from '@/entities/schedule/api/schedules';
+import * as ScheduleLocal from '@/entities/schedule/lib/schedule-local';
+import { TripRepository } from '@/entities/trip/repository/trip-repository';
+import * as TripApi from '@/entities/trip/api/trips';
+import * as TripLocal from '@/entities/trip/lib/trip-local';
+import { getTripActivationStatus, hasAnyActivatedTrip } from '@/shared/services/offline-prep/metadata';
+import { useAuthStore } from '@/shared/store/auth';
+import { networkStore, useNetworkStore } from '@/shared/store/network';
+import type { Expense } from '@/entities/expense/model';
+import type { Schedule } from '@/entities/schedule/model';
+import type { Trip } from '@/entities/trip/model';
+
+jest.mock('@react-native-community/netinfo', () => ({
+  __esModule: true,
+  default: { addEventListener: jest.fn(), refresh: jest.fn() },
+}));
+jest.mock('@/shared/services/offline-prep/metadata', () => ({
+  getTripActivationStatus: jest.fn(),
+  hasAnyActivatedTrip: jest.fn(),
+}));
+jest.mock('@/entities/schedule/api/schedules');
+jest.mock('@/entities/schedule/lib/schedule-local');
+jest.mock('@/entities/expense/api/expenses');
+jest.mock('@/entities/expense/lib/expense-local');
+jest.mock('@/entities/trip/api/trips');
+jest.mock('@/entities/trip/lib/trip-local');
+
+const activationMock = jest.mocked(getTripActivationStatus);
+const anyActivationMock = jest.mocked(hasAnyActivatedTrip);
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  useAuthStore.setState((state) => ({
+    ...state,
+    status: 'signed-in' as const,
+    userId: 'user-a',
+    isAuthenticated: true,
+  }));
+  useNetworkStore.setState({ realStatus: 'online', overrideStatus: null });
+  activationMock.mockResolvedValue(false);
+  anyActivationMock.mockResolvedValue(false);
+});
+
+afterEach(() => networkStore.cleanup());
+
+describe('child entity의 대상 여행별 라우팅', () => {
+  it('로컬에 없는 비활성 일정도 전달받은 tripId로 Remote 수정한다', async () => {
+    const update = { title: '변경된 일정' };
+    const remoteSchedule = { id: 'schedule-b', tripId: 'trip-b' } as Schedule;
+    jest.mocked(ScheduleApi.fetchUpdateSchedule).mockResolvedValue(remoteSchedule);
+
+    await expect(ScheduleRepository.update('schedule-b', 'trip-b', update)).resolves.toBe(remoteSchedule);
+
+    expect(activationMock).toHaveBeenCalledWith('trip-b');
+    expect(ScheduleLocal.updateScheduleLocal).not.toHaveBeenCalled();
+    expect(ScheduleApi.fetchUpdateSchedule).toHaveBeenCalledWith('schedule-b', update);
+  });
+
+  it('활성 일정은 같은 tripId 판단으로 Local 수정한다', async () => {
+    const update = { title: '변경된 일정' };
+    const localSchedule = { id: 'schedule-a', tripId: 'trip-a' } as Schedule;
+    activationMock.mockResolvedValue(true);
+    jest.mocked(ScheduleLocal.updateScheduleLocal).mockResolvedValue(localSchedule);
+
+    await expect(ScheduleRepository.update('schedule-a', 'trip-a', update)).resolves.toBe(localSchedule);
+
+    expect(activationMock).toHaveBeenCalledWith('trip-a');
+    expect(ScheduleLocal.updateScheduleLocal).toHaveBeenCalledWith('schedule-a', update);
+    expect(ScheduleApi.fetchUpdateSchedule).not.toHaveBeenCalled();
+  });
+
+  it('일정별 경비 조회는 로컬 일정 선조회 없이 Remote API를 호출한다', async () => {
+    const remoteExpenses = [{ id: 'expense-b', tripId: 'trip-b', scheduleId: 'schedule-b' }] as Expense[];
+    jest.mocked(ExpenseApi.fetchExpensesByScheduleId).mockResolvedValue(remoteExpenses);
+
+    await expect(ExpenseRepository.getByScheduleId('schedule-b', 'trip-b')).resolves.toBe(remoteExpenses);
+
+    expect(activationMock).toHaveBeenCalledWith('trip-b');
+    expect(ExpenseLocal.getExpensesByScheduleIdLocal).not.toHaveBeenCalled();
+    expect(ExpenseApi.fetchExpensesByScheduleId).toHaveBeenCalledWith('schedule-b');
+  });
+
+  it('로컬에 없는 비활성 경비도 전달받은 tripId로 Remote 삭제한다', async () => {
+    const deleted = { id: 'expense-b', deletedAt: '2026-09-19T00:00:00.000Z' };
+    jest.mocked(ExpenseApi.fetchDeleteExpense).mockResolvedValue(deleted);
+
+    await expect(ExpenseRepository.delete('expense-b', 'trip-b')).resolves.toBe(deleted);
+
+    expect(activationMock).toHaveBeenCalledWith('trip-b');
+    expect(ExpenseLocal.deleteExpenseLocal).not.toHaveBeenCalled();
+    expect(ExpenseApi.fetchDeleteExpense).toHaveBeenCalledWith('expense-b');
+  });
+});
+
+it('다른 활성 여행이 있어도 비활성 대상 Trip 자체는 Remote 수정한다', async () => {
+  const update = { name: '변경된 여행' };
+  const remoteTrip = { id: 'trip-b', name: '변경된 여행' } as Trip;
+  anyActivationMock.mockResolvedValue(true);
+  jest.mocked(TripApi.fetchUpdateTrip).mockResolvedValue(remoteTrip);
+
+  await expect(TripRepository.update('trip-b', update)).resolves.toBe(remoteTrip);
+
+  expect(activationMock).toHaveBeenCalledWith('trip-b');
+  expect(TripLocal.updateTripLocal).not.toHaveBeenCalled();
+  expect(TripApi.fetchUpdateTrip).toHaveBeenCalledWith('trip-b', update);
+});

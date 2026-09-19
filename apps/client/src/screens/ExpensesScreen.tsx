@@ -127,16 +127,18 @@ export default function ExpensesScreen() {
         text: '삭제',
         style: 'destructive',
         onPress: () => {
-          // ✅ Selective Local-First: 로컬 DB Soft Delete + sync_queue 기록
-          deleteExpense(selectedExpense.id, {
-            onSuccess: () => {
-              Alert.alert('성공', '경비가 삭제되었습니다.');
-              setSelectedExpense(null);
+          deleteExpense(
+            { id: selectedExpense.id, tripId: selectedExpense.tripId },
+            {
+              onSuccess: () => {
+                Alert.alert('성공', '경비가 삭제되었습니다.');
+                setSelectedExpense(null);
+              },
+              onError: () => {
+                Alert.alert('오류', '경비 삭제에 실패했습니다.');
+              },
             },
-            onError: () => {
-              Alert.alert('오류', '경비 삭제에 실패했습니다.');
-            },
-          });
+          );
         },
       },
     ]);

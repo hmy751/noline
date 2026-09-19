@@ -138,17 +138,20 @@ export default function ScheduleScreen() {
           text: '삭제',
           style: 'destructive',
           onPress: () => {
-            deleteSchedule(selectedSchedule.id, {
-              onSuccess: () => {
-                Alert.alert('성공', '일정이 삭제되었습니다.');
-                setIsScheduleMenuOpen(false);
-                setSelectedSchedule(null);
-                setButtonPosition(undefined);
+            deleteSchedule(
+              { id: selectedSchedule.id, tripId: selectedSchedule.tripId },
+              {
+                onSuccess: () => {
+                  Alert.alert('성공', '일정이 삭제되었습니다.');
+                  setIsScheduleMenuOpen(false);
+                  setSelectedSchedule(null);
+                  setButtonPosition(undefined);
+                },
+                onError: () => {
+                  Alert.alert('오류', '일정 삭제에 실패했습니다.');
+                },
               },
-              onError: () => {
-                Alert.alert('오류', '일정 삭제에 실패했습니다.');
-              },
-            });
+            );
           },
         },
       ],

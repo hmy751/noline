@@ -57,16 +57,9 @@ export const ScheduleRepository = {
 
   /**
    * 일정 수정
-   * - tripId를 먼저 조회하여 라우팅 결정
+   * - 화면이 이미 알고 있는 tripId로 로컬 선조회 없이 라우팅
    */
-  update: async (id: string, data: UpdateScheduleRequest): Promise<Schedule> => {
-    // 1. 일정의 tripId 조회 (라우팅을 위해 필요)
-    const tripId = await ScheduleLocal.getScheduleTripIdLocal(id);
-
-    if (!tripId) {
-      throw new Error(`Schedule not found: ${id}`);
-    }
-
+  update: async (id: string, tripId: string, data: UpdateScheduleRequest): Promise<Schedule> => {
     return await routeChildMutation(tripId, {
       local: () => ScheduleLocal.updateScheduleLocal(id, data),
       remote: () => ScheduleApi.fetchUpdateSchedule(id, data),
@@ -75,16 +68,9 @@ export const ScheduleRepository = {
 
   /**
    * 일정 삭제 (Soft Delete)
-   * - tripId를 먼저 조회하여 라우팅 결정
+   * - 화면이 이미 알고 있는 tripId로 로컬 선조회 없이 라우팅
    */
-  delete: async (id: string): Promise<{ id: string; deletedAt: string }> => {
-    // 1. 일정의 tripId 조회 (라우팅을 위해 필요)
-    const tripId = await ScheduleLocal.getScheduleTripIdLocal(id);
-
-    if (!tripId) {
-      throw new Error(`Schedule not found: ${id}`);
-    }
-
+  delete: async (id: string, tripId: string): Promise<{ id: string; deletedAt: string }> => {
     return await routeChildMutation(tripId, {
       local: () => ScheduleLocal.deleteScheduleLocal(id),
       remote: () => ScheduleApi.fetchDeleteSchedule(id),

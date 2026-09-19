@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { View, Text, TextInput, Alert, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, Alert, TouchableOpacity, ScrollView } from 'react-native';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Wallet, ChevronDown, Calendar as CalendarIcon, MapPin } from 'lucide-react-native';
@@ -85,12 +85,14 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
 
   // 저장 핸들러 (유효성 검사는 zodResolver가 처리)
   const onValid = (data: ExpenseUpdateFormData) => {
-    if (!expenseData) return;
+    if (!expenseData) {
+      return;
+    }
 
-    // ✅ Selective Local-First: 로컬 DB 업데이트 + sync_queue 기록
     updateExpense(
       {
         id: expenseData.id,
+        tripId: expenseData.tripId,
         data: {
           title: data.title,
           amount: data.amount,

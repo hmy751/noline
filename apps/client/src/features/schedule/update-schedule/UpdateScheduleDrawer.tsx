@@ -110,6 +110,7 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
     updateSchedule(
       {
         id: scheduleData.id,
+        tripId: scheduleData.tripId,
         data: {
           title: data.title,
           scheduledAt, // ISO 8601 format

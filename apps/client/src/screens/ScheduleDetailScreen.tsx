@@ -7,44 +7,34 @@ import { formatISOToLocalDate, formatISOToLocalTime } from '@/shared/lib/datetim
 import { groupExpensesByCurrency, formatCurrencyDisplay } from '@/shared/lib/currency';
 import { useRouter } from 'expo-router';
 import { useGetScheduleById } from '@/entities/schedule/data';
-import { useGetScheduleExpenses, type Expense } from '@/entities/expense';
+import { useGetScheduleExpenses } from '@/entities/expense';
 
 export interface ScheduleDetailScreenProps {
   scheduleId: string;
   tripId: string;
-  scheduledAt: string; // ISO datetime string
+  scheduledAt: string;
   onBack: () => void;
 }
 
 export default function ScheduleDetailScreen({ scheduleId, tripId, scheduledAt, onBack }: ScheduleDetailScreenProps) {
   const router = useRouter();
 
-  // ✅ 로컬 DB에서 일정 상세 정보 조회
   const { data: schedule, isLoading: isLoadingSchedule } = useGetScheduleById(scheduleId, tripId);
 
-  // ✅ 일정의 경비 목록 조회 (라우팅 레이어 적용)
-  const { data: expenses = [], isLoading: isLoadingExpenses } = useGetScheduleExpenses(scheduleId);
+  const { data: expenses = [], isLoading: isLoadingExpenses } = useGetScheduleExpenses(scheduleId, tripId);
 
-  // ✅ CURRENCY_POLICY: 통화별 경비 그룹핑
   const expensesByCurrency = groupExpensesByCurrency(expenses);
 
   const isLoading = isLoadingSchedule || isLoadingExpenses;
 
   const handleExpensePress = (expenseId: string) => {
-    // ✅ 경비 상세 화면으로 이동 (tripId 전달하여 Router 패턴 적용)
     router.push({
       pathname: '/expense-detail/[id]',
       params: { id: expenseId, tripId },
     });
   };
 
-  /**
-   * 일정에 경비 추가
-   * - 일정의 날짜를 자동으로 경비 날짜로 설정
-   * - tripId, scheduleId를 함께 전달
-   */
   const handleAddExpense = () => {
-    // ✅ scheduledAt (ISO datetime)에서 날짜 부분만 추출 (YYYY-MM-DD)
     const expenseDate = formatISOToLocalDate(scheduledAt);
 
     router.push(`/create-expense?tripId=${tripId}&scheduleId=${scheduleId}&date=${expenseDate}`);
@@ -55,7 +45,6 @@ export default function ScheduleDetailScreen({ scheduleId, tripId, scheduledAt, 
     console.log('Show on map:', scheduleId);
   };
 
-  // ✅ 로딩 중일 때
   if (isLoading) {
     return (
       <View className='flex-1 bg-background'>
@@ -71,7 +60,6 @@ export default function ScheduleDetailScreen({ scheduleId, tripId, scheduledAt, 
     );
   }
 
-  // ✅ 일정을 찾을 수 없을 때
   if (!schedule) {
     return (
       <View className='flex-1 bg-background'>
@@ -87,7 +75,6 @@ export default function ScheduleDetailScreen({ scheduleId, tripId, scheduledAt, 
     );
   }
 
-  // ✅ scheduledAt에서 날짜와 시간 추출
   const scheduleDate = formatISOToLocalDate(schedule.scheduledAt);
   const scheduleTime = formatISOToLocalTime(schedule.scheduledAt);
 
