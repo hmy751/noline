@@ -25,4 +25,6 @@ Trip·Schedule·Expense mutation에서 활성 여행의 local write와 `sync_que
 
 ## 현재 상태와 실제 결과
 
-기존 11을 14로 옮긴 결과를 유지하며, 2026-09-16에는 06과 겹치는 Router·inactive child 정상화의 담당 관계를 갱신했다. 제품 구현·검증·사용자 수락은 아직 없다. 06의 실제 inactive API 결과와 이 Ticket의 실제 드라이버·SQLite 원자성 완료 근거가 각각 필요하다.
+기존 11을 14로 옮긴 결과를 유지하며, 2026-09-16에는 06과 겹치는 Router·inactive child 정상화의 담당 관계를 갱신했다. 이 Ticket 전체의 구현·검증·사용자 수락은 아직 없으며 06에서 수행한 좁은 transaction 수정과 후속 결함 재현은 아래에 연결한다. 06의 실제 inactive API 결과와 이 Ticket의 실제 드라이버·SQLite 원자성 완료 근거가 각각 필요하다.
+
+06의 인증 구현에서 async callback 조기 commit을 고쳐 큐 insert 실패 시 entity rollback은 확인했다. 이후 [연결 검사](../../../records/2026-09-19-02-auth-review-checks.md)에서는 열린 transaction 밖에서 호출한 upsert가 같은 연결의 rollback에 함께 사라졌다. 독립 write·sync pull·reset과 transaction의 실제 실행 범위를 대조하고, entity+queue의 원자성뿐 아니라 다른 성공 작업의 보존도 완료 근거에 포함한다. 현재 wrapper를 호출하는 작업끼리의 직렬화만으로 전체 격리를 보장하지 않는다. Node 메모리 SQLite 재현이며 기기 검증과 이 Ticket 완료는 남는다.

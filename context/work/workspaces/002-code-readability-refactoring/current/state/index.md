@@ -20,19 +20,19 @@ Project Context 후보 구성에는 Ticket 01–05와 관련 records·output·�
 
 Project-wide 판단으로 남은 항목은 Expense 날짜 계약, 금액 반올림·정밀도와 서버 오류 처리의 목표 구조다. Project Context의 실제 반영은 이 Workspace Maintain의 소유 범위가 아니며 완료로 간주하지 않는다.
 
-## Ticket 06 — 초기화·sync 기반 구현, 후속 인증 설계 확정
+## Ticket 06 — 기존 인증 구현 보완 전
 
-[Ticket 06](../memory/tickets/06-app-startup-lifecycle.md)의 DB 실패 재시도·인증 복원·여행 선택·pending cleanup과 application 책임 분리, sync 시작 조건·Debug 경계·진행 중 sync 종료 대기는 구현했다. 앞선 앱 초기화·스타일 결과는 `8a1a3ea`, sync 연결 결과는 `029adb6`에 저장돼 있다. 마지막 구현 시 Main이 보고한 검사는 client Jest 18개 suite·185개 test 통과, 변경 TypeScript 16개 파일의 ESLint 오류 0개·기존 경고 3개와 포맷·diff 통과다. 기존 지도 관련 타입 오류 3개와 실제 기기·native·SQLite 보존·서버 전송 미확인은 남아 있다. 이 수치를 아래 새 인증 설계의 검증으로 사용하지 않는다.
+[Ticket 06](../memory/tickets/06-app-startup-lifecycle.md)의 startup·sync 시작/종료·단일 세션 저장·다섯 인증 상태·로컬 접근은 구현돼 있다. startup은 `8a1a3ea`, sync는 `029adb6`, 당시 인증 정책 문서는 `10960e9`에 저장했고 후속 제품 변경은 미커밋 상태다. 전체 원복 대신 기존 코드와 테스트를 기반으로 필요한 함수·책임을 교체하는 방향을 채택했다. 추가 논의와 구현 기준은 문서에 반영했으며 제품 보완 구현은 시작하지 않았다.
 
-후속으로 SecureStore 세션 기록과 `initializing`·`signed-out`·`signed-in`·`reauth-required`·`restore-failed`, 초기 복원의 실행 수명, 재로그인 진입·계정 경계·늦은 토큰 응답 처리를 확정했다. 재로그인이 필요해도 같은 계정의 활성 여행 Local CRUD를 유지하고 별도 이용 기한을 두지 않는다. 다른 계정 전환 시 이전 로컬 데이터와 미전송 큐를 폐기한다. 요청 당시 세션이 끝난 갱신 응답은 같은 계정 재로그인 뒤에도 적용하지 않는다.
+최신 기준은 같은 계정의 인증만 복구하는 재로그인, 다른 계정 변경 전 명시적 로그아웃이다. 인증 만료 후 활성 여행 Local CRUD는 계속 허용하고, 만료 후 재로그인 저장 실패에는 기존 `reauth-required`를 유지한다. 새 실패 상태나 재로그인까지 일반 HTTP 요청을 보관하는 대기열을 추가하지 않는다. 자동 갱신 성공 뒤 원래 요청 재시도와 로컬 sync_queue 보존은 유지한다. [Spec의 동작](../memory/spec/02-behavior-and-cases.md)과 [결정·정정 기록](../../records/2026-09-19-01-auth-complexity-review-and-decisions.md)에서 기준과 이유를 읽는다.
 
-다중 기기 제어와 로그아웃 도중 앱 강제 종료를 복구하는 진행 표시·재개 장치는 제외한다. 기존 로그아웃의 대기·정리·일반 오류 처리는 유지한다. 채택·철회와 사용자 정정의 이유는 [인증 논의 기록](../../records/2026-09-18-04-auth-session-policy-and-decisions.md)에서 읽는다.
+**다음 구현은 apiClient의 갱신·재시도·응답·오류 전달과 세션 저장 실패 정합성을 먼저 고치고, 같은 계정 재로그인·명시적 계정 종료를 연결하는 일**이다. 이후 useAppPolicy의 실제 소비와 서비스 인증 요구, inactive child Local 선조회·제한/복구 화면·foreground 재확인을 정리한다. 현재 변경을 복구 가능하게 보존한 뒤 작은 범위로 진행한다.
 
-**다음 행동은 Ticket 06의 후속 인증 절을 읽고 시나리오 테스트부터 작성하는 것**이다. 저장·복원·일반 API/sync·로그인 화면과 root guard·계정 전환을 함께 연결해야 한다. 기존 낱개 키의 이관·큐 귀속·세션 식별의 구체 방식은 실제 코드에서 정한다. 이번 요청에서는 문서를 반영했으며 이 후속 설계의 제품 코드·테스트는 아직 변경하지 않았다.
+Main이 재실행한 기존 client Jest는 23 suite·235 test 통과다. 추가 검사 8개 중 5개에서 API 응답 손실·인증 오류 의미 손실·세션 저장 실패 불일치·큐 귀속 판정·DB rollback 간섭을 재현했다. 3개는 갱신 공유·일반 요청 비보관·재로그인 재시도를 확인했다. 자세한 코드와 결과는 [검사 근거](../../records/2026-09-19-02-auth-review-checks.md)에 보존했다. 이번 검토는 typecheck·lint·실기기·실제 OAuth/server token rotation을 재실행하지 않았으며 과거 검사와 미확인은 [인증 구현 기록](../../records/2026-09-18-05-auth-session-implementation.md)을 따른다.
 
-재진입은 [Spec의 동작·사례](../memory/spec/02-behavior-and-cases.md)와 Ticket 06에서 현재 기준을 읽고, 이유가 필요하면 인증 논의 기록으로 내려간다. 이전 초기화·스타일과 sync 검증의 근거는 [초기화 기록](../../records/2026-09-18-02-app-initialization-and-style.md)·[sync 기록](../../records/2026-09-18-03-sync-start-and-session-teardown.md), 제품 코드 위치는 [output](../../output/index.md)에 있다. 원문 전체나 임시 파일 없이 이 문서들로 이어 갈 수 있게 유지한다.
+DB 원자성·격리는 14, 엔진 결과·FAILED 복구는 15, 미전송 기록과 cleanup·로그아웃 손실 판정은 16에 연결했다. 이 문제가 남은 상태를 전체 보존 완료로 보지 않는다. 06의 정상 재로그인 단순화를 이유로 복원 실패·잔존 데이터의 소유권 검사를 제거하지 않는다. 다중 기기 제어·로그아웃 중 앱 강제 종료 후 복구 장치는 기존 제외 범위다.
 
-대상별 Trip Router·inactive child Local 선조회, 제한/복구 화면 전체와 foreground 재확인은 06의 다른 남은 범위다. 새 인증 연결에 필요한 계정 경계는 이번 후속 작업에서 다루고, 엔진 전체 결과·재시도와 cleanup 보존 내부는 15·16에서 이어 간다. Ticket 06 전체의 최종 수락과 Workspace 완료는 아직 없다.
+기기 세션 결정 문서에는 후속 합의를 연결했다. 실제 로그인 안내와 제품 코드는 아직 이전 자동 전환을 사용하므로 구현 때 최신 Spec과 맞춰야 한다. 기록의 커밋 범위는 Workspace 문서와 관련 결정 문서이며 제품 변경은 미커밋 상태로 유지한다. 문서 정리를 Ticket 06 수락이나 제품 검증 완료로 보지 않는다.
 
 ## 그 밖의 남은 리팩토링
 

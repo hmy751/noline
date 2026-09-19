@@ -18,3 +18,5 @@ Ticket 경계와 진행 방식의 채택 원문·정정 경위는 [합의 기록
 원문과 상세 재현 근거는 [source](../../source/index.md), 분석·합의·구성 검토는 [records](../../records/README.md), 실제 제품 산출물은 [output](../../output/index.md)에서 찾는다.
 
 앱 준비·인증·네트워크 관측·Router·제한 화면·sync 연결의 실행 정의는 [Ticket 06](tickets/06-app-startup-lifecycle.md)에 있다. 네트워크 범위를 정한 이유는 [네트워크 정책 기록](../../records/2026-09-16-01-network-policy-and-implementation-boundaries.md), 세션·재로그인 정책과 상태 모델을 구체화한 과정은 [인증 논의 기록](../../records/2026-09-18-04-auth-session-policy-and-decisions.md)에서 읽는다. 현재 진행과 다음 행동은 state가 소유한다.
+
+인증 구현의 관리 복잡도, 같은 계정 재로그인과 명시적 계정 변경, API 재시도의 추가 논의는 [결정 기록](../../records/2026-09-19-01-auth-complexity-review-and-decisions.md)에서 읽는다. 실제 연결 검사와 재현 코드는 [검사 근거](../../records/2026-09-19-02-auth-review-checks.md)에 있으며, 현재 실행 기준은 Spec과 Ticket 06이 소유한다.

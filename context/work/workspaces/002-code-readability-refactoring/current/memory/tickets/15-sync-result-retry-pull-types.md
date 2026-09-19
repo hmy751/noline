@@ -8,9 +8,9 @@ sync push·pull·cleanup의 전부 성공, 부분 실패, 인증 중단과 재�
 
 ## 실행 맥락과 접근
 
-정적 코드 대조에서 개별 push task 실패는 `FAILED`로 바뀌지만 `pushChanges`가 성공으로 돌아오고, `syncData`는 pull 뒤 full completion을 기록한다. provider도 이 결과를 성공 시각으로 표시할 수 있다. retry 조건도 첫 5xx에서 `_retry`를 세우므로 다음 5xx가 조건을 통과하지 못하는 것으로 보이지만 실제 Axios 요청 횟수는 아직 실행으로 확인하지 않았다. pull은 response schema를 parse하지 않고 raw data를 `as never[]`로 upsert한다. 추가 조사에서는 `syncStrategy` 선언과 실행 사용처, 별도 sync auth helper의 setup 호출도 확인이 필요하다고 남겼다.
+정적 코드 대조에서 개별 push task 실패는 `FAILED`로 바뀌지만 `pushChanges`가 성공으로 돌아오고, `syncData`는 pull 뒤 full completion을 기록한다. provider도 이 결과를 성공 시각으로 표시할 수 있다. retry 조건도 첫 5xx에서 `_retry`를 세우므로 다음 5xx가 조건을 통과하지 못하는 것으로 보이지만 실제 Axios 요청 횟수는 아직 실행으로 확인하지 않았다. pull은 response schema를 parse하지 않고 raw data를 `as never[]`로 upsert한다. 후속 06 구현에서 sync API의 공통 인증 interceptor 설치와 갱신 공유를 확인했다. `syncStrategy`는 현재 src의 실행 소비를 찾지 못했다. 이 선언의 유지·제거 판단과 전체 sync 결과 연결은 아직 남는다.
 
-부분 실패의 정상 반환과 FAILED·IN_PROGRESS 제외는 [003-11](../../../../003-bug-investigation-and-fixes/current/memory/tickets/11-sync-retry-recovery.md)에서 분리 재현했고, 해당 Ticket이 실패·재시도·중단 복구를 맡는다. Axios retry 횟수·간격과 동시 trigger의 실제 요청 검증은 여전히 남아 있다. 인증 갱신은 [003-02](../../../../003-bug-investigation-and-fixes/current/memory/tickets/02-auth-account-recovery.md), cursor·미전송 수정 충돌 정책은 [003-12](../../../../003-bug-investigation-and-fixes/current/memory/tickets/12-pull-consistency.md)의 책임이다. 이 Ticket의 typed pull 소비를 그 정책 해결로 확대하지 않는다.
+부분 실패의 정상 반환과 FAILED·IN_PROGRESS 제외는 [003-11](../../../../003-bug-investigation-and-fixes/current/memory/tickets/11-sync-retry-recovery.md)에서 분리 재현했고, 해당 Ticket이 실패·재시도·중단 복구를 맡는다. Axios retry 횟수·간격과 동시 trigger의 실제 요청 검증은 여전히 남아 있다. 일반 API와 sync의 공통 인증 갱신은 [06번](06-app-startup-lifecycle.md)의 구현·보완을 재사용하고 [003-02](../../../../003-bug-investigation-and-fixes/current/memory/tickets/02-auth-account-recovery.md)는 기존 근거로 연결한다. cursor·미전송 수정 충돌 정책은 [003-12](../../../../003-bug-investigation-and-fixes/current/memory/tickets/12-pull-consistency.md)의 책임이다. 이 Ticket의 typed pull 소비를 그 정책 해결로 확대하지 않는다.
 
 schema parse와 상태 모델의 구조는 독립적으로 조사할 수 있지만, 실패가 성공으로 표시되거나 retry 계약과 실제 횟수가 다르면 sync 완료 의미를 달성했다고 할 수 없다. 14의 queue 계약과 003의 직접 필요한 결과를 사용하고 같은 코드의 동작 수정을 중복 수행하지 않는다. [06번](06-app-startup-lifecycle.md)은 DB·auth 준비, 실제 confirmed online, debug 쓰기 차단과 동시 trigger를 조합한 provider 시작·중복 실행 방지를 맡는다. 이 Ticket은 그 결과를 재사용하고 engine의 push·pull·queue 재시도·결과 해석과 provider의 결과 표시에 집중한다. 06의 시작 차단을 sync 내부 실패 복구 완료로 해석하지 않는다. 미사용 설정·helper는 자동 삭제하거나 계획 기능을 자동 구현하지 않는다.
 
@@ -25,4 +25,6 @@ schema parse와 상태 모델의 구조는 독립적으로 조사할 수 있지�
 
 ## 현재 상태와 실제 결과
 
-기존 12를 15로 옮겼으며 제품 코드·test는 변경하지 않았다. 14와 003-02·11·12의 관련 계약을 연결했다. 부분 실패는 재현 근거가 있으나 retry 횟수·실제 동시 실행은 미확인이다. `syncStrategy`와 sync auth helper 사용 판정, 구현·검증·수락은 남아 있다.
+기존 12를 15로 옮겼으며 이 Ticket 자체의 제품 구현·검증·수락은 남아 있다. 06의 공통 인증 갱신과 14·003-11·12의 관련 결과를 사용한다. 부분 실패는 재현 근거가 있으나 sync 전용 5xx retry 횟수·실제 엔진 동시 실행은 미확인이다. 공통 인증 갱신 공유 검사의 통과를 이 검증까지 확대한 것으로 보지 않는다.
+
+현재 sync API는 공통 인증 interceptor를 설치하며 동시 갱신 공유가 연결돼 있다. 일반 HTTP 호출을 재로그인까지 보관하지 않는 정책과 sync_queue 보존을 구분한다. 인증 오류로 PENDING에 돌린 작업은 이후 다시 전송하지만 FAILED까지 재로그인만으로 모두 복구된다고 보장하지 않는다. 큐 소유권 오류를 재로그인만 하면 풀리는 인증 만료와 같은 안내로 처리하지 않게 오류 의미를 확인한다. lifecycle의 completed는 현재 엔진 Promise resolve를 뜻하므로 모든 전송 성공으로 확대하지 않는다. `syncStrategy`·`uiMode`는 현재 src에서 실행 소비를 찾지 못한 선언이며 정책 표의 값만으로 실행을 설명하지 않는다.

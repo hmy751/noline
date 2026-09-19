@@ -12,7 +12,7 @@ Trip과 Schedule의 remote API 함수에서 요청 검증, HTTP 호출, 응답 �
 
 정적 코드 대조에서 client의 Trip 수정은 `PATCH /api/trips/:id`, server route는 `PUT /api/trips/:id`를 사용한다. 실제 요청 실패는 아직 실행으로 재현하지 않았지만 가독성 변경으로 정상 계약처럼 보존할 수 없는 불일치다. [17번](17-server-data-route-boundaries.md)과 같은 route contract fixture로 연결을 확인한다. [003-03 여행 수정](../../../../003-bug-investigation-and-fixes/current/memory/tickets/03-trip-management.md)은 허용 필드 미반영을 맡지만 method 차이의 기대값·수정 담당까지 확정한 것은 아니다. Main이 이 경계의 담당과 권한을 확정하기 전에는 Trip 수정 완료를 선언할 수 없으며, 다른 export의 특성화와 독립적인 정리는 진행할 수 있다.
 
-shared fetcher의 인증 갱신 후 응답·오류 전달은 [003-02](../../../../003-bug-investigation-and-fixes/current/memory/tickets/02-auth-account-recovery.md), 실제 inactive child 호출 연결은 [003-07](../../../../003-bug-investigation-and-fixes/current/memory/tickets/07-inactive-child-operations.md)이 맡는다. API 단위 mock 결과만으로 이 소비 경로까지 완료됐다고 하지 않는다.
+shared fetcher의 인증 갱신·재시도 응답·오류 전달과 inactive child 호출 연결은 [06번](06-app-startup-lifecycle.md)의 현재 보완 결과를 사용한다. [003-02](../../../../003-bug-investigation-and-fixes/current/memory/tickets/02-auth-account-recovery.md)·[003-07](../../../../003-bug-investigation-and-fixes/current/memory/tickets/07-inactive-child-operations.md)은 기존 재현 근거이며 같은 수정의 별도 완료를 다시 기다리지 않는다. [실제 apiClient 검사](../../../records/2026-09-19-02-auth-review-checks.md)에서 갱신 뒤 응답 body 손실과 인증 오류 의미 손실을 재현했으므로 API 단위 mock 통과만으로 이 소비 경로까지 완료됐다고 하지 않는다.
 
 ## 완료 조건과 확인 방법
 
