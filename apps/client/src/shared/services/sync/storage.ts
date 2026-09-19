@@ -1,4 +1,4 @@
-import { getDatabase } from '@/shared/db';
+import { getDatabase, runDatabaseOperation } from '@/shared/db';
 import { syncMetadata } from '@/shared/db/schema';
 import { eq } from 'drizzle-orm';
 import { getCurrentISOString } from '@/shared/db/utils';
@@ -22,7 +22,9 @@ const LAST_SYNCED_KEY = 'lastSyncedAt';
  */
 export async function getLastSyncedAt(): Promise<Date | null> {
   try {
-    const result = await getDatabase().select().from(syncMetadata).where(eq(syncMetadata.key, LAST_SYNCED_KEY)).get();
+    const result = await runDatabaseOperation(() =>
+      getDatabase().select().from(syncMetadata).where(eq(syncMetadata.key, LAST_SYNCED_KEY)).get(),
+    );
 
     if (!result) {
       return null;
@@ -46,20 +48,22 @@ export async function setLastSyncedAt(date: Date): Promise<void> {
     const now = getCurrentISOString();
 
     // Upsert: 존재하면 업데이트, 없으면 삽입
-    await getDatabase()
-      .insert(syncMetadata)
-      .values({
-        key: LAST_SYNCED_KEY,
-        value: date.toISOString(),
-        updatedAt: now,
-      })
-      .onConflictDoUpdate({
-        target: syncMetadata.key,
-        set: {
+    await runDatabaseOperation(() =>
+      getDatabase()
+        .insert(syncMetadata)
+        .values({
+          key: LAST_SYNCED_KEY,
           value: date.toISOString(),
           updatedAt: now,
-        },
-      });
+        })
+        .onConflictDoUpdate({
+          target: syncMetadata.key,
+          set: {
+            value: date.toISOString(),
+            updatedAt: now,
+          },
+        }),
+    );
 
     console.log('[SyncStorage] lastSyncedAt saved:', date.toISOString());
   } catch (error) {
@@ -73,7 +77,7 @@ export async function setLastSyncedAt(date: Date): Promise<void> {
  */
 export async function clearLastSyncedAt(): Promise<void> {
   try {
-    await getDatabase().delete(syncMetadata).where(eq(syncMetadata.key, LAST_SYNCED_KEY));
+    await runDatabaseOperation(() => getDatabase().delete(syncMetadata).where(eq(syncMetadata.key, LAST_SYNCED_KEY)));
 
     console.log('[SyncStorage] lastSyncedAt cleared');
   } catch (error) {

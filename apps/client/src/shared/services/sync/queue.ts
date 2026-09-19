@@ -1,5 +1,5 @@
 import { eq, and } from 'drizzle-orm';
-import { getDatabase } from '@/shared/db';
+import { getDatabase, runDatabaseOperation } from '@/shared/db';
 import { syncQueue, type NewSyncQueueItem, type SyncQueueItem } from '@/shared/db/schema';
 import { generateId } from '../id/ulid';
 import { getCurrentISOString } from '@/shared/db/utils';
@@ -50,12 +50,9 @@ export async function addToSyncQueue(
  * @returns PENDING 상태의 sync_queue 항목 배열
  */
 export async function getPendingTasks(): Promise<SyncQueueItem[]> {
-  const tasks = await getDatabase()
-    .select()
-    .from(syncQueue)
-    .where(eq(syncQueue.status, 'PENDING'))
-    .orderBy(syncQueue.createdAt)
-    .all();
+  const tasks = await runDatabaseOperation(() =>
+    getDatabase().select().from(syncQueue).where(eq(syncQueue.status, 'PENDING')).orderBy(syncQueue.createdAt).all(),
+  );
 
   return tasks;
 }
@@ -67,7 +64,9 @@ export async function getPendingTasks(): Promise<SyncQueueItem[]> {
  * @returns sync_queue 항목 또는 null
  */
 export async function getTaskById(taskId: string): Promise<SyncQueueItem | null> {
-  const tasks = await getDatabase().select().from(syncQueue).where(eq(syncQueue.id, taskId)).limit(1).all();
+  const tasks = await runDatabaseOperation(() =>
+    getDatabase().select().from(syncQueue).where(eq(syncQueue.id, taskId)).limit(1).all(),
+  );
 
   return tasks[0] || null;
 }
@@ -94,7 +93,7 @@ export async function updateTaskStatus(
     updateData.retryCount = retryCount;
   }
 
-  await getDatabase().update(syncQueue).set(updateData).where(eq(syncQueue.id, taskId));
+  await runDatabaseOperation(() => getDatabase().update(syncQueue).set(updateData).where(eq(syncQueue.id, taskId)));
 
   console.log(`[SyncQueue] Task ${taskId} status updated: ${status}`);
 }
@@ -107,7 +106,7 @@ export async function updateTaskStatus(
  * @param taskId - sync_queue 작업 ID
  */
 export async function deleteTask(taskId: string): Promise<void> {
-  await getDatabase().delete(syncQueue).where(eq(syncQueue.id, taskId));
+  await runDatabaseOperation(() => getDatabase().delete(syncQueue).where(eq(syncQueue.id, taskId)));
 
   console.log(`[SyncQueue] Task ${taskId} deleted (synced successfully)`);
 }
@@ -122,12 +121,14 @@ export async function deleteTask(taskId: string): Promise<void> {
  * @returns PENDING 작업 존재 여부
  */
 export async function hasPendingTask(tableName: string, recordId: string): Promise<boolean> {
-  const tasks = await getDatabase()
-    .select()
-    .from(syncQueue)
-    .where(and(eq(syncQueue.tableName, tableName), eq(syncQueue.recordId, recordId), eq(syncQueue.status, 'PENDING')))
-    .limit(1)
-    .all();
+  const tasks = await runDatabaseOperation(() =>
+    getDatabase()
+      .select()
+      .from(syncQueue)
+      .where(and(eq(syncQueue.tableName, tableName), eq(syncQueue.recordId, recordId), eq(syncQueue.status, 'PENDING')))
+      .limit(1)
+      .all(),
+  );
 
   return tasks.length > 0;
 }
@@ -140,12 +141,9 @@ export async function hasPendingTask(tableName: string, recordId: string): Promi
  * @returns FAILED 상태의 sync_queue 항목 배열
  */
 export async function getFailedTasks(): Promise<SyncQueueItem[]> {
-  const tasks = await getDatabase()
-    .select()
-    .from(syncQueue)
-    .where(eq(syncQueue.status, 'FAILED'))
-    .orderBy(syncQueue.createdAt)
-    .all();
+  const tasks = await runDatabaseOperation(() =>
+    getDatabase().select().from(syncQueue).where(eq(syncQueue.status, 'FAILED')).orderBy(syncQueue.createdAt).all(),
+  );
 
   return tasks;
 }
@@ -158,13 +156,15 @@ export async function getFailedTasks(): Promise<SyncQueueItem[]> {
  * @param taskId - sync_queue 작업 ID
  */
 export async function retryFailedTask(taskId: string): Promise<void> {
-  await getDatabase()
-    .update(syncQueue)
-    .set({
-      status: 'PENDING',
-      updatedAt: getCurrentISOString(),
-    })
-    .where(eq(syncQueue.id, taskId));
+  await runDatabaseOperation(() =>
+    getDatabase()
+      .update(syncQueue)
+      .set({
+        status: 'PENDING',
+        updatedAt: getCurrentISOString(),
+      })
+      .where(eq(syncQueue.id, taskId)),
+  );
 
   console.log(`[SyncQueue] Task ${taskId} reset to PENDING for retry`);
 }
@@ -172,10 +172,10 @@ export async function retryFailedTask(taskId: string): Promise<void> {
 /**
  * 모든 sync_queue 작업 삭제 (개발용)
  *
- * ⚠️ 주의: 동기화되지 않은 데이터가 손실될 수 있음
+ * 동기화되지 않은 데이터가 손실될 수 있으므로 명시적인 폐기 흐름에서만 호출한다.
  */
 export async function clearSyncQueue(): Promise<void> {
-  await getDatabase().delete(syncQueue);
+  await runDatabaseOperation(() => getDatabase().delete(syncQueue));
 
   console.log('[SyncQueue] Sync queue cleared');
 }
@@ -191,7 +191,7 @@ export async function getSyncQueueStats(): Promise<{
   failed: number;
   total: number;
 }> {
-  const allTasks = await getDatabase().select().from(syncQueue).all();
+  const allTasks = await runDatabaseOperation(() => getDatabase().select().from(syncQueue).all());
 
   const stats = {
     pending: allTasks.filter((t) => t.status === 'PENDING').length,
@@ -215,12 +215,9 @@ export async function getSyncQueueStats(): Promise<{
  *
  */
 export async function getPendingTasksForTrip(tripId: string): Promise<SyncQueueItem[]> {
-  const tasks = await getDatabase()
-    .select()
-    .from(syncQueue)
-    .where(eq(syncQueue.status, 'PENDING'))
-    .orderBy(syncQueue.createdAt)
-    .all();
+  const tasks = await runDatabaseOperation(() =>
+    getDatabase().select().from(syncQueue).where(eq(syncQueue.status, 'PENDING')).orderBy(syncQueue.createdAt).all(),
+  );
 
   // Trip 자체 또는 Child Entity (schedules, expenses) 필터링
   return tasks.filter((task) => {

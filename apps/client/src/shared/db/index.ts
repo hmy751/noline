@@ -1,6 +1,7 @@
 import { drizzle, type ExpoSQLiteDatabase } from 'drizzle-orm/expo-sqlite';
 import * as SQLite from 'expo-sqlite';
 import * as schema from './schema';
+import { sql } from 'drizzle-orm';
 
 let databaseConnection: SQLite.SQLiteDatabase | undefined;
 
@@ -25,6 +26,35 @@ function getDatabaseConnection(): SQLite.SQLiteDatabase {
   }
 
   return databaseConnection;
+}
+
+let pendingDatabaseOperation: Promise<unknown> = Promise.resolve();
+
+function serializeDatabaseOperation<T>(operation: () => T | Promise<T>): Promise<T> {
+  const result = pendingDatabaseOperation.then(() => operation());
+  pendingDatabaseOperation = result.catch(() => undefined);
+  return result;
+}
+
+/** Drizzle의 동기 transaction API가 async callback을 기다리지 않아 commit 시점을 직접 관리한다. */
+export function runDatabaseTransaction<T>(operation: () => Promise<T>): Promise<T> {
+  return serializeDatabaseOperation(async () => {
+    const db = getDatabase();
+    db.run(sql.raw('BEGIN'));
+    try {
+      const value = await operation();
+      db.run(sql.raw('COMMIT'));
+      return value;
+    } catch (error) {
+      db.run(sql.raw('ROLLBACK'));
+      throw error;
+    }
+  });
+}
+
+/** transaction 밖에서 시작하는 sync·maintenance 작업을 local mutation과 같은 순서로 실행한다. */
+export function runDatabaseOperation<T>(operation: () => T | Promise<T>): Promise<T> {
+  return serializeDatabaseOperation(operation);
 }
 
 /**
@@ -229,22 +259,24 @@ export async function initializeDatabase() {
  * - 테이블 재생성
  */
 export async function resetDatabase() {
-  database = undefined;
-  console.log('[Database] Resetting database...');
-  const expoDb = getDatabaseConnection();
+  await runDatabaseOperation(async () => {
+    database = undefined;
+    console.log('[Database] Resetting database...');
+    const expoDb = getDatabaseConnection();
 
-  expoDb.execSync(`DROP TABLE IF EXISTS trip_activations;`);
-  expoDb.execSync(`DROP TABLE IF EXISTS routes;`);
-  expoDb.execSync(`DROP TABLE IF EXISTS offline_cities;`);
-  expoDb.execSync(`DROP TABLE IF EXISTS sync_metadata;`);
-  expoDb.execSync(`DROP TABLE IF EXISTS sync_queue;`);
-  expoDb.execSync(`DROP TABLE IF EXISTS expenses;`);
-  expoDb.execSync(`DROP TABLE IF EXISTS schedules;`);
-  expoDb.execSync(`DROP TABLE IF EXISTS trips;`);
+    expoDb.execSync(`DROP TABLE IF EXISTS trip_activations;`);
+    expoDb.execSync(`DROP TABLE IF EXISTS routes;`);
+    expoDb.execSync(`DROP TABLE IF EXISTS offline_cities;`);
+    expoDb.execSync(`DROP TABLE IF EXISTS sync_metadata;`);
+    expoDb.execSync(`DROP TABLE IF EXISTS sync_queue;`);
+    expoDb.execSync(`DROP TABLE IF EXISTS expenses;`);
+    expoDb.execSync(`DROP TABLE IF EXISTS schedules;`);
+    expoDb.execSync(`DROP TABLE IF EXISTS trips;`);
 
-  await initializeDatabase();
+    await initializeDatabase();
 
-  console.log('[Database] Database reset complete');
+    console.log('[Database] Database reset complete');
+  });
 }
 
 // Export schema for type inference

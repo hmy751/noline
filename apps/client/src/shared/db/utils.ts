@@ -1,17 +1,18 @@
-import { getDatabase, trips, schedules, expenses, type Trip, type Schedule, type Expense } from './index';
+import {
+  getDatabase,
+  runDatabaseTransaction,
+  runDatabaseOperation,
+  trips,
+  schedules,
+  expenses,
+  type Trip,
+  type Schedule,
+  type Expense,
+} from './index';
 
-/**
- * 트랜잭션 헬퍼 함수
- *
- * 데이터 변경과 sync_queue 기록을 원자적으로 처리
- * - 둘 중 하나라도 실패하면 전체 롤백
- * - 데이터 정합성 보장
- *
- */
+/** entity 변경과 sync_queue 기록을 같은 transaction에서 실행한다. */
 export async function withTransaction<T>(callback: () => Promise<T>): Promise<T> {
-  return getDatabase().transaction(async (_tx) => {
-    return await callback();
-  });
+  return runDatabaseTransaction(callback);
 }
 
 export function getCurrentISOString(): string {
@@ -24,12 +25,12 @@ export function dateToISOString(date: Date | string | null): string | null {
     return null;
   }
   if (typeof date === 'string') {
-    return date; // 이미 ISO string
+    return date;
   }
   return date.toISOString();
 }
-// Pull 결과를 upsert한다. 생성 시각은 보존하고 서버의 삭제 상태와 version을 반영한다.
 
+// Pull 결과는 생성 시각을 보존하고 서버의 삭제 상태와 version을 반영한다.
 export async function upsertTrips(records: Trip[]): Promise<void> {
   if (records.length === 0) {
     console.log('[Database] No trips to upsert');
@@ -38,33 +39,35 @@ export async function upsertTrips(records: Trip[]): Promise<void> {
 
   console.log(`[Database] Upserting ${records.length} trips...`);
 
-  for (const record of records) {
-    try {
-      await getDatabase()
-        .insert(trips)
-        .values(record)
-        .onConflictDoUpdate({
-          target: trips.id,
-          set: {
-            userId: record.userId,
-            name: record.name,
-            destination: record.destination,
-            country: record.country,
-            latitude: record.latitude,
-            longitude: record.longitude,
-            cityId: record.cityId,
-            startDate: record.startDate,
-            endDate: record.endDate,
-            updatedAt: record.updatedAt,
-            deletedAt: record.deletedAt,
-            version: record.version,
-          },
-        });
-    } catch (error) {
-      console.error(`[Database] Failed to upsert trip ${record.id}:`, error);
-      throw error;
+  await runDatabaseOperation(async () => {
+    for (const record of records) {
+      try {
+        await getDatabase()
+          .insert(trips)
+          .values(record)
+          .onConflictDoUpdate({
+            target: trips.id,
+            set: {
+              userId: record.userId,
+              name: record.name,
+              destination: record.destination,
+              country: record.country,
+              latitude: record.latitude,
+              longitude: record.longitude,
+              cityId: record.cityId,
+              startDate: record.startDate,
+              endDate: record.endDate,
+              updatedAt: record.updatedAt,
+              deletedAt: record.deletedAt,
+              version: record.version,
+            },
+          });
+      } catch (error) {
+        console.error(`[Database] Failed to upsert trip ${record.id}:`, error);
+        throw error;
+      }
     }
-  }
+  });
 
   console.log(`[Database] ${records.length} trips upserted successfully`);
 }
@@ -77,32 +80,34 @@ export async function upsertSchedules(records: Schedule[]): Promise<void> {
 
   console.log(`[Database] Upserting ${records.length} schedules...`);
 
-  for (const record of records) {
-    try {
-      await getDatabase()
-        .insert(schedules)
-        .values(record)
-        .onConflictDoUpdate({
-          target: schedules.id,
-          set: {
-            userId: record.userId,
-            tripId: record.tripId,
-            title: record.title,
-            location: record.location,
-            address: record.address,
-            scheduledAt: record.scheduledAt,
-            latitude: record.latitude,
-            longitude: record.longitude,
-            updatedAt: record.updatedAt,
-            deletedAt: record.deletedAt,
-            version: record.version,
-          },
-        });
-    } catch (error) {
-      console.error(`[Database] Failed to upsert schedule ${record.id}:`, error);
-      throw error;
+  await runDatabaseOperation(async () => {
+    for (const record of records) {
+      try {
+        await getDatabase()
+          .insert(schedules)
+          .values(record)
+          .onConflictDoUpdate({
+            target: schedules.id,
+            set: {
+              userId: record.userId,
+              tripId: record.tripId,
+              title: record.title,
+              location: record.location,
+              address: record.address,
+              scheduledAt: record.scheduledAt,
+              latitude: record.latitude,
+              longitude: record.longitude,
+              updatedAt: record.updatedAt,
+              deletedAt: record.deletedAt,
+              version: record.version,
+            },
+          });
+      } catch (error) {
+        console.error(`[Database] Failed to upsert schedule ${record.id}:`, error);
+        throw error;
+      }
     }
-  }
+  });
 
   console.log(`[Database] ${records.length} schedules upserted successfully`);
 }
@@ -115,34 +120,36 @@ export async function upsertExpenses(records: Expense[]): Promise<void> {
 
   console.log(`[Database] Upserting ${records.length} expenses...`);
 
-  for (const record of records) {
-    try {
-      await getDatabase()
-        .insert(expenses)
-        .values(record)
-        .onConflictDoUpdate({
-          target: expenses.id,
-          set: {
-            userId: record.userId,
-            tripId: record.tripId,
-            scheduleId: record.scheduleId,
-            title: record.title,
-            amount: record.amount,
-            currency: record.currency,
-            category: record.category,
-            date: record.date,
-            hasReceipt: record.hasReceipt,
-            receiptUrl: record.receiptUrl,
-            updatedAt: record.updatedAt,
-            deletedAt: record.deletedAt,
-            version: record.version,
-          },
-        });
-    } catch (error) {
-      console.error(`[Database] Failed to upsert expense ${record.id}:`, error);
-      throw error;
+  await runDatabaseOperation(async () => {
+    for (const record of records) {
+      try {
+        await getDatabase()
+          .insert(expenses)
+          .values(record)
+          .onConflictDoUpdate({
+            target: expenses.id,
+            set: {
+              userId: record.userId,
+              tripId: record.tripId,
+              scheduleId: record.scheduleId,
+              title: record.title,
+              amount: record.amount,
+              currency: record.currency,
+              category: record.category,
+              date: record.date,
+              hasReceipt: record.hasReceipt,
+              receiptUrl: record.receiptUrl,
+              updatedAt: record.updatedAt,
+              deletedAt: record.deletedAt,
+              version: record.version,
+            },
+          });
+      } catch (error) {
+        console.error(`[Database] Failed to upsert expense ${record.id}:`, error);
+        throw error;
+      }
     }
-  }
+  });
 
   console.log(`[Database] ${records.length} expenses upserted successfully`);
 }
