@@ -1,16 +1,10 @@
-import axiosStatic, { type AxiosResponse } from 'axios';
+import axiosStatic, { type AxiosInstance, type AxiosResponse } from 'axios';
 import { apiAxios, baseURL } from './axios-instances';
 import { setupAuthInterceptors } from '@/shared/services/auth/auth-interceptor';
+import { AuthRequiredError } from '@/shared/store/auth';
 
 export { baseURL };
 
-/**
- * Custom Error class for API related errors.
- * @param message - The error message.
- * @param status - The HTTP status code of the response.
- * @param code - A custom error code string.
- * @param data - The data associated with the error response.
- */
 export class APIError extends Error {
   constructor(
     message: string,
@@ -23,8 +17,23 @@ export class APIError extends Error {
   }
 }
 
-const handleResponse = (response: AxiosResponse) => {
-  return response.data;
+function isAxiosResponse(value: unknown): value is AxiosResponse {
+  return Boolean(
+    value &&
+      typeof value === 'object' &&
+      'config' in value &&
+      'status' in value &&
+      'headers' in value &&
+      'data' in value,
+  );
+}
+
+const unwrapResponseData = (response: unknown) => {
+  // 재전송된 요청은 내부 response interceptor를 이미 통과했을 수 있다.
+  if (isAxiosResponse(response)) {
+    return response.data;
+  }
+  return response;
 };
 
 const handleError = (error: unknown) => {
@@ -47,24 +56,20 @@ const handleError = (error: unknown) => {
     throw error;
   }
 
+  if (error instanceof AuthRequiredError) {
+    throw error;
+  }
+
   throw new APIError('알 수 없는 에러가 발생했습니다', 0, 'UNKNOWN_ERROR', error);
 };
 
-/**
- * apiAxios에 인터셉터 설정
- * - Auth 인터셉터 (Request: 토큰 추가, Response: 401 처리 + 토큰 갱신)
- * - Response 데이터 추출 + 에러 핸들링
- */
-const setupApiClient = () => {
-  // Auth 인터셉터 (Request: 토큰 추가, Response: 401 처리 + 토큰 갱신)
-  setupAuthInterceptors(apiAxios);
+export const configureApiClient = (client: AxiosInstance) => {
+  setupAuthInterceptors(client);
+  client.interceptors.response.use(unwrapResponseData, handleError);
 
-  // Response 데이터 추출 + 에러 핸들링
-  apiAxios.interceptors.response.use(handleResponse, handleError);
-
-  return apiAxios;
+  return client;
 };
 
-const apiClient = setupApiClient();
+const apiClient = configureApiClient(apiAxios);
 
 export default apiClient;

@@ -42,7 +42,7 @@ jest.mock('@/features/debug/ui/DashboardView', () => {
 });
 
 beforeEach(() => {
-  useAuthStore.setState({ isAuthenticated: true, isSessionExpired: false });
+  useAuthStore.setState({ status: 'signed-in' });
   useNetworkStore.setState({ realStatus: 'unknown', overrideStatus: null });
   jest.mocked(syncData).mockReset().mockResolvedValue(undefined);
   jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
@@ -88,7 +88,7 @@ describe('Debug 수동 sync의 실제 실행 경계', () => {
   ] as const)(
     '$scenario에서는 엔진을 호출하지 않고 보류 이유를 안내한다',
     async ({ status, override, authenticated, message }) => {
-      useAuthStore.setState({ isAuthenticated: authenticated });
+      useAuthStore.setState({ status: authenticated ? 'signed-in' : 'signed-out' });
       useNetworkStore.setState({ realStatus: status, overrideStatus: override });
       const screen = render(
         <SyncProvider>

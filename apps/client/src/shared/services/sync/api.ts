@@ -1,8 +1,6 @@
-import axios, { type AxiosInstance, type AxiosError } from 'axios';
+import axios, { type AxiosInstance, type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { EXPO_PUBLIC_API_URL } from '@env';
-import { getAccessToken } from '@/shared/services/auth/token-storage';
-import { AuthRequiredError } from '@/shared/services/auth/auth-interceptor';
-import { authStore } from '@/shared/store/auth';
+import { setupSyncAuthInterceptors } from '@/shared/services/auth/auth-interceptor';
 
 /**
  * 동기화 전용 Axios 클라이언트
@@ -22,26 +20,7 @@ const syncApiClient: AxiosInstance = axios.create({
   },
 });
 
-/**
- * Request Interceptor
- * - 인증 토큰 자동 추가
- */
-syncApiClient.interceptors.request.use(
-  async (config) => {
-    const token = await getAccessToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
-    console.log(`🔄 [Sync API] ${config.method?.toUpperCase()} ${config.url}`);
-
-    return config;
-  },
-  (error) => {
-    console.error('❌ [Sync API] Request error:', error);
-    return Promise.reject(error);
-  },
-);
+setupSyncAuthInterceptors(syncApiClient);
 
 /**
  * Response Interceptor
@@ -50,52 +29,31 @@ syncApiClient.interceptors.request.use(
  */
 syncApiClient.interceptors.response.use(
   (response) => {
-    console.log(`✅ [Sync API] Success:`, response.status);
+    console.log('[Sync API] Success', response.status);
     return response;
   },
   async (error: AxiosError) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const originalRequest = error.config as any;
-
-    // 401 인증 에러 → AuthRequiredError로 변환 (sync engine에서 PENDING 유지)
-    if (error.response?.status === 401) {
-      console.warn('🔐 [Sync API] 401 Unauthorized, throwing AuthRequiredError');
-      authStore.setSessionExpired(true);
-      return Promise.reject(new AuthRequiredError('동기화 인증 실패'));
-    }
+    const originalRequest = error.config as (InternalAxiosRequestConfig & { serverRetryCount?: number }) | undefined;
 
     // 재시도 가능 여부 판단
     const shouldRetry = error.response?.status && error.response.status >= 500 && error.response.status < 600; // 5xx 에러만 재시도
 
     // 네트워크 에러는 재시도하지 않음 (오프라인 상태)
     if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
-      console.warn('⚠️ [Sync API] Network error, not retrying (offline)');
+      console.warn('[Sync API] network error; retry skipped while offline');
       return Promise.reject(error);
     }
 
     // 재시도 로직
-    if (shouldRetry && !originalRequest._retry) {
-      originalRequest._retry = true;
-      originalRequest._retryCount = (originalRequest._retryCount || 0) + 1;
-
-      // 최대 3회 재시도
-      if (originalRequest._retryCount <= 3) {
-        // Exponential Backoff: 2초, 4초, 8초
-        const delay = 2000 * Math.pow(2, originalRequest._retryCount - 1);
-
-        console.log(`🔄 [Sync API] Retrying (${originalRequest._retryCount}/3) after ${delay}ms...`);
-
-        // 지연 후 재시도
-        await new Promise((resolve) => setTimeout(resolve, delay));
-
-        return syncApiClient(originalRequest);
-      } else {
-        console.error('❌ [Sync API] Max retries reached (3)');
-      }
+    if (shouldRetry && originalRequest && (originalRequest.serverRetryCount ?? 0) < 3) {
+      originalRequest.serverRetryCount = (originalRequest.serverRetryCount ?? 0) + 1;
+      const delay = 2000 * Math.pow(2, originalRequest.serverRetryCount - 1);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      return syncApiClient(originalRequest);
     }
 
     // 재시도 불가 또는 실패
-    console.error(`❌ [Sync API] Error:`, error.response?.status, error.response?.data || error.message);
+    console.error('[Sync API] Error', error.response?.status, error.response?.data || error.message);
 
     return Promise.reject(error);
   },

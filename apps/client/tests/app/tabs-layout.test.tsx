@@ -26,7 +26,7 @@ jest.mock('expo-router', () => {
 });
 
 beforeEach(() => {
-  useAuthStore.setState({ isAuthenticated: false });
+  useAuthStore.setState({ status: 'signed-out' });
 });
 
 describe('Root 준비 완료 뒤 탭의 인증 보호', () => {
@@ -38,13 +38,18 @@ describe('Root 준비 완료 뒤 탭의 인증 보호', () => {
   });
 
   it('인증 상태에서 탭을 보여주고 로그아웃 상태로 바뀌면 즉시 가린다', () => {
-    useAuthStore.setState({ isAuthenticated: true });
+    useAuthStore.setState({ status: 'signed-in' });
     const view = render(<TabsLayout />);
     expect(view.getByTestId('protected-tabs')).toBeTruthy();
 
-    act(() => useAuthStore.setState({ isAuthenticated: false }));
+    act(() => useAuthStore.setState({ status: 'signed-out' }));
 
     expect(view.queryByTestId('protected-tabs')).toBeNull();
     expect(view.getByText('/(auth)/login')).toBeTruthy();
   });
+});
+
+it('재인증이 필요해도 기존 탭은 유지한다', () => {
+  useAuthStore.setState({ status: 'reauth-required', userId: 'user-1' });
+  expect(render(<TabsLayout />).getByTestId('protected-tabs')).toBeTruthy();
 });

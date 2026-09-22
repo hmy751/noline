@@ -26,7 +26,7 @@ function deferred() {
 
 beforeEach(() => {
   jest.mocked(isDatabaseReady).mockReturnValue(true);
-  useAuthStore.setState({ isAuthenticated: true, isSessionExpired: false, userId: 'user-1' });
+  useAuthStore.setState({ status: 'signed-in', userId: 'user-1' });
   useNetworkStore.setState({ realStatus: 'online', overrideStatus: null });
   useSyncLifecycleStore.setState({ lastSyncedAt: null });
   syncMock.mockReset().mockResolvedValue(undefined);
@@ -84,7 +84,7 @@ describe('sync 실행의 공통 경계', () => {
   ] as const)(
     '$scenario에서는 수동 실행도 차단 이유를 반환한다',
     async ({ auth, expired, realStatus, override, reason }) => {
-      useAuthStore.setState({ isAuthenticated: auth, isSessionExpired: expired });
+      useAuthStore.setState({ status: !auth ? 'signed-out' : expired ? 'reauth-required' : 'signed-in' });
       useNetworkStore.setState({ realStatus, overrideStatus: override });
 
       await expect(executeSync('manual')).resolves.toEqual({ status: 'skipped', reason });

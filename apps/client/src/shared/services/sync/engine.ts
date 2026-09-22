@@ -6,7 +6,7 @@ import { queryClient } from '@/shared/lib/queryClient';
 import { getDatabase, tripActivations } from '@/shared/db';
 import { eq } from 'drizzle-orm';
 import { processPendingCleanups } from './cleanup-job';
-import { AuthRequiredError } from '@/shared/services/auth/auth-interceptor';
+import { AuthRequiredError } from '@/shared/store/auth';
 
 /**
  * Sync push 대상 테이블 → 서버 endpoint 매핑.

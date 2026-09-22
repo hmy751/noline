@@ -1,13 +1,13 @@
 /* eslint-disable react/no-unstable-nested-components */
 import { Tabs, Redirect } from 'expo-router';
 import { Home, Calendar, Wallet, User } from 'lucide-react-native';
-import { useAuthStore } from '@/shared/store/auth';
+import { useAuthStore, hasLocalSession } from '@/shared/store/auth';
 
 export default function TabsLayout() {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const hasSession = useAuthStore(hasLocalSession);
 
   // 비인증이면 로그인 화면으로 리다이렉트
-  if (!isAuthenticated) {
+  if (!hasSession) {
     return <Redirect href='/(auth)/login' />;
   }
 

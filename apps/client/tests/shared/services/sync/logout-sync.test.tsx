@@ -6,10 +6,12 @@ import { SyncProvider, useSyncContext } from '@/shared/services/sync/provider';
 import { syncData } from '@/shared/services/sync/engine';
 import { performLogout, performDeleteAccount } from '@/shared/services/auth/logout-service';
 import { logout as logoutApi, deleteAccount } from '@/shared/services/auth/auth-api';
+import { clearAuthData } from '@/shared/services/auth/token-storage';
 import { getSyncQueueStats, clearSyncQueue } from '@/shared/services/sync/queue';
 import { resetDatabase, isDatabaseReady } from '@/shared/db';
 import { queryClient } from '@/shared/lib/queryClient';
 import { useAuthStore } from '@/shared/store/auth';
+import { useTripStore } from '@/shared/store/useTripStore';
 import { networkStore, useNetworkStore } from '@/shared/store/network';
 
 jest.mock('@react-native-community/netinfo', () => ({
@@ -23,7 +25,11 @@ jest.mock('@/shared/services/sync/queue', () => ({ getSyncQueueStats: jest.fn(),
 jest.mock('@/shared/services/sync/cleanup-job', () => ({
   withPendingCleanupsPaused: jest.fn(async (operation: () => Promise<unknown>) => operation()),
 }));
-jest.mock('@/shared/db', () => ({ resetDatabase: jest.fn(), isDatabaseReady: jest.fn(() => true) }));
+jest.mock('@/shared/db', () => ({
+  resetDatabase: jest.fn(),
+  isDatabaseReady: jest.fn(() => true),
+  withDatabaseTransactionsPaused: async (operation: () => Promise<unknown>) => operation(),
+}));
 jest.mock('@/shared/lib/queryClient', () => ({ queryClient: { clear: jest.fn() } }));
 
 const syncMock = jest.mocked(syncData);
@@ -45,13 +51,14 @@ function SyncWrapper({ children }: { children: React.ReactNode }) {
 
 beforeEach(() => {
   jest.mocked(isDatabaseReady).mockReturnValue(true);
-  useAuthStore.setState({ isAuthenticated: true, isSessionExpired: false, userId: 'user-1' });
+  useAuthStore.setState({ status: 'signed-in', userId: 'user-1' });
   useNetworkStore.setState({ realStatus: 'online', overrideStatus: null });
   syncMock.mockReset().mockResolvedValue(undefined);
   statsMock.mockReset().mockResolvedValue({ pending: 0, inProgress: 0, failed: 0, total: 0 });
   jest.mocked(resetDatabase).mockReset().mockResolvedValue(undefined);
   jest.mocked(logoutApi).mockReset().mockResolvedValue(undefined);
   jest.mocked(deleteAccount).mockReset().mockResolvedValue(undefined);
+  jest.mocked(clearAuthData).mockReset().mockResolvedValue(undefined);
   for (const method of ['log', 'info', 'debug', 'warn', 'error'] as const) {
     jest.spyOn(console, method).mockImplementation(() => undefined);
   }
@@ -63,6 +70,37 @@ afterEach(() => {
 });
 
 describe('sync와 세션 종료 순서', () => {
+  it('인증 정보 삭제 실패 후에는 캐시를 비우고 sync를 막으며 로그아웃을 재시도할 수 있다', async () => {
+    const { result } = renderHook(() => useSyncContext(), { wrapper: SyncWrapper });
+    await act(async () => {
+      await Promise.resolve();
+    });
+    syncMock.mockClear();
+    useTripStore.getState().setSelectedTripId('old-trip');
+    jest.mocked(clearAuthData).mockRejectedValueOnce(new Error('secure store locked'));
+
+    await act(async () => {
+      await expect(performLogout()).resolves.toMatchObject({ success: false, message: 'secure store locked' });
+    });
+
+    expect(resetDatabase).toHaveBeenCalledTimes(1);
+    expect(useAuthStore.getState()).toMatchObject({ status: 'reauth-required', userId: 'user-1' });
+    expect(useTripStore.getState().selectedTripId).toBeNull();
+    expect(queryClient.clear).toHaveBeenCalledTimes(1);
+    await act(async () => {
+      await expect(result.current.triggerManualSync()).resolves.toEqual({
+        status: 'skipped',
+        reason: 'session-expired',
+      });
+    });
+    expect(syncMock).not.toHaveBeenCalled();
+
+    await act(async () => {
+      await expect(performLogout()).resolves.toMatchObject({ success: true });
+    });
+    expect(useAuthStore.getState()).toMatchObject({ status: 'signed-out', userId: null });
+  });
+
   it('DB reset이 실패해 준비 상태가 해제되면 일시 중단 해제 후에도 sync를 시작하지 않는다', async () => {
     const { result } = renderHook(() => useSyncContext(), { wrapper: SyncWrapper });
     await act(async () => {
@@ -77,7 +115,7 @@ describe('sync와 세션 종료 순서', () => {
     await act(async () => {
       await expect(performLogout()).resolves.toMatchObject({ success: false });
     });
-    expect(useAuthStore.getState().isAuthenticated).toBe(true);
+    expect(useAuthStore.getState().status).toBe('signed-in');
 
     await act(async () => {
       await expect(result.current.triggerManualSync()).resolves.toEqual({
@@ -140,7 +178,7 @@ describe('sync와 세션 종료 순서', () => {
           await serverStarted.promise;
         });
         expect(result.current.isSyncing).toBe(false);
-        expect(useAuthStore.getState().isAuthenticated).toBe(true);
+        expect(useAuthStore.getState().status).toBe('signed-in');
         expect(resetDatabase).not.toHaveBeenCalled();
 
         await act(async () => {
@@ -158,7 +196,7 @@ describe('sync와 세션 종료 순서', () => {
         await expect(ending).resolves.toMatchObject({ success: true });
         expect(serverOperation).toHaveBeenCalledTimes(1);
         expect(resetDatabase).toHaveBeenCalledTimes(1);
-        expect(useAuthStore.getState().isAuthenticated).toBe(false);
+        expect(useAuthStore.getState().status).toBe('signed-out');
         expect(queryClient.clear).toHaveBeenCalledTimes(1);
 
         await act(async () => {
@@ -211,7 +249,7 @@ describe('sync와 세션 종료 순서', () => {
     await expect(performLogout()).resolves.toMatchObject({ success: false, hasPendingSync: true });
     expect(logoutApi).not.toHaveBeenCalled();
     expect(resetDatabase).not.toHaveBeenCalled();
-    expect(useAuthStore.getState().isAuthenticated).toBe(true);
+    expect(useAuthStore.getState().status).toBe('signed-in');
 
     await act(async () => {
       await result.current.triggerManualSync();
@@ -230,7 +268,7 @@ describe('sync와 세션 종료 순서', () => {
       await expect(performDeleteAccount()).resolves.toMatchObject({ success: false });
     });
     expect(resetDatabase).not.toHaveBeenCalled();
-    expect(useAuthStore.getState().isAuthenticated).toBe(true);
+    expect(useAuthStore.getState().status).toBe('signed-in');
     syncMock.mockClear();
 
     await act(async () => {
@@ -250,7 +288,7 @@ describe('sync와 세션 종료 순서', () => {
       await expect(performLogout()).resolves.toMatchObject({ success: true });
     });
     expect(resetDatabase).toHaveBeenCalledTimes(1);
-    expect(useAuthStore.getState().isAuthenticated).toBe(false);
+    expect(useAuthStore.getState().status).toBe('signed-out');
     syncMock.mockClear();
 
     await act(async () => {

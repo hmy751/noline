@@ -32,18 +32,20 @@ export function SyncProvider({
   enablePeriodicSync = false,
   syncInterval = DEFAULT_SYNC_INTERVAL_MS,
 }: SyncProviderProps) {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const isSessionExpired = useAuthStore((state) => state.isSessionExpired);
+  const authStatus = useAuthStore((state) => state.status);
+  const sessionId = useAuthStore((state) => state.sessionId);
   const networkStatus = useNetworkStore((state) => state.realStatus);
   const overrideStatus = useNetworkStore((state) => state.overrideStatus);
   const isPaused = useSyncLifecycleStore((state) => state.isPaused);
   const isSyncing = useSyncLifecycleStore((state) => state.isSyncing);
   const lastSyncedAt = useSyncLifecycleStore((state) => state.lastSyncedAt);
   const previousEligibilityRef = useRef<boolean | null>(null);
+  const previousSessionRef = useRef(sessionId);
 
   useEffect(() => {
     const eligible = getSyncBlockReason() === null;
-    const previousEligibility = previousEligibilityRef.current;
+    const previousEligibility = previousSessionRef.current === sessionId ? previousEligibilityRef.current : null;
+    previousSessionRef.current = sessionId;
     previousEligibilityRef.current = eligible;
 
     if (!eligible || previousEligibility === true) {
@@ -51,7 +53,7 @@ export function SyncProvider({
     }
 
     void executeSync(previousEligibility === null ? 'app-startup' : 'conditions-ready');
-  }, [isAuthenticated, isSessionExpired, networkStatus, overrideStatus, isPaused]);
+  }, [authStatus, sessionId, networkStatus, overrideStatus, isPaused]);
 
   useEffect(() => {
     if (!enablePeriodicSync) {

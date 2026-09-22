@@ -1,128 +1,261 @@
 import { create } from 'zustand';
-import { getAuthData, saveAuthData, updateTokens, clearAuthData, type UserInfo } from '../services/auth/token-storage';
+import { inspectLocalAccount } from '../services/auth/local-account';
+import {
+  getAuthData,
+  saveAuthData,
+  clearAuthData,
+  type DeviceSession,
+  type LoginData,
+  type Tokens,
+  type UserInfo,
+} from '../services/auth/token-storage';
+
+export type AuthStatus = 'initializing' | 'signed-out' | 'signed-in' | 'reauth-required' | 'restore-failed';
 
 interface AuthState {
+  status: AuthStatus;
   userId: string | null;
   userInfo: UserInfo | null;
-  isAuthenticated: boolean;
-  isSessionExpired: boolean;
+  sessionId: symbol | null;
   restoreSessionOnce: () => Promise<void>;
-  login: (data: { accessToken: string; refreshToken: string; userId: string; userInfo?: UserInfo }) => Promise<void>;
-  logout: () => Promise<void>;
-  refreshTokens: (data: { accessToken: string; refreshToken: string }) => Promise<void>;
-  setSessionExpired: (expired: boolean) => void;
+  retrySessionRestore: () => Promise<void>;
+  saveAndApplySession: (data: LoginData) => Promise<void>;
+  clearSession: () => Promise<void>;
+  refreshTokens: (tokens: Tokens, sessionId: symbol | null) => Promise<boolean>;
+  requireReauthentication: (sessionId: symbol | null) => Promise<void>;
 }
 
-const SIGNED_OUT_STATE = {
-  userId: null,
-  userInfo: null,
-  isAuthenticated: false,
-  isSessionExpired: false,
-};
+export function hasLocalSession(state: Pick<AuthState, 'status'>): boolean {
+  return state.status === 'signed-in' || state.status === 'reauth-required';
+}
+
+export function selectLocalUserId(state: Pick<AuthState, 'status' | 'userId'>): string | null {
+  return hasLocalSession(state) ? state.userId : null;
+}
+
+export class AuthRequiredError extends Error {
+  constructor(message = '다시 로그인해주세요') {
+    super(message);
+    this.name = 'AuthRequiredError';
+  }
+}
+
+export class LocalAccountMismatchError extends Error {
+  constructor() {
+    super('이 기기의 여행을 유지하려면 같은 계정으로 다시 로그인해주세요. 계정을 바꾸려면 먼저 로그아웃해주세요.');
+    this.name = 'LocalAccountMismatchError';
+  }
+}
+
+/** 현재 상태로 로컬 계정을 판단하는 기준은 Store에 둔다. DB 소유권 검사는 별도다. */
+export function requireLocalUserId(requestedUserId?: string): string {
+  const userId = selectLocalUserId(useAuthStore.getState());
+  if (!userId || (requestedUserId && requestedUserId !== userId)) {
+    throw new Error('이 계정의 여행 데이터에 접근할 수 없습니다');
+  }
+  return userId;
+}
+
+export function requireRemoteSession(): void {
+  if (useAuthStore.getState().status !== 'signed-in') {
+    throw new AuthRequiredError('이 작업은 다시 로그인한 뒤 사용할 수 있습니다');
+  }
+}
+
+const EMPTY_SESSION = { userId: null, userInfo: null, sessionId: null };
 
 export function createAuthStore() {
-  return create<AuthState>((set) => {
-    let sessionRestore: Promise<void> | null = null;
+  let currentSession: DeviceSession | null = null;
+  let sessionGeneration = Symbol('session');
 
-    // 오프라인 진입을 위해 서버 검증 없이 저장된 사용자와 토큰의 존재로 복원한다.
-    async function restoreStoredSession() {
+  const store = create<AuthState>((set, get) => {
+    let restorePromise: Promise<void> | null = null;
+    let pendingWrites = Promise.resolve();
+    let logoutEpoch = 0;
+
+    // 복원·계정 검사·기기 저장·세션 적용 순서를 보존한다. 토큰 거부는 메모리에서 먼저 차단한다.
+    function serializeSessionWrite<T>(operation: () => Promise<T>): Promise<T> {
+      const result = pendingWrites.then(operation);
+      pendingWrites = result.then(
+        () => undefined,
+        () => undefined,
+      );
+      return result;
+    }
+
+    function applySession(session: DeviceSession, sessionId: symbol) {
+      currentSession = session;
+      set({
+        sessionId,
+        userId: session.userId,
+        userInfo: session.userInfo,
+        status: session.accessToken || session.refreshToken ? 'signed-in' : 'reauth-required',
+      });
+    }
+
+    function isCurrent(sessionId: symbol | null): sessionId is symbol {
+      return sessionId !== null && sessionId === sessionGeneration && get().sessionId === sessionId;
+    }
+
+    async function readSession(restoreGeneration: symbol) {
       try {
-        const { userId, accessToken, userInfo } = await getAuthData();
+        const session = await getAuthData();
 
-        if (!userId || !accessToken) {
-          console.log('[AuthStore] session not found');
-          set(SIGNED_OUT_STATE);
+        if (session) {
+          const account = await inspectLocalAccount(session.userId);
+          if (account === 'different' || account === 'unresolved') {
+            throw new Error('저장된 계정과 여행 데이터의 소유자를 확인하지 못했습니다');
+          }
+        }
+
+        if (restoreGeneration !== sessionGeneration) {
           return;
         }
 
-        console.log('[AuthStore] session restored');
-        set({
-          userId,
-          userInfo,
-          isAuthenticated: true,
-          isSessionExpired: false,
-        });
+        if (session) {
+          applySession(session, restoreGeneration);
+        } else {
+          currentSession = null;
+          set({ ...EMPTY_SESSION, status: 'signed-out' });
+        }
       } catch (error) {
-        console.error('[AuthStore] session restore failed', { error });
-        // 읽기 실패는 로그인 화면으로 보내되 저장된 인증 정보는 지우지 않는다.
-        set(SIGNED_OUT_STATE);
+        if (restoreGeneration !== sessionGeneration) {
+          return;
+        }
+
+        console.error('[Auth] session restore failed', error);
+        currentSession = null;
+        set({ ...EMPTY_SESSION, status: 'restore-failed' });
       }
     }
 
     return {
-      ...SIGNED_OUT_STATE,
+      ...EMPTY_SESSION,
+      status: 'initializing',
       restoreSessionOnce: () => {
-        // 완료 후에도 재사용해 이후 로그인·로그아웃 상태를 저장소 값으로 덮지 않는다.
-        if (!sessionRestore) {
-          sessionRestore = restoreStoredSession();
+        if (!restorePromise) {
+          const generation = sessionGeneration;
+          restorePromise = serializeSessionWrite(() => readSession(generation));
+        }
+        return restorePromise;
+      },
+      retrySessionRestore: () => {
+        if (get().status !== 'restore-failed') {
+          return restorePromise ?? Promise.resolve();
         }
 
-        return sessionRestore;
+        set({ status: 'initializing' });
+        const generation = sessionGeneration;
+        restorePromise = serializeSessionWrite(() => readSession(generation));
+        return restorePromise;
       },
+      saveAndApplySession: (data) => {
+        const loginEpoch = logoutEpoch;
+        const sessionId = Symbol('session');
+        const session: DeviceSession = { ...data, version: 1, userInfo: data.userInfo ?? null };
+        restorePromise = Promise.resolve();
 
-      login: async (data) => {
-        await saveAuthData(data);
-        console.log('[AuthStore] logged in', { userId: data.userId });
-        set({
-          userId: data.userId,
-          userInfo: data.userInfo ?? null,
-          isAuthenticated: true,
-          isSessionExpired: false,
+        return serializeSessionWrite(async () => {
+          if (loginEpoch !== logoutEpoch) {
+            throw new Error('종료된 세션의 로그인 저장은 적용할 수 없습니다');
+          }
+          const account = await inspectLocalAccount(data.userId);
+          if (account === 'unresolved') {
+            throw new Error('저장된 변경의 소유자를 확인하지 못했습니다. 데이터는 보존됩니다.');
+          }
+          const previousUserId = get().userId;
+          if (account === 'different' || (previousUserId !== null && previousUserId !== data.userId)) {
+            throw new LocalAccountMismatchError();
+          }
+          if (loginEpoch !== logoutEpoch) {
+            throw new Error('종료된 세션의 로그인 저장은 적용할 수 없습니다');
+          }
+          await saveAuthData(session);
+          if (loginEpoch !== logoutEpoch) {
+            throw new Error('종료된 세션의 로그인 저장은 적용할 수 없습니다');
+          }
+
+          sessionGeneration = sessionId;
+          applySession(session, sessionId);
         });
       },
+      clearSession: () => {
+        logoutEpoch += 1;
+        sessionGeneration = Symbol('session');
+        currentSession = null;
+        restorePromise = Promise.resolve();
 
-      logout: async () => {
-        await clearAuthData();
-        console.log('[AuthStore] logged out');
-        set(SIGNED_OUT_STATE);
-      },
+        const result = serializeSessionWrite(async () => {
+          await clearAuthData();
 
-      refreshTokens: async (data) => {
-        await updateTokens(data);
-        console.log('[AuthStore] tokens refreshed');
-        set({
-          isSessionExpired: false,
+          // 뒤 로그인은 같은 저장 큐에서 아직 실행되지 않았다. 삭제 성공을 먼저 공개한다.
+          set({ ...EMPTY_SESSION, status: 'signed-out' });
         });
-      },
 
-      // 인증 갱신까지 실패했을 때 세션 만료 안내에 사용한다.
-      setSessionExpired: (expired) => {
-        console.log('[AuthStore] session expiry changed', { expired });
-        set({ isSessionExpired: expired });
+        // 삭제가 실패해도 이전 인증을 다시 허용하지 않는다. 계정은 종료 재시도를 위해 남긴다.
+        if (hasLocalSession(get())) {
+          set({ status: 'reauth-required' });
+        }
+        return result;
+      },
+      refreshTokens: (tokens, sessionId) =>
+        serializeSessionWrite(async () => {
+          const current = currentSession;
+
+          if (!isCurrent(sessionId) || !current) {
+            return false;
+          }
+
+          const session = { ...current, ...tokens };
+
+          await saveAuthData(session);
+
+          if (!isCurrent(sessionId)) {
+            return false;
+          }
+
+          applySession(session, sessionId);
+          return true;
+        }),
+      requireReauthentication: (sessionId) => {
+        const current = currentSession;
+        if (!isCurrent(sessionId) || !current) {
+          return Promise.resolve();
+        }
+
+        // 요청 차단은 기기 저장을 기다리지 않는다. 진행 중 refresh도 이전 세대로 만든다.
+        const rejectedSessionId = (sessionGeneration = Symbol('reauth-required'));
+        const session = { ...current, accessToken: null, refreshToken: null };
+        applySession(session, rejectedSessionId);
+        return serializeSessionWrite(async () => {
+          if (isCurrent(rejectedSessionId)) {
+            await saveAuthData(session);
+          }
+        });
       },
     };
+  });
+
+  function isCurrentSession(sessionId: symbol | null): sessionId is symbol {
+    const state = store.getState();
+    return (
+      sessionId !== null &&
+      sessionId === sessionGeneration &&
+      state.sessionId === sessionId &&
+      state.status === 'signed-in' &&
+      state.userId === currentSession?.userId
+    );
+  }
+
+  function getToken(sessionId: symbol | null, kind: 'accessToken' | 'refreshToken'): string | null {
+    return isCurrentSession(sessionId) ? (currentSession?.[kind] ?? null) : null;
+  }
+
+  return Object.assign(store, {
+    isCurrentSession,
+    getAccessToken: (sessionId: symbol | null) => getToken(sessionId, 'accessToken'),
+    getRefreshToken: (sessionId: symbol | null) => getToken(sessionId, 'refreshToken'),
   });
 }
 
 export const useAuthStore = createAuthStore();
-
-// React 밖의 서비스에서 동일한 인증 상태와 action을 사용한다.
-export const authStore = {
-  get userId() {
-    return useAuthStore.getState().userId;
-  },
-  get userInfo() {
-    return useAuthStore.getState().userInfo;
-  },
-  get isAuthenticated() {
-    return useAuthStore.getState().isAuthenticated;
-  },
-  get isSessionExpired() {
-    return useAuthStore.getState().isSessionExpired;
-  },
-  async restoreSessionOnce() {
-    await useAuthStore.getState().restoreSessionOnce();
-  },
-  async login(data: { accessToken: string; refreshToken: string; userId: string; userInfo?: UserInfo }) {
-    await useAuthStore.getState().login(data);
-  },
-  async logout() {
-    await useAuthStore.getState().logout();
-  },
-  async refreshTokens(data: { accessToken: string; refreshToken: string }) {
-    await useAuthStore.getState().refreshTokens(data);
-  },
-  setSessionExpired(expired: boolean) {
-    useAuthStore.getState().setSessionExpired(expired);
-  },
-};

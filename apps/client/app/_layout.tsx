@@ -1,6 +1,6 @@
 import '../styles/global.css';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useColorScheme } from 'react-native';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -16,13 +16,15 @@ import { queryClient } from '@/shared/lib/queryClient';
 import { useOfflineMapCleanup } from '@/shared/services/offline-map';
 import { usePendingCleanups } from '@/shared/services/sync/usePendingCleanups';
 import { SyncProvider } from '@/shared/services/sync/provider';
-import { useAuthStore } from '@/shared/store/auth';
+import { useAuthStore, hasLocalSession, type AuthStatus } from '@/shared/store/auth';
 
 MapboxGL.setAccessToken(process.env.EXPO_PUBLIC_MAPBOX_PUBLIC_ACCESS_TOKEN!);
 
 // 전체 앱의 구성: 준비가 끝난 뒤 화면과 인증 후 작업을 연결한다.
 export default function RootLayout() {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const authStatus = useAuthStore((state) => state.status);
+  const userId = useAuthStore((state) => state.userId);
+  const hasSession = hasLocalSession({ status: authStatus });
 
   return (
     <SafeAreaProvider>
@@ -30,9 +32,9 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <SyncProvider>
             <SessionExpiredBanner />
-            <AppNavigation isAuthenticated={isAuthenticated} />
+            <AppNavigation status={authStatus} userId={userId} />
             <PortalHost />
-            {isAuthenticated && <AuthenticatedEffects />}
+            {hasSession && <AuthenticatedEffects />}
           </SyncProvider>
         </QueryClientProvider>
       </AppInitialization>
@@ -41,15 +43,18 @@ export default function RootLayout() {
 }
 
 // 준비 완료 후의 화면 구성과 로그인 상태에 따른 이동을 함께 관리한다.
-function AppNavigation({ isAuthenticated }: { isAuthenticated: boolean }) {
+function AppNavigation({ status, userId }: { status: AuthStatus; userId: string | null }) {
+  const previousUserRef = useRef(userId);
   const colorScheme = useColorScheme();
   const router = useRouter();
   const segments = useSegments();
 
   useEffect(() => {
+    const previousUserId = previousUserRef.current;
+    previousUserRef.current = userId;
     const isAuthRoute = segments[0] === '(auth)';
 
-    if (!isAuthenticated && !isAuthRoute) {
+    if (!hasLocalSession({ status }) && !isAuthRoute) {
       console.debug('[AppNavigation] redirect', {
         reason: 'unauthenticated',
         target: 'login',
@@ -59,18 +64,20 @@ function AppNavigation({ isAuthenticated }: { isAuthenticated: boolean }) {
       return;
     }
 
-    if (isAuthenticated && isAuthRoute) {
+    if (status === 'signed-in' && isAuthRoute) {
       console.debug('[AppNavigation] redirect', {
         reason: 'authenticated',
         target: 'home',
       });
 
-      router.replace('/(tabs)');
+      if (previousUserId === userId && router.canGoBack()) router.back();
+      else router.replace('/(tabs)');
     }
-  }, [isAuthenticated, segments, router]);
+  }, [status, userId, segments, router]);
 
   return (
     <Stack
+      key={userId ?? 'signed-out'}
       screenOptions={{
         headerShown: false,
         contentStyle: {

@@ -1,3 +1,6 @@
+import { useAuthStore } from '@/shared/store/auth';
+import { AuthRequiredError } from '@/shared/store/auth';
+jest.mock('expo-secure-store', () => ({}));
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { networkStore, useNetworkStore, type NetworkStatus } from '@/shared/store/network';
 import { getTripActivationStatus, hasAnyActivatedTrip } from '@/shared/services/offline-prep/metadata';
@@ -66,6 +69,7 @@ function createOperations() {
 }
 
 beforeEach(() => {
+  useAuthStore.setState({ status: 'signed-in', userId: 'a' });
   useNetworkStore.setState({ realStatus: 'unknown', overrideStatus: null });
   activationMock.mockResolvedValue(false);
   anyActivationMock.mockResolvedValue(false);
@@ -138,6 +142,15 @@ describe.each(routeCases.filter((route) => route.name.startsWith('Child')))('$na
     expect(operations.local).toHaveBeenCalledTimes(1);
     expect(operations.remote).not.toHaveBeenCalled();
   });
+});
+
+it('재인증 대기 중 비활성 여행의 서버 경로는 인증 오류로 중단한다', async () => {
+  useAuthStore.setState({ status: 'reauth-required', userId: 'a' });
+  useNetworkStore.setState({ realStatus: 'online' });
+  const operations = createOperations();
+
+  await expect(routeChildQuery('trip-b', operations)).rejects.toBeInstanceOf(AuthRequiredError);
+  expect(operations.remote).not.toHaveBeenCalled();
 });
 
 describe.each(routeCases.filter((route) => !route.isMutation))('$name의 debug 표시와 조회 분리', ({ run }) => {

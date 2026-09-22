@@ -1,24 +1,4 @@
-// Token Storage (SecureStore wrapper)
-export {
-  getAccessToken,
-  setAccessToken,
-  deleteAccessToken,
-  getRefreshToken,
-  setRefreshToken,
-  deleteRefreshToken,
-  getUserId,
-  setUserId,
-  deleteUserId,
-  getUserInfo,
-  setUserInfo,
-  deleteUserInfo,
-  saveAuthData,
-  updateTokens,
-  clearAuthData,
-  hasAuthData,
-  getAuthData,
-  type UserInfo,
-} from './token-storage';
+export { type UserInfo } from './token-storage';
 
 // Auth API
 export {
@@ -26,6 +6,7 @@ export {
   loginWithApple,
   refreshTokens,
   logout,
+  revokeRefreshToken,
   getCurrentUser,
   deleteAccount,
   type AuthResponse,
@@ -55,7 +36,8 @@ export {
 } from './apple-auth';
 
 // Auth Interceptor
-export { AuthRequiredError, setupAuthInterceptors, setupSyncAuthInterceptors } from './auth-interceptor';
+export { setupAuthInterceptors, setupSyncAuthInterceptors } from './auth-interceptor';
+export { AuthRequiredError } from '@/shared/store/auth';
 
 // Logout Service
 export {

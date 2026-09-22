@@ -1,3 +1,4 @@
+import { AuthRequiredError, requireRemoteSession, useAuthStore } from '@/shared/store/auth';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   getDatabase,
@@ -33,6 +34,8 @@ export const useActivateTrip = () => {
 
   return useMutation({
     mutationFn: async (tripId: string) => {
+      requireRemoteSession();
+      const sessionId = useAuthStore.getState().sessionId;
       const now = getCurrentISOString();
 
       // 이미 활성화된 경우 - 경로만 다운로드하고 종료
@@ -74,6 +77,13 @@ export const useActivateTrip = () => {
 
       // 트랜잭션: 로컬 DB 업데이트
       await withTransaction(async () => {
+        if (!useAuthStore.isCurrentSession(sessionId)) {
+          throw new AuthRequiredError();
+        }
+        const userId = useAuthStore.getState().userId;
+        if ([...allTrips, ...schedules, ...expenses].some((row: { userId: string }) => row.userId !== userId)) {
+          throw new Error('다른 계정의 여행 데이터는 활성화할 수 없습니다');
+        }
         // 모든 Trip 메타데이터 저장 (upsert)
         if (allTrips.length > 0) {
           for (const tripData of allTrips) {

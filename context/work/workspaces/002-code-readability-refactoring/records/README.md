@@ -72,3 +72,11 @@
 - [인증 구현의 관리 복잡도 재검토와 재로그인 범위 결정](2026-09-19-01-auth-complexity-review-and-decisions.md): 전체 관리 우려, 로컬 이용 유지와 계정 전환 편의의 tradeoff, 일반 인증 실패·API 요청 수명의 설명 정정, 기존 구현에서 개선하는 선택과 책임별 후속 범위.
 
 - [인증·API·로컬 DB 검토의 실행 근거](2026-09-19-02-auth-review-checks.md): 기존 235개 검사와 추가 8개 검사의 기대/실제 결과, 5개 결함 재현·3개 동작 확인, 임시 경로 없이 재구성할 코드·fixture·명령과 입증 한계.
+
+- [인증 개선 뒤의 Policy 정리와 분할 검토·커밋](2026-09-21-01-auth-policy-split-review-and-commits.md): 핵심 엔티티 CRUD 유지, 이름·스타일 기준, 검토 순번과 Ticket 구분, 라우팅·DB 커밋 및 Promise·transaction 설명의 보장 범위.
+
+- [토큰 비공개 분리와 인증 소비 구조 재검토·원복](2026-09-21-02-auth-token-separation-consumer-review-and-rollback.md): 토큰 노출 우려와 승인 범위, 종료 실패 보완, 소비 계약 감사, medium 구현의 철회와 선택적 복원, 남은 데이터 보존 문제.
+
+- [인증 소비 경계의 좁은 적용과 검증](2026-09-21-03-auth-consumer-boundary-implementation.md): 기존 Store 안의 필수 복원 검증·Local 소유자 읽기·부분 명령 구분, 겹친 로그인 저장과 Router 인증 오류의 실패 재현·수정, 혼합 작업 트리 검사와 열린 범위.
+
+- [인증 세션 변경의 커밋 경계와 분리 검증](2026-09-22-01-auth-commit-boundary.md): 인증 단계의 동작 범위, 동기화·화면 변경과의 경계, 별도 후보에서 확인한 277개 검사와 타입 검사 한계.

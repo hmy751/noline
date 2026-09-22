@@ -1,6 +1,6 @@
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { act, renderHook } from '@testing-library/react-native';
+import { act, render, renderHook } from '@testing-library/react-native';
 
 import { networkStore, useNetworkStore } from '@/shared/store/network';
 import { SyncProvider, useSyncContext } from '@/shared/services/sync/provider';
@@ -23,7 +23,7 @@ function SyncWrapper({ children }: { children: React.ReactNode }) {
 }
 
 beforeEach(() => {
-  useAuthStore.setState({ isAuthenticated: true, isSessionExpired: false, userId: 'user-1' });
+  useAuthStore.setState({ status: 'signed-in', userId: 'user-1' });
   useNetworkStore.setState({ realStatus: 'unknown', overrideStatus: null });
   syncMock.mockResolvedValue(undefined);
   jest.spyOn(console, 'log').mockImplementation(() => undefined);
@@ -39,12 +39,12 @@ afterEach(() => {
 
 describe('SyncProvider의 실제 네트워크 소비', () => {
   it('로그인·online 확정·강제 설정 해제가 함께 반영돼도 한 번만 자동 실행한다', async () => {
-    useAuthStore.setState({ isAuthenticated: false });
+    useAuthStore.setState({ status: 'signed-out' });
     useNetworkStore.setState({ realStatus: 'unknown', overrideStatus: 'online' });
     renderHook(() => useSyncContext(), { wrapper: SyncWrapper });
 
     await act(async () => {
-      useAuthStore.setState({ isAuthenticated: true });
+      useAuthStore.setState({ status: 'signed-in' });
       useNetworkStore.setState({ realStatus: 'online', overrideStatus: null });
     });
     expect(syncMock).toHaveBeenCalledTimes(1);
@@ -81,7 +81,7 @@ describe('SyncProvider의 실제 네트워크 소비', () => {
   });
 
   it('로그인 전에는 자동·수동 실행을 막고 같은 online 상태에서 로그인하면 자동 실행한다', async () => {
-    useAuthStore.setState({ isAuthenticated: false, userId: null });
+    useAuthStore.setState({ status: 'signed-out', userId: null });
     useNetworkStore.setState({ realStatus: 'online' });
     const { result } = renderHook(() => useSyncContext(), { wrapper: SyncWrapper });
 
@@ -91,7 +91,7 @@ describe('SyncProvider의 실제 네트워크 소비', () => {
     expect(syncMock).not.toHaveBeenCalled();
 
     await act(async () => {
-      useAuthStore.setState({ isAuthenticated: true, userId: 'user-1' });
+      useAuthStore.setState({ status: 'signed-in', userId: 'user-1' });
     });
     expect(syncMock).toHaveBeenCalledTimes(1);
   });
@@ -116,7 +116,7 @@ describe('SyncProvider의 실제 네트워크 소비', () => {
     syncMock.mockClear();
 
     await act(async () => {
-      useAuthStore.setState({ isAuthenticated: false, userId: null });
+      useAuthStore.setState({ status: 'signed-out', userId: null });
       useNetworkStore.setState({ realStatus: 'offline' });
     });
     await act(async () => {
@@ -127,7 +127,7 @@ describe('SyncProvider의 실제 네트워크 소비', () => {
   });
 
   it('세션 만료 중에는 시작하지 않고 인증이 복구되면 자동 실행한다', async () => {
-    useAuthStore.setState({ isSessionExpired: true });
+    useAuthStore.setState({ status: 'reauth-required' });
     useNetworkStore.setState({ realStatus: 'online' });
     const { result } = renderHook(() => useSyncContext(), { wrapper: SyncWrapper });
 
@@ -137,7 +137,7 @@ describe('SyncProvider의 실제 네트워크 소비', () => {
     expect(syncMock).not.toHaveBeenCalled();
 
     await act(async () => {
-      useAuthStore.setState({ isSessionExpired: false });
+      useAuthStore.setState({ status: 'signed-in' });
     });
     expect(syncMock).toHaveBeenCalledTimes(1);
   });
@@ -334,4 +334,23 @@ describe('SyncProvider의 실제 네트워크 소비', () => {
     });
     expect(syncMock).toHaveBeenCalledTimes(2);
   });
+});
+
+it('준비된 다른 세션으로 바뀌면 같은 signed-in 상태라도 새 동기화를 요청한다', async () => {
+  useNetworkStore.setState({ realStatus: 'online', overrideStatus: null });
+  useAuthStore.setState({ sessionId: Symbol('first') });
+  const view = render(
+    <SyncProvider>
+      <></>
+    </SyncProvider>,
+  );
+  await act(async () => {
+    await Promise.resolve();
+  });
+  const previousCalls = jest.mocked(syncData).mock.calls.length;
+  await act(async () => {
+    useAuthStore.setState({ sessionId: Symbol('next'), userId: 'user-2' });
+  });
+  expect(syncData).toHaveBeenCalledTimes(previousCalls + 1);
+  view.unmount();
 });

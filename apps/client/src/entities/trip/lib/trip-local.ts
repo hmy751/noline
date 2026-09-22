@@ -1,10 +1,12 @@
+import { requireLocalUserId, requireRemoteSession } from '@/shared/store/auth';
 // Trip Local DataSource - SQLite 로컬 DB 작업
 
 import { getDatabase, trips } from '@/shared/db';
-import { eq, and, isNull, desc, sql } from 'drizzle-orm';
+import { eq, isNull, desc, sql } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
-import { authStore } from '@/shared/store/auth';
+import { selectLocalUserId, useAuthStore } from '@/shared/store/auth';
+import { ownedRow, activeTripScope, assertActiveLocalTrip } from '@/shared/services/auth/local-access';
 import type { Trip, CreateTripRequest, UpdateTripRequest } from '../model';
 
 /**
@@ -14,7 +16,7 @@ import type { Trip, CreateTripRequest, UpdateTripRequest } from '../model';
  * - updatedAt 기준 내림차순 정렬
  */
 export const getTripsLocal = async (): Promise<Trip[]> => {
-  const userId = authStore.userId;
+  const userId = selectLocalUserId(useAuthStore.getState());
   if (!userId) {
     console.log('[TripLocal] No authenticated user, returning empty trips');
     return [];
@@ -23,7 +25,13 @@ export const getTripsLocal = async (): Promise<Trip[]> => {
   const tripList = await getDatabase()
     .select()
     .from(trips)
-    .where(and(isNull(trips.deletedAt), eq(trips.userId, userId)))
+    .where(
+      ownedRow(
+        trips.userId,
+        isNull(trips.deletedAt),
+        useAuthStore.getState().status === 'reauth-required' ? activeTripScope(trips.id) : undefined,
+      ),
+    )
     .orderBy(desc(trips.updatedAt))
     .all();
 
@@ -35,7 +43,17 @@ export const getTripsLocal = async (): Promise<Trip[]> => {
  * 로컬 DB에서 특정 여행 조회
  */
 export const getTripByIdLocal = async (id: string): Promise<Trip | undefined> => {
-  return await getDatabase().select().from(trips).where(eq(trips.id, id)).get();
+  return await getDatabase()
+    .select()
+    .from(trips)
+    .where(
+      ownedRow(
+        trips.userId,
+        eq(trips.id, id),
+        useAuthStore.getState().status === 'reauth-required' ? activeTripScope(trips.id) : undefined,
+      ),
+    )
+    .get();
 };
 
 /**
@@ -43,12 +61,10 @@ export const getTripByIdLocal = async (id: string): Promise<Trip | undefined> =>
  * - Client-Side ID: 외부에서 전달받은 ID 사용
  */
 export const createTripLocal = async (data: CreateTripRequest): Promise<Trip> => {
+  requireRemoteSession();
   const id = data.id;
   const now = getCurrentISOString();
-  const userId = data.userId || authStore.userId;
-  if (!userId) {
-    throw new Error('User not authenticated');
-  }
+  const userId = requireLocalUserId(data.userId);
 
   const newTrip = {
     id,
@@ -107,15 +123,37 @@ export const updateTripLocal = async (id: string, data: UpdateTripRequest): Prom
   };
 
   await withTransaction(async () => {
-    await getDatabase().update(trips).set(dbData).where(eq(trips.id, id));
+    await assertActiveLocalTrip(id);
+    await getDatabase()
+      .update(trips)
+      .set(dbData)
+      .where(
+        ownedRow(
+          trips.userId,
+          eq(trips.id, id),
+          useAuthStore.getState().status === 'reauth-required' ? activeTripScope(trips.id) : undefined,
+        ),
+      );
     await addToSyncQueue('trips', id, 'UPDATE', data);
   });
 
   console.log(`[TripLocal] Trip updated locally: ${id}`);
 
-  // 업데이트된 전체 entity 조회하여 반환
-  const updated = await getDatabase().select().from(trips).where(eq(trips.id, id)).get();
-  return updated!;
+  const updated = await getDatabase()
+    .select()
+    .from(trips)
+    .where(
+      ownedRow(
+        trips.userId,
+        eq(trips.id, id),
+        useAuthStore.getState().status === 'reauth-required' ? activeTripScope(trips.id) : undefined,
+      ),
+    )
+    .get();
+  if (!updated) {
+    throw new Error('수정한 여행을 다시 불러오지 못했습니다');
+  }
+  return updated;
 };
 
 /**
@@ -125,6 +163,7 @@ export const deleteTripLocal = async (id: string): Promise<{ id: string; deleted
   const now = getCurrentISOString();
 
   await withTransaction(async () => {
+    await assertActiveLocalTrip(id);
     await getDatabase()
       .update(trips)
       .set({
@@ -132,7 +171,13 @@ export const deleteTripLocal = async (id: string): Promise<{ id: string; deleted
         updatedAt: now,
         version: sql`${trips.version} + 1`,
       })
-      .where(eq(trips.id, id));
+      .where(
+        ownedRow(
+          trips.userId,
+          eq(trips.id, id),
+          useAuthStore.getState().status === 'reauth-required' ? activeTripScope(trips.id) : undefined,
+        ),
+      );
 
     await addToSyncQueue('trips', id, 'DELETE', null);
   });

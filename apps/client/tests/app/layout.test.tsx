@@ -1,3 +1,4 @@
+jest.mock('@/shared/services/auth/local-account', () => ({ inspectLocalAccount: jest.fn(async () => 'same') }));
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { act, fireEvent, render } from '@testing-library/react-native';
@@ -142,7 +143,7 @@ afterEach(() => {
 describe('RootLayout의 앱 준비와 인증 후 작업 연결', () => {
   describe('앱 준비·실패·재시도', () => {
     it('인증 상태와 실제 online이 있어도 DB 실패 시 진입·인증 복원·후속 작업을 막고 재시도를 안내한다', async () => {
-      useAuthStore.setState({ isAuthenticated: true });
+      useAuthStore.setState({ status: 'signed-in' });
       databaseMock.mockRejectedValue(new Error('테이블 준비 실패'));
       const view = render(<RootLayout />);
       await act(async () => {
@@ -357,15 +358,15 @@ describe('RootLayout의 앱 준비와 인증 후 작업 연결', () => {
       await flushReactUpdates();
       expect(tripsMock).not.toHaveBeenCalled();
 
-      act(() => useAuthStore.setState({ isAuthenticated: true }));
+      act(() => useAuthStore.setState({ status: 'signed-in' }));
       expect(tripsMock).toHaveBeenCalled();
       expect(useOfflineMapCleanup).toHaveBeenCalled();
       act(() => jest.advanceTimersByTime(1_000));
-      act(() => useAuthStore.setState({ isAuthenticated: false }));
+      act(() => useAuthStore.setState({ status: 'signed-out' }));
       act(() => jest.advanceTimersByTime(2_000));
       expect(cleanupMock).not.toHaveBeenCalled();
 
-      act(() => useAuthStore.setState({ isAuthenticated: true }));
+      act(() => useAuthStore.setState({ status: 'signed-in' }));
       await act(async () => jest.advanceTimersByTime(2_000));
 
       expect(cleanupMock).toHaveBeenCalledTimes(1);
@@ -411,7 +412,7 @@ describe('RootLayout의 앱 준비와 인증 후 작업 연결', () => {
       [true, '(tabs)', null],
     ])('준비 완료 후 인증=%s·route=%s일 때 이동 대상은 %s이다', async (isAuthenticated, segment, target) => {
       jest.mocked(useSegments).mockReturnValue([segment]);
-      useAuthStore.setState({ isAuthenticated });
+      useAuthStore.setState({ status: isAuthenticated ? 'signed-in' : 'signed-out' });
       render(<RootLayout />);
       await flushReactUpdates();
 
@@ -432,7 +433,7 @@ describe('RootLayout의 앱 준비와 인증 후 작업 연결', () => {
       ] as NonNullable<ReturnType<typeof useGetTrips>['data']>;
       setTripQuery(trips);
       mainTripMock.mockReturnValue(hasMainTrip ? trips[1] : null);
-      useAuthStore.setState({ isAuthenticated: true });
+      useAuthStore.setState({ status: 'signed-in' });
       render(<RootLayout />);
       await flushReactUpdates();
 
@@ -441,7 +442,7 @@ describe('RootLayout의 앱 준비와 인증 후 작업 연결', () => {
 
     it('빈 로컬 여행 목록에서는 기존 선택을 변경하지 않는다', async () => {
       useTripStore.setState({ selectedTripId: 'selected' });
-      useAuthStore.setState({ isAuthenticated: true });
+      useAuthStore.setState({ status: 'signed-in' });
       render(<RootLayout />);
       await flushReactUpdates();
       expect(useTripStore.getState().selectedTripId).toBe('selected');
@@ -451,7 +452,7 @@ describe('RootLayout의 앱 준비와 인증 후 작업 연결', () => {
       const trips = [{ id: 'main' }, { id: 'chosen' }] as NonNullable<ReturnType<typeof useGetTrips>['data']>;
       setTripQuery(trips);
       mainTripMock.mockReturnValue(trips[0]);
-      useAuthStore.setState({ isAuthenticated: true });
+      useAuthStore.setState({ status: 'signed-in' });
       const view = render(<RootLayout />);
       await flushReactUpdates();
       act(() => useTripStore.setState({ selectedTripId: 'chosen' }));
@@ -464,7 +465,7 @@ describe('RootLayout의 앱 준비와 인증 후 작업 연결', () => {
 
   describe('정리 작업 예약과 해제', () => {
     it('인증 후 2초가 지나면 공통 cleanup 서비스를 호출한다', async () => {
-      useAuthStore.setState({ isAuthenticated: true });
+      useAuthStore.setState({ status: 'signed-in' });
       cleanupMock.mockResolvedValue(1);
       render(<RootLayout />);
       await flushReactUpdates();
@@ -481,7 +482,7 @@ describe('RootLayout의 앱 준비와 인증 후 작업 연결', () => {
     });
 
     it('cleanup 결과가 없으면 캐시를 무효화하지 않는다', async () => {
-      useAuthStore.setState({ isAuthenticated: true });
+      useAuthStore.setState({ status: 'signed-in' });
       render(<RootLayout />);
       await flushReactUpdates();
       await act(async () => {
@@ -492,7 +493,7 @@ describe('RootLayout의 앱 준비와 인증 후 작업 연결', () => {
     });
 
     it('cleanup 실패는 화면을 닫거나 캐시를 무효화하지 않는다', async () => {
-      useAuthStore.setState({ isAuthenticated: true });
+      useAuthStore.setState({ status: 'signed-in' });
       cleanupMock.mockRejectedValue(new Error('정리 실패'));
       const view = render(<RootLayout />);
       await flushReactUpdates();
@@ -505,11 +506,11 @@ describe('RootLayout의 앱 준비와 인증 후 작업 연결', () => {
     });
 
     it('지연 cleanup 실행 전에 로그아웃하면 해당 타이머를 해제한다', async () => {
-      useAuthStore.setState({ isAuthenticated: true });
+      useAuthStore.setState({ status: 'signed-in' });
       render(<RootLayout />);
       await flushReactUpdates();
       await act(async () => {
-        useAuthStore.setState({ isAuthenticated: false });
+        useAuthStore.setState({ status: 'signed-out' });
       });
       await act(async () => {
         jest.advanceTimersByTime(2_000);
@@ -517,4 +518,36 @@ describe('RootLayout의 앱 준비와 인증 후 작업 연결', () => {
       expect(cleanupMock).not.toHaveBeenCalled();
     });
   });
+});
+
+it('재인증 화면 진입을 홈으로 되돌리지 않는다', async () => {
+  useAuthStore.setState({ status: 'reauth-required', userId: 'user-1' });
+  jest.mocked(useSegments).mockReturnValue(['(auth)']);
+  render(<RootLayout />);
+  await flushReactUpdates();
+  expect(replaceMock).not.toHaveBeenCalled();
+});
+
+it('재로그인 성공 시 기존 여행 화면으로 돌아가 입력 중 화면을 유지한다', async () => {
+  const back = jest.fn();
+  jest.mocked(useRouter).mockReturnValue({ ...useRouter(), canGoBack: () => true, back });
+  jest.mocked(useSegments).mockReturnValue(['(auth)']);
+  useAuthStore.setState({ status: 'reauth-required', userId: 'a' });
+  render(<RootLayout />);
+  await flushReactUpdates();
+  act(() => useAuthStore.setState({ status: 'signed-in' }));
+  expect(back).toHaveBeenCalledTimes(1);
+  expect(replaceMock).not.toHaveBeenCalled();
+});
+
+it('다른 계정 로그인은 이전 여행 화면으로 돌아가지 않고 홈으로 진입한다', async () => {
+  const back = jest.fn();
+  jest.mocked(useRouter).mockReturnValue({ ...useRouter(), canGoBack: () => true, back });
+  jest.mocked(useSegments).mockReturnValue(['(auth)']);
+  useAuthStore.setState({ status: 'reauth-required', userId: 'a' });
+  render(<RootLayout />);
+  await flushReactUpdates();
+  act(() => useAuthStore.setState({ status: 'signed-in', userId: 'b' }));
+  expect(back).not.toHaveBeenCalled();
+  expect(replaceMock).toHaveBeenCalledWith('/(tabs)');
 });

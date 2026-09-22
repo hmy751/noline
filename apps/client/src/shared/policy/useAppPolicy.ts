@@ -6,6 +6,7 @@
  */
 
 import { useMemo } from 'react';
+import { hasLocalSession, useAuthStore } from '@/shared/store/auth';
 import { useDisplayNetworkStatus } from '@/shared/store/network';
 import { useGetTripActivation } from '@/entities/trip/data/useGetTripActivation';
 import { TRIP_POLICIES, SCHEDULE_POLICIES, EXPENSE_POLICIES, SERVICE_POLICIES } from './constants';
@@ -57,6 +58,7 @@ export interface AppPolicyContext {
  */
 export function useAppPolicy(tripId?: string): AppPolicyContext {
   const networkStatus = useDisplayNetworkStatus();
+  const authStatus = useAuthStore((state) => state.status);
 
   const { data: activation } = useGetTripActivation(tripId ?? '');
 
@@ -67,15 +69,17 @@ export function useAppPolicy(tripId?: string): AppPolicyContext {
   const policyNetworkStatus = networkStatus === 'online' ? 'online' : 'offline';
   const policyKey: PolicyKey = `${policyNetworkStatus}_${activationStatus}`;
 
-  return useMemo(
-    () => ({
+  return useMemo(() => {
+    const blocked = !hasLocalSession({ status: authStatus }) || (authStatus === 'reauth-required' && !isActivated);
+    const denied: CRUDPermission = { allowed: false, reason: '다시 로그인한 뒤 사용할 수 있습니다' };
+    const deniedEntity = { create: denied, read: denied, update: denied, delete: denied };
+    return {
       trip: selectCRUDPermissions(TRIP_POLICIES, policyKey),
-      schedule: selectCRUDPermissions(SCHEDULE_POLICIES, policyKey),
-      expense: selectCRUDPermissions(EXPENSE_POLICIES, policyKey),
+      schedule: blocked ? deniedEntity : selectCRUDPermissions(SCHEDULE_POLICIES, policyKey),
+      expense: blocked ? deniedEntity : selectCRUDPermissions(EXPENSE_POLICIES, policyKey),
       service: SERVICE_POLICIES[policyKey],
-    }),
-    [policyKey],
-  );
+    };
+  }, [policyKey, authStatus, isActivated]);
 }
 
 function selectCRUDPermissions(policies: CRUDOperationPolicies, key: PolicyKey): CRUDPermissions {

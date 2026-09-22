@@ -28,6 +28,8 @@ function getDatabaseConnection(): SQLite.SQLiteDatabase {
   return databaseConnection;
 }
 
+let transactionPauseCount = 0;
+
 let pendingDatabaseOperation: Promise<unknown> = Promise.resolve();
 
 function serializeDatabaseOperation<T>(operation: () => T | Promise<T>): Promise<T> {
@@ -36,8 +38,24 @@ function serializeDatabaseOperation<T>(operation: () => T | Promise<T>): Promise
   return result;
 }
 
+/** 새 로컬 transaction을 거절하고 이미 접수한 저장의 종료를 기다린다.
+ * operation 안에서는 resetDatabase 같은 비-transaction 작업만 실행한다.
+ */
+export async function withDatabaseTransactionsPaused<T>(operation: () => Promise<T>): Promise<T> {
+  transactionPauseCount++;
+  try {
+    await pendingDatabaseOperation;
+    return await operation();
+  } finally {
+    transactionPauseCount--;
+  }
+}
+
 /** Drizzle의 동기 transaction API가 async callback을 기다리지 않아 commit 시점을 직접 관리한다. */
 export function runDatabaseTransaction<T>(operation: () => Promise<T>): Promise<T> {
+  if (transactionPauseCount > 0) {
+    return Promise.reject(new Error('로그인 정보를 변경하는 중입니다. 잠시 후 다시 저장해주세요.'));
+  }
   return serializeDatabaseOperation(async () => {
     const db = getDatabase();
     db.run(sql.raw('BEGIN'));
@@ -264,16 +282,26 @@ export async function resetDatabase() {
     console.log('[Database] Resetting database...');
     const expoDb = getDatabaseConnection();
 
-    expoDb.execSync(`DROP TABLE IF EXISTS trip_activations;`);
-    expoDb.execSync(`DROP TABLE IF EXISTS routes;`);
-    expoDb.execSync(`DROP TABLE IF EXISTS offline_cities;`);
-    expoDb.execSync(`DROP TABLE IF EXISTS sync_metadata;`);
-    expoDb.execSync(`DROP TABLE IF EXISTS sync_queue;`);
-    expoDb.execSync(`DROP TABLE IF EXISTS expenses;`);
-    expoDb.execSync(`DROP TABLE IF EXISTS schedules;`);
-    expoDb.execSync(`DROP TABLE IF EXISTS trips;`);
+    // 테이블과 큐를 함께 비운다. 재생성 실패 시 기존 데이터 전체를 되돌린다.
+    expoDb.execSync('BEGIN');
+    try {
+      expoDb.execSync(`DROP TABLE IF EXISTS trip_activations;`);
+      expoDb.execSync(`DROP TABLE IF EXISTS routes;`);
+      expoDb.execSync(`DROP TABLE IF EXISTS offline_cities;`);
+      expoDb.execSync(`DROP TABLE IF EXISTS sync_metadata;`);
+      expoDb.execSync(`DROP TABLE IF EXISTS sync_queue;`);
+      expoDb.execSync(`DROP TABLE IF EXISTS expenses;`);
+      expoDb.execSync(`DROP TABLE IF EXISTS schedules;`);
+      expoDb.execSync(`DROP TABLE IF EXISTS trips;`);
 
-    await initializeDatabase();
+      await initializeDatabase();
+
+      expoDb.execSync('COMMIT');
+    } catch (error) {
+      expoDb.execSync('ROLLBACK');
+      database = undefined;
+      throw error;
+    }
 
     console.log('[Database] Database reset complete');
   });

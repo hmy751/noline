@@ -25,6 +25,10 @@ Trip·Schedule·Expense mutation에서 활성 여행의 local write와 `sync_que
 
 ## 현재 상태와 실제 결과
 
-기존 11을 14로 옮긴 결과를 유지하며, 2026-09-16에는 06과 겹치는 Router·inactive child 정상화의 담당 관계를 갱신했다. 이 Ticket 전체의 구현·검증·사용자 수락은 아직 없으며 06에서 수행한 좁은 transaction 수정과 후속 결함 재현은 아래에 연결한다. 06의 실제 inactive API 결과와 이 Ticket의 실제 드라이버·SQLite 원자성 완료 근거가 각각 필요하다.
+06의 대상 여행별 Router 연결은 `f0f680e`로 커밋됐다. child repository가 호출부의 tripId를 받아 inactive Remote 전에 Local row를 요구하던 문제를 제거하고 Trip 단건도 대상 여행 기준으로 분기한다. local datasource는 활성·소유 조건을 계속 검사한다. Repository 직접 회귀 5개를 추가했으며 당시 Repository·Router 45개 test 통과를 Main이 보고했다.
 
-06의 인증 구현에서 async callback 조기 commit을 고쳐 큐 insert 실패 시 entity rollback은 확인했다. 이후 [연결 검사](../../../records/2026-09-19-02-auth-review-checks.md)에서는 열린 transaction 밖에서 호출한 upsert가 같은 연결의 rollback에 함께 사라졌다. 독립 write·sync pull·reset과 transaction의 실제 실행 범위를 대조하고, entity+queue의 원자성뿐 아니라 다른 성공 작업의 보존도 완료 근거에 포함한다. 현재 wrapper를 호출하는 작업끼리의 직렬화만으로 전체 격리를 보장하지 않는다. Node 메모리 SQLite 재현이며 기기 검증과 이 Ticket 완료는 남는다.
+DB 공통 경계는 `9936662`로 커밋됐다. async callback을 기다린 뒤 COMMIT/ROLLBACK하며, `serializeDatabaseOperation`과 `pendingDatabaseOperation`으로 transaction·독립 DB 작업을 직렬화한다. pull upsert, transaction 밖 queue 상태 변경·조회, sync metadata와 reset에 연결했다. transaction 내부 addToSyncQueue는 직접 실행해 재진입 대기로 인한 교착을 피한다. FAILED 재시도는 이 커밋에 넣지 않았다.
+
+Node 메모리 SQLite에서 queue INSERT 실패 시 entity rollback과 실패 transaction 뒤 독립 upsert 보존을 검사하고 DB 전용 test로 분리했다. 이 커밋 시점의 전체 client 검사는 27개 suite·254개 test 통과였다. 이후 인증 소비 구조 시도를 되돌린 현재 작업 트리에서는 Main이 28개 suite·266개 test 통과를 다시 확인했다. 분할 검토의 선택 이유·Promise 동작·검증 경계는 [기록](../../../records/2026-09-21-01-auth-policy-split-review-and-commits.md)에서 읽는다.
+
+실제 기기 SQLite, 모든 독립 DB write의 포괄 여부, update 결과·queue payload 타입과 entity별 cache invalidation은 남는다. 이 결과는 직접 재현한 원자성·rollback 간섭을 해결한 범위이며 Ticket 전체 구현·검증·수락은 아니다. 06의 세션 종료 연결에서 withDatabaseTransactionsPaused로 새 transaction을 거절하고 이미 접수한 저장을 기다린 뒤 미전송 여부를 확인한다. resetDatabase는 테이블·큐 삭제와 재생성을 하나의 SQLite transaction으로 묶어 재생성 실패도 롤백한다. Node SQLite 검사로 종료 직전 저장의 보존·신규 저장 거절·재생성 실패 후 원본과 큐 복구를 확인했다. 여행별 cleanup의 나머지 predicate는 16에 남는다.

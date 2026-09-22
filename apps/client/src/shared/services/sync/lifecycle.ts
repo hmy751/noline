@@ -76,10 +76,10 @@ export function getSyncBlockReason(): Exclude<SyncSkipReason, 'already-running'>
   }
 
   const auth = useAuthStore.getState();
-  if (!auth.isAuthenticated) {
+  if (auth.status !== 'signed-in' && auth.status !== 'reauth-required') {
     return 'signed-out';
   }
-  if (auth.isSessionExpired) {
+  if (auth.status === 'reauth-required') {
     return 'session-expired';
   }
   if (networkStore.override !== null) {

@@ -1,10 +1,11 @@
+import { requireLocalUserId } from '@/shared/store/auth';
 // Schedule Local DataSource - SQLite 로컬 DB 작업
 
 import { getDatabase, schedules } from '@/shared/db';
-import { eq, and, isNull, sql } from 'drizzle-orm';
+import { eq, isNull, sql } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
-import { authStore } from '@/shared/store/auth';
+import { ownedActiveRow, assertActiveLocalTrip } from '@/shared/services/auth/local-access';
 import type { Schedule, CreateScheduleRequest, UpdateScheduleRequest } from '../model';
 
 /**
@@ -16,7 +17,7 @@ export const getSchedulesLocal = async (tripId: string): Promise<Schedule[]> => 
   const scheduleList = await getDatabase()
     .select()
     .from(schedules)
-    .where(and(isNull(schedules.deletedAt), eq(schedules.tripId, tripId)))
+    .where(ownedActiveRow(schedules, isNull(schedules.deletedAt), eq(schedules.tripId, tripId)))
     .orderBy(schedules.scheduledAt)
     .all();
 
@@ -31,7 +32,7 @@ export const getScheduleByIdLocal = async (id: string): Promise<Schedule | undef
   const schedule = await getDatabase()
     .select()
     .from(schedules)
-    .where(and(isNull(schedules.deletedAt), eq(schedules.id, id)))
+    .where(ownedActiveRow(schedules, isNull(schedules.deletedAt), eq(schedules.id, id)))
     .get();
 
   if (schedule) {
@@ -47,7 +48,7 @@ export const getScheduleCountLocal = async (tripId: string): Promise<number> => 
   const result = await getDatabase()
     .select()
     .from(schedules)
-    .where(and(eq(schedules.tripId, tripId), isNull(schedules.deletedAt)))
+    .where(ownedActiveRow(schedules, eq(schedules.tripId, tripId), isNull(schedules.deletedAt)))
     .all();
 
   return result.length;
@@ -61,10 +62,7 @@ export const getScheduleCountLocal = async (tripId: string): Promise<number> => 
 export const createScheduleLocal = async (data: CreateScheduleRequest): Promise<Schedule> => {
   const { id, ...rest } = data;
   const now = getCurrentISOString();
-  const userId = rest.userId || authStore.userId;
-  if (!userId) {
-    throw new Error('User not authenticated');
-  }
+  const userId = requireLocalUserId(rest.userId);
 
   const newSchedule = {
     id,
@@ -83,6 +81,7 @@ export const createScheduleLocal = async (data: CreateScheduleRequest): Promise<
   };
 
   await withTransaction(async () => {
+    await assertActiveLocalTrip(data.tripId);
     await getDatabase()
       .insert(schedules)
       .values(newSchedule as typeof schedules.$inferInsert);
@@ -120,15 +119,27 @@ export const updateScheduleLocal = async (id: string, data: UpdateScheduleReques
   };
 
   await withTransaction(async () => {
-    await getDatabase().update(schedules).set(dbData).where(eq(schedules.id, id));
+    if (!(await getScheduleByIdLocal(id))) {
+      throw new Error('수정할 일정을 찾을 수 없습니다');
+    }
+    await getDatabase()
+      .update(schedules)
+      .set(dbData)
+      .where(ownedActiveRow(schedules, eq(schedules.id, id)));
     await addToSyncQueue('schedules', id, 'UPDATE', data);
   });
 
   console.log(`[ScheduleLocal] Schedule updated locally: ${id}`);
 
-  // 업데이트된 전체 entity 조회하여 반환
-  const updated = await getDatabase().select().from(schedules).where(eq(schedules.id, id)).get();
-  return updated!;
+  const updated = await getDatabase()
+    .select()
+    .from(schedules)
+    .where(ownedActiveRow(schedules, eq(schedules.id, id)))
+    .get();
+  if (!updated) {
+    throw new Error('수정한 일정을 다시 불러오지 못했습니다');
+  }
+  return updated;
 };
 
 /**
@@ -144,11 +155,14 @@ export const deleteScheduleLocal = async (id: string): Promise<{ id: string; del
   const existing = await getDatabase()
     .select({ tripId: schedules.tripId })
     .from(schedules)
-    .where(eq(schedules.id, id))
+    .where(ownedActiveRow(schedules, eq(schedules.id, id)))
     .get();
   const tripId = existing?.tripId ?? null;
 
   await withTransaction(async () => {
+    if (!(await getScheduleByIdLocal(id))) {
+      throw new Error('삭제할 일정을 찾을 수 없습니다');
+    }
     await getDatabase()
       .update(schedules)
       .set({
@@ -156,23 +170,11 @@ export const deleteScheduleLocal = async (id: string): Promise<{ id: string; del
         updatedAt: now,
         version: sql`${schedules.version} + 1`,
       })
-      .where(eq(schedules.id, id));
+      .where(ownedActiveRow(schedules, eq(schedules.id, id)));
 
     await addToSyncQueue('schedules', id, 'DELETE', { tripId });
   });
 
   console.log(`[ScheduleLocal] Schedule deleted locally (soft): ${id}`);
   return { id, deletedAt: now };
-};
-
-/**
- * 로컬 DB에서 일정의 tripId 조회 (라우팅용)
- */
-export const getScheduleTripIdLocal = async (id: string): Promise<string | null> => {
-  const schedule = await getDatabase()
-    .select({ tripId: schedules.tripId })
-    .from(schedules)
-    .where(eq(schedules.id, id))
-    .get();
-  return schedule?.tripId ?? null;
 };

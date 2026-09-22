@@ -5,25 +5,11 @@ import { Pressable } from '@repo/ui';
 import { useAuthStore } from '@/shared/store/auth';
 import { router } from 'expo-router';
 
-/**
- * 세션 만료 배너
- *
- * - 세션 만료 시 (isSessionExpired === true) 화면 상단에 표시
- * - 재로그인 버튼 제공
- * - 오프라인 작업은 계속 가능하다는 안내 포함
- *
- * @example
- * ```tsx
- * // _layout.tsx에서 사용
- * <SessionExpiredBanner />
- * <Stack>...</Stack>
- * ```
- */
 export function SessionExpiredBanner() {
-  const { isSessionExpired, isAuthenticated } = useAuthStore();
+  const status = useAuthStore((state) => state.status);
 
   // 세션이 만료되지 않았거나 인증되지 않은 상태면 표시 안 함
-  if (!isSessionExpired || !isAuthenticated) {
+  if (status !== 'reauth-required') {
     return null;
   }
 
@@ -40,7 +26,7 @@ export function SessionExpiredBanner() {
           <View className='flex-1'>
             <Text className='text-body font-medium text-black'>세션이 만료되었습니다</Text>
             <Text className='text-caption text-black/70'>
-              오프라인 작업은 계속 가능합니다. 동기화를 위해 다시 로그인하세요.
+              활성화한 여행은 계속 사용할 수 있어요. 변경은 이 기기에 저장되며, 동기화하려면 다시 로그인해주세요.
             </Text>
           </View>
         </View>

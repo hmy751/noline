@@ -5,12 +5,13 @@ import { performLogout, performDeleteAccount } from '@/shared/services/auth/logo
 import { getDatabase, resetDatabase } from '@/shared/db';
 import { clearSyncQueue, getSyncQueueStats } from '@/shared/services/sync/queue';
 import { queryClient } from '@/shared/lib/queryClient';
-import { authStore } from '@/shared/store/auth';
+import { useAuthStore } from '@/shared/store/auth';
 import { useTripStore } from '@/shared/store/useTripStore';
 
 jest.mock('@/shared/db', () => ({
   getDatabase: jest.fn(),
   resetDatabase: jest.fn(),
+  withDatabaseTransactionsPaused: async (operation: () => Promise<unknown>) => operation(),
   tripActivations: {},
   schedules: {},
   expenses: {},
@@ -29,7 +30,10 @@ jest.mock('@/shared/services/sync/queue', () => ({
 jest.mock('@/shared/services/offline-map', () => ({ cleanupOfflineMapForTrip: jest.fn() }));
 jest.mock('@/shared/services/auth/auth-api', () => ({ logout: jest.fn(), deleteAccount: jest.fn() }));
 jest.mock('@/shared/services/sync/engine', () => ({ syncData: jest.fn() }));
-jest.mock('@/shared/store/auth', () => ({ authStore: { logout: jest.fn() } }));
+jest.mock('@/shared/store/auth', () => {
+  const clearSession = jest.fn();
+  return { useAuthStore: { getState: () => ({ clearSession }) } };
+});
 jest.mock('@/shared/lib/queryClient', () => ({
   queryClient: { invalidateQueries: jest.fn(async () => undefined), clear: jest.fn() },
 }));
@@ -134,8 +138,8 @@ describe('pending cleanup의 공유 실행과 로그아웃 조율', () => {
     await cleanup;
     await expect(logout).resolves.toMatchObject({ success: true });
 
-    expect(clearSyncQueue).toHaveBeenCalledTimes(1);
-    expect(authStore.logout).toHaveBeenCalledTimes(1);
+    expect(resetDatabase).toHaveBeenCalledTimes(1);
+    expect(useAuthStore.getState().clearSession).toHaveBeenCalledTimes(1);
     expect(queryClient.clear).toHaveBeenCalledTimes(1);
     expect(useTripStore.getState().selectedTripId).toBeNull();
   });

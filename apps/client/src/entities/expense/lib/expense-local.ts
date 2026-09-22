@@ -1,10 +1,12 @@
+import { requireLocalUserId } from '@/shared/store/auth';
 // Expense Local DataSource - SQLite 로컬 DB 작업
 
-import { getDatabase, expenses, schedules } from '@/shared/db';
-import { eq, and, isNull, desc, sql } from 'drizzle-orm';
+import { getDatabase, expenses } from '@/shared/db';
+import { eq, isNull, desc, sql } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
-import { authStore } from '@/shared/store/auth';
+import { selectLocalUserId, useAuthStore } from '@/shared/store/auth';
+import { ownedActiveRow, assertActiveLocalTrip } from '@/shared/services/auth/local-access';
 import type { Expense, CreateExpenseRequest, UpdateExpenseRequest } from '../model';
 
 /**
@@ -14,7 +16,7 @@ import type { Expense, CreateExpenseRequest, UpdateExpenseRequest } from '../mod
  * - createdAt 기준 내림차순 정렬
  */
 export const getAllExpensesLocal = async (): Promise<Expense[]> => {
-  const userId = authStore.userId;
+  const userId = selectLocalUserId(useAuthStore.getState());
   if (!userId) {
     console.log('[ExpenseLocal] No authenticated user, returning empty expenses');
     return [];
@@ -23,7 +25,7 @@ export const getAllExpensesLocal = async (): Promise<Expense[]> => {
   const expenseList = await getDatabase()
     .select()
     .from(expenses)
-    .where(and(isNull(expenses.deletedAt), eq(expenses.userId, userId)))
+    .where(ownedActiveRow(expenses, isNull(expenses.deletedAt)))
     .orderBy(desc(expenses.createdAt))
     .all();
 
@@ -40,7 +42,7 @@ export const getExpensesByTripIdLocal = async (tripId: string): Promise<Expense[
   const expenseList = await getDatabase()
     .select()
     .from(expenses)
-    .where(and(isNull(expenses.deletedAt), eq(expenses.tripId, tripId)))
+    .where(ownedActiveRow(expenses, isNull(expenses.deletedAt), eq(expenses.tripId, tripId)))
     .orderBy(desc(expenses.createdAt))
     .all();
 
@@ -55,7 +57,7 @@ export const getExpensesByScheduleIdLocal = async (scheduleId: string): Promise<
   const expenseList = await getDatabase()
     .select()
     .from(expenses)
-    .where(and(isNull(expenses.deletedAt), eq(expenses.scheduleId, scheduleId)))
+    .where(ownedActiveRow(expenses, isNull(expenses.deletedAt), eq(expenses.scheduleId, scheduleId)))
     .orderBy(desc(expenses.createdAt))
     .all();
 
@@ -67,19 +69,11 @@ export const getExpensesByScheduleIdLocal = async (scheduleId: string): Promise<
  * 로컬 DB에서 특정 경비 조회
  */
 export const getExpenseByIdLocal = async (id: string): Promise<Expense | undefined> => {
-  return await getDatabase().select().from(expenses).where(eq(expenses.id, id)).get();
-};
-
-/**
- * scheduleId로 tripId 조회 (라우팅용)
- */
-export const getTripIdByScheduleIdLocal = async (scheduleId: string): Promise<string | null> => {
-  const schedule = await getDatabase()
-    .select({ tripId: schedules.tripId })
-    .from(schedules)
-    .where(eq(schedules.id, scheduleId))
+  return await getDatabase()
+    .select()
+    .from(expenses)
+    .where(ownedActiveRow(expenses, eq(expenses.id, id), isNull(expenses.deletedAt)))
     .get();
-  return schedule?.tripId ?? null;
 };
 
 /**
@@ -89,10 +83,7 @@ export const getTripIdByScheduleIdLocal = async (scheduleId: string): Promise<st
 export const createExpenseLocal = async (data: CreateExpenseRequest): Promise<Expense> => {
   const id = data.id;
   const now = getCurrentISOString();
-  const userId = data.userId || authStore.userId;
-  if (!userId) {
-    throw new Error('User not authenticated');
-  }
+  const userId = requireLocalUserId(data.userId);
 
   const newExpense = {
     id,
@@ -113,6 +104,7 @@ export const createExpenseLocal = async (data: CreateExpenseRequest): Promise<Ex
   };
 
   await withTransaction(async () => {
+    await assertActiveLocalTrip(data.tripId);
     await getDatabase()
       .insert(expenses)
       .values(newExpense as typeof expenses.$inferInsert);
@@ -142,6 +134,9 @@ export const updateExpenseLocal = async (id: string, data: UpdateExpenseRequest)
   const now = getCurrentISOString();
 
   await withTransaction(async () => {
+    if (!(await getExpenseByIdLocal(id))) {
+      throw new Error('수정할 경비를 찾을 수 없습니다');
+    }
     await getDatabase()
       .update(expenses)
       .set({
@@ -149,16 +144,22 @@ export const updateExpenseLocal = async (id: string, data: UpdateExpenseRequest)
         updatedAt: now,
         version: sql`${expenses.version} + 1`,
       })
-      .where(eq(expenses.id, id));
+      .where(ownedActiveRow(expenses, eq(expenses.id, id)));
 
     await addToSyncQueue('expenses', id, 'UPDATE', data);
   });
 
   console.log(`[ExpenseLocal] Expense updated locally: ${id}`);
 
-  // 업데이트된 전체 entity 조회하여 반환
-  const updated = await getDatabase().select().from(expenses).where(eq(expenses.id, id)).get();
-  return updated!;
+  const updated = await getDatabase()
+    .select()
+    .from(expenses)
+    .where(ownedActiveRow(expenses, eq(expenses.id, id)))
+    .get();
+  if (!updated) {
+    throw new Error('수정한 경비를 다시 불러오지 못했습니다');
+  }
+  return updated;
 };
 
 /**
@@ -174,11 +175,14 @@ export const deleteExpenseLocal = async (id: string): Promise<{ id: string; dele
   const existing = await getDatabase()
     .select({ tripId: expenses.tripId })
     .from(expenses)
-    .where(eq(expenses.id, id))
+    .where(ownedActiveRow(expenses, eq(expenses.id, id)))
     .get();
   const tripId = existing?.tripId ?? null;
 
   await withTransaction(async () => {
+    if (!(await getExpenseByIdLocal(id))) {
+      throw new Error('삭제할 경비를 찾을 수 없습니다');
+    }
     await getDatabase()
       .update(expenses)
       .set({
@@ -186,23 +190,11 @@ export const deleteExpenseLocal = async (id: string): Promise<{ id: string; dele
         updatedAt: now,
         version: sql`${expenses.version} + 1`,
       })
-      .where(eq(expenses.id, id));
+      .where(ownedActiveRow(expenses, eq(expenses.id, id)));
 
     await addToSyncQueue('expenses', id, 'DELETE', { tripId });
   });
 
   console.log(`[ExpenseLocal] Expense deleted locally (Soft Delete): ${id}`);
   return { id, deletedAt: now };
-};
-
-/**
- * 로컬 DB에서 경비의 tripId 조회 (라우팅용)
- */
-export const getExpenseTripIdLocal = async (id: string): Promise<string | null> => {
-  const expense = await getDatabase()
-    .select({ tripId: expenses.tripId })
-    .from(expenses)
-    .where(eq(expenses.id, id))
-    .get();
-  return expense?.tripId ?? null;
 };

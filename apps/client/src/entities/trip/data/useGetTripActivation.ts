@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getDatabase, tripActivations } from '@/shared/db';
 import { eq, and } from 'drizzle-orm';
 import { tripQueryKeys } from './keys';
-import { authStore } from '@/shared/store/auth';
+import { selectLocalUserId, useAuthStore } from '@/shared/store/auth';
 
 /**
  * 여행 활성화 상태 조회 Hook
@@ -20,7 +20,12 @@ export const useGetTripActivation = (tripId: string) => {
       const activation = await getDatabase()
         .select()
         .from(tripActivations)
-        .where(eq(tripActivations.tripId, tripId))
+        .where(
+          and(
+            eq(tripActivations.tripId, tripId),
+            eq(tripActivations.userId, selectLocalUserId(useAuthStore.getState()) ?? ''),
+          ),
+        )
         .get();
 
       if (!activation) {
@@ -47,7 +52,7 @@ export const useGetActiveTrip = () => {
   return useQuery({
     queryKey: tripQueryKeys.activeTrip(),
     queryFn: async () => {
-      const userId = authStore.userId;
+      const userId = selectLocalUserId(useAuthStore.getState());
 
       // 인증되지 않은 상태면 null 반환
       if (!userId) {

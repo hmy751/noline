@@ -27,8 +27,8 @@ Noline은 Selective Local-First다. 활성 여행의 Trip·Schedule·Expense는 
 - [Network Store](../../../../../../../apps/client/src/shared/store/network.ts)는 초기 unknown, 순수 관측 변환, listener 기반 init과 cleanup, 10초 확인 불가 안내·수동 refresh를 구현했다. 실제 실행 상태와 화면 override의 읽기 경계를 구별한다. 초기의 임시 online·null 축약·앱의 추가 fetch는 제거했다.
 - [Root](../../../../../../../apps/client/app/_layout.tsx)는 앱 구성을 보여 주고, [AppInitialization](../../../../../../../apps/client/src/application/AppInitialization.tsx)이 네트워크 감지 수명과 DB→인증 복원→준비 완료를 소유한다. 첫 네트워크 결과를 기다리지 않는다. DB 준비 실패에는 Provider·화면을 연결하지 않고 실패·재시도 화면을 보여 준다.
 - [Activation Router](../../../../../../../apps/client/src/shared/services/offline-prep/router.ts)는 실제 online일 때만 Remote를 열도록 호환 수정했고, override 중 Router mutation은 Local/Remote 모두 거부한다. Trip 단건 조회·수정·삭제는 대상 여행의 활성 상태로 분기하도록 수정했다. 신규 생성과 inactive child의 대상 전달은 실제 소비 경로에서 계속 확인한다.
-- [Schedule repository](../../../../../../../apps/client/src/entities/schedule/repository/schedule-repository.ts)와 [Expense repository](../../../../../../../apps/client/src/entities/expense/repository/expense-repository.ts)의 update/delete는 tripId를 찾기 위한 Local 선조회 때문에 inactive Remote 경로가 실패할 수 있다.
-- [Policy hook](../../../../../../../apps/client/src/shared/policy/useAppPolicy.ts)은 unknown의 제한 모드를 기존 offline 권한 표로 처리해 없는 key 조회를 막았다. unknown 안내 이유·내용 제한과 활성 여부 로딩의 후속 연결은 남아 있다.
+- [Schedule repository](../../../../../../../apps/client/src/entities/schedule/repository/schedule-repository.ts)와 [Expense repository](../../../../../../../apps/client/src/entities/expense/repository/expense-repository.ts)의 child 조회·수정·삭제는 호출 화면이 가진 tripId를 Router에 전달해 inactive Remote 경로가 Local 선조회에 의존하지 않는다.
+- [Policy hook](../../../../../../../apps/client/src/shared/policy/useAppPolicy.ts)은 unknown을 제한 모드로 처리하고 핵심 데이터인 Schedule·Expense의 CRUD와 지도·검색 정책을 반환한다. 수정·삭제는 실제 메뉴·편집 화면에 연결하며 Router가 실행 경로와 최종 차단을 맡는다. 공개 Places 요청은 보호 인증 client에서 분리했다. unknown 안내 이유·내용 제한과 활성 여부 로딩의 후속 연결은 남아 있다.
 - [SyncProvider](../../../../../../../apps/client/src/shared/services/sync/provider.tsx)는 DB 준비와 인증 복원 시도 완료 뒤 mount되며 인증·세션 만료·실제 관측·override·종료 일시 중단을 구독한다. [sync lifecycle](../../../../../../../apps/client/src/shared/services/sync/lifecycle.ts)이 실행 순간의 DB 준비·인증·연결 조건, 공유 잠금과 종료 대기를 소유한다. 자동·주기·Debug 수동 실행이 같은 경계를 통과한다.
 - [QueryClient](../../../../../../../apps/client/src/shared/lib/queryClient.ts)와 조회 화면에는 이전 서버 응답이 남을 수 있다. 요청 중단만으로 제한 화면이 나타나지는 않으며, 조회 불가가 빈 목록과 합쳐지지 않아야 한다.
 - 폼의 일반 오류 안내가 Router의 제한 이유를 덮을 수 있다. 대표 수정 Drawer는 성공 때 닫고 실패 때 일반 안내를 하지만 모든 생성·삭제 경로의 입력 유지까지 검증된 것은 아니다.
@@ -127,13 +127,13 @@ debug override가 없는 정상 동작에서 활성 여행은 unknown/offline이
 
 DB가 사용 가능하고 로그인 상태이며 세션 만료가 아니고, 실제 online·override 해제·세션 종료 중이 아닐 때 새 sync를 시작한다. 로그인·인증 복구·online 확정·override 해제에서 실행 불가→가능 변화가 생기면 Provider가 자동 요청한다. 일반 rerender·실행 완료는 재요청 이유가 아니다. 실행 중 동시 요청은 보류하며 추가 실행을 예약하지 않는다. 주기 타이머는 기존 opt-in과 간격을 유지한다.
 
-종료 확정은 기존 미동기화 확인을 통과하거나 사용자가 강제 종료를 선택한 시점이다. 먼저 새 sync를 막고 진행 중 실행의 성공·실패 종료를 기다린 뒤 서버 로그아웃/계정 삭제를 요청한다. 그다음 기존 pending cleanup 중단·종료 대기 안에서 큐→DB→인증→여행 선택→캐시를 비운다. 서버 로그아웃 실패 시 로컬 종료 진행, 서버 계정 삭제 실패 시 로컬 유지라는 기존 차이는 보존한다. 실패 때 일시 중단은 해제하지만 DB 준비 상태가 해제됐으면 새 sync를 계속 거절한다. 진행 중 HTTP 취소·새 종료 timeout·엔진 결과/재시도 개선은 추가하지 않는다.
+종료 확정은 기존 미동기화 확인을 통과하거나 사용자가 강제 종료를 선택한 시점이다. 먼저 새 sync를 막고 진행 중 실행의 성공·실패 종료를 기다린 뒤 서버 로그아웃/계정 삭제를 요청한다. pending cleanup 종료와 기존 Local 저장 종료를 기다린 뒤 미전송 여부를 최종 판단하고, 서버 종료 요청 후 DB·큐를 함께 초기화한 다음 인증·여행 선택·캐시를 비운다. 서버 로그아웃 실패 시 로컬 종료 진행, 서버 계정 삭제 실패 시 로컬 유지라는 기존 차이는 보존한다. 실패 때 일시 중단은 해제하지만 DB 준비 상태가 해제됐으면 새 sync를 계속 거절한다. 진행 중 HTTP 취소·새 종료 timeout·엔진 결과/재시도 개선은 추가하지 않는다.
 
 Debug 수동 실행은 Context를 사용하며 보류를 성공으로 표시하지 않고 이유를 안내한다. 강제 로그아웃/탈퇴 확인 후에도 기존 진행 표시와 버튼 비활성화를 유지한다. 선택 근거와 테스트 우선 수행은 [sync 시작·종료 기록](../../../records/2026-09-18-03-sync-start-and-session-teardown.md)에서 확인한다.
 
 ## 인증 실행 — 세션 복원·재로그인·계정 전환 연결
 
-이 절은 사용자와 확정한 현재 기준이다. 기존 구현과 회귀 검사는 있으나 [관리 복잡도 재검토](../../../records/2026-09-19-01-auth-complexity-review-and-decisions.md)에서 연결 결함과 정책 조정을 확인해 **보완 구현·검증이 남아 있다**. 구체 구조·추가 결함·검증 한계는 [인증 실행 기록](../../../records/2026-09-18-05-auth-session-implementation.md)에서 읽는다. 기존 앱 준비와 sync 종료 구현을 바탕으로, 인증 상태·저장·화면·로컬 접근·동기화가 같은 세션을 기준으로 동작하도록 연결한다. 단순히 로그인 route guard만 여는 작업으로 축소하지 않는다. 선택·철회 과정은 [인증 논의 기록](../../../records/2026-09-18-04-auth-session-policy-and-decisions.md)이 소유한다.
+이 절은 사용자와 확정한 현재 기준이다. [관리 복잡도 재검토](../../../records/2026-09-19-01-auth-complexity-review-and-decisions.md)의 직접 결함을 보완한 뒤에도 인증 소비 기준과 화면 연결의 차이가 남았다. 아래 현재 구현·남은 문제와 실제 기기 검증·수락을 구별한다. 구체 구조·추가 결함·검증 한계는 [인증 실행 기록](../../../records/2026-09-18-05-auth-session-implementation.md)에서 읽는다. 기존 앱 준비와 sync 종료 구현을 바탕으로, 인증 상태·저장·화면·로컬 접근·동기화가 같은 세션을 기준으로 동작하도록 연결한다. 단순히 로그인 route guard만 여는 작업으로 축소하지 않는다. 선택·철회 과정은 [인증 논의 기록](../../../records/2026-09-18-04-auth-session-policy-and-decisions.md)이 소유한다.
 
 ### 저장과 인증 상태
 
@@ -179,23 +179,21 @@ SecureStore에는 서버 로그인 성공으로 얻은 사용자 ID와 access/re
 
 다중 기기 제어·원격 로그아웃·서버의 명시적 권한 회수 프로토콜은 이번 범위가 아니다.
 
-### 현재 구현과 보완 검사
+### 인증 책임 기준과 현재 구현
 
-단일 SecureStore 세션·다섯 상태·초기 복원·로그인 진입·API/sync 갱신 공유·로컬 접근·늦은 응답 방어는 구현돼 있다. 이전 키의 부분 기록은 사용자와 최소 하나의 토큰이 함께 있는 범위에서만 복원한다. 현재 다른 계정 로그인은 자동 DB 폐기 후 적용하는 이전 정책이므로 변경 대상이다. 자세한 기존 실행은 [인증 구현 기록](../../../records/2026-09-18-05-auth-session-implementation.md), 추가 조사와 기대/실제 결과는 [검사 근거](../../../records/2026-09-19-02-auth-review-checks.md)가 소유한다.
+상태만으로 답할 계정·인증 판단은 기존 Auth Store가 소유한다. selectLocalUserId는 계정 부재를 null로 돌려주고 requireLocalUserId는 실행을 거절한다. 실패 처리의 차이는 유지하되 같은 파일에 두며, requireRemoteSession과 AuthRequiredError도 Store에 둔다. local-access는 여행 소유권·활성 조건 SQL을, local-account는 DB·큐의 소유자 사실을 조사한다. 기기 저장 형식은 token-storage, 갱신 HTTP는 auth-transport가 맡는다.
 
-기존 전체 Jest 23 suite·235 test는 통과했다. 추가 검사에서는 apiClient 재시도 응답의 중복 가공, 인증 오류의 UNKNOWN_ERROR 변환, 저장 실패 뒤 내부 세션 불일치를 재현했다. 만료 후 저장 실패에서 계정을 유지하고 다음 로그인에 성공하는 Store 경로도 확인했다. 현재 실패 처리 전체가 없거나 모든 사용자 재로그인이 고장 났다는 판정으로 확대하지 않는다.
+복원·로그인의 필수 계정 검사와 저장·상태 적용은 Store의 같은 큐를 따른다. 앞선 계정 검사가 끝나기 전에 다음 로그인이 계정 없음으로 통과하지 않는다. 세션 삭제 성공은 뒤 로그인 저장의 실패와 무관하게 signed-out으로 반영한다. 인증 거부는 기기 저장 큐를 기다리지 않고 메모리에서 즉시 적용하며, 이전 요청 세대의 refresh 저장 완료가 인증을 다시 열지 못하게 한다. 새로운 전역 상태나 별도 Store는 추가하지 않았다.
 
-보완 구현에서는 다음 결과를 연결해 확인한다.
+로그인·로그아웃·회원 탈퇴의 전체 절차는 session-lifecycle의 withSessionChange를 공유한다. 이 모듈은 작업끼리의 순서와 sync·cleanup 종료 대기, DB transaction 접수 차단·기존 저장 종료를 조율한다. Store의 저장 큐는 토큰 갱신을 포함한 세션 기록을 보호하고, 서비스의 실행 순서는 DB 삭제까지 포함한 사용자 작업을 보호한다. 각각 보호하는 범위가 달라 둘 다 필요하다. 종료 전에 접수된 Local 저장은 미전송 검사에 반영하고, 검사와 삭제 사이의 새 저장은 거절한다.
 
-1. 일반 API와 sync의 자동 갱신 공유, 첫 401 뒤 재전송 횟수, 실제 apiClient 반환 shape와 인증 오류 의미가 유지된다. 갱신 중 통신·서버·기기 저장 실패를 인증 거절과 구별한다.
-2. 만료 후 같은 계정 재로그인의 성공·실패·취소·재시도에서 DB·큐·선택·입력을 보존하고 기존 상태가 일관된다. 새 인증 적용과 이후 조회 갱신의 완료 범위를 구별한다.
-3. 다른 계정 선택은 현재 상태를 보존하며, 명시적 로그아웃 완료 뒤 새 계정을 적용한다. 복원 실패·잔존 데이터·소유자 불명 큐를 자동 삭제로 우회하지 않는다.
-4. 이전 세션의 늦은 응답은 같은 계정 재로그인 뒤에도 새 인증을 덮거나 기존 HTTP 호출을 새 계정으로 전송하지 않는다. 자동 갱신 종료 뒤 재로그인하는 정상 순서와 실제로 진행 중 요청이 겹치는 조건을 구별한다.
-5. useAppPolicy의 표시와 실제 요청 요구가 맞는다. 현재 재인증 중 온라인 Places 검색을 UI에서는 허용하지만 apiClient가 차단하는 연결을 정상화한다. 실제 소비가 없는 validation·uiMode·syncStrategy 선언을 기능 보장으로 설명하지 않는다.
-6. 로컬 데이터 소유권과 Router의 대상 식별을 구분해 inactive child가 Local row 부재·활성 필터 때문에 Remote 전에 실패하지 않는다. 별도 큐 소유자 컬럼과 범용 정책/작업 프레임워크 도입은 확정하지 않았다.
-7. 소유자 불명 큐 판정이 다른 계정 조기 반환에 가려지는 결함은 06의 계정 경계에서 보완한다. 원본 row 수명과 미전송 보존, 독립 DB 쓰기의 rollback 간섭은 14·16, sync 완료·FAILED 복구는 15와 연결한다.
+completeLogin은 Store의 검증·저장 결과를 사용하고 실패한 서버 로그인 token만 폐기를 시도한다. 일반 API와 sync는 공유 인증 interceptor를 사용한다. 첫 401은 공유 갱신 후 한 번 재전송하며, 확정 인증 실패는 Query 재시도에서 제외한다. 내 정보·회원 탈퇴는 보호된 요청, Places는 기존 공개 요청 경로다. HTTP 5xx 재시도는 실제 2·4·8초 간격의 최대 3회로 맞췄으며 저장된 큐의 재시도와 구별한다.
 
-DB 준비·초기 복원·기존 Local CRUD·로그아웃 대기의 회귀 검사를 유지한다. Native SecureStore·실제 OAuth/server token rotation·실기기 폼 복귀와 전체 sync 보존은 미확인이다. 앱 강제 종료 후 로그아웃 정리 재개와 다중 기기 제어는 기존 제외 범위다.
+복원 실패·signed-out에서도 LoginScreen에서 기기 데이터 정리 행동에 접근할 수 있다. 데이터 손실을 명시한 확인 뒤에만 force logout을 실행한다. 같은 계정 재로그인은 로컬 데이터를 지우지 않는다. 기기 세션 삭제 실패 시 서버 인증을 다시 허용하지 않고 계정과 재시도 가능 상태를 유지한다.
+
+인증 변경만 반영한 별도 디렉터리에서 Main이 client Jest **30개 suite·277개 test 통과**를 확인했다. 이 상태에는 큐 재시도·vacuum과 Policy 이름·CRUD 정리 및 목록 read 연결이 포함되지 않는다. SecureStore·HTTP는 제어 가능한 mock, 데이터 보존 검사는 실제 Drizzle SQL과 Node 메모리 SQLite를 사용했다. Native SecureStore·실제 OAuth·서버 rotation·실기기 화면은 미확인이다. 기존 Mapbox/download 타입 오류 3개는 별도 범위로 남는다.
+
+분리·통합은 서로 다른 판단 책임이 있는지, 같은 동작의 보장이 여러 곳으로 흩어져 있는지로 결정한다. nullable/throwing 차이나 함수 길이만으로 파일을 나누지 않는다. Store action은 공개돼 있으므로 모든 소비자의 전체 절차 사용을 타입만으로 강제한다고 주장하지 않는다. Network 제한·복구 화면과 sync·cleanup의 전체 남은 범위는 각 Ticket의 완료 조건을 유지한다.
 
 ## 완료 조건과 확인 방법
 
@@ -215,15 +213,9 @@ DB 준비·초기 복원·기존 Local CRUD·로그아웃 대기의 회귀 검�
 
 ## 현재 상태와 실제 결과
 
-DB 실패 재시도·인증 복원·여행 선택·pending cleanup 조율과 `application` 분리, sync 시작·Debug 경계·진행 중 sync 종료 대기는 구현돼 있다. startup·스타일은 `8a1a3ea`, sync 연결은 `029adb6`, 당시 인증 정책 문서는 `10960e9`에 저장했다. 후속 인증 제품 변경은 미커밋 상태이며 최신 정책 보완과 연결 결함 수정은 아직 하지 않았다. Ticket 전체 완료와 사용자 최종 수락은 남는다.
+startup·스타일은 `8a1a3ea`, sync 연결은 `029adb6`, 정책 합의는 `71c1a02`, 대상 여행 라우팅은 `f0f680e`, DB 원자성은 `9936662`로 저장됐다. 이번 인증 변경은 위 책임 기준과 분리 검사를 거쳐 저장하며 동기화 보존과 화면 정책은 후속 커밋으로 구분한다.
 
-기존 코드에서 개선하는 방향을 채택했다. 다음 구현은 apiClient의 갱신·재시도·응답·오류 전달과 세션 저장 실패 정합성부터 시작하고, 같은 계정 재로그인과 명시적 로그아웃을 연결한 뒤 Policy·Router 소비를 정리한다. 현재 변경을 복구 가능한 상태로 보존하고 필요한 함수·책임을 교체한다. 내부 구조는 실행 중 결정하되 사용자 흐름을 유지한다.
-
-Main이 직접 재실행한 전체 client Jest는 23 suite·235 test 통과다. 추가 8개 검사 중 5개가 결함을 재현했고 3개가 갱신 공유·일반 호출 비보관·재로그인 재시도 동작을 확인했다. 기존 SQLite fixture 8개와 함께 실행한 합계는 16개 중 11개 통과·5개 실패다. 재현 조건과 증명 상한은 [검사 근거](../../../records/2026-09-19-02-auth-review-checks.md)에 있다. 이번 종합 검토에서 typecheck·lint·기기·서버 검증은 재실행하지 않았다. 과거 Mapbox 타입 오류와 스타일 검사의 정확한 시점은 [인증 실행 기록](../../../records/2026-09-18-05-auth-session-implementation.md)을 따른다.
-
-Trip 단건 대상별 Router는 수정됐고 inactive child Local 선조회·제한/복구 화면·foreground 재확인은 남는다. 14의 DB 원자성·격리, 15의 엔진 결과/재시도, 16의 미전송 정리가 전체 보존 주장을 제한한다. API·계정 경계의 직접 보완은 이 Ticket에서 수행하며 07은 결과를 재사용한다. 003 자료는 기존 재현 근거로 연결하고 같은 수정을 중복 수행하지 않는다.
-
-기기 세션 결정 문서에는 후속 합의를 연결했다. LoginScreen 안내와 실제 로그인 코드는 아직 이전 자동 계정 전환을 사용하므로 구현 때 현재 Spec과 [추가 결정](../../../records/2026-09-19-01-auth-complexity-review-and-decisions.md)에 맞춰 갱신한다. 기록만 커밋하며 후속 제품 변경은 미커밋 상태다. 문서 반영을 제품 보완 완료로 보지 않는다.
+앞선 분할 검토·토큰 분리·원복·부분 개선의 경위는 [분할 검토 기록](../../../records/2026-09-21-01-auth-policy-split-review-and-commits.md), [원복 기록](../../../records/2026-09-21-02-auth-token-separation-consumer-review-and-rollback.md), [부분 개선 기록](../../../records/2026-09-21-03-auth-consumer-boundary-implementation.md)에 보존한다. Ticket 전체 완료와 사용자 최종 수락은 아직 아니다.
 
 ## 추후 개선 메모 — NetworkStatus enum 전환
 

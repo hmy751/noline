@@ -16,7 +16,6 @@ void SplashScreen.preventAutoHideAsync();
 export function AppInitialization({ children }: { children: React.ReactNode }) {
   const [startupStatus, setStartupStatus] = useState<AppStartupStatus>('preparing');
   const activeAttempt = useRef<object | null>(null);
-  const restoreSessionOnce = useAuthStore((state) => state.restoreSessionOnce);
 
   const initializeApp = useCallback(async () => {
     if (activeAttempt.current) {
@@ -49,8 +48,8 @@ export function AppInitialization({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // 복원 실패도 비인증 상태로 완료하므로 이후 로그인 화면으로 진입한다.
-    await restoreSessionOnce();
+    // 저장소 복원 실패는 로그인 화면에서 안내하고 명시적으로 재시도한다.
+    await useAuthStore.getState().restoreSessionOnce();
 
     if (activeAttempt.current !== attempt) {
       return;
@@ -59,7 +58,7 @@ export function AppInitialization({ children }: { children: React.ReactNode }) {
     activeAttempt.current = null;
     setStartupStatus('ready');
     console.info('[AppInitialization] completed', { durationMs: Date.now() - startedAt });
-  }, [restoreSessionOnce]);
+  }, []);
 
   useEffect(() => {
     networkStore.init();

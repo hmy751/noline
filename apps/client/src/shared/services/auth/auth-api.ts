@@ -1,14 +1,16 @@
 import { authAxios } from '@/shared/api/axios-instances';
-import { loginResponse, refreshTokenResponse, getCurrentUserResponse } from '@repo/schema/responses/auth';
+import apiClient from '@/shared/api/fetcher';
+import { useAuthStore } from '@/shared/store/auth';
+import { loginResponse, getCurrentUserResponse } from '@repo/schema/responses/auth';
 import { z } from 'zod';
-import { getAccessToken, getRefreshToken } from './token-storage';
+
+export { refreshTokens, type RefreshResponse } from './auth-transport';
 
 // ========================================
 // Types (Zod 스키마에서 추출)
 // ========================================
 
 export type AuthResponse = z.infer<typeof loginResponse>['data'];
-export type RefreshResponse = z.infer<typeof refreshTokenResponse>['data'];
 export type UserResponse = z.infer<typeof getCurrentUserResponse>['data'];
 
 // ========================================
@@ -21,18 +23,8 @@ export type UserResponse = z.infer<typeof getCurrentUserResponse>['data'];
  * @param deviceInfo - 디바이스 정보 (선택)
  */
 export async function loginWithGoogle(idToken: string, deviceInfo?: string): Promise<AuthResponse> {
-  try {
-    const response = await authAxios.post('/api/auth/google', {
-      idToken,
-      deviceInfo,
-    });
-
-    const validated = loginResponse.parse(response.data);
-    return validated.data;
-  } catch (error) {
-    console.error('❌ [Auth API] Google login error:', error);
-    throw error;
-  }
+  const response = await authAxios.post('/api/auth/google', { idToken, deviceInfo });
+  return loginResponse.parse(response.data).data;
 }
 
 // ========================================
@@ -54,72 +46,40 @@ export async function loginWithApple(data: {
   fullName?: { firstName?: string; lastName?: string };
   deviceInfo?: string;
 }): Promise<AuthResponse> {
-  try {
-    const response = await authAxios.post('/api/auth/apple', {
-      identityToken: data.identityToken,
-      authorizationCode: data.authorizationCode,
-      user: data.user,
-      email: data.email,
-      fullName: data.fullName,
-      deviceInfo: data.deviceInfo,
-    });
-
-    const validated = loginResponse.parse(response.data);
-    return validated.data;
-  } catch (error) {
-    console.error('❌ [Auth API] Apple login error:', error);
-    throw error;
-  }
-}
-
-// ========================================
-// Token Refresh
-// ========================================
-
-/**
- * Refresh Token으로 새 토큰 발급 (Rolling Refresh)
- * @param deviceInfo - 디바이스 정보 (선택)
- */
-export async function refreshTokens(deviceInfo?: string): Promise<RefreshResponse> {
-  const refreshToken = await getRefreshToken();
-
-  if (!refreshToken) {
-    throw new Error('Refresh Token이 없습니다');
-  }
-
-  try {
-    const response = await authAxios.post('/api/auth/refresh', {
-      refreshToken,
-      deviceInfo,
-    });
-
-    const validated = refreshTokenResponse.parse(response.data);
-    return validated.data;
-  } catch (error) {
-    console.error('❌ [Auth API] Token refresh error:', error);
-    throw error;
-  }
+  const response = await authAxios.post('/api/auth/apple', {
+    identityToken: data.identityToken,
+    authorizationCode: data.authorizationCode,
+    user: data.user,
+    email: data.email,
+    fullName: data.fullName,
+    deviceInfo: data.deviceInfo,
+  });
+  return loginResponse.parse(response.data).data;
 }
 
 // ========================================
 // Logout
 // ========================================
-
 /**
  * 로그아웃 (서버에서 Refresh Token 삭제)
  */
 export async function logout(): Promise<void> {
-  const refreshToken = await getRefreshToken();
+  const refreshToken = useAuthStore.getRefreshToken(useAuthStore.getState().sessionId);
 
   // 토큰이 없어도 로컬 로그아웃은 진행
   if (refreshToken) {
     try {
-      await authAxios.post('/api/auth/logout', { refreshToken });
-    } catch (error) {
+      await revokeRefreshToken(refreshToken);
+    } catch {
       // 서버 로그아웃 실패해도 로컬 로그아웃은 진행
-      console.warn('서버 로그아웃 실패:', error);
+      console.warn('서버 로그아웃 실패');
     }
   }
+}
+
+/** 서버에서 발급됐지만 기기에 적용하지 못한 refresh token도 명시적으로 폐기한다. */
+export async function revokeRefreshToken(refreshToken: string): Promise<void> {
+  await authAxios.post('/api/auth/logout', { refreshToken });
 }
 
 // ========================================
@@ -128,21 +88,10 @@ export async function logout(): Promise<void> {
 
 /**
  * 현재 로그인된 사용자 정보 조회
- * - Authorization 헤더를 수동으로 추가 (순환 참조 방지)
  */
 export async function getCurrentUser(): Promise<UserResponse> {
-  try {
-    const accessToken = await getAccessToken();
-    const response = await authAxios.get('/api/auth/me', {
-      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
-    });
-
-    const validated = getCurrentUserResponse.parse(response.data);
-    return validated.data;
-  } catch (error) {
-    console.error('❌ [Auth API] Get current user error:', error);
-    throw error;
-  }
+  const response = await apiClient.get('/api/auth/me');
+  return getCurrentUserResponse.parse(response).data;
 }
 
 // ========================================
@@ -151,16 +100,7 @@ export async function getCurrentUser(): Promise<UserResponse> {
 
 /**
  * 회원 탈퇴
- * - Authorization 헤더를 수동으로 추가 (순환 참조 방지)
  */
 export async function deleteAccount(): Promise<void> {
-  try {
-    const accessToken = await getAccessToken();
-    await authAxios.delete('/api/auth/account', {
-      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {},
-    });
-  } catch (error) {
-    console.error('❌ [Auth API] Delete account error:', error);
-    throw error;
-  }
+  await apiClient.delete('/api/auth/account');
 }

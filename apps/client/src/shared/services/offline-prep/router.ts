@@ -1,6 +1,7 @@
 import { getTripActivationStatus, hasAnyActivatedTrip } from './metadata';
 import { OfflineError } from './errors';
 import { networkStore } from '@/shared/store/network';
+import { requireLocalUserId, requireRemoteSession } from '@/shared/store/auth';
 
 interface RouteOperations<T> {
   local: () => Promise<T>;
@@ -8,6 +9,7 @@ interface RouteOperations<T> {
 }
 
 function assertRemoteAvailable(offlineMessage: string, tripId?: string) {
+  requireRemoteSession();
   const status = networkStore.realStatus;
 
   if (status === 'online') {
@@ -30,6 +32,7 @@ function assertWritesAllowed() {
 
 /** Trip 조회의 기존 분기는 전역 활성 여행 존재 여부를 사용한다. */
 export async function routeTripQuery<T>(operations: RouteOperations<T>): Promise<T> {
+  requireLocalUserId();
   const hasActivated = await hasAnyActivatedTrip();
 
   if (hasActivated) {
@@ -42,6 +45,7 @@ export async function routeTripQuery<T>(operations: RouteOperations<T>): Promise
 
 /** Schedule·Expense 조회는 소속 여행의 활성 여부로 분기한다. */
 export async function routeChildQuery<T>(tripId: string, operations: RouteOperations<T>): Promise<T> {
+  requireLocalUserId();
   const isActivated = await getTripActivationStatus(tripId);
 
   if (isActivated) {
@@ -54,6 +58,7 @@ export async function routeChildQuery<T>(tripId: string, operations: RouteOperat
 
 /** Trip 쓰기의 기존 분기는 전역 활성 여행 존재 여부를 사용한다. */
 export async function routeTripMutation<T>(operations: RouteOperations<T>): Promise<T> {
+  requireLocalUserId();
   const hasActivated = await hasAnyActivatedTrip();
 
   assertWritesAllowed();
@@ -68,6 +73,7 @@ export async function routeTripMutation<T>(operations: RouteOperations<T>): Prom
 
 /** Schedule·Expense 쓰기는 소속 여행의 활성 여부로 분기한다. */
 export async function routeChildMutation<T>(tripId: string, operations: RouteOperations<T>): Promise<T> {
+  requireLocalUserId();
   const isActivated = await getTripActivationStatus(tripId);
 
   assertWritesAllowed();

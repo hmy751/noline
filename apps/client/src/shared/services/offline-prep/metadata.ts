@@ -1,6 +1,7 @@
 import { getDatabase, trips, tripActivations } from '@/shared/db';
 import { eq, and } from 'drizzle-orm';
-import { authStore } from '@/shared/store/auth';
+import { selectLocalUserId, useAuthStore } from '@/shared/store/auth';
+import { ownedRow } from '@/shared/services/auth/local-access';
 
 /**
  * 특정 여행의 활성화 상태 조회 (boolean)
@@ -8,7 +9,11 @@ import { authStore } from '@/shared/store/auth';
  * - Schedule/Expense 라우팅에서 사용
  */
 export async function getTripActivationStatus(tripId: string): Promise<boolean> {
-  const activation = await getDatabase().select().from(tripActivations).where(eq(tripActivations.tripId, tripId)).get();
+  const activation = await getDatabase()
+    .select()
+    .from(tripActivations)
+    .where(ownedRow(tripActivations.userId, eq(tripActivations.tripId, tripId)))
+    .get();
 
   // tripActivations에 레코드가 있고 isActivated가 true이면 활성화
   return !!(activation && activation.isActivated);
@@ -20,7 +25,11 @@ export async function getTripActivationStatus(tripId: string): Promise<boolean> 
  * @returns 'online' | 'preparing' | 'ready'
  */
 export async function getTripActivationStatusDetail(tripId: string): Promise<'online' | 'preparing' | 'ready'> {
-  const activation = await getDatabase().select().from(tripActivations).where(eq(tripActivations.tripId, tripId)).get();
+  const activation = await getDatabase()
+    .select()
+    .from(tripActivations)
+    .where(ownedRow(tripActivations.userId, eq(tripActivations.tripId, tripId)))
+    .get();
 
   if (!activation || !activation.isActivated) {
     return 'online';
@@ -40,7 +49,7 @@ export async function getTripActivationStatusDetail(tripId: string): Promise<'on
  * - userId 필터링으로 다중 사용자 환경 지원
  */
 export async function hasAnyActivatedTrip(): Promise<boolean> {
-  const userId = authStore.userId;
+  const userId = selectLocalUserId(useAuthStore.getState());
 
   // 인증되지 않은 상태면 활성화된 여행 없음
   if (!userId) {
@@ -72,7 +81,7 @@ export async function getActivatedTripInfo(): Promise<{
   tripId: string;
   status: 'preparing' | 'ready';
 } | null> {
-  const userId = authStore.userId;
+  const userId = selectLocalUserId(useAuthStore.getState());
 
   // 인증되지 않은 상태면 null 반환
   if (!userId) {
@@ -100,7 +109,11 @@ export async function getActivatedTripInfo(): Promise<{
  * 여행 레코드 조회. 활성화 상태는 결합하지 않는다.
  */
 export async function getTripMetadata(tripId: string) {
-  const trip = await getDatabase().select().from(trips).where(eq(trips.id, tripId)).get();
+  const trip = await getDatabase()
+    .select()
+    .from(trips)
+    .where(ownedRow(trips.userId, eq(trips.id, tripId)))
+    .get();
 
   if (!trip) {
     throw new Error(`Trip not found: ${tripId}`);
@@ -114,7 +127,11 @@ export async function getTripMetadata(tripId: string) {
  * @returns syncProgress (0-100) or null if not found
  */
 export async function getMapDownloadProgress(tripId: string): Promise<number | null> {
-  const activation = await getDatabase().select().from(tripActivations).where(eq(tripActivations.tripId, tripId)).get();
+  const activation = await getDatabase()
+    .select()
+    .from(tripActivations)
+    .where(ownedRow(tripActivations.userId, eq(tripActivations.tripId, tripId)))
+    .get();
 
   if (!activation) {
     return null;

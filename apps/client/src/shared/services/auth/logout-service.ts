@@ -1,9 +1,8 @@
-import { getSyncQueueStats, clearSyncQueue } from '@/shared/services/sync/queue';
+import { getSyncQueueStats } from '@/shared/services/sync/queue';
 import { logout as logoutApi, deleteAccount } from './auth-api';
-import { authStore } from '@/shared/store/auth';
+import { useAuthStore } from '@/shared/store/auth';
 import { useTripStore } from '@/shared/store/useTripStore';
-import { withPendingCleanupsPaused } from '@/shared/services/sync/cleanup-job';
-import { withSyncPaused } from '@/shared/services/sync/lifecycle';
+import { withSessionChange } from './session-lifecycle';
 import { resetDatabase } from '@/shared/db';
 import { queryClient } from '@/shared/lib/queryClient';
 
@@ -45,22 +44,22 @@ export async function checkPendingSync(): Promise<{
 export async function performLogout(options: LogoutOptions = {}): Promise<LogoutResult> {
   const { force = false } = options;
 
-  try {
-    console.log('[AuthSession] Starting logout process...');
+  return withSessionChange(async () => {
+    try {
+      console.log('[AuthSession] Starting logout process...');
 
-    const syncStatus = await checkPendingSync();
+      const syncStatus = await checkPendingSync();
 
-    if (syncStatus.hasPending && !force) {
-      console.warn(`[AuthSession] Pending sync: ${syncStatus.pendingCount} items`);
-      return {
-        success: false,
-        hasPendingSync: true,
-        pendingCount: syncStatus.pendingCount,
-        message: `동기화되지 않은 데이터가 ${syncStatus.pendingCount}개 있습니다. 로그아웃하면 이 데이터는 손실됩니다.`,
-      };
-    }
+      if (syncStatus.hasPending && !force) {
+        console.warn(`[AuthSession] Pending sync: ${syncStatus.pendingCount} items`);
+        return {
+          success: false,
+          hasPendingSync: true,
+          pendingCount: syncStatus.pendingCount,
+          message: `동기화되지 않은 데이터가 ${syncStatus.pendingCount}개 있습니다. 로그아웃하면 이 데이터는 손실됩니다.`,
+        };
+      }
 
-    await withSyncPaused(async () => {
       // 실행 중 sync가 사용하는 서버 세션도 종료 대기 뒤 무효화한다.
       try {
         await logoutApi();
@@ -71,27 +70,27 @@ export async function performLogout(options: LogoutOptions = {}): Promise<Logout
       }
 
       await clearLocalSession();
-    });
 
-    console.log('[AuthSession] Logout completed successfully');
+      console.log('[AuthSession] Logout completed successfully');
 
-    return {
-      success: true,
-      message: '로그아웃되었습니다.',
-    };
-  } catch (error) {
-    console.error('[AuthSession] Logout failed:', error);
-    return {
-      success: false,
-      message: error instanceof Error ? error.message : '로그아웃에 실패했습니다.',
-    };
-  }
+      return {
+        success: true,
+        message: '로그아웃되었습니다.',
+      };
+    } catch (error) {
+      console.error('[AuthSession] Logout failed:', error);
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : '로그아웃에 실패했습니다.',
+      };
+    }
+  });
 }
 
 /**
  * 강제 로그아웃 (데이터 손실 확인 없이)
  *
- * 세션 만료 시 재로그인 후 다른 계정으로 로그인한 경우 사용
+ * 사용자가 미동기화 데이터 폐기를 명시적으로 확인한 경우 사용
  */
 export async function forceLogout(): Promise<LogoutResult> {
   return performLogout({ force: true });
@@ -101,41 +100,41 @@ export async function forceLogout(): Promise<LogoutResult> {
 export async function performDeleteAccount(options: LogoutOptions = {}): Promise<LogoutResult> {
   const { force = false } = options;
 
-  try {
-    console.log('[AuthSession] Starting account deletion process...');
+  return withSessionChange(async () => {
+    try {
+      console.log('[AuthSession] Starting account deletion process...');
 
-    const syncStatus = await checkPendingSync();
+      const syncStatus = await checkPendingSync();
 
-    if (syncStatus.hasPending && !force) {
-      console.warn(`[AuthSession] Pending sync: ${syncStatus.pendingCount} items`);
-      return {
-        success: false,
-        hasPendingSync: true,
-        pendingCount: syncStatus.pendingCount,
-        message: `동기화되지 않은 데이터가 ${syncStatus.pendingCount}개 있습니다. 계정을 삭제하면 이 데이터는 손실됩니다.`,
-      };
-    }
+      if (syncStatus.hasPending && !force) {
+        console.warn(`[AuthSession] Pending sync: ${syncStatus.pendingCount} items`);
+        return {
+          success: false,
+          hasPendingSync: true,
+          pendingCount: syncStatus.pendingCount,
+          message: `동기화되지 않은 데이터가 ${syncStatus.pendingCount}개 있습니다. 계정을 삭제하면 이 데이터는 손실됩니다.`,
+        };
+      }
 
-    await withSyncPaused(async () => {
       // 서버 계정 삭제에 실패하면 로컬 세션은 유지한다.
       await deleteAccount();
       console.log('[AuthSession] Server account deleted');
       await clearLocalSession();
-    });
 
-    console.log('[AuthSession] Account deletion completed successfully');
+      console.log('[AuthSession] Account deletion completed successfully');
 
-    return {
-      success: true,
-      message: '계정이 삭제되었습니다.',
-    };
-  } catch (error) {
-    console.error('[AuthSession] Account deletion failed:', error);
-    return {
-      success: false,
-      message: error instanceof Error ? error.message : '계정 삭제에 실패했습니다.',
-    };
-  }
+      return {
+        success: true,
+        message: '계정이 삭제되었습니다.',
+      };
+    } catch (error) {
+      console.error('[AuthSession] Account deletion failed:', error);
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : '계정 삭제에 실패했습니다.',
+      };
+    }
+  });
 }
 
 /**
@@ -147,11 +146,12 @@ export async function forceDeleteAccount(): Promise<LogoutResult> {
 
 /** 로그아웃과 회원 탈퇴가 공유하는 로컬 세션 종료 순서. */
 async function clearLocalSession() {
-  await withPendingCleanupsPaused(async () => {
-    await clearSyncQueue();
-    await resetDatabase();
-    await authStore.logout();
+  await resetDatabase();
+  try {
+    await useAuthStore.getState().clearSession();
+  } finally {
+    // DB를 비운 뒤에는 인증 정보 삭제 실패와 관계없이 화면의 이전 여행도 정리한다.
     useTripStore.getState().setSelectedTripId(null);
     queryClient.clear();
-  });
+  }
 }
