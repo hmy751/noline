@@ -1,3 +1,4 @@
+import { PolicyErrorDisplay } from '@/shared/components/ErrorBoundary';
 import { useState, useMemo, useCallback } from 'react';
 import { View, Alert } from 'react-native';
 import { MobileHeader } from '@/shared/components';
@@ -12,6 +13,7 @@ import { ScheduleMapViewContainer } from '@/features/schedule/schedule-map-view'
 import { ScheduleMenu } from '@/features/schedule/schedule-menu';
 import { UpdateScheduleDrawer } from '@/features/schedule/update-schedule';
 import { formatISOToLocalDate, formatISOToLocalTime } from '@/shared/lib/datetime';
+import { useAppPolicy } from '@/shared/policy';
 
 type ViewMode = 'list' | 'map';
 
@@ -58,6 +60,8 @@ export default function ScheduleScreen() {
   const { data: trips = [] } = useGetTrips();
   const { data: schedules = [], isLoading, refetch } = useGetSchedules(selectedTripId || '');
   const { mutate: deleteSchedule } = useDeleteSchedule();
+  const readPolicy = useAppPolicy(selectedTripId ?? undefined).schedule.read;
+  const policy = useAppPolicy(selectedSchedule?.tripId ?? selectedTripId ?? undefined);
 
   // Pull-to-Refresh
   const [refreshing, setRefreshing] = useState(false);
@@ -76,7 +80,9 @@ export default function ScheduleScreen() {
 
   // 여행 날짜 범위에서 모든 날짜 생성
   const generateDateRange = (): string[] => {
-    if (!selectedTrip?.startDate || !selectedTrip?.endDate) return [];
+    if (!selectedTrip?.startDate || !selectedTrip?.endDate) {
+      return [];
+    }
 
     const dates: string[] = [];
     const start = new Date(selectedTrip.startDate);
@@ -120,11 +126,21 @@ export default function ScheduleScreen() {
   };
 
   const handleEditSchedule = () => {
+    if (!policy.schedule.update.allowed) {
+      Alert.alert('일정을 수정할 수 없습니다', policy.schedule.update.reason);
+      return;
+    }
     setIsUpdateDrawerOpen(true);
   };
 
   const handleDeleteSchedule = () => {
-    if (!selectedSchedule) return;
+    if (!selectedSchedule) {
+      return;
+    }
+    if (!policy.schedule.delete.allowed) {
+      Alert.alert('일정을 삭제할 수 없습니다', policy.schedule.delete.reason);
+      return;
+    }
 
     Alert.alert(
       '일정 삭제',
@@ -210,7 +226,9 @@ export default function ScheduleScreen() {
               accessibilityRole='button'
               accessibilityLabel={viewMode === 'list' ? '지도 보기로 전환' : '목록 보기로 전환'}
             >
-              {viewMode === 'list' ? (
+              {selectedTripId && !readPolicy.allowed ? (
+                <PolicyErrorDisplay policy={readPolicy} variant='block' />
+              ) : viewMode === 'list' ? (
                 <Map size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
               ) : (
                 <List size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
@@ -224,7 +242,9 @@ export default function ScheduleScreen() {
       <TripSelector className='border-b border-card-border bg-background px-md py-sm' />
 
       {/* Content */}
-      {viewMode === 'list' ? (
+      {selectedTripId && !readPolicy.allowed ? (
+        <PolicyErrorDisplay policy={readPolicy} variant='block' />
+      ) : viewMode === 'list' ? (
         <ScheduleListView
           schedulesByDate={schedulesByDate}
           selectedTripId={selectedTripId}
@@ -246,7 +266,7 @@ export default function ScheduleScreen() {
 
       {/* Schedule Menu */}
       <ScheduleMenu
-        isOpen={isScheduleMenuOpen}
+        isOpen={isScheduleMenuOpen && readPolicy.allowed}
         onClose={() => {
           setIsScheduleMenuOpen(false);
           setButtonPosition(undefined);

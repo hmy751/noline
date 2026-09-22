@@ -30,23 +30,28 @@ function renewSession(sessionId: symbol): Promise<void> {
 
   const renewal = (async () => {
     assertCurrentSession(sessionId);
+
     const refreshToken = useAuthStore.getRefreshToken(sessionId);
     if (!refreshToken) {
       return rejectCredentials(sessionId);
     }
 
     let tokens;
+
     try {
       tokens = await refreshTokens(refreshToken);
     } catch (error) {
       assertCurrentSession(sessionId);
+
       const status = (error as AxiosError).response?.status;
       if (status === 401 || status === 403) {
         return rejectCredentials(sessionId);
       }
+
       // 연결 실패·서버 장애는 자격 증명이 거부됐다는 증거가 아니다.
       throw error;
     }
+
     const saved = await useAuthStore.getState().refreshTokens(tokens, sessionId);
     if (!saved) {
       throw new AuthRequiredError();
@@ -63,15 +68,18 @@ export function setupAuthInterceptors(client: AxiosInstance): void {
   client.interceptors.request.use(async (config: AuthRequest) => {
     config.sessionId ??= useAuthStore.getState().sessionId ?? undefined;
     assertCurrentSession(config.sessionId);
+
     if (!useAuthStore.getAccessToken(config.sessionId)) {
       await renewSession(config.sessionId);
     }
+
     assertCurrentSession(config.sessionId);
 
     const accessToken = useAuthStore.getAccessToken(config.sessionId);
     if (!accessToken) {
       throw new AuthRequiredError();
     }
+
     config.headers.Authorization = `Bearer ${accessToken}`;
     return config;
   });
@@ -86,14 +94,19 @@ export function setupAuthInterceptors(client: AxiosInstance): void {
       if (!request || error.response?.status !== 401) {
         throw error;
       }
+
       assertCurrentSession(request.sessionId);
+
       if (request.authRetried) {
         return rejectCredentials(request.sessionId);
       }
+
       request.authRetried = true;
 
       await renewSession(request.sessionId);
+
       assertCurrentSession(request.sessionId);
+
       return client(request);
     },
   );

@@ -4,13 +4,14 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Wallet, ChevronDown, Calendar as CalendarIcon, MapPin } from 'lucide-react-native';
 import { Drawer, Pressable, Select } from '@repo/ui';
-import { DatePicker } from '@/shared/components';
+import { DatePicker, PolicyErrorDisplay } from '@/shared/components';
 import { Field } from '@/shared/components/Form';
 import { EXPENSE_CATEGORIES, CURRENCIES, CURRENCY_SYMBOLS } from '@/entities/expense';
 import { useUpdateExpense } from '@/entities/expense/data/useUpdateExpense';
 import { formatISOToLocalDate, formatISOToLocalTime, dateToISODateTime } from '@/shared/lib/datetime';
 import { useGetSchedules } from '@/entities/schedule';
 import { expenseUpdateFormSchema, type ExpenseUpdateFormData } from './schema';
+import { useAppPolicy } from '@/shared/policy';
 
 export type UpdateExpenseDrawerProps = {
   isOpen: boolean;
@@ -57,10 +58,13 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
 
   // 여행의 모든 일정 조회
   const { data: schedules = [] } = useGetSchedules(expenseData?.tripId || '');
+  const policy = useAppPolicy(expenseData?.tripId);
 
   // 선택한 날짜의 일정만 필터링
   const schedulesOnSelectedDate = useMemo(() => {
-    if (!selectedDate) return [];
+    if (!selectedDate) {
+      return [];
+    }
 
     const selectedLocalDate = formatISOToLocalDate(selectedDate);
 
@@ -118,7 +122,17 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
     Alert.alert('오류', '입력한 정보를 확인해주세요.');
   };
 
-  if (!expenseData) return null;
+  if (!expenseData) {
+    return null;
+  }
+
+  if (!policy.expense.update.allowed) {
+    return (
+      <Drawer isOpen={isOpen} onClose={onClose} title='경비 수정'>
+        <PolicyErrorDisplay policy={policy.expense.update} variant='block' />
+      </Drawer>
+    );
+  }
 
   return (
     <Drawer isOpen={isOpen} onClose={onClose} title='경비 수정'>
@@ -143,7 +157,9 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
                         {
                           text: '확인',
                           onPress: (text) => {
-                            if (text) onChange(text);
+                            if (text) {
+                              onChange(text);
+                            }
                           },
                         },
                       ]);
@@ -176,7 +192,9 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
                           {
                             text: '확인',
                             onPress: (text) => {
-                              if (text) onChange(text);
+                              if (text) {
+                                onChange(text);
+                              }
                             },
                           },
                         ],
@@ -285,7 +303,7 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
             control={control}
             name='date'
             render={({ field: { value, onChange }, fieldState: { error } }) => {
-              // ✅ TIME_ARCHITECTURE_GUIDE: ISO → Local Date for display
+              // DatePicker에는 현재 기기의 날짜를 전달한다.
               const displayDate = value ? formatISOToLocalDate(value) : '날짜 선택';
 
               return (
@@ -307,8 +325,6 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
                     visible={isDatePickerOpen}
                     onClose={() => setIsDatePickerOpen(false)}
                     onSelectDate={(dateString) => {
-                      // ✅ TIME_ARCHITECTURE_GUIDE: Date → ISO datetime
-                      // "2024-03-15" → "2024-03-15T00:00:00.000Z"
                       onChange(dateToISODateTime(dateString));
                       setIsDatePickerOpen(false);
                     }}
@@ -329,7 +345,23 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
             control={control}
             name='scheduleId'
             render={({ field: { value, onChange }, fieldState: { error } }) => {
-              const selectedSchedule = schedulesOnSelectedDate.find((s) => s.id === value);
+              const selectedSchedule = schedules.find((s) => s.id === value);
+
+              if (policy.expense.update.mode === 'manual-only') {
+                return (
+                  <Field>
+                    <Field.Title>연결된 일정 (선택)</Field.Title>
+                    <Field.ElementsBox>
+                      <Text className='text-body text-foreground'>
+                        {value
+                          ? `${selectedSchedule?.title ?? '기존 일정'} 연결을 유지합니다.`
+                          : '연결된 일정이 없습니다.'}
+                      </Text>
+                      <PolicyErrorDisplay policy={policy.expense.update} variant='inline' />
+                    </Field.ElementsBox>
+                  </Field>
+                );
+              }
 
               return (
                 <Field>

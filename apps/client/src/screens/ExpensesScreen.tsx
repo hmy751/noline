@@ -1,3 +1,4 @@
+import { PolicyErrorDisplay } from '@/shared/components/ErrorBoundary';
 import { View, Text, ScrollView, Alert, RefreshControl } from 'react-native';
 import { Container, Stack, ExpenseCard, MobileHeader } from '@/shared/components';
 import { TripSelector } from '@/entities/trip';
@@ -12,6 +13,7 @@ import { UpdateExpenseDrawer } from '@/features/expense/update-expense';
 import { formatISOToLocalDate } from '@/shared/lib/datetime';
 import { groupExpensesByCurrency, formatCurrencyDisplay, getCurrencyFractionDigits } from '@/shared/lib/currency';
 import type { Expense } from '@/entities/expense';
+import { useAppPolicy } from '@/shared/policy';
 
 export default function ExpensesScreen() {
   const router = useRouter();
@@ -32,6 +34,8 @@ export default function ExpensesScreen() {
 
   // 실제 경비 데이터 조회 (tripId 필수)
   const { data: expenses = [], isLoading, refetch } = useGetTripExpenses(selectedTripId || '');
+  const readPolicy = useAppPolicy(selectedTripId ?? undefined).expense.read;
+  const policy = useAppPolicy(selectedExpense?.tripId ?? selectedTripId ?? undefined);
 
   // Pull-to-Refresh
   const [refreshing, setRefreshing] = useState(false);
@@ -47,7 +51,9 @@ export default function ExpensesScreen() {
 
   // 여행 날짜 범위에서 모든 날짜 생성
   const generateDateRange = (): string[] => {
-    if (!selectedTrip?.startDate || !selectedTrip?.endDate) return [];
+    if (!selectedTrip?.startDate || !selectedTrip?.endDate) {
+      return [];
+    }
 
     const dates: string[] = [];
     const start = new Date(selectedTrip.startDate);
@@ -66,8 +72,7 @@ export default function ExpensesScreen() {
 
   // 날짜별로 경비 매칭 (여행 기간 밖 경비도 포함)
   const expensesByDate = useMemo(() => {
-    // ✅ TIME_ARCHITECTURE_GUIDE: ISO datetime → Local date
-    // expense.date: "2024-03-15T00:00:00.000Z" → "2024-03-15"
+    // 저장된 ISO 시각을 현재 기기의 날짜로 묶어 표시한다.
     const allDates = new Set([...dateRange, ...expenses.map((e) => formatISOToLocalDate(e.date))]);
     const sortedDates = Array.from(allDates).sort();
 
@@ -91,7 +96,6 @@ export default function ExpensesScreen() {
     return [...outsideTripRange, ...insideTripRange];
   }, [dateRange, expenses]);
 
-  // ✅ CURRENCY_POLICY: 통화별 경비 그룹핑 (baseCurrency 우선)
   const expensesByCurrency = useMemo(
     () => groupExpensesByCurrency(expenses, selectedTrip?.baseCurrency),
     [expenses, selectedTrip?.baseCurrency],
@@ -112,11 +116,21 @@ export default function ExpensesScreen() {
   };
 
   const handleEditExpense = () => {
+    if (!policy.expense.update.allowed) {
+      Alert.alert('경비를 수정할 수 없습니다', policy.expense.update.reason);
+      return;
+    }
     setIsUpdateDrawerOpen(true);
   };
 
   const handleDeleteExpense = () => {
-    if (!selectedExpense) return;
+    if (!selectedExpense) {
+      return;
+    }
+    if (!policy.expense.delete.allowed) {
+      Alert.alert('경비를 삭제할 수 없습니다', policy.expense.delete.reason);
+      return;
+    }
 
     Alert.alert('경비 삭제', `"${selectedExpense.title}" 경비를 삭제하시겠습니까?`, [
       {
@@ -168,128 +182,135 @@ export default function ExpensesScreen() {
       {/* Current Trip Selector - Sticky */}
       <TripSelector className='border-b border-card-border bg-background px-md py-sm' />
 
-      <ScrollView className='flex-1' refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-        <Container>
-          <Stack direction='vertical' gap='md' className='py-sm'>
-            {/* ✅ CURRENCY_POLICY: 통화별 경비 표시 */}
-            <View className='flex-col gap-sm rounded-lg bg-muted p-md'>
-              <Text className='text-label text-muted-foreground'>통화별 경비</Text>
-              {expensesByCurrency.length > 0 ? (
-                <View className='flex-col gap-xs'>
-                  {expensesByCurrency.map(({ currency, amount }, index) => {
-                    const isFirstCurrencyGroup = index === 0;
+      {selectedTripId && !readPolicy.allowed ? (
+        <PolicyErrorDisplay policy={readPolicy} variant='block' />
+      ) : (
+        <ScrollView
+          className='flex-1'
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        >
+          <Container>
+            <Stack direction='vertical' gap='md' className='py-sm'>
+              {/* 통화가 다른 경비는 합산하지 않고 통화별로 표시한다. */}
+              <View className='flex-col gap-sm rounded-lg bg-muted p-md'>
+                <Text className='text-label text-muted-foreground'>통화별 경비</Text>
+                {expensesByCurrency.length > 0 ? (
+                  <View className='flex-col gap-xs'>
+                    {expensesByCurrency.map(({ currency, amount }, index) => {
+                      const isFirstCurrencyGroup = index === 0;
 
-                    return (
-                      <View key={currency} className='flex-row items-baseline justify-between'>
-                        {/* 주 통화 (첫 번째)는 강조 */}
-                        <Text
-                          className={
-                            isFirstCurrencyGroup
-                              ? 'text-display-medium text-primary'
-                              : 'text-title-large text-foreground'
-                          }
-                        >
-                          {currency} {amount.toFixed(getCurrencyFractionDigits(currency))}
-                        </Text>
-                        {isFirstCurrencyGroup && <Text className='text-label text-muted-foreground'>주 통화</Text>}
-                      </View>
-                    );
-                  })}
-                </View>
-              ) : (
-                <Text className='text-display-medium text-muted-foreground'>
-                  {formatCurrencyDisplay(0, selectedTrip?.baseCurrency || 'USD')}
-                </Text>
-              )}
-            </View>
-
-            {/* Loading State */}
-            {isLoading && (
-              <View className='flex-1 items-center justify-center py-xl'>
-                <Text className='text-body text-muted-foreground'>경비를 불러오는 중...</Text>
-              </View>
-            )}
-
-            {/* Empty State - 여행이 없거나 날짜가 없을 때 */}
-            {!isLoading && !selectedTrip && (
-              <View className='flex-1 items-center justify-center py-xl'>
-                <Text className='text-body text-muted-foreground'>여행을 선택해주세요</Text>
-              </View>
-            )}
-
-            {!isLoading && selectedTrip && expensesByDate.length === 0 && (
-              <View className='flex-1 items-center justify-center py-xl'>
-                <Text className='text-body text-muted-foreground'>경비를 추가해보세요</Text>
-              </View>
-            )}
-
-            {/* Expense List by Date - 경비가 있는 모든 날짜 표시 */}
-            {!isLoading &&
-              expensesByDate.length > 0 &&
-              expensesByDate.map((group) => (
-                <View key={group.date} className='flex-col gap-sm'>
-                  {/* Date Header */}
-                  <View className='flex-row items-center justify-between'>
-                    <View className='flex-row items-center gap-2xs'>
-                      <Text className='text-title-large text-foreground'>{group.dateLabel}</Text>
-                      <View className='rounded-full bg-muted px-xs py-3xs'>
-                        <Text className='text-label text-foreground'>{group.items.length}개</Text>
-                      </View>
-                      {!group.isInTripRange && (
-                        <View className='rounded-full bg-destructive/10 px-xs py-3xs'>
-                          <Text className='text-label text-destructive'>여행 기간 외</Text>
+                      return (
+                        <View key={currency} className='flex-row items-baseline justify-between'>
+                          {/* 주 통화 (첫 번째)는 강조 */}
+                          <Text
+                            className={
+                              isFirstCurrencyGroup
+                                ? 'text-display-medium text-primary'
+                                : 'text-title-large text-foreground'
+                            }
+                          >
+                            {currency} {amount.toFixed(getCurrencyFractionDigits(currency))}
+                          </Text>
+                          {isFirstCurrencyGroup && <Text className='text-label text-muted-foreground'>주 통화</Text>}
                         </View>
-                      )}
-                    </View>
-                    <Pressable
-                      variant='outline'
-                      className='flex-row items-center gap-3xs rounded-md border border-card-border bg-card px-xs py-3xs active:bg-muted'
-                      onPress={() => {
-                        if (selectedTripId) {
-                          router.push(`/create-expense?tripId=${selectedTripId}&date=${group.date}`);
-                        } else {
-                          console.log('여행을 먼저 선택해주세요');
-                        }
-                      }}
-                    >
-                      <Text className='text-label text-foreground'>추가</Text>
-                    </Pressable>
+                      );
+                    })}
                   </View>
+                ) : (
+                  <Text className='text-display-medium text-muted-foreground'>
+                    {formatCurrencyDisplay(0, selectedTrip?.baseCurrency || 'USD')}
+                  </Text>
+                )}
+              </View>
 
-                  {/* Expense Cards or Empty State */}
-                  {group.items.length > 0 ? (
-                    group.items.map((expense) => (
-                      <ExpenseCard
-                        key={expense.id}
-                        title={expense.title}
-                        amount={expense.amount}
-                        currency={expense.currency}
-                        category={expense.category}
-                        hasReceipt={expense.hasReceipt}
-                        isPending={false}
-                        onPress={() => {
-                          router.push({
-                            pathname: '/expense-detail/[id]',
-                            params: { id: expense.id, tripId: expense.tripId },
-                          });
-                        }}
-                        onMenuPress={(event) => handleExpenseMenuPress(expense, event)}
-                      />
-                    ))
-                  ) : (
-                    <View className='rounded-lg border border-dashed border-card-border bg-muted/30 px-md py-lg'>
-                      <Text className='text-body text-center text-muted-foreground'>이 날의 경비를 추가해보세요</Text>
-                    </View>
-                  )}
+              {/* Loading State */}
+              {isLoading && (
+                <View className='flex-1 items-center justify-center py-xl'>
+                  <Text className='text-body text-muted-foreground'>경비를 불러오는 중...</Text>
                 </View>
-              ))}
-          </Stack>
-        </Container>
-      </ScrollView>
+              )}
+
+              {/* Empty State - 여행이 없거나 날짜가 없을 때 */}
+              {!isLoading && !selectedTrip && (
+                <View className='flex-1 items-center justify-center py-xl'>
+                  <Text className='text-body text-muted-foreground'>여행을 선택해주세요</Text>
+                </View>
+              )}
+
+              {!isLoading && selectedTrip && expensesByDate.length === 0 && (
+                <View className='flex-1 items-center justify-center py-xl'>
+                  <Text className='text-body text-muted-foreground'>경비를 추가해보세요</Text>
+                </View>
+              )}
+
+              {/* Expense List by Date - 경비가 있는 모든 날짜 표시 */}
+              {!isLoading &&
+                expensesByDate.length > 0 &&
+                expensesByDate.map((group) => (
+                  <View key={group.date} className='flex-col gap-sm'>
+                    {/* Date Header */}
+                    <View className='flex-row items-center justify-between'>
+                      <View className='flex-row items-center gap-2xs'>
+                        <Text className='text-title-large text-foreground'>{group.dateLabel}</Text>
+                        <View className='rounded-full bg-muted px-xs py-3xs'>
+                          <Text className='text-label text-foreground'>{group.items.length}개</Text>
+                        </View>
+                        {!group.isInTripRange && (
+                          <View className='rounded-full bg-destructive/10 px-xs py-3xs'>
+                            <Text className='text-label text-destructive'>여행 기간 외</Text>
+                          </View>
+                        )}
+                      </View>
+                      <Pressable
+                        variant='outline'
+                        className='flex-row items-center gap-3xs rounded-md border border-card-border bg-card px-xs py-3xs active:bg-muted'
+                        onPress={() => {
+                          if (selectedTripId) {
+                            router.push(`/create-expense?tripId=${selectedTripId}&date=${group.date}`);
+                          } else {
+                            console.log('여행을 먼저 선택해주세요');
+                          }
+                        }}
+                      >
+                        <Text className='text-label text-foreground'>추가</Text>
+                      </Pressable>
+                    </View>
+
+                    {/* Expense Cards or Empty State */}
+                    {group.items.length > 0 ? (
+                      group.items.map((expense) => (
+                        <ExpenseCard
+                          key={expense.id}
+                          title={expense.title}
+                          amount={expense.amount}
+                          currency={expense.currency}
+                          category={expense.category}
+                          hasReceipt={expense.hasReceipt}
+                          isPending={false}
+                          onPress={() => {
+                            router.push({
+                              pathname: '/expense-detail/[id]',
+                              params: { id: expense.id, tripId: expense.tripId },
+                            });
+                          }}
+                          onMenuPress={(event) => handleExpenseMenuPress(expense, event)}
+                        />
+                      ))
+                    ) : (
+                      <View className='rounded-lg border border-dashed border-card-border bg-muted/30 px-md py-lg'>
+                        <Text className='text-body text-center text-muted-foreground'>이 날의 경비를 추가해보세요</Text>
+                      </View>
+                    )}
+                  </View>
+                ))}
+            </Stack>
+          </Container>
+        </ScrollView>
+      )}
 
       {/* Expense Menu */}
       <ExpenseMenu
-        isOpen={isExpenseMenuOpen}
+        isOpen={isExpenseMenuOpen && readPolicy.allowed}
         onClose={() => {
           setIsExpenseMenuOpen(false);
           setButtonPosition(undefined);

@@ -253,9 +253,9 @@ it.each(['PENDING', 'IN_PROGRESS', 'FAILED'] as const)(
   async (status) => {
     await createExpenseLocal({
       id: 'queued-expense',
-    scheduleId: null,
-    hasReceipt: false,
-    receiptUrl: null,
+      scheduleId: null,
+      hasReceipt: false,
+      receiptUrl: null,
       tripId: 'trip-a',
       title: '보존',
       amount: '1',

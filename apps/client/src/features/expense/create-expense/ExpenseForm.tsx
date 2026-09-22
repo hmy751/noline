@@ -36,7 +36,9 @@ export function ExpenseForm({ form, tripId, onSubmit, onCancel, isPending }: Exp
 
   // 선택한 날짜의 일정만 필터링
   const schedulesOnSelectedDate = useMemo(() => {
-    if (!selectedDate) return [];
+    if (!selectedDate) {
+      return [];
+    }
 
     const selectedLocalDate = formatISOToLocalDate(selectedDate);
 
@@ -187,7 +189,7 @@ export function ExpenseForm({ form, tripId, onSubmit, onCancel, isPending }: Exp
           control={control}
           name='date'
           render={({ field: { value, onChange }, fieldState: { error } }) => {
-            // ✅ TIME_ARCHITECTURE_GUIDE: ISO → Local Date for display
+            // DatePicker에는 현재 기기의 날짜를 전달한다.
             const displayDate = value ? formatISOToLocalDate(value) : '날짜 선택';
 
             return (
@@ -212,8 +214,6 @@ export function ExpenseForm({ form, tripId, onSubmit, onCancel, isPending }: Exp
                   visible={isDatePickerOpen}
                   onClose={() => setIsDatePickerOpen(false)}
                   onSelectDate={(dateString) => {
-                    // ✅ TIME_ARCHITECTURE_GUIDE: Date → ISO datetime
-                    // "2024-03-15" → "2024-03-15T00:00:00.000Z"
                     onChange(dateToISODateTime(dateString));
                     setIsDatePickerOpen(false);
                   }}
@@ -242,7 +242,7 @@ export function ExpenseForm({ form, tripId, onSubmit, onCancel, isPending }: Exp
                 <Field>
                   <Field.Title>연결된 일정 (선택)</Field.Title>
                   <Field.ElementsBox>
-                    <PolicyErrorDisplay permission={policy.schedule.read} variant='inline' />
+                    <PolicyErrorDisplay policy={policy.schedule.read} variant='inline' />
                   </Field.ElementsBox>
                 </Field>
               );

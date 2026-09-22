@@ -30,7 +30,7 @@ export default function CreateScheduleScreen() {
   const { data: tripsData, isLoading: isLoadingTrips } = useGetTrips();
   const currentTrip = tripsData?.find((trip: TripResponse) => trip.id === tripId);
 
-  // ✅ Policy 체크: 모든 정책 조회
+  // 화면 안내와 실행 차단이 같은 여행 정책을 사용한다.
   const policy = useAppPolicy(tripId);
 
   // 단계 관리
@@ -127,7 +127,6 @@ export default function CreateScheduleScreen() {
     );
   }
 
-  // ✅ Policy 체크: Schedule 생성이 허용되지 않는 경우
   if (!policy.schedule.create.allowed) {
     return (
       <View className='flex-1 bg-background'>
@@ -136,7 +135,7 @@ export default function CreateScheduleScreen() {
           leftIcon={<ArrowLeft size={20} color='#1F1F1F' />}
           onLeftPress={handleBackPress}
         />
-        <PolicyErrorDisplay permission={policy.schedule.create} variant='block' />
+        <PolicyErrorDisplay policy={policy.schedule.create} variant='block' />
       </View>
     );
   }
@@ -151,14 +150,14 @@ export default function CreateScheduleScreen() {
       />
 
       {/* 검색창 (검색 단계에만 표시) */}
-      {/* ⚠️ Policy: manual-only mode에서는 검색창 숨김 */}
+      {/* manual-only mode에서는 검색창을 제공하지 않는다. */}
       {currentStep === STEPS.SEARCH && policy.schedule.create.mode !== 'manual-only' && (
         <LocationSearchBar value={searchQuery} onChangeText={handleSearch} onClear={clearSearch} autoFocus />
       )}
 
-      {/* ⚠️ Policy: manual-only mode 안내 메시지 */}
+      {/* 검색을 사용할 수 없는 이유를 입력 지점에서 안내한다. */}
       {policy.schedule.create.mode === 'manual-only' && (
-        <PolicyErrorDisplay permission={policy.schedule.create} variant='banner' />
+        <PolicyErrorDisplay policy={policy.schedule.create} variant='banner' />
       )}
 
       {/* 지도 영역 + 결과/폼 */}
@@ -166,7 +165,7 @@ export default function CreateScheduleScreen() {
         <PolicyBasedMapView tripId={tripId} locations={results} selectedLocation={selectedLocation} />
 
         {/* 검색 결과 리스트 (검색 단계 + 검색 중이거나 결과 있을 때) */}
-        {/* ⚠️ Policy: manual-only mode에서는 검색 결과 숨김 */}
+        {/* manual-only mode에서는 검색 결과도 노출하지 않는다. */}
         {currentStep === STEPS.SEARCH &&
           policy.schedule.create.mode !== 'manual-only' &&
           (isSearching || results.length > 0) && (

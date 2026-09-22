@@ -193,6 +193,10 @@ completeLogin은 Store의 검증·저장 결과를 사용하고 실패한 서버
 
 인증 변경만 반영한 별도 디렉터리에서 Main이 client Jest **30개 suite·277개 test 통과**를 확인했다. 이 상태에는 큐 재시도·vacuum과 Policy 이름·CRUD 정리 및 목록 read 연결이 포함되지 않는다. SecureStore·HTTP는 제어 가능한 mock, 데이터 보존 검사는 실제 Drizzle SQL과 Node 메모리 SQLite를 사용했다. Native SecureStore·실제 OAuth·서버 rotation·실기기 화면은 미확인이다. 기존 Mapbox/download 타입 오류 3개는 별도 범위로 남는다.
 
+화면 정책은 Schedule·Expense의 create/read/update/delete를 OperationPolicy·EntityPolicy로 표현한다. 일정·경비 목록과 경비 상세는 재인증 또는 비활성 여행의 offline/unknown 제한 때 캐시 내용 대신 PolicyErrorDisplay를 표시한다. 캐시 자체를 삭제하지 않고 수정 Drawer를 계속 mount해 입력 상태를 보존한다. 오프라인 일정 저장은 기존 장소·좌표를 덮지 않으며, 경비는 기존 일정 연결을 표시하고 저장 payload에도 유지한다.
+
+화면 정책까지 포함한 분리 후보를 별도 디렉터리에서 다시 실행해 Main이 **35개 suite·297개 test 통과**를 확인했다. read 제한의 실제 screen render, 복원 실패 화면의 명시적 폐기 확인, 수정 Drawer의 기존 값·연결·제한 복귀 보존을 component test로 확인했다. 앞선 형식·diff 검사는 통과했고, ESLint는 기존 Prettier plugin 충돌 규칙만 제외한 실행에서 오류 0개·기존 경고 9개였다. 이번 타입 검사도 기존 Mapbox/download 오류 3개로 전체 성공은 아니다. Native·실서버 미확인 범위는 유지한다.
+
 분리·통합은 서로 다른 판단 책임이 있는지, 같은 동작의 보장이 여러 곳으로 흩어져 있는지로 결정한다. nullable/throwing 차이나 함수 길이만으로 파일을 나누지 않는다. Store action은 공개돼 있으므로 모든 소비자의 전체 절차 사용을 타입만으로 강제한다고 주장하지 않는다. Network 제한·복구 화면과 sync·cleanup의 전체 남은 범위는 각 Ticket의 완료 조건을 유지한다.
 
 ## 완료 조건과 확인 방법
@@ -213,9 +217,9 @@ completeLogin은 Store의 검증·저장 결과를 사용하고 실패한 서버
 
 ## 현재 상태와 실제 결과
 
-startup·스타일은 `8a1a3ea`, sync 연결은 `029adb6`, 정책 합의는 `71c1a02`, 대상 여행 라우팅은 `f0f680e`, DB 원자성은 `9936662`로 저장됐다. 이번 인증 변경은 위 책임 기준과 분리 검사를 거쳐 저장하며 동기화 보존과 화면 정책은 후속 커밋으로 구분한다.
+startup·스타일은 `8a1a3ea`, sync 연결은 `029adb6`, 정책 합의는 `71c1a02`, 대상 여행 라우팅은 `f0f680e`, DB 원자성은 `9936662`로 저장됐다. 인증 책임·전환·로컬 저장 보호는 `62ce226`, 동기화 중단·미전송 원본 보존은 `100e71a`로 저장했다. 화면 정책·입력 보존은 이번 별도 커밋 `fix(client): 화면 정책과 제한 중 입력 보존 연결`에 포함한다.
 
-앞선 분할 검토·토큰 분리·원복·부분 개선의 경위는 [분할 검토 기록](../../../records/2026-09-21-01-auth-policy-split-review-and-commits.md), [원복 기록](../../../records/2026-09-21-02-auth-token-separation-consumer-review-and-rollback.md), [부분 개선 기록](../../../records/2026-09-21-03-auth-consumer-boundary-implementation.md)에 보존한다. Ticket 전체 완료와 사용자 최종 수락은 아직 아니다.
+앞선 분할 검토·토큰 분리·원복·부분 개선의 경위는 [분할 검토 기록](../../../records/2026-09-21-01-auth-policy-split-review-and-commits.md), [원복 기록](../../../records/2026-09-21-02-auth-token-separation-consumer-review-and-rollback.md), [부분 개선 기록](../../../records/2026-09-21-03-auth-consumer-boundary-implementation.md)에 보존한다. 최종 책임 배치·재현과 검사 경계는 [이번 구현 기록](../../../records/2026-09-21-04-auth-responsibilities-and-regression-fixes.md)에 있다. 온라인 복구 후 재조회·토스트, unknown 10초 안내의 화면 끝단 연결과 foreground 재확인 등 Ticket 전체 완료와 사용자 최종 수락은 아직 아니다.
 
 ## 추후 개선 메모 — NetworkStatus enum 전환
 

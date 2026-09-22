@@ -1,9 +1,9 @@
 import { View, Text } from 'react-native';
 import { AlertCircle, WifiOff, Lock } from 'lucide-react-native';
-import type { CRUDPermission } from '@/shared/policy/types';
+import type { OperationPolicy } from '@/shared/policy/types';
 
 type PolicyErrorDisplayProps = {
-  permission: CRUDPermission;
+  policy: OperationPolicy;
   /**
    * 에러 표시 스타일
    * - banner: 상단 배너 (노란색, 경고)
@@ -12,7 +12,7 @@ type PolicyErrorDisplayProps = {
    */
   variant?: 'banner' | 'block' | 'inline';
   /**
-   * 커스텀 메시지 (permission.reason 대신 사용)
+   * 커스텀 메시지 (policy.reason 대신 사용)
    */
   message?: string;
 };
@@ -25,19 +25,19 @@ type PolicyErrorDisplayProps = {
  * const policy = useAppPolicy(tripId);
  *
  * if (!policy.schedule.create.allowed) {
- *   return <PolicyErrorDisplay permission={policy.schedule.create} variant="block" />;
+ *   return <PolicyErrorDisplay policy={policy.schedule.create} variant="block" />;
  * }
  * ```
  */
-export function PolicyErrorDisplay({ permission, variant = 'banner', message }: PolicyErrorDisplayProps) {
-  const displayMessage = message || permission.reason || '이 작업을 수행할 수 없습니다';
+export function PolicyErrorDisplay({ policy, variant = 'banner', message }: PolicyErrorDisplayProps) {
+  const displayMessage = message || policy.reason || '이 작업을 수행할 수 없습니다';
 
   // 에러 아이콘 선택
   const getIcon = () => {
-    if (permission.reason?.includes('오프라인')) {
+    if (policy.reason?.includes('오프라인')) {
       return <WifiOff size={20} color={variant === 'block' ? '#DC2626' : '#D97706'} />;
     }
-    if (permission.reason?.includes('비활성')) {
+    if (policy.reason?.includes('비활성')) {
       return <Lock size={20} color={variant === 'block' ? '#DC2626' : '#D97706'} />;
     }
     return <AlertCircle size={20} color={variant === 'block' ? '#DC2626' : '#D97706'} />;

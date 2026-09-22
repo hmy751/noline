@@ -159,18 +159,23 @@ export function createAuthStore() {
           if (loginEpoch !== logoutEpoch) {
             throw new Error('종료된 세션의 로그인 저장은 적용할 수 없습니다');
           }
+
           const account = await inspectLocalAccount(data.userId);
           if (account === 'unresolved') {
             throw new Error('저장된 변경의 소유자를 확인하지 못했습니다. 데이터는 보존됩니다.');
           }
+
           const previousUserId = get().userId;
           if (account === 'different' || (previousUserId !== null && previousUserId !== data.userId)) {
             throw new LocalAccountMismatchError();
           }
+
           if (loginEpoch !== logoutEpoch) {
             throw new Error('종료된 세션의 로그인 저장은 적용할 수 없습니다');
           }
+
           await saveAuthData(session);
+
           if (loginEpoch !== logoutEpoch) {
             throw new Error('종료된 세션의 로그인 저장은 적용할 수 없습니다');
           }

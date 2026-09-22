@@ -29,6 +29,6 @@ sync engine은 PENDING과 retryCount 3 미만의 FAILED를 FIFO로 전송한다.
 
 인증 오류는 현재 작업을 PENDING으로 되돌린 뒤 오류를 호출자까지 전달한다. 활성 여행이 없어 pull이 생략되는 경우에도 completed를 반환하지 않으며 성공 시각을 갱신하지 않는다. 큐 원본과 payload의 계정 및 pull 응답의 userId도 현재 계정과 대조한다. 실제 engine·lifecycle을 연결한 인증 중단 검사, 실패 재전송·뒤 작업 중단 검사와 Node SQLite의 재시도 한도 뒤 작업 보존 검사를 추가했다.
 
-HTTP 5xx 재시도는 인증 커밋에서 일반 요청 책임으로 수정했다. 실제 Axios adapter와 fake timer로 최초 요청을 포함해 총 4회 호출(재시도 3회)을 확인했다. 저장된 큐의 다음 실행 재시도와 별개다. 화면 Policy의 미사용 syncStrategy·uiMode 정리는 화면 정책 커밋에서 반영한다.
+HTTP 5xx 재시도는 인증 커밋에서 일반 요청 책임으로 수정했다. 실제 Axios adapter와 fake timer로 최초 요청을 포함해 총 4회 호출(재시도 3회)을 확인했다. 저장된 큐의 다음 실행 재시도와 별개다. 화면 Policy의 미사용 syncStrategy·uiMode 선언은 화면 정책 커밋에서 제거했다.
 
 pull response schema와 as never[] 제거, malformed pull·cleanup 부분 실패의 typed result, 중단된 IN_PROGRESS의 명시적 재개 정책은 남는다. 실제 네트워크·서버 DB를 실행하지 않았으므로 Ticket 전체 완료·검증·사용자 수락은 아니다.

@@ -20,23 +20,21 @@ Project Context 후보 구성에는 Ticket 01–05와 관련 records·output·�
 
 Project-wide 판단으로 남은 항목은 Expense 날짜 계약, 금액 반올림·정밀도와 서버 오류 처리의 목표 구조다. Project Context의 실제 반영은 이 Workspace Maintain의 소유 범위가 아니며 완료로 간주하지 않는다.
 
-## Ticket 06 — 기존 인증 구현 보완 전
+## 앱 준비·인증·동기화·화면 정책의 현재 경계와 다음 행동
 
-[Ticket 06](../memory/tickets/06-app-startup-lifecycle.md)의 startup·sync 시작/종료·단일 세션 저장·다섯 인증 상태·로컬 접근은 구현돼 있다. startup은 `8a1a3ea`, sync는 `029adb6`, 당시 인증 정책 문서는 `10960e9`에 저장했고 후속 제품 변경은 미커밋 상태다. 전체 원복 대신 기존 코드와 테스트를 기반으로 필요한 함수·책임을 교체하는 방향을 채택했다. 추가 논의와 구현 기준은 문서에 반영했으며 제품 보완 구현은 시작하지 않았다.
+[Ticket 06](../memory/tickets/06-app-startup-lifecycle.md)의 인증 책임과 실행 순서를 재검토한 뒤, 사용자 확정 기준에 따라 구현했다. 상태만으로 답하는 계정·인증 판단은 Auth Store에 모았고, DB 소유권 SQL과 사용자 세션 변경 절차는 각각의 책임으로 유지했다. 계정 검사·저장·적용, 즉시 인증 차단, 로그아웃의 로컬 저장 종료·미전송 확인·삭제 순서를 보호한다.
 
-최신 기준은 같은 계정의 인증만 복구하는 재로그인, 다른 계정 변경 전 명시적 로그아웃이다. 인증 만료 후 활성 여행 Local CRUD는 계속 허용하고, 만료 후 재로그인 저장 실패에는 기존 `reauth-required`를 유지한다. 새 실패 상태나 재로그인까지 일반 HTTP 요청을 보관하는 대기열을 추가하지 않는다. 자동 갱신 성공 뒤 원래 요청 재시도와 로컬 sync_queue 보존은 유지한다. [Spec의 동작](../memory/spec/02-behavior-and-cases.md)과 [결정·정정 기록](../../records/2026-09-19-01-auth-complexity-review-and-decisions.md)에서 기준과 이유를 읽는다.
+라우팅 `f0f680e`와 DB 원자성 `9936662`에 이어 인증 변경은 `62ce226`, 동기화 중단·미전송 원본 보존은 `100e71a`로 커밋했다. 화면 정책·수정값 보존은 이번 별도 커밋 `fix(client): 화면 정책과 제한 중 입력 보존 연결`로 저장한다. 문서는 각 구현 범위와 함께 반영한다.
 
-**다음 구현은 apiClient의 갱신·재시도·응답·오류 전달과 세션 저장 실패 정합성을 먼저 고치고, 같은 계정 재로그인·명시적 계정 종료를 연결하는 일**이다. 이후 useAppPolicy의 실제 소비와 서비스 인증 요구, inactive child Local 선조회·제한/복구 화면·foreground 재확인을 정리한다. 현재 변경을 복구 가능하게 보존한 뒤 작은 범위로 진행한다.
+Main이 각 후보만 반영한 별도 디렉터리에서 검증했다. 인증 후보는 30개 suite·277개 test, 동기화까지는 33개 suite·288개 test, 최종 화면 정책까지는 **35개 suite·297개 test 통과**다. Prettier·diff 검사는 통과했다. 변경 파일 ESLint는 기존 Prettier plugin 충돌 규칙만 제외해 오류 0개·기존 경고 9개이며, 전체 타입 검사는 기존 Mapbox/download 오류 3개 때문에 성공하지 않았다.
 
-Main이 재실행한 기존 client Jest는 23 suite·235 test 통과다. 추가 검사 8개 중 5개에서 API 응답 손실·인증 오류 의미 손실·세션 저장 실패 불일치·큐 귀속 판정·DB rollback 간섭을 재현했다. 3개는 갱신 공유·일반 요청 비보관·재로그인 재시도를 확인했다. 자세한 코드와 결과는 [검사 근거](../../records/2026-09-19-02-auth-review-checks.md)에 보존했다. 이번 검토는 typecheck·lint·실기기·실제 OAuth/server token rotation을 재실행하지 않았으며 과거 검사와 미확인은 [인증 구현 기록](../../records/2026-09-18-05-auth-session-implementation.md)을 따른다.
+다음은 이번 책임 배치와 구현 결과에 대한 사용자 검토다. 실제 OAuth·SecureStore·서버 rotation·실기기 화면은 실행하지 않았다. 화면 검사는 mock 경계의 component test, 데이터 보존 검사는 실제 Drizzle SQL과 Node 메모리 SQLite로 확인했다. Ticket 06의 온라인 복구 재조회·토스트·unknown 안내 끝단 연결, 14의 전체 write/cache 계약, 15의 typed pull·중단 작업 재개, 16의 여행별 cleanup predicate는 남는다. 이번에 재현한 여섯 결함의 해소를 Ticket 06–16 전체 완료나 사용자 acceptance로 확대하지 않는다.
 
-DB 원자성·격리는 14, 엔진 결과·FAILED 복구는 15, 미전송 기록과 cleanup·로그아웃 손실 판정은 16에 연결했다. 이 문제가 남은 상태를 전체 보존 완료로 보지 않는다. 06의 정상 재로그인 단순화를 이유로 복원 실패·잔존 데이터의 소유권 검사를 제거하지 않는다. 다중 기기 제어·로그아웃 중 앱 강제 종료 후 복구 장치는 기존 제외 범위다.
-
-기기 세션 결정 문서에는 후속 합의를 연결했다. 실제 로그인 안내와 제품 코드는 아직 이전 자동 전환을 사용하므로 구현 때 최신 Spec과 맞춰야 한다. 기록의 커밋 범위는 Workspace 문서와 관련 결정 문서이며 제품 변경은 미커밋 상태로 유지한다. 문서 정리를 Ticket 06 수락이나 제품 검증 완료로 보지 않는다.
+판단 기준, 앞선 제안의 보정, 수정별 증거와 정확한 파일 진입점은 [재점검·구현 기록](../../records/2026-09-21-04-auth-responsibilities-and-regression-fixes.md)에서 읽는다.
 
 ## 그 밖의 남은 리팩토링
 
-Ticket 06–16의 제품 구현과 Ticket 17의 남은 request·response·ownership·오류 경계는 미완료다. Ticket 06의 DB·auth 실패 처리와 선택 적용은 위 결과에 포함하며, 남은 routing·네트워크 소비 연결은 06, 엔진 결과/재시도는 15에서 이어 간다.
+Ticket 06–16의 제품 구현과 Ticket 17의 남은 request·response·ownership·오류 경계는 미완료다. Ticket 06의 DB·auth 실패 처리와 화면 정책 적용은 위 결과에 포함하며, 남은 네트워크 소비 연결은 06, typed pull·cleanup 부분 실패 결과·중단된 작업 재개는 15에서 이어 간다. 여행별 미전송 판정과 정리 집계는 16에 남는다.
 
 Ticket 07의 독립 API export, 08의 순수 계산과 12의 표시 Owner 조사도 다른 후속 구현 전체를 기다리지 않는다. 10·11의 입력과 14의 cache 계약은 13이 사용하고, 13·14·15의 결과는 09의 전체 준비 완료에 필요하다. 14·15는 16의 보존 조건에 연결된다.
 

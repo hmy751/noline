@@ -28,11 +28,11 @@ describe('Policy 표의 unknown 호환', () => {
 
     expect(service.searchMode).toBe('disabled');
     expect(schedule.create.allowed).toBe(isActivated);
-    expect(schedule.read.allowed).toBe(true);
+    expect(schedule.read.allowed).toBe(isActivated);
     expect(schedule.update.allowed).toBe(isActivated);
     expect(schedule.delete.allowed).toBe(isActivated);
     expect(expense.create.allowed).toBe(isActivated);
-    expect(expense.read.allowed).toBe(true);
+    expect(expense.read.allowed).toBe(isActivated);
     expect(expense.update.allowed).toBe(isActivated);
     expect(expense.delete.allowed).toBe(isActivated);
   });

@@ -1,3 +1,5 @@
+import { PolicyErrorDisplay } from '@/shared/components/ErrorBoundary';
+import { useAppPolicy } from '@/shared/policy';
 import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Container, Stack, MobileHeader } from '@/shared/components';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -12,6 +14,7 @@ export default function ExpenseDetailScreen() {
 
   // 경비 데이터 조회 (tripId 기반으로 Router 사용)
   const { data: expenses = [], isLoading } = useGetTripExpenses(tripId || '');
+  const readPolicy = useAppPolicy(tripId).expense.read;
   const expense = expenses.find((e) => e.id === id);
 
   // 연결된 일정 조회 (scheduleId가 있는 경우)
@@ -44,6 +47,15 @@ export default function ExpenseDetailScreen() {
     };
     return colors[cat] || '#374151';
   };
+
+  if (!readPolicy.allowed) {
+    return (
+      <View className='flex-1 bg-background'>
+        <MobileHeader title='경비 상세' onLeftPress={() => router.back()} leftIcon={<ChevronLeft size={24} />} />
+        <PolicyErrorDisplay policy={readPolicy} variant='block' />
+      </View>
+    );
+  }
 
   if (isLoading) {
     return (

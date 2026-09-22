@@ -4,17 +4,17 @@
  * Policy 규칙 위반 시 발생하는 에러
  */
 
-import type { CRUDPermission } from './types';
+import type { OperationPolicy } from './types';
 
 export class PolicyError extends Error {
   public readonly code: string;
-  public readonly permission: CRUDPermission;
+  public readonly policy: OperationPolicy;
   public readonly action?: string;
 
   constructor(
     message: string,
     options?: {
-      permission?: CRUDPermission;
+      policy?: OperationPolicy;
       action?: string;
       code?: string;
     },
@@ -22,7 +22,7 @@ export class PolicyError extends Error {
     super(message);
     this.name = 'PolicyError';
     this.code = options?.code || 'POLICY_VIOLATION';
-    this.permission = options?.permission || { allowed: false };
+    this.policy = options?.policy || { allowed: false };
     this.action = options?.action;
 
     // Maintains proper stack trace for where our error was thrown (only available on V8)
@@ -35,9 +35,9 @@ export class PolicyError extends Error {
 /**
  * Policy Error 생성 헬퍼
  */
-export function createPolicyError(operation: string, permission: CRUDPermission): PolicyError {
-  return new PolicyError(permission.reason || `${operation} is not allowed`, {
-    permission,
+export function createPolicyError(operation: string, policy: OperationPolicy): PolicyError {
+  return new PolicyError(policy.reason || `${operation} is not allowed`, {
+    policy,
     code: `POLICY_${operation.toUpperCase()}_DENIED`,
   });
 }

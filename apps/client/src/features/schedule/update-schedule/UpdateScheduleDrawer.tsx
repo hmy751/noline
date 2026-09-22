@@ -4,7 +4,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Calendar, Clock, MapPin } from 'lucide-react-native';
 import { Drawer, Pressable } from '@repo/ui';
-import { DatePicker, TimePicker } from '@/shared/components';
+import { DatePicker, PolicyErrorDisplay, TimePicker } from '@/shared/components';
 import { Field } from '@/shared/components/Form';
 import { useUpdateSchedule, useGetSchedules, type Schedule } from '@/entities/schedule';
 import { useAutoDownloadRoutes } from '@/entities/route';
@@ -91,10 +91,11 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
 
   // 저장 핸들러 (유효성 검사는 zodResolver가 처리)
   const onValid = (data: ScheduleUpdateFormData) => {
-    if (!scheduleData) return;
+    if (!scheduleData) {
+      return;
+    }
 
-    // ✅ TIME_ARCHITECTURE_GUIDE: UI → Logic 변환
-    // "2024-03-15" + "14:30" → "2024-03-15T14:30:00.000Z"
+    // 날짜와 시간을 저장 경계의 ISO 시각으로 합친다.
     const scheduledAt = combineDateTimeToISO(data.date, data.time);
 
     // 장소 재검색한 경우 location 정보 추가
@@ -162,11 +163,25 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
     Alert.alert('오류', '입력한 정보를 확인해주세요.');
   };
 
-  if (!scheduleData) return null;
+  if (!scheduleData) {
+    return null;
+  }
+
+  if (!policy.schedule.update.allowed) {
+    return (
+      <Drawer isOpen={isOpen} onClose={onClose} title='일정 수정'>
+        <PolicyErrorDisplay policy={policy.schedule.update} variant='block' />
+      </Drawer>
+    );
+  }
 
   return (
     <Drawer isOpen={isOpen} onClose={onClose} title='일정 수정'>
       <View className='gap-md'>
+        {policy.schedule.update.mode === 'manual-only' && policy.schedule.update.reason && (
+          <PolicyErrorDisplay policy={policy.schedule.update} variant='banner' />
+        )}
+
         {/* 설명 */}
         <Text className='text-body text-muted-foreground'>{scheduleData.title}의 날짜와 시간을 수정합니다</Text>
 
@@ -187,7 +202,9 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
                       {
                         text: '확인',
                         onPress: (text) => {
-                          if (text) onChange(text);
+                          if (text) {
+                            onChange(text);
+                          }
                         },
                       },
                     ]);
