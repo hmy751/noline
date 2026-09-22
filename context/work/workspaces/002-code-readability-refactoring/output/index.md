@@ -89,7 +89,7 @@ Node 20.18.1에서 2개 file의 2개 test와 server build가 통과했다. 실�
 
 검증은 [세션 동시성](../../../../../apps/client/tests/shared/services/auth/session-concurrency.test.ts), [SQLite 보존](../../../../../apps/client/tests/shared/services/auth/local-preservation.test.ts), [인증 중단 결과](../../../../../apps/client/tests/shared/services/sync/auth-result.test.ts), [화면 read 제한](../../../../../apps/client/tests/screens/auth-policy.test.tsx), [정리 확인](../../../../../apps/client/tests/screens/login-recovery.test.tsx), [오프라인 수정값 보존](../../../../../apps/client/tests/features/edit/offline-values.test.tsx)에서 실제 연결을 읽는다.
 
-라우팅·DB·인증·동기화·화면 정책의 저장 경계와 최신 검사·미확인은 [state](../current/state/index.md)가 소유한다. 선택과 재현 과정은 [재점검·구현 기록](../records/2026-09-21-04-auth-responsibilities-and-regression-fixes.md), 남은 제품 책임은 [Ticket 06](../current/memory/tickets/06-app-startup-lifecycle.md)과 [14](../current/memory/tickets/14-local-mutation-router-transaction.md)·[15](../current/memory/tickets/15-sync-result-retry-pull-types.md)·[16](../current/memory/tickets/16-unsynced-data-cleanup.md)에서 이어간다.
+라우팅·DB·인증·동기화·화면 정책은 `f0f680e` → `9936662` → `62ce226` → `100e71a` → `be2f5b9`로 나눠 저장했다. 현재 검사·미확인과 다음 행동은 [state](../current/state/index.md), 커밋별 동작 경계와 분리 검증은 [마무리 기록](../records/2026-09-22-02-five-stage-commits-and-verification.md), 선택과 재현 과정은 [재점검·구현 기록](../records/2026-09-21-04-auth-responsibilities-and-regression-fixes.md)에서 읽는다. 남은 제품 책임은 [Ticket 06](../current/memory/tickets/06-app-startup-lifecycle.md)과 [14](../current/memory/tickets/14-local-mutation-router-transaction.md)·[15](../current/memory/tickets/15-sync-result-retry-pull-types.md)·[16](../current/memory/tickets/16-unsynced-data-cleanup.md)에서 이어간다.
 
 ## 17 — Trip·Expense 직렬화 선행 조각 (당시 16)
 

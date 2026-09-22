@@ -24,11 +24,11 @@ Project-wide 판단으로 남은 항목은 Expense 날짜 계약, 금액 반올�
 
 [Ticket 06](../memory/tickets/06-app-startup-lifecycle.md)의 인증 책임과 실행 순서를 재검토한 뒤, 사용자 확정 기준에 따라 구현했다. 상태만으로 답하는 계정·인증 판단은 Auth Store에 모았고, DB 소유권 SQL과 사용자 세션 변경 절차는 각각의 책임으로 유지했다. 계정 검사·저장·적용, 즉시 인증 차단, 로그아웃의 로컬 저장 종료·미전송 확인·삭제 순서를 보호한다.
 
-라우팅 `f0f680e`와 DB 원자성 `9936662`에 이어 인증 변경은 `62ce226`, 동기화 중단·미전송 원본 보존은 `100e71a`로 커밋했다. 화면 정책·수정값 보존은 이번 별도 커밋 `fix(client): 화면 정책과 제한 중 입력 보존 연결`로 저장한다. 문서는 각 구현 범위와 함께 반영한다.
+합의한 순서의 다섯 범위를 각각 저장했다. 대상 여행 라우팅은 `f0f680e`, DB 원자성은 `9936662`, 인증 세션 전환·로컬 데이터 보존은 `62ce226`, 동기화 중단 결과·미전송 원본 보존은 `100e71a`, 화면 정책·제한 중 입력 보존은 `be2f5b9`다. 마지막 커밋에는 사용자가 함께 요청한 인증 파일의 빈 줄 정리와 해당 Ticket·state·output 갱신도 포함됐다. 각 커밋의 동작 경계와 검사 결과는 [분리 커밋 마무리 기록](../../records/2026-09-22-02-five-stage-commits-and-verification.md)에 남긴다.
 
-Main이 각 후보만 반영한 별도 디렉터리에서 검증했다. 인증 후보는 30개 suite·277개 test, 동기화까지는 33개 suite·288개 test, 최종 화면 정책까지는 **35개 suite·297개 test 통과**다. Prettier·diff 검사는 통과했다. 변경 파일 ESLint는 기존 Prettier plugin 충돌 규칙만 제외해 오류 0개·기존 경고 9개이며, 전체 타입 검사는 기존 Mapbox/download 오류 3개 때문에 성공하지 않았다.
+Main이 각 후보만 반영한 별도 디렉터리에서 검증했다. 인증 후보는 30개 suite·277개 test, 동기화까지는 33개 suite·288개 test, 최종 화면 정책까지는 **35개 suite·297개 test 통과**다. 마지막 커밋 직전의 staged 내용만 적용한 별도 디렉터리에서도 35개 suite·297개 test가 통과했고 `git diff --cached --check`도 통과했다. 앞선 변경 파일 Prettier 검사와 Prettier plugin 충돌 규칙만 제외한 ESLint 실행은 오류 0개·기존 경고 9개였다. 전체 타입 검사는 기존 Mapbox/download 오류 3개 때문에 성공하지 않았다.
 
-다음은 이번 책임 배치와 구현 결과에 대한 사용자 검토다. 실제 OAuth·SecureStore·서버 rotation·실기기 화면은 실행하지 않았다. 화면 검사는 mock 경계의 component test, 데이터 보존 검사는 실제 Drizzle SQL과 Node 메모리 SQLite로 확인했다. Ticket 06의 온라인 복구 재조회·토스트·unknown 안내 끝단 연결, 14의 전체 write/cache 계약, 15의 typed pull·중단 작업 재개, 16의 여행별 cleanup predicate는 남는다. 이번에 재현한 여섯 결함의 해소를 Ticket 06–16 전체 완료나 사용자 acceptance로 확대하지 않는다.
+다음은 이번 책임 배치와 구현 결과에 대한 사용자 검토다. 실제 OAuth·SecureStore·서버 rotation·실기기 화면은 실행하지 않았다. 화면 검사는 mock 경계의 component test, 데이터 보존 검사는 실제 Drizzle SQL과 Node 메모리 SQLite로 확인했다. Ticket 06의 온라인 복구 재조회·토스트·unknown 안내 끝단 연결과 foreground 재확인, 14의 전체 write/cache 계약, 15의 typed pull·cleanup 부분 실패 결과·중단 작업 재개, 16의 여행별 미전송 판정·cleanup 집계는 남는다. 이번에 재현한 여섯 결함의 해소를 Ticket 06–16 전체 완료나 사용자 acceptance로 확대하지 않는다.
 
 판단 기준, 앞선 제안의 보정, 수정별 증거와 정확한 파일 진입점은 [재점검·구현 기록](../../records/2026-09-21-04-auth-responsibilities-and-regression-fixes.md)에서 읽는다.
 

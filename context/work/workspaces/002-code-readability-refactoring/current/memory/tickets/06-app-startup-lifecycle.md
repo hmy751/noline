@@ -217,7 +217,7 @@ completeLogin은 Store의 검증·저장 결과를 사용하고 실패한 서버
 
 ## 현재 상태와 실제 결과
 
-startup·스타일은 `8a1a3ea`, sync 연결은 `029adb6`, 정책 합의는 `71c1a02`, 대상 여행 라우팅은 `f0f680e`, DB 원자성은 `9936662`로 저장됐다. 인증 책임·전환·로컬 저장 보호는 `62ce226`, 동기화 중단·미전송 원본 보존은 `100e71a`로 저장했다. 화면 정책·입력 보존은 이번 별도 커밋 `fix(client): 화면 정책과 제한 중 입력 보존 연결`에 포함한다.
+startup·스타일은 `8a1a3ea`, sync 연결은 `029adb6`, 정책 합의는 `71c1a02`, 대상 여행 라우팅은 `f0f680e`, DB 원자성은 `9936662`로 저장됐다. 인증 책임·전환·로컬 저장 보호는 `62ce226`, 동기화 중단·미전송 원본 보존은 `100e71a`, 화면 정책·입력 보존은 `be2f5b9`로 각각 저장했다. 다섯 단계의 실제 커밋 경계와 마지막 staged 후보의 검증은 [분리 커밋 마무리 기록](../../../records/2026-09-22-02-five-stage-commits-and-verification.md)에 있다.
 
 앞선 분할 검토·토큰 분리·원복·부분 개선의 경위는 [분할 검토 기록](../../../records/2026-09-21-01-auth-policy-split-review-and-commits.md), [원복 기록](../../../records/2026-09-21-02-auth-token-separation-consumer-review-and-rollback.md), [부분 개선 기록](../../../records/2026-09-21-03-auth-consumer-boundary-implementation.md)에 보존한다. 최종 책임 배치·재현과 검사 경계는 [이번 구현 기록](../../../records/2026-09-21-04-auth-responsibilities-and-regression-fixes.md)에 있다. 온라인 복구 후 재조회·토스트, unknown 10초 안내의 화면 끝단 연결과 foreground 재확인 등 Ticket 전체 완료와 사용자 최종 수락은 아직 아니다.
 
