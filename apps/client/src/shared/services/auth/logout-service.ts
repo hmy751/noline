@@ -34,8 +34,8 @@ export async function checkPendingSync(): Promise<{
   const stats = await getSyncQueueStats();
 
   return {
-    hasPending: stats.pending > 0 || stats.inProgress > 0,
-    pendingCount: stats.pending + stats.inProgress,
+    hasPending: stats.pending > 0 || stats.inProgress > 0 || stats.failed > 0,
+    pendingCount: stats.pending + stats.inProgress + stats.failed,
     failedCount: stats.failed,
   };
 }

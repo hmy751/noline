@@ -12,8 +12,10 @@ import {
   tripActivations,
   syncQueue,
 } from '@/shared/db';
+import { inspectLocalAccount } from '@/shared/services/auth/local-account';
 import { useAuthStore } from '@/shared/store/auth';
 import { createScheduleLocal, deleteScheduleLocal } from '@/entities/schedule/lib/schedule-local';
+import { createExpenseLocal, deleteExpenseLocal } from '@/entities/expense/lib/expense-local';
 
 let mockFailSql: string | null = null;
 
@@ -147,6 +149,7 @@ beforeEach(async () => {
 });
 
 import { eq } from 'drizzle-orm';
+import { vacuumDeletedRecords } from '@/shared/services/sync/cleanup-job';
 import { performLogout } from '@/shared/services/auth/logout-service';
 import { logout as logoutApi } from '@/shared/services/auth/auth-api';
 import { ScheduleRepository } from '@/entities/schedule/repository/schedule-repository';
@@ -164,6 +167,24 @@ beforeEach(async () => {
   for (const table of [expenses, schedules, tripActivations, trips]) {
     await getDatabase().delete(table).where(eq(table.userId, 'b'));
   }
+});
+
+it('오래된 삭제 row도 미전송 큐가 참조하면 보존하여 계정 확인을 유지한다', async () => {
+  await createScheduleLocal(scheduleInput);
+  await deleteScheduleLocal(scheduleInput.id);
+  await getDatabase()
+    .update(schedules)
+    .set({ deletedAt: '2000-01-01T00:00:00Z' })
+    .where(eq(schedules.id, scheduleInput.id));
+  expect(await inspectLocalAccount('a')).toBe('same');
+  await vacuumDeletedRecords();
+  const row = await getDatabase().select().from(schedules).where(eq(schedules.id, scheduleInput.id)).get();
+  const tasks = await getDatabase().select().from(syncQueue).all();
+  expect({ rowExists: Boolean(row), queueLength: tasks.length, account: await inspectLocalAccount('a') }).toEqual({
+    rowExists: true,
+    queueLength: 2,
+    account: 'same',
+  });
 });
 
 it('로그아웃의 확인과 삭제 사이에는 새 Local 저장을 거절한다', async () => {
@@ -226,6 +247,34 @@ it('DB 재생성 실패는 이미 지운 큐와 테이블도 함께 복구한다
   expect((await getDatabase().select().from(syncQueue).all()).length).toBe(1);
   expect(await getDatabase().select().from(schedules).where(eq(schedules.id, scheduleInput.id)).get()).toBeTruthy();
 });
+
+it.each(['PENDING', 'IN_PROGRESS', 'FAILED'] as const)(
+  '%s 경비 큐가 남아 있으면 vacuum에서 원본을 보존한다',
+  async (status) => {
+    await createExpenseLocal({
+      id: 'queued-expense',
+    scheduleId: null,
+    hasReceipt: false,
+    receiptUrl: null,
+      tripId: 'trip-a',
+      title: '보존',
+      amount: '1',
+      currency: 'USD',
+      category: 'food',
+      date: now,
+    });
+    await deleteExpenseLocal('queued-expense');
+    await getDatabase()
+      .update(expenses)
+      .set({ deletedAt: '2000-01-01T00:00:00Z' })
+      .where(eq(expenses.id, 'queued-expense'));
+    await getDatabase().update(syncQueue).set({ status });
+    expect((await vacuumDeletedRecords()).expenses).toBe(0);
+    expect(await inspectLocalAccount('a')).toBe('same');
+    await getDatabase().delete(syncQueue);
+    expect((await vacuumDeletedRecords()).expenses).toBe(1);
+  },
+);
 
 it('세션 변경 절차가 실패해도 로컬 transaction 차단을 해제한다', async () => {
   await expect(

@@ -1,20 +1,16 @@
 import syncApiClient from './api';
-import { getPendingTasks, deleteTask, updateTaskStatus, retryFailedTask } from './queue';
+import { getSyncableTasks, getSyncQueueStats, deleteTask, updateTaskStatus, retryFailedTask } from './queue';
 import { getLastSyncedAt, setLastSyncedAt } from './storage';
 import { upsertTrips, upsertSchedules, upsertExpenses } from '@/shared/db/utils';
 import { queryClient } from '@/shared/lib/queryClient';
 import { getDatabase, tripActivations } from '@/shared/db';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
+import { selectLocalUserId, useAuthStore } from '@/shared/store/auth';
+import { getQueueOwner } from '@/shared/services/auth/local-account';
 import { processPendingCleanups } from './cleanup-job';
 import { AuthRequiredError } from '@/shared/store/auth';
 
-/**
- * Sync push 대상 테이블 → 서버 endpoint 매핑.
- *
- * 새 sync-owned entity가 추가될 때 여기에만 한 줄을 더 한다. push 엔진은
- * tableName 으로 endpoint 만 lookup하고, action 별 HTTP 메서드는
- * 아래 helper에서 결정한다.
- */
+/** sync-owned table의 endpoint는 여기서 관리하고 HTTP method는 action으로 결정한다. */
 const SYNC_PUSH_ENDPOINTS = {
   trips: '/api/trips',
   schedules: '/api/schedules',
@@ -23,6 +19,13 @@ const SYNC_PUSH_ENDPOINTS = {
 
 type SyncTable = keyof typeof SYNC_PUSH_ENDPOINTS;
 type SyncAction = 'CREATE' | 'UPDATE' | 'DELETE';
+
+export class SyncIncompleteError extends Error {
+  constructor(public failedCount: number) {
+    super(`동기화하지 못한 변경이 ${failedCount}개 있습니다`);
+    this.name = 'SyncIncompleteError';
+  }
+}
 
 function isSyncTable(tableName: string): tableName is SyncTable {
   return tableName in SYNC_PUSH_ENDPOINTS;
@@ -53,35 +56,32 @@ async function pushTaskToServer(
   }
 }
 
-/**
- * Push 동기화 엔진
- *
- * sync_queue의 PENDING 작업을 서버로 전송
- * - FIFO 순서 보장 (createdAt 기준)
- * - 성공 시 sync_queue에서 삭제
- * - 실패 시 상태를 FAILED로 변경
- */
+/** PENDING과 재시도 가능한 FAILED 작업을 FIFO로 전송한다. */
 export async function pushChanges(): Promise<void> {
   try {
-    // PENDING 작업 조회 (FIFO 순서)
-    const tasks = await getPendingTasks();
+    const tasks = await getSyncableTasks();
 
     if (tasks.length === 0) {
+      const stats = await getSyncQueueStats();
+      if (stats.failed + stats.inProgress > 0) {
+        throw new SyncIncompleteError(stats.failed + stats.inProgress);
+      }
       console.log('[Sync] No pending tasks');
       return;
     }
 
     console.log(`[Sync] Starting push: ${tasks.length} tasks`);
 
-    // 인증 에러 발생 여부 추적
-    let authErrorOccurred = false;
-
-    // 순차적으로 처리
     for (const task of tasks) {
+      if (
+        useAuthStore.getState().status !== 'signed-in' ||
+        (await getQueueOwner(task)) !== selectLocalUserId(useAuthStore.getState())
+      ) {
+        throw new AuthRequiredError('현재 계정으로 전송할 수 없는 작업입니다');
+      }
       try {
         console.log(`[Sync] Processing: ${task.action} ${task.tableName}/${task.recordId}`);
 
-        // 상태 변경: PENDING → IN_PROGRESS
         await updateTaskStatus(task.id, 'IN_PROGRESS');
 
         if (!isSyncTable(task.tableName)) {
@@ -91,46 +91,38 @@ export async function pushChanges(): Promise<void> {
         const payload = JSON.parse(task.payload);
         await pushTaskToServer(task.tableName, task.action as SyncAction, task.recordId, payload);
 
-        // 성공 시 sync_queue에서 삭제
         await deleteTask(task.id);
 
         console.log(`[Sync] Success: ${task.action} ${task.tableName}/${task.recordId}`);
       } catch (error) {
-        // AuthRequiredError: PENDING 유지 + 루프 중단
         if (error instanceof AuthRequiredError) {
           console.warn(`[Sync] AuthRequiredError: ${task.tableName}/${task.recordId} - keeping PENDING`);
-          // 상태를 다시 PENDING으로 복구 (IN_PROGRESS → PENDING)
           await retryFailedTask(task.id);
-          // 인증 에러 플래그 설정
-          authErrorOccurred = true;
-          // 인증 에러 시 나머지 작업도 실패할 것이므로 루프 중단
-          break;
+          throw error;
         }
 
-        // 그 외 에러: FAILED로 변경
         console.error(`[Sync] Failed: ${task.action} ${task.tableName}/${task.recordId}`, error);
         await updateTaskStatus(task.id, 'FAILED', task.retryCount + 1);
+        break;
       }
     }
 
-    // 인증 에러 발생 시 cleanup 건너뛰기
-    if (authErrorOccurred) {
-      console.log('[Sync] Skipping cleanup due to auth error');
-      return;
+    const stats = await getSyncQueueStats();
+    if (stats.failed + stats.inProgress > 0) {
+      throw new SyncIncompleteError(stats.failed + stats.inProgress);
     }
 
-    console.log(`[Sync] Push completed`);
+    console.log('[Sync] Push completed');
 
-    // Push 완료 후 pending cleanup 처리
     try {
       console.log('[Sync] Checking for pending cleanups...');
       await processPendingCleanups();
     } catch (error) {
       console.error('[Sync] Failed to process pending cleanups (ignored):', error);
-      // cleanup 실패해도 Push는 성공으로 처리
     }
   } catch (error) {
     console.error('[Sync] Push failed:', error);
+    throw error;
   }
 }
 
@@ -152,11 +144,15 @@ export async function pullChanges(): Promise<void> {
     const activatedTrips = await getDatabase()
       .select({ tripId: tripActivations.tripId })
       .from(tripActivations)
-      .where(eq(tripActivations.isActivated, true));
+      .where(
+        and(
+          eq(tripActivations.isActivated, true),
+          eq(tripActivations.userId, selectLocalUserId(useAuthStore.getState()) ?? ''),
+        ),
+      );
     const activatedTripIds = activatedTrips.map((activation) => activation.tripId);
 
-    // ✅ 활성화된 여행이 없으면 Pull 건너뛰기
-    // (비활성 상태에서는 로컬 DB에 데이터를 저장하지 않음)
+    // 비활성 여행의 서버 데이터는 local DB에 저장하지 않는다.
     if (activatedTripIds.length === 0) {
       console.log('[Sync] Skipping pull: No activated trips');
       return;
@@ -177,6 +173,10 @@ export async function pullChanges(): Promise<void> {
 
     // 정책: 서버 응답은 { success, data } 구조
     const { trips, schedules, expenses, serverTime } = response.data.data;
+    const rows = [...(trips ?? []), ...(schedules ?? []), ...(expenses ?? [])];
+    if (rows.some((row: { userId: string }) => row.userId !== selectLocalUserId(useAuthStore.getState()))) {
+      throw new Error('다른 계정의 동기화 응답입니다');
+    }
 
     console.log('[Sync] Received from server:', {
       trips: trips?.length || 0,
@@ -189,7 +189,6 @@ export async function pullChanges(): Promise<void> {
     if (trips && trips.length > 0) {
       const normalizedTrips = (trips as Array<Record<string, unknown>>).map((trip) => ({
         ...trip,
-        // ✅ ISO string 그대로 저장 (TEXT 컬럼)
         version: trip.version ?? 1,
       }));
       await upsertTrips(normalizedTrips as never[]);
@@ -198,7 +197,6 @@ export async function pullChanges(): Promise<void> {
     if (schedules && schedules.length > 0) {
       const normalizedSchedules = (schedules as Array<Record<string, unknown>>).map((schedule) => ({
         ...schedule,
-        // ✅ ISO string 그대로 저장 (TEXT 컬럼)
         version: schedule.version ?? 1,
       }));
       await upsertSchedules(normalizedSchedules as never[]);
@@ -207,7 +205,6 @@ export async function pullChanges(): Promise<void> {
     if (expenses && expenses.length > 0) {
       const normalizedExpenses = (expenses as Array<Record<string, unknown>>).map((expense) => ({
         ...expense,
-        // ✅ ISO string 그대로 저장 (TEXT 컬럼)
         version: expense.version ?? 1,
       }));
       await upsertExpenses(normalizedExpenses as never[]);
@@ -230,28 +227,12 @@ export async function pullChanges(): Promise<void> {
   }
 }
 
-/**
- * 통합 동기화 (Push + Pull)
- *
- * 1. Push: 로컬 변경사항을 서버로 전송
- * 2. Pull: 서버 최신 데이터를 로컬로 가져오기
- *
- * SyncProvider에서 자동으로 호출됨:
- * - 앱 시작 시
- * - 네트워크 복구 시
- * - 주기적 동기화 (5분마다)
- *
- * push는 가볍기 때문에 pull과 같이 동작하는것으로 결정, 다만 순서는 지켜야 됨
- *
- */
+/** 로컬 변경을 먼저 Push한 뒤 서버 변경을 Pull한다. */
 export async function syncData(): Promise<void> {
   try {
     console.log('[Sync] Starting full sync (Push + Pull)...');
 
-    // Push 먼저! (로컬 변경사항 전송)
     await pushChanges();
-
-    // Pull 나중! (서버 최신 데이터 가져오기)
     await pullChanges();
 
     console.log('[Sync] Full sync completed');

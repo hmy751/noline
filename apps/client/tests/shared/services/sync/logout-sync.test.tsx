@@ -257,6 +257,18 @@ describe('sync와 세션 종료 순서', () => {
     expect(syncMock).toHaveBeenCalledTimes(2);
   });
 
+  it('FAILED 작업도 손실 가능한 미동기화 데이터로 계산한다', async () => {
+    statsMock.mockResolvedValue({ pending: 0, inProgress: 0, failed: 2, total: 2 });
+
+    await expect(performLogout()).resolves.toMatchObject({
+      success: false,
+      hasPendingSync: true,
+      pendingCount: 2,
+    });
+    expect(logoutApi).not.toHaveBeenCalled();
+    expect(resetDatabase).not.toHaveBeenCalled();
+  });
+
   it('회원 탈퇴의 서버 요청이 실패하면 DB를 유지하고 sync 일시 중단을 해제한다', async () => {
     const { result } = renderHook(() => useSyncContext(), { wrapper: SyncWrapper });
     await act(async () => {

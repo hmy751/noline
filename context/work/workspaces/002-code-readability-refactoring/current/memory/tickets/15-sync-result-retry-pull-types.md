@@ -25,6 +25,10 @@ schema parse와 상태 모델의 구조는 독립적으로 조사할 수 있지�
 
 ## 현재 상태와 실제 결과
 
-기존 12를 15로 옮겼으며 이 Ticket 자체의 제품 구현·검증·수락은 남아 있다. 06의 공통 인증 갱신과 14·003-11·12의 관련 결과를 사용한다. 부분 실패는 재현 근거가 있으나 sync 전용 5xx retry 횟수·실제 엔진 동시 실행은 미확인이다. 공통 인증 갱신 공유 검사의 통과를 이 검증까지 확대한 것으로 보지 않는다.
+sync engine은 PENDING과 retryCount 3 미만의 FAILED를 FIFO로 전송한다. 한도에 도달한 FAILED 또는 남은 IN_PROGRESS를 건너뛰어 뒤 작업을 전송하지 않는다. 일반 실패는 retryCount를 올려 FAILED로 남기고 뒤 작업을 중단하며, 남은 FAILED·IN_PROGRESS는 SyncIncompleteError로 lifecycle에 실패를 전달한다.
 
-현재 sync API는 공통 인증 interceptor를 설치하며 동시 갱신 공유가 연결돼 있다. 일반 HTTP 호출을 재로그인까지 보관하지 않는 정책과 sync_queue 보존을 구분한다. 인증 오류로 PENDING에 돌린 작업은 이후 다시 전송하지만 FAILED까지 재로그인만으로 모두 복구된다고 보장하지 않는다. 큐 소유권 오류를 재로그인만 하면 풀리는 인증 만료와 같은 안내로 처리하지 않게 오류 의미를 확인한다. lifecycle의 completed는 현재 엔진 Promise resolve를 뜻하므로 모든 전송 성공으로 확대하지 않는다. `syncStrategy`·`uiMode`는 현재 src에서 실행 소비를 찾지 못한 선언이며 정책 표의 값만으로 실행을 설명하지 않는다.
+인증 오류는 현재 작업을 PENDING으로 되돌린 뒤 오류를 호출자까지 전달한다. 활성 여행이 없어 pull이 생략되는 경우에도 completed를 반환하지 않으며 성공 시각을 갱신하지 않는다. 큐 원본과 payload의 계정 및 pull 응답의 userId도 현재 계정과 대조한다. 실제 engine·lifecycle을 연결한 인증 중단 검사, 실패 재전송·뒤 작업 중단 검사와 Node SQLite의 재시도 한도 뒤 작업 보존 검사를 추가했다.
+
+HTTP 5xx 재시도는 인증 커밋에서 일반 요청 책임으로 수정했다. 실제 Axios adapter와 fake timer로 최초 요청을 포함해 총 4회 호출(재시도 3회)을 확인했다. 저장된 큐의 다음 실행 재시도와 별개다. 화면 Policy의 미사용 syncStrategy·uiMode 정리는 화면 정책 커밋에서 반영한다.
+
+pull response schema와 as never[] 제거, malformed pull·cleanup 부분 실패의 typed result, 중단된 IN_PROGRESS의 명시적 재개 정책은 남는다. 실제 네트워크·서버 DB를 실행하지 않았으므로 Ticket 전체 완료·검증·사용자 수락은 아니다.

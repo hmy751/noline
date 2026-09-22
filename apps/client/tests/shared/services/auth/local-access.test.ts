@@ -21,6 +21,7 @@ import {
 } from '@/entities/schedule/lib/schedule-local';
 import { getExpensesByTripIdLocal, createExpenseLocal } from '@/entities/expense/lib/expense-local';
 import { getTripActivationStatus } from '@/shared/services/offline-prep/metadata';
+import { getSyncableTasks } from '@/shared/services/sync/queue';
 
 interface TestDatabase {
   exec: (sql: string) => void;
@@ -188,6 +189,47 @@ describe.each(['signed-in', 'reauth-required'] as const)('%s의 활성 여행 �
     ).rejects.toThrow();
     expect(await getDatabase().select().from(syncQueue).all()).toEqual([]);
   });
+});
+
+it('FAILED 작업은 3회 미만까지만 다음 sync 대상으로 복구한다', async () => {
+  await getDatabase()
+    .insert(syncQueue)
+    .values([
+      {
+        id: 'retryable',
+        tableName: 'trips',
+        recordId: 'trip-a',
+        action: 'UPDATE',
+        payload: '{}',
+        status: 'FAILED',
+        retryCount: 2,
+        createdAt: now,
+      },
+      {
+        id: 'exhausted',
+        tableName: 'trips',
+        recordId: 'trip-a',
+        action: 'UPDATE',
+        payload: '{}',
+        status: 'FAILED',
+        retryCount: 3,
+        createdAt: '2026-01-02T00:00:00Z',
+      },
+      {
+        id: 'later',
+        tableName: 'trips',
+        recordId: 'trip-a',
+        action: 'UPDATE',
+        payload: '{}',
+        status: 'PENDING',
+        retryCount: 0,
+        createdAt: '2026-01-03T00:00:00Z',
+      },
+    ]);
+
+  expect((await getSyncableTasks()).map((task) => task.id)).toContain('retryable');
+  expect((await getSyncableTasks()).map((task) => task.id)).not.toContain('exhausted');
+  expect((await getSyncableTasks()).map((task) => task.id)).not.toContain('later');
 });
 
 it('큐 소유자는 원본 row와 payload 계정을 함께 확인한다', async () => {

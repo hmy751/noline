@@ -57,6 +57,17 @@ export async function getPendingTasks(): Promise<SyncQueueItem[]> {
   return tasks;
 }
 
+/** FIFO를 유지하며 전송 가능한 앞부분만 반환한다. 막힌 작업을 건너뛰지 않는다. */
+export async function getSyncableTasks(): Promise<SyncQueueItem[]> {
+  const tasks = await runDatabaseOperation(() =>
+    getDatabase().select().from(syncQueue).orderBy(syncQueue.createdAt).all(),
+  );
+  const blockedIndex = tasks.findIndex(
+    (task) => task.status !== 'PENDING' && !(task.status === 'FAILED' && task.retryCount < 3),
+  );
+  return blockedIndex === -1 ? tasks : tasks.slice(0, blockedIndex);
+}
+
 /**
  * 특정 작업 조회
  *

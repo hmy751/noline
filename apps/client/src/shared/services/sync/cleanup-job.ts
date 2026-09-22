@@ -1,5 +1,5 @@
-import { getDatabase, tripActivations, schedules, expenses } from '@/shared/db';
-import { eq, sql, and, isNotNull, lt } from 'drizzle-orm';
+import { getDatabase, tripActivations, schedules, expenses, syncQueue } from '@/shared/db';
+import { eq, sql, and, isNotNull, lt, notExists } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { hasPendingTasksForTrip } from './queue';
 import { cleanupOfflineMapForTrip } from '@/shared/services/offline-map';
@@ -239,32 +239,30 @@ export async function vacuumDeletedRecords(): Promise<{ schedules: number; expen
     let expensesDeleted = 0;
 
     await withTransaction(async () => {
-      // Hard delete: schedules (deletedAt이 7일 이전)
-      const schedulesToDelete = await getDatabase()
-        .select({ id: schedules.id })
-        .from(schedules)
-        .where(and(isNotNull(schedules.deletedAt), lt(schedules.deletedAt, thresholdISO)))
-        .all();
-
-      if (schedulesToDelete.length > 0) {
-        await getDatabase()
-          .delete(schedules)
-          .where(and(isNotNull(schedules.deletedAt), lt(schedules.deletedAt, thresholdISO)));
-        schedulesDeleted = schedulesToDelete.length;
-      }
-
-      // Hard delete: expenses (deletedAt이 7일 이전)
-      const expensesToDelete = await getDatabase()
-        .select({ id: expenses.id })
-        .from(expenses)
-        .where(and(isNotNull(expenses.deletedAt), lt(expenses.deletedAt, thresholdISO)))
-        .all();
-
-      if (expensesToDelete.length > 0) {
-        await getDatabase()
-          .delete(expenses)
-          .where(and(isNotNull(expenses.deletedAt), lt(expenses.deletedAt, thresholdISO)));
-        expensesDeleted = expensesToDelete.length;
+      // 큐 상태와 무관하게 원본 행이 남아 있어야 재전송과 계정 확인이 가능하다.
+      for (const [tableName, table] of [
+        ['schedules', schedules],
+        ['expenses', expenses],
+      ] as const) {
+        const canDelete = and(
+          isNotNull(table.deletedAt),
+          lt(table.deletedAt, thresholdISO),
+          notExists(
+            getDatabase()
+              .select({ id: syncQueue.id })
+              .from(syncQueue)
+              .where(and(eq(syncQueue.tableName, tableName), eq(syncQueue.recordId, table.id))),
+          ),
+        );
+        const records = await getDatabase().select({ id: table.id }).from(table).where(canDelete).all();
+        if (records.length > 0) {
+          await getDatabase().delete(table).where(canDelete);
+        }
+        if (tableName === 'schedules') {
+          schedulesDeleted = records.length;
+        } else {
+          expensesDeleted = records.length;
+        }
       }
     });
 
