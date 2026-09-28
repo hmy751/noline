@@ -121,3 +121,36 @@ it.each(['offline', 'unknown'] as const)('%s에서는 비활성 여행의 캐시
   expect(view.queryByText('저장된 경비')).toBeNull();
   expect(view.getByText(/오프라인에서는 활성 여행/)).toBeTruthy();
 });
+
+it.each([
+  { name: '일정 목록', Screen: ScheduleScreen, content: '저장된 일정' },
+  { name: '경비 목록', Screen: ExpensesScreen, content: '저장된 경비' },
+  { name: '경비 상세', Screen: ExpenseDetailScreen, content: '저장된 경비' },
+])('$name은 활성 정보의 최초 확인·실패를 구별하고 활성 확인 뒤 내용을 표시한다', ({ Screen, content }) => {
+  const activation = jest.mocked(useGetTripActivation);
+  jest.mocked(useDisplayNetworkStatus).mockReturnValue('offline');
+  activation.mockReturnValue({ data: undefined, isError: false } as ReturnType<typeof useGetTripActivation>);
+  const view = render(<Screen />);
+  expect(view.getByText('여행 활성 상태를 확인하고 있어요.')).toBeTruthy();
+  expect(view.queryByText('작업을 수행할 수 없습니다')).toBeNull();
+  expect(view.queryAllByText(content)).toHaveLength(0);
+  expect(view.queryByText(/오프라인에서는 활성 여행/)).toBeNull();
+
+  activation.mockReturnValue({ data: undefined, isError: true } as ReturnType<typeof useGetTripActivation>);
+  view.rerender(<Screen />);
+  expect(view.getByText('여행 활성 상태를 확인하지 못했어요.')).toBeTruthy();
+  expect(view.queryAllByText(content)).toHaveLength(0);
+  expect(view.queryByText(/오프라인에서는 활성 여행/)).toBeNull();
+
+  activation.mockReturnValue({ data: { isActivated: true }, isError: false } as ReturnType<
+    typeof useGetTripActivation
+  >);
+  view.rerender(<Screen />);
+  expect(view.queryAllByText(content).length).toBeGreaterThan(0);
+  expect(useTripStore.getState().selectedTripId).toBe('trip');
+
+  activation.mockReturnValue({ data: { isActivated: true }, isError: true } as ReturnType<typeof useGetTripActivation>);
+  view.rerender(<Screen />);
+  expect(view.queryAllByText(content).length).toBeGreaterThan(0);
+  expect(view.queryByText('여행 활성 상태를 확인하지 못했어요.')).toBeNull();
+});

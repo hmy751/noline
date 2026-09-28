@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { AlertCircle, WifiOff, Lock } from 'lucide-react-native';
 import type { OperationPolicy } from '@/shared/policy/types';
 
@@ -31,6 +31,20 @@ type PolicyErrorDisplayProps = {
  */
 export function PolicyErrorDisplay({ policy, variant = 'banner', message }: PolicyErrorDisplayProps) {
   const displayMessage = message || policy.reason || '이 작업을 수행할 수 없습니다';
+
+  if (policy.pending) {
+    return (
+      <View
+        accessibilityState={{ busy: true }}
+        className={
+          variant === 'block' ? 'flex-1 items-center justify-center px-lg' : 'px-sm py-xs flex-row items-center'
+        }
+      >
+        <ActivityIndicator color='hsl(120, 61%, 34%)' />
+        <Text className='text-body text-muted-foreground text-center m-xs'>{displayMessage}</Text>
+      </View>
+    );
+  }
 
   // 에러 아이콘 선택
   const getIcon = () => {

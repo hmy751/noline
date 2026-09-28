@@ -28,7 +28,7 @@ Noline은 Selective Local-First다. 활성 여행의 Trip·Schedule·Expense는 
 - [Root](../../../../../../../apps/client/app/_layout.tsx)는 앱 구성을 보여 주고, [AppInitialization](../../../../../../../apps/client/src/application/AppInitialization.tsx)이 네트워크 감지 수명과 DB→인증 복원→준비 완료를 소유한다. 첫 네트워크 결과를 기다리지 않는다. DB 준비 실패에는 Provider·화면을 연결하지 않고 실패·재시도 화면을 보여 준다.
 - [Activation Router](../../../../../../../apps/client/src/shared/services/offline-prep/router.ts)는 실제 online일 때만 Remote를 열도록 호환 수정했고, override 중 Router mutation은 Local/Remote 모두 거부한다. Trip 단건 조회·수정·삭제는 대상 여행의 활성 상태로 분기하도록 수정했다. 신규 생성과 inactive child의 대상 전달은 실제 소비 경로에서 계속 확인한다.
 - [Schedule repository](../../../../../../../apps/client/src/entities/schedule/repository/schedule-repository.ts)와 [Expense repository](../../../../../../../apps/client/src/entities/expense/repository/expense-repository.ts)의 child 조회·수정·삭제는 호출 화면이 가진 tripId를 Router에 전달해 inactive Remote 경로가 Local 선조회에 의존하지 않는다.
-- [Policy hook](../../../../../../../apps/client/src/shared/policy/useAppPolicy.ts)은 unknown을 제한 모드로 처리하고 핵심 데이터인 Schedule·Expense의 CRUD와 지도·검색 정책을 반환한다. 수정·삭제는 실제 메뉴·편집 화면에 연결하며 Router가 실행 경로와 최종 차단을 맡는다. 공개 Places 요청은 보호 인증 client에서 분리했다. unknown 안내 이유·내용 제한과 활성 여부 로딩의 후속 연결은 남아 있다.
+- [Policy hook](../../../../../../../apps/client/src/shared/policy/useAppPolicy.ts)은 unknown을 제한 모드로 처리하고 핵심 데이터인 Schedule·Expense의 CRUD와 지도·검색 정책을 반환한다. 수정·삭제는 실제 메뉴·편집 화면에 연결하며 Router가 실행 경로와 최종 차단을 맡는다. 공개 Places 요청은 보호 인증 client에서 분리했다. 활성 여부 최초 확인·실패는 비활성과 구별하며 기존 결과는 재조회 중에도 유지한다. unknown의 확인 중·확인 불가 안내와 재확인 버튼 연결은 남아 있다.
 - [SyncProvider](../../../../../../../apps/client/src/shared/services/sync/provider.tsx)는 DB 준비와 인증 복원 시도 완료 뒤 mount되며 인증·세션 만료·실제 관측·override·종료 일시 중단을 구독한다. [sync lifecycle](../../../../../../../apps/client/src/shared/services/sync/lifecycle.ts)이 실행 순간의 DB 준비·인증·연결 조건, 공유 잠금과 종료 대기를 소유한다. 자동·주기·Debug 수동 실행이 같은 경계를 통과한다.
 - [QueryClient](../../../../../../../apps/client/src/shared/lib/queryClient.ts)와 조회 화면에는 이전 서버 응답이 남을 수 있다. 요청 중단만으로 제한 화면이 나타나지는 않으며, 조회 불가가 빈 목록과 합쳐지지 않아야 한다.
 - 폼의 일반 오류 안내가 Router의 제한 이유를 덮을 수 있다. 대표 수정 Drawer는 성공 때 닫고 실패 때 일반 안내를 하지만 모든 생성·삭제 경로의 입력 유지까지 검증된 것은 아니다.
@@ -216,6 +216,18 @@ completeLogin은 Store의 검증·저장 결과를 사용하고 실패한 서버
 순수 변환·Store는 지연 Promise와 fake timer, Router·repository는 Local/Remote 호출 기록, 화면·폼·SyncProvider는 관련 hook/component fixture로 확인하고 변경 경로의 타입·기존 test를 실행한다. 이번 인증 작업에서는 Node 메모리 SQLite에서 큐 insert 실패 시 일정 rollback을 검사했고, async callback 완료 전에 commit하던 공통 helper도 고쳤다. Transaction 전체 계약과 실제 기기 동시성은 14의 검증 범위에 남긴다. Expo 진입·실기기 NetInfo 빈도·외부 API를 실행하지 않았다면 미확인으로 보고한다.
 
 ## 현재 상태와 실제 결과
+
+### 네트워크 안내 후속 작업 1-A — 활성 여부 최초 확인
+
+2026-09-23에는 unknown 안내 연결을 사람이 동작별로 검토할 수 있도록 1-A 활성 여부 확인, 1-B 연결 확인 중·확인 불가·offline 안내 구별, 1-C 재확인 행동으로 나눴다. 이번 구현은 1-A에 한정한다. 온라인 복귀 후 재조회·토스트, foreground 재확인과 mutation 오류 전달은 이후 작업이다.
+
+활성 조회 결과가 아직 없는 상태를 비활성으로 간주하던 동작을 고쳤다. `useAppPolicy`는 최초 확인 중 Schedule·Expense CRUD에 `allowed: false, pending: true`를 반환하며, 최초 실패는 여행 활성 상태 확인 실패로 안내한다. 성공했지만 활성 기록이 없는 null과 아직 성공 결과가 없는 undefined를 구별한다. 이미 읽은 결과가 있으면 재조회 중이나 실패 뒤에도 그 결과를 사용한다. 이전 여행의 활성 결과를 새 여행에 재사용하지 않으며, 세션이 없으면 로그인 안내를 우선한다. 재인증 중에는 활성 여부 확인을 기다린 뒤 활성 여행의 Local 작업을 허용한다.
+
+기존 화면이 소비하는 `OperationPolicy`에 pending 표시를 추가하고 `PolicyErrorDisplay`가 진행 표시로 표현한다. 일정 목록·경비 목록·경비 상세와 수정 폼에 별도 활성 판단 조건을 복제하지 않았다. 최초 실패 뒤 재조회 성공으로 정책이 회복되는 경로는 검사했지만, 이 단위에서 활성 조회 전용 재시도 버튼을 추가한 것은 아니다.
+
+Main은 HEAD에 1-A의 변경 파일만 반영한 별도 디렉터리에서 client Jest **36개 suite·308개 test 통과**를 확인했다. 추가된 11개 검사는 실제 React Query와 활성 조회 hook에 제어 가능한 DB 응답을 연결한 8개 검사, 실제 목록·상세와 정책 표시를 연결한 3개 화면 검사다. 최초 대기·실패·기록 부재, 재조회 실패 시 기존 결과 유지, 대상 여행 전환과 인증 우선순위를 확인한다. DB는 mock이며 native SQLite·실기기 화면 검증은 아니다. 변경 파일 Prettier와 diff 검사, 기존 Prettier plugin 충돌 규칙을 제외한 ESLint는 통과했다. 타입 검사는 기존 Mapbox/download 오류 3개로 전체 성공은 아니다. 9월 23일에는 사용자 요청으로 커밋을 보류했고, 9월 28일 사용자가 1-A 커밋과 다음 작업 진행을 요청했다. 다음은 1-B의 연결 상태별 안내다.
+
+### 앞선 다섯 단계의 저장 경계
 
 startup·스타일은 `8a1a3ea`, sync 연결은 `029adb6`, 정책 합의는 `71c1a02`, 대상 여행 라우팅은 `f0f680e`, DB 원자성은 `9936662`로 저장됐다. 인증 책임·전환·로컬 저장 보호는 `62ce226`, 동기화 중단·미전송 원본 보존은 `100e71a`, 화면 정책·입력 보존은 `be2f5b9`로 각각 저장했다. 다섯 단계의 실제 커밋 경계와 마지막 staged 후보의 검증은 [분리 커밋 마무리 기록](../../../records/2026-09-22-02-five-stage-commits-and-verification.md)에 있다.
 

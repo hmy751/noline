@@ -28,7 +28,9 @@ offline_inactive
 
 Network Store의 관측 상태는 `online/offline/unknown`이다. 현재 `useAppPolicy(tripId)`는 화면용 `useDisplayNetworkStatus()`와 `useGetTripActivation(tripId)`를 조합하되, unknown의 권한 모드는 기존 offline 항목을 재사용한다. 따라서 미확정 상태에서 없는 policy key를 조회하거나 온라인 서비스 모드를 열지 않는다. unknown의 안내 시간·재확인은 Store의 `checkStatus`·`refresh`가 따로 제공한다.
 
-이 4-state 표의 재사용은 권한 모드에 한정된다. 실제 unknown을 offline으로 바꾸지 않으며, 비활성 여행의 내용 제한·이유 표시와 활성 여부 로딩의 연결은 [Ticket 06](../../context/work/workspaces/002-code-readability-refactoring/current/memory/tickets/06-app-startup-lifecycle.md)의 후속 구현에 남아 있다. 실제 요청 판단은 화면 override와 구별하며 Router는 실제 online에서만 Remote를 실행한다.
+이 4-state 표의 재사용은 권한 모드에 한정된다. 실제 unknown을 offline으로 바꾸지 않으며 실제 요청 판단은 화면 override와 구별한다. Router는 실제 online에서만 Remote를 실행한다.
+
+활성 여부 최초 조회에서는 성공 결과가 없는 undefined를 비활성으로 간주하지 않는다. 최초 확인 중에는 `pending`을 표시하고 실패는 활성 상태 확인 실패로 안내한다. 성공 후 기록이 없는 null과 구별하며, 기존 결과는 재조회 중·실패 뒤에도 유지한다. 여행 대상이 바뀌면 이전 결과를 재사용하지 않고 Local session이 없으면 로그인 안내를 먼저 적용한다. 이 1-A의 검사 범위와 남은 unknown 안내 연결은 [Ticket 06](../../context/work/workspaces/002-code-readability-refactoring/current/memory/tickets/06-app-startup-lifecycle.md#네트워크-안내-후속-작업-1-a--활성-여부-최초-확인)에 있다.
 
 ## 책임 경계
 

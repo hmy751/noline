@@ -12,6 +12,7 @@ export type OperationMode = 'full' | 'manual-only';
 
 export interface OperationPolicy {
   allowed: boolean;
+  pending?: boolean;
   mode?: OperationMode;
   reason?: string;
 }

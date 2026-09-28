@@ -22,7 +22,7 @@ export interface AppPolicy {
 export function useAppPolicy(tripId?: string): AppPolicy {
   const displayNetworkStatus = useDisplayNetworkStatus();
   const authStatus = useAuthStore((state) => state.status);
-  const { data: activation } = useGetTripActivation(tripId ?? '');
+  const { data: activation, isError: activationFailed } = useGetTripActivation(tripId ?? '');
 
   const isTripActivated = activation?.isActivated ?? false;
   const activationStatus: ActivationStatus = tripId && isTripActivated ? 'active' : 'inactive';
@@ -33,19 +33,32 @@ export function useAppPolicy(tripId?: string): AppPolicy {
 
   return useMemo(() => {
     const needsReauthentication = authStatus === 'reauth-required';
-    const isDataAccessBlockedByAuth =
-      !hasLocalSession({ status: authStatus }) || (needsReauthentication && !isTripActivated);
+    let unavailablePolicy: OperationPolicy | undefined;
 
-    if (isDataAccessBlockedByAuth) {
-      const authRequiredPolicy: OperationPolicy = {
+    if (!hasLocalSession({ status: authStatus })) {
+      unavailablePolicy = {
         allowed: false,
         reason: '다시 로그인한 뒤 사용할 수 있습니다',
       };
+    } else if (tripId && activation === undefined) {
+      // null은 조회 성공 후 활성 기록 없음, undefined는 아직 성공한 조회 결과 없음이다.
+      // 기존 결과가 있으면 background 재조회 중이거나 실패해도 그 결과를 유지한다.
+      unavailablePolicy = activationFailed
+        ? { allowed: false, reason: '여행 활성 상태를 확인하지 못했어요.' }
+        : { allowed: false, pending: true, reason: '여행 활성 상태를 확인하고 있어요.' };
+    } else if (needsReauthentication && !isTripActivated) {
+      unavailablePolicy = {
+        allowed: false,
+        reason: '다시 로그인한 뒤 사용할 수 있습니다',
+      };
+    }
+
+    if (unavailablePolicy) {
       const blockedEntityPolicy: EntityPolicy = {
-        create: authRequiredPolicy,
-        read: authRequiredPolicy,
-        update: authRequiredPolicy,
-        delete: authRequiredPolicy,
+        create: unavailablePolicy,
+        read: unavailablePolicy,
+        update: unavailablePolicy,
+        delete: unavailablePolicy,
       };
 
       return {
@@ -60,7 +73,7 @@ export function useAppPolicy(tripId?: string): AppPolicy {
       expense: selectEntityPolicy(EXPENSE_POLICIES, policyKey),
       service: SERVICE_POLICIES[policyKey],
     };
-  }, [policyKey, authStatus, isTripActivated]);
+  }, [policyKey, authStatus, isTripActivated, tripId, activation, activationFailed]);
 }
 
 function selectEntityPolicy(policyTable: EntityPolicyTable, policyKey: PolicyKey): EntityPolicy {
