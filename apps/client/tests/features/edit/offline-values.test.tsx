@@ -9,7 +9,10 @@ import { useUpdateExpense } from '@/entities/expense/data/useUpdateExpense';
 import { useAuthStore } from '@/shared/store/auth';
 
 jest.mock('expo-secure-store', () => ({}));
-jest.mock('@/shared/store/network', () => ({ useDisplayNetworkStatus: () => 'offline' }));
+jest.mock('@/shared/store/network', () => ({
+  useDisplayNetworkStatus: () => 'offline',
+  useNetworkCheck: () => ({ checkStatus: 'idle' }),
+}));
 jest.mock('@/entities/trip/data/useGetTripActivation', () => ({
   useGetTripActivation: () => ({ data: { isActivated: true } }),
 }));

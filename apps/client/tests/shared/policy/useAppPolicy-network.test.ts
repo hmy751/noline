@@ -17,6 +17,58 @@ jest.mock('@/entities/trip/data/useGetTripActivation', () => ({ useGetTripActiva
 
 const activationMock = jest.mocked(useGetTripActivation);
 
+it.each([
+  {
+    realStatus: 'unknown' as const,
+    checkStatus: 'checking' as const,
+    pending: true,
+    reason: '인터넷 연결을 확인하고 있어요.',
+  },
+  {
+    realStatus: 'unknown' as const,
+    checkStatus: 'unavailable' as const,
+    pending: undefined,
+    reason: '인터넷 연결을 확인할 수 없어요.',
+  },
+  {
+    realStatus: 'offline' as const,
+    checkStatus: 'idle' as const,
+    pending: undefined,
+    reason: '인터넷에 연결되어 있지 않아요. 오프라인에서는 활성 여행을 선택해주세요.',
+  },
+])(
+  '비활성 여행의 CRUD는 $realStatus/$checkStatus의 이유를 함께 사용한다',
+  ({ realStatus, checkStatus, pending, reason }) => {
+    activationMock.mockReturnValue({ data: null } as ReturnType<typeof useGetTripActivation>);
+    useNetworkStore.setState({ realStatus, checkStatus, overrideStatus: null });
+    const { result } = renderHook(() => useAppPolicy('trip-b'));
+    for (const entity of [result.current.schedule, result.current.expense]) {
+      for (const policy of Object.values(entity)) {
+        expect(policy.allowed).toBe(false);
+        expect(policy.pending).toBe(pending);
+        expect(policy.reason).toBe(reason);
+      }
+    }
+  },
+);
+
+it('인증이 만료된 비활성 여행에는 네트워크 확인보다 재로그인 안내가 우선한다', () => {
+  useAuthStore.setState({ status: 'reauth-required' });
+  activationMock.mockReturnValue({ data: null } as ReturnType<typeof useGetTripActivation>);
+  useNetworkStore.setState({ realStatus: 'unknown', checkStatus: 'checking', overrideStatus: null });
+  const { result } = renderHook(() => useAppPolicy('trip-b'));
+  expect(result.current.schedule.read).toEqual({ allowed: false, reason: '다시 로그인한 뒤 사용할 수 있습니다' });
+});
+
+it('실제 연결 확인이 진행되지 않는 강제 unknown은 확인 불가로 표시하며 실제 관측을 바꾸지 않는다', () => {
+  activationMock.mockReturnValue({ data: null } as ReturnType<typeof useGetTripActivation>);
+  useNetworkStore.setState({ realStatus: 'online', checkStatus: 'idle', overrideStatus: 'unknown' });
+  const { result } = renderHook(() => useAppPolicy('trip-b'));
+  expect(result.current.schedule.read).toEqual({ allowed: false, reason: '인터넷 연결을 확인할 수 없어요.' });
+  expect(useNetworkStore.getState().realStatus).toBe('online');
+  expect(useNetworkStore.getState().checkStatus).toBe('idle');
+});
+
 describe('Policy 표의 unknown 호환', () => {
   it.each([true, false])('활성 여부 %s일 때 Schedule·Expense CRUD와 제한된 서비스를 반환한다', (isActivated) => {
     activationMock.mockReturnValue({ data: { isActivated } } as ReturnType<typeof useGetTripActivation>);

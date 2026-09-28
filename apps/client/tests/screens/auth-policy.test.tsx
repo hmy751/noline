@@ -1,16 +1,21 @@
 import React from 'react';
-import { beforeEach, expect, it, jest } from '@jest/globals';
+import { afterEach, beforeEach, expect, it, jest } from '@jest/globals';
 import { act, render } from '@testing-library/react-native';
 import ScheduleScreen from '@/screens/ScheduleScreen';
 import ExpensesScreen from '@/screens/ExpensesScreen';
 import ExpenseDetailScreen from '@/screens/ExpenseDetailScreen';
-import { useDisplayNetworkStatus } from '@/shared/store/network';
+import { networkStore, useNetworkStore } from '@/shared/store/network';
+import NetInfo from '@react-native-community/netinfo';
+import { NetworkStatusIndicator } from '@/shared/components/Navigation/NetworkStatusIndicator';
 import { useAuthStore } from '@/shared/store/auth';
 import { useTripStore } from '@/shared/store/useTripStore';
 import { useGetTripActivation } from '@/entities/trip/data/useGetTripActivation';
 
 jest.mock('expo-secure-store', () => ({}));
-jest.mock('@/shared/store/network', () => ({ useDisplayNetworkStatus: jest.fn(() => 'online') }));
+jest.mock('@react-native-community/netinfo', () => ({
+  __esModule: true,
+  default: { addEventListener: jest.fn(() => jest.fn()), refresh: jest.fn() },
+}));
 jest.mock('@/entities/trip/data/useGetTripActivation', () => ({ useGetTripActivation: jest.fn() }));
 jest.mock('@/shared/store', () => jest.requireActual('@/shared/store/useTripStore'));
 jest.mock('expo-router', () => ({
@@ -27,6 +32,7 @@ jest.mock('lucide-react-native', () => ({
   ChevronLeft: () => null,
   AlertCircle: () => null,
   WifiOff: () => null,
+  Wifi: () => null,
   Lock: () => null,
 }));
 jest.mock('@repo/ui', () => {
@@ -82,7 +88,7 @@ jest.mock('@/features/expense/expense-menu', () => ({ ExpenseMenu: () => null })
 jest.mock('@/features/expense/update-expense', () => ({ UpdateExpenseDrawer: () => null }));
 
 beforeEach(() => {
-  jest.mocked(useDisplayNetworkStatus).mockReturnValue('online');
+  useNetworkStore.setState({ realStatus: 'online', overrideStatus: null, checkStatus: 'idle' });
   useAuthStore.setState({ status: 'signed-in', userId: 'a' });
   useTripStore.setState({ selectedTripId: 'trip' });
 });
@@ -116,10 +122,17 @@ it.each(['offline', 'unknown'] as const)('%s에서는 비활성 여행의 캐시
     .mockReturnValue({ data: { isActivated: false } } as ReturnType<typeof useGetTripActivation>);
   const view = render(<ExpensesScreen />);
   expect(view.getByText('저장된 경비')).toBeTruthy();
-  jest.mocked(useDisplayNetworkStatus).mockReturnValue(networkStatus);
+  act(() =>
+    useNetworkStore.setState({
+      realStatus: networkStatus,
+      checkStatus: networkStatus === 'unknown' ? 'checking' : 'idle',
+    }),
+  );
   view.rerender(<ExpensesScreen />);
   expect(view.queryByText('저장된 경비')).toBeNull();
-  expect(view.getByText(/오프라인에서는 활성 여행/)).toBeTruthy();
+  expect(
+    view.getByText(networkStatus === 'unknown' ? '인터넷 연결을 확인하고 있어요.' : /오프라인에서는 활성 여행/),
+  ).toBeTruthy();
 });
 
 it.each([
@@ -128,7 +141,7 @@ it.each([
   { name: '경비 상세', Screen: ExpenseDetailScreen, content: '저장된 경비' },
 ])('$name은 활성 정보의 최초 확인·실패를 구별하고 활성 확인 뒤 내용을 표시한다', ({ Screen, content }) => {
   const activation = jest.mocked(useGetTripActivation);
-  jest.mocked(useDisplayNetworkStatus).mockReturnValue('offline');
+  useNetworkStore.setState({ realStatus: 'offline', checkStatus: 'idle' });
   activation.mockReturnValue({ data: undefined, isError: false } as ReturnType<typeof useGetTripActivation>);
   const view = render(<Screen />);
   expect(view.getByText('여행 활성 상태를 확인하고 있어요.')).toBeTruthy();
@@ -153,4 +166,68 @@ it.each([
   view.rerender(<Screen />);
   expect(view.queryAllByText(content).length).toBeGreaterThan(0);
   expect(view.queryByText('여행 활성 상태를 확인하지 못했어요.')).toBeNull();
+});
+
+afterEach(() => {
+  act(() => networkStore.cleanup());
+  jest.useRealTimers();
+});
+
+it.each([
+  { name: '일정 목록', Screen: ScheduleScreen, content: '저장된 일정' },
+  { name: '경비 목록', Screen: ExpensesScreen, content: '저장된 경비' },
+  { name: '경비 상세', Screen: ExpenseDetailScreen, content: '저장된 경비' },
+])('$name의 unknown 안내와 헤더는 실제 Store의 10초 경과·늦은 관측을 따른다', ({ Screen, content }) => {
+  jest.useFakeTimers();
+  jest.mocked(useGetTripActivation).mockReturnValue({ data: null } as ReturnType<typeof useGetTripActivation>);
+  act(() => networkStore.init());
+  const view = render(
+    <>
+      <NetworkStatusIndicator />
+      <Screen />
+    </>,
+  );
+  expect(view.getByText('인터넷 연결을 확인하고 있어요.')).toBeTruthy();
+  expect(view.getByText('확인 중')).toBeTruthy();
+  expect(view.queryAllByText(content)).toHaveLength(0);
+  const listener = jest.mocked(NetInfo.addEventListener).mock.calls.at(-1)?.[0];
+  if (!listener) throw new Error('네트워크 관측 구독이 등록되지 않았습니다');
+  const emit = (isConnected: boolean | null, isInternetReachable: boolean | null) =>
+    listener({ isConnected, isInternetReachable } as Parameters<typeof listener>[0]);
+  act(() => {
+    jest.advanceTimersByTime(9_000);
+    emit(null, null);
+  });
+  expect(view.getByText('인터넷 연결을 확인하고 있어요.')).toBeTruthy();
+  act(() => jest.advanceTimersByTime(1_000));
+  expect(view.getByText('인터넷 연결을 확인할 수 없어요.')).toBeTruthy();
+  expect(view.getByText('확인 불가')).toBeTruthy();
+  expect(useNetworkStore.getState().realStatus).toBe('unknown');
+  expect(view.queryAllByText(content)).toHaveLength(0);
+  act(() => emit(false, false));
+  expect(view.getByText('인터넷에 연결되어 있지 않아요. 오프라인에서는 활성 여행을 선택해주세요.')).toBeTruthy();
+  expect(view.getByText('오프라인')).toBeTruthy();
+  act(() => emit(true, true));
+  expect(view.getByText('온라인')).toBeTruthy();
+  expect(view.queryAllByText(content).length).toBeGreaterThan(0);
+  expect(useTripStore.getState().selectedTripId).toBe('trip');
+});
+
+it('활성 여행은 연결 확인 중과 10초 후에도 Local 내용을 유지한다', () => {
+  jest.useFakeTimers();
+  jest
+    .mocked(useGetTripActivation)
+    .mockReturnValue({ data: { isActivated: true } } as ReturnType<typeof useGetTripActivation>);
+  act(() => networkStore.init());
+  const view = render(
+    <>
+      <NetworkStatusIndicator />
+      <ScheduleScreen />
+    </>,
+  );
+  expect(view.getByText('저장된 일정')).toBeTruthy();
+  act(() => jest.advanceTimersByTime(10_000));
+  expect(view.getByText('확인 불가')).toBeTruthy();
+  expect(view.getByText('저장된 일정')).toBeTruthy();
+  expect(view.queryByText('인터넷 연결을 확인할 수 없어요.')).toBeNull();
 });

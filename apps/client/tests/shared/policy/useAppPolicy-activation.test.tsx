@@ -8,7 +8,10 @@ import { tripQueryKeys } from '@/entities/trip/data/keys';
 import { useGetTripActivation } from '@/entities/trip/data/useGetTripActivation';
 
 jest.mock('expo-secure-store', () => ({}));
-jest.mock('@/shared/store/network', () => ({ useDisplayNetworkStatus: () => 'offline' }));
+jest.mock('@/shared/store/network', () => ({
+  useDisplayNetworkStatus: () => 'offline',
+  useNetworkCheck: () => ({ checkStatus: 'idle' }),
+}));
 jest.mock('@/shared/db', () => ({
   getDatabase: () => ({ select: () => ({ from: () => ({ where: () => ({ get: () => mockReadActivation() }) }) }) }),
   tripActivations: { tripId: 'tripId', userId: 'userId' },

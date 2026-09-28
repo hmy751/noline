@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useAuthStore, hasLocalSession } from '@/shared/store/auth';
-import { useDisplayNetworkStatus } from '@/shared/store/network';
+import { useDisplayNetworkStatus, useNetworkCheck } from '@/shared/store/network';
 import { useGetTripActivation } from '@/entities/trip/data/useGetTripActivation';
 import { EXPENSE_POLICIES, SCHEDULE_POLICIES, SERVICE_POLICIES } from './constants';
 import type {
@@ -21,6 +21,7 @@ export interface AppPolicy {
 
 export function useAppPolicy(tripId?: string): AppPolicy {
   const displayNetworkStatus = useDisplayNetworkStatus();
+  const { checkStatus } = useNetworkCheck();
   const authStatus = useAuthStore((state) => state.status);
   const { data: activation, isError: activationFailed } = useGetTripActivation(tripId ?? '');
 
@@ -51,6 +52,11 @@ export function useAppPolicy(tripId?: string): AppPolicy {
         allowed: false,
         reason: '다시 로그인한 뒤 사용할 수 있습니다',
       };
+    } else if (tripId && !isTripActivated && displayNetworkStatus === 'unknown') {
+      unavailablePolicy =
+        checkStatus === 'checking'
+          ? { allowed: false, pending: true, reason: '인터넷 연결을 확인하고 있어요.' }
+          : { allowed: false, reason: '인터넷 연결을 확인할 수 없어요.' };
     }
 
     if (unavailablePolicy) {
@@ -73,7 +79,7 @@ export function useAppPolicy(tripId?: string): AppPolicy {
       expense: selectEntityPolicy(EXPENSE_POLICIES, policyKey),
       service: SERVICE_POLICIES[policyKey],
     };
-  }, [policyKey, authStatus, isTripActivated, tripId, activation, activationFailed]);
+  }, [policyKey, authStatus, isTripActivated, tripId, activation, activationFailed, displayNetworkStatus, checkStatus]);
 }
 
 function selectEntityPolicy(policyTable: EntityPolicyTable, policyKey: PolicyKey): EntityPolicy {

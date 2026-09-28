@@ -1,15 +1,16 @@
 import { View, Text } from 'react-native';
 import { Wifi, WifiOff } from 'lucide-react-native';
-import { useDisplayNetworkStatus } from '@/shared/store/network';
+import { useDisplayNetworkStatus, useNetworkCheck } from '@/shared/store/network';
 
 /**
  * 네트워크 상태 인디케이터 (헤더 우측)
  * - 온라인: 초록색 Wifi 아이콘 + "온라인"
  * - 오프라인: 빨간색 WifiOff 아이콘 + "오프라인"
- * - 알 수 없음: 회색 Wifi 아이콘 + "확인 중"
+ * - 알 수 없음: 회색 Wifi 아이콘 + "확인 중" 또는 "확인 불가"
  */
 export function NetworkStatusIndicator() {
   const networkStatus = useDisplayNetworkStatus();
+  const { checkStatus } = useNetworkCheck();
 
   if (networkStatus === 'online') {
     return (
@@ -33,7 +34,9 @@ export function NetworkStatusIndicator() {
   return (
     <View className='flex-row items-center'>
       <Wifi size={14} color='hsl(0, 0%, 50%)' />
-      <Text className='text-label text-muted-foreground ml-1'>확인 중</Text>
+      <Text className='text-label text-muted-foreground ml-1'>
+        {checkStatus === 'checking' ? '확인 중' : '확인 불가'}
+      </Text>
     </View>
   );
 }

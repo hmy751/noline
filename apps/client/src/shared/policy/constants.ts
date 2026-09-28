@@ -10,7 +10,10 @@ export const SCHEDULE_POLICIES: EntityPolicyTable = {
       mode: 'manual-only',
       reason: '장소 검색을 사용할 수 없어요. 직접 입력해주세요.',
     },
-    offline_inactive: { allowed: false, reason: '여행을 활성화해주세요' },
+    offline_inactive: {
+      allowed: false,
+      reason: '인터넷에 연결되어 있지 않아요. 오프라인에서는 활성 여행을 선택해주세요.',
+    },
   },
   read: {
     online_active: { allowed: true, mode: 'full' },
@@ -18,7 +21,7 @@ export const SCHEDULE_POLICIES: EntityPolicyTable = {
     offline_active: { allowed: true, mode: 'full' },
     offline_inactive: {
       allowed: false,
-      reason: '연결을 확인한 뒤 다시 볼 수 있어요. 오프라인에서는 활성 여행을 선택해주세요.',
+      reason: '인터넷에 연결되어 있지 않아요. 오프라인에서는 활성 여행을 선택해주세요.',
     },
   },
   update: {
@@ -29,13 +32,19 @@ export const SCHEDULE_POLICIES: EntityPolicyTable = {
       mode: 'manual-only',
       reason: '오프라인에서는 장소를 다시 검색할 수 없어요.',
     },
-    offline_inactive: { allowed: false, reason: '여행을 활성화해주세요' },
+    offline_inactive: {
+      allowed: false,
+      reason: '인터넷에 연결되어 있지 않아요. 오프라인에서는 활성 여행을 선택해주세요.',
+    },
   },
   delete: {
     online_active: { allowed: true, mode: 'full' },
     online_inactive: { allowed: true, mode: 'full' },
     offline_active: { allowed: true, mode: 'full' },
-    offline_inactive: { allowed: false, reason: '여행을 활성화해주세요' },
+    offline_inactive: {
+      allowed: false,
+      reason: '인터넷에 연결되어 있지 않아요. 오프라인에서는 활성 여행을 선택해주세요.',
+    },
   },
 };
 
@@ -49,7 +58,10 @@ export const EXPENSE_POLICIES: EntityPolicyTable = {
       mode: 'manual-only',
       reason: '오프라인에서는 일정을 연결할 수 없어요. 직접 입력해주세요.',
     },
-    offline_inactive: { allowed: false, reason: '여행을 활성화해주세요' },
+    offline_inactive: {
+      allowed: false,
+      reason: '인터넷에 연결되어 있지 않아요. 오프라인에서는 활성 여행을 선택해주세요.',
+    },
   },
   read: {
     online_active: { allowed: true, mode: 'full' },
@@ -57,7 +69,7 @@ export const EXPENSE_POLICIES: EntityPolicyTable = {
     offline_active: { allowed: true, mode: 'full' },
     offline_inactive: {
       allowed: false,
-      reason: '연결을 확인한 뒤 다시 볼 수 있어요. 오프라인에서는 활성 여행을 선택해주세요.',
+      reason: '인터넷에 연결되어 있지 않아요. 오프라인에서는 활성 여행을 선택해주세요.',
     },
   },
   update: {
@@ -68,13 +80,19 @@ export const EXPENSE_POLICIES: EntityPolicyTable = {
       mode: 'manual-only',
       reason: '오프라인에서는 일정을 연결할 수 없어요.',
     },
-    offline_inactive: { allowed: false, reason: '여행을 활성화해주세요' },
+    offline_inactive: {
+      allowed: false,
+      reason: '인터넷에 연결되어 있지 않아요. 오프라인에서는 활성 여행을 선택해주세요.',
+    },
   },
   delete: {
     online_active: { allowed: true, mode: 'full' },
     online_inactive: { allowed: true, mode: 'full' },
     offline_active: { allowed: true, mode: 'full' },
-    offline_inactive: { allowed: false, reason: '여행을 활성화해주세요' },
+    offline_inactive: {
+      allowed: false,
+      reason: '인터넷에 연결되어 있지 않아요. 오프라인에서는 활성 여행을 선택해주세요.',
+    },
   },
 };
 

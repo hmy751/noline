@@ -28,7 +28,7 @@ Noline은 Selective Local-First다. 활성 여행의 Trip·Schedule·Expense는 
 - [Root](../../../../../../../apps/client/app/_layout.tsx)는 앱 구성을 보여 주고, [AppInitialization](../../../../../../../apps/client/src/application/AppInitialization.tsx)이 네트워크 감지 수명과 DB→인증 복원→준비 완료를 소유한다. 첫 네트워크 결과를 기다리지 않는다. DB 준비 실패에는 Provider·화면을 연결하지 않고 실패·재시도 화면을 보여 준다.
 - [Activation Router](../../../../../../../apps/client/src/shared/services/offline-prep/router.ts)는 실제 online일 때만 Remote를 열도록 호환 수정했고, override 중 Router mutation은 Local/Remote 모두 거부한다. Trip 단건 조회·수정·삭제는 대상 여행의 활성 상태로 분기하도록 수정했다. 신규 생성과 inactive child의 대상 전달은 실제 소비 경로에서 계속 확인한다.
 - [Schedule repository](../../../../../../../apps/client/src/entities/schedule/repository/schedule-repository.ts)와 [Expense repository](../../../../../../../apps/client/src/entities/expense/repository/expense-repository.ts)의 child 조회·수정·삭제는 호출 화면이 가진 tripId를 Router에 전달해 inactive Remote 경로가 Local 선조회에 의존하지 않는다.
-- [Policy hook](../../../../../../../apps/client/src/shared/policy/useAppPolicy.ts)은 unknown을 제한 모드로 처리하고 핵심 데이터인 Schedule·Expense의 CRUD와 지도·검색 정책을 반환한다. 수정·삭제는 실제 메뉴·편집 화면에 연결하며 Router가 실행 경로와 최종 차단을 맡는다. 공개 Places 요청은 보호 인증 client에서 분리했다. 활성 여부 최초 확인·실패는 비활성과 구별하며 기존 결과는 재조회 중에도 유지한다. unknown의 확인 중·확인 불가 안내와 재확인 버튼 연결은 남아 있다.
+- [Policy hook](../../../../../../../apps/client/src/shared/policy/useAppPolicy.ts)은 unknown을 제한 모드로 처리하고 핵심 데이터인 Schedule·Expense의 CRUD와 지도·검색 정책을 반환한다. 수정·삭제는 실제 메뉴·편집 화면에 연결하며 Router가 실행 경로와 최종 차단을 맡는다. 공개 Places 요청은 보호 인증 client에서 분리했다. 활성 여부 최초 확인·실패는 비활성과 구별하며 기존 결과는 재조회 중에도 유지한다. unknown의 확인 중·확인 불가 안내는 기존 Store와 연결했고, 재확인 버튼은 1-C에 남아 있다.
 - [SyncProvider](../../../../../../../apps/client/src/shared/services/sync/provider.tsx)는 DB 준비와 인증 복원 시도 완료 뒤 mount되며 인증·세션 만료·실제 관측·override·종료 일시 중단을 구독한다. [sync lifecycle](../../../../../../../apps/client/src/shared/services/sync/lifecycle.ts)이 실행 순간의 DB 준비·인증·연결 조건, 공유 잠금과 종료 대기를 소유한다. 자동·주기·Debug 수동 실행이 같은 경계를 통과한다.
 - [QueryClient](../../../../../../../apps/client/src/shared/lib/queryClient.ts)와 조회 화면에는 이전 서버 응답이 남을 수 있다. 요청 중단만으로 제한 화면이 나타나지는 않으며, 조회 불가가 빈 목록과 합쳐지지 않아야 한다.
 - 폼의 일반 오류 안내가 Router의 제한 이유를 덮을 수 있다. 대표 수정 Drawer는 성공 때 닫고 실패 때 일반 안내를 하지만 모든 생성·삭제 경로의 입력 유지까지 검증된 것은 아니다.
@@ -225,7 +225,17 @@ completeLogin은 Store의 검증·저장 결과를 사용하고 실패한 서버
 
 기존 화면이 소비하는 `OperationPolicy`에 pending 표시를 추가하고 `PolicyErrorDisplay`가 진행 표시로 표현한다. 일정 목록·경비 목록·경비 상세와 수정 폼에 별도 활성 판단 조건을 복제하지 않았다. 최초 실패 뒤 재조회 성공으로 정책이 회복되는 경로는 검사했지만, 이 단위에서 활성 조회 전용 재시도 버튼을 추가한 것은 아니다.
 
-Main은 HEAD에 1-A의 변경 파일만 반영한 별도 디렉터리에서 client Jest **36개 suite·308개 test 통과**를 확인했다. 추가된 11개 검사는 실제 React Query와 활성 조회 hook에 제어 가능한 DB 응답을 연결한 8개 검사, 실제 목록·상세와 정책 표시를 연결한 3개 화면 검사다. 최초 대기·실패·기록 부재, 재조회 실패 시 기존 결과 유지, 대상 여행 전환과 인증 우선순위를 확인한다. DB는 mock이며 native SQLite·실기기 화면 검증은 아니다. 변경 파일 Prettier와 diff 검사, 기존 Prettier plugin 충돌 규칙을 제외한 ESLint는 통과했다. 타입 검사는 기존 Mapbox/download 오류 3개로 전체 성공은 아니다. 9월 23일에는 사용자 요청으로 커밋을 보류했고, 9월 28일 사용자가 1-A 커밋과 다음 작업 진행을 요청했다. 다음은 1-B의 연결 상태별 안내다.
+Main은 HEAD에 1-A의 변경 파일만 반영한 별도 디렉터리에서 client Jest **36개 suite·308개 test 통과**를 확인했다. 추가된 11개 검사는 실제 React Query와 활성 조회 hook에 제어 가능한 DB 응답을 연결한 8개 검사, 실제 목록·상세와 정책 표시를 연결한 3개 화면 검사다. 최초 대기·실패·기록 부재, 재조회 실패 시 기존 결과 유지, 대상 여행 전환과 인증 우선순위를 확인한다. DB는 mock이며 native SQLite·실기기 화면 검증은 아니다. 변경 파일 Prettier와 diff 검사, 기존 Prettier plugin 충돌 규칙을 제외한 ESLint는 통과했다. 타입 검사는 기존 Mapbox/download 오류 3개로 전체 성공은 아니다. 9월 23일에는 사용자 요청으로 커밋을 보류했고, 9월 28일 사용자가 1-A 커밋과 다음 작업 진행을 요청했다. 1-A는 `c38efa0`으로 저장됐다.
+
+### 네트워크 안내 후속 작업 1-B — 연결 상태별 안내
+
+2026-09-28 구현은 기존 Network Store의 checkStatus를 useAppPolicy와 NetworkStatusIndicator에 연결한다. 활성 여부와 인증 판단을 통과한 비활성 여행의 unknown은 checking일 때 진행 표시와 연결 확인 중 문구를, unavailable일 때 확인 불가 문구를 사용한다. offline은 명시적인 오프라인 이유를 일정·경비 CRUD에서 함께 사용한다. 활성 여행의 Local 내용은 유지한다. UI에서 타이머나 연결 상태를 새로 만들지 않는다.
+
+화면용 unknown 강제 설정에서도 실제 checkStatus를 읽는다. 실제 확인이 없는 idle 상태는 확인 불가로 표시하며, 강제 설정 자체가 실제 관측이나 확인 작업을 바꾸지 않는다. 실제 online/unknown/offline 전환은 기존 정책대로 바로 반영하므로 비활성 여행의 내용·제한 표시 전환을 지연시키는 처리는 추가하지 않았다. 최초 활성 정보 확인과 로그인 안내는 네트워크 안내보다 우선한다.
+
+재확인 버튼은 1-C, 온라인 복귀 후 성공한 재조회에 따른 복구·토스트는 후속 2번에 남는다. 현재 온라인 전환으로 정책이 해제되는 것을 복구 재조회까지 완성된 것으로 보지 않는다. 1-B는 사용자 검토 후 커밋 요청을 받았다.
+
+1-A 커밋에 1-B 제품 코드·테스트만 더한 별도 디렉터리에서 Main이 client Jest **36개 suite·317개 test 통과**를 확인했다. 추가 9개 검사는 실제 Network Store의 10초 경과·반복 null·후속 관측을 세 화면과 헤더에 연결하는 검사, 활성 여행 유지, CRUD 안내·인증 우선순위·debug 표시 경계를 다룬다. NetInfo와 데이터 조회는 mock이며 실기기 관측이 아니다. 변경 파일 형식·ESLint는 기존 Prettier plugin 충돌 규칙을 제외해 확인했고, 타입 검사는 기존 Mapbox/download 오류 3개로 전체 성공은 아니다.
 
 ### 앞선 다섯 단계의 저장 경계
 
