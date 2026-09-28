@@ -64,7 +64,11 @@ it('실제 연결 확인이 진행되지 않는 강제 unknown은 확인 불가�
   activationMock.mockReturnValue({ data: null } as ReturnType<typeof useGetTripActivation>);
   useNetworkStore.setState({ realStatus: 'online', checkStatus: 'idle', overrideStatus: 'unknown' });
   const { result } = renderHook(() => useAppPolicy('trip-b'));
-  expect(result.current.schedule.read).toEqual({ allowed: false, reason: '인터넷 연결을 확인할 수 없어요.' });
+  expect(result.current.schedule.read).toEqual({
+    allowed: false,
+    reason: '인터넷 연결을 확인할 수 없어요.',
+    recoveryAction: 'recheck-network',
+  });
   expect(useNetworkStore.getState().realStatus).toBe('online');
   expect(useNetworkStore.getState().checkStatus).toBe('idle');
 });

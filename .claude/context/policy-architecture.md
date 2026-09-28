@@ -26,7 +26,7 @@ offline_active
 offline_inactive
 ```
 
-Network Store의 관측 상태는 `online/offline/unknown`이다. 현재 `useAppPolicy(tripId)`는 화면용 `useDisplayNetworkStatus()`와 `useGetTripActivation(tripId)`를 조합하되, unknown의 권한 모드는 기존 offline 항목을 재사용한다. 따라서 미확정 상태에서 없는 policy key를 조회하거나 온라인 서비스 모드를 열지 않는다. unknown의 안내 시간·재확인은 Store의 `checkStatus`·`refresh`가 따로 제공한다. 비활성 여행의 unknown에서는 `checkStatus`가 checking이면 pending 안내를, 그 외에는 확인 불가 안내를 반환한다. 실제 offline은 오프라인 안내를 사용하며 활성 여행의 Local 권한은 유지한다. 헤더도 같은 확인 상태로 확인 중·확인 불가를 구별한다. 화면용 unknown 강제 설정만으로 실제 확인 작업이나 타이머를 만들지는 않으므로, 실제 확인 상태가 idle이면 확인 불가로 표시한다. 재확인 버튼 연결은 후속 1-C에 남아 있다.
+Network Store의 관측 상태는 `online/offline/unknown`이다. 현재 `useAppPolicy(tripId)`는 화면용 `useDisplayNetworkStatus()`와 `useGetTripActivation(tripId)`를 조합하되, unknown의 권한 모드는 기존 offline 항목을 재사용한다. 따라서 미확정 상태에서 없는 policy key를 조회하거나 온라인 서비스 모드를 열지 않는다. unknown의 안내 시간·재확인은 Store의 `checkStatus`·`refresh`가 따로 제공한다. 비활성 여행의 unknown에서는 `checkStatus`가 checking이면 pending 안내를, 그 외에는 확인 불가 안내를 반환한다. 실제 offline은 오프라인 안내를 사용하며 활성 여행의 Local 권한은 유지한다. 헤더도 같은 확인 상태로 확인 중·확인 불가를 구별한다. 화면용 unknown 강제 설정만으로 실제 확인 작업이나 타이머를 만들지는 않으므로, 실제 확인 상태가 idle이면 확인 불가로 표시한다. 확인 불가 정책에는 `recoveryAction: recheck-network`를 반환한다. `PolicyErrorDisplay`는 이 명시적인 값에 따라 다시 확인 버튼을 표시하고 기존 `useNetworkCheck().refresh()`를 실행한다. 문구를 비교해 행동을 고르지 않는다. 실제 unknown의 확인 중에는 진행 표시를 사용하고, 그 외에도 진행 중 refresh가 있으면 버튼을 비활성화한다.
 
 이 4-state 표의 재사용은 권한 모드에 한정된다. 실제 unknown을 offline으로 바꾸지 않으며 실제 요청 판단은 화면 override와 구별한다. Router는 실제 online에서만 Remote를 실행한다.
 

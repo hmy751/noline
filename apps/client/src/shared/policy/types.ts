@@ -15,6 +15,7 @@ export interface OperationPolicy {
   pending?: boolean;
   mode?: OperationMode;
   reason?: string;
+  recoveryAction?: 'recheck-network';
 }
 
 export type EntityPolicy = Record<Operation, OperationPolicy>;

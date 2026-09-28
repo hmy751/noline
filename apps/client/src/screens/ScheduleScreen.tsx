@@ -226,9 +226,7 @@ export default function ScheduleScreen() {
               accessibilityRole='button'
               accessibilityLabel={viewMode === 'list' ? '지도 보기로 전환' : '목록 보기로 전환'}
             >
-              {selectedTripId && !readPolicy.allowed ? (
-                <PolicyErrorDisplay policy={readPolicy} variant='block' />
-              ) : viewMode === 'list' ? (
+              {viewMode === 'list' ? (
                 <Map size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />
               ) : (
                 <List size={20} color='hsl(0, 0%, 12%)' strokeWidth={2} />

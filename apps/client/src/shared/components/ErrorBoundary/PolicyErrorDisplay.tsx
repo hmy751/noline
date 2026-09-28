@@ -1,6 +1,8 @@
 import { View, Text, ActivityIndicator } from 'react-native';
+import { Pressable } from '@repo/ui';
 import { AlertCircle, WifiOff, Lock } from 'lucide-react-native';
 import type { OperationPolicy } from '@/shared/policy/types';
+import { useNetworkCheck } from '@/shared/store/network';
 
 type PolicyErrorDisplayProps = {
   policy: OperationPolicy;
@@ -31,6 +33,7 @@ type PolicyErrorDisplayProps = {
  */
 export function PolicyErrorDisplay({ policy, variant = 'banner', message }: PolicyErrorDisplayProps) {
   const displayMessage = message || policy.reason || '이 작업을 수행할 수 없습니다';
+  const canRecheckNetwork = !policy.allowed && policy.recoveryAction === 'recheck-network';
 
   if (policy.pending) {
     return (
@@ -63,6 +66,7 @@ export function PolicyErrorDisplay({ policy, variant = 'banner', message }: Poli
       <View className='bg-yellow-50 px-md py-sm border-b border-yellow-200 flex-row items-center'>
         {getIcon()}
         <Text className='text-small text-yellow-800 ml-xs flex-1'>{displayMessage}</Text>
+        {canRecheckNetwork && <NetworkRecheckButton />}
       </View>
     );
   }
@@ -74,6 +78,7 @@ export function PolicyErrorDisplay({ policy, variant = 'banner', message }: Poli
         <View className='w-16 h-16 rounded-full bg-red-50 items-center justify-center mb-md'>{getIcon()}</View>
         <Text className='text-h3 text-foreground mb-sm text-center'>작업을 수행할 수 없습니다</Text>
         <Text className='text-body text-muted-foreground text-center'>{displayMessage}</Text>
+        {canRecheckNetwork && <NetworkRecheckButton />}
       </View>
     );
   }
@@ -83,6 +88,26 @@ export function PolicyErrorDisplay({ policy, variant = 'banner', message }: Poli
     <View className='bg-yellow-50 border border-yellow-200 rounded-md px-sm py-xs flex-row items-center'>
       {getIcon()}
       <Text className='text-small text-yellow-800 ml-xs flex-1'>{displayMessage}</Text>
+      {canRecheckNetwork && <NetworkRecheckButton />}
     </View>
+  );
+}
+
+function NetworkRecheckButton() {
+  const { refresh, isRefreshing } = useNetworkCheck();
+
+  return (
+    <Pressable
+      variant='outline'
+      size='md'
+      accessibilityRole='button'
+      accessibilityState={{ disabled: isRefreshing, busy: isRefreshing }}
+      disabled={isRefreshing}
+      onPress={() => {
+        refresh();
+      }}
+    >
+      {isRefreshing ? '확인 중' : '다시 확인'}
+    </Pressable>
   );
 }

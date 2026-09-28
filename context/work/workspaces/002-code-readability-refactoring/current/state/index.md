@@ -28,7 +28,7 @@ Project-wide 판단으로 남은 항목은 Expense 날짜 계약, 금액 반올�
 
 Main이 각 후보만 반영한 별도 디렉터리에서 검증했다. 인증 후보는 30개 suite·277개 test, 동기화까지는 33개 suite·288개 test, 최종 화면 정책까지는 **35개 suite·297개 test 통과**다. 마지막 커밋 직전의 staged 내용만 적용한 별도 디렉터리에서도 35개 suite·297개 test가 통과했고 `git diff --cached --check`도 통과했다. 앞선 변경 파일 Prettier 검사와 Prettier plugin 충돌 규칙만 제외한 ESLint 실행은 오류 0개·기존 경고 9개였다. 전체 타입 검사는 기존 Mapbox/download 오류 3개 때문에 성공하지 않았다.
 
-다음은 이번 책임 배치와 구현 결과에 대한 사용자 검토다. 실제 OAuth·SecureStore·서버 rotation·실기기 화면은 실행하지 않았다. 화면 검사는 mock 경계의 component test, 데이터 보존 검사는 실제 Drizzle SQL과 Node 메모리 SQLite로 확인했다. Ticket 06의 온라인 복구 재조회·토스트·unknown 안내 끝단 연결과 foreground 재확인, 14의 전체 write/cache 계약, 15의 typed pull·cleanup 부분 실패 결과·중단 작업 재개, 16의 여행별 미전송 판정·cleanup 집계는 남는다. 이번에 재현한 여섯 결함의 해소를 Ticket 06–16 전체 완료나 사용자 acceptance로 확대하지 않는다.
+이후 활성 여부 최초 확인의 pending/error/null 구별을 `c38efa0`으로 저장했다. 1-B는 기존 Store의 확인 진행·실패와 offline을 정책·헤더 안내로 연결해 `eaec466`으로 저장했다. 1-C 재확인 버튼, 공용 Pressable 적용과 헤더 안내 중복 수정도 구현·검토를 마쳤다. 실행 보고와 범위는 [Ticket 06](../memory/tickets/06-app-startup-lifecycle.md)의 후속 절에서 확인한다. 다음 제품 작업은 온라인 복구 후 현재 여행의 재조회·토스트 연결이다. 실제 OAuth·SecureStore·서버 rotation·실기기 화면은 실행하지 않았다. 화면 검사는 mock 경계의 component test, 데이터 보존 검사는 실제 Drizzle SQL과 Node 메모리 SQLite로 확인했다. Ticket 06의 온라인 복구 재조회·토스트와 foreground 재확인, 14의 전체 write/cache 계약, 15의 typed pull·cleanup 부분 실패 결과·중단 작업 재개, 16의 여행별 미전송 판정·cleanup 집계는 남는다. 이번에 재현한 여섯 결함의 해소를 Ticket 06–16 전체 완료나 사용자 acceptance로 확대하지 않는다.
 
 판단 기준, 앞선 제안의 보정, 수정별 증거와 정확한 파일 진입점은 [재점검·구현 기록](../../records/2026-09-21-04-auth-responsibilities-and-regression-fixes.md)에서 읽는다.
 

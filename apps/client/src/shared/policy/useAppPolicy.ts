@@ -56,7 +56,7 @@ export function useAppPolicy(tripId?: string): AppPolicy {
       unavailablePolicy =
         checkStatus === 'checking'
           ? { allowed: false, pending: true, reason: '인터넷 연결을 확인하고 있어요.' }
-          : { allowed: false, reason: '인터넷 연결을 확인할 수 없어요.' };
+          : { allowed: false, reason: '인터넷 연결을 확인할 수 없어요.', recoveryAction: 'recheck-network' };
     }
 
     if (unavailablePolicy) {

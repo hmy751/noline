@@ -1,20 +1,23 @@
 import React from 'react';
 import { Alert } from 'react-native';
-import { beforeEach, expect, it, jest } from '@jest/globals';
+import { afterEach, beforeEach, expect, it, jest } from '@jest/globals';
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 import { UpdateScheduleDrawer } from '@/features/schedule/update-schedule/UpdateScheduleDrawer';
 import { UpdateExpenseDrawer } from '@/features/expense/update-expense/UpdateExpenseDrawer';
 import { useUpdateSchedule } from '@/entities/schedule';
 import { useUpdateExpense } from '@/entities/expense/data/useUpdateExpense';
 import { useAuthStore } from '@/shared/store/auth';
+import { networkStore, useNetworkStore } from '@/shared/store/network';
+import { useGetTripActivation } from '@/entities/trip/data/useGetTripActivation';
+import NetInfo from '@react-native-community/netinfo';
 
 jest.mock('expo-secure-store', () => ({}));
-jest.mock('@/shared/store/network', () => ({
-  useDisplayNetworkStatus: () => 'offline',
-  useNetworkCheck: () => ({ checkStatus: 'idle' }),
+jest.mock('@react-native-community/netinfo', () => ({
+  __esModule: true,
+  default: { addEventListener: jest.fn(() => jest.fn()), refresh: jest.fn() },
 }));
 jest.mock('@/entities/trip/data/useGetTripActivation', () => ({
-  useGetTripActivation: () => ({ data: { isActivated: true } }),
+  useGetTripActivation: jest.fn(),
 }));
 jest.mock('@/entities/route', () => ({ useAutoDownloadRoutes: () => ({ mutate: jest.fn() }) }));
 jest.mock('@/entities/schedule', () => ({
@@ -34,15 +37,17 @@ jest.mock('lucide-react-native', () => ({
   MapPin: () => null,
   Wallet: () => null,
   ChevronDown: () => null,
+  AlertCircle: () => null,
+  WifiOff: () => null,
+  Lock: () => null,
 }));
 jest.mock('@/shared/components', () => {
-  const ReactRuntime = jest.requireActual<typeof import('react')>('react');
-  const { Text } = jest.requireActual<typeof import('react-native')>('react-native');
   return {
     DatePicker: () => null,
     TimePicker: () => null,
-    PolicyErrorDisplay: ({ policy }: { policy: { reason: string } }) =>
-      ReactRuntime.createElement(Text, null, policy.reason),
+    PolicyErrorDisplay: jest.requireActual<typeof import('@/shared/components/ErrorBoundary/PolicyErrorDisplay')>(
+      '@/shared/components/ErrorBoundary/PolicyErrorDisplay',
+    ).PolicyErrorDisplay,
   };
 });
 jest.mock('@/shared/components/Form', () => {
@@ -51,19 +56,12 @@ jest.mock('@/shared/components/Form', () => {
 });
 jest.mock('@repo/ui', () => {
   const ReactRuntime = jest.requireActual<typeof import('react')>('react');
-  const { View, Text, Pressable } = jest.requireActual<typeof import('react-native')>('react-native');
+  const { View, Text } = jest.requireActual<typeof import('react-native')>('react-native');
   return {
     Drawer: View,
-    Pressable: ({ children, ...props }: React.ComponentProps<typeof Pressable>) =>
-      ReactRuntime.createElement(
-        Pressable,
-        props,
-        ReactRuntime.createElement(
-          Text,
-          null,
-          typeof children === 'function' ? children({ pressed: false }) : children,
-        ),
-      ),
+    Pressable: jest.requireActual<Pick<typeof import('@repo/ui'), 'Pressable'>>(
+      '../../../../../packages/ui/src/components/Pressable',
+    ).Pressable,
     Select: Object.assign(
       ({ children }: { children: React.ReactNode }) => ReactRuntime.createElement(View, null, children),
       {
@@ -83,6 +81,10 @@ jest.mock('@repo/ui', () => {
 const saveSchedule = jest.fn();
 const saveExpense = jest.fn();
 beforeEach(() => {
+  useNetworkStore.setState({ realStatus: 'offline', checkStatus: 'idle', overrideStatus: null });
+  jest
+    .mocked(useGetTripActivation)
+    .mockReturnValue({ data: { isActivated: true } } as ReturnType<typeof useGetTripActivation>);
   useAuthStore.setState({ status: 'reauth-required', userId: 'a' });
   jest
     .mocked(useUpdateSchedule)
@@ -181,5 +183,58 @@ it('수정 제한 안내가 나타났다 사라져도 작성 중인 값과 일�
   });
   await waitFor(() => expect(saveExpense).toHaveBeenCalled());
   expect(saveExpense.mock.calls[0][0]).toMatchObject({ data: { title: '작성 중 제목', scheduleId: 'linked' } });
+  prompt.mockRestore();
+});
+
+afterEach(() => {
+  act(() => networkStore.cleanup());
+  jest.useRealTimers();
+});
+
+it('경비 수정의 재확인 전후에도 작성 중인 값과 일정 연결을 유지하고 자동 저장하지 않는다', async () => {
+  jest.useFakeTimers();
+  useAuthStore.setState({ status: 'signed-in' });
+  jest.mocked(useGetTripActivation).mockReturnValue({ data: null } as ReturnType<typeof useGetTripActivation>);
+  act(() => {
+    networkStore.init();
+    useNetworkStore.setState({ realStatus: 'online', checkStatus: 'idle' });
+  });
+  const prompt = jest.spyOn(Alert, 'prompt').mockImplementation(() => undefined);
+  const view = render(
+    <UpdateExpenseDrawer
+      isOpen
+      onClose={jest.fn()}
+      expenseData={{
+        id: 'e',
+        tripId: 'trip',
+        title: '기존 경비',
+        amount: '12',
+        currency: 'USD',
+        category: 'food',
+        date: '2026-09-21T10:00:00Z',
+        scheduleId: 'linked',
+      }}
+    />,
+  );
+  fireEvent.press(view.getByText('기존 경비'));
+  const buttons = prompt.mock.calls[0][2];
+  if (!Array.isArray(buttons)) throw new Error('제목 변경 확인 버튼이 없습니다');
+  act(() => buttons.find((button) => button.text === '확인')?.onPress?.('재확인 중 보존할 제목'));
+  const listener = jest.mocked(NetInfo.addEventListener).mock.calls.at(-1)?.[0];
+  if (!listener) throw new Error('네트워크 구독이 없습니다');
+  act(() => listener({ isConnected: null, isInternetReachable: null } as Parameters<typeof listener>[0]));
+  act(() => jest.advanceTimersByTime(10_000));
+  jest
+    .mocked(NetInfo.refresh)
+    .mockResolvedValueOnce({ isConnected: true, isInternetReachable: true } as Awaited<
+      ReturnType<typeof NetInfo.refresh>
+    >);
+  await act(async () => fireEvent.press(view.getByRole('button', { name: '다시 확인' })));
+  expect(view.getByText('재확인 중 보존할 제목')).toBeTruthy();
+  expect(saveExpense).not.toHaveBeenCalled();
+  await act(async () => fireEvent.press(view.getByText('저장')));
+  expect(saveExpense.mock.calls[0][0]).toMatchObject({
+    data: { title: '재확인 중 보존할 제목', scheduleId: 'linked' },
+  });
   prompt.mockRestore();
 });

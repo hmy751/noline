@@ -28,7 +28,7 @@ Noline은 Selective Local-First다. 활성 여행의 Trip·Schedule·Expense는 
 - [Root](../../../../../../../apps/client/app/_layout.tsx)는 앱 구성을 보여 주고, [AppInitialization](../../../../../../../apps/client/src/application/AppInitialization.tsx)이 네트워크 감지 수명과 DB→인증 복원→준비 완료를 소유한다. 첫 네트워크 결과를 기다리지 않는다. DB 준비 실패에는 Provider·화면을 연결하지 않고 실패·재시도 화면을 보여 준다.
 - [Activation Router](../../../../../../../apps/client/src/shared/services/offline-prep/router.ts)는 실제 online일 때만 Remote를 열도록 호환 수정했고, override 중 Router mutation은 Local/Remote 모두 거부한다. Trip 단건 조회·수정·삭제는 대상 여행의 활성 상태로 분기하도록 수정했다. 신규 생성과 inactive child의 대상 전달은 실제 소비 경로에서 계속 확인한다.
 - [Schedule repository](../../../../../../../apps/client/src/entities/schedule/repository/schedule-repository.ts)와 [Expense repository](../../../../../../../apps/client/src/entities/expense/repository/expense-repository.ts)의 child 조회·수정·삭제는 호출 화면이 가진 tripId를 Router에 전달해 inactive Remote 경로가 Local 선조회에 의존하지 않는다.
-- [Policy hook](../../../../../../../apps/client/src/shared/policy/useAppPolicy.ts)은 unknown을 제한 모드로 처리하고 핵심 데이터인 Schedule·Expense의 CRUD와 지도·검색 정책을 반환한다. 수정·삭제는 실제 메뉴·편집 화면에 연결하며 Router가 실행 경로와 최종 차단을 맡는다. 공개 Places 요청은 보호 인증 client에서 분리했다. 활성 여부 최초 확인·실패는 비활성과 구별하며 기존 결과는 재조회 중에도 유지한다. unknown의 확인 중·확인 불가 안내는 기존 Store와 연결했고, 재확인 버튼은 1-C에 남아 있다.
+- [Policy hook](../../../../../../../apps/client/src/shared/policy/useAppPolicy.ts)은 unknown을 제한 모드로 처리하고 핵심 데이터인 Schedule·Expense의 CRUD와 지도·검색 정책을 반환한다. 수정·삭제는 실제 메뉴·편집 화면에 연결하며 Router가 실행 경로와 최종 차단을 맡는다. 공개 Places 요청은 보호 인증 client에서 분리했다. 활성 여부 최초 확인·실패는 비활성과 구별하며 기존 결과는 재조회 중에도 유지한다. unknown의 확인 중·확인 불가 안내와 재확인 버튼은 기존 Store에 연결했다.
 - [SyncProvider](../../../../../../../apps/client/src/shared/services/sync/provider.tsx)는 DB 준비와 인증 복원 시도 완료 뒤 mount되며 인증·세션 만료·실제 관측·override·종료 일시 중단을 구독한다. [sync lifecycle](../../../../../../../apps/client/src/shared/services/sync/lifecycle.ts)이 실행 순간의 DB 준비·인증·연결 조건, 공유 잠금과 종료 대기를 소유한다. 자동·주기·Debug 수동 실행이 같은 경계를 통과한다.
 - [QueryClient](../../../../../../../apps/client/src/shared/lib/queryClient.ts)와 조회 화면에는 이전 서버 응답이 남을 수 있다. 요청 중단만으로 제한 화면이 나타나지는 않으며, 조회 불가가 빈 목록과 합쳐지지 않아야 한다.
 - 폼의 일반 오류 안내가 Router의 제한 이유를 덮을 수 있다. 대표 수정 Drawer는 성공 때 닫고 실패 때 일반 안내를 하지만 모든 생성·삭제 경로의 입력 유지까지 검증된 것은 아니다.
@@ -233,15 +233,31 @@ Main은 HEAD에 1-A의 변경 파일만 반영한 별도 디렉터리에서 clie
 
 화면용 unknown 강제 설정에서도 실제 checkStatus를 읽는다. 실제 확인이 없는 idle 상태는 확인 불가로 표시하며, 강제 설정 자체가 실제 관측이나 확인 작업을 바꾸지 않는다. 실제 online/unknown/offline 전환은 기존 정책대로 바로 반영하므로 비활성 여행의 내용·제한 표시 전환을 지연시키는 처리는 추가하지 않았다. 최초 활성 정보 확인과 로그인 안내는 네트워크 안내보다 우선한다.
 
-재확인 버튼은 1-C, 온라인 복귀 후 성공한 재조회에 따른 복구·토스트는 후속 2번에 남는다. 현재 온라인 전환으로 정책이 해제되는 것을 복구 재조회까지 완성된 것으로 보지 않는다. 1-B는 사용자 검토 후 커밋 요청을 받았다.
+재확인 버튼은 아래 1-C에서 연결했고, 온라인 복귀 후 성공한 재조회에 따른 복구·토스트는 후속 2번에 남는다. 현재 온라인 전환으로 정책이 해제되는 것을 복구 재조회까지 완성된 것으로 보지 않는다. 1-B는 사용자 검토 후 `eaec466`으로 저장됐다.
 
 1-A 커밋에 1-B 제품 코드·테스트만 더한 별도 디렉터리에서 Main이 client Jest **36개 suite·317개 test 통과**를 확인했다. 추가 9개 검사는 실제 Network Store의 10초 경과·반복 null·후속 관측을 세 화면과 헤더에 연결하는 검사, 활성 여행 유지, CRUD 안내·인증 우선순위·debug 표시 경계를 다룬다. NetInfo와 데이터 조회는 mock이며 실기기 관측이 아니다. 변경 파일 형식·ESLint는 기존 Prettier plugin 충돌 규칙을 제외해 확인했고, 타입 검사는 기존 Mapbox/download 오류 3개로 전체 성공은 아니다.
+
+### 네트워크 안내 후속 작업 1-C — 다시 확인 행동
+
+확인 불가인 비활성 여행 정책에 `recoveryAction: recheck-network`를 추가했다. 정책은 가능한 행동을 표현하고, 기존 PolicyErrorDisplay가 다시 확인 버튼과 실행을 맡는다. 버튼은 기존 Network Store의 refresh를 호출한다. 화면별 문구 비교·타이머·별도 요청 큐를 추가하지 않았다.
+
+실제 unknown에서 누르면 확인 중 안내로 돌아가며 버튼은 진행 표시로 대체된다. 같은 확인 작업 중의 중복 호출은 Store의 공유 Promise를 사용한다. 응답이 여전히 unknown이면 10초 안내 시간을 따라 다시 확인 불가로 돌아간다. refresh의 명시적 실패·시간 초과에도 다시 시도할 수 있다. 강제 unknown이 실제 online을 가린 경우에는 실제 상태를 유지하고 진행 중 버튼만 비활성화하며, 확인 성공으로 override를 자동 해제하지 않는다.
+
+일정·경비 목록, 경비 상세와 경비 수정에서 버튼 연결을 확인했다. 경비 수정은 제목과 기존 일정 연결을 재확인 후에도 유지하고, 사용자가 저장하기 전에는 mutation을 실행하지 않는다. 최초 활성 조회 실패의 재시도 버튼과 명시적 offline의 새 재확인 행동은 추가하지 않았다. 복구 후 재조회·토스트는 후속 2번이며 이 구현은 사용자 검토와 후속 구조 수정을 거쳐 커밋 요청을 받았다.
+
+Main은 1-B 커밋에 1-C 제품 코드·테스트만 더한 별도 디렉터리에서 **36개 suite·324개 test 통과**를 확인했다. 추가 7개 검사는 세 화면의 재확인·중복 입력·불확실한 응답 뒤 재시도, 명시적 실패·시간 초과, debug override와 경비 수정 값 보존을 다룬다. 실제 Store와 정책·표시 컴포넌트를 사용하되 NetInfo·데이터 요청은 mock이다. 변경 파일 Prettier·diff 검사와 기존 Prettier plugin 충돌 규칙을 제외한 ESLint가 통과했다. 타입 검사에는 기존 Mapbox/download 오류 3개가 남으며 실기기 NetInfo·native 화면은 미확인이다.
+
+공용 UI 사용처를 추가 점검하면서 일정 헤더의 보기 전환 버튼 안에도 PolicyErrorDisplay가 들어가 안내와 재확인 버튼이 중복되는 것을 재현했다. 앞선 324개 검사에서는 헤더를 제목만 표시하는 mock으로 대체해 이 결함을 놓쳤다. 사용자 요청으로 헤더에는 보기 전환 아이콘을 유지하고 제한 안내는 본문에만 표시하도록 수정했다. 재확인 버튼은 `@repo/ui`의 Pressable을 outline/md로 사용하며 문자열 표시·크기·비활성 스타일을 공용 구현에 맡긴다. packages/ui 자체의 구현은 바꾸지 않았다.
+
+화면 테스트는 실제 MobileHeader와 공용 Pressable을 사용하고 safe area 입력만 대체하도록 보완했다. 수정 폼 검사도 공용 Pressable을 사용한다. 안내·재확인 버튼이 본문에 한 번만 표시되고 보기 전환 버튼 안에 중첩되지 않는 회귀 검사를 추가했으며, 별도 디렉터리에서 **36개 suite·325개 test 통과**를 확인했다. 실기기 레이아웃·터치 관측은 여전히 미확인이다. 기존 아이콘 버튼의 접근성 이름 누락과 여행 편집의 저장·삭제 동시 허용은 별도 사용처 문제로 확인했으며 이번 1-C 수정에 포함하지 않았다.
+
+후속 코드 검토에서 렌더 함수 내부의 recoveryButton JSX 변수를 제거했다. 같은 파일의 모듈 범위에 NetworkRecheckButton을 선언하고 네트워크 확인 상태 구독·실행·버튼 표시를 맡겼다. PolicyErrorDisplay는 정책에 따른 버튼 노출과 배치를 맡는다. 재확인 버튼이 없는 인증·활성 조회 안내는 버튼용 네트워크 hook을 구독하지 않는다. 이 구조 변경 뒤에는 실제 공용 버튼·헤더·수정 폼을 사용하는 관련 테스트 24개를 다시 실행했다. 커밋 직전에는 staged 변경만 적용한 별도 디렉터리에서도 전체 36개 suite·325개 test 통과를 확인했다.
 
 ### 앞선 다섯 단계의 저장 경계
 
 startup·스타일은 `8a1a3ea`, sync 연결은 `029adb6`, 정책 합의는 `71c1a02`, 대상 여행 라우팅은 `f0f680e`, DB 원자성은 `9936662`로 저장됐다. 인증 책임·전환·로컬 저장 보호는 `62ce226`, 동기화 중단·미전송 원본 보존은 `100e71a`, 화면 정책·입력 보존은 `be2f5b9`로 각각 저장했다. 다섯 단계의 실제 커밋 경계와 마지막 staged 후보의 검증은 [분리 커밋 마무리 기록](../../../records/2026-09-22-02-five-stage-commits-and-verification.md)에 있다.
 
-앞선 분할 검토·토큰 분리·원복·부분 개선의 경위는 [분할 검토 기록](../../../records/2026-09-21-01-auth-policy-split-review-and-commits.md), [원복 기록](../../../records/2026-09-21-02-auth-token-separation-consumer-review-and-rollback.md), [부분 개선 기록](../../../records/2026-09-21-03-auth-consumer-boundary-implementation.md)에 보존한다. 최종 책임 배치·재현과 검사 경계는 [이번 구현 기록](../../../records/2026-09-21-04-auth-responsibilities-and-regression-fixes.md)에 있다. 온라인 복구 후 재조회·토스트, unknown 10초 안내의 화면 끝단 연결과 foreground 재확인 등 Ticket 전체 완료와 사용자 최종 수락은 아직 아니다.
+앞선 분할 검토·토큰 분리·원복·부분 개선의 경위는 [분할 검토 기록](../../../records/2026-09-21-01-auth-policy-split-review-and-commits.md), [원복 기록](../../../records/2026-09-21-02-auth-token-separation-consumer-review-and-rollback.md), [부분 개선 기록](../../../records/2026-09-21-03-auth-consumer-boundary-implementation.md)에 보존한다. 최종 책임 배치·재현과 검사 경계는 [이번 구현 기록](../../../records/2026-09-21-04-auth-responsibilities-and-regression-fixes.md)에 있다. unknown 10초 안내와 재확인 행동은 위 후속 작업에서 연결했다. 온라인 복구 후 재조회·토스트와 foreground 재확인 등 Ticket 전체 완료와 사용자 최종 수락은 아직 아니다.
 
 ## 추후 개선 메모 — NetworkStatus enum 전환
 
