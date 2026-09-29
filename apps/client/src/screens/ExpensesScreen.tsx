@@ -14,6 +14,9 @@ import { formatISOToLocalDate } from '@/shared/lib/datetime';
 import { groupExpensesByCurrency, formatCurrencyDisplay, getCurrencyFractionDigits } from '@/shared/lib/currency';
 import type { Expense } from '@/entities/expense';
 import { useAppPolicy } from '@/shared/policy';
+import { ExpenseQueryFeedback, ExpenseRefreshError } from './ExpenseQueryFeedback';
+
+const NO_EXPENSES: Expense[] = [];
 
 export default function ExpensesScreen() {
   const router = useRouter();
@@ -32,22 +35,29 @@ export default function ExpensesScreen() {
   const { data: trips = [] } = useGetTrips();
   const selectedTrip = trips.find((trip) => trip.id === selectedTripId);
 
-  // 실제 경비 데이터 조회 (tripId 필수)
-  const { data: expenses = [], isLoading, refetch } = useGetTripExpenses(selectedTripId || '');
   const readPolicy = useAppPolicy(selectedTripId ?? undefined).expense.read;
+  const actualReadPolicy = useAppPolicy(selectedTripId ?? undefined, { network: 'real' }).expense.read;
+  const canFetch = !!selectedTripId && readPolicy.allowed && actualReadPolicy.allowed;
+  const expenseQuery = useGetTripExpenses(selectedTripId ?? '', { enabled: canFetch });
+  const { refetch } = expenseQuery;
+  const visibleExpenses = selectedTripId && readPolicy.allowed ? expenseQuery.data : undefined;
+  const canShowContent = visibleExpenses !== undefined;
+  const refreshFailed = canShowContent && expenseQuery.isError && !expenseQuery.isFetching;
+  const expenses = visibleExpenses ?? NO_EXPENSES;
   const policy = useAppPolicy(selectedExpense?.tripId ?? selectedTripId ?? undefined);
 
   // Pull-to-Refresh
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = useCallback(async () => {
+    if (!canFetch) return;
     setRefreshing(true);
     try {
       await refetch();
     } finally {
       setRefreshing(false);
     }
-  }, [refetch]);
+  }, [canFetch, refetch]);
 
   // 여행 날짜 범위에서 모든 날짜 생성
   const generateDateRange = (): string[] => {
@@ -182,12 +192,19 @@ export default function ExpensesScreen() {
       {/* Current Trip Selector - Sticky */}
       <TripSelector className='border-b border-card-border bg-background px-md py-sm' />
 
+      {refreshFailed && <ExpenseRefreshError retry={canFetch ? onRefresh : undefined} />}
       {selectedTripId && !readPolicy.allowed ? (
         <PolicyErrorDisplay policy={readPolicy} variant='block' />
+      ) : selectedTripId && !canShowContent && !actualReadPolicy.allowed ? (
+        <PolicyErrorDisplay policy={actualReadPolicy} variant='block' />
+      ) : selectedTripId && !canShowContent && expenseQuery.isError ? (
+        <ExpenseQueryFeedback status='error' retry={onRefresh} />
+      ) : selectedTripId && !canShowContent ? (
+        <ExpenseQueryFeedback status='loading' />
       ) : (
         <ScrollView
           className='flex-1'
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          refreshControl={canFetch ? <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> : undefined}
         >
           <Container>
             <Stack direction='vertical' gap='md' className='py-sm'>
@@ -223,29 +240,21 @@ export default function ExpensesScreen() {
                 )}
               </View>
 
-              {/* Loading State */}
-              {isLoading && (
-                <View className='flex-1 items-center justify-center py-xl'>
-                  <Text className='text-body text-muted-foreground'>경비를 불러오는 중...</Text>
-                </View>
-              )}
-
               {/* Empty State - 여행이 없거나 날짜가 없을 때 */}
-              {!isLoading && !selectedTrip && (
+              {!selectedTrip && (
                 <View className='flex-1 items-center justify-center py-xl'>
                   <Text className='text-body text-muted-foreground'>여행을 선택해주세요</Text>
                 </View>
               )}
 
-              {!isLoading && selectedTrip && expensesByDate.length === 0 && (
+              {selectedTrip && expensesByDate.length === 0 && (
                 <View className='flex-1 items-center justify-center py-xl'>
                   <Text className='text-body text-muted-foreground'>경비를 추가해보세요</Text>
                 </View>
               )}
 
               {/* Expense List by Date - 경비가 있는 모든 날짜 표시 */}
-              {!isLoading &&
-                expensesByDate.length > 0 &&
+              {expensesByDate.length > 0 &&
                 expensesByDate.map((group) => (
                   <View key={group.date} className='flex-col gap-sm'>
                     {/* Date Header */}
@@ -310,7 +319,7 @@ export default function ExpensesScreen() {
 
       {/* Expense Menu */}
       <ExpenseMenu
-        isOpen={isExpenseMenuOpen && readPolicy.allowed}
+        isOpen={isExpenseMenuOpen && canShowContent}
         onClose={() => {
           setIsExpenseMenuOpen(false);
           setButtonPosition(undefined);

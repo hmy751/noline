@@ -34,11 +34,11 @@ Project-wide 판단으로 남은 항목은 Expense 날짜 계약, 금액 반올�
 
 성공한 push와 pull 뒤 진행 중 조회를 취소하고 갱신을 요청하며, pull 생략·실패나 앞선 GET 때문에 성공한 변경을 놓치지 않게 했다. 활성화·비활성화 성공 뒤 일정 Query에도 같은 취소 후 무효화를 연결했다. 화면 GET 완료는 sync 완료를 지연시키지 않는다. 상세 구현과 범위는 [Ticket 06](../memory/tickets/06-app-startup-lifecycle.md), sync 검사 근거는 [구현 기록](../../records/2026-09-29-03-schedule-query-recovery-implementation.md), Policy·Query 책임 재배치는 [개선 기록](../../records/2026-09-29-04-schedule-policy-query-composition.md), 폼·조회 수명과 공통 갱신 연산 및 최신 검사는 [후속 기록](../../records/2026-09-29-05-schedule-form-query-lifecycle.md)이 소유한다.
 
-기존 데이터의 재조회 실패 안내·재시도는 Main이 Query 상태만 쓰는 낮은 복잡도의 구현안으로 반영했다. 후속 개선은 폼 mount를 보존하면서 조회만 편집 중에 활성화하고, sync·활성 전환의 취소 후 무효화를 작은 공통 함수로 모았다. 다음 구현은 2-B 경비 목록·상세의 온라인 복구 연결이다. 실패 안내의 최종 UX 확인은 남아 있다. 2-C 토스트의 의미도 미확정이다.
+기존 데이터의 재조회 실패 안내·재시도는 Main이 Query 상태만 쓰는 낮은 복잡도의 구현안으로 반영했다. 후속 개선은 폼 mount를 보존하면서 조회만 편집 중에 활성화하고, sync·활성 전환의 취소 후 무효화를 작은 공통 함수로 모았다. 2-B 경비 목록·상세의 온라인 복구도 구현·검증했다. 기존 데이터를 즉시 표시하고 최초 실패와 빈 결과를 구별하며 재조회 실패에는 내용을 유지한다. 상세의 연결 일정은 필요한 경우에만 조회하고 닫힌 경비 수정 폼의 일정 조회도 중지한다. 활성 전환 뒤 경비도 이전 출처의 조회 결과를 배제한다. 다음은 2-C 토스트가 알릴 사실과 시점을 정하는 일이다. 실패 안내의 최종 UX 확인은 남아 있다.
 
-현재 작업 트리의 client Jest 39개 suite·366개 test가 통과했다. 실제 일정 수정 폼에서 작성 중 제목·날짜 보존과 저장 전 mutation 부재를 확인했으며 native 표시 표면과 repository는 mock이다. 타입 검사는 기존 Mapbox/download 오류 3개로 전체 성공은 아니다. 실제 기기·서버·OAuth·SecureStore와 native 활성 전환 전체 검증은 남아 있다.
+현재 작업 트리의 client Jest 40개 suite·386개 test가 통과했다. 2-B의 화면·sync·활성 전환 검사와 한계는 [경비 복구 기록](../../records/2026-09-29-06-expense-query-recovery.md)이 소유한다. 실제 일정 수정 폼에서 작성 중 제목·날짜 보존과 저장 전 mutation 부재를 확인했으며 native 표시 표면과 repository는 mock이다. 타입 검사는 기존 Mapbox/download 오류 3개로 전체 성공은 아니다. 실제 기기·서버·OAuth·SecureStore와 native 활성 전환 전체 검증은 남아 있다.
 
-Ticket 06의 경비 온라인 복구·토스트·foreground 재확인·mutation 오류 전달과 전체 완료 검증, 14의 전체 write/cache 계약, 15의 typed pull·cleanup 부분 실패 결과·중단 작업 재개, 16의 여행별 미전송 판정·cleanup 집계는 남는다. 앞선 데이터 보존 검사의 실제 Drizzle SQL·Node 메모리 SQLite 범위와 화면 검사의 mock 경계를 제품 전체 검증으로 확대하지 않는다.
+Ticket 06의 토스트·foreground 재확인·mutation 오류 전달과 전체 완료 검증, 14의 전체 write/cache 계약, 15의 typed pull·cleanup 부분 실패 결과·중단 작업 재개, 16의 여행별 미전송 판정·cleanup 집계는 남는다. 앞선 데이터 보존 검사의 실제 Drizzle SQL·Node 메모리 SQLite 범위와 화면 검사의 mock 경계를 제품 전체 검증으로 확대하지 않는다.
 
 판단 기준, 앞선 제안의 보정, 수정별 증거와 정확한 파일 진입점은 [재점검·구현 기록](../../records/2026-09-21-04-auth-responsibilities-and-regression-fixes.md)에서 읽는다.
 

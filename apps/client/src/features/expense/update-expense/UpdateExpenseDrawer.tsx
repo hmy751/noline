@@ -57,7 +57,8 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
   const selectedDate = watch('date');
 
   // 여행의 모든 일정 조회
-  const { data: schedules = [] } = useGetSchedules(expenseData?.tripId || '');
+  // 입력 상태는 유지하되, 연결 일정 조회는 편집 중에만 활성화한다.
+  const { data: schedules = [] } = useGetSchedules(expenseData?.tripId || '', { enabled: isOpen });
   const policy = useAppPolicy(expenseData?.tripId);
 
   // 선택한 날짜의 일정만 필터링

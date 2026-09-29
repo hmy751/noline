@@ -94,3 +94,5 @@
 - [일정 화면의 Policy·Query 직접 조합](2026-09-29-04-schedule-policy-query-composition.md): 독립 아키텍처 리뷰와 중간 상태 표현 제거, 표시용·실제 관측 정책의 선택, Debug 계약 복원과 최신 검증.
 
 - [일정 수정 폼과 Query의 수명 분리](2026-09-29-05-schedule-form-query-lifecycle.md): 기존 구현 커밋, 폼 입력·조회 수명 분리와 공통 갱신 연산, 실제 일정 폼 연결 검사 및 증거 범위 보완.
+
+- [경비 목록·상세의 온라인 복구](2026-09-29-06-expense-query-recovery.md): 2-B의 Policy·Query 연결, 첫 실패·정상 빈 결과 구분, 일정 조회 차단과 sync·활성 전환 뒤 경비 갱신, 검사 경계.

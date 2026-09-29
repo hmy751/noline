@@ -261,7 +261,7 @@ Main은 1-B 커밋에 1-C 제품 코드·테스트만 더한 별도 디렉터리
 
 ### 온라인 복구 후속 작업 2-A — 일정 화면의 표시와 Query 갱신
 
-**현재 단계: 2-A 구현·기록을 `57d878f`로 커밋했고, 후속 프론트 아키텍처 개선도 구현·검증을 마쳤다.** 앞선 정책·논의는 `56f38cc`에 있다. 이번 범위는 일정 화면과 변경 후 일정 갱신에 필요한 sync·활성 전환 연결, 수정 폼 조회 수명까지다. 최종 UX 확인과 2-B 경비·2-C 토스트는 별도로 남는다.
+**현재 단계: 2-A 구현·기록을 `57d878f`로 커밋했고, 후속 프론트 아키텍처 개선도 구현·검증을 마쳤다.** 앞선 정책·논의는 `56f38cc`에 있다. 이번 범위는 일정 화면과 변경 후 일정 갱신에 필요한 sync·활성 전환 연결, 수정 폼 조회 수명까지다. 2-B 경비 연결은 아래에서 이어졌고, 최종 UX 확인과 2-C 토스트는 남는다.
 
 비활성 여행의 접근 제한이 풀리면 기존 내용을 즉시 표시한다. 일정 화면은 `useAppPolicy`와 `useGetSchedules`를 직접 사용하며, 표시용 정책이 허용한 Query 데이터만 `visibleSchedules`로 전달한다. 날짜별 가공·메뉴·지도 선택 보정은 이 값의 존재 여부를 함께 사용한다. 별도 화면 상태 타입이나 복구 전용 훅을 두지 않는다. 최초 조회·오류·재조회 안내는 화면 옆의 `ScheduleQueryFeedback.tsx`가 표시한다. 유효한 캐시는 강제 재조회하지 않으며 데이터 없음·stale·무효화 상태는 Query 기준으로 조회한다. staleTime 5분과 전역 refetchOnReconnect false를 유지한다. 선택 과정과 비용은 [Query 결정](../../../records/2026-09-29-02-schedule-recovery-query-sync-decision.md), 책임 재배치는 [아키텍처 검토·개선](../../../records/2026-09-29-04-schedule-policy-query-composition.md)에 있다.
 
@@ -275,7 +275,19 @@ sync는 서버 전송이 하나라도 성공하면 push 종료 시 갱신을 요
 
 Main이 현재 작업 트리에서 client Jest **39개 suite·366개 test 통과**를 확인했다. 화면·Policy 검사는 캐시 즉시 표시·조건부 갱신·오류와 빈 목록·지도 선택 및 Debug 표시와 실제 조회의 구분을, sync 검사는 pull 생략·실패와 부분 push 성공·이전 GET를, 활성 전환 검사는 실제 성공 callback과 QueryClient의 연결을 다룬다. 실제 Screen·Menu·UpdateScheduleDrawer·react-hook-form을 연결해 작성 중 제목·날짜가 연결 제한·복귀 및 재조회 실패·성공 후에도 보존되고 저장 전 mutation이 없음을 추가 확인했다. 폼의 닫힘·열림에 따른 무효화 후 조회도 확인했다. HTTP·DB·repository와 활성 입력, native 표시 표면은 mock이며 native transaction·실서버 전체 검증이 아니다. 기존 Mapbox/download 타입 오류 3개는 유지되며 변경 파일 형식 검사는 통과했다. 이번 개선 파일의 ESLint는 기존 Prettier plugin 충돌 규칙을 제외해 오류·경고 없이 통과했다. 최신 검사와 남은 한계는 [폼·Query 수명 개선 기록](../../../records/2026-09-29-05-schedule-form-query-lifecycle.md)에 있다.
 
-다음 구현은 2-B 경비 목록·상세에 같은 복구 기준을 연결하는 것이다. 실패 안내의 최종 UX 확인은 남아 있다. 2-B·2-C, foreground 재확인과 Ticket 전체 완료는 이번 결과에 포함하지 않는다.
+2-A의 결과와 별도로 2-B 경비 목록·상세의 복구 연결은 아래에서 기록한다. 실패 안내의 최종 UX 확인, 2-C 토스트, foreground 재확인과 Ticket 전체 완료는 남아 있다.
+
+### 온라인 복구 후속 작업 2-B — 경비 목록·상세
+
+**현재 단계: 2-A의 Query 기준을 경비 목록·상세에 적용하고 검증했다. 이 변경은 미커밋이다.** 목록과 상세의 데이터 소유권은 기존 `ExpenseRepository`·Activation Router에 둔다. 화면은 표시용 `useAppPolicy`로 캐시 노출을, 표시용·실제 관측 정책을 함께 사용해 해당 Query observer의 조회 활성화와 수동 재조회를 결정한다. 비활성 여행의 offline/unknown에서는 제한 안내로 내용을 가리되 캐시는 유지한다. 활성 여행의 Local 내용은 계속 표시한다. Debug 강제 online·실제 offline에서는 캐시가 있으면 표시하지만 새 요청은 시작하지 않는다.
+
+`useGetTripExpenses`는 여행 ID와 화면의 enabled 입력을 받아 데이터 없음·stale·무효화에 관한 기존 Query 기준을 사용한다. 목록은 처음 받아야 할 데이터가 없을 때 로딩 또는 오류를 표시하며 정상적인 빈 목록과 구별한다. 기존 데이터의 재조회 실패에는 내용·통화 합계·여행 선택을 유지하고 작은 실패 안내와 재시도를 제공한다. 상세도 같은 캐시를 즉시 쓰며 처음 실패한 요청을 ‘경비를 찾을 수 없음’으로 바꾸지 않는다. 여행 목록 캐시에 대상 ID가 없는 경우에도 진행 중인 조회가 끝나기 전에는 부재를 확정하지 않는다. 상세의 연결된 일정 조회는 경비가 실제로 표시 가능하고 일정 읽기·실제 조회 조건이 모두 허용될 때만 활성화한다. 새 복구 상태나 sync 완료 대기는 추가하지 않았다.
+
+성공한 sync push/pull 뒤의 광범위 취소·무효화는 기존 2-A 코드가 경비 key도 포함한다. 이번에는 활성화·비활성화의 Local/Remote 출처 전환에 경비 Query의 취소 후 무효화를 추가했다. 출처가 바뀌기 전 시작한 캐시 없는 조회가 늦게 끝나도 이전 결과를 채택하지 않게 하기 위해서다. QueryClient와 filter를 받는 기존 공통 갱신 연산을 사용하며 새 GET 완료는 기다리지 않는다. 화면에 남는 수정 Drawer는 제한 중에도 mount를 유지하므로 작성 중인 폼 상태를 보존한다. 연결 일정 Query는 `enabled: isOpen`으로 폼을 편집할 때만 활성화한다. 이번 화면 검사는 Drawer를 대체하며 실제 경비 폼 입력 보존의 근거는 기존 [오프라인 수정값 검사](../../../../../../../apps/client/tests/features/edit/offline-values.test.tsx)에 한정된다.
+
+Main은 전체 client Jest **40개 suite·386개 test 통과**를 확인했다. 새 화면 검사는 실제 경비 Query·화면·Policy로 유효/오래된 캐시, 복귀 후 조회, 최초 실패·정상 빈 목록, 재조회 실패와 재시도, 상세의 연결 일정 조회 차단, Debug·활성 Local, 여행 전환 뒤 늦은 응답을 확인한다. sync 검사에서는 경비 push 후 pull 생략과 이전 GET 중첩을, 활성 전환 검사에서는 일정·경비 각각의 이전 출처 응답 배제를 확인한다. repository·HTTP·DB와 native 표시 표면은 mock이며 실기기·실서버 확인은 아니다. 변경 파일 Prettier와 `git diff --check`, 기존 Prettier plugin 충돌 규칙을 제외한 ESLint가 통과했다. client 타입 검사는 기존 Mapbox 좌표 tuple·OfflinePack 필드 오류 3개로 전체 성공은 아니며 새 오류는 없다. 자세한 판단과 검사 경계는 [2-B 기록](../../../records/2026-09-29-06-expense-query-recovery.md)에 있다.
+
+다음 판단은 2-C 토스트가 ‘연결 복귀’와 ‘데이터 갱신 성공’ 중 어떤 사실을 알려야 하는지와 표시 시점이다. 최초 unknown 해소·단순 재확인에는 토스트를 붙이지 않고 반복 장애에서 중복 표시를 막는 기준을 유지한다. 실패 안내의 최종 UX 확인, foreground 재확인, mutation 오류 전달과 Ticket 전체 완료는 별도 남은 범위다.
 
 ### 앞선 다섯 단계의 저장 경계
 

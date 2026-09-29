@@ -209,7 +209,7 @@ export const useActivateTrip = () => {
       if (!data.alreadyActivated) {
         // Remote에서 시작한 최초 조회도 Local 전환 뒤 결과를 덮어쓰지 않게 한다.
         await cancelAndInvalidateQueries(queryClient, { queryKey: scheduleQueryKeys.list(data.tripId) });
-        queryClient.invalidateQueries({ queryKey: expenseQueryKeys.byTrip(data.tripId) });
+        await cancelAndInvalidateQueries(queryClient, { queryKey: expenseQueryKeys.byTrip(data.tripId) });
         queryClient.invalidateQueries({ queryKey: routeQueryKeys.byTrip(data.tripId) });
         console.log(`[TripActivation] Trip activation completed: ${data.tripId}`);
       }

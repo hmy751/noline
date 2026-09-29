@@ -81,26 +81,34 @@ afterEach(async () => {
   jest.restoreAllMocks();
 });
 
-it.each([false, true])('push 뒤 pull이 생략돼도 이전 GET를 버리고 변경을 읽는다 (캐시: %s)', async (cached) => {
-  const oldRead = deferred();
-  let serverValue = '이전 서버 값';
-  const read = jest
-    .fn<() => Promise<string>>()
-    .mockImplementationOnce(() => oldRead.promise)
-    .mockImplementation(async () => serverValue);
-  if (cached) mockClient.setQueryData(key, '캐시', { updatedAt: Date.now() - 6 * 60 * 1000 });
-  observe(read);
-  jest.mocked(api.put).mockImplementationOnce(async () => {
-    serverValue = 'push 이후 값';
-    return {} as never;
-  });
-  await syncData();
-  expect(api.get).not.toHaveBeenCalled();
-  expect(mockClient.getQueryData(key)).toBe('push 이후 값');
-  oldRead.resolve('push 이전 늦은 값');
-  await oldRead.promise;
-  expect(mockClient.getQueryData(key)).toBe('push 이후 값');
-});
+it.each([
+  { entity: '일정', queryKey: key, cached: false },
+  { entity: '일정', queryKey: key, cached: true },
+  { entity: '경비', queryKey: ['expense', 'trip', 'inactive-trip'], cached: false },
+  { entity: '경비', queryKey: ['expense', 'trip', 'inactive-trip'], cached: true },
+])(
+  'push 뒤 pull이 생략돼도 $entity의 이전 GET를 버리고 변경을 읽는다 (캐시: $cached)',
+  async ({ queryKey, cached }) => {
+    const oldRead = deferred();
+    let serverValue = '이전 서버 값';
+    const read = jest
+      .fn<() => Promise<string>>()
+      .mockImplementationOnce(() => oldRead.promise)
+      .mockImplementation(async () => serverValue);
+    if (cached) mockClient.setQueryData(queryKey, '캐시', { updatedAt: Date.now() - 6 * 60 * 1000 });
+    observe(read, queryKey);
+    jest.mocked(api.put).mockImplementationOnce(async () => {
+      serverValue = 'push 이후 값';
+      return {} as never;
+    });
+    await syncData();
+    expect(api.get).not.toHaveBeenCalled();
+    expect(mockClient.getQueryData(queryKey)).toBe('push 이후 값');
+    oldRead.resolve('push 이전 늦은 값');
+    await oldRead.promise;
+    expect(mockClient.getQueryData(queryKey)).toBe('push 이후 값');
+  },
+);
 
 it('push 일부 성공 뒤 다음 전송이 실패해도 성공한 변경을 갱신한다', async () => {
   mockClient.setQueryData(key, '이전 값');

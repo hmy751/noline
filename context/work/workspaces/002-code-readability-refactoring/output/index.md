@@ -100,6 +100,8 @@ Node 20.18.1에서 2개 file의 2개 test와 server build가 통과했다. 실�
 
 2-A 후속 산출물은 [수정 폼의 조회 수명](../../../../../apps/client/src/features/schedule/update-schedule/UpdateScheduleDrawer.tsx), [변경 후 공통 Query 갱신](../../../../../apps/client/src/shared/lib/query-refresh.ts)에 있다. 실제 폼 연결 검사는 위 화면 연결 검사에 포함되며 선택 이유와 검사 경계는 [후속 개선 기록](../records/2026-09-29-05-schedule-form-query-lifecycle.md)에서 읽는다.
 
+2-B의 산출물은 [경비 목록](../../../../../apps/client/src/screens/ExpensesScreen.tsx), [경비 상세](../../../../../apps/client/src/screens/ExpenseDetailScreen.tsx), [경비 수정 폼](../../../../../apps/client/src/features/expense/update-expense/UpdateExpenseDrawer.tsx), [화면 복구 검사](../../../../../apps/client/tests/screens/expense-recovery.test.tsx)에서 읽는다. 갱신 출처 전환 검사는 위 [활성 전환 검사](../../../../../apps/client/tests/entities/trip/activation-query-refresh.test.ts), push 중첩은 [sync 검사](../../../../../apps/client/tests/shared/services/sync/query-refresh.test.ts)에 포함된다. 선택 이유·검사 경계는 [2-B 기록](../records/2026-09-29-06-expense-query-recovery.md)이 맡는다.
+
 ## 17 — Trip·Expense 직렬화 선행 조각 (당시 16)
 
 - [Trip serializer](../../../../../apps/server/src/serializers/trip.ts): Trip DB row의 다섯 시간 값을 API ISO datetime 또는 null로 변환한다.

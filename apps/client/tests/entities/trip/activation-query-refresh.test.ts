@@ -21,7 +21,6 @@ jest.mock('@/shared/services/sync/queue', () => ({}));
 
 let mockClient: QueryClient;
 const subscriptions: (() => void)[] = [];
-const key = ['schedule', 'list', 'trip'];
 
 beforeEach(() => {
   mockClient = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
@@ -36,16 +35,37 @@ afterEach(async () => {
 });
 
 it.each([
-  { name: '활성화', hook: useActivateTrip, newValue: 'Local', data: { tripId: 'trip', alreadyActivated: false } },
   {
-    name: '비활성화',
+    name: '활성화 뒤 일정',
+    hook: useActivateTrip,
+    key: ['schedule', 'list', 'trip'],
+    newValue: 'Local',
+    data: { tripId: 'trip', alreadyActivated: false },
+  },
+  {
+    name: '활성화 뒤 경비',
+    hook: useActivateTrip,
+    key: ['expense', 'trip', 'trip'],
+    newValue: 'Local',
+    data: { tripId: 'trip', alreadyActivated: false },
+  },
+  {
+    name: '비활성화 뒤 일정',
     hook: useDeactivateTrip,
+    key: ['schedule', 'list', 'trip'],
+    newValue: 'Remote',
+    data: { tripId: 'trip', alreadyDeactivated: false },
+  },
+  {
+    name: '비활성화 뒤 경비',
+    hook: useDeactivateTrip,
+    key: ['expense', 'trip', 'trip'],
     newValue: 'Remote',
     data: { tripId: 'trip', alreadyDeactivated: false },
   },
 ])(
   '$name 뒤 캐시 없는 첫 조회가 늦게 끝나도 이전 데이터 출처의 결과를 채택하지 않는다',
-  async ({ hook, newValue, data }) => {
+  async ({ hook, key, newValue, data }) => {
     let finishOld!: (value: string) => void;
     const oldRequest = new Promise<string>((resolve) => {
       finishOld = resolve;

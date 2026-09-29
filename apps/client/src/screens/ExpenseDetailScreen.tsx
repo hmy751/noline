@@ -1,25 +1,42 @@
 import { PolicyErrorDisplay } from '@/shared/components/ErrorBoundary';
 import { useAppPolicy } from '@/shared/policy';
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { Container, Stack, MobileHeader } from '@/shared/components';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useGetTripExpenses } from '@/entities/expense';
 import { useGetSchedules } from '@/entities/schedule';
 import { MapPin, Tag, Calendar, Receipt, ChevronLeft } from 'lucide-react-native';
 import { formatISOToLocalDate } from '@/shared/lib/datetime';
+import { ExpenseQueryFeedback, ExpenseRefreshError } from './ExpenseQueryFeedback';
 
 export default function ExpenseDetailScreen() {
   const router = useRouter();
   const { id, tripId } = useLocalSearchParams<{ id: string; tripId: string }>();
 
+  const displayPolicy = useAppPolicy(tripId);
+  const actualPolicy = useAppPolicy(tripId, { network: 'real' });
+  const readPolicy = displayPolicy.expense.read;
+  const actualReadPolicy = actualPolicy.expense.read;
+  const canFetch = !!tripId && readPolicy.allowed && actualReadPolicy.allowed;
   // 경비 데이터 조회 (tripId 기반으로 Router 사용)
-  const { data: expenses = [], isLoading } = useGetTripExpenses(tripId || '');
-  const readPolicy = useAppPolicy(tripId).expense.read;
-  const expense = expenses.find((e) => e.id === id);
+  const expenseQuery = useGetTripExpenses(tripId || '', { enabled: canFetch });
+  const visibleExpenses = tripId && readPolicy.allowed ? expenseQuery.data : undefined;
+  const canShowContent = visibleExpenses !== undefined;
+  const expense = visibleExpenses?.find((item) => item.id === id);
+  const refreshFailed = !!expense && expenseQuery.isError && !expenseQuery.isFetching;
+  const retry = () => {
+    if (canFetch) expenseQuery.refetch();
+  };
 
   // 연결된 일정 조회 (scheduleId가 있는 경우)
-  const { data: schedules = [] } = useGetSchedules(tripId || '');
-  const linkedSchedule = expense?.scheduleId ? schedules.find((s) => s.id === expense.scheduleId) : null;
+  const { data: schedules = [] } = useGetSchedules(tripId || '', {
+    enabled:
+      canFetch && !!expense?.scheduleId && displayPolicy.schedule.read.allowed && actualPolicy.schedule.read.allowed,
+  });
+  const linkedSchedule =
+    expense?.scheduleId && displayPolicy.schedule.read.allowed
+      ? schedules.find((s) => s.id === expense.scheduleId)
+      : null;
 
   // 카테고리별 배경색
   const getCategoryColor = (cat: string) => {
@@ -57,17 +74,21 @@ export default function ExpenseDetailScreen() {
     );
   }
 
-  if (isLoading) {
+  if (!canShowContent && !actualReadPolicy.allowed) {
     return (
       <View className='flex-1 bg-background'>
-        <MobileHeader
-          title='경비 상세'
-          leftIcon={<ChevronLeft size={24} color='hsl(0, 0%, 12%)' />}
-          onLeftPress={() => router.back()}
-        />
-        <View className='flex-1 items-center justify-center'>
-          <ActivityIndicator size='large' color='hsl(120, 61%, 34%)' />
-        </View>
+        <MobileHeader title='경비 상세' onLeftPress={() => router.back()} leftIcon={<ChevronLeft size={24} />} />
+        <PolicyErrorDisplay policy={actualReadPolicy} variant='block' />
+      </View>
+    );
+  }
+
+  // 여행 목록 캐시가 있어도 현재 경비가 없다면 최신 조회가 끝나기 전에는 부재를 확정하지 않는다.
+  if (tripId && (!canShowContent || (!expense && (expenseQuery.isFetching || expenseQuery.isError)))) {
+    return (
+      <View className='flex-1 bg-background'>
+        <MobileHeader title='경비 상세' onLeftPress={() => router.back()} leftIcon={<ChevronLeft size={24} />} />
+        <ExpenseQueryFeedback status={expenseQuery.isError ? 'error' : 'loading'} retry={retry} />
       </View>
     );
   }
@@ -94,6 +115,8 @@ export default function ExpenseDetailScreen() {
         leftIcon={<ChevronLeft size={24} color='hsl(0, 0%, 12%)' />}
         onLeftPress={() => router.back()}
       />
+
+      {refreshFailed && <ExpenseRefreshError retry={canFetch ? retry : undefined} />}
 
       <ScrollView className='flex-1'>
         <Container>

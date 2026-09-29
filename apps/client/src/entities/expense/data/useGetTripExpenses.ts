@@ -17,10 +17,11 @@ import { expenseQueryKeys } from './keys';
  * const { data: expenses, isLoading } = useGetTripExpenses('trip-id-123');
  * ```
  */
-export const useGetTripExpenses = (tripId: string) => {
+export const useGetTripExpenses = (tripId: string, { enabled = true }: { enabled?: boolean } = {}) => {
   return useQuery({
     queryKey: expenseQueryKeys.byTrip(tripId),
     queryFn: () => ExpenseRepository.getByTripId(tripId),
+    enabled: !!tripId && enabled,
     staleTime: 5 * 60 * 1000, // 5분
     gcTime: 10 * 60 * 1000, // 10분
   });

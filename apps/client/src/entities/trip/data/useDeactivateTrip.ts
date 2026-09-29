@@ -140,7 +140,7 @@ export const useDeactivateTrip = () => {
       if (!data.alreadyDeactivated) {
         // Local에서 시작한 조회 결과 대신 전환 뒤 Router가 선택한 데이터를 읽는다.
         await cancelAndInvalidateQueries(queryClient, { queryKey: scheduleQueryKeys.base });
-        queryClient.invalidateQueries({ queryKey: expenseQueryKeys.base });
+        await cancelAndInvalidateQueries(queryClient, { queryKey: expenseQueryKeys.base });
         queryClient.invalidateQueries({ queryKey: routeQueryKeys.base });
         console.log(`[TripActivation] Trip deactivation completed: ${data.tripId}`);
       }
