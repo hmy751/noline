@@ -1,4 +1,5 @@
 import React from 'react';
+import { Alert } from 'react-native';
 import { afterEach, beforeEach, expect, it, jest } from '@jest/globals';
 import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react-native';
 import ScheduleScreen from '@/screens/ScheduleScreen';
@@ -11,6 +12,7 @@ import { scheduleQueryKeys } from '@/entities/schedule/data/keys';
 import { useAuthStore } from '@/shared/store/auth';
 import { useTripStore } from '@/shared/store/useTripStore';
 import { useGetTripActivation } from '@/entities/trip/data/useGetTripActivation';
+import { UpdateScheduleDrawer } from '@/features/schedule/update-schedule';
 
 jest.mock('@/shared/services/sync/api', () => ({
   __esModule: true,
@@ -47,6 +49,9 @@ jest.mock('lucide-react-native', () => ({
   MapPin: () => null,
   Tag: () => null,
   Calendar: () => null,
+  Clock: () => null,
+  Edit2: () => null,
+  Trash2: () => null,
   Receipt: () => null,
   ChevronLeft: () => null,
   AlertCircle: () => null,
@@ -54,12 +59,29 @@ jest.mock('lucide-react-native', () => ({
   Wifi: () => null,
   Lock: () => null,
 }));
-jest.mock('@repo/ui', () => ({
-  ...jest.requireActual<Pick<typeof import('@repo/ui'), 'Pressable'>>(
-    '../../../../packages/ui/src/components/Pressable',
-  ),
-  ...jest.requireActual<Pick<typeof import('@repo/ui'), 'cn'>>('../../../../packages/ui/src/lib/utils'),
-}));
+jest.mock('@repo/ui', () => {
+  const ReactRuntime = jest.requireActual<typeof import('react')>('react');
+  const { View, Text, Pressable } = jest.requireActual<typeof import('react-native')>('react-native');
+  const surface = ({ isOpen, children }: { isOpen: boolean; children: React.ReactNode }) =>
+    isOpen ? ReactRuntime.createElement(View, null, children) : null;
+  return {
+    ...jest.requireActual<Pick<typeof import('@repo/ui'), 'Pressable'>>(
+      '../../../../packages/ui/src/components/Pressable',
+    ),
+    ...jest.requireActual<Pick<typeof import('@repo/ui'), 'cn'>>('../../../../packages/ui/src/lib/utils'),
+    // 네이티브 표시만 대체한다. Screen·Menu·Drawer·react-hook-form은 실제 구현이다.
+    Drawer: surface,
+    DropdownMenu: surface,
+    DropdownMenuItem: ({ label, onPress }: { label: string; onPress: () => void }) =>
+      ReactRuntime.createElement(Pressable, { onPress }, ReactRuntime.createElement(Text, null, label)),
+  };
+});
+jest.mock('@/shared/components/Form', () => {
+  const { View, Text } = jest.requireActual<typeof import('react-native')>('react-native');
+  return { Field: Object.assign(View, { Title: Text, ElementsBox: View, Message: Text }) };
+});
+jest.mock('@/entities/route', () => ({ useAutoDownloadRoutes: () => ({ mutate: jest.fn() }) }));
+jest.mock('@/features/schedule/update-schedule/LocationSearchModal', () => ({ LocationSearchModal: () => null }));
 jest.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
 }));
@@ -69,11 +91,40 @@ jest.mock('@/shared/components', () => {
   return {
     Container: View,
     Stack: View,
+    DatePicker: ({ onSelectDate }: { onSelectDate: (date: string) => void }) =>
+      ReactRuntime.createElement(
+        Pressable,
+        { onPress: () => onSelectDate('2026-09-22') },
+        ReactRuntime.createElement(Text, null, '작성 날짜 선택'),
+      ),
+    TimePicker: ({ onSelectTime }: { onSelectTime: (time: string) => void }) =>
+      ReactRuntime.createElement(
+        Pressable,
+        { onPress: () => onSelectTime('15:30') },
+        ReactRuntime.createElement(Text, null, '작성 시간 선택'),
+      ),
+    PolicyErrorDisplay: jest.requireActual<typeof import('@/shared/components/ErrorBoundary/PolicyErrorDisplay')>(
+      '@/shared/components/ErrorBoundary/PolicyErrorDisplay',
+    ).PolicyErrorDisplay,
     MobileHeader: jest.requireActual<typeof import('@/shared/components/Navigation/MobileHeader')>(
       '@/shared/components/Navigation/MobileHeader',
     ).MobileHeader,
     ExpenseCard: ({ title }: { title: string }) => ReactRuntime.createElement(Text, null, title),
-    ScheduleCard: ({ title }: { title: string }) => ReactRuntime.createElement(Text, null, title),
+    ScheduleCard: ({ title, onMenuPress }: { title: string; onMenuPress: (event: unknown) => void }) =>
+      ReactRuntime.createElement(
+        View,
+        null,
+        ReactRuntime.createElement(Text, null, title),
+        ReactRuntime.createElement(
+          Pressable,
+          {
+            accessibilityRole: 'button',
+            accessibilityLabel: `${title} 메뉴`,
+            onPress: () => onMenuPress({ currentTarget: { measure: () => undefined } }),
+          },
+          ReactRuntime.createElement(Text, null, '일정 메뉴'),
+        ),
+      ),
     MapScheduleCard: ({ title }: { title: string }) => ReactRuntime.createElement(Text, null, title),
     // 네이티브 지도만 대체한다. 날짜·일정 선택과 카드 조합은 실제 container를 사용한다.
     PolicyBasedScheduleMapView: ({
@@ -119,14 +170,14 @@ jest.mock('@/entities/schedule', () => ({
     '@/entities/schedule/data/useGetSchedules',
   ).useGetSchedules,
   useDeleteSchedule: () => ({ mutate: jest.fn() }),
+  useUpdateSchedule: () => ({ mutate: mockSaveSchedule, isPending: false }),
 }));
-jest.mock('@/features/schedule/schedule-menu', () => ({ ScheduleMenu: () => null }));
-jest.mock('@/features/schedule/update-schedule', () => ({ UpdateScheduleDrawer: () => null }));
 jest.mock('@/features/expense/expense-menu', () => ({ ExpenseMenu: () => null }));
 jest.mock('@/features/expense/update-expense', () => ({ UpdateExpenseDrawer: () => null }));
 
 type Schedules = Awaited<ReturnType<typeof ScheduleRepository.getByTripId>>;
 const fetchSchedules = jest.mocked(ScheduleRepository.getByTripId);
+const mockSaveSchedule = jest.fn();
 const clients: QueryClient[] = [];
 let mockClient: QueryClient;
 let mockTrips: { id: string; startDate: string; endDate: string; baseCurrency: string }[];
@@ -174,6 +225,80 @@ function connect(realStatus: 'online' | 'offline' | 'unknown') {
   act(() => useNetworkStore.setState({ realStatus, checkStatus: realStatus === 'unknown' ? 'checking' : 'idle' }));
 }
 
+it('수정 폼의 일정 조회는 닫혀 있는 동안 무효화돼도 시작하지 않고 열 때 갱신한다', async () => {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
+  clients.push(client);
+  client.setQueryData(scheduleQueryKeys.list('trip'), rows('이전 일정'));
+  fetchSchedules.mockResolvedValue(rows('갱신한 일정'));
+  const scheduleData = {
+    id: 'schedule',
+    tripId: 'trip',
+    title: '이전 일정',
+    date: '2026-09-21',
+    time: '10:00',
+  };
+  const form = (isOpen: boolean) => (
+    <QueryClientProvider client={client}>
+      <UpdateScheduleDrawer isOpen={isOpen} onClose={jest.fn()} scheduleData={scheduleData} />
+    </QueryClientProvider>
+  );
+  const view = render(form(false));
+  await act(async () => {
+    await client.invalidateQueries({ queryKey: scheduleQueryKeys.list('trip') });
+  });
+  expect(fetchSchedules).not.toHaveBeenCalled();
+
+  view.rerender(form(true));
+  await waitFor(() => expect(client.getQueryData(scheduleQueryKeys.list('trip'))).toEqual(rows('갱신한 일정')));
+  expect(fetchSchedules).toHaveBeenCalledTimes(1);
+
+  view.rerender(form(false));
+  await act(async () => {
+    await client.invalidateQueries({ queryKey: scheduleQueryKeys.list('trip') });
+  });
+  expect(fetchSchedules).toHaveBeenCalledTimes(1);
+});
+
+it('화면에서 수정 중인 제목과 날짜는 연결 제한·복귀와 조회 실패·갱신 후에도 저장 전까지 유지한다', async () => {
+  const prompt = jest.spyOn(Alert, 'prompt').mockImplementation(() => undefined);
+  const view = setup();
+  fireEvent.press(view.getByRole('button', { name: '이전 일정 메뉴' }));
+  fireEvent.press(view.getByText('수정'));
+  fireEvent.press(view.getAllByText('이전 일정')[1]);
+  const buttons = prompt.mock.calls[0][2];
+  if (!Array.isArray(buttons)) throw new Error('제목 변경 확인 버튼이 없습니다');
+  act(() => buttons.find((button) => button.text === '확인')?.onPress?.('작성 중 제목'));
+  fireEvent.press(view.getAllByText('2026-09-21')[1]);
+  fireEvent.press(view.getByText('작성 날짜 선택'));
+
+  connect('offline');
+  expect(view.queryByText('저장')).toBeNull();
+  expect(view.queryByText('작성 중 제목')).toBeNull();
+  connect('online');
+  expect(view.getByText('작성 중 제목')).toBeTruthy();
+
+  fetchSchedules.mockRejectedValueOnce(new Error('server unavailable'));
+  await act(async () => {
+    await view.client.invalidateQueries({ queryKey: scheduleQueryKeys.list('trip') });
+  });
+  await waitFor(() => expect(view.getByText('일정을 갱신하지 못했어요. 이전 내용을 표시하고 있어요.')).toBeTruthy());
+  expect(view.getByText('작성 중 제목')).toBeTruthy();
+  fetchSchedules.mockResolvedValueOnce(rows('서버에서 갱신된 제목'));
+  await act(async () => {
+    fireEvent.press(view.getByRole('button', { name: '다시 불러오기' }));
+  });
+  await waitFor(() => expect(view.getByText('서버에서 갱신된 제목')).toBeTruthy());
+  expect(view.getByText('작성 중 제목')).toBeTruthy();
+  expect(mockSaveSchedule).not.toHaveBeenCalled();
+
+  await act(async () => fireEvent.press(view.getByText('저장')));
+  await waitFor(() => expect(mockSaveSchedule).toHaveBeenCalled());
+  const request = mockSaveSchedule.mock.calls[0][0] as { data: { title: string; scheduledAt: string } };
+  expect(request.data.title).toBe('작성 중 제목');
+  const savedDate = new Date(request.data.scheduledAt);
+  expect([savedDate.getFullYear(), savedDate.getMonth() + 1, savedDate.getDate()]).toEqual([2026, 9, 22]);
+});
+
 beforeEach(() => {
   mockTrips = ['trip', 'other'].map((id) => ({
     id,
@@ -194,6 +319,7 @@ afterEach(async () => {
     await client.cancelQueries();
     client.clear();
   }
+  jest.restoreAllMocks();
 });
 
 it('online 복귀 시 유효한 기존 데이터를 바로 표시하고 추가 조회를 강제하지 않는다', () => {

@@ -57,7 +57,8 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
   // Mutations and queries
   const { mutate: updateSchedule, isPending } = useUpdateSchedule();
   const { mutate: autoDownloadRoutes } = useAutoDownloadRoutes();
-  const { data: schedules = [] } = useGetSchedules(scheduleData?.tripId || '');
+  // 입력은 닫힌 동안에도 보관하되, 저장 후 경로 재계산용 조회는 편집 중에만 활성화한다.
+  const { data: schedules = [] } = useGetSchedules(scheduleData?.tripId || '', { enabled: isOpen });
 
   // Policy 체크
   const policy = useAppPolicy(scheduleData?.tripId);

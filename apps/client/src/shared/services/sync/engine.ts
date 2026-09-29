@@ -3,6 +3,7 @@ import { getSyncableTasks, getSyncQueueStats, deleteTask, updateTaskStatus, retr
 import { getLastSyncedAt, setLastSyncedAt } from './storage';
 import { upsertTrips, upsertSchedules, upsertExpenses } from '@/shared/db/utils';
 import { queryClient } from '@/shared/lib/queryClient';
+import { cancelAndInvalidateQueries } from '@/shared/lib/query-refresh';
 import { getDatabase, tripActivations } from '@/shared/db';
 import { and, eq } from 'drizzle-orm';
 import { selectLocalUserId, useAuthStore } from '@/shared/store/auth';
@@ -35,10 +36,7 @@ function isSyncTable(tableName: string): tableName is SyncTable {
 /** 변경 이전에 시작한 조회 결과를 버리고, 구독 중인 Query의 갱신을 요청한다. */
 async function refreshSyncQueries(): Promise<void> {
   const filters = { predicate: ({ queryKey }: Query) => ['trip', 'schedule', 'expense'].includes(String(queryKey[0])) };
-  // 데이터 없는 최초 조회도 invalidate만으로는 기존 요청을 공유하므로 먼저 취소한다.
-  await queryClient.cancelQueries(filters);
-  // 화면 조회 완료가 sync 완료를 지연시키거나 실패로 바꾸지 않게 한다.
-  queryClient.invalidateQueries(filters).catch((error) => console.error('[Sync] cache refresh failed', error));
+  await cancelAndInvalidateQueries(queryClient, filters);
 }
 
 async function pushTaskToServer(

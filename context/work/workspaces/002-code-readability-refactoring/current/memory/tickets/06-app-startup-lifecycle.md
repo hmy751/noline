@@ -261,21 +261,21 @@ Main은 1-B 커밋에 1-C 제품 코드·테스트만 더한 별도 디렉터리
 
 ### 온라인 복구 후속 작업 2-A — 일정 화면의 표시와 Query 갱신
 
-**현재 단계: 채택한 Query 방향으로 2-A를 구현·검증했으며 제품 코드는 미커밋 상태다.** 앞선 정책·논의와 Spec·Ticket·state는 `56f38cc`로 저장했다. 이번 구현은 일정 화면과 변경 후 일정 갱신에 필요한 sync·활성 전환 연결까지다. 사용자 수락·제품 커밋과 2-B 경비·2-C 토스트는 별도로 남는다.
+**현재 단계: 2-A 구현·기록을 `57d878f`로 커밋했고, 후속 프론트 아키텍처 개선도 구현·검증을 마쳤다.** 앞선 정책·논의는 `56f38cc`에 있다. 이번 범위는 일정 화면과 변경 후 일정 갱신에 필요한 sync·활성 전환 연결, 수정 폼 조회 수명까지다. 최종 UX 확인과 2-B 경비·2-C 토스트는 별도로 남는다.
 
 비활성 여행의 접근 제한이 풀리면 기존 내용을 즉시 표시한다. 일정 화면은 `useAppPolicy`와 `useGetSchedules`를 직접 사용하며, 표시용 정책이 허용한 Query 데이터만 `visibleSchedules`로 전달한다. 날짜별 가공·메뉴·지도 선택 보정은 이 값의 존재 여부를 함께 사용한다. 별도 화면 상태 타입이나 복구 전용 훅을 두지 않는다. 최초 조회·오류·재조회 안내는 화면 옆의 `ScheduleQueryFeedback.tsx`가 표시한다. 유효한 캐시는 강제 재조회하지 않으며 데이터 없음·stale·무효화 상태는 Query 기준으로 조회한다. staleTime 5분과 전역 refetchOnReconnect false를 유지한다. 선택 과정과 비용은 [Query 결정](../../../records/2026-09-29-02-schedule-recovery-query-sync-decision.md), 책임 재배치는 [아키텍처 검토·개선](../../../records/2026-09-29-04-schedule-policy-query-composition.md)에 있다.
 
 접근 조건은 기존 Policy 계산을 사용한다. `useAppPolicy(tripId)`는 화면 표시용 관측을, `{ network: 'real' }`을 넘긴 호출은 실제 관측을 기준으로 같은 인증·활성 여부·unknown 규칙을 계산한다. 화면은 표시용 읽기 정책으로 내용 노출을, 표시용·실제 읽기 정책이 모두 허용하는지로 자동·수동 조회를 결정한다. Debug 강제 online에 기존 캐시가 있으면 시뮬레이션대로 표시하되 실제 offline/unknown에서는 조회하지 않는다. 캐시도 없으면 실제 정책의 연결 확인·제한·재확인 안내를 사용한다. `network` 옵션은 입력 관측 기준만 바꾸며 최종 실행 허가는 Router가 확인한다.
 
-기존 내용이 있는 재조회 실패에는 작은 안내와 재시도를 붙이고, 데이터 없는 최초 실패는 전체 오류 안내로 구별한다. 지도 날짜·일정 선택과 Drawer mount를 유지하며 새 결과에서 사라진 선택만 보정한다. 실패 안내는 사용자 복잡도 질문에 대해 Main이 기존 Query 상태만 사용하는 구현안으로 선택했다. 최종 UX 수락을 받은 것으로 기록하지 않는다.
+기존 내용이 있는 재조회 실패에는 작은 안내와 재시도를 붙이고, 데이터 없는 최초 실패는 전체 오류 안내로 구별한다. 지도 날짜·일정 선택과 Drawer mount를 유지하며 새 결과에서 사라진 선택만 보정한다. 실패 안내는 사용자 복잡도 질문에 대해 Main이 기존 Query 상태만 사용하는 구현안으로 선택했다. 최종 UX 수락을 받은 것으로 기록하지 않는다. 수정 폼의 입력 상태는 mount를 유지해 보관하며 경로 재계산에 쓰는 일정 Query만 `enabled: isOpen`으로 편집 중에 활성화한다. 화면의 조회 조건은 해당 Query observer에 적용되며 다른 소비자의 조회를 전역 차단하지 않는다.
 
 sync는 서버 전송이 하나라도 성공하면 push 종료 시 갱신을 요청한다. 뒤 전송·큐 삭제 실패 또는 pull 생략·실패가 앞선 성공 변경의 갱신을 막지 않게 했다. pull 뒤에도 기존 trip·schedule·expense 범위를 보수적으로 갱신한다. 두 지점에서 진행 중 조회를 먼저 취소해 변경 전 최초 GET가 재조회를 대신하지 않게 한다. Query 결과의 채택을 취소하며 실제 HTTP 전송 중단까지 보장하지 않는다. 조회 완료를 기다리지 않으므로 sync 성공 여부는 화면 GET 성공에 의존하지 않는다. 비활성 목록만 cancelRefetch false로 공유하던 예외는 제거했다.
 
-활성화·비활성화 성공 callback에서도 일정 Query를 취소한 뒤 무효화한다. Local/Remote 출처가 바뀌기 전에 시작한 일정 조회가 늦게 끝나도 새 결과를 덮지 않게 하기 위한 좁은 보완이다. 전체 write/cache 계약은 [14번](14-local-mutation-router-transaction.md), typed pull·전체 결과·재시도는 [15번](15-sync-result-retry-pull-types.md)의 나머지 범위를 유지한다.
+활성화·비활성화 성공 callback에서도 일정 Query를 취소한 뒤 무효화한다. Local/Remote 출처가 바뀌기 전에 시작한 일정 조회가 늦게 끝나도 새 결과를 덮지 않게 하기 위한 좁은 보완이다. `cancelAndInvalidateQueries(client, filters)`가 sync·활성화·비활성화의 공통 취소 후 무효화 순서를 맡는다. 대상 Query와 호출 시점은 각 호출자가 결정하고, 반환은 새 조회 완료를 기다리지 않는다. 전체 write/cache 계약은 [14번](14-local-mutation-router-transaction.md), typed pull·전체 결과·재시도는 [15번](15-sync-result-retry-pull-types.md)의 나머지 범위를 유지한다.
 
-Main이 현재 작업 트리에서 client Jest **39개 suite·364개 test 통과**를 확인했다. 화면·Policy 검사는 캐시 즉시 표시·조건부 갱신·오류와 빈 목록·지도 선택 및 Debug 표시와 실제 조회의 구분을, sync 검사는 pull 생략·실패와 부분 push 성공·이전 GET를, 활성 전환 검사는 실제 성공 callback과 QueryClient의 연결을 다룬다. HTTP·DB·repository와 활성 입력은 mock이며 native transaction·실서버 전체 검증이 아니다. 기존 Mapbox/download 타입 오류 3개는 유지되며 변경 파일 형식 검사는 통과했다. 이번 개선 파일의 ESLint는 기존 Prettier plugin 충돌 규칙을 제외해 오류·경고 없이 통과했다. 상세 명령·한계는 [개선 기록](../../../records/2026-09-29-04-schedule-policy-query-composition.md)에 있다.
+Main이 현재 작업 트리에서 client Jest **39개 suite·366개 test 통과**를 확인했다. 화면·Policy 검사는 캐시 즉시 표시·조건부 갱신·오류와 빈 목록·지도 선택 및 Debug 표시와 실제 조회의 구분을, sync 검사는 pull 생략·실패와 부분 push 성공·이전 GET를, 활성 전환 검사는 실제 성공 callback과 QueryClient의 연결을 다룬다. 실제 Screen·Menu·UpdateScheduleDrawer·react-hook-form을 연결해 작성 중 제목·날짜가 연결 제한·복귀 및 재조회 실패·성공 후에도 보존되고 저장 전 mutation이 없음을 추가 확인했다. 폼의 닫힘·열림에 따른 무효화 후 조회도 확인했다. HTTP·DB·repository와 활성 입력, native 표시 표면은 mock이며 native transaction·실서버 전체 검증이 아니다. 기존 Mapbox/download 타입 오류 3개는 유지되며 변경 파일 형식 검사는 통과했다. 이번 개선 파일의 ESLint는 기존 Prettier plugin 충돌 규칙을 제외해 오류·경고 없이 통과했다. 최신 검사와 남은 한계는 [폼·Query 수명 개선 기록](../../../records/2026-09-29-05-schedule-form-query-lifecycle.md)에 있다.
 
-다음 행동은 2-A 구현과 실패 안내 UX를 검토하고 제품 커밋 여부를 정하는 것이다. 2-B·2-C, foreground 재확인과 Ticket 전체 완료는 이번 결과에 포함하지 않는다.
+다음 구현은 2-B 경비 목록·상세에 같은 복구 기준을 연결하는 것이다. 실패 안내의 최종 UX 확인은 남아 있다. 2-B·2-C, foreground 재확인과 Ticket 전체 완료는 이번 결과에 포함하지 않는다.
 
 ### 앞선 다섯 단계의 저장 경계
 

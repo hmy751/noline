@@ -18,6 +18,7 @@ import { downloadOfflineMapInBackground } from '@/shared/services/offline-map/do
 import { downloadRoutesForSchedules } from '@/shared/services/directions/route-downloader';
 import { generateId } from '@/shared/services/id/ulid';
 import { TRIP_ACTIVATION_GRACE_DAYS } from '@/shared/lib/lifecycle';
+import { cancelAndInvalidateQueries } from '@/shared/lib/query-refresh';
 import type { Trip } from '../model/types';
 
 /**
@@ -207,8 +208,7 @@ export const useActivateTrip = () => {
       // Pull된 데이터 반영 (Schedule, Expense, Route)
       if (!data.alreadyActivated) {
         // Remote에서 시작한 최초 조회도 Local 전환 뒤 결과를 덮어쓰지 않게 한다.
-        await queryClient.cancelQueries({ queryKey: scheduleQueryKeys.list(data.tripId) });
-        queryClient.invalidateQueries({ queryKey: scheduleQueryKeys.list(data.tripId) });
+        await cancelAndInvalidateQueries(queryClient, { queryKey: scheduleQueryKeys.list(data.tripId) });
         queryClient.invalidateQueries({ queryKey: expenseQueryKeys.byTrip(data.tripId) });
         queryClient.invalidateQueries({ queryKey: routeQueryKeys.byTrip(data.tripId) });
         console.log(`[TripActivation] Trip activation completed: ${data.tripId}`);

@@ -98,6 +98,8 @@ Node 20.18.1에서 2개 file의 2개 test와 server build가 통과했다. 실�
 
 일정 화면의 중간 상태 표현을 걷어낸 이유와 표시·실제 조회 조건의 구분은 [아키텍처 검토·개선 기록](../records/2026-09-29-04-schedule-policy-query-composition.md)에서 읽는다.
 
+2-A 후속 산출물은 [수정 폼의 조회 수명](../../../../../apps/client/src/features/schedule/update-schedule/UpdateScheduleDrawer.tsx), [변경 후 공통 Query 갱신](../../../../../apps/client/src/shared/lib/query-refresh.ts)에 있다. 실제 폼 연결 검사는 위 화면 연결 검사에 포함되며 선택 이유와 검사 경계는 [후속 개선 기록](../records/2026-09-29-05-schedule-form-query-lifecycle.md)에서 읽는다.
+
 ## 17 — Trip·Expense 직렬화 선행 조각 (당시 16)
 
 - [Trip serializer](../../../../../apps/server/src/serializers/trip.ts): Trip DB row의 다섯 시간 값을 API ISO datetime 또는 null로 변환한다.

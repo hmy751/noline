@@ -9,6 +9,7 @@ import { expenseQueryKeys } from '@/entities/expense/data/keys';
 import { routeQueryKeys } from '@/entities/route/data/keys';
 import { cleanupOfflineMapForTrip } from '@/shared/services/offline-map';
 import { hasPendingTasksForTrip, getPendingTasksForTrip } from '@/shared/services/sync/queue';
+import { cancelAndInvalidateQueries } from '@/shared/lib/query-refresh';
 
 /**
  * 여행 비활성화 Mutation Hook
@@ -138,8 +139,7 @@ export const useDeactivateTrip = () => {
       // 정리된 데이터 반영 (Soft delete된 Schedule, Expense, Route)
       if (!data.alreadyDeactivated) {
         // Local에서 시작한 조회 결과 대신 전환 뒤 Router가 선택한 데이터를 읽는다.
-        await queryClient.cancelQueries({ queryKey: scheduleQueryKeys.base });
-        queryClient.invalidateQueries({ queryKey: scheduleQueryKeys.base });
+        await cancelAndInvalidateQueries(queryClient, { queryKey: scheduleQueryKeys.base });
         queryClient.invalidateQueries({ queryKey: expenseQueryKeys.base });
         queryClient.invalidateQueries({ queryKey: routeQueryKeys.base });
         console.log(`[TripActivation] Trip deactivation completed: ${data.tripId}`);

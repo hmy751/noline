@@ -92,3 +92,5 @@
 - [일정 Query 복귀와 변경 후 갱신 구현](2026-09-29-03-schedule-query-recovery-implementation.md): 복구 추적 제거, 기존 내용과 재시도 안내, sync·활성 전환 뒤 이전 조회 취소, 검사 결과와 미커밋·수락 경계.
 
 - [일정 화면의 Policy·Query 직접 조합](2026-09-29-04-schedule-policy-query-composition.md): 독립 아키텍처 리뷰와 중간 상태 표현 제거, 표시용·실제 관측 정책의 선택, Debug 계약 복원과 최신 검증.
+
+- [일정 수정 폼과 Query의 수명 분리](2026-09-29-05-schedule-form-query-lifecycle.md): 기존 구현 커밋, 폼 입력·조회 수명 분리와 공통 갱신 연산, 실제 일정 폼 연결 검사 및 증거 범위 보완.
