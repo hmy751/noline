@@ -19,7 +19,9 @@ jest.mock('@/shared/services/sync/queue', () => ({
 jest.mock('@/shared/services/auth/local-account', () => ({ getQueueOwner: jest.fn() }));
 jest.mock('@/shared/db', () => ({}));
 jest.mock('@/shared/db/utils', () => ({}));
-jest.mock('@/shared/lib/queryClient', () => ({}));
+jest.mock('@/shared/lib/queryClient', () => ({
+  queryClient: { cancelQueries: jest.fn(async () => undefined), invalidateQueries: jest.fn(async () => undefined) },
+}));
 jest.mock('@/shared/services/sync/storage', () => ({}));
 jest.mock('@/shared/services/sync/cleanup-job', () => ({ processPendingCleanups: jest.fn() }));
 jest.mock('@/shared/services/auth/auth-interceptor', () => ({ AuthRequiredError: class extends Error {} }));

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useEffect, useRef } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { PolicyBasedScheduleMapView, MapScheduleCard } from '@/shared/components';
@@ -18,7 +18,10 @@ interface ScheduleMapViewContainerProps {
   tripId: string;
   dateRange: string[];
   schedulesByDate: Array<{ date: string; schedules: Schedule[] }>;
-  initialDate: string | null;
+  selectedDate: string | null;
+  selectedScheduleId: string | null;
+  onDateChange: (date: string) => void;
+  onScheduleChange: (scheduleId: string) => void;
 }
 
 // 좌표 파싱 헬퍼
@@ -34,34 +37,19 @@ export function ScheduleMapViewContainer({
   tripId,
   dateRange,
   schedulesByDate,
-  initialDate,
+  selectedDate,
+  selectedScheduleId,
+  onDateChange,
+  onScheduleChange,
 }: ScheduleMapViewContainerProps) {
-  const [selectedDate, setSelectedDate] = useState<string | null>(initialDate);
-  const [selectedScheduleId, setSelectedScheduleId] = useState<string | null>(null);
   const carouselRef = useRef<ScrollView>(null);
+  const schedulesForMap = schedulesByDate.find((group) => group.date === selectedDate)?.schedules ?? [];
+  const selectedIndex = schedulesForMap.findIndex((schedule) => schedule.id === selectedScheduleId);
 
-  // 초기 날짜 설정
+  // 재표시·날짜 변경·목록 순서 변경 뒤에도 선택한 일정의 카드를 보여 준다.
   useEffect(() => {
-    if (dateRange.length > 0 && !selectedDate) {
-      setSelectedDate(dateRange[0]);
-    }
-  }, [dateRange, selectedDate]);
-
-  // 선택된 날짜의 일정 목록
-  const schedulesForMap = useMemo(
-    () => schedulesByDate.find((group) => group.date === selectedDate)?.schedules || [],
-    [schedulesByDate, selectedDate],
-  );
-
-  // 날짜 변경 시 캐러셀 초기화
-  useEffect(() => {
-    if (schedulesForMap.length > 0) {
-      setSelectedScheduleId(schedulesForMap[0].id);
-      carouselRef.current?.scrollTo({ x: 0, animated: false });
-    } else {
-      setSelectedScheduleId(null);
-    }
-  }, [selectedDate, schedulesForMap]);
+    if (selectedIndex >= 0) carouselRef.current?.scrollTo({ x: selectedIndex * 346, animated: false });
+  }, [selectedDate, selectedIndex]);
 
   return (
     <View className='flex-1'>
@@ -86,14 +74,7 @@ export function ScheduleMapViewContainer({
           }
         }}
         selectedScheduleId={selectedScheduleId}
-        onMarkerPress={(scheduleId) => {
-          setSelectedScheduleId(scheduleId);
-          const index = schedulesForMap.findIndex((s) => s.id === scheduleId);
-          if (index > -1 && carouselRef.current) {
-            // 카드 너비 330px + gap 16px = 346px
-            carouselRef.current.scrollTo({ x: index * 346, animated: true });
-          }
-        }}
+        onMarkerPress={onScheduleChange}
       />
 
       {/* 날짜 선택 UI */}
@@ -110,7 +91,9 @@ export function ScheduleMapViewContainer({
                 className={`rounded-full px-xs py-3xs ${
                   selectedDate === date ? 'bg-primary' : 'border border-white/20 bg-card/80 backdrop-blur-sm'
                 }`}
-                onPress={() => setSelectedDate(date)}
+                accessibilityRole='button'
+                accessibilityState={{ selected: selectedDate === date }}
+                onPress={() => onDateChange(date)}
               >
                 <Text className={`text-label ${selectedDate === date ? 'text-primary-foreground' : 'text-foreground'}`}>
                   {date}
@@ -134,7 +117,7 @@ export function ScheduleMapViewContainer({
             onMomentumScrollEnd={(event) => {
               const index = Math.round(event.nativeEvent.contentOffset.x / 346);
               if (schedulesForMap[index]) {
-                setSelectedScheduleId(schedulesForMap[index].id);
+                onScheduleChange(schedulesForMap[index].id);
               }
             }}
           >

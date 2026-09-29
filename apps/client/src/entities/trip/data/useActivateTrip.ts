@@ -199,13 +199,15 @@ export const useActivateTrip = () => {
 
       return { tripId, alreadyActivated: false, schedules, expenses };
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       // 캐시 무효화 - 여행 목록 및 활성화 상태 다시 조회
       queryClient.invalidateQueries({ queryKey: tripQueryKeys.base });
       queryClient.invalidateQueries({ queryKey: tripQueryKeys.activeTrip() });
 
       // Pull된 데이터 반영 (Schedule, Expense, Route)
       if (!data.alreadyActivated) {
+        // Remote에서 시작한 최초 조회도 Local 전환 뒤 결과를 덮어쓰지 않게 한다.
+        await queryClient.cancelQueries({ queryKey: scheduleQueryKeys.list(data.tripId) });
         queryClient.invalidateQueries({ queryKey: scheduleQueryKeys.list(data.tripId) });
         queryClient.invalidateQueries({ queryKey: expenseQueryKeys.byTrip(data.tripId) });
         queryClient.invalidateQueries({ queryKey: routeQueryKeys.byTrip(data.tripId) });

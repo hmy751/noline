@@ -26,7 +26,6 @@ interface ScheduleByDate {
 interface ScheduleListViewProps {
   schedulesByDate: ScheduleByDate[];
   selectedTripId: string | null;
-  isLoading: boolean;
   hasTrip: boolean;
   hasDates: boolean;
   onScheduleMenuPress?: (schedule: Schedule, event: unknown) => void;
@@ -37,7 +36,6 @@ interface ScheduleListViewProps {
 export function ScheduleListView({
   schedulesByDate,
   selectedTripId,
-  isLoading,
   hasTrip,
   hasDates,
   onScheduleMenuPress,
@@ -64,18 +62,6 @@ export function ScheduleListView({
         <Container>
           <View className='flex-1 items-center justify-center py-xl'>
             <Text className='text-body text-muted-foreground'>여행 날짜를 설정해주세요</Text>
-          </View>
-        </Container>
-      </ScrollView>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <ScrollView className='flex-1' refreshControl={refreshControl}>
-        <Container>
-          <View className='flex-1 items-center justify-center py-xl'>
-            <Text className='text-body text-muted-foreground'>일정을 불러오는 중...</Text>
           </View>
         </Container>
       </ScrollView>

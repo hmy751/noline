@@ -130,13 +130,15 @@ export const useDeactivateTrip = () => {
         cleanupPending: cleanupData && hasPending,
       };
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       // 캐시 무효화 - 여행 목록 및 활성화 상태 다시 조회
       queryClient.invalidateQueries({ queryKey: tripQueryKeys.base });
       queryClient.invalidateQueries({ queryKey: tripQueryKeys.activeTrip() });
 
       // 정리된 데이터 반영 (Soft delete된 Schedule, Expense, Route)
       if (!data.alreadyDeactivated) {
+        // Local에서 시작한 조회 결과 대신 전환 뒤 Router가 선택한 데이터를 읽는다.
+        await queryClient.cancelQueries({ queryKey: scheduleQueryKeys.base });
         queryClient.invalidateQueries({ queryKey: scheduleQueryKeys.base });
         queryClient.invalidateQueries({ queryKey: expenseQueryKeys.base });
         queryClient.invalidateQueries({ queryKey: routeQueryKeys.base });

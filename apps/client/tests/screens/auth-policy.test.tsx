@@ -1,6 +1,8 @@
 import React from 'react';
 import { afterEach, beforeEach, expect, it, jest } from '@jest/globals';
-import { act, fireEvent, render, within } from '@testing-library/react-native';
+import { act, cleanup, fireEvent, render as renderComponent, within } from '@testing-library/react-native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { scheduleQueryKeys } from '@/entities/schedule/data/keys';
 import ScheduleScreen from '@/screens/ScheduleScreen';
 import ExpensesScreen from '@/screens/ExpensesScreen';
 import ExpenseDetailScreen from '@/screens/ExpenseDetailScreen';
@@ -59,11 +61,15 @@ jest.mock('@/entities/trip', () => ({
   TripSelector: () => null,
   useGetTrips: () => ({ data: [{ id: 'trip', startDate: '2026-09-21', endDate: '2026-09-21', baseCurrency: 'USD' }] }),
 }));
+jest.mock('@/entities/schedule/repository/schedule-repository', () => ({
+  ScheduleRepository: { getByTripId: async () => mockSchedules },
+}));
 jest.mock('@/entities/schedule', () => ({
-  useGetSchedules: () => ({
-    data: [{ id: 'schedule', tripId: 'trip', title: '저장된 일정', scheduledAt: '2026-09-21T10:00:00Z' }],
-    refetch: jest.fn(),
-  }),
+  scheduleQueryKeys: jest.requireActual<typeof import('@/entities/schedule/data/keys')>('@/entities/schedule/data/keys')
+    .scheduleQueryKeys,
+  useGetSchedules: jest.requireActual<typeof import('@/entities/schedule/data/useGetSchedules')>(
+    '@/entities/schedule/data/useGetSchedules',
+  ).useGetSchedules,
   useDeleteSchedule: () => ({ mutate: jest.fn() }),
 }));
 jest.mock('@/entities/expense', () => ({
@@ -93,7 +99,20 @@ jest.mock('@/features/schedule/update-schedule', () => ({ UpdateScheduleDrawer: 
 jest.mock('@/features/expense/expense-menu', () => ({ ExpenseMenu: () => null }));
 jest.mock('@/features/expense/update-expense', () => ({ UpdateExpenseDrawer: () => null }));
 
+const mockSchedules = [{ id: 'schedule', tripId: 'trip', title: '저장된 일정', scheduledAt: '2026-09-21T10:00:00Z' }];
+let client: QueryClient;
+
+function render(ui: React.ReactElement) {
+  return renderComponent(ui, {
+    wrapper: ({ children }: { children: React.ReactNode }) => (
+      <QueryClientProvider client={client}>{children}</QueryClientProvider>
+    ),
+  });
+}
+
 beforeEach(() => {
+  client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
+  client.setQueryData(scheduleQueryKeys.list('trip'), mockSchedules);
   useNetworkStore.setState({ realStatus: 'online', overrideStatus: null, checkStatus: 'idle' });
   useAuthStore.setState({ status: 'signed-in', userId: 'a' });
   useTripStore.setState({ selectedTripId: 'trip' });
@@ -174,7 +193,10 @@ it.each([
   expect(view.queryByText('여행 활성 상태를 확인하지 못했어요.')).toBeNull();
 });
 
-afterEach(() => {
+afterEach(async () => {
+  cleanup();
+  await client.cancelQueries();
+  client.clear();
   act(() => networkStore.cleanup());
   jest.useRealTimers();
 });
@@ -183,7 +205,7 @@ it.each([
   { name: '일정 목록', Screen: ScheduleScreen, content: '저장된 일정' },
   { name: '경비 목록', Screen: ExpensesScreen, content: '저장된 경비' },
   { name: '경비 상세', Screen: ExpenseDetailScreen, content: '저장된 경비' },
-])('$name의 unknown 안내와 헤더는 실제 Store의 10초 경과·늦은 관측을 따른다', ({ Screen, content }) => {
+])('$name의 unknown 안내와 헤더는 실제 Store의 10초 경과·늦은 관측을 따른다', async ({ Screen, content }) => {
   jest.useFakeTimers();
   jest.mocked(useGetTripActivation).mockReturnValue({ data: null } as ReturnType<typeof useGetTripActivation>);
   act(() => networkStore.init());
@@ -212,7 +234,7 @@ it.each([
   act(() => emit(false, false));
   expect(view.getByText('인터넷에 연결되어 있지 않아요. 오프라인에서는 활성 여행을 선택해주세요.')).toBeTruthy();
   expect(view.getByText('오프라인')).toBeTruthy();
-  act(() => emit(true, true));
+  await act(async () => emit(true, true));
   expect(view.getByText('온라인')).toBeTruthy();
   expect(view.queryAllByText(content).length).toBeGreaterThan(0);
   expect(useTripStore.getState().selectedTripId).toBe('trip');

@@ -10,6 +10,7 @@ import { useGetTripActivation } from '@/entities/trip/data/useGetTripActivation'
 jest.mock('expo-secure-store', () => ({}));
 jest.mock('@/shared/store/network', () => ({
   useDisplayNetworkStatus: () => 'offline',
+  useRealNetworkStatus: () => 'offline',
   useNetworkCheck: () => ({ checkStatus: 'idle' }),
 }));
 jest.mock('@/shared/db', () => ({

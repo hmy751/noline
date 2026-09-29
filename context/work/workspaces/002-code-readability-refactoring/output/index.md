@@ -92,7 +92,11 @@ Node 20.18.1에서 2개 file의 2개 test와 server build가 통과했다. 실�
 라우팅·DB·인증·동기화·화면 정책은 `f0f680e` → `9936662` → `62ce226` → `100e71a` → `be2f5b9`로 나눠 저장했다. 현재 검사·미확인과 다음 행동은 [state](../current/state/index.md), 커밋별 동작 경계와 분리 검증은 [마무리 기록](../records/2026-09-22-02-five-stage-commits-and-verification.md), 선택과 재현 과정은 [재점검·구현 기록](../records/2026-09-21-04-auth-responsibilities-and-regression-fixes.md)에서 읽는다. 남은 제품 책임은 [Ticket 06](../current/memory/tickets/06-app-startup-lifecycle.md)과 [14](../current/memory/tickets/14-local-mutation-router-transaction.md)·[15](../current/memory/tickets/15-sync-result-retry-pull-types.md)·[16](../current/memory/tickets/16-unsynced-data-cleanup.md)에서 이어간다.
 
 
-온라인 복구 2-A의 작업 트리 산출물은 [일정 복구 훅](../../../../../apps/client/src/features/schedule/schedule-recovery/useScheduleRecovery.ts), [조회 안내](../../../../../apps/client/src/features/schedule/schedule-recovery/ScheduleQueryFeedback.tsx), [화면 연결 검사](../../../../../apps/client/tests/screens/schedule-recovery.test.tsx)에서 읽는다. 기존 구현·단순화 후보의 비교는 [앞선 논의](../records/2026-09-29-01-schedule-recovery-responsibilities-discussion.md), 캐시 표시와 Query·sync 책임을 선택한 이유는 [복구 결정](../records/2026-09-29-02-schedule-recovery-query-sync-decision.md), 현재 단계·검증 범위와 다음 행동은 [Ticket 06](../current/memory/tickets/06-app-startup-lifecycle.md)과 [state](../current/state/index.md)가 소유한다.
+온라인 복구 2-A의 산출물은 [일정 화면의 Policy·Query 조합](../../../../../apps/client/src/screens/ScheduleScreen.tsx), [조회 안내](../../../../../apps/client/src/screens/ScheduleQueryFeedback.tsx), [화면 연결 검사](../../../../../apps/client/tests/screens/schedule-recovery.test.tsx)에서 읽는다. 기존 구현·단순화 후보의 비교는 [앞선 논의](../records/2026-09-29-01-schedule-recovery-responsibilities-discussion.md), 캐시 표시와 Query·sync 책임을 선택한 이유는 [복구 결정](../records/2026-09-29-02-schedule-recovery-query-sync-decision.md), 현재 단계·검증 범위와 다음 행동은 [Ticket 06](../current/memory/tickets/06-app-startup-lifecycle.md)과 [state](../current/state/index.md)가 소유한다.
+
+2-A의 변경 후 갱신 검사는 [sync와 Query 연결](../../../../../apps/client/tests/shared/services/sync/query-refresh.test.ts), [활성 전환 뒤 일정 갱신](../../../../../apps/client/tests/entities/trip/activation-query-refresh.test.ts)에 있다. 구현 선택과 검증의 범위는 [실행 기록](../records/2026-09-29-03-schedule-query-recovery-implementation.md)에서 읽는다.
+
+일정 화면의 중간 상태 표현을 걷어낸 이유와 표시·실제 조회 조건의 구분은 [아키텍처 검토·개선 기록](../records/2026-09-29-04-schedule-policy-query-composition.md)에서 읽는다.
 
 ## 17 — Trip·Expense 직렬화 선행 조각 (당시 16)
 

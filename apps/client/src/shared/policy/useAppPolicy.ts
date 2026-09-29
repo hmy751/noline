@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useAuthStore, hasLocalSession } from '@/shared/store/auth';
-import { useDisplayNetworkStatus, useNetworkCheck } from '@/shared/store/network';
+import { useDisplayNetworkStatus, useRealNetworkStatus, useNetworkCheck } from '@/shared/store/network';
 import { useGetTripActivation } from '@/entities/trip/data/useGetTripActivation';
 import { EXPENSE_POLICIES, SCHEDULE_POLICIES, SERVICE_POLICIES } from './constants';
 import type {
@@ -19,8 +19,14 @@ export interface AppPolicy {
   service: ServicePolicy;
 }
 
-export function useAppPolicy(tripId?: string): AppPolicy {
+/** 기본은 화면 시뮬레이션 기준이다. 조회 가능 여부에는 실제 관측 기준을 선택한다. */
+export function useAppPolicy(
+  tripId?: string,
+  { network = 'display' }: { network?: 'display' | 'real' } = {},
+): AppPolicy {
   const displayNetworkStatus = useDisplayNetworkStatus();
+  const realNetworkStatus = useRealNetworkStatus();
+  const networkStatus = network === 'real' ? realNetworkStatus : displayNetworkStatus;
   const { checkStatus } = useNetworkCheck();
   const authStatus = useAuthStore((state) => state.status);
   const { data: activation, isError: activationFailed } = useGetTripActivation(tripId ?? '');
@@ -29,7 +35,7 @@ export function useAppPolicy(tripId?: string): AppPolicy {
   const activationStatus: ActivationStatus = tripId && isTripActivated ? 'active' : 'inactive';
 
   // unknown도 Remote 기능을 열지 않도록 offline 정책을 사용한다.
-  const policyNetworkStatus = displayNetworkStatus === 'online' ? 'online' : 'offline';
+  const policyNetworkStatus = networkStatus === 'online' ? 'online' : 'offline';
   const policyKey: PolicyKey = `${policyNetworkStatus}_${activationStatus}`;
 
   return useMemo(() => {
@@ -52,7 +58,7 @@ export function useAppPolicy(tripId?: string): AppPolicy {
         allowed: false,
         reason: '다시 로그인한 뒤 사용할 수 있습니다',
       };
-    } else if (tripId && !isTripActivated && displayNetworkStatus === 'unknown') {
+    } else if (tripId && !isTripActivated && networkStatus === 'unknown') {
       unavailablePolicy =
         checkStatus === 'checking'
           ? { allowed: false, pending: true, reason: '인터넷 연결을 확인하고 있어요.' }
@@ -79,7 +85,7 @@ export function useAppPolicy(tripId?: string): AppPolicy {
       expense: selectEntityPolicy(EXPENSE_POLICIES, policyKey),
       service: SERVICE_POLICIES[policyKey],
     };
-  }, [policyKey, authStatus, isTripActivated, tripId, activation, activationFailed, displayNetworkStatus, checkStatus]);
+  }, [policyKey, authStatus, isTripActivated, tripId, activation, activationFailed, networkStatus, checkStatus]);
 }
 
 function selectEntityPolicy(policyTable: EntityPolicyTable, policyKey: PolicyKey): EntityPolicy {

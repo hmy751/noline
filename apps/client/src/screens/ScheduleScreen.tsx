@@ -1,5 +1,5 @@
 import { PolicyErrorDisplay } from '@/shared/components/ErrorBoundary';
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { View, Alert } from 'react-native';
 import { MobileHeader } from '@/shared/components';
 import { TripSelector } from '@/entities/trip';
@@ -14,6 +14,7 @@ import { ScheduleMenu } from '@/features/schedule/schedule-menu';
 import { UpdateScheduleDrawer } from '@/features/schedule/update-schedule';
 import { formatISOToLocalDate, formatISOToLocalTime } from '@/shared/lib/datetime';
 import { useAppPolicy } from '@/shared/policy';
+import { ScheduleQueryFeedback, ScheduleRefreshError } from './ScheduleQueryFeedback';
 
 type ViewMode = 'list' | 'map';
 
@@ -38,6 +39,11 @@ interface ScheduleByDate {
 export default function ScheduleScreen() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const { selectedTripId } = useTripStore();
+  const [mapSelection, setMapSelection] = useState<{
+    tripId: string | null;
+    date: string | null;
+    scheduleId: string | null;
+  }>({ tripId: selectedTripId, date: null, scheduleId: null });
   const [isScheduleMenuOpen, setIsScheduleMenuOpen] = useState(false);
   const [isUpdateDrawerOpen, setIsUpdateDrawerOpen] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState<{
@@ -58,22 +64,30 @@ export default function ScheduleScreen() {
   >(undefined);
 
   const { data: trips = [] } = useGetTrips();
-  const { data: schedules = [], isLoading, refetch } = useGetSchedules(selectedTripId || '');
-  const { mutate: deleteSchedule } = useDeleteSchedule();
   const readPolicy = useAppPolicy(selectedTripId ?? undefined).schedule.read;
+  const actualReadPolicy = useAppPolicy(selectedTripId ?? undefined, { network: 'real' }).schedule.read;
+  const canFetch = !!selectedTripId && readPolicy.allowed && actualReadPolicy.allowed;
+  const scheduleQuery = useGetSchedules(selectedTripId ?? '', { enabled: canFetch });
+  const { refetch } = scheduleQuery;
+  // 정책 제한 중에는 캐시를 보관하되 화면의 데이터 소비에는 넘기지 않는다.
+  const visibleSchedules = selectedTripId && readPolicy.allowed ? scheduleQuery.data : undefined;
+  const canShowContent = visibleSchedules !== undefined;
+  const refreshFailed = canShowContent && scheduleQuery.isError && !scheduleQuery.isFetching;
+  const { mutate: deleteSchedule } = useDeleteSchedule();
   const policy = useAppPolicy(selectedSchedule?.tripId ?? selectedTripId ?? undefined);
 
   // Pull-to-Refresh
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = useCallback(async () => {
+    if (!canFetch) return;
     setRefreshing(true);
     try {
       await refetch();
     } finally {
       setRefreshing(false);
     }
-  }, [refetch]);
+  }, [canFetch, refetch]);
 
   // 선택된 여행 정보
   const selectedTrip = trips.find((trip: { id: string }) => trip.id === selectedTripId);
@@ -176,33 +190,51 @@ export default function ScheduleScreen() {
   };
 
   // 날짜별로 일정 그룹화
-  const schedulesByDate: ScheduleByDate[] = useMemo(() => {
-    return dateRange.map((date) => {
-      const daySchedules = schedules
-        .filter((schedule) => {
-          return formatISOToLocalDate(schedule.scheduledAt) === date;
-        })
-        .map((schedule) => {
-          return {
-            id: schedule.id,
-            tripId: schedule.tripId,
-            scheduledAt: schedule.scheduledAt,
-            time: formatISOToLocalTime(schedule.scheduledAt),
-            title: schedule.title,
-            location: schedule.location || '',
-            address: schedule.address,
-            latitude: schedule.latitude,
-            longitude: schedule.longitude,
-          };
-        });
+  const schedulesByDate: ScheduleByDate[] =
+    visibleSchedules !== undefined
+      ? dateRange.map((date) => {
+          const daySchedules = visibleSchedules
+            .filter((schedule) => {
+              return formatISOToLocalDate(schedule.scheduledAt) === date;
+            })
+            .map((schedule) => {
+              return {
+                id: schedule.id,
+                tripId: schedule.tripId,
+                scheduledAt: schedule.scheduledAt,
+                time: formatISOToLocalTime(schedule.scheduledAt),
+                title: schedule.title,
+                location: schedule.location || '',
+                address: schedule.address,
+                latitude: schedule.latitude,
+                longitude: schedule.longitude,
+              };
+            });
 
-      return {
-        date,
-        dateLabel: date,
-        schedules: daySchedules,
-      };
-    });
-  }, [dateRange, schedules]);
+          return {
+            date,
+            dateLabel: date,
+            schedules: daySchedules,
+          };
+        })
+      : [];
+
+  const selectedMapDate =
+    mapSelection.date && dateRange.includes(mapSelection.date) ? mapSelection.date : (dateRange[0] ?? null);
+  const selectedDaySchedules = schedulesByDate.find((day) => day.date === selectedMapDate)?.schedules ?? [];
+  const selectedMapScheduleId = selectedDaySchedules.some((schedule) => schedule.id === mapSelection.scheduleId)
+    ? mapSelection.scheduleId
+    : (selectedDaySchedules[0]?.id ?? null);
+
+  // 제한·로딩 중에는 사용자의 선택을 보존한다. 새 결과에서 사라진 선택만 보정한다.
+  if (mapSelection.tripId !== selectedTripId) {
+    setMapSelection({ tripId: selectedTripId, date: null, scheduleId: null });
+  } else if (
+    canShowContent &&
+    (mapSelection.date !== selectedMapDate || mapSelection.scheduleId !== selectedMapScheduleId)
+  ) {
+    setMapSelection({ tripId: selectedTripId, date: selectedMapDate, scheduleId: selectedMapScheduleId });
+  }
 
   return (
     <View className='flex-1 bg-background'>
@@ -240,31 +272,40 @@ export default function ScheduleScreen() {
       <TripSelector className='border-b border-card-border bg-background px-md py-sm' />
 
       {/* Content */}
+      {refreshFailed && <ScheduleRefreshError retry={canFetch ? onRefresh : undefined} />}
       {selectedTripId && !readPolicy.allowed ? (
         <PolicyErrorDisplay policy={readPolicy} variant='block' />
+      ) : selectedTripId && !canShowContent && !actualReadPolicy.allowed ? (
+        <PolicyErrorDisplay policy={actualReadPolicy} variant='block' />
+      ) : selectedTripId && !canShowContent && scheduleQuery.isError ? (
+        <ScheduleQueryFeedback status='error' retry={onRefresh} />
+      ) : selectedTripId && !canShowContent ? (
+        <ScheduleQueryFeedback status='loading' />
       ) : viewMode === 'list' ? (
         <ScheduleListView
           schedulesByDate={schedulesByDate}
           selectedTripId={selectedTripId}
-          isLoading={isLoading}
           hasTrip={!!selectedTrip}
           hasDates={!!(selectedTrip?.startDate && selectedTrip?.endDate)}
           onScheduleMenuPress={handleScheduleMenuPress}
           refreshing={refreshing}
-          onRefresh={onRefresh}
+          onRefresh={canFetch ? onRefresh : undefined}
         />
       ) : (
         <ScheduleMapViewContainer
           tripId={selectedTripId || ''}
           dateRange={dateRange}
           schedulesByDate={schedulesByDate}
-          initialDate={dateRange[0] || null}
+          selectedDate={selectedMapDate}
+          selectedScheduleId={selectedMapScheduleId}
+          onDateChange={(date) => setMapSelection({ tripId: selectedTripId, date, scheduleId: null })}
+          onScheduleChange={(scheduleId) => setMapSelection((previous) => ({ ...previous, scheduleId }))}
         />
       )}
 
       {/* Schedule Menu */}
       <ScheduleMenu
-        isOpen={isScheduleMenuOpen && readPolicy.allowed}
+        isOpen={isScheduleMenuOpen && canShowContent}
         onClose={() => {
           setIsScheduleMenuOpen(false);
           setButtonPosition(undefined);

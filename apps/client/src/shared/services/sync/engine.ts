@@ -9,6 +9,7 @@ import { selectLocalUserId, useAuthStore } from '@/shared/store/auth';
 import { getQueueOwner } from '@/shared/services/auth/local-account';
 import { processPendingCleanups } from './cleanup-job';
 import { AuthRequiredError } from '@/shared/store/auth';
+import type { Query } from '@tanstack/react-query';
 
 /** sync-owned table의 endpoint는 여기서 관리하고 HTTP method는 action으로 결정한다. */
 const SYNC_PUSH_ENDPOINTS = {
@@ -29,6 +30,15 @@ export class SyncIncompleteError extends Error {
 
 function isSyncTable(tableName: string): tableName is SyncTable {
   return tableName in SYNC_PUSH_ENDPOINTS;
+}
+
+/** 변경 이전에 시작한 조회 결과를 버리고, 구독 중인 Query의 갱신을 요청한다. */
+async function refreshSyncQueries(): Promise<void> {
+  const filters = { predicate: ({ queryKey }: Query) => ['trip', 'schedule', 'expense'].includes(String(queryKey[0])) };
+  // 데이터 없는 최초 조회도 invalidate만으로는 기존 요청을 공유하므로 먼저 취소한다.
+  await queryClient.cancelQueries(filters);
+  // 화면 조회 완료가 sync 완료를 지연시키거나 실패로 바꾸지 않게 한다.
+  queryClient.invalidateQueries(filters).catch((error) => console.error('[Sync] cache refresh failed', error));
 }
 
 async function pushTaskToServer(
@@ -58,6 +68,7 @@ async function pushTaskToServer(
 
 /** PENDING과 재시도 가능한 FAILED 작업을 FIFO로 전송한다. */
 export async function pushChanges(): Promise<void> {
+  let serverChanged = false;
   try {
     const tasks = await getSyncableTasks();
 
@@ -90,6 +101,7 @@ export async function pushChanges(): Promise<void> {
 
         const payload = JSON.parse(task.payload);
         await pushTaskToServer(task.tableName, task.action as SyncAction, task.recordId, payload);
+        serverChanged = true;
 
         await deleteTask(task.id);
 
@@ -123,6 +135,9 @@ export async function pushChanges(): Promise<void> {
   } catch (error) {
     console.error('[Sync] Push failed:', error);
     throw error;
+  } finally {
+    // 일부 전송만 성공하거나 다음 pull이 생략·실패해도 성공한 변경은 다시 읽는다.
+    if (serverChanged) await refreshSyncQueries();
   }
 }
 
@@ -210,10 +225,7 @@ export async function pullChanges(): Promise<void> {
       await upsertExpenses(normalizedExpenses as never[]);
     }
 
-    // React Query 캐시 무효화 → UI 자동 갱신
-    queryClient.invalidateQueries({ queryKey: ['trip'] });
-    queryClient.invalidateQueries({ queryKey: ['schedule'] });
-    queryClient.invalidateQueries({ queryKey: ['expense'] });
+    await refreshSyncQueries();
 
     console.log('[Sync] cache refresh requested');
 
