@@ -25,6 +25,8 @@ Ticket에 적힌 부분만으로 개선이 충분하지 않다는 근거가 실�
 
 Ticket 06의 네트워크 연결에는 [범위 문서](01-problem-goal-scope.md)에 명시한 사용자 선택이 우선 적용된다. unknown·10초 안내·제한 화면·Router 중앙 차단·debug 표시 분리는 채택한 방향이며 다시 미정으로 되돌리지 않는다. 내부 함수 배치·상태 소비 연결·재확인 동시성은 Main이 기존 코드에 맞춰 구체화한다. 버튼별 네트워크 검사, 별도 cache 관리, 쓰기 예약, 일반 Remote 요청의 별도 결과 추적 시스템은 추가하지 않는다.
 
+온라인 복귀는 기존 Query의 캐시·갱신 기준을 활용하고 필요한 추가 조회를 허용하는 방향으로 다듬는다. 전역 refetchOnReconnect false와 push→pull 순서를 유지하며, 화면의 조회 허용 여부가 바뀔 때 Query 상태에 따라 조회하도록 연결한다. 일부 추가 GET를 줄이기 위해 화면을 sync 뒤까지 기다리게 하거나 조회를 정확히 한 번으로 맞추는 별도 조율은 두지 않는다. 먼저 Ticket 06의 2-A 일정 화면에 적용하며, 성공한 쓰기 뒤 갱신 누락과 이전 조회 결과의 간섭은 해당 연결에서 다룬다. sync 결과 모델·재시도·cleanup 전체를 재설계하는 범위로 확대하지 않는다. 선택 이유와 남은 판단은 [Query·sync 복구 결정](../../../records/2026-09-29-02-schedule-recovery-query-sync-decision.md)에 있다.
+
 같은 연결에 필요한 대상 여행 분기·inactive child의 Local 선조회 정상화는 06에서 수행하고 14가 결과를 재사용한다. Local 원자성, sync engine 실패·재시도, cleanup 보존 조건은 각각 14·15·16의 남은 범위다. 아래 일반적인 003 분리 원칙을 이 합의 범위에 다시 적용해 구현을 나누지 않는다. 정확한 경계와 이유는 [Ticket 06](../tickets/06-app-startup-lifecycle.md)과 [합의 기록](../../../records/2026-09-16-01-network-policy-and-implementation-boundaries.md)에 있다.
 
 앱 준비의 DB·auth 실패 정책과 선택 적용, pending cleanup 실행·세션 종료 연결, sync 시작 조건·Debug 우회 제거와 사용자 추가 승인에 따른 진행 중 sync 종료 대기는 Ticket 06에서 수행한다. 사용자가 앱 전체 준비를 `application`에 분리하도록 선택했으며, 이는 범용 초기화 프레임워크나 다른 feature의 일괄 이동을 뜻하지 않는다. 추가 필수 준비는 `AppInitialization`, 화면 이동은 `AppNavigation`, 로그인 후 작업 연결은 `AuthenticatedEffects`, 기능별 규칙은 해당 Owner에 둔다. 검증할 시나리오를 구현 전에 작성하고 실제 기대 동작과의 실패를 확인한 뒤 구현하는 접근을 이 범위에 적용했다. 자세한 이유와 한계는 [기록](../../../records/2026-09-18-02-app-initialization-and-style.md)에 있다.

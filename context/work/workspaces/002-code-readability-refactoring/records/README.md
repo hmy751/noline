@@ -84,3 +84,7 @@
 - [인증 세션 변경의 커밋 경계와 분리 검증](2026-09-22-01-auth-commit-boundary.md): 인증 단계의 동작 범위, 동기화·화면 변경과의 경계, 별도 후보에서 확인한 277개 검사와 타입 검사 한계.
 
 - [다섯 단계 분리 커밋과 검증 마무리](2026-09-22-02-five-stage-commits-and-verification.md): 실제 다섯 커밋의 동작 경계, 마지막 staged 후보 재검사, 남은 제품·검증 범위.
+
+- [일정 온라인 복구의 책임 분리 논의](2026-09-29-01-schedule-recovery-responsibilities-discussion.md): 기존 정책과 현재 구현, 시스템별 책임, 미확정 단순화 후보의 동작 차이와 남은 판단.
+
+- [일정 복귀의 Query 기준과 추가 조회 허용](2026-09-29-02-schedule-recovery-query-sync-decision.md): 기존 데이터 우선 표시·전역 reconnect 설정 유지·sync 뒤 추가 조회 허용을 선택한 이유, 개선 리뷰와 채택 원문, 갱신 누락 보완 및 남은 오류 안내·토스트 판단.
