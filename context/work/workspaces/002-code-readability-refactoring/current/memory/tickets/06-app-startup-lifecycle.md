@@ -263,7 +263,7 @@ Main은 1-B 커밋에 1-C 제품 코드·테스트만 더한 별도 디렉터리
 
 **현재 단계: 2-A 구현·기록을 `57d878f`로 커밋했고, 후속 프론트 아키텍처 개선도 구현·검증을 마쳤다.** 앞선 정책·논의는 `56f38cc`에 있다. 이번 범위는 일정 화면과 변경 후 일정 갱신에 필요한 sync·활성 전환 연결, 수정 폼 조회 수명까지다. 2-B 경비 연결은 아래에서 이어졌고, 최종 UX 확인과 2-C 토스트는 남는다.
 
-비활성 여행의 접근 제한이 풀리면 기존 내용을 즉시 표시한다. 일정 화면은 `useAppPolicy`와 `useGetSchedules`를 직접 사용하며, 표시용 정책이 허용한 Query 데이터만 `visibleSchedules`로 전달한다. 날짜별 가공·메뉴·지도 선택 보정은 이 값의 존재 여부를 함께 사용한다. 별도 화면 상태 타입이나 복구 전용 훅을 두지 않는다. 최초 조회·오류·재조회 안내는 화면 옆의 `ScheduleQueryFeedback.tsx`가 표시한다. 유효한 캐시는 강제 재조회하지 않으며 데이터 없음·stale·무효화 상태는 Query 기준으로 조회한다. staleTime 5분과 전역 refetchOnReconnect false를 유지한다. 선택 과정과 비용은 [Query 결정](../../../records/2026-09-29-02-schedule-recovery-query-sync-decision.md), 책임 재배치는 [아키텍처 검토·개선](../../../records/2026-09-29-04-schedule-policy-query-composition.md)에 있다.
+비활성 여행의 접근 제한이 풀리면 기존 내용을 즉시 표시한다. 일정 화면은 공통 `useTripReadAccess`로 접근 조건을 받고 기존 `useGetSchedules` 결과를 `getReadQueryView`에 전달한다. 표시 가능한 결과의 데이터만 `visibleSchedules`로 사용한다. 날짜별 가공·메뉴·지도 선택 보정은 이 값의 존재 여부를 함께 사용한다. 표시 결과는 Policy와 Query에서 계산하며 별도 저장 상태나 복구 이력을 두지 않는다. 최초 조회·오류·재조회 안내는 화면 옆의 `ScheduleQueryFeedback.tsx`가 표시한다. 유효한 캐시는 강제 재조회하지 않으며 데이터 없음·stale·무효화 상태는 Query 기준으로 조회한다. staleTime 5분과 전역 refetchOnReconnect false를 유지한다. 선택 과정과 비용은 [Query 결정](../../../records/2026-09-29-02-schedule-recovery-query-sync-decision.md), 책임 재배치는 [아키텍처 검토·개선](../../../records/2026-09-29-04-schedule-policy-query-composition.md)에 있다.
 
 접근 조건은 기존 Policy 계산을 사용한다. `useAppPolicy(tripId)`는 화면 표시용 관측을, `{ network: 'real' }`을 넘긴 호출은 실제 관측을 기준으로 같은 인증·활성 여부·unknown 규칙을 계산한다. 화면은 표시용 읽기 정책으로 내용 노출을, 표시용·실제 읽기 정책이 모두 허용하는지로 자동·수동 조회를 결정한다. Debug 강제 online에 기존 캐시가 있으면 시뮬레이션대로 표시하되 실제 offline/unknown에서는 조회하지 않는다. 캐시도 없으면 실제 정책의 연결 확인·제한·재확인 안내를 사용한다. `network` 옵션은 입력 관측 기준만 바꾸며 최종 실행 허가는 Router가 확인한다.
 
@@ -279,7 +279,7 @@ Main이 현재 작업 트리에서 client Jest **39개 suite·366개 test 통과
 
 ### 온라인 복구 후속 작업 2-B — 경비 목록·상세
 
-**현재 단계: 2-A의 Query 기준을 경비 목록·상세에 적용하고 검증했다. 이 변경은 미커밋이다.** 목록과 상세의 데이터 소유권은 기존 `ExpenseRepository`·Activation Router에 둔다. 화면은 표시용 `useAppPolicy`로 캐시 노출을, 표시용·실제 관측 정책을 함께 사용해 해당 Query observer의 조회 활성화와 수동 재조회를 결정한다. 비활성 여행의 offline/unknown에서는 제한 안내로 내용을 가리되 캐시는 유지한다. 활성 여행의 Local 내용은 계속 표시한다. Debug 강제 online·실제 offline에서는 캐시가 있으면 표시하지만 새 요청은 시작하지 않는다.
+**현재 단계: 2-B 경비 목록·상세의 복구와 관련 기록을 `ed50ce1`로 커밋했다.** 목록과 상세의 데이터 소유권은 기존 `ExpenseRepository`·Activation Router에 둔다. 화면은 표시용 `useAppPolicy`로 캐시 노출을, 표시용·실제 관측 정책을 함께 사용해 해당 Query observer의 조회 활성화와 수동 재조회를 결정한다. 비활성 여행의 offline/unknown에서는 제한 안내로 내용을 가리되 캐시는 유지한다. 활성 여행의 Local 내용은 계속 표시한다. Debug 강제 online·실제 offline에서는 캐시가 있으면 표시하지만 새 요청은 시작하지 않는다.
 
 `useGetTripExpenses`는 여행 ID와 화면의 enabled 입력을 받아 데이터 없음·stale·무효화에 관한 기존 Query 기준을 사용한다. 목록은 처음 받아야 할 데이터가 없을 때 로딩 또는 오류를 표시하며 정상적인 빈 목록과 구별한다. 기존 데이터의 재조회 실패에는 내용·통화 합계·여행 선택을 유지하고 작은 실패 안내와 재시도를 제공한다. 상세도 같은 캐시를 즉시 쓰며 처음 실패한 요청을 ‘경비를 찾을 수 없음’으로 바꾸지 않는다. 여행 목록 캐시에 대상 ID가 없는 경우에도 진행 중인 조회가 끝나기 전에는 부재를 확정하지 않는다. 상세의 연결된 일정 조회는 경비가 실제로 표시 가능하고 일정 읽기·실제 조회 조건이 모두 허용될 때만 활성화한다. 새 복구 상태나 sync 완료 대기는 추가하지 않았다.
 
@@ -287,7 +287,17 @@ Main이 현재 작업 트리에서 client Jest **39개 suite·366개 test 통과
 
 Main은 전체 client Jest **40개 suite·386개 test 통과**를 확인했다. 새 화면 검사는 실제 경비 Query·화면·Policy로 유효/오래된 캐시, 복귀 후 조회, 최초 실패·정상 빈 목록, 재조회 실패와 재시도, 상세의 연결 일정 조회 차단, Debug·활성 Local, 여행 전환 뒤 늦은 응답을 확인한다. sync 검사에서는 경비 push 후 pull 생략과 이전 GET 중첩을, 활성 전환 검사에서는 일정·경비 각각의 이전 출처 응답 배제를 확인한다. repository·HTTP·DB와 native 표시 표면은 mock이며 실기기·실서버 확인은 아니다. 변경 파일 Prettier와 `git diff --check`, 기존 Prettier plugin 충돌 규칙을 제외한 ESLint가 통과했다. client 타입 검사는 기존 Mapbox 좌표 tuple·OfflinePack 필드 오류 3개로 전체 성공은 아니며 새 오류는 없다. 자세한 판단과 검사 경계는 [2-B 기록](../../../records/2026-09-29-06-expense-query-recovery.md)에 있다.
 
-다음 판단은 2-C 토스트가 ‘연결 복귀’와 ‘데이터 갱신 성공’ 중 어떤 사실을 알려야 하는지와 표시 시점이다. 최초 unknown 해소·단순 재확인에는 토스트를 붙이지 않고 반복 장애에서 중복 표시를 막는 기준을 유지한다. 실패 안내의 최종 UX 확인, foreground 재확인, mutation 오류 전달과 Ticket 전체 완료는 별도 남은 범위다.
+이번 공통화 비교 뒤 남은 판단은 2-C 토스트가 ‘연결 복귀’와 ‘데이터 갱신 성공’ 중 어떤 사실을 알려야 하는지와 표시 시점이다. 최초 unknown 해소·단순 재확인에는 토스트를 붙이지 않고 반복 장애에서 중복 표시를 막는 기준을 유지한다. 실패 안내의 최종 UX 확인, foreground 재확인, mutation 오류 전달과 Ticket 전체 완료는 별도 남은 범위다.
+
+### 화면 조회 조합 — 일정·경비별 소유 위치와 기존 소비자 교체
+
+일정 목록은 [useTripSchedulesReadQuery](../../../../../../../apps/client/src/features/schedule/read-schedules/useTripSchedulesReadQuery.ts), 경비 목록·상세는 [useTripExpensesReadQuery](../../../../../../../apps/client/src/features/expense/read-expenses/useTripExpensesReadQuery.ts)를 사용한다. 경비 상세의 연결 일정도 일정 훅으로 조합한다. 각 feature는 Entity 조회와 [공통 policy-query service](../../../../../../../apps/client/src/shared/services/policy-query/index.ts)를 연결하고 index는 export만 맡는다. 여행은 조회 범위이며 일정·경비 결과의 소유 위치를 Trip feature로 합치지 않는다.
+
+반환 계약은 `query / access / actions / view`다. query는 원본 Query 상태·타입 관계에서 refetch만 제외한다. access의 consumerEnabled는 호출자 조건, canFetch는 최종 허용, displayPolicy·actualPolicy는 두 관측 기준의 정책이다. actions.refetch는 최신 commit의 접근 조건을 확인하고 blocked 또는 finished와 Query 결과를 반환한다. view는 표시 결과를 계산하며 데이터·복구 상태를 별도로 저장하지 않는다. Policy 계산과 Query 실행 조합을 구분하고 Router·sync·freshness를 유지한다.
+
+공통 구현은 앱 전용 service이므로 순수 FSD의 domain 없는 Shared와 같다고 설명하지 않는다. 폼 재사용에는 공개 조회 조합 훅에 한해 feature 간 참조를 허용하는 작업 기준을 선택했다. 해당 훅은 UI·폼 상태 없이 entities/shared만 참조하고 소비 폼으로 역의존하지 않아야 한다. 이 선택·조건은 사용자 요청에 따라 Workspace에 우선 보존했으며 Project-wide guide로 승격하지 않았다. 다른 작업에서 확대할 때 Project 반영 여부를 판단한다.
+
+기존 screens/read-query.ts와 features/trip/read-query는 제거했다. 원본 Entity 조회 훅은 유지한다. 홈 요약·ScheduleDetail·생성/수정 폼은 기존 조회를 사용하며, 이 소비자들의 전환 여부와 일정별 경비 조합, 상세의 무동작 재시도·대상 부재 경계는 후속 판단이다. 전체 client Jest 41개 suite·393개 test와 변경 파일 ESLint(기존 충돌 규칙 제외)가 통과했다. 타입 검사에는 기존 Mapbox/download 오류 3개가 남고 실기기·서버 검증은 하지 않았다. 세 화면의 구조 교체와 이전 helper 제거는 구현 완료이며, 최종 UX 확인과 Ticket의 나머지 범위는 남아 있다. 선택 과정과 검사 경계는 [배치·교체 기록](../../../records/2026-09-29-09-policy-query-ownership-and-migration.md)에서 읽는다.
 
 ### 앞선 다섯 단계의 저장 경계
 

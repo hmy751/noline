@@ -96,3 +96,9 @@
 - [일정 수정 폼과 Query의 수명 분리](2026-09-29-05-schedule-form-query-lifecycle.md): 기존 구현 커밋, 폼 입력·조회 수명 분리와 공통 갱신 연산, 실제 일정 폼 연결 검사 및 증거 범위 보완.
 
 - [경비 목록·상세의 온라인 복구](2026-09-29-06-expense-query-recovery.md): 2-B의 Policy·Query 연결, 첫 실패·정상 빈 결과 구분, 일정 조회 차단과 sync·활성 전환 뒤 경비 갱신, 검사 경계.
+
+- [세 화면의 접근 조건·표시 판단 공통화 비교](2026-09-29-07-read-query-composition-trial.md): 소비자 확대 뒤 책임 재검토, 기존 경비 작업 커밋과 한 가지 개선 적용, 보존 검사와 사용자 판단 경계.
+
+- [일정 목록의 Query 상태·접근 조건·실행 분리 시험](2026-09-29-08-schedule-read-query-actions-trial.md): query/access/actions/view의 역할, 타입·실행 계약과 한 곳 적용 경계, 관련 검사 결과.
+
+- [조회 조합의 이름·소유 위치와 기존 소비자 교체](2026-09-29-09-policy-query-ownership-and-migration.md): 일정·경비 feature와 공통 service의 명명·배치, FSD 예외와 Project 반영 보류, 세 화면 교체와 393개 검사 근거.

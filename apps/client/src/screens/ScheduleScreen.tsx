@@ -3,7 +3,7 @@ import { useState, useCallback } from 'react';
 import { View, Alert } from 'react-native';
 import { MobileHeader } from '@/shared/components';
 import { TripSelector } from '@/entities/trip';
-import { useGetSchedules, useDeleteSchedule } from '@/entities/schedule';
+import { useDeleteSchedule } from '@/entities/schedule';
 import { useGetTrips } from '@/entities/trip';
 import { useTripStore } from '@/shared/store';
 import { Pressable } from '@repo/ui';
@@ -14,6 +14,7 @@ import { ScheduleMenu } from '@/features/schedule/schedule-menu';
 import { UpdateScheduleDrawer } from '@/features/schedule/update-schedule';
 import { formatISOToLocalDate, formatISOToLocalTime } from '@/shared/lib/datetime';
 import { useAppPolicy } from '@/shared/policy';
+import { useTripSchedulesReadQuery } from '@/features/schedule/read-schedules';
 import { ScheduleQueryFeedback, ScheduleRefreshError } from './ScheduleQueryFeedback';
 
 type ViewMode = 'list' | 'map';
@@ -64,15 +65,10 @@ export default function ScheduleScreen() {
   >(undefined);
 
   const { data: trips = [] } = useGetTrips();
-  const readPolicy = useAppPolicy(selectedTripId ?? undefined).schedule.read;
-  const actualReadPolicy = useAppPolicy(selectedTripId ?? undefined, { network: 'real' }).schedule.read;
-  const canFetch = !!selectedTripId && readPolicy.allowed && actualReadPolicy.allowed;
-  const scheduleQuery = useGetSchedules(selectedTripId ?? '', { enabled: canFetch });
-  const { refetch } = scheduleQuery;
-  // 정책 제한 중에는 캐시를 보관하되 화면의 데이터 소비에는 넘기지 않는다.
-  const visibleSchedules = selectedTripId && readPolicy.allowed ? scheduleQuery.data : undefined;
-  const canShowContent = visibleSchedules !== undefined;
-  const refreshFailed = canShowContent && scheduleQuery.isError && !scheduleQuery.isFetching;
+  const { access, actions, view } = useTripSchedulesReadQuery(selectedTripId);
+  const { refetch } = actions;
+  const visibleSchedules = view.kind === 'ready' ? view.data : undefined;
+  const canShowContent = view.kind === 'ready';
   const { mutate: deleteSchedule } = useDeleteSchedule();
   const policy = useAppPolicy(selectedSchedule?.tripId ?? selectedTripId ?? undefined);
 
@@ -80,14 +76,14 @@ export default function ScheduleScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = useCallback(async () => {
-    if (!canFetch) return;
+    if (!access.canFetch) return;
     setRefreshing(true);
     try {
       await refetch();
     } finally {
       setRefreshing(false);
     }
-  }, [canFetch, refetch]);
+  }, [access.canFetch, refetch]);
 
   // 선택된 여행 정보
   const selectedTrip = trips.find((trip: { id: string }) => trip.id === selectedTripId);
@@ -272,14 +268,14 @@ export default function ScheduleScreen() {
       <TripSelector className='border-b border-card-border bg-background px-md py-sm' />
 
       {/* Content */}
-      {refreshFailed && <ScheduleRefreshError retry={canFetch ? onRefresh : undefined} />}
-      {selectedTripId && !readPolicy.allowed ? (
-        <PolicyErrorDisplay policy={readPolicy} variant='block' />
-      ) : selectedTripId && !canShowContent && !actualReadPolicy.allowed ? (
-        <PolicyErrorDisplay policy={actualReadPolicy} variant='block' />
-      ) : selectedTripId && !canShowContent && scheduleQuery.isError ? (
+      {view.kind === 'ready' && view.refreshFailed && (
+        <ScheduleRefreshError retry={access.canFetch ? onRefresh : undefined} />
+      )}
+      {view.kind === 'blocked' ? (
+        <PolicyErrorDisplay policy={view.policy} variant='block' />
+      ) : view.kind === 'error' ? (
         <ScheduleQueryFeedback status='error' retry={onRefresh} />
-      ) : selectedTripId && !canShowContent ? (
+      ) : view.kind === 'loading' ? (
         <ScheduleQueryFeedback status='loading' />
       ) : viewMode === 'list' ? (
         <ScheduleListView
@@ -289,7 +285,7 @@ export default function ScheduleScreen() {
           hasDates={!!(selectedTrip?.startDate && selectedTrip?.endDate)}
           onScheduleMenuPress={handleScheduleMenuPress}
           refreshing={refreshing}
-          onRefresh={canFetch ? onRefresh : undefined}
+          onRefresh={access.canFetch ? onRefresh : undefined}
         />
       ) : (
         <ScheduleMapViewContainer

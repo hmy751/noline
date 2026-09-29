@@ -74,6 +74,7 @@ jest.mock('@/entities/schedule', () => ({
 }));
 jest.mock('@/entities/expense', () => ({
   useGetTripExpenses: () => ({
+    isSuccess: true,
     data: [
       {
         id: 'expense',

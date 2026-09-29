@@ -102,6 +102,8 @@ Node 20.18.1에서 2개 file의 2개 test와 server build가 통과했다. 실�
 
 2-B의 산출물은 [경비 목록](../../../../../apps/client/src/screens/ExpensesScreen.tsx), [경비 상세](../../../../../apps/client/src/screens/ExpenseDetailScreen.tsx), [경비 수정 폼](../../../../../apps/client/src/features/expense/update-expense/UpdateExpenseDrawer.tsx), [화면 복구 검사](../../../../../apps/client/tests/screens/expense-recovery.test.tsx)에서 읽는다. 갱신 출처 전환 검사는 위 [활성 전환 검사](../../../../../apps/client/tests/entities/trip/activation-query-refresh.test.ts), push 중첩은 [sync 검사](../../../../../apps/client/tests/shared/services/sync/query-refresh.test.ts)에 포함된다. 선택 이유·검사 경계는 [2-B 기록](../records/2026-09-29-06-expense-query-recovery.md)이 맡는다.
 
+일정·경비 조회 조합은 [일정 feature](../../../../../apps/client/src/features/schedule/read-schedules/index.ts), [경비 feature](../../../../../apps/client/src/features/expense/read-expenses/index.ts), [공통 접근·실행 조합](../../../../../apps/client/src/shared/services/policy-query/index.ts)에서 읽는다. 공통 반환·실행 계약은 [검사](../../../../../apps/client/tests/shared/services/policy-query/read-query.test.tsx), 명명·FSD 판단과 기존 helper 제거는 [배치·교체 기록](../records/2026-09-29-09-policy-query-ownership-and-migration.md)에 있다. 앞선 한 곳 비교는 [시험 기록](../records/2026-09-29-08-schedule-read-query-actions-trial.md)에 보존한다.
+
 ## 17 — Trip·Expense 직렬화 선행 조각 (당시 16)
 
 - [Trip serializer](../../../../../apps/server/src/serializers/trip.ts): Trip DB row의 다섯 시간 값을 API ISO datetime 또는 null로 변환한다.

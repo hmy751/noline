@@ -2,7 +2,7 @@ import { PolicyErrorDisplay } from '@/shared/components/ErrorBoundary';
 import { View, Text, ScrollView, Alert, RefreshControl } from 'react-native';
 import { Container, Stack, ExpenseCard, MobileHeader } from '@/shared/components';
 import { TripSelector } from '@/entities/trip';
-import { useGetTripExpenses, useDeleteExpense } from '@/entities/expense';
+import { useDeleteExpense } from '@/entities/expense';
 import { useGetTrips } from '@/entities/trip';
 import { Pressable } from '@repo/ui';
 import { useRouter } from 'expo-router';
@@ -14,6 +14,7 @@ import { formatISOToLocalDate } from '@/shared/lib/datetime';
 import { groupExpensesByCurrency, formatCurrencyDisplay, getCurrencyFractionDigits } from '@/shared/lib/currency';
 import type { Expense } from '@/entities/expense';
 import { useAppPolicy } from '@/shared/policy';
+import { useTripExpensesReadQuery } from '@/features/expense/read-expenses';
 import { ExpenseQueryFeedback, ExpenseRefreshError } from './ExpenseQueryFeedback';
 
 const NO_EXPENSES: Expense[] = [];
@@ -35,14 +36,10 @@ export default function ExpensesScreen() {
   const { data: trips = [] } = useGetTrips();
   const selectedTrip = trips.find((trip) => trip.id === selectedTripId);
 
-  const readPolicy = useAppPolicy(selectedTripId ?? undefined).expense.read;
-  const actualReadPolicy = useAppPolicy(selectedTripId ?? undefined, { network: 'real' }).expense.read;
-  const canFetch = !!selectedTripId && readPolicy.allowed && actualReadPolicy.allowed;
-  const expenseQuery = useGetTripExpenses(selectedTripId ?? '', { enabled: canFetch });
-  const { refetch } = expenseQuery;
-  const visibleExpenses = selectedTripId && readPolicy.allowed ? expenseQuery.data : undefined;
-  const canShowContent = visibleExpenses !== undefined;
-  const refreshFailed = canShowContent && expenseQuery.isError && !expenseQuery.isFetching;
+  const { access, actions, view } = useTripExpensesReadQuery(selectedTripId);
+  const { refetch } = actions;
+  const visibleExpenses = view.kind === 'ready' ? view.data : undefined;
+  const canShowContent = view.kind === 'ready';
   const expenses = visibleExpenses ?? NO_EXPENSES;
   const policy = useAppPolicy(selectedExpense?.tripId ?? selectedTripId ?? undefined);
 
@@ -50,14 +47,14 @@ export default function ExpensesScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = useCallback(async () => {
-    if (!canFetch) return;
+    if (!access.canFetch) return;
     setRefreshing(true);
     try {
       await refetch();
     } finally {
       setRefreshing(false);
     }
-  }, [canFetch, refetch]);
+  }, [access.canFetch, refetch]);
 
   // 여행 날짜 범위에서 모든 날짜 생성
   const generateDateRange = (): string[] => {
@@ -192,19 +189,21 @@ export default function ExpensesScreen() {
       {/* Current Trip Selector - Sticky */}
       <TripSelector className='border-b border-card-border bg-background px-md py-sm' />
 
-      {refreshFailed && <ExpenseRefreshError retry={canFetch ? onRefresh : undefined} />}
-      {selectedTripId && !readPolicy.allowed ? (
-        <PolicyErrorDisplay policy={readPolicy} variant='block' />
-      ) : selectedTripId && !canShowContent && !actualReadPolicy.allowed ? (
-        <PolicyErrorDisplay policy={actualReadPolicy} variant='block' />
-      ) : selectedTripId && !canShowContent && expenseQuery.isError ? (
+      {view.kind === 'ready' && view.refreshFailed && (
+        <ExpenseRefreshError retry={access.canFetch ? onRefresh : undefined} />
+      )}
+      {view.kind === 'blocked' ? (
+        <PolicyErrorDisplay policy={view.policy} variant='block' />
+      ) : view.kind === 'error' ? (
         <ExpenseQueryFeedback status='error' retry={onRefresh} />
-      ) : selectedTripId && !canShowContent ? (
+      ) : view.kind === 'loading' ? (
         <ExpenseQueryFeedback status='loading' />
       ) : (
         <ScrollView
           className='flex-1'
-          refreshControl={canFetch ? <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> : undefined}
+          refreshControl={
+            access.canFetch ? <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> : undefined
+          }
         >
           <Container>
             <Stack direction='vertical' gap='md' className='py-sm'>

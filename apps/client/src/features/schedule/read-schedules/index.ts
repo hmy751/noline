@@ -1,0 +1,1 @@
+export { useTripSchedulesReadQuery } from './useTripSchedulesReadQuery';

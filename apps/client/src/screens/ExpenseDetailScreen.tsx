@@ -1,10 +1,9 @@
 import { PolicyErrorDisplay } from '@/shared/components/ErrorBoundary';
-import { useAppPolicy } from '@/shared/policy';
+import { useTripExpensesReadQuery } from '@/features/expense/read-expenses';
+import { useTripSchedulesReadQuery } from '@/features/schedule/read-schedules';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { Container, Stack, MobileHeader } from '@/shared/components';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useGetTripExpenses } from '@/entities/expense';
-import { useGetSchedules } from '@/entities/schedule';
 import { MapPin, Tag, Calendar, Receipt, ChevronLeft } from 'lucide-react-native';
 import { formatISOToLocalDate } from '@/shared/lib/datetime';
 import { ExpenseQueryFeedback, ExpenseRefreshError } from './ExpenseQueryFeedback';
@@ -13,29 +12,19 @@ export default function ExpenseDetailScreen() {
   const router = useRouter();
   const { id, tripId } = useLocalSearchParams<{ id: string; tripId: string }>();
 
-  const displayPolicy = useAppPolicy(tripId);
-  const actualPolicy = useAppPolicy(tripId, { network: 'real' });
-  const readPolicy = displayPolicy.expense.read;
-  const actualReadPolicy = actualPolicy.expense.read;
-  const canFetch = !!tripId && readPolicy.allowed && actualReadPolicy.allowed;
-  // 경비 데이터 조회 (tripId 기반으로 Router 사용)
-  const expenseQuery = useGetTripExpenses(tripId || '', { enabled: canFetch });
-  const visibleExpenses = tripId && readPolicy.allowed ? expenseQuery.data : undefined;
-  const canShowContent = visibleExpenses !== undefined;
-  const expense = visibleExpenses?.find((item) => item.id === id);
-  const refreshFailed = !!expense && expenseQuery.isError && !expenseQuery.isFetching;
+  const { query: expenseQuery, access, actions, view } = useTripExpensesReadQuery(tripId);
+  const expense = view.kind === 'ready' ? view.data.find((item) => item.id === id) : undefined;
   const retry = () => {
-    if (canFetch) expenseQuery.refetch();
+    if (access.canFetch) actions.refetch();
   };
 
-  // 연결된 일정 조회 (scheduleId가 있는 경우)
-  const { data: schedules = [] } = useGetSchedules(tripId || '', {
-    enabled:
-      canFetch && !!expense?.scheduleId && displayPolicy.schedule.read.allowed && actualPolicy.schedule.read.allowed,
+  // 연결된 일정 조회는 표시할 경비가 있을 때 시작하고 일정의 접근 조건도 적용한다.
+  const { view: scheduleView } = useTripSchedulesReadQuery(tripId, {
+    enabled: access.canFetch && !!expense?.scheduleId,
   });
   const linkedSchedule =
-    expense?.scheduleId && displayPolicy.schedule.read.allowed
-      ? schedules.find((s) => s.id === expense.scheduleId)
+    expense?.scheduleId && scheduleView.kind === 'ready'
+      ? scheduleView.data.find((schedule) => schedule.id === expense.scheduleId)
       : null;
 
   // 카테고리별 배경색
@@ -65,26 +54,21 @@ export default function ExpenseDetailScreen() {
     return colors[cat] || '#374151';
   };
 
-  if (!readPolicy.allowed) {
+  if (view.kind === 'blocked') {
     return (
       <View className='flex-1 bg-background'>
         <MobileHeader title='경비 상세' onLeftPress={() => router.back()} leftIcon={<ChevronLeft size={24} />} />
-        <PolicyErrorDisplay policy={readPolicy} variant='block' />
-      </View>
-    );
-  }
-
-  if (!canShowContent && !actualReadPolicy.allowed) {
-    return (
-      <View className='flex-1 bg-background'>
-        <MobileHeader title='경비 상세' onLeftPress={() => router.back()} leftIcon={<ChevronLeft size={24} />} />
-        <PolicyErrorDisplay policy={actualReadPolicy} variant='block' />
+        <PolicyErrorDisplay policy={view.policy} variant='block' />
       </View>
     );
   }
 
   // 여행 목록 캐시가 있어도 현재 경비가 없다면 최신 조회가 끝나기 전에는 부재를 확정하지 않는다.
-  if (tripId && (!canShowContent || (!expense && (expenseQuery.isFetching || expenseQuery.isError)))) {
+  if (
+    view.kind === 'loading' ||
+    view.kind === 'error' ||
+    (view.kind === 'ready' && !expense && (expenseQuery.isFetching || expenseQuery.isError))
+  ) {
     return (
       <View className='flex-1 bg-background'>
         <MobileHeader title='경비 상세' onLeftPress={() => router.back()} leftIcon={<ChevronLeft size={24} />} />
@@ -116,7 +100,9 @@ export default function ExpenseDetailScreen() {
         onLeftPress={() => router.back()}
       />
 
-      {refreshFailed && <ExpenseRefreshError retry={canFetch ? retry : undefined} />}
+      {view.kind === 'ready' && view.refreshFailed && (
+        <ExpenseRefreshError retry={access.canFetch ? retry : undefined} />
+      )}
 
       <ScrollView className='flex-1'>
         <Container>
