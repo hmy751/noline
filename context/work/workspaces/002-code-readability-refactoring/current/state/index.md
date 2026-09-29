@@ -2,7 +2,7 @@
 
 ## 병렬 작업 위치
 
-Project context의 Ticket 06 후보 수집·합의 반영·문서 갱신은 `refactor/project-context-update` 브랜치의 별도 `project-context-update` 워크트리로 분리했다. 이 작업 디렉터리는 `refactor/app-startup-lifecycle`에서 Ticket 06을 진행한다. 활성 여부 최초 확인 1-A, 연결 상태별 안내 1-B, 재확인 버튼 1-C는 커밋되어 있고 일정 화면 복구 2-A는 `57d878f`로 커밋했고 폼·Query 수명 후속 개선도 구현·검증을 마쳤다. Project 갱신 결과는 별도 브랜치에서 검토하며 이곳에는 아직 적용하지 않았다.
+Project context의 Ticket 06 후보 수집·합의 반영·문서 갱신은 `refactor/project-context-update` 브랜치의 별도 `project-context-update` 워크트리로 분리했다. 이 작업 디렉터리는 `refactor/app-startup-lifecycle`에서 Ticket 06을 진행한다. 일정·경비 목록과 경비 상세의 조회 조합까지 `b4db89d`로 커밋했다. 현재는 다른 소비자별 적용 판단과 Ticket 06의 남은 네트워크 연결을 다룬다. Project 갱신 결과는 별도 브랜치에서 검토하며 이곳에는 아직 적용하지 않았다.
 
 ## 완료·수락된 범위
 
@@ -34,7 +34,9 @@ Project-wide 판단으로 남은 항목은 Expense 날짜 계약, 금액 반올�
 
 성공한 push와 pull 뒤 진행 중 조회를 취소하고 갱신을 요청하며, pull 생략·실패나 앞선 GET 때문에 성공한 변경을 놓치지 않게 했다. 활성화·비활성화 성공 뒤 일정 Query에도 같은 취소 후 무효화를 연결했다. 화면 GET 완료는 sync 완료를 지연시키지 않는다. 상세 구현과 범위는 [Ticket 06](../memory/tickets/06-app-startup-lifecycle.md), sync 검사 근거는 [구현 기록](../../records/2026-09-29-03-schedule-query-recovery-implementation.md), Policy·Query 책임 재배치는 [개선 기록](../../records/2026-09-29-04-schedule-policy-query-composition.md), 폼·조회 수명과 공통 갱신 연산 및 최신 검사는 [후속 기록](../../records/2026-09-29-05-schedule-form-query-lifecycle.md)이 소유한다.
 
-기존 데이터의 재조회 실패 안내·재시도는 Main이 Query 상태만 쓰는 낮은 복잡도의 구현안으로 반영했다. 후속 개선은 폼 mount를 보존하면서 조회만 편집 중에 활성화하고, sync·활성 전환의 취소 후 무효화를 작은 공통 함수로 모았다. 2-B 경비 목록·상세의 온라인 복구도 구현·검증했다. 기존 데이터를 즉시 표시하고 최초 실패와 빈 결과를 구별하며 재조회 실패에는 내용을 유지한다. 상세의 연결 일정은 필요한 경우에만 조회하고 닫힌 경비 수정 폼의 일정 조회도 중지한다. 활성 전환 뒤 경비도 이전 출처의 조회 결과를 배제한다. 2-B는 `ed50ce1`로 커밋했다. 현재는 `query / access / actions / view`를 반환하는 일정·경비별 feature 훅과 공통 policy-query service로 배치를 정리하고 세 화면을 교체했다. 기존 helper와 시험 위치를 제거했다. 홈 요약·일정 상세·생성/수정 폼은 기존 Entity 조회 훅을 사용한다. 명명·배치·제한적 feature 재사용 기준은 Workspace에 우선 기록했으며 Project 문서는 변경하지 않았다. 안내 UI 통합·상세 오류 경계 수정·Drawer 조회 조건 확대는 적용하지 않았다. 그 뒤 2-C 토스트가 알릴 사실과 시점 판단이 남는다. 실패 안내의 최종 UX 확인은 남아 있다.
+기존 데이터의 재조회 실패 안내·재시도는 Main이 Query 상태만 쓰는 낮은 복잡도의 구현안으로 반영했다. 후속 개선은 폼 mount를 보존하면서 조회만 편집 중에 활성화하고, sync·활성 전환의 취소 후 무효화를 작은 공통 함수로 모았다. 2-B 경비 목록·상세의 온라인 복구도 구현·검증했다. 기존 데이터를 즉시 표시하고 최초 실패와 빈 결과를 구별하며 재조회 실패에는 내용을 유지한다. 상세의 연결 일정은 필요한 경우에만 조회하고 닫힌 경비 수정 폼의 일정 조회도 중지한다. 활성 전환 뒤 경비도 이전 출처의 조회 결과를 배제한다. 2-B는 `ed50ce1`로 커밋했다. `query / access / actions / view`를 반환하는 일정·경비별 feature 훅과 공통 policy-query service로 세 화면을 교체하고 기존 helper·시험 위치를 제거한 결과는 코드·검사·기록과 함께 `b4db89d`로 커밋했다. 홈 요약·일정 상세·생성/수정 폼은 기존 Entity 조회 훅을 사용한다. 명명·배치·제한적 feature 재사용 기준은 Workspace에 우선 기록했으며 Project 문서는 변경하지 않았다. 안내 UI 통합·상세 오류 경계 수정·Drawer 조회 조건 확대는 적용하지 않았다. 2-C 토스트가 알릴 사실과 시점도 별도 판단으로 남는다. 실패 안내의 최종 UX 확인은 남아 있다.
+
+다른 소비자에 대한 Main의 현재 제안은 일정 상세의 기존 단건·일정별 조회에 정책 연결 → 경비 폼의 연결 일정 영역 → 홈 요약의 조회 불가·0개/0원 구별 순이다. 일정 생성·수정 폼의 조회는 경로 재계산용이므로 표시 정책 적용 여부를 별도로 판단한다. 일괄 전환이나 이 실행 순서가 사용자 결정으로 확정된 것은 아니다. 구체 근거와 경비 상세의 기존 무동작 재시도 경계는 [Ticket 06](../memory/tickets/06-app-startup-lifecycle.md), 커밋 확인과 후속 제안은 [범위 기록](../../records/2026-09-29-10-read-query-follow-up-scope.md)에 있다.
 
 이번 배치·교체 후 전체 client Jest 41개 suite·393개 test가 통과했다. 이름·소유 위치와 FSD 예외의 선택 이유, Project 반영 보류와 실제 검증 범위는 [배치·교체 기록](../../records/2026-09-29-09-policy-query-ownership-and-migration.md)에 있다. 앞선 한 곳 시험 과정은 [시험 기록](../../records/2026-09-29-08-schedule-read-query-actions-trial.md)에 보존한다. 2-B의 화면·sync·활성 전환 검사와 한계는 [경비 복구 기록](../../records/2026-09-29-06-expense-query-recovery.md)이 소유한다. 실제 일정 수정 폼에서 작성 중 제목·날짜 보존과 저장 전 mutation 부재를 확인했으며 native 표시 표면과 repository는 mock이다. 타입 검사는 기존 Mapbox/download 오류 3개로 전체 성공은 아니다. 실제 기기·서버·OAuth·SecureStore와 native 활성 전환 전체 검증은 남아 있다.
 

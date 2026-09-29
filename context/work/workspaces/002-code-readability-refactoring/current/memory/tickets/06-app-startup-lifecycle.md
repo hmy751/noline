@@ -4,7 +4,7 @@
 
 앱을 켰을 때 네트워크·DB·인증 준비, Splash 해제, 첫 화면 선택과 인증 후 작업 시작이 어떤 조건으로 이어지는지 가까운 코드에서 이해하고 수정할 수 있게 한다. 서로 다른 boolean·effect·고정 지연에서 준비 상태를 다시 추론하는 부담을 줄이고 각 소비자가 필요한 상태를 사용하게 한다. 범용 startup framework나 폴더 재편 자체는 목표로 삼지 않는다. 앱 전체 준비 책임은 `application`에 두고, 해당 기능의 규칙·서비스와 화면 구성을 각 Owner에 연결한다.
 
-Ticket의 네트워크 계약은 **관측과 실제 요청·화면·sync 시작의 연결**이다. 현재 실행은 기존 startup·sync·인증 구현을 기반으로 인증 요청의 연결 결함과 실패 정합성을 보완하고, 같은 계정 재로그인과 명시적 계정 종료를 분리하는 일이다. 아래 네트워크 전체 계약의 미구현은 남은 범위로 관리하며 자동으로 구현을 확대하지 않는다. 2026-09-15~16 논의에서 사용자는 Network Store 내부 개선과 정책 구체화를 먼저 선택했고, 직접 필요한 수정은 003으로 분리하지 않고 여기서 함께 수행하기로 했다. 첫 Store 단계와 필요한 소비부 호환 수정을 구현했다. 선택 이유와 조사 근거는 [논의 기록](../../../records/2026-09-16-01-network-policy-and-implementation-boundaries.md)에 있다.
+Ticket의 네트워크 계약은 **관측과 실제 요청·화면·sync 시작의 연결**이다. startup·sync·인증의 선행 개선을 바탕으로 일정·경비 목록과 경비 상세의 제한·복구 및 조회 조합을 구현했다. 현재는 다른 소비자의 조회 목적에 따른 적용 범위와 남은 네트워크 연결을 판단하는 단계다. 아래 네트워크 전체 계약의 미구현은 남은 범위로 관리하며 자동으로 구현을 확대하지 않는다. 2026-09-15~16 논의에서 사용자는 Network Store 내부 개선과 정책 구체화를 먼저 선택했고, 직접 필요한 수정은 003으로 분리하지 않고 여기서 함께 수행하기로 했다. 첫 Store 단계와 필요한 소비부 호환 수정을 구현했다. 선택 이유와 조사 근거는 [논의 기록](../../../records/2026-09-16-01-network-policy-and-implementation-boundaries.md)에 있다.
 
 첫 범위가 만들 결과는 다음과 같다.
 
@@ -68,7 +68,7 @@ unknown 안내는 비활성 여행 내용의 제한 영역에서 처음에 연�
 
 실제 online으로 돌아와 접근 정책이 허용되면 같은 계정·여행의 기존 데이터를 먼저 표시한다. 화면 표시를 새 조회 성공이나 sync 종료까지 기다리게 하지 않는다. 사용자가 다른 여행으로 이동했으면 이전 여행으로 강제 복귀하지 않는다. 데이터가 없으면 일반 조회·로딩·오류 흐름을 사용한다.
 
-재조회 여부는 기존 Query의 데이터 유무·유효기간·무효화 상태에 맡긴다. 현재 일정 Query의 staleTime은 5분이며, 시간이 지났다는 이유만으로 즉시 요청하는 주기가 아니라 다음 조회 계기에서 유효성을 판단하는 기준이다. 전역 refetchOnReconnect false를 유지하고 해당 화면의 조회 가능 여부와 Query 상태를 연결한다. sync·저장·삭제에 따른 갱신이 겹쳐 추가 조회가 발생하는 것은 허용하되, 실제 변경이 이전 조회 결과에 가려지지 않도록 한다. 먼저 2-A 일정 화면에 적용하며 2-B 경비 연결은 별도로 남는다.
+재조회 여부는 기존 Query의 데이터 유무·유효기간·무효화 상태에 맡긴다. 현재 일정 Query의 staleTime은 5분이며, 시간이 지났다는 이유만으로 즉시 요청하는 주기가 아니라 다음 조회 계기에서 유효성을 판단하는 기준이다. 전역 refetchOnReconnect false를 유지하고 해당 화면의 조회 가능 여부와 Query 상태를 연결한다. sync·저장·삭제에 따른 갱신이 겹쳐 추가 조회가 발생하는 것은 허용하되, 실제 변경이 이전 조회 결과에 가려지지 않도록 한다. 2-A 일정 목록과 2-B 경비 목록·상세에 적용했으며, 다른 소비자별 후속 판단은 아래 조회 조합 절에 남긴다.
 
 기존 데이터가 있는 재조회 실패에는 내용을 유지하며 작은 실패 안내와 재시도 버튼을 표시하는 구현안을 적용했다. Query의 오류·조회 중 상태와 refetch를 사용하며 별도 복구 상태를 두지 않는다. 사용자가 복잡도를 물은 뒤 Main이 낮은 복잡도의 기본안으로 선택한 것으로, 사용자 최종 UX 수락과 구별한다. 복구 토스트는 2-C에서 연결 복귀와 데이터 갱신 성공 중 무엇을 알릴지 정한다. 초기 unknown·단순 재확인에 복구 토스트를 붙이지 않고 같은 장애에 반복 표시하지 않는 기준은 유지한다. 토스트를 위해 강제 조회나 화면 대기를 추가하지 않는 방향으로 구체화한다.
 
@@ -239,7 +239,7 @@ Main은 HEAD에 1-A의 변경 파일만 반영한 별도 디렉터리에서 clie
 
 화면용 unknown 강제 설정에서도 실제 checkStatus를 읽는다. 실제 확인이 없는 idle 상태는 확인 불가로 표시하며, 강제 설정 자체가 실제 관측이나 확인 작업을 바꾸지 않는다. 실제 online/unknown/offline 전환은 기존 정책대로 바로 반영하므로 비활성 여행의 내용·제한 표시 전환을 지연시키는 처리는 추가하지 않았다. 최초 활성 정보 확인과 로그인 안내는 네트워크 안내보다 우선한다.
 
-재확인 버튼은 아래 1-C에서 연결했고, 온라인 복귀의 Query 갱신 연결과 토스트는 후속 2번에 남는다. 온라인 전환으로 정책이 해제되는 것만으로 데이터 없음·변경 후 갱신까지 처리됐다고 보지 않는다. 1-B는 사용자 검토 후 `eaec466`으로 저장됐다.
+재확인 버튼은 아래 1-C에서, 일정·경비 목록과 경비 상세의 Query 복구는 2-A·2-B에서 연결했다. 복구 토스트는 2-C에 남는다. 온라인 전환으로 정책이 해제되는 것만으로 데이터 없음·변경 후 갱신까지 처리됐다고 보지 않는다. 1-B는 사용자 검토 후 `eaec466`으로 저장됐다.
 
 1-A 커밋에 1-B 제품 코드·테스트만 더한 별도 디렉터리에서 Main이 client Jest **36개 suite·317개 test 통과**를 확인했다. 추가 9개 검사는 실제 Network Store의 10초 경과·반복 null·후속 관측을 세 화면과 헤더에 연결하는 검사, 활성 여행 유지, CRUD 안내·인증 우선순위·debug 표시 경계를 다룬다. NetInfo와 데이터 조회는 mock이며 실기기 관측이 아니다. 변경 파일 형식·ESLint는 기존 Prettier plugin 충돌 규칙을 제외해 확인했고, 타입 검사는 기존 Mapbox/download 오류 3개로 전체 성공은 아니다.
 
@@ -291,19 +291,34 @@ Main은 전체 client Jest **40개 suite·386개 test 통과**를 확인했다. 
 
 ### 화면 조회 조합 — 일정·경비별 소유 위치와 기존 소비자 교체
 
+코드·검사·관련 기록은 `b4db89d`로 커밋했다. 완료된 교체 범위는 일정 목록·경비 목록·경비 상세와 상세의 연결 일정 조회다.
+
 일정 목록은 [useTripSchedulesReadQuery](../../../../../../../apps/client/src/features/schedule/read-schedules/useTripSchedulesReadQuery.ts), 경비 목록·상세는 [useTripExpensesReadQuery](../../../../../../../apps/client/src/features/expense/read-expenses/useTripExpensesReadQuery.ts)를 사용한다. 경비 상세의 연결 일정도 일정 훅으로 조합한다. 각 feature는 Entity 조회와 [공통 policy-query service](../../../../../../../apps/client/src/shared/services/policy-query/index.ts)를 연결하고 index는 export만 맡는다. 여행은 조회 범위이며 일정·경비 결과의 소유 위치를 Trip feature로 합치지 않는다.
 
 반환 계약은 `query / access / actions / view`다. query는 원본 Query 상태·타입 관계에서 refetch만 제외한다. access의 consumerEnabled는 호출자 조건, canFetch는 최종 허용, displayPolicy·actualPolicy는 두 관측 기준의 정책이다. actions.refetch는 최신 commit의 접근 조건을 확인하고 blocked 또는 finished와 Query 결과를 반환한다. view는 표시 결과를 계산하며 데이터·복구 상태를 별도로 저장하지 않는다. Policy 계산과 Query 실행 조합을 구분하고 Router·sync·freshness를 유지한다.
 
 공통 구현은 앱 전용 service이므로 순수 FSD의 domain 없는 Shared와 같다고 설명하지 않는다. 폼 재사용에는 공개 조회 조합 훅에 한해 feature 간 참조를 허용하는 작업 기준을 선택했다. 해당 훅은 UI·폼 상태 없이 entities/shared만 참조하고 소비 폼으로 역의존하지 않아야 한다. 이 선택·조건은 사용자 요청에 따라 Workspace에 우선 보존했으며 Project-wide guide로 승격하지 않았다. 다른 작업에서 확대할 때 Project 반영 여부를 판단한다.
 
-기존 screens/read-query.ts와 features/trip/read-query는 제거했다. 원본 Entity 조회 훅은 유지한다. 홈 요약·ScheduleDetail·생성/수정 폼은 기존 조회를 사용하며, 이 소비자들의 전환 여부와 일정별 경비 조합, 상세의 무동작 재시도·대상 부재 경계는 후속 판단이다. 전체 client Jest 41개 suite·393개 test와 변경 파일 ESLint(기존 충돌 규칙 제외)가 통과했다. 타입 검사에는 기존 Mapbox/download 오류 3개가 남고 실기기·서버 검증은 하지 않았다. 세 화면의 구조 교체와 이전 helper 제거는 구현 완료이며, 최종 UX 확인과 Ticket의 나머지 범위는 남아 있다. 선택 과정과 검사 경계는 [배치·교체 기록](../../../records/2026-09-29-09-policy-query-ownership-and-migration.md)에서 읽는다.
+기존 screens/read-query.ts와 features/trip/read-query는 제거했다. 원본 Entity 조회 훅은 유지한다. 홈 요약·ScheduleDetail·생성/수정 폼은 기존 조회를 사용한다. 이들은 모두 기계적인 교체 대상이 아니라 아래처럼 조회 목적과 표시 책임을 대조할 소비자다. 전체 client Jest 41개 suite·393개 test와 변경 파일 ESLint(기존 충돌 규칙 제외)가 통과했다. 타입 검사에는 기존 Mapbox/download 오류 3개가 남고 실기기·서버 검증은 하지 않았다. 세 화면의 구조 교체와 이전 helper 제거는 구현 완료이며, 최종 UX 확인과 Ticket의 나머지 범위는 남아 있다. 선택 과정과 검사 경계는 [배치·교체 기록](../../../records/2026-09-29-09-policy-query-ownership-and-migration.md)에서 읽는다.
+
+#### 다른 소비자의 적용 판단
+
+다음은 Main이 현재 코드를 확인해 제안한 후속 접근이며, 사용자 확정 실행 순서나 완료 결과가 아니다. 새 조합은 읽기 정책이 필요한 소비자를 위한 것이고 Entity 조회 훅 전체를 폐기하는 계약이 아니다.
+
+- **일정 상세:** 현재 정책 제한 없이 일정 단건과 해당 일정의 경비를 조회한다. 기존 단건·일정별 Query의 범위와 key를 유지하면서 접근·표시 조합을 연결하는 것이 우선 후보다. 전체 여행 목록 조회로 바꾸는 것은 필요하지 않다. 최초 실패·대상 부재·경비 조회 실패도 구별해야 한다.
+- **경비 생성·수정 폼:** 일정 조회는 연결 일정 선택에 사용한다. 조회 제한·오류는 해당 선택 영역에 적용하고 작성 값·폼 mount와 수정 폼의 isOpen 조건은 보존한다. 저장 허용은 기존 mutation 정책의 책임이다.
+- **홈 요약:** 일정·경비 조회의 data 기본값이 빈 배열이므로 조회 불가·실패를 0개·0원과 구별할 표시가 필요하다. 여행 카드를 유지하면서 요약 영역의 상태를 함께 정하는 접근을 제안했다.
+- **일정 생성·수정 폼:** 일정 목록은 저장 후 경로 재계산의 입력이다. 화면 표시 정책을 이 내부 계산용 조회에도 적용할지 먼저 판단한다. 원본 Entity 훅 유지 또는 조합의 query만 사용하는 안 모두 가능하며 아직 선택하지 않았다.
+
+Main의 권장 순서는 일정 상세 → 경비 폼 → 홈 요약이며, 경로 재계산용 조회는 별도 판단이다. 새 조합의 query에는 제한 중에도 캐시가 남으므로 query.data만 꺼내 쓴다고 표시 정책이 자동 적용되지는 않는다. 소비자는 view 또는 access를 자기 표시 범위에 연결해야 한다. 다른 Entity observer·QueryClient 무효화는 이 조합이 전역 통제하지 않으며 실행 시 최종 차단은 Router가 맡는다.
+
+경비 상세에는 목록 캐시에 대상 ID가 없고 이전 조회 오류가 있으며 Debug 표시 online·실제 offline인 경우, 재시도 버튼이 표시되지만 canFetch가 false여서 아무 요청도 하지 않는 기존 경계가 남는다. 조합 교체로 해결됐다고 보지 않는다. 소비자별 근거와 제안·확정의 구분은 [커밋·후속 범위 기록](../../../records/2026-09-29-10-read-query-follow-up-scope.md)에 있다.
 
 ### 앞선 다섯 단계의 저장 경계
 
 startup·스타일은 `8a1a3ea`, sync 연결은 `029adb6`, 정책 합의는 `71c1a02`, 대상 여행 라우팅은 `f0f680e`, DB 원자성은 `9936662`로 저장됐다. 인증 책임·전환·로컬 저장 보호는 `62ce226`, 동기화 중단·미전송 원본 보존은 `100e71a`, 화면 정책·입력 보존은 `be2f5b9`로 각각 저장했다. 다섯 단계의 실제 커밋 경계와 마지막 staged 후보의 검증은 [분리 커밋 마무리 기록](../../../records/2026-09-22-02-five-stage-commits-and-verification.md)에 있다.
 
-앞선 분할 검토·토큰 분리·원복·부분 개선의 경위는 [분할 검토 기록](../../../records/2026-09-21-01-auth-policy-split-review-and-commits.md), [원복 기록](../../../records/2026-09-21-02-auth-token-separation-consumer-review-and-rollback.md), [부분 개선 기록](../../../records/2026-09-21-03-auth-consumer-boundary-implementation.md)에 보존한다. 최종 책임 배치·재현과 검사 경계는 [이번 구현 기록](../../../records/2026-09-21-04-auth-responsibilities-and-regression-fixes.md)에 있다. unknown 10초 안내와 재확인 행동은 위 후속 작업에서 연결했다. 온라인 복구의 일정 화면 구현은 위 2-A에 남기며, 경비 연결·토스트와 foreground 재확인 등 Ticket 전체 완료와 사용자 최종 수락은 아직 아니다.
+앞선 분할 검토·토큰 분리·원복·부분 개선의 경위는 [분할 검토 기록](../../../records/2026-09-21-01-auth-policy-split-review-and-commits.md), [원복 기록](../../../records/2026-09-21-02-auth-token-separation-consumer-review-and-rollback.md), [부분 개선 기록](../../../records/2026-09-21-03-auth-consumer-boundary-implementation.md)에 보존한다. 최종 책임 배치·재현과 검사 경계는 [이번 구현 기록](../../../records/2026-09-21-04-auth-responsibilities-and-regression-fixes.md)에 있다. unknown 10초 안내와 재확인 행동은 위 후속 작업에서 연결했다. 온라인 복구의 일정 목록과 경비 목록·상세 구현은 위 2-A·2-B에 있다. 다른 소비자 연결, 토스트와 foreground 재확인 등 Ticket 전체 완료와 사용자 최종 수락은 아직 아니다.
 
 ## 추후 개선 메모 — NetworkStatus enum 전환
 

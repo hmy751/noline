@@ -102,3 +102,5 @@
 - [일정 목록의 Query 상태·접근 조건·실행 분리 시험](2026-09-29-08-schedule-read-query-actions-trial.md): query/access/actions/view의 역할, 타입·실행 계약과 한 곳 적용 경계, 관련 검사 결과.
 
 - [조회 조합의 이름·소유 위치와 기존 소비자 교체](2026-09-29-09-policy-query-ownership-and-migration.md): 일정·경비 feature와 공통 service의 명명·배치, FSD 예외와 Project 반영 보류, 세 화면 교체와 393개 검사 근거.
+
+- [조회 조합 커밋과 다른 소비자의 적용 범위](2026-09-29-10-read-query-follow-up-scope.md): b4db89d 저장 경계, 상세·홈·폼의 조회 목적 차이와 Main 제안, 기록 점검 보완 및 미확정 실행 범위.
