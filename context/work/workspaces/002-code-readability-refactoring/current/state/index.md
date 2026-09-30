@@ -2,7 +2,7 @@
 
 ## 작업 위치와 반영 경계
 
-현재 제품 작업 브랜치는 `refactor/app-startup-lifecycle`이다. `b4db89d`까지 목록·상세 조회 훅의 공통화가 커밋되어 있고, 일정 상세, 경비 생성·수정 폼, 홈 요약, 일정 생성·수정 폼의 소비자 변경은 구현·테스트됐으나 아직 커밋되지 않았다.
+현재 제품 작업 브랜치는 `refactor/app-startup-lifecycle`이다. `b4db89d`의 목록·상세 조회 훅 공통화에 이어, 일정 상세, 경비 생성·수정 폼, 홈 요약, 일정 생성·수정 폼의 소비자 변경·검증·후속 문제 기록을 `eec00e1`로 커밋했다.
 
 별도 Project context 브랜치·worktree의 결과는 이 작업 브랜치에 반영된 것으로 간주하지 않는다. Workspace Maintain은 Project context를 대신 반영하지 않는다.
 
