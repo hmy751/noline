@@ -1,4 +1,5 @@
 import { View, Text, type ViewProps, TouchableOpacity } from 'react-native';
+import type { ReactNode } from 'react';
 import { cn, Pressable } from '@repo/ui';
 import { Calendar, Download, Edit3, Trash2 } from 'lucide-react-native';
 import { ActivationBadge, type ActivationStatus } from './ActivationBadge';
@@ -18,6 +19,9 @@ interface TripCardProps extends ViewProps {
   startDate: string;
   endDate: string;
   scheduleCount?: number;
+  /** 조회 상태를 함께 표시하는 소비자가 기본 숫자 대신 제공하는 요약 내용. */
+  scheduleSummary?: ReactNode;
+  expenseSummary?: ReactNode;
   // ✅ CURRENCY_POLICY: 통화별 경비 그룹 (주 통화 + 추가 통화)
   expensesByCurrency?: CurrencyGroup[];
   baseCurrency?: string; // 여행 기본 통화 (빈 경비 시 표시용)
@@ -35,6 +39,8 @@ export function TripCard({
   startDate,
   endDate,
   scheduleCount,
+  scheduleSummary,
+  expenseSummary,
   expensesByCurrency = [],
   baseCurrency = 'USD',
   activationStatus = 'online',
@@ -91,30 +97,31 @@ export function TripCard({
       <View className='mb-sm h-px bg-primary-foreground/20' />
 
       {/* Stats */}
-      <View className='flex-row items-center justify-between'>
-        {scheduleCount !== undefined && (
-          <View className='flex-col gap-3xs'>
+      <View className='flex-row items-start justify-between gap-sm'>
+        {(scheduleSummary !== undefined || scheduleCount !== undefined) && (
+          <View className='flex-1 flex-col gap-3xs'>
             <Text className='text-label text-primary-foreground/70'>일정</Text>
-            <Text className='text-title-large text-primary-foreground'>{scheduleCount}개</Text>
+            {scheduleSummary ?? <Text className='text-title-large text-primary-foreground'>{scheduleCount}개</Text>}
           </View>
         )}
         {/* ✅ CURRENCY_POLICY: 주 통화 + 추가 통화 개수 표시 */}
-        <View className='flex-col items-end gap-3xs'>
+        <View className='flex-1 flex-col items-end gap-3xs'>
           <Text className='text-label text-primary-foreground/70'>경비</Text>
-          {primaryCurrency ? (
-            <View className='flex-col items-end gap-3xs'>
-              {/* 주 통화 (큰 글씨) */}
-              <Text className='text-title-large text-primary-foreground'>
-                {primaryCurrency.currency} {primaryCurrency.amount.toFixed(2)}
-              </Text>
-              {/* 추가 통화 개수 (작은 글씨) */}
-              {additionalCurrencyCount > 0 && (
-                <Text className='text-label text-primary-foreground/70'>+{additionalCurrencyCount}개 통화</Text>
-              )}
-            </View>
-          ) : (
-            <Text className='text-title-large text-primary-foreground'>{formatCurrencyDisplay(0, baseCurrency)}</Text>
-          )}
+          {expenseSummary ??
+            (primaryCurrency ? (
+              <View className='flex-col items-end gap-3xs'>
+                {/* 주 통화 (큰 글씨) */}
+                <Text className='text-title-large text-primary-foreground'>
+                  {primaryCurrency.currency} {primaryCurrency.amount.toFixed(2)}
+                </Text>
+                {/* 추가 통화 개수 (작은 글씨) */}
+                {additionalCurrencyCount > 0 && (
+                  <Text className='text-label text-primary-foreground/70'>+{additionalCurrencyCount}개 통화</Text>
+                )}
+              </View>
+            ) : (
+              <Text className='text-title-large text-primary-foreground'>{formatCurrencyDisplay(0, baseCurrency)}</Text>
+            ))}
         </View>
       </View>
 

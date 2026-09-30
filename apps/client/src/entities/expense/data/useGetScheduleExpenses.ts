@@ -18,11 +18,15 @@ import { expenseQueryKeys } from './keys';
  * const { data: expenses, isLoading } = useGetScheduleExpenses('schedule-id-123', 'trip-id-123');
  * ```
  */
-export const useGetScheduleExpenses = (scheduleId: string, tripId: string) => {
+export const useGetScheduleExpenses = (
+  scheduleId: string,
+  tripId: string,
+  { enabled = true }: { enabled?: boolean } = {},
+) => {
   return useQuery({
     queryKey: expenseQueryKeys.bySchedule(scheduleId),
     queryFn: () => ExpenseRepository.getByScheduleId(scheduleId, tripId),
-    enabled: !!scheduleId && !!tripId,
+    enabled: !!scheduleId && !!tripId && enabled,
     staleTime: 5 * 60 * 1000, // 5분
     gcTime: 10 * 60 * 1000, // 10분
   });

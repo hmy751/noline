@@ -15,11 +15,15 @@ import { scheduleQueryKeys } from './keys';
  * const { data: schedule, isLoading } = useGetScheduleById('schedule-id', 'trip-id');
  * ```
  */
-export const useGetScheduleById = (scheduleId: string, tripId: string) => {
+export const useGetScheduleById = (
+  scheduleId: string,
+  tripId: string,
+  { enabled = true }: { enabled?: boolean } = {},
+) => {
   return useQuery({
     queryKey: scheduleQueryKeys.detail(scheduleId),
     queryFn: () => ScheduleRepository.getById(scheduleId, tripId),
-    enabled: !!scheduleId && !!tripId,
+    enabled: !!scheduleId && !!tripId && enabled,
     staleTime: 5 * 60 * 1000, // 5분
     gcTime: 10 * 60 * 1000, // 10분
   });

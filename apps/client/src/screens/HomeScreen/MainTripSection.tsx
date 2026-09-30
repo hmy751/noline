@@ -1,8 +1,13 @@
 import { View, Text, ActivityIndicator, Alert } from 'react-native';
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import { TripCard, type TripData, type ActivationStatus, useDeactivateTrip } from '@/entities/trip';
-import { useGetTripExpenses } from '@/entities/expense';
-import { useGetSchedules } from '@/entities/schedule';
+import { useTripExpensesReadQuery } from '@/features/expense/read-expenses';
+import { useTripSchedulesReadQuery } from '@/features/schedule/read-schedules';
+import type { ReadQueryView } from '@/shared/services/policy-query';
+import { PolicyErrorDisplay } from '@/shared/components/ErrorBoundary';
+import { Pressable } from '@repo/ui';
+import { ScheduleRefreshError } from '../ScheduleQueryFeedback';
+import { ExpenseRefreshError } from '../ExpenseQueryFeedback';
 import { groupExpensesByCurrency } from '@/shared/lib/currency';
 import { getTripActivationStatusDetail } from '@/shared/services/offline-prep/metadata';
 
@@ -31,14 +36,13 @@ export function MainTripSection({
     return `${date.getMonth() + 1}월 ${date.getDate()}일`;
   };
 
-  // ✅ 일정 개수 조회
-  const { data: mainTripSchedules = [] } = useGetSchedules(mainTripData?.id ?? '');
-
-  // ✅ CURRENCY_POLICY: 통화별 경비 그룹핑 (baseCurrency 우선)
-  const { data: mainTripExpenses = [] } = useGetTripExpenses(mainTripData?.id ?? '');
+  const schedulesRead = useTripSchedulesReadQuery(mainTripData?.id);
+  const expensesRead = useTripExpensesReadQuery(mainTripData?.id);
+  const schedules = schedulesRead.view.kind === 'ready' ? schedulesRead.view.data : undefined;
+  const expenses = expensesRead.view.kind === 'ready' ? expensesRead.view.data : undefined;
   const expensesByCurrency = useMemo(
-    () => groupExpensesByCurrency(mainTripExpenses, mainTripData?.baseCurrency),
-    [mainTripExpenses, mainTripData?.baseCurrency],
+    () => (expenses ? groupExpensesByCurrency(expenses, mainTripData?.baseCurrency) : undefined),
+    [expenses, mainTripData?.baseCurrency],
   );
 
   // 비활성화 mutation
@@ -113,7 +117,7 @@ export function MainTripSection({
         country: mainTripData.country || '',
         startDate: formatDate(mainTripData.startDate),
         endDate: formatDate(mainTripData.endDate),
-        scheduleCount: mainTripSchedules.length,
+        scheduleCount: schedules?.length,
         expensesByCurrency, // ✅ 통화별 경비 데이터 전달
         baseCurrency: mainTripData.baseCurrency, // ✅ 빈 경비 시 표시용
       }
@@ -148,14 +152,49 @@ export function MainTripSection({
 
   // 메인 여행 카드
   return (
-    <TripCard
-      {...mainTrip}
-      activationStatus={activationStatus}
-      onActivatePress={
-        activationStatus !== 'online' ? undefined : () => onActivatePress(mainTripData.id, mainTrip.destination)
-      }
-      onDeactivatePress={activationStatus !== 'online' ? handleDeactivate : undefined}
-      onEditPress={onEditPress}
-    />
+    <>
+      <TripCard
+        {...mainTrip}
+        scheduleSummary={
+          schedulesRead.view.kind !== 'ready' ? (
+            <SummaryFeedback view={schedulesRead.view} label='일정을' retry={() => schedulesRead.actions.refetch()} />
+          ) : undefined
+        }
+        expenseSummary={
+          expensesRead.view.kind !== 'ready' ? (
+            <SummaryFeedback view={expensesRead.view} label='경비를' retry={() => expensesRead.actions.refetch()} />
+          ) : undefined
+        }
+        activationStatus={activationStatus}
+        onActivatePress={
+          activationStatus !== 'online' ? undefined : () => onActivatePress(mainTripData.id, mainTrip.destination)
+        }
+        onDeactivatePress={activationStatus !== 'online' ? handleDeactivate : undefined}
+        onEditPress={onEditPress}
+      />
+      {schedulesRead.view.kind === 'ready' && schedulesRead.view.refreshFailed && (
+        <ScheduleRefreshError
+          retry={schedulesRead.access.canFetch ? () => schedulesRead.actions.refetch() : undefined}
+        />
+      )}
+      {expensesRead.view.kind === 'ready' && expensesRead.view.refreshFailed && (
+        <ExpenseRefreshError retry={expensesRead.access.canFetch ? () => expensesRead.actions.refetch() : undefined} />
+      )}
+    </>
   );
+}
+
+function SummaryFeedback({ view, label, retry }: { view: ReadQueryView<unknown>; label: string; retry: () => void }) {
+  if (view.kind === 'blocked') return <PolicyErrorDisplay policy={view.policy} variant='inline' />;
+  if (view.kind === 'error') {
+    return (
+      <View>
+        <Text className='text-body text-primary-foreground'>{label} 불러오지 못했어요.</Text>
+        <Pressable variant='outline' onPress={retry}>
+          다시 불러오기
+        </Pressable>
+      </View>
+    );
+  }
+  return <Text className='text-body text-primary-foreground'>{view.kind === 'loading' ? '불러오는 중' : '—'}</Text>;
 }

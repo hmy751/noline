@@ -9,7 +9,7 @@ import { Field } from '@/shared/components/Form';
 import { EXPENSE_CATEGORIES, CURRENCIES, CURRENCY_SYMBOLS } from '@/entities/expense';
 import { useUpdateExpense } from '@/entities/expense/data/useUpdateExpense';
 import { formatISOToLocalDate, formatISOToLocalTime, dateToISODateTime } from '@/shared/lib/datetime';
-import { useGetSchedules } from '@/entities/schedule';
+import { useTripSchedulesReadQuery } from '@/features/schedule/read-schedules';
 import { expenseUpdateFormSchema, type ExpenseUpdateFormData } from './schema';
 import { useAppPolicy } from '@/shared/policy';
 
@@ -58,7 +58,12 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
 
   // 여행의 모든 일정 조회
   // 입력 상태는 유지하되, 연결 일정 조회는 편집 중에만 활성화한다.
-  const { data: schedules = [] } = useGetSchedules(expenseData?.tripId || '', { enabled: isOpen });
+  const {
+    view: schedulesView,
+    access: schedulesAccess,
+    actions: schedulesActions,
+  } = useTripSchedulesReadQuery(expenseData?.tripId, { enabled: isOpen });
+  const schedules = schedulesView.kind === 'ready' ? schedulesView.data : undefined;
   const policy = useAppPolicy(expenseData?.tripId);
 
   // 선택한 날짜의 일정만 필터링
@@ -69,7 +74,7 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
 
     const selectedLocalDate = formatISOToLocalDate(selectedDate);
 
-    return schedules.filter((schedule) => {
+    return (schedules ?? []).filter((schedule) => {
       const scheduleDate = formatISOToLocalDate(schedule.scheduledAt);
       return scheduleDate === selectedLocalDate;
     });
@@ -346,7 +351,28 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
             control={control}
             name='scheduleId'
             render={({ field: { value, onChange }, fieldState: { error } }) => {
-              const selectedSchedule = schedules.find((s) => s.id === value);
+              const selectedSchedule = schedules?.find((s) => s.id === value);
+
+              if (schedulesView.kind !== 'ready') {
+                return (
+                  <Field>
+                    <Field.Title>연결된 일정 (선택)</Field.Title>
+                    <Field.ElementsBox>
+                      {value && <Text>기존 일정 연결을 유지합니다.</Text>}
+                      {schedulesView.kind === 'blocked' ? (
+                        <PolicyErrorDisplay policy={schedulesView.policy} variant='inline' />
+                      ) : schedulesView.kind === 'error' ? (
+                        <>
+                          <Text>일정 목록을 불러오지 못했어요.</Text>
+                          <Pressable onPress={() => schedulesActions.refetch()}>다시 불러오기</Pressable>
+                        </>
+                      ) : (
+                        <Text>일정 목록을 불러오고 있어요.</Text>
+                      )}
+                    </Field.ElementsBox>
+                  </Field>
+                );
+              }
 
               if (policy.expense.update.mode === 'manual-only') {
                 return (
@@ -368,6 +394,14 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
                 <Field>
                   <Field.Title>연결된 일정 (선택)</Field.Title>
                   <Field.ElementsBox>
+                    {schedulesView.refreshFailed && (
+                      <View>
+                        <Text>일정 목록을 갱신하지 못했어요. 이전 내용을 표시하고 있어요.</Text>
+                        {schedulesAccess.canFetch && (
+                          <Pressable onPress={() => schedulesActions.refetch()}>다시 불러오기</Pressable>
+                        )}
+                      </View>
+                    )}
                     <Select
                       value={
                         selectedSchedule

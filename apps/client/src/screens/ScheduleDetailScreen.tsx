@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { MapPin, Clock, Wallet, ChevronLeft } from 'lucide-react-native';
 import { Card, Pressable, Separator } from '@repo/ui';
 import { Container, Stack, MobileHeader } from '@/shared/components';
@@ -6,8 +6,11 @@ import { ScheduleExpenseList } from '@/features/schedule/schedule-expense-list';
 import { formatISOToLocalDate, formatISOToLocalTime } from '@/shared/lib/datetime';
 import { groupExpensesByCurrency, formatCurrencyDisplay } from '@/shared/lib/currency';
 import { useRouter } from 'expo-router';
-import { useGetScheduleById } from '@/entities/schedule/data';
-import { useGetScheduleExpenses } from '@/entities/expense';
+import { useScheduleReadQuery } from '@/features/schedule/read-schedules';
+import { useScheduleExpensesReadQuery } from '@/features/expense/read-expenses';
+import { PolicyErrorDisplay } from '@/shared/components/ErrorBoundary';
+import { ScheduleQueryFeedback, ScheduleRefreshError } from './ScheduleQueryFeedback';
+import { ExpenseQueryFeedback, ExpenseRefreshError } from './ExpenseQueryFeedback';
 
 export interface ScheduleDetailScreenProps {
   scheduleId: string;
@@ -19,13 +22,19 @@ export interface ScheduleDetailScreenProps {
 export default function ScheduleDetailScreen({ scheduleId, tripId, scheduledAt, onBack }: ScheduleDetailScreenProps) {
   const router = useRouter();
 
-  const { data: schedule, isLoading: isLoadingSchedule } = useGetScheduleById(scheduleId, tripId);
-
-  const { data: expenses = [], isLoading: isLoadingExpenses } = useGetScheduleExpenses(scheduleId, tripId);
-
-  const expensesByCurrency = groupExpensesByCurrency(expenses);
-
-  const isLoading = isLoadingSchedule || isLoadingExpenses;
+  const {
+    view: scheduleView,
+    access: scheduleAccess,
+    actions: scheduleActions,
+  } = useScheduleReadQuery(scheduleId, tripId);
+  const {
+    view: expensesView,
+    access: expensesAccess,
+    actions: expensesActions,
+  } = useScheduleExpensesReadQuery(scheduleId, tripId);
+  const schedule = scheduleView.kind === 'ready' ? scheduleView.data : undefined;
+  const expenses = expensesView.kind === 'ready' ? expensesView.data : undefined;
+  const expensesByCurrency = expenses ? groupExpensesByCurrency(expenses) : [];
 
   const handleExpensePress = (expenseId: string) => {
     router.push({
@@ -45,17 +54,19 @@ export default function ScheduleDetailScreen({ scheduleId, tripId, scheduledAt, 
     console.log('Show on map:', scheduleId);
   };
 
-  if (isLoading) {
+  if (scheduleView.kind !== 'ready') {
     return (
       <View className='flex-1 bg-background'>
-        <MobileHeader
-          title='일정 상세'
-          leftIcon={<ChevronLeft size={24} color='hsl(0, 0%, 12%)' strokeWidth={2} />}
-          onLeftPress={onBack}
-        />
-        <View className='flex-1 items-center justify-center'>
-          <ActivityIndicator size='large' color='hsl(120, 61%, 34%)' />
-        </View>
+        <MobileHeader title='일정 상세' leftIcon={<ChevronLeft size={24} />} onLeftPress={onBack} />
+        {scheduleView.kind === 'blocked' ? (
+          <PolicyErrorDisplay policy={scheduleView.policy} variant='block' />
+        ) : scheduleView.kind === 'error' ? (
+          <ScheduleQueryFeedback status='error' retry={() => scheduleActions.refetch()} />
+        ) : scheduleView.kind === 'loading' ? (
+          <ScheduleQueryFeedback status='loading' />
+        ) : (
+          <Text>일정을 선택해주세요.</Text>
+        )}
       </View>
     );
   }
@@ -87,6 +98,9 @@ export default function ScheduleDetailScreen({ scheduleId, tripId, scheduledAt, 
         onLeftPress={onBack}
       />
 
+      {scheduleView.refreshFailed && (
+        <ScheduleRefreshError retry={scheduleAccess.canFetch ? () => scheduleActions.refetch() : undefined} />
+      )}
       <ScrollView className='flex-1'>
         <Container>
           <Stack direction='vertical' gap='md' className='py-sm'>
@@ -120,25 +134,27 @@ export default function ScheduleDetailScreen({ scheduleId, tripId, scheduledAt, 
               {/* Separator */}
               <Separator className='my-2xs' />
 
-              {/* Total Expense - 통화별 표시 */}
-              <View className='flex-row items-center justify-between py-3xs'>
-                <View className='flex-row items-center gap-xs'>
-                  <Wallet size={16} color='hsl(120, 61%, 34%)' strokeWidth={2} />
-                  <Text className='text-label text-muted-foreground'>총 경비</Text>
+              {/* 조회 가능한 경비만 합계로 표시한다. */}
+              {expenses && (
+                <View className='flex-row items-center justify-between py-3xs'>
+                  <View className='flex-row items-center gap-xs'>
+                    <Wallet size={16} color='hsl(120, 61%, 34%)' strokeWidth={2} />
+                    <Text className='text-label text-muted-foreground'>총 경비</Text>
+                  </View>
+                  <View className='flex-col items-end gap-3xs'>
+                    {expensesByCurrency.length > 0 ? (
+                      expensesByCurrency.map(({ currency, amount }) => (
+                        <Text key={currency} className='text-display-medium text-primary'>
+                          {formatCurrencyDisplay(amount, currency)}
+                        </Text>
+                      ))
+                    ) : (
+                      <Text className='text-display-medium text-muted-foreground'>USD 0.00</Text>
+                    )}
+                    <Text className='text-label text-muted-foreground'>({expenses.length}개)</Text>
+                  </View>
                 </View>
-                <View className='flex-col items-end gap-3xs'>
-                  {expensesByCurrency.length > 0 ? (
-                    expensesByCurrency.map(({ currency, amount }) => (
-                      <Text key={currency} className='text-display-medium text-primary'>
-                        {formatCurrencyDisplay(amount, currency)}
-                      </Text>
-                    ))
-                  ) : (
-                    <Text className='text-display-medium text-muted-foreground'>USD 0.00</Text>
-                  )}
-                  <Text className='text-label text-muted-foreground'>({expenses.length}개)</Text>
-                </View>
-              </View>
+              )}
 
               {/* Separator */}
               <Separator className='my-2xs' />
@@ -168,12 +184,29 @@ export default function ScheduleDetailScreen({ scheduleId, tripId, scheduledAt, 
             <View className='gap-xs'>
               <View className='flex-row items-center justify-between'>
                 <Text className='text-title-large text-foreground'>경비 내역</Text>
-                <View className='rounded-full bg-muted px-xs py-3xs'>
-                  <Text className='text-label text-foreground'>{expenses.length}개</Text>
-                </View>
+                {expenses && (
+                  <View className='rounded-full bg-muted px-xs py-3xs'>
+                    <Text className='text-label text-foreground'>{expenses.length}개</Text>
+                  </View>
+                )}
               </View>
 
-              <ScheduleExpenseList expenses={expenses} onExpensePress={handleExpensePress} />
+              {expensesView.kind === 'blocked' ? (
+                <PolicyErrorDisplay policy={expensesView.policy} variant='inline' />
+              ) : expensesView.kind === 'error' ? (
+                <ExpenseQueryFeedback status='error' retry={() => expensesActions.refetch()} />
+              ) : expensesView.kind === 'ready' ? (
+                <>
+                  {expensesView.refreshFailed && (
+                    <ExpenseRefreshError
+                      retry={expensesAccess.canFetch ? () => expensesActions.refetch() : undefined}
+                    />
+                  )}
+                  <ScheduleExpenseList expenses={expensesView.data} onExpensePress={handleExpensePress} />
+                </>
+              ) : expensesView.kind === 'loading' ? (
+                <ExpenseQueryFeedback status='loading' />
+              ) : null}
             </View>
           </Stack>
         </Container>

@@ -22,7 +22,10 @@ jest.mock('@/entities/trip/data/useGetTripActivation', () => ({
 jest.mock('@/entities/route', () => ({ useAutoDownloadRoutes: () => ({ mutate: jest.fn() }) }));
 jest.mock('@/entities/schedule', () => ({
   useUpdateSchedule: jest.fn(),
-  useGetSchedules: () => ({ data: [{ id: 'linked', title: '기존 연결 일정', scheduledAt: '2026-09-21T10:00:00Z' }] }),
+  useGetSchedules: () => ({
+    isSuccess: true,
+    data: [{ id: 'linked', title: '기존 연결 일정', scheduledAt: '2026-09-21T10:00:00Z' }],
+  }),
 }));
 jest.mock('@/entities/expense', () => ({
   EXPENSE_CATEGORIES: ['food'],

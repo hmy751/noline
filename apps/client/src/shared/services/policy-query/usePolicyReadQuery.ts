@@ -11,7 +11,7 @@ export type ReadRefetchOutcome<T, E> =
   | ({ kind: 'blocked' } & ReadBlock)
   | { kind: 'finished'; result: ReadQueryState<T, E> };
 
-type ReadQueryView<T> =
+export type ReadQueryView<T> =
   | { kind: 'unselected' }
   | { kind: 'idle' }
   | { kind: 'blocked'; policy: OperationPolicy }

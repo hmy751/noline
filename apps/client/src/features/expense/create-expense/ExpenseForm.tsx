@@ -1,13 +1,12 @@
 import { View, Text, TextInput, ScrollView, StyleSheet } from 'react-native';
 import { Controller } from 'react-hook-form';
-import { Wallet, ChevronDown, Calendar as CalendarIcon, MapPin, AlertCircle } from 'lucide-react-native';
+import { Wallet, ChevronDown, Calendar as CalendarIcon, MapPin } from 'lucide-react-native';
 import { Pressable, Select } from '@repo/ui';
 import { Field } from '@/shared/components/Form';
 import { DatePicker, PolicyErrorDisplay } from '@/shared/components';
 import { EXPENSE_CATEGORIES, CURRENCIES, CURRENCY_SYMBOLS } from '@/entities/expense';
 import { formatISOToLocalDate, dateToISODateTime, formatISOToLocalTime } from '@/shared/lib/datetime';
-import { useGetSchedules } from '@/entities/schedule';
-import { useAppPolicy } from '@/shared/policy';
+import { useTripSchedulesReadQuery } from '@/features/schedule/read-schedules';
 import type { UseFormReturn } from 'react-hook-form';
 import type { CreateExpenseFormData } from './schema';
 import { useState, useMemo } from 'react';
@@ -26,13 +25,12 @@ type ExpenseFormProps = {
 export function ExpenseForm({ form, tripId, onSubmit, onCancel, isPending }: ExpenseFormProps) {
   const { control, watch } = form;
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
-  const policy = useAppPolicy(tripId);
 
   // 선택한 날짜 추적
   const selectedDate = watch('date');
 
-  // 여행의 모든 일정 조회 (Policy에 따라 비활성화 가능)
-  const { data: schedules = [], isError: schedulesFetchError } = useGetSchedules(tripId);
+  const { view: schedulesView, access: schedulesAccess, actions: schedulesActions } = useTripSchedulesReadQuery(tripId);
+  const schedules = schedulesView.kind === 'ready' ? schedulesView.data : undefined;
 
   // 선택한 날짜의 일정만 필터링
   const schedulesOnSelectedDate = useMemo(() => {
@@ -42,7 +40,7 @@ export function ExpenseForm({ form, tripId, onSubmit, onCancel, isPending }: Exp
 
     const selectedLocalDate = formatISOToLocalDate(selectedDate);
 
-    return schedules.filter((schedule) => {
+    return (schedules ?? []).filter((schedule) => {
       const scheduleDate = formatISOToLocalDate(schedule.scheduledAt);
       return scheduleDate === selectedLocalDate;
     });
@@ -236,28 +234,21 @@ export function ExpenseForm({ form, tripId, onSubmit, onCancel, isPending }: Exp
           render={({ field: { value, onChange }, fieldState: { error } }) => {
             const selectedSchedule = schedulesOnSelectedDate.find((s) => s.id === value);
 
-            // Schedule Read가 불가능한 경우 (offline_inactive)
-            if (!policy.schedule.read.allowed) {
+            if (schedulesView.kind !== 'ready') {
               return (
                 <Field>
                   <Field.Title>연결된 일정 (선택)</Field.Title>
                   <Field.ElementsBox>
-                    <PolicyErrorDisplay policy={policy.schedule.read} variant='inline' />
-                  </Field.ElementsBox>
-                </Field>
-              );
-            }
-
-            // Schedule Fetch 에러 처리
-            if (schedulesFetchError) {
-              return (
-                <Field>
-                  <Field.Title>연결된 일정 (선택)</Field.Title>
-                  <Field.ElementsBox>
-                    <View className='bg-red-50 border border-red-200 rounded-md px-sm py-xs flex-row items-center'>
-                      <AlertCircle size={20} color='#DC2626' />
-                      <Text className='text-small text-red-800 ml-xs flex-1'>일정 목록을 불러오는데 실패했습니다</Text>
-                    </View>
+                    {schedulesView.kind === 'blocked' ? (
+                      <PolicyErrorDisplay policy={schedulesView.policy} variant='inline' />
+                    ) : schedulesView.kind === 'error' ? (
+                      <>
+                        <Text>일정 목록을 불러오지 못했어요.</Text>
+                        <Pressable onPress={() => schedulesActions.refetch()}>다시 불러오기</Pressable>
+                      </>
+                    ) : (
+                      <Text>일정 목록을 불러오고 있어요.</Text>
+                    )}
                   </Field.ElementsBox>
                 </Field>
               );
@@ -267,6 +258,14 @@ export function ExpenseForm({ form, tripId, onSubmit, onCancel, isPending }: Exp
               <Field>
                 <Field.Title>연결된 일정 (선택)</Field.Title>
                 <Field.ElementsBox>
+                  {schedulesView.refreshFailed && (
+                    <View>
+                      <Text>일정 목록을 갱신하지 못했어요. 이전 내용을 표시하고 있어요.</Text>
+                      {schedulesAccess.canFetch && (
+                        <Pressable onPress={() => schedulesActions.refetch()}>다시 불러오기</Pressable>
+                      )}
+                    </View>
+                  )}
                   <Select
                     value={
                       selectedSchedule

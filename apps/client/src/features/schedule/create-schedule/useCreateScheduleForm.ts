@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCreateSchedule, useGetSchedules, type Schedule } from '@/entities/schedule';
+import { useCreateSchedule, type Schedule } from '@/entities/schedule';
+import { useTripSchedulesReadQuery } from '@/features/schedule/read-schedules';
 import { useAutoDownloadRoutes } from '@/entities/route';
 import { createScheduleFormSchema, type CreateScheduleFormData } from './schema';
 import { combineDateTimeToISO } from '@/shared/lib/datetime';
@@ -41,7 +42,8 @@ export const useCreateScheduleForm = ({ tripId, selectedLocation, onSuccess }: U
 
   const { mutate: createSchedule, isPending } = useCreateSchedule();
   const { mutate: autoDownloadRoutes } = useAutoDownloadRoutes();
-  const { data: schedules = [] } = useGetSchedules(tripId);
+  const { query: schedulesQuery } = useTripSchedulesReadQuery(tripId);
+  const schedules = schedulesQuery.data ?? [];
 
   const handleShowDatePicker = () => {
     setDatePickerVisible(true);

@@ -7,6 +7,7 @@ export { fetchSchedules, fetchCreateSchedule } from './api';
 // Data (React Query Hooks)
 export {
   useGetSchedules,
+  useGetScheduleById,
   useGetScheduleCount,
   useCreateSchedule,
   useUpdateSchedule,

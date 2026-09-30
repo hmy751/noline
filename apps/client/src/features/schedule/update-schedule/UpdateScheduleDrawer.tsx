@@ -6,7 +6,8 @@ import { Calendar, Clock, MapPin } from 'lucide-react-native';
 import { Drawer, Pressable } from '@repo/ui';
 import { DatePicker, PolicyErrorDisplay, TimePicker } from '@/shared/components';
 import { Field } from '@/shared/components/Form';
-import { useUpdateSchedule, useGetSchedules, type Schedule } from '@/entities/schedule';
+import { useUpdateSchedule, type Schedule } from '@/entities/schedule';
+import { useTripSchedulesReadQuery } from '@/features/schedule/read-schedules';
 import { useAutoDownloadRoutes } from '@/entities/route';
 import { useAppPolicy } from '@/shared/policy';
 import { scheduleUpdateFormSchema, type ScheduleUpdateFormData } from './schema';
@@ -58,7 +59,8 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
   const { mutate: updateSchedule, isPending } = useUpdateSchedule();
   const { mutate: autoDownloadRoutes } = useAutoDownloadRoutes();
   // 입력은 닫힌 동안에도 보관하되, 저장 후 경로 재계산용 조회는 편집 중에만 활성화한다.
-  const { data: schedules = [] } = useGetSchedules(scheduleData?.tripId || '', { enabled: isOpen });
+  const { query: schedulesQuery } = useTripSchedulesReadQuery(scheduleData?.tripId, { enabled: isOpen });
+  const schedules = schedulesQuery.data ?? [];
 
   // Policy 체크
   const policy = useAppPolicy(scheduleData?.tripId);
