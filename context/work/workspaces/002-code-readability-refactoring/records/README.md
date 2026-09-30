@@ -104,3 +104,5 @@
 - [조회 조합의 이름·소유 위치와 기존 소비자 교체](2026-09-29-09-policy-query-ownership-and-migration.md): 일정·경비 feature와 공통 service의 명명·배치, FSD 예외와 Project 반영 보류, 세 화면 교체와 393개 검사 근거.
 
 - [조회 조합 커밋과 다른 소비자의 적용 범위](2026-09-29-10-read-query-follow-up-scope.md): b4db89d 저장 경계, 상세·홈·폼의 조회 목적 차이와 Main 제안, 기록 점검 보완 및 미확정 실행 범위.
+
+- [복구 알림을 추가하지 않는 결정과 UX 검토](2026-09-30-02-recovery-toast-and-ux-review.md): 2-C의 원래 목적, 현재 알림을 추가하지 않기로 한 이유와 사용자 채택, 재검토 조건 및 다음 UX 범위.
