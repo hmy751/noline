@@ -15,7 +15,17 @@ const expectedExecutionAgents = [
   'noline-harness-observer',
   'noline-policy-checker',
 ];
-const expectedSkills = ['noline-work', 'create-context-workspace', 'read-project-context', 'update-project-context', 'work-discussion', 'reconsider-work', 'work-artifact-briefing', 'explanation-recovery'];
+const expectedSkills = [
+  'noline-work',
+  'create-context-workspace',
+  'read-project-context',
+  'update-project-context',
+  'work-discussion',
+  'reconsider-work',
+  'work-artifact-briefing',
+  'explanation-recovery',
+  'start-app',
+];
 
 function checkSymlink(linkPath, expectedTarget) {
   const absolute = path.join(root, linkPath);

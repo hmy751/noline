@@ -1,0 +1,6 @@
+interface:
+  display_name: "Noline 앱 실행"
+  short_description: "필요할 때 개발 서버와 앱을 켜고 실제 연결을 확인합니다"
+  default_prompt: "$start-app을 사용해 Noline 개발 앱과 필요한 서버를 실행하고 연결을 확인해줘."
+policy:
+  allow_implicit_invocation: true

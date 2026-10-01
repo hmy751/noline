@@ -1,9 +1,10 @@
-# Noline Context Harness skills
+# Noline 로컬 운영 skills
 
-이 디렉터리는 Noline의 Context Harness 운영 스킬 원본과 deprecated 스킬의 이력을 소유한다. 각 `SKILL.md`가 해당 스킬의 호출 조건·실행 방법을, `agents/openai.yaml`이 Codex 호출 설정을 소유한다. Project·Workspace의 지속 의미와 문서 관리 계약은 해당 context Owner에 남는다.
+이 디렉터리는 Noline의 로컬 운영 스킬 원본과 deprecated 스킬의 이력을 소유한다. 각 `SKILL.md`가 해당 스킬의 호출 조건·실행 방법을, `agents/openai.yaml`이 Codex 호출 설정을 소유한다. Project·Workspace의 지속 의미와 문서 관리 계약은 해당 context Owner에 남는다.
 
 ## 설치된 역할과 진입점
 
+- [start-app](start-app/SKILL.md): 직접 앱 실행을 요청받았거나 작업 완료에 실제 앱 실행이 필수일 때 DB·서버·클라이언트를 켜고 연결을 확인한다.
 - [create-context-workspace](create-context-workspace/SKILL.md): 새 독립 Workspace의 초기 구성과 재진입 검토. [생성·전환 계약](../../context/work/workspaces/CREATE-AND-TRANSITION.md)을 적용한다.
 - [read-project-context](read-project-context/SKILL.md): 관련 작업의 본문 선택과 계약·예외·현재 차이의 이해·적용. [Project 읽기 기준](../../context/project/REFERENCE/reading.md)을 적용하며 이미 확보한 맥락으로 충분하면 반복 호출하지 않는다.
 - [update-project-context](update-project-context/SKILL.md): 여러 Workspace에 지속될 맥락의 갱신·누락 복원과 승인된 주제별 Owner 이동. [Project 관리 계약](../../context/project/MAINTENANCE.md)을 적용한다.
@@ -20,7 +21,7 @@
 
 ## Context와 문서 갱신
 
-작업을 다루는 스킬은 root [AGENTS.md](../../AGENTS.md)에서 관련 context를 찾고, [Spec·Ticket 계약](../../context/work/workspaces/spec-and-tickets/README.md)의 내용·읽기·Main·Maintain 관계를 적용한다. 새 Workspace 초기 구성과 준비된 Workspace의 문서 유지를 구별한다. 자동 연결이 없을 때의 허용된 문서 반영은 같은 계약이 연결하는 Maintain 수동 fallback을 따른다. 스킬 설치·호출은 session activation이나 실제 문서 반영을 뜻하지 않는다.
+Context Harness 작업을 다루는 스킬은 root [AGENTS.md](../../AGENTS.md)에서 관련 context를 찾고, [Spec·Ticket 계약](../../context/work/workspaces/spec-and-tickets/README.md)의 내용·읽기·Main·Maintain 관계를 적용한다. 새 Workspace 초기 구성과 준비된 Workspace의 문서 유지를 구별한다. 자동 연결이 없을 때의 허용된 문서 반영은 같은 계약이 연결하는 Maintain 수동 fallback을 따른다. 스킬 설치·호출은 session activation이나 실제 문서 반영을 뜻하지 않는다.
 
 `work-discussion`, `work-artifact-briefing`, `explanation-recovery`는 각 호출 조건에 따라 [설명과 근거 기준](../../context/project/guidance/explanation-and-evidence-criteria.md)을 함께 읽는다. 이 기준의 범위·수명·consumer 관계는 [guidance 색인](../../context/project/guidance/README.md)이 연결한다. `reconsider-work`나 모든 Recover에 새 필수 입력으로 추가하지 않는다.
 

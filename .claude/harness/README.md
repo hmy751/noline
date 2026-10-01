@@ -18,7 +18,7 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
 | Guards | [../guards/](../guards/) | 데이터 손실, sync 누락, auth 누락 같은 고비용 실패 점검 | 위험한 수정 전후 |
 | Runbooks | [../runbooks/](../runbooks/) | 반복 작업의 시작 순서 | 작업 진입점 |
 | Context | [../context/](../context/) | 깊은 아키텍처, cross-cutting engineering context, 기능별 설명 | 필요할 때만 |
-| Skill | [../skills/README.md](../skills/README.md) | Context Harness 운영 스킬과 deprecated 스킬 이력 | 각 스킬의 호출 조건에 따라 읽음 |
+| Skill | [../skills/README.md](../skills/README.md) | 로컬 운영 스킬과 deprecated 스킬 이력 | 각 스킬의 호출 조건에 따라 읽음 |
 | Agents | [../agents/](../agents/) + [../../.codex/agents/](../../.codex/agents/) | context 수집, policy drift 점검, harness observer | 필요할 때만 report-only |
 | Commands | [../commands/](../commands/) | Claude command reference와 문서 관리 workflow | Claude 참고 자료 |
 | Decisions | [../decisions/](../decisions/) | 정책, 용어, 하네스 구조가 왜 바뀌었는지 | 근거 기록 |
@@ -131,6 +131,7 @@ pnpm harness:check
 현재 active 실행층:
 
 - `create-context-workspace`: 설치 뒤 새 독립 또는 후속 Context Workspace를 구성·bounded 재진입 검토하는 skill이다. 최초 이식이나 기존 Workspace 단순 수정에는 사용하지 않는다.
+- `start-app`: 직접 실행 요청 또는 실제 앱 검증이 필수인 작업에서 개발 DB·서버·클라이언트를 실행하고 연결을 확인한다.
 - `noline-context-collector`: feature/bug 단위로 관련 코드, 문서, decision, 최근 커밋을 모아 compact card를 반환하는 report-only collector.
 - `noline-policy-checker`: Router, `withTransaction`, `generateId`, schema-first, ISO time, auth ownership, soft delete 정책 drift를 보는 report-only checker.
 - `noline-harness-observer`: 하네스/bridge 변경 뒤 구조 drift와 Claude/Codex parity를 보는 report-only observer.
