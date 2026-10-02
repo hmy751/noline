@@ -5,7 +5,6 @@ import { Pressable, Select } from '@repo/ui';
 import { Field } from '@/shared/components/Form';
 import { DatePicker } from '@/shared/components';
 import { EXPENSE_CATEGORIES, CURRENCIES, CURRENCY_SYMBOLS } from '@/entities/expense';
-import { formatISOToLocalDate, dateToISODateTime } from '@/shared/lib/datetime';
 import type { CreateExpenseFormData } from './schema';
 import { useState } from 'react';
 
@@ -186,7 +185,7 @@ export function ManualExpenseForm({ form, onSubmit, onCancel, isPending }: Manua
           control={control}
           name='date'
           render={({ field: { value, onChange }, fieldState: { error } }) => {
-            const displayDate = value ? formatISOToLocalDate(value) : '날짜 선택';
+            const displayDate = value || '날짜 선택';
 
             return (
               <Field>
@@ -207,7 +206,7 @@ export function ManualExpenseForm({ form, onSubmit, onCancel, isPending }: Manua
                   visible={isDatePickerOpen}
                   onClose={() => setIsDatePickerOpen(false)}
                   onSelectDate={(dateString) => {
-                    onChange(dateToISODateTime(dateString));
+                    onChange(dateString);
                     setIsDatePickerOpen(false);
                   }}
                   markedDates={{

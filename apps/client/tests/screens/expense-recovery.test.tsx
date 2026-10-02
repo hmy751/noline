@@ -58,7 +58,7 @@ jest.mock('@/shared/components', () => {
 jest.mock('@/entities/trip', () => ({
   TripSelector: () => null,
   useGetTrips: () => ({
-    data: ['trip', 'other'].map((id) => ({ id, startDate: '2026-09-21', endDate: '2026-09-23', baseCurrency: 'USD' })),
+    data: ['trip', 'other'].map((id) => ({ id, startDate: mockTripDates.start, endDate: mockTripDates.end, baseCurrency: 'USD' })),
   }),
 }));
 jest.mock('@/entities/expense/repository/expense-repository', () => ({
@@ -85,6 +85,7 @@ type Expenses = Awaited<ReturnType<typeof ExpenseRepository.getByTripId>>;
 const fetchExpenses = jest.mocked(ExpenseRepository.getByTripId);
 const fetchSchedules = jest.mocked(ScheduleRepository.getByTripId);
 const clients: QueryClient[] = [];
+let mockTripDates = { start: '2026-09-21', end: '2026-09-23' };
 
 function rows(title: string, scheduleId: string | null = null): Expenses {
   return [
@@ -95,7 +96,7 @@ function rows(title: string, scheduleId: string | null = null): Expenses {
       amount: '10',
       currency: 'USD',
       category: 'food',
-      date: '2026-09-21T10:00:00Z',
+      date: '2026-09-21',
       hasReceipt: false,
       scheduleId,
     },
@@ -132,6 +133,7 @@ function connect(status: 'online' | 'offline' | 'unknown') {
 }
 
 beforeEach(() => {
+  mockTripDates = { start: '2026-09-21', end: '2026-09-23' };
   fetchExpenses.mockReset();
   fetchSchedules.mockReset();
   fetchSchedules.mockResolvedValue([]);
@@ -273,4 +275,14 @@ it.each([ExpensesScreen, ExpenseDetailScreen])('활성 여행은 offline에서�
   connect('offline');
   expect(view.getByText('기존 경비')).toBeTruthy();
   expect(fetchExpenses).not.toHaveBeenCalled();
+});
+
+
+it.each([
+  { start: '2026-03-07', end: '2026-03-10' },
+  { start: '2026-10-31', end: '2026-11-03' },
+])('경비 목록의 여행 날짜 범위 $start~$end는 DST에도 네 날짜를 한 번씩 표시한다', ({ start, end }) => {
+  mockTripDates = { start, end };
+  const view = setup(ExpensesScreen, []);
+  expect(view.getAllByText('이 날의 경비를 추가해보세요')).toHaveLength(4);
 });

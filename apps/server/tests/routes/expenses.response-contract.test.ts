@@ -84,3 +84,39 @@ describe('Expense API 직렬화 계약', () => {
     expect(dbUpdateMock).toHaveBeenCalledOnce();
   });
 });
+
+
+describe('경비 날짜 입력 계약 — 직접 요청과 기존 동기화 payload', () => {
+  it.each([
+    ['2026-10-02', '2026-10-02'],
+    ['2026-10-02T00:00:00.000Z', '2026-10-02'],
+    ['2026-10-02T01:00:00+09:00', '2026-10-01'],
+  ])('%s는 생성·수정 모두 %s로 저장하고 반환한다', async (date, expected) => {
+    const row = { ...expenseRow, date: new Date(`${expected}T00:00:00.000Z`) };
+    setInsertResult([row]);
+    setUpdateResult([row]);
+    const created = await request(app).post('/api/expenses').send({
+      id: EXPENSE_ID, tripId: TRIP_ID, scheduleId: null, title: '경비', amount: '10',
+      currency: 'EUR', category: '관광', date,
+    }).expect(201);
+    const updated = await request(app).put(`/api/expenses/${EXPENSE_ID}`).send({ date }).expect(200);
+    expect(created.body.data.date).toBe(expected);
+    expect(updated.body.data.date).toBe(expected);
+    expect(dbInsertMock.mock.results[0].value.values).toHaveBeenCalledWith(
+      expect.objectContaining({ date: row.date }),
+    );
+    expect(dbUpdateMock.mock.results[0].value.set).toHaveBeenCalledWith(
+      expect.objectContaining({ date: row.date }),
+    );
+  });
+
+  it.each(['2026-02-30', 'not-a-date', '2026-10-02T10:00:00', '2026-10-02T00:00:00+99:99'])('잘못된 날짜 %s는 저장 전에 거부한다', async (date) => {
+    await request(app).post('/api/expenses').send({
+      id: EXPENSE_ID, tripId: TRIP_ID, scheduleId: null, title: '경비', amount: '10',
+      currency: 'EUR', category: '관광', date,
+    }).expect(400);
+    await request(app).put(`/api/expenses/${EXPENSE_ID}`).send({ date }).expect(400);
+    expect(dbInsertMock).not.toHaveBeenCalled();
+    expect(dbUpdateMock).not.toHaveBeenCalled();
+  });
+});

@@ -1,5 +1,16 @@
 import { z } from 'zod';
-import { expenseEntity } from '../entities/expense';
+import { expenseEntity, expenseDate } from '../entities/expense';
+
+/** 기존 Local 값·동기화 큐의 datetime은 기존 서버 응답과 같은 UTC 날짜로 수용한다. */
+export const expenseDateInput = z
+  .union([
+    expenseDate,
+    z.string()
+      .datetime({ offset: true })
+      .refine((value) => Number.isFinite(Date.parse(value)), 'Invalid datetime')
+      .transform((value) => new Date(value).toISOString().split('T')[0]),
+  ])
+  .pipe(expenseDate);
 
 // ========================================
 // Expense Request Schemas (API 요청)
@@ -32,7 +43,7 @@ export const createExpenseRequest = expenseEntity
     amount: z.string().min(1, 'Amount is required'),
     currency: z.string().default('USD'),
     category: z.string().min(1, 'Category is required'),
-    date: z.string().min(1, 'Date is required'),
+    date: expenseDateInput,
     hasReceipt: z.boolean().default(false), // TODO: 영수증 업로드 기능 구현 시 활성화
     receiptUrl: z.string().nullable().default(null), // TODO: 영수증 업로드 기능 구현 시 활성화
   });
@@ -53,4 +64,5 @@ export const updateExpenseRequest = expenseEntity
     hasReceipt: true,
     receiptUrl: true,
   })
+  .extend({ date: expenseDateInput })
   .partial();

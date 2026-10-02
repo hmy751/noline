@@ -10,7 +10,6 @@ import { useTripStore } from '@/shared/store';
 import { useMemo, useState, useCallback } from 'react';
 import { ExpenseMenu } from '@/features/expense/expense-menu';
 import { UpdateExpenseDrawer } from '@/features/expense/update-expense';
-import { formatISOToLocalDate } from '@/shared/lib/datetime';
 import { groupExpensesByCurrency, formatCurrencyDisplay, getCurrencyFractionDigits } from '@/shared/lib/currency';
 import type { Expense } from '@/entities/expense';
 import { useAppPolicy } from '@/shared/policy';
@@ -69,7 +68,7 @@ export default function ExpensesScreen() {
     const current = new Date(start);
     while (current <= end) {
       dates.push(current.toISOString().split('T')[0]);
-      current.setDate(current.getDate() + 1);
+      current.setUTCDate(current.getUTCDate() + 1);
     }
 
     return dates;
@@ -79,13 +78,13 @@ export default function ExpensesScreen() {
 
   // 날짜별로 경비 매칭 (여행 기간 밖 경비도 포함)
   const expensesByDate = useMemo(() => {
-    // 저장된 ISO 시각을 현재 기기의 날짜로 묶어 표시한다.
-    const allDates = new Set([...dateRange, ...expenses.map((e) => formatISOToLocalDate(e.date))]);
+    // 데이터 경계에서 정리한 경비의 달력 날짜로 묶는다.
+    const allDates = new Set([...dateRange, ...expenses.map((e) => e.date)]);
     const sortedDates = Array.from(allDates).sort();
 
     // 모든 날짜 표시
     const dateGroups = sortedDates.map((date) => {
-      const dayExpenses = expenses.filter((expense) => formatISOToLocalDate(expense.date) === date);
+      const dayExpenses = expenses.filter((expense) => expense.date === date);
       const isInTripRange = dateRange.includes(date);
 
       return {

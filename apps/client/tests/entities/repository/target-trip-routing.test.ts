@@ -110,3 +110,31 @@ it('다른 활성 여행이 있어도 비활성 대상 Trip 자체는 Remote 수
   expect(TripLocal.updateTripLocal).not.toHaveBeenCalled();
   expect(TripApi.fetchUpdateTrip).toHaveBeenCalledWith('trip-b', update);
 });
+
+
+describe('경비 날짜는 Local/Remote 분기 전에 같은 계약으로 정리한다', () => {
+  const expenseId = '01ARZ3NDEKTSV4RRFFQ69G5FAX';
+  const tripId = '01ARZ3NDEKTSV4RRFFQ69G5FAV';
+  it.each([true, false])('활성 %s: 생성·수정 모두 동일한 UTC 날짜를 전달한다', async (active) => {
+    activationMock.mockResolvedValue(active);
+    const input = {
+      id: expenseId, tripId, scheduleId: null, title: '입장료', amount: '15',
+      currency: 'EUR', category: '관광', date: '2026-10-02T01:00:00+09:00',
+      hasReceipt: false, receiptUrl: null,
+    };
+    await ExpenseRepository.create(input);
+    await ExpenseRepository.update(expenseId, tripId, { date: input.date });
+    const create = active ? ExpenseLocal.createExpenseLocal : ExpenseApi.fetchCreateExpense;
+    const update = active ? ExpenseLocal.updateExpenseLocal : ExpenseApi.fetchUpdateExpense;
+    expect(create).toHaveBeenCalledWith({ ...input, date: '2026-10-01' });
+    expect(update).toHaveBeenCalledWith(expenseId, { date: '2026-10-01' });
+  });
+  it('날짜가 없는 부분 수정은 날짜를 추가하지 않고 잘못된 날짜는 저장하지 않는다', async () => {
+    await ExpenseRepository.update(expenseId, tripId, { title: '수정' });
+    expect(ExpenseApi.fetchUpdateExpense).toHaveBeenCalledWith(expenseId, { title: '수정' });
+    await expect(ExpenseRepository.update(expenseId, tripId, { date: '2026-02-30' }))
+      .rejects.toMatchObject({ name: 'ZodError' });
+    expect(ExpenseApi.fetchUpdateExpense).toHaveBeenCalledTimes(1);
+    expect(ExpenseLocal.updateExpenseLocal).not.toHaveBeenCalled();
+  });
+});

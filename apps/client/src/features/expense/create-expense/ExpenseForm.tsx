@@ -5,7 +5,7 @@ import { Pressable, Select } from '@repo/ui';
 import { Field } from '@/shared/components/Form';
 import { DatePicker, PolicyErrorDisplay } from '@/shared/components';
 import { EXPENSE_CATEGORIES, CURRENCIES, CURRENCY_SYMBOLS } from '@/entities/expense';
-import { formatISOToLocalDate, dateToISODateTime, formatISOToLocalTime } from '@/shared/lib/datetime';
+import { formatISOToLocalDate, formatISOToLocalTime } from '@/shared/lib/datetime';
 import { useTripSchedulesReadQuery } from '@/features/schedule/read-schedules';
 import type { UseFormReturn } from 'react-hook-form';
 import type { CreateExpenseFormData } from './schema';
@@ -38,7 +38,7 @@ export function ExpenseForm({ form, tripId, onSubmit, onCancel, isPending }: Exp
       return [];
     }
 
-    const selectedLocalDate = formatISOToLocalDate(selectedDate);
+    const selectedLocalDate = selectedDate;
 
     return (schedules ?? []).filter((schedule) => {
       const scheduleDate = formatISOToLocalDate(schedule.scheduledAt);
@@ -188,7 +188,7 @@ export function ExpenseForm({ form, tripId, onSubmit, onCancel, isPending }: Exp
           name='date'
           render={({ field: { value, onChange }, fieldState: { error } }) => {
             // DatePicker에는 현재 기기의 날짜를 전달한다.
-            const displayDate = value ? formatISOToLocalDate(value) : '날짜 선택';
+            const displayDate = value || '날짜 선택';
 
             return (
               <Field>
@@ -212,7 +212,7 @@ export function ExpenseForm({ form, tripId, onSubmit, onCancel, isPending }: Exp
                   visible={isDatePickerOpen}
                   onClose={() => setIsDatePickerOpen(false)}
                   onSelectDate={(dateString) => {
-                    onChange(dateToISODateTime(dateString));
+                    onChange(dateString);
                     setIsDatePickerOpen(false);
                   }}
                   markedDates={{

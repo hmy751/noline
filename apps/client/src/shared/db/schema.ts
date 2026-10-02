@@ -70,7 +70,7 @@ export const schedules = sqliteTable('schedules', {
 /**
  * 경비 테이블 (로컬 SQLite)
  * - packages/schema의 expenseSchema를 기반으로 함
- * - ✅ ISO 8601 datetime string 저장 (타임존 포함)
+ * - date는 YYYY-MM-DD, 생성·수정·삭제 시각은 ISO datetime
  */
 export const expenses = sqliteTable('expenses', {
   id: text('id').primaryKey(),
@@ -83,7 +83,7 @@ export const expenses = sqliteTable('expenses', {
   amount: text('amount').notNull(), // Decimal을 문자열로 저장 (SQLite는 decimal 미지원)
   currency: text('currency').notNull().default('USD'),
   category: text('category').notNull(),
-  date: text('date').notNull(), // ISO string (날짜만)
+  date: text('date').notNull(), // YYYY-MM-DD (기존 datetime 행은 읽기 경계에서 호환 처리)
   hasReceipt: integer('has_receipt', { mode: 'boolean' }).notNull().default(false),
   receiptUrl: text('receipt_url'),
   createdAt: text('created_at').notNull(), // ISO string

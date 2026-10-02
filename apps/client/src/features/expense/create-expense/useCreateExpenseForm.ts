@@ -1,10 +1,11 @@
+import { expenseDateInput } from '@repo/schema/requests/expense';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import { useCreateExpense } from '@/entities/expense';
 import { useGetTrips } from '@/entities/trip';
 import { generateId } from '@/shared/services/id/ulid';
-import { dateToISODateTime } from '@/shared/lib/datetime';
+import { formatISOToLocalDate } from '@/shared/lib/datetime';
 import { createExpenseFormSchema, type CreateExpenseFormData } from './schema';
 
 interface UseCreateExpenseFormProps {
@@ -22,9 +23,11 @@ export const useCreateExpenseForm = ({ tripId, date, scheduleId, onSuccess }: Us
   const selectedTrip = trips.find((trip) => trip.id === tripId);
   const defaultCurrency = selectedTrip?.baseCurrency || 'USD';
 
-  // ✅ TIME_ARCHITECTURE_GUIDE Pattern 2: Date → ISO datetime
-  // "2024-03-15" → "2024-03-15T00:00:00.000Z"
-  const defaultDate = date ? dateToISODateTime(date) : dateToISODateTime(new Date().toISOString().split('T')[0]);
+  // Navigation 입력만 호환 처리한다. 잘못된 입력은 폼에서 날짜를 다시 선택하게 한다.
+  const initialDate = date ? expenseDateInput.safeParse(date) : undefined;
+  const defaultDate = date
+    ? (initialDate?.success ? initialDate.data : '')
+    : formatISOToLocalDate(new Date().toISOString());
 
   const form = useForm<CreateExpenseFormData>({
     resolver: zodResolver(createExpenseFormSchema),
@@ -33,7 +36,7 @@ export const useCreateExpenseForm = ({ tripId, date, scheduleId, onSuccess }: Us
       amount: '',
       currency: defaultCurrency, // ✅ 여행의 기본 통화 사용
       category: '',
-      date: defaultDate, // ✅ ISO datetime string
+      date: defaultDate, // YYYY-MM-DD
       scheduleId: scheduleId || undefined,
     },
     mode: 'onChange',

@@ -8,6 +8,12 @@ import { addToSyncQueue } from '@/shared/services/sync/queue';
 import { selectLocalUserId, useAuthStore } from '@/shared/store/auth';
 import { ownedActiveRow, assertActiveLocalTrip } from '@/shared/services/auth/local-access';
 import type { Expense, CreateExpenseRequest, UpdateExpenseRequest } from '../model';
+import { expenseDateInput } from '@repo/schema/requests/expense';
+
+/** 기존 DB datetime을 앱의 달력 날짜로 읽는다. 저장된 행은 변경하지 않는다. */
+function toExpense(row: typeof expenses.$inferSelect): Expense {
+  return { ...row, date: expenseDateInput.parse(row.date) };
+}
 
 /**
  * 로컬 DB에서 현재 사용자의 전체 경비 조회
@@ -30,7 +36,7 @@ export const getAllExpensesLocal = async (): Promise<Expense[]> => {
     .all();
 
   console.log(`[ExpenseLocal] All expenses loaded from local DB: ${expenseList.length} items for user ${userId}`);
-  return expenseList;
+  return expenseList.map(toExpense);
 };
 
 /**
@@ -47,7 +53,7 @@ export const getExpensesByTripIdLocal = async (tripId: string): Promise<Expense[
     .all();
 
   console.log(`[ExpenseLocal] Trip expenses loaded from local DB: ${expenseList.length} items`);
-  return expenseList;
+  return expenseList.map(toExpense);
 };
 
 /**
@@ -62,13 +68,19 @@ export const getExpensesByScheduleIdLocal = async (scheduleId: string): Promise<
     .all();
 
   console.log(`[ExpenseLocal] Schedule expenses loaded from local DB: ${expenseList.length} items`);
-  return expenseList;
+  return expenseList.map(toExpense);
 };
 
 /**
  * 로컬 DB에서 특정 경비 조회
  */
 export const getExpenseByIdLocal = async (id: string): Promise<Expense | undefined> => {
+  const row = await getExpenseRowById(id);
+  return row ? toExpense(row) : undefined;
+};
+
+/** 존재·접근 확인은 날짜 해석과 분리해 잘못된 날짜도 교정·삭제할 수 있게 한다. */
+const getExpenseRowById = async (id: string) => {
   return await getDatabase()
     .select()
     .from(expenses)
@@ -103,7 +115,7 @@ export const createExpenseLocal = async (data: CreateExpenseRequest): Promise<Ex
     version: 1,
   };
 
-  await withTransaction(async () => {
+  return await withTransaction(async () => {
     await assertActiveLocalTrip(data.tripId);
     await getDatabase()
       .insert(expenses)
@@ -121,10 +133,8 @@ export const createExpenseLocal = async (data: CreateExpenseRequest): Promise<Ex
       hasReceipt: data.hasReceipt,
       receiptUrl: data.receiptUrl,
     });
+    return toExpense(newExpense);
   });
-
-  console.log(`[ExpenseLocal] Expense created locally: ${id} - ${data.title}`);
-  return newExpense;
 };
 
 /**
@@ -133,8 +143,8 @@ export const createExpenseLocal = async (data: CreateExpenseRequest): Promise<Ex
 export const updateExpenseLocal = async (id: string, data: UpdateExpenseRequest): Promise<Expense> => {
   const now = getCurrentISOString();
 
-  await withTransaction(async () => {
-    if (!(await getExpenseByIdLocal(id))) {
+  return await withTransaction(async () => {
+    if (!(await getExpenseRowById(id))) {
       throw new Error('수정할 경비를 찾을 수 없습니다');
     }
     await getDatabase()
@@ -147,19 +157,13 @@ export const updateExpenseLocal = async (id: string, data: UpdateExpenseRequest)
       .where(ownedActiveRow(expenses, eq(expenses.id, id)));
 
     await addToSyncQueue('expenses', id, 'UPDATE', data);
+    // 결과를 앱 계약으로 읽는 데 실패하면 행 변경과 큐 기록도 함께 롤백한다.
+    const updated = await getExpenseRowById(id);
+    if (!updated) {
+      throw new Error('수정한 경비를 다시 불러오지 못했습니다');
+    }
+    return toExpense(updated);
   });
-
-  console.log(`[ExpenseLocal] Expense updated locally: ${id}`);
-
-  const updated = await getDatabase()
-    .select()
-    .from(expenses)
-    .where(ownedActiveRow(expenses, eq(expenses.id, id)))
-    .get();
-  if (!updated) {
-    throw new Error('수정한 경비를 다시 불러오지 못했습니다');
-  }
-  return updated;
 };
 
 /**
@@ -180,7 +184,7 @@ export const deleteExpenseLocal = async (id: string): Promise<{ id: string; dele
   const tripId = existing?.tripId ?? null;
 
   await withTransaction(async () => {
-    if (!(await getExpenseByIdLocal(id))) {
+    if (!(await getExpenseRowById(id))) {
       throw new Error('삭제할 경비를 찾을 수 없습니다');
     }
     await getDatabase()

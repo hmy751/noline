@@ -16,7 +16,7 @@ import { UpdateScheduleDrawer } from '@/features/schedule/update-schedule';
 
 jest.mock('@/shared/services/sync/api', () => ({
   __esModule: true,
-  default: { get: jest.fn(async () => ({ data: { data: { serverTime: '2026-09-28T00:00:00Z' } } })) },
+  default: { get: jest.fn(async () => ({ data: { data: { expenses: [], serverTime: '2026-09-28T00:00:00Z' } } })) },
 }));
 jest.mock('@/shared/services/sync/queue', () => ({}));
 jest.mock('@/shared/services/sync/storage', () => ({ getLastSyncedAt: async () => null, setLastSyncedAt: jest.fn() }));

@@ -46,7 +46,13 @@ jest.mock('lucide-react-native', () => ({
 }));
 jest.mock('@/shared/components', () => {
   return {
-    DatePicker: () => null,
+    DatePicker: ({ visible, onSelectDate }: { visible: boolean; onSelectDate: (date: string) => void }) => {
+      const ReactRuntime = jest.requireActual<typeof import('react')>('react');
+      const { View, Text, Pressable } = jest.requireActual<typeof import('react-native')>('react-native');
+      return visible ? ReactRuntime.createElement(View, null,
+        ...['2026-09-22', '2026-09-21'].map((date) => ReactRuntime.createElement(Pressable, { key: date, onPress: () => onSelectDate(date) }, ReactRuntime.createElement(Text, null, `선택 ${date}`))),
+      ) : null;
+    },
     TimePicker: () => null,
     PolicyErrorDisplay: jest.requireActual<typeof import('@/shared/components/ErrorBoundary/PolicyErrorDisplay')>(
       '@/shared/components/ErrorBoundary/PolicyErrorDisplay',
@@ -82,8 +88,9 @@ jest.mock('@repo/ui', () => {
 });
 
 const saveSchedule = jest.fn();
-const saveExpense = jest.fn();
+const saveExpense = jest.fn<(variables: unknown, options?: { onSuccess?: () => void }) => void>();
 beforeEach(() => {
+  saveExpense.mockImplementation((_variables, options) => options?.onSuccess?.());
   useNetworkStore.setState({ realStatus: 'offline', checkStatus: 'idle', overrideStatus: null });
   jest
     .mocked(useGetTripActivation)
@@ -128,7 +135,7 @@ it('오프라인 일정 수정은 장소 검색을 숨기고 저장 payload에�
 });
 
 it('오프라인 경비 수정은 연결된 일정과 입력값을 표시하고 같은 연결을 저장한다', async () => {
-  const date = '2026-09-21T10:00:00Z';
+  const date = '2026-09-21';
   const view = render(
     <UpdateExpenseDrawer
       isOpen
@@ -151,7 +158,7 @@ it('오프라인 경비 수정은 연결된 일정과 입력값을 표시하고 
   });
   await waitFor(() => expect(saveExpense).toHaveBeenCalled());
   expect(saveExpense.mock.calls[0][0]).toMatchObject({
-    data: { title: '기존 경비', amount: '12', date, scheduleId: 'linked' },
+    data: { title: '기존 경비', amount: '12', scheduleId: 'linked' },
   });
 });
 
@@ -168,7 +175,7 @@ it('수정 제한 안내가 나타났다 사라져도 작성 중인 값과 일�
         amount: '12',
         currency: 'USD',
         category: 'food',
-        date: '2026-09-21T10:00:00Z',
+        date: '2026-09-21',
         scheduleId: 'linked',
       }}
     />,
@@ -214,7 +221,7 @@ it('경비 수정의 재확인 전후에도 작성 중인 값과 일정 연결�
         amount: '12',
         currency: 'USD',
         category: 'food',
-        date: '2026-09-21T10:00:00Z',
+        date: '2026-09-21',
         scheduleId: 'linked',
       }}
     />,
@@ -240,4 +247,83 @@ it('경비 수정의 재확인 전후에도 작성 중인 값과 일정 연결�
     data: { title: '재확인 중 보존할 제목', scheduleId: 'linked' },
   });
   prompt.mockRestore();
+});
+
+
+it.each([false, true])(
+  '경비 날짜를 변경 후 원래 날짜로 복귀: %s — 실제 변경만 전송하고 연결은 유지한다',
+  async (revert) => {
+    const view = render(
+      <UpdateExpenseDrawer
+        isOpen
+        onClose={jest.fn()}
+        expenseData={{
+          id: 'e',
+          tripId: 'trip',
+          title: '기존 경비',
+          amount: '12',
+          currency: 'USD',
+          category: 'food',
+          date: '2026-09-21',
+          scheduleId: 'linked',
+        }}
+      />,
+    );
+    fireEvent.press(view.getByText('2026-09-21'));
+    fireEvent.press(view.getByText('선택 2026-09-22'));
+    if (revert) {
+      fireEvent.press(view.getByText('2026-09-22'));
+      fireEvent.press(view.getByText('선택 2026-09-21'));
+    }
+    await act(async () => fireEvent.press(view.getByText('저장')));
+    const request = saveExpense.mock.calls[0][0] as { data: Record<string, unknown> };
+    expect(request.data.scheduleId).toBe('linked');
+    if (revert) expect(request.data).not.toHaveProperty('date');
+    else expect(request.data.date).toBe('2026-09-22');
+  },
+);
+
+it('다른 경비를 열면 변경 비교의 기준 날짜도 새 경비로 바뀐다', async () => {
+  const expense = {
+    id: 'e',
+    tripId: 'trip',
+    title: '기존 경비',
+    amount: '12',
+    currency: 'USD',
+    category: 'food',
+    date: '2026-09-21',
+    scheduleId: 'linked',
+  };
+  const view = render(<UpdateExpenseDrawer isOpen onClose={jest.fn()} expenseData={expense} />);
+  view.rerender(
+    <UpdateExpenseDrawer isOpen onClose={jest.fn()} expenseData={{ ...expense, id: 'next', date: '2026-09-22' }} />,
+  );
+  await act(async () => fireEvent.press(view.getByText('저장')));
+  expect(saveExpense.mock.calls[0][0]).toMatchObject({ id: 'next' });
+  expect((saveExpense.mock.calls[0][0] as { data: object }).data).not.toHaveProperty('date');
+});
+
+it('날짜 저장 성공 뒤 같은 경비를 다시 저장하면 방금 저장한 날짜를 재전송하지 않는다', async () => {
+  const view = render(
+    <UpdateExpenseDrawer
+      isOpen
+      onClose={jest.fn()}
+      expenseData={{
+        id: 'e',
+        tripId: 'trip',
+        title: '기존 경비',
+        amount: '12',
+        currency: 'USD',
+        category: 'food',
+        date: '2026-09-21',
+        scheduleId: 'linked',
+      }}
+    />,
+  );
+  fireEvent.press(view.getByText('2026-09-21'));
+  fireEvent.press(view.getByText('선택 2026-09-22'));
+  await act(async () => fireEvent.press(view.getByText('저장')));
+  expect((saveExpense.mock.calls[0][0] as { data: object }).data).toHaveProperty('date', '2026-09-22');
+  await act(async () => fireEvent.press(view.getByText('저장')));
+  expect((saveExpense.mock.calls[1][0] as { data: object }).data).not.toHaveProperty('date');
 });

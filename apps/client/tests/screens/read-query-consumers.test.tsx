@@ -140,7 +140,7 @@ const expense = {
   amount: '12',
   currency: 'USD',
   category: 'food',
-  date,
+  date: '2026-09-21',
   hasReceipt: false,
 } as Awaited<ReturnType<typeof ExpenseRepository.getByTripId>>[number];
 const clients: QueryClient[] = [];
@@ -175,7 +175,7 @@ const updateSchedule = (isOpen = true) => (
 
 function CreateExpense() {
   const form = useForm<CreateExpenseFormData>({
-    defaultValues: { title: '작성 중 경비', amount: '12', currency: 'USD', category: 'food', date, scheduleId: 's' },
+    defaultValues: { title: '작성 중 경비', amount: '12', currency: 'USD', category: 'food', date: '2026-09-21', scheduleId: 's' },
   });
   return (
     <ExpenseForm

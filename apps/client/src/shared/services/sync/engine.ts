@@ -11,6 +11,7 @@ import { getQueueOwner } from '@/shared/services/auth/local-account';
 import { processPendingCleanups } from './cleanup-job';
 import { AuthRequiredError } from '@/shared/store/auth';
 import type { Query } from '@tanstack/react-query';
+import { expenseEntity } from '@repo/schema/entities/expense';
 
 /** sync-owned table의 endpoint는 여기서 관리하고 HTTP method는 action으로 결정한다. */
 const SYNC_PUSH_ENDPOINTS = {
@@ -185,7 +186,9 @@ export async function pullChanges(): Promise<void> {
     });
 
     // 정책: 서버 응답은 { success, data } 구조
-    const { trips, schedules, expenses, serverTime } = response.data.data;
+    const { trips, schedules, expenses: expenseRows, serverTime } = response.data.data;
+    // 다른 entity 쓰기도 시작하기 전에 경비 응답 계약을 확인한다.
+    const expenses = expenseEntity.array().parse(expenseRows);
     const rows = [...(trips ?? []), ...(schedules ?? []), ...(expenses ?? [])];
     if (rows.some((row: { userId: string }) => row.userId !== selectLocalUserId(useAuthStore.getState()))) {
       throw new Error('다른 계정의 동기화 응답입니다');

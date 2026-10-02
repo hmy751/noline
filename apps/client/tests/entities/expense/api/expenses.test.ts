@@ -108,6 +108,21 @@ describe('경비 remote API', () => {
     expect(putMock).toHaveBeenCalledTimes(1);
   });
 
+  it.each([
+    ['2026-09-11T00:00:00.000Z', '2026-09-11'],
+    ['2026-09-11T02:00:00+09:00', '2026-09-10'],
+    ['2026-09-11', '2026-09-11'],
+  ])('수정 날짜 %s는 기존 서버 UTC 날짜 계약 %s로 전달한다', async (date, expectedDate) => {
+    putMock.mockResolvedValue({ success: true, data: expense });
+    await fetchUpdateExpense(expenseId, { date });
+    expect(putMock).toHaveBeenCalledWith(`/api/expenses/${expenseId}`, { date: expectedDate });
+  });
+
+  it('잘못된 날짜는 정규화로 수용하지 않고 HTTP 전에 거절한다', async () => {
+    await expect(fetchUpdateExpense(expenseId, { date: 'invalidTdate' })).rejects.toMatchObject({ name: 'ZodError' });
+    expect(putMock).not.toHaveBeenCalled();
+  });
+
   it('잘못된 수정 요청은 HTTP를 호출하지 않고 검증 실패를 전달한다', async () => {
     const invalidUpdate = { amount: 15000 } as unknown as UpdateExpenseRequest;
 

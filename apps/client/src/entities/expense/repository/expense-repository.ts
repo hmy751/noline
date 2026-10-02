@@ -2,6 +2,7 @@
 // Expense Repository - 활성화 상태에 따른 Local/Remote 분기
 // ========================================
 
+import { createExpenseRequest, updateExpenseRequest } from '@repo/schema/requests/expense';
 import { routeChildQuery, routeChildMutation } from '@/shared/services/offline-prep/router';
 import * as ExpenseLocal from '../lib/expense-local';
 import * as ExpenseApi from '../api/expenses';
@@ -48,9 +49,10 @@ export const ExpenseRepository = {
    * 경비 생성
    */
   create: async (data: CreateExpenseRequest): Promise<Expense> => {
-    return await routeChildMutation(data.tripId, {
-      local: () => ExpenseLocal.createExpenseLocal(data),
-      remote: () => ExpenseApi.fetchCreateExpense(data),
+    const request = createExpenseRequest.parse(data);
+    return await routeChildMutation(request.tripId, {
+      local: () => ExpenseLocal.createExpenseLocal(request),
+      remote: () => ExpenseApi.fetchCreateExpense(request),
     });
   },
 
@@ -59,9 +61,10 @@ export const ExpenseRepository = {
    * - 화면이 이미 알고 있는 tripId로 로컬 선조회 없이 라우팅
    */
   update: async (id: string, tripId: string, data: UpdateExpenseRequest): Promise<Expense> => {
+    const request = updateExpenseRequest.parse(data);
     return await routeChildMutation(tripId, {
-      local: () => ExpenseLocal.updateExpenseLocal(id, data),
-      remote: () => ExpenseApi.fetchUpdateExpense(id, data),
+      local: () => ExpenseLocal.updateExpenseLocal(id, request),
+      remote: () => ExpenseApi.fetchUpdateExpense(id, request),
     });
   },
 

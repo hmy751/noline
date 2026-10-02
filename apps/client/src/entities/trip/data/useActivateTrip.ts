@@ -1,4 +1,4 @@
-import { AuthRequiredError, requireRemoteSession, useAuthStore } from '@/shared/store/auth';
+import { AuthRequiredError, requireLocalUserId, requireRemoteSession, useAuthStore } from '@/shared/store/auth';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   getDatabase,
@@ -20,6 +20,7 @@ import { generateId } from '@/shared/services/id/ulid';
 import { TRIP_ACTIVATION_GRACE_DAYS } from '@/shared/lib/lifecycle';
 import { cancelAndInvalidateQueries } from '@/shared/lib/query-refresh';
 import type { Trip } from '../model/types';
+import { expenseEntity } from '@repo/schema/entities/expense';
 
 /**
  * 여행 활성화 Mutation Hook
@@ -67,7 +68,9 @@ export const useActivateTrip = () => {
       // 서버에서 여행 데이터 Pull (모든 Trip + 일정, 경비)
       const response = await apiClient.post(`/api/trips/${tripId}/activate`);
 
-      const { trips: allTrips = [], schedules = [], expenses = [] } = response.data;
+      const { trips: allTrips = [], schedules = [], expenses: expenseRows } = response.data;
+      // 경비는 서버의 date-only entity 계약을 확인한 뒤 Local에 입수한다.
+      const expenses = expenseEntity.array().parse(expenseRows);
 
       // 활성화하려는 여행 정보 찾기 (서버 응답에서)
       const trip = allTrips.find((t: Trip) => t.id === tripId);
@@ -81,7 +84,7 @@ export const useActivateTrip = () => {
         if (!useAuthStore.isCurrentSession(sessionId)) {
           throw new AuthRequiredError();
         }
-        const userId = useAuthStore.getState().userId;
+        const userId = requireLocalUserId();
         if ([...allTrips, ...schedules, ...expenses].some((row: { userId: string }) => row.userId !== userId)) {
           throw new Error('다른 계정의 여행 데이터는 활성화할 수 없습니다');
         }
@@ -171,11 +174,12 @@ export const useActivateTrip = () => {
           for (const expense of expenses) {
             await getDatabase()
               .insert(expensesTable)
-              .values(expense)
+              .values({ ...expense, userId })
               .onConflictDoUpdate({
                 target: expensesTable.id,
                 set: {
                   ...expense,
+                  userId,
                   updatedAt: expense.updatedAt,
                 },
               });

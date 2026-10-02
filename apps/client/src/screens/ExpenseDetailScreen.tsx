@@ -5,7 +5,6 @@ import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { Container, Stack, MobileHeader } from '@/shared/components';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MapPin, Tag, Calendar, Receipt, ChevronLeft } from 'lucide-react-native';
-import { formatISOToLocalDate } from '@/shared/lib/datetime';
 import { ExpenseQueryFeedback, ExpenseRefreshError } from './ExpenseQueryFeedback';
 
 export default function ExpenseDetailScreen() {
@@ -143,7 +142,7 @@ export default function ExpenseDetailScreen() {
                     <Calendar size={16} color='hsl(120, 8%, 35%)' strokeWidth={2} />
                     <Text className='text-label text-muted-foreground'>날짜</Text>
                   </View>
-                  <Text className='text-body text-foreground'>{formatISOToLocalDate(expense.date)}</Text>
+                  <Text className='text-body text-foreground'>{expense.date}</Text>
                 </View>
 
                 {/* 영수증 */}

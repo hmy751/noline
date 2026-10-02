@@ -1,3 +1,4 @@
+import { updateExpenseRequest } from '@repo/schema/requests/expense';
 import { afterEach, beforeEach, expect, it, jest } from '@jest/globals';
 import { pushChanges, SyncIncompleteError } from '@/shared/services/sync/engine';
 import { getSyncableTasks, getSyncQueueStats, updateTaskStatus, deleteTask } from '@/shared/services/sync/queue';
@@ -72,4 +73,17 @@ it('재시도 실패를 다시 FAILED로 남기고 뒤 작업을 진행하지 �
   expect(updateTaskStatus).toHaveBeenNthCalledWith(1, 'failed-1', 'IN_PROGRESS');
   expect(updateTaskStatus).toHaveBeenNthCalledWith(2, 'failed-1', 'FAILED', 2);
   expect(api.put).toHaveBeenCalledTimes(1);
+});
+
+
+it('기존 경비 UPDATE 큐의 datetime은 그대로 전송해도 서버 공유 요청 계약에서 수용된다', async () => {
+  const payload = { date: '2026-10-02T01:00:00+09:00', scheduleId: null };
+  jest.mocked(getSyncableTasks).mockResolvedValue([{
+    ...failedTask, tableName: 'expenses', recordId: 'expense-1', payload: JSON.stringify(payload),
+  }]);
+  await expect(pushChanges()).resolves.toBeUndefined();
+  expect(api.put).toHaveBeenCalledWith('/api/expenses/expense-1', payload);
+  expect(updateExpenseRequest.parse(jest.mocked(api.put).mock.calls[0][1]))
+    .toEqual({ date: '2026-10-01', scheduleId: null });
+  expect(deleteTask).toHaveBeenCalledWith('failed-1');
 });

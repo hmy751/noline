@@ -8,7 +8,7 @@ import { DatePicker, PolicyErrorDisplay } from '@/shared/components';
 import { Field } from '@/shared/components/Form';
 import { EXPENSE_CATEGORIES, CURRENCIES, CURRENCY_SYMBOLS } from '@/entities/expense';
 import { useUpdateExpense } from '@/entities/expense/data/useUpdateExpense';
-import { formatISOToLocalDate, formatISOToLocalTime, dateToISODateTime } from '@/shared/lib/datetime';
+import { formatISOToLocalDate, formatISOToLocalTime } from '@/shared/lib/datetime';
 import { useTripSchedulesReadQuery } from '@/features/schedule/read-schedules';
 import { expenseUpdateFormSchema, type ExpenseUpdateFormData } from './schema';
 import { useAppPolicy } from '@/shared/policy';
@@ -22,7 +22,7 @@ export type UpdateExpenseDrawerProps = {
     amount: string;
     currency: string;
     category: string;
-    date: string; // ISO datetime string
+    date: string; // 앱 데이터 경계에서 정리한 YYYY-MM-DD
     scheduleId?: string;
     tripId: string;
   } | null;
@@ -34,7 +34,7 @@ export type UpdateExpenseDrawerProps = {
  */
 export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpenseDrawerProps) => {
   // react-hook-form 설정
-  const { control, handleSubmit, setValue, watch } = useForm<ExpenseUpdateFormData>({
+  const { control, handleSubmit, reset, watch, formState: { defaultValues } } = useForm<ExpenseUpdateFormData>({
     resolver: zodResolver(expenseUpdateFormSchema),
     defaultValues: {
       title: expenseData?.title || '',
@@ -72,7 +72,7 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
       return [];
     }
 
-    const selectedLocalDate = formatISOToLocalDate(selectedDate);
+    const selectedLocalDate = selectedDate;
 
     return (schedules ?? []).filter((schedule) => {
       const scheduleDate = formatISOToLocalDate(schedule.scheduledAt);
@@ -83,12 +83,14 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
   // expenseData가 변경되면 폼 값 업데이트
   useEffect(() => {
     if (expenseData) {
-      setValue('title', expenseData.title);
-      setValue('amount', expenseData.amount);
-      setValue('currency', expenseData.currency);
-      setValue('category', expenseData.category);
-      setValue('date', expenseData.date);
-      setValue('scheduleId', expenseData.scheduleId || undefined);
+      reset({
+        title: expenseData.title,
+        amount: expenseData.amount,
+        currency: expenseData.currency,
+        category: expenseData.category,
+        date: expenseData.date,
+        scheduleId: expenseData.scheduleId || undefined,
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expenseData?.id]);
@@ -108,12 +110,13 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
           amount: data.amount,
           currency: data.currency,
           category: data.category,
-          date: data.date,
+          ...(data.date !== defaultValues?.date ? { date: data.date } : {}),
           scheduleId: data.scheduleId || null,
         },
       },
       {
         onSuccess: () => {
+          reset(data);
           Alert.alert('성공', '경비가 수정되었습니다.');
           onClose();
         },
@@ -310,7 +313,7 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
             name='date'
             render={({ field: { value, onChange }, fieldState: { error } }) => {
               // DatePicker에는 현재 기기의 날짜를 전달한다.
-              const displayDate = value ? formatISOToLocalDate(value) : '날짜 선택';
+              const displayDate = value || '날짜 선택';
 
               return (
                 <Field>
@@ -331,7 +334,7 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
                     visible={isDatePickerOpen}
                     onClose={() => setIsDatePickerOpen(false)}
                     onSelectDate={(dateString) => {
-                      onChange(dateToISODateTime(dateString));
+                      onChange(dateString);
                       setIsDatePickerOpen(false);
                     }}
                     markedDates={{
