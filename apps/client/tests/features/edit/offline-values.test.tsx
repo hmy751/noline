@@ -53,7 +53,23 @@ jest.mock('@/shared/components', () => {
         ...['2026-09-22', '2026-09-21'].map((date) => ReactRuntime.createElement(Pressable, { key: date, onPress: () => onSelectDate(date) }, ReactRuntime.createElement(Text, null, `선택 ${date}`))),
       ) : null;
     },
-    TimePicker: () => null,
+    TimePicker: ({ visible, onSelectTime }: { visible: boolean; onSelectTime: (time: string) => void }) => {
+      const ReactRuntime = jest.requireActual<typeof import('react')>('react');
+      const { View, Text, Pressable } = jest.requireActual<typeof import('react-native')>('react-native');
+      return visible
+        ? ReactRuntime.createElement(
+            View,
+            null,
+            ...['11:00', '10:00'].map((time) =>
+              ReactRuntime.createElement(
+                Pressable,
+                { key: time, onPress: () => onSelectTime(time) },
+                ReactRuntime.createElement(Text, null, `선택 ${time}`),
+              ),
+            ),
+          )
+        : null;
+    },
     PolicyErrorDisplay: jest.requireActual<typeof import('@/shared/components/ErrorBoundary/PolicyErrorDisplay')>(
       '@/shared/components/ErrorBoundary/PolicyErrorDisplay',
     ).PolicyErrorDisplay,
@@ -326,4 +342,70 @@ it('날짜 저장 성공 뒤 같은 경비를 다시 저장하면 방금 저장�
   expect((saveExpense.mock.calls[0][0] as { data: object }).data).toHaveProperty('date', '2026-09-22');
   await act(async () => fireEvent.press(view.getByText('저장')));
   expect((saveExpense.mock.calls[1][0] as { data: object }).data).not.toHaveProperty('date');
+});
+
+it.each(['unchanged', 'date', 'time', 'reverted'])(
+  '일정 수정 %s: 날짜·시간의 실제 변경만 scheduledAt으로 전송한다',
+  async (change) => {
+    const view = render(
+      <UpdateScheduleDrawer
+        isOpen
+        onClose={jest.fn()}
+        scheduleData={{
+          id: 's',
+          tripId: 'trip',
+          title: '기존 일정',
+          date: '2026-09-21',
+          time: '10:00',
+        }}
+      />,
+    );
+    if (change === 'date' || change === 'reverted') {
+      fireEvent.press(view.getByText('2026-09-21'));
+      fireEvent.press(view.getByText('선택 2026-09-22'));
+      if (change === 'reverted') {
+        fireEvent.press(view.getByText('2026-09-22'));
+        fireEvent.press(view.getByText('선택 2026-09-21'));
+      }
+    }
+    if (change === 'time') {
+      fireEvent.press(view.getByText('10:00'));
+      fireEvent.press(view.getByText('선택 11:00'));
+    }
+    await act(async () => fireEvent.press(view.getByText('저장')));
+    const data = (saveSchedule.mock.calls[0][0] as { data: { scheduledAt?: string } }).data;
+    if (change === 'unchanged' || change === 'reverted') expect(data).not.toHaveProperty('scheduledAt');
+    else {
+      if (!data.scheduledAt) throw new Error('변경한 시각이 요청에 없습니다');
+      const saved = new Date(data.scheduledAt);
+      expect(saved.getDate()).toBe(change === 'date' ? 22 : 21);
+      expect(saved.getHours()).toBe(change === 'time' ? 11 : 10);
+    }
+  },
+);
+
+it('일정 저장 성공 뒤 같은 입력으로 다시 저장하면 시각을 재전송하지 않는다', async () => {
+  const view = render(
+    <UpdateScheduleDrawer
+      isOpen
+      onClose={jest.fn()}
+      scheduleData={{
+        id: 's',
+        tripId: 'trip',
+        title: '기존 일정',
+        date: '2026-09-21',
+        time: '10:00',
+      }}
+    />,
+  );
+  fireEvent.press(view.getByText('2026-09-21'));
+  fireEvent.press(view.getByText('선택 2026-09-22'));
+  await act(async () => fireEvent.press(view.getByText('저장')));
+  const [request, callbacks] = saveSchedule.mock.calls[0] as [
+    { data: { scheduledAt: string } },
+    { onSuccess: (saved: { scheduledAt: string }) => void },
+  ];
+  act(() => callbacks.onSuccess({ scheduledAt: request.data.scheduledAt }));
+  await act(async () => fireEvent.press(view.getByText('저장')));
+  expect((saveSchedule.mock.calls[1][0] as { data: object }).data).not.toHaveProperty('scheduledAt');
 });

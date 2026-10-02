@@ -39,7 +39,9 @@ Schedule은 생성·전체 목록·단건·수정·Trip 하위 목록·Trip acti
 
 Expense `date`의 공유 입력 정규화·date-only 계약·기존 datetime 호환과 저장 경계는 [날짜와 시각](../common/date-and-time.md), 통화 분리·금액 정밀도는 [통화와 금액](../common/currency.md)에서 판단한다.
 
-Local 경비 조회·mutation 반환도 날짜 계약을 맞춰 화면의 호환 변환을 없앤다. 내부 행의 존재·소유권 확인은 반환용 날짜 검사와 분리하며, mutation 결과 검사 실패는 commit 전에 행·큐를 함께 롤백한다. Activation과 sync pull에서는 경비 배열을 `expenseEntity`로 검사한 뒤 저장하지만, 이는 다른 entity와 envelope의 전체 응답 검증을 대신하지 않는다.
+Expense·Schedule Local 조회와 mutation 반환도 날짜·시점 계약을 검사한다. 내부 행의 존재·소유권 확인은 반환 검사와 분리하며, mutation 결과 검사 실패는 commit 전에 행·큐를 함께 롤백한다. 세 entity Repository의 생성·수정 요청 검사는 Local/Remote 분기 전에 동일한 공유 schema를 적용한다.
+
+Activation은 `activateTripResponse`, sync pull은 `syncPullResponseSchema`로 envelope와 세 entity를 첫 Local 쓰기 전에 검사한다. Pull checkpoint인 `serverTime`도 포함한다. Sync schema에서 DB Date 객체나 필수 Trip 날짜의 null 허용을 제거해 일반 API entity와 같은 JSON 계약을 사용한다. 검사 뒤 소유권 확인을 유지하며, 입수 검사를 pull 전체 transaction이나 DB 오류 처리의 재설계로 확대하지 않는다. 서버 pull의 `lastSyncedAt`도 query schema로 검사한 뒤 SQL 비교에 사용한다.
 
 ## 변경 전후에 확인할 증거
 
@@ -50,7 +52,7 @@ Schema·serializer·route 중 하나를 바꾸면 선언과 실제 소비자를 
 - Ownership·soft-delete query는 다른 사용자, 삭제된 부모·자식과 scoped mutation을 넣은 격리 PostgreSQL 검사로 확인한다.
 - Client API mock 검사는 request의 HTTP 전 실패, response parse 실패, HTTP 횟수와 오류 전달을 확인하지만 Axios interceptor의 실제 네트워크 동작이나 React Native 화면을 입증하지 않는다.
 
-현재 검증 진입점은 [client Expense API test](../../../apps/client/tests/entities/expense/api/expenses.test.ts), [Expense Local·입수 경계 SQLite test](../../../apps/client/tests/entities/expense/lib/expense-local.test.ts), [Schedule route 계약 test](../../../apps/server/tests/routes/schedules.response-contract.test.ts), [Schedule serializer test](../../../apps/server/tests/serializers/schedule.test.ts), [Schedule PostgreSQL integration test](../../../apps/server/tests/integration/schedules.access-boundary.test.ts)다. SQLite 검사는 실제 SQL·rollback을 실행하지만 기기 SQLite binding과 HTTP·지도 서비스는 대역을 사용한다. 정확한 dependency 버전과 과거 실행 수치는 package 설정과 Workspace 기록이 소유한다.
+현재 검증 진입점은 [client Expense API test](../../../apps/client/tests/entities/expense/api/expenses.test.ts), [날짜·시각 Local·입수 경계 SQLite test](../../../apps/client/tests/entities/temporal-local-contracts.test.ts), [Schedule route 계약 test](../../../apps/server/tests/routes/schedules.response-contract.test.ts), [Schedule serializer test](../../../apps/server/tests/serializers/schedule.test.ts), [Schedule PostgreSQL integration test](../../../apps/server/tests/integration/schedules.access-boundary.test.ts)다. SQLite 검사는 실제 SQL·rollback을 실행하지만 기기 SQLite binding과 HTTP·지도 서비스는 대역을 사용한다. 정확한 dependency 버전과 과거 실행 수치는 package 설정과 Workspace 기록이 소유한다.
 
 Ticket 05 뒤 추가된 Trip·Expense serializer도 현재 route에서 사용되지만, 그 사실을 Ticket 05의 완료나 Schedule 외 server API 전체의 response·request·ownership 계약 완료로 확대하지 않는다. API 오류 구조, 실제 JWT·배포 process, 외부 서비스와 모든 Data route의 계약은 이 편입 근거로 확인하지 않았다.
 

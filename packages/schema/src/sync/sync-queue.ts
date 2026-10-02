@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isoDateTime } from '../primitives/datetime';
 
 // ========================================
 // Sync Queue Schema (Outbox Pattern)
@@ -27,8 +28,8 @@ export const syncQueueSchema = z.object({
   payload: z.string(), // JSON stringified 데이터
   status: syncStatusEnum.default('PENDING'),
   retryCount: z.number().int().default(0),
-  createdAt: z.string().datetime({ offset: true }),
-  updatedAt: z.string().datetime({ offset: true }).optional(),
+  createdAt: isoDateTime,
+  updatedAt: isoDateTime.optional(),
 });
 
 /**
@@ -50,6 +51,6 @@ export const updateSyncQueueSchema = z
   .object({
     status: syncStatusEnum.optional(),
     retryCount: z.number().int().optional(),
-    updatedAt: z.string().datetime({ offset: true }).optional(),
+    updatedAt: isoDateTime.optional(),
   })
   .partial();

@@ -1,3 +1,4 @@
+import { getUTCDateRange } from '@/shared/lib/datetime';
 import { PolicyErrorDisplay } from '@/shared/components/ErrorBoundary';
 import { View, Text, ScrollView, Alert, RefreshControl } from 'react-native';
 import { Container, Stack, ExpenseCard, MobileHeader } from '@/shared/components';
@@ -55,26 +56,11 @@ export default function ExpensesScreen() {
     }
   }, [access.canFetch, refetch]);
 
-  // 여행 날짜 범위에서 모든 날짜 생성
-  const generateDateRange = (): string[] => {
-    if (!selectedTrip?.startDate || !selectedTrip?.endDate) {
-      return [];
-    }
-
-    const dates: string[] = [];
-    const start = new Date(selectedTrip.startDate);
-    const end = new Date(selectedTrip.endDate);
-
-    const current = new Date(start);
-    while (current <= end) {
-      dates.push(current.toISOString().split('T')[0]);
-      current.setUTCDate(current.getUTCDate() + 1);
-    }
-
-    return dates;
-  };
-
-  const dateRange = generateDateRange();
+  // Trip의 기존 UTC 날짜 기준을 두 목록 화면에서 동일하게 사용한다.
+  const dateRange = useMemo(
+    () => (selectedTrip ? getUTCDateRange(selectedTrip.startDate, selectedTrip.endDate) : []),
+    [selectedTrip],
+  );
 
   // 날짜별로 경비 매칭 (여행 기간 밖 경비도 포함)
   const expensesByDate = useMemo(() => {

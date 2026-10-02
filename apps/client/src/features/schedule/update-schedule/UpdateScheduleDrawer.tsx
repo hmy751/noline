@@ -37,7 +37,13 @@ export type UpdateScheduleDrawerProps = {
  */
 export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateScheduleDrawerProps) => {
   // react-hook-form 설정
-  const { control, handleSubmit, setValue } = useForm<ScheduleUpdateFormData>({
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { defaultValues },
+  } = useForm<ScheduleUpdateFormData>({
     resolver: zodResolver(scheduleUpdateFormSchema),
     defaultValues: {
       title: scheduleData?.title || '',
@@ -68,9 +74,7 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
   // scheduleData가 변경되면 폼 값 및 상태 초기화
   useEffect(() => {
     if (scheduleData) {
-      setValue('title', scheduleData.title);
-      setValue('date', scheduleData.date);
-      setValue('time', scheduleData.time);
+      reset({ title: scheduleData.title, date: scheduleData.date, time: scheduleData.time });
       setSelectedLocation(null); // 장소 재검색 결과 초기화
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -98,8 +102,9 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
       return;
     }
 
-    // 날짜와 시간을 저장 경계의 ISO 시각으로 합친다.
-    const scheduledAt = combineDateTimeToISO(data.date, data.time);
+    // 바꾸지 않은 시각은 재조합하지 않아 초·밀리초와 DST 중복 시각의 원본을 보존한다.
+    const timeChanged = data.date !== defaultValues?.date || data.time !== defaultValues?.time;
+    const scheduledAt = timeChanged ? combineDateTimeToISO(data.date, data.time) : undefined;
 
     // 장소 재검색한 경우 location 정보 추가
     const locationData = selectedLocation
@@ -117,12 +122,13 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
         tripId: scheduleData.tripId,
         data: {
           title: data.title,
-          scheduledAt, // ISO 8601 format
+          ...(scheduledAt !== undefined ? { scheduledAt } : {}),
           ...locationData,
         },
       },
       {
-        onSuccess: () => {
+        onSuccess: (savedSchedule) => {
+          reset(data);
           Alert.alert('성공', '일정이 수정되었습니다.');
 
           // 경로 재다운로드 (날짜/시간 변경으로 순서가 바뀔 수 있음)
@@ -132,7 +138,7 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
                 id: s.id,
                 latitude: s.latitude ? parseFloat(s.latitude) : undefined,
                 longitude: s.longitude ? parseFloat(s.longitude) : undefined,
-                scheduledAt: s.id === scheduleData.id ? scheduledAt : s.scheduledAt,
+                scheduledAt: s.id === scheduleData.id ? savedSchedule.scheduledAt : s.scheduledAt,
               }))
               .sort(
                 (a: { scheduledAt: string }, b: { scheduledAt: string }) =>

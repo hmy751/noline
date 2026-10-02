@@ -1,5 +1,6 @@
 import type { Application } from 'express';
 import { deleteScheduleResponse } from '@repo/schema/responses/schedule';
+import { syncPullResponseSchema } from '@repo/schema/sync/sync-status';
 import { activateTripResponse } from '@repo/schema/responses/trip';
 import request from 'supertest';
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
@@ -289,6 +290,36 @@ describe('Schedule을 포함하는 연관 API 응답 계약', () => {
         ],
       },
     });
+    expect(syncPullResponseSchema.safeParse(response.body).success).toBe(true);
     expect(dbSelectMock).toHaveBeenCalledTimes(3);
   });
+});
+
+it.each(['2026-10-02T09:00:00', '2026-10-02T09:00:00+99:99', '2026-02-30T09:00:00Z'])(
+  '해석 불가능한 일정 시각 %s는 생성·수정 모두 DB 쓰기 전에 거절한다',
+  async (scheduledAt) => {
+    await request(app)
+      .post('/api/schedules')
+      .send({
+        id: SCHEDULE_ID,
+        tripId: TRIP_ID,
+        title: '일정',
+        location: '장소',
+        address: null,
+        scheduledAt,
+      })
+      .expect(400);
+    await request(app).put(`/api/schedules/${SCHEDULE_ID}`).send({ scheduledAt }).expect(400);
+    expect(dbInsertMock).not.toHaveBeenCalled();
+    expect(dbUpdateMock).not.toHaveBeenCalled();
+  },
+);
+
+it('Sync pull의 세 entity와 serverTime은 직렬화된 전체 JSON 계약을 만족한다', async () => {
+  setSelectResults([tripRow], [scheduleRow], [expenseRow]);
+  const response = await request(app).get('/api/sync/pull').query({ activatedTripIds: TRIP_ID }).expect(200);
+  expect(syncPullResponseSchema.safeParse(response.body).success).toBe(true);
+  expect(response.body.data.trips[0].startDate).toBe(tripRow.startDate.toISOString());
+  expect(response.body.data.schedules[0].scheduledAt).toBe(SCHEDULED_AT);
+  expect(response.body.data.expenses[0].date).toBe(serializedExpense.date);
 });

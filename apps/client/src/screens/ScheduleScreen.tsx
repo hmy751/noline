@@ -12,7 +12,7 @@ import { ScheduleListView } from '@/features/schedule/schedule-list-view';
 import { ScheduleMapViewContainer } from '@/features/schedule/schedule-map-view';
 import { ScheduleMenu } from '@/features/schedule/schedule-menu';
 import { UpdateScheduleDrawer } from '@/features/schedule/update-schedule';
-import { formatISOToLocalDate, formatISOToLocalTime } from '@/shared/lib/datetime';
+import { formatISOToLocalDate, formatISOToLocalTime, getUTCDateRange } from '@/shared/lib/datetime';
 import { useAppPolicy } from '@/shared/policy';
 import { useTripSchedulesReadQuery } from '@/features/schedule/read-schedules';
 import { ScheduleQueryFeedback, ScheduleRefreshError } from './ScheduleQueryFeedback';
@@ -88,26 +88,10 @@ export default function ScheduleScreen() {
   // 선택된 여행 정보
   const selectedTrip = trips.find((trip: { id: string }) => trip.id === selectedTripId);
 
-  // 여행 날짜 범위에서 모든 날짜 생성
-  const generateDateRange = (): string[] => {
-    if (!selectedTrip?.startDate || !selectedTrip?.endDate) {
-      return [];
-    }
-
-    const dates: string[] = [];
-    const start = new Date(selectedTrip.startDate);
-    const end = new Date(selectedTrip.endDate);
-
-    const current = new Date(start);
-    while (current <= end) {
-      dates.push(current.toISOString().split('T')[0]);
-      current.setDate(current.getDate() + 1);
-    }
-
-    return dates;
-  };
-
-  const dateRange = generateDateRange();
+  // Trip의 기존 UTC 날짜 기준을 두 목록 화면에서 동일하게 사용한다.
+  const dateRange = selectedTrip
+    ? getUTCDateRange(selectedTrip.startDate, selectedTrip.endDate)
+    : [];
 
   // 일정 메뉴 핸들러
   const handleScheduleMenuPress = (

@@ -1,5 +1,6 @@
 // Trip Repository - 활성화 상태에 따른 Local/Remote 분기
 
+import { createTripRequest, updateTripRequest } from '@repo/schema/requests/trip';
 import {
   routeTripQuery,
   routeTripMutation,
@@ -45,16 +46,18 @@ export const TripRepository = {
   },
 
   create: async (data: CreateTripRequest): Promise<Trip> => {
+    const input = createTripRequest.parse(data);
     return await routeTripMutation({
-      local: () => TripLocal.createTripLocal(data),
-      remote: () => TripApi.fetchCreateTrip(data),
+      local: () => TripLocal.createTripLocal(input),
+      remote: () => TripApi.fetchCreateTrip(input),
     });
   },
 
   update: async (id: string, data: UpdateTripRequest): Promise<Trip> => {
+    const input = updateTripRequest.parse(data);
     return await routeChildMutation(id, {
-      local: () => TripLocal.updateTripLocal(id, data),
-      remote: () => TripApi.fetchUpdateTrip(id, data),
+      local: () => TripLocal.updateTripLocal(id, input),
+      remote: () => TripApi.fetchUpdateTrip(id, input),
     });
   },
 

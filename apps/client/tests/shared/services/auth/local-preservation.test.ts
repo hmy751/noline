@@ -81,8 +81,8 @@ jest.mock('expo-sqlite', () => ({
 
 const now = '2026-01-01T00:00:00Z';
 const scheduleInput = {
-  id: 'new-schedule',
-  tripId: 'trip-a',
+  id: '01ARZ3NDEKTSV4RRFFQ69G5FAX',
+  tripId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
   title: '일정',
   address: null,
   location: '장소',
@@ -95,7 +95,7 @@ beforeEach(async () => {
   await resetDatabase();
   await useAuthStore.getState().saveAndApplySession({ userId: 'a', accessToken: 'access', refreshToken: 'refresh' });
   for (const [id, userId, active] of [
-    ['trip-a', 'a', true],
+    ['01ARZ3NDEKTSV4RRFFQ69G5FAV', 'a', true],
     ['trip-b', 'b', true],
     ['inactive', 'a', false],
   ] as const) {
@@ -256,7 +256,7 @@ it.each(['PENDING', 'IN_PROGRESS', 'FAILED'] as const)(
       scheduleId: null,
       hasReceipt: false,
       receiptUrl: null,
-      tripId: 'trip-a',
+      tripId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
       title: '보존',
       amount: '1',
       currency: 'USD',

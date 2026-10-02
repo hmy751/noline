@@ -69,7 +69,7 @@ export function ScheduleForm({ form, location, submission, onShowDatePicker, onS
           <Controller
             control={control}
             name='time'
-            render={({ field: { value } }) => (
+            render={({ field: { value }, fieldState: { error } }) => (
               <Field>
                 <Field.Title>시간 *</Field.Title>
                 <Field.ElementsBox>
@@ -77,6 +77,7 @@ export function ScheduleForm({ form, location, submission, onShowDatePicker, onS
                     {value || '시간 선택'}
                   </Pressable>
                 </Field.ElementsBox>
+                {error && <Field.Message>{error.message}</Field.Message>}
               </Field>
             )}
           />

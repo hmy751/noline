@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isoDateTime } from '../primitives/datetime';
 
 // ========================================
 // User Entity Schema (DB와 1:1 매핑)
@@ -20,8 +21,8 @@ export type AuthProvider = z.infer<typeof authProviderSchema>;
 export const userEntity = z.object({
   // 서버 생성 필드
   id: z.string(), // ULID, 서버에서 생성
-  createdAt: z.string().datetime({ offset: true }),
-  updatedAt: z.string().datetime({ offset: true }),
+  createdAt: isoDateTime,
+  updatedAt: isoDateTime,
 
   // OAuth 필드
   email: z.string().email(),

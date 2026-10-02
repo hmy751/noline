@@ -20,7 +20,7 @@ import { generateId } from '@/shared/services/id/ulid';
 import { TRIP_ACTIVATION_GRACE_DAYS } from '@/shared/lib/lifecycle';
 import { cancelAndInvalidateQueries } from '@/shared/lib/query-refresh';
 import type { Trip } from '../model/types';
-import { expenseEntity } from '@repo/schema/entities/expense';
+import { activateTripResponse } from '@repo/schema/responses/trip';
 
 /**
  * 여행 활성화 Mutation Hook
@@ -68,9 +68,8 @@ export const useActivateTrip = () => {
       // 서버에서 여행 데이터 Pull (모든 Trip + 일정, 경비)
       const response = await apiClient.post(`/api/trips/${tripId}/activate`);
 
-      const { trips: allTrips = [], schedules = [], expenses: expenseRows } = response.data;
-      // 경비는 서버의 date-only entity 계약을 확인한 뒤 Local에 입수한다.
-      const expenses = expenseEntity.array().parse(expenseRows);
+      // apiClient가 HTTP wrapper를 제거한 응답 envelope 전체를 입수 전에 검사한다.
+      const { trips: allTrips, schedules, expenses } = activateTripResponse.parse(response).data;
 
       // 활성화하려는 여행 정보 찾기 (서버 응답에서)
       const trip = allTrips.find((t: Trip) => t.id === tripId);
@@ -85,7 +84,7 @@ export const useActivateTrip = () => {
           throw new AuthRequiredError();
         }
         const userId = requireLocalUserId();
-        if ([...allTrips, ...schedules, ...expenses].some((row: { userId: string }) => row.userId !== userId)) {
+        if ([...allTrips, ...schedules, ...expenses].some((row: { userId: string | null }) => row.userId !== userId)) {
           throw new Error('다른 계정의 여행 데이터는 활성화할 수 없습니다');
         }
         // 모든 Trip 메타데이터 저장 (upsert)
@@ -93,11 +92,12 @@ export const useActivateTrip = () => {
           for (const tripData of allTrips) {
             await getDatabase()
               .insert(trips)
-              .values(tripData)
+              .values({ ...tripData, userId })
               .onConflictDoUpdate({
                 target: trips.id,
                 set: {
                   ...tripData,
+                  userId,
                   updatedAt: tripData.updatedAt,
                 },
               });
@@ -124,7 +124,7 @@ export const useActivateTrip = () => {
           .values({
             id: generateId(),
             tripId,
-            userId: trip.userId,
+            userId,
             isActivated: true,
             activatedAt: now,
             deactivatedAt: null,
@@ -158,11 +158,12 @@ export const useActivateTrip = () => {
           for (const schedule of schedules) {
             await getDatabase()
               .insert(schedulesTable)
-              .values(schedule)
+              .values({ ...schedule, userId })
               .onConflictDoUpdate({
                 target: schedulesTable.id,
                 set: {
                   ...schedule,
+                  userId,
                   updatedAt: schedule.updatedAt,
                 },
               });

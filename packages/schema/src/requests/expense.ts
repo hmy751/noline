@@ -1,15 +1,10 @@
 import { z } from 'zod';
+import { isoDateTime } from '../primitives/datetime';
 import { expenseEntity, expenseDate } from '../entities/expense';
 
 /** 기존 Local 값·동기화 큐의 datetime은 기존 서버 응답과 같은 UTC 날짜로 수용한다. */
 export const expenseDateInput = z
-  .union([
-    expenseDate,
-    z.string()
-      .datetime({ offset: true })
-      .refine((value) => Number.isFinite(Date.parse(value)), 'Invalid datetime')
-      .transform((value) => new Date(value).toISOString().split('T')[0]),
-  ])
+  .union([expenseDate, isoDateTime.transform((value) => new Date(value).toISOString().split('T')[0])])
   .pipe(expenseDate);
 
 // ========================================

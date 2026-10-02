@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isoDateTime } from '../primitives/datetime';
 
 /** 경비가 속하는 달력 날짜. 기기 시간대로 변환하지 않는다. */
 export const expenseDate = z.string().date();
@@ -17,9 +18,9 @@ export const expenseDate = z.string().date();
 export const expenseEntity = z.object({
   // Client-Side ID 필드
   id: z.string().ulid(),
-  createdAt: z.string().datetime({ offset: true }),
-  updatedAt: z.string().datetime({ offset: true }),
-  deletedAt: z.string().datetime({ offset: true }).nullable().optional(),
+  createdAt: isoDateTime,
+  updatedAt: isoDateTime,
+  deletedAt: isoDateTime.nullable().optional(),
   version: z.number().default(1).optional(),
 
   // 비즈니스 필드

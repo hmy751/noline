@@ -38,7 +38,16 @@ const router = Router();
 router.get('/pull', requireAuth, async (req: Request, res: Response) => {
   try {
     const userId = req.userId!;
-    const { lastSyncedAt, activatedTripIds } = req.query;
+    const query = syncPullQuerySchema.safeParse(req.query);
+    if (!query.success) {
+      return res.status(400).json({
+        error: 'Validation error',
+        message: 'Invalid sync query',
+        details: query.error.errors,
+      });
+    }
+    const { lastSyncedAt } = query.data;
+    const { activatedTripIds } = req.query;
 
     console.log('📥 [Sync Pull] Request received:', {
       lastSyncedAt: lastSyncedAt || 'Not provided (full sync)',
@@ -46,7 +55,7 @@ router.get('/pull', requireAuth, async (req: Request, res: Response) => {
     });
 
     // lastSyncedAt이 있으면 증분 동기화, 없으면 전체 동기화
-    const sinceDate = lastSyncedAt ? new Date(lastSyncedAt as string) : new Date(0); // Epoch (1970-01-01) = 전체 데이터
+    const sinceDate = lastSyncedAt ? new Date(lastSyncedAt) : new Date(0); // Epoch (1970-01-01) = 전체 데이터
 
     // 활성화된 여행 ID 배열 파싱
     const activatedIds = activatedTripIds ? (activatedTripIds as string).split(',').filter((id) => id.trim()) : [];

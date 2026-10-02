@@ -1,3 +1,4 @@
+import { scheduleEntity } from '@repo/schema/entities/schedule';
 import { requireLocalUserId } from '@/shared/store/auth';
 // Schedule Local DataSource - SQLite 로컬 DB 작업
 
@@ -7,6 +8,11 @@ import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
 import { ownedActiveRow, assertActiveLocalTrip } from '@/shared/services/auth/local-access';
 import type { Schedule, CreateScheduleRequest, UpdateScheduleRequest } from '../model';
+
+/** 저장 표현을 유지하면서 실제 시각으로 해석 가능한지 앱 반환 경계에서 검사한다. */
+function toSchedule(row: typeof schedules.$inferSelect): Schedule {
+  return { ...row, scheduledAt: scheduleEntity.shape.scheduledAt.parse(row.scheduledAt) };
+}
 
 /**
  * 로컬 DB에서 여행의 일정 목록 조회
@@ -18,17 +24,17 @@ export const getSchedulesLocal = async (tripId: string): Promise<Schedule[]> => 
     .select()
     .from(schedules)
     .where(ownedActiveRow(schedules, isNull(schedules.deletedAt), eq(schedules.tripId, tripId)))
-    .orderBy(schedules.scheduledAt)
     .all();
 
   console.log(`[ScheduleLocal] Schedules loaded from local DB: ${scheduleList.length} items`);
-  return scheduleList;
+  // SQLite TEXT 순서는 timezone offset이 다른 시각의 실제 순서와 다르다.
+  return scheduleList.map(toSchedule).sort((a, b) => Date.parse(a.scheduledAt) - Date.parse(b.scheduledAt));
 };
 
 /**
  * 로컬 DB에서 특정 일정 조회
  */
-export const getScheduleByIdLocal = async (id: string): Promise<Schedule | undefined> => {
+const getScheduleRowById = async (id: string) => {
   const schedule = await getDatabase()
     .select()
     .from(schedules)
@@ -39,6 +45,11 @@ export const getScheduleByIdLocal = async (id: string): Promise<Schedule | undef
     console.log(`[ScheduleLocal] Schedule loaded from local DB: ${schedule.id}`);
   }
   return schedule;
+};
+
+export const getScheduleByIdLocal = async (id: string): Promise<Schedule | undefined> => {
+  const row = await getScheduleRowById(id);
+  return row ? toSchedule(row) : undefined;
 };
 
 /**
@@ -80,7 +91,7 @@ export const createScheduleLocal = async (data: CreateScheduleRequest): Promise<
     version: 1,
   };
 
-  await withTransaction(async () => {
+  return await withTransaction(async () => {
     await assertActiveLocalTrip(data.tripId);
     await getDatabase()
       .insert(schedules)
@@ -96,10 +107,8 @@ export const createScheduleLocal = async (data: CreateScheduleRequest): Promise<
       latitude: rest.latitude,
       longitude: rest.longitude,
     });
+    return toSchedule(newSchedule);
   });
-
-  console.log(`[ScheduleLocal] Schedule created locally: ${id} - ${rest.title}`);
-  return newSchedule;
 };
 
 /**
@@ -118,8 +127,8 @@ export const updateScheduleLocal = async (id: string, data: UpdateScheduleReques
     version: sql`${schedules.version} + 1`,
   };
 
-  await withTransaction(async () => {
-    if (!(await getScheduleByIdLocal(id))) {
+  return await withTransaction(async () => {
+    if (!(await getScheduleRowById(id))) {
       throw new Error('수정할 일정을 찾을 수 없습니다');
     }
     await getDatabase()
@@ -127,19 +136,10 @@ export const updateScheduleLocal = async (id: string, data: UpdateScheduleReques
       .set(dbData)
       .where(ownedActiveRow(schedules, eq(schedules.id, id)));
     await addToSyncQueue('schedules', id, 'UPDATE', data);
+    const updated = await getScheduleRowById(id);
+    if (!updated) throw new Error('수정한 일정을 다시 불러오지 못했습니다');
+    return toSchedule(updated);
   });
-
-  console.log(`[ScheduleLocal] Schedule updated locally: ${id}`);
-
-  const updated = await getDatabase()
-    .select()
-    .from(schedules)
-    .where(ownedActiveRow(schedules, eq(schedules.id, id)))
-    .get();
-  if (!updated) {
-    throw new Error('수정한 일정을 다시 불러오지 못했습니다');
-  }
-  return updated;
 };
 
 /**
@@ -160,7 +160,7 @@ export const deleteScheduleLocal = async (id: string): Promise<{ id: string; del
   const tripId = existing?.tripId ?? null;
 
   await withTransaction(async () => {
-    if (!(await getScheduleByIdLocal(id))) {
+    if (!(await getScheduleRowById(id))) {
       throw new Error('삭제할 일정을 찾을 수 없습니다');
     }
     await getDatabase()

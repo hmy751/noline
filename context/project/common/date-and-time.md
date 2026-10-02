@@ -8,6 +8,16 @@
 
 Expense `date`는 경비가 속하는 달력 날짜이며 `YYYY-MM-DD`로 입력·전송·표시한다. 일정의 `scheduledAt`과 독립적이며 기기 시간대가 바뀌어도 날짜를 이동시키지 않는다. 생성·수정 시각과 구분하며, 결제일·사용일 중 무엇을 의미하는지는 이 저장 계약으로 새로 정하지 않는다. 기존 datetime 호환과 서버의 물리 저장 표현은 아래 기준을 따른다.
 
+## 시점 검증과 일정 입력의 책임
+
+공유 [시점 schema](../../../packages/schema/src/primitives/datetime.ts)는 timezone이 있는 ISO 형식뿐 아니라 실제로 해석 가능한 시점인지 검사한다. `+99:99`처럼 형식 검사를 통과해도 유효한 시각이 아닌 값은 거절한다. Trip·Schedule·Expense·User의 시점 필드, 삭제 응답과 동기화 기준 시각은 같은 검사를 사용한다. 유효한 offset을 `Z`로 강제 재작성하지는 않는다.
+
+Schedule 생성·수정 폼은 기기 시간대의 `YYYY-MM-DD`와 `HH:mm`을 보관한다. 공유 폼 검사와 [datetime helper](../../../apps/client/src/shared/lib/datetime.ts)가 달력 구성요소를 현지 시각으로 해석하고, submit 때 UTC ISO 문자열을 만든다. UTC 자정에서 현지 시간을 붙이면 UTC보다 느린 시간대에서 전날로 이동하므로 그 방식은 사용하지 않는다. DST(계절에 따른 시간대 전환)로 존재하지 않는 시각은 다음 시각으로 보정하지 않고 폼 오류로 보여주며 초안은 유지한다. 반복되는 시각의 새 입력은 JavaScript Date의 첫 시점 선택을 유지하며, 별도의 여행 시간대나 중복 시각 선택 UI는 도입하지 않는다.
+
+수정은 최종 날짜·시간이 처음 연 폼 값과 다른 경우에만 `scheduledAt`을 포함한다. 되돌린 입력이나 제목·장소만 바꾸는 수정은 원래 offset·초·밀리초와 DST 중복 시각의 원본을 보존한다. 저장 성공 후에는 비교 기준을 저장한 폼 값으로 갱신한다. 경비 생성으로 이동할 때는 오래된 navigation 시각 대신 현재 조회한 일정의 현지 날짜를 기본값으로 넘긴다.
+
+Schedule·Trip Repository는 Expense와 같이 공유 생성·수정 요청을 검사한 뒤 Activation Router로 전달한다. Local Schedule은 시각의 표현을 유지하며 목록·단건·mutation 결과를 반환할 때 시점 계약을 검사한다. 결과 검사 실패는 commit 전에 행·큐를 함께 롤백하고, 존재·접근 확인을 시각 검사와 분리해 잘못된 기존 행도 시각 교정이나 삭제가 가능하다. 목록은 SQLite TEXT 순서 대신 실제 시점으로 정렬해 offset이 다른 값도 순서가 맞는다.
+
 ## Schedule 응답의 시간 계약
 
 PostgreSQL Schedule row는 `Date` 값을 사용하고 API Schedule entity는 timezone offset이 있는 문자열을 요구한다. [Schedule serializer](../../../apps/server/src/serializers/schedule.ts)가 `scheduledAt`, `createdAt`, `updatedAt`, nullable `deletedAt`을 ISO 문자열로 바꾼다. 생성·전체 목록·단건·수정·Trip 하위 목록·Trip activation·sync pull의 일곱 응답 경로가 같은 serializer를 사용한다.
@@ -24,9 +34,15 @@ PostgreSQL Schedule row는 `Date` 값을 사용하고 API Schedule entity는 tim
 - [서버 요청 경계](../../../apps/server/src/routes/expenses.ts)도 같은 create/update 스키마를 적용한다. 동기화 engine이 entity HTTP adapter를 거치지 않고 REST endpoint로 보내는 기존 datetime 큐도 여기서 수용한다. HTTP adapter에 별도 날짜 변환은 두지 않는다.
 - [server DB](../../../apps/server/src/db/schema.ts)의 timestamp 저장은 유지한다. 새로 전달된 date-only는 UTC 자정으로 저장하고, [기존 serializer](../../../apps/server/src/serializers/expense.ts)가 UTC 날짜를 응답한다. serializer는 요청 검사·입력 변환을 맡지 않는다.
 - 경비 목록의 날짜 묶기·상세·수정 폼·연결 일정의 초기 탐색은 데이터 경계에서 정리된 날짜를 그대로 사용한다. 조회 변환 실패는 Query 오류로 전달하고 화면 렌더에서 호환 검사를 반복하지 않는다. 경비 날짜에 `formatISOToLocalDate`를 적용하지 않는다. 연결 후보인 Schedule의 날짜·시간은 실제 시각이므로 기존 현지 시간 표시를 유지한다.
-- Trip activation과 sync pull은 경비 배열을 공유 `expenseEntity`로 검사한 뒤 Local 저장을 시작한다. 서버 입수 값은 date-only를 요구하며, legacy datetime 허용은 기존 Local 행·요청 입력·큐의 호환에 한정한다. 이 경비 검사를 activation/pull의 전체 응답 검증 완료로 확대하지 않는다. Trip·Schedule·envelope·serverTime의 기존 검사 차이는 별도로 남아 있다.
+- 서버 입수 경비는 date-only entity를 요구한다. legacy datetime 허용은 기존 Local 행·요청 입력·큐의 호환에 한정한다. Activation·pull의 전체 입수 검사는 아래 기준을 따른다.
 
-경비 화면의 여행 날짜 범위는 기존 Trip timestamp의 UTC 날짜 기준을 유지하면서 UTC 일자로 순회해 DST의 중복·누락을 피한다. 이는 Trip 전체의 현지 날짜 표시·편집·주요 여행 선택 의미나 Schedule 화면의 범위 순회까지 통일한 변경은 아니다.
+## 서버 데이터 입수와 여행 날짜 범위
+
+Trip activation은 `activateTripResponse`, sync pull은 `syncPullResponseSchema`로 전체 envelope와 Trip·Schedule·Expense를 검사한 뒤 첫 Local 쓰기를 시작한다. Pull의 `serverTime`도 이 단계에 포함하므로 잘못된 시각을 기준으로 checkpoint를 전진시키지 않는다. Sync schema는 HTTP JSON 계약으로 entity의 문자열 시각을 요구하며 DB Date 객체나 필수 Trip 날짜의 null·누락을 허용하지 않는다. 서버 serializer가 DB Date를 문자열로 바꾸는 책임과 client 입수 경계의 검사를 구별한다. 소유권 검사는 유지한다. 이는 입수 검사이며 pull 전체 저장의 원자성이나 다른 동기화 실패 정책까지 새로 보장하는 변경은 아니다.
+
+서버 sync pull은 `lastSyncedAt`을 공유 query schema로 검사한 뒤 SQL 비교 시각을 만든다. Z와 유효한 offset을 모두 수용하고, timezone이 없거나 해석 불가능한 값은 조회 전에 400 응답으로 거절한다.
+
+일정·경비 목록의 여행 날짜 범위는 같은 helper로 기존 Trip timestamp의 UTC 날짜를 나열하며 UTC 일자로 순회해 DST 중복·누락을 피한다. Trip 전체의 현지 날짜 표시·편집·주요 여행 선택·활성 만료 계산은 기존 의미를 유지한다.
 
 2026-09-14의 서버 직렬화 작업은 DB row → 응답 표현을 통일했다. 당시 폼의 datetime과 수정 요청의 date-only 불일치는 그대로 남아 있었다. 이후 직접 수정 API에만 둔 보정도 Local 동기화에는 적용되지 않았다. 사용자가 공유 규칙과 저장 전 경계의 일관성을 요청해 위 책임 배치를 채택했다. [선택과 호환 범위](../../../.claude/decisions/2026-10-02-expense-date-boundaries.md)에 근거를 남긴다.
 

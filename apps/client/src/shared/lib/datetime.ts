@@ -1,10 +1,8 @@
 /**
  * 날짜/시간 유틸리티 함수
  *
- * ISO 8601 datetime with timezone을 기준으로 사용
- * - DB 저장: ISO string with timezone
- * - API 통신: ISO string with timezone
- * - UI 표시: 사용자 로컬 시간으로 변환
+ * 시점은 ISO datetime으로 저장·전송하고 기기 시간대로 표시한다.
+ * 달력 날짜(YYYY-MM-DD)는 시점으로 변환하지 않는다.
  */
 
 /**
@@ -43,21 +41,60 @@ export function toISOString(date: Date): string {
  * @example
  * ```ts
  * combineDateTimeToISO("2024-01-15", "14:30");
- * // → "2024-01-15T14:30:00+09:00" (사용자 타임존 기준)
+ * // → "2024-01-15T05:30:00.000Z" (기기가 Asia/Seoul인 경우)
  *
  * combineDateTimeToISO(new Date(), "14:30");
  * // → 오늘 날짜 14:30의 ISO string
  * ```
  */
 export function combineDateTimeToISO(date: string | Date, time: string): string {
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  const [hours, minutes] = time.split(':').map(Number);
+  const dateString = typeof date === 'string' ? date : formatISOToLocalDate(date.toISOString());
 
-  // 시간 설정
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) {
+    throw new Error('날짜와 시간을 다시 선택해주세요.');
+  }
+
+  const [year, month, day] = dateString.split('-').map(Number);
+  const [hours, minutes] = time.split(':').map(Number);
+  // 날짜 문자열을 UTC 자정으로 읽지 않고 로컬 달력의 구성요소로 만든다.
+  const dateObj = new Date(0);
+
+  dateObj.setFullYear(year, month - 1, day);
   dateObj.setHours(hours, minutes, 0, 0);
 
-  // ISO string으로 변환 (UTC 기준)
+  if (
+    !Number.isFinite(dateObj.getTime()) ||
+    dateObj.getFullYear() !== year ||
+    dateObj.getMonth() !== month - 1 ||
+    dateObj.getDate() !== day ||
+    dateObj.getHours() !== hours ||
+    dateObj.getMinutes() !== minutes
+  ) {
+    // 존재하지 않는 날짜 또는 DST 전환으로 건너뛴 시간을 자동 보정하지 않는다.
+    throw new Error('현재 기기 시간대에서 사용할 수 없는 날짜·시간입니다. 다시 선택해주세요.');
+  }
+
   return dateObj.toISOString();
+}
+
+/** 기존 Trip timestamp의 UTC 날짜 기준으로 달력 날짜를 나열한다. */
+export function getUTCDateRange(startISO: string, endISO: string): string[] {
+  const current = new Date(startISO);
+  const end = new Date(endISO);
+
+  if (!Number.isFinite(current.getTime()) || !Number.isFinite(end.getTime())) return [];
+
+  current.setUTCHours(0, 0, 0, 0);
+  end.setUTCHours(0, 0, 0, 0);
+
+  const dates: string[] = [];
+
+  while (current <= end) {
+    dates.push(current.toISOString().split('T')[0]);
+    current.setUTCDate(current.getUTCDate() + 1);
+  }
+
+  return dates;
 }
 
 /**

@@ -23,6 +23,13 @@ import {
   updateExpenseLocal,
   deleteExpenseLocal,
 } from '@/entities/expense/lib/expense-local';
+import {
+  getSchedulesLocal,
+  getScheduleByIdLocal,
+  createScheduleLocal,
+  updateScheduleLocal,
+  deleteScheduleLocal,
+} from '@/entities/schedule/lib/schedule-local';
 import { useActivateTrip } from '@/entities/trip/data/useActivateTrip';
 import { pullChanges } from '@/shared/services/sync/engine';
 import apiClient from '@/shared/api/fetcher';
@@ -108,6 +115,11 @@ const trip = {
   userId,
   name: '여행',
   destination: '서울',
+  country: null,
+  baseCurrency: 'USD',
+  latitude: null,
+  longitude: null,
+  cityId: null,
   startDate: now,
   endDate: now,
   createdAt: now,
@@ -138,30 +150,26 @@ beforeEach(async () => {
   await resetDatabase();
   await useAuthStore.getState().saveAndApplySession({ userId, accessToken: 'access', refreshToken: 'refresh' });
   await getDatabase().insert(trips).values(trip);
-  await getDatabase()
-    .insert(tripActivations)
-    .values({
-      id: tripId,
-      tripId,
-      userId,
-      isActivated: true,
-      activatedAt: now,
-      expiresAt: now,
-      createdAt: now,
-      updatedAt: now,
-    });
-  await getDatabase()
-    .insert(schedules)
-    .values({
-      id: scheduleId,
-      userId,
-      tripId,
-      title: '일정',
-      location: '서울',
-      scheduledAt: now,
-      createdAt: now,
-      updatedAt: now,
-    });
+  await getDatabase().insert(tripActivations).values({
+    id: tripId,
+    tripId,
+    userId,
+    isActivated: true,
+    activatedAt: now,
+    expiresAt: now,
+    createdAt: now,
+    updatedAt: now,
+  });
+  await getDatabase().insert(schedules).values({
+    id: scheduleId,
+    userId,
+    tripId,
+    title: '일정',
+    location: '서울',
+    scheduledAt: now,
+    createdAt: now,
+    updatedAt: now,
+  });
   await getDatabase().insert(expenses).values(row);
 });
 afterEach(() => {
@@ -244,18 +252,17 @@ it('생성 반환 날짜 검사 실패도 행과 큐를 함께 롤백한다', as
 it.each(['2026-02-30', row.date])(
   'pull의 잘못된 경비 날짜 %s는 어떤 entity 저장과 기준 시각 갱신보다 먼저 거절한다',
   async (date) => {
-    jest
-      .mocked(syncApiClient.get)
-      .mockResolvedValue({
+    jest.mocked(syncApiClient.get).mockResolvedValue({
+      data: {
+        success: true,
         data: {
-          data: {
-            trips: [{ ...trip, name: '덮이면 안 됨' }],
-            schedules: [],
-            expenses: [{ ...row, date }],
-            serverTime: now,
-          },
+          trips: [{ ...trip, name: '덮이면 안 됨' }],
+          schedules: [],
+          expenses: [{ ...row, date }],
+          serverTime: now,
         },
-      } as never);
+      },
+    } as never);
     await expect(pullChanges()).rejects.toMatchObject({ name: 'ZodError' });
     expect(getDatabase().select().from(trips).get()?.name).toBe(trip.name);
     expect(rawExpense()?.date).toBe(row.date);
@@ -264,13 +271,12 @@ it.each(['2026-02-30', row.date])(
 );
 
 it('정상 date-only 경비 pull은 그대로 저장하고 다음 기준 시각을 기록한다', async () => {
-  jest
-    .mocked(syncApiClient.get)
-    .mockResolvedValue({
-      data: {
-        data: { trips: [], schedules: [], expenses: [{ ...row, date: '2026-10-03', version: 2 }], serverTime: now },
-      },
-    } as never);
+  jest.mocked(syncApiClient.get).mockResolvedValue({
+    data: {
+      success: true,
+      data: { trips: [], schedules: [], expenses: [{ ...row, date: '2026-10-03', version: 2 }], serverTime: now },
+    },
+  } as never);
   await pullChanges();
   expect(rawExpense()).toMatchObject({ date: '2026-10-03', version: 2 });
   expect(getDatabase().select().from(syncMetadata).get()?.value).toBe(new Date(now).toISOString());
@@ -278,11 +284,10 @@ it('정상 date-only 경비 pull은 그대로 저장하고 다음 기준 시각�
 
 it('잘못된 activation 경비는 기존 활성 상태·행을 변경하기 전에 거절한다', async () => {
   const newTripId = '01ARZ3NDEKTSV4RRFFQ69G5FAZ';
-  jest
-    .mocked(apiClient.post)
-    .mockResolvedValue({
-      data: { trips: [{ ...trip, id: newTripId }], schedules: [], expenses: [{ ...row, date: 'invalid' }] },
-    } as never);
+  jest.mocked(apiClient.post).mockResolvedValue({
+    success: true,
+    data: { trips: [{ ...trip, id: newTripId }], schedules: [], expenses: [{ ...row, date: 'invalid' }] },
+  } as never);
   const mutation = useActivateTrip() as unknown as { mutationFn: (id: string) => Promise<unknown> };
   await expect(mutation.mutationFn(newTripId)).rejects.toMatchObject({ name: 'ZodError' });
   expect(getDatabase().select().from(tripActivations).all()).toEqual([
@@ -294,19 +299,164 @@ it('잘못된 activation 경비는 기존 활성 상태·행을 변경하기 전
 it('정상 activation 경비는 date-only로 저장하고 앱에도 같은 날짜를 반환한다', async () => {
   const newTripId = '01ARZ3NDEKTSV4RRFFQ69G5FAZ';
   const newExpenseId = '01ARZ3NDEKTSV4RRFFQ69G5FB0';
-  jest
-    .mocked(apiClient.post)
-    .mockResolvedValue({
-      data: {
-        trips: [{ ...trip, id: newTripId }],
-        schedules: [],
-        expenses: [{ ...row, id: newExpenseId, tripId: newTripId, scheduleId: null, date: '2026-10-03' }],
-      },
-    } as never);
+  jest.mocked(apiClient.post).mockResolvedValue({
+    success: true,
+    data: {
+      trips: [{ ...trip, id: newTripId }],
+      schedules: [],
+      expenses: [{ ...row, id: newExpenseId, tripId: newTripId, scheduleId: null, date: '2026-10-03' }],
+    },
+  } as never);
   const mutation = useActivateTrip() as unknown as {
     mutationFn: (id: string) => Promise<{ expenses: (typeof row)[] }>;
   };
   const result = await mutation.mutationFn(newTripId);
   expect(result.expenses[0].date).toBe('2026-10-03');
   expect(getDatabase().select().from(expenses).where(eq(expenses.id, newExpenseId)).get()?.date).toBe('2026-10-03');
+});
+
+it('offset이 다른 Local 일정도 문자열이 아닌 실제 시각 순으로 읽고 원본은 유지한다', async () => {
+  const later = '2026-10-02T00:30:00-07:00';
+  const earlier = '2026-10-02T09:00:00+09:00';
+  await getDatabase().update(schedules).set({ scheduledAt: later });
+  await createScheduleLocal({
+    id: expenseId,
+    tripId,
+    title: '먼저',
+    location: '서울',
+    address: null,
+    scheduledAt: earlier,
+  });
+  const results = await getSchedulesLocal(tripId);
+  expect(results.map((s) => s.id)).toEqual([expenseId, scheduleId]);
+  expect(results.map((s) => s.scheduledAt)).toEqual([earlier, later]);
+});
+
+it('시각을 수정하지 않는 Local 저장은 원래 offset·초·밀리초를 그대로 둔다', async () => {
+  const scheduledAt = '2026-11-01T01:30:12.345-08:00';
+  await getDatabase().update(schedules).set({ scheduledAt });
+  const result = await updateScheduleLocal(scheduleId, { title: '제목만' });
+  expect(result.scheduledAt).toBe(scheduledAt);
+  expect(JSON.parse((await queued())[0].payload)).toEqual({ title: '제목만' });
+});
+
+it('해석할 수 없는 Local 시각은 읽기 오류가 되고 실패한 수정은 행·큐를 함께 롤백한다', async () => {
+  const invalid = '2026-10-02T09:00:00+99:99';
+  await getDatabase().update(schedules).set({ scheduledAt: invalid });
+  await expect(getSchedulesLocal(tripId)).rejects.toMatchObject({ name: 'ZodError' });
+  await expect(getScheduleByIdLocal(scheduleId)).rejects.toMatchObject({ name: 'ZodError' });
+  await expect(updateScheduleLocal(scheduleId, { title: '실패' })).rejects.toMatchObject({ name: 'ZodError' });
+  expect(getDatabase().select().from(schedules).get()).toMatchObject({ title: '일정', scheduledAt: invalid });
+  expect(await queued()).toEqual([]);
+  await expect(updateScheduleLocal(scheduleId, { scheduledAt: now })).resolves.toMatchObject({ scheduledAt: now });
+});
+
+it('시각 검사 실패로 일정 생성도 롤백하고 잘못된 시각의 기존 일정은 삭제할 수 있다', async () => {
+  await expect(
+    createScheduleLocal({
+      id: expenseId,
+      tripId,
+      title: '실패',
+      location: '서울',
+      address: null,
+      scheduledAt: 'invalid',
+    }),
+  ).rejects.toMatchObject({ name: 'ZodError' });
+  expect(getDatabase().select().from(schedules).all()).toHaveLength(1);
+  expect(await queued()).toEqual([]);
+  await getDatabase().update(schedules).set({ scheduledAt: 'invalid' });
+  await expect(deleteScheduleLocal(scheduleId)).resolves.toMatchObject({ id: scheduleId });
+  expect(getDatabase().select().from(schedules).get()?.deletedAt).toBeTruthy();
+  expect((await queued())[0].action).toBe('DELETE');
+});
+
+it.each([
+  'trip-date',
+  'trip-date-null',
+  'db-date',
+  'schedule-time',
+  'expense-metadata',
+  'server-time',
+  'envelope',
+  'missing-array',
+])('pull의 %s 계약 오류는 모든 행과 동기화 기준 시각을 유지한다', async (kind) => {
+  const schedule = getDatabase().select().from(schedules).get();
+  if (!schedule) throw new Error('fixture 일정이 없습니다');
+  const envelope = {
+    success: true,
+    data: {
+      trips: [{ ...trip, name: '바뀌면 안 됨' }],
+      schedules: [schedule],
+      expenses: [{ ...row, date: '2026-10-03' }],
+      serverTime: now,
+    },
+  };
+  if (kind === 'trip-date') envelope.data.trips[0].endDate = '2026-10-02';
+  if (kind === 'trip-date-null') Reflect.set(envelope.data.trips[0], 'endDate', null);
+  if (kind === 'db-date') Reflect.set(envelope.data.trips[0], 'createdAt', new Date(now));
+  if (kind === 'schedule-time') envelope.data.schedules[0].scheduledAt = '2026-10-02T09:00:00+99:99';
+  if (kind === 'expense-metadata') envelope.data.expenses[0].updatedAt = 'invalid';
+  if (kind === 'server-time') envelope.data.serverTime = '2026-10-02T09:00:00+99:99';
+  if (kind === 'envelope') envelope.success = false;
+  if (kind === 'missing-array') Reflect.deleteProperty(envelope.data, 'schedules');
+  jest.mocked(syncApiClient.get).mockResolvedValue({ data: envelope } as never);
+  await expect(pullChanges()).rejects.toMatchObject({ name: 'ZodError' });
+  expect(getDatabase().select().from(trips).get()?.name).toBe(trip.name);
+  expect(getDatabase().select().from(schedules).get()).toEqual({ ...schedule, scheduledAt: now });
+  expect(rawExpense()?.date).toBe(row.date);
+  expect(await queued()).toEqual([]);
+  expect(getDatabase().select().from(syncMetadata).all()).toEqual([]);
+});
+
+it.each(['trip-date', 'schedule-time', 'expense-metadata', 'envelope'])(
+  'activation의 %s 계약 오류는 기존 활성 여행도 새 여행 데이터도 변경하지 않는다',
+  async (kind) => {
+    const newTripId = '01ARZ3NDEKTSV4RRFFQ69G5FAZ';
+    const schedule = getDatabase().select().from(schedules).get();
+    if (!schedule) throw new Error('fixture 일정이 없습니다');
+    const envelope = {
+      success: true,
+      data: {
+        trips: [{ ...trip, id: newTripId }],
+        schedules: [{ ...schedule, tripId: newTripId }],
+        expenses: [{ ...row, tripId: newTripId, date: '2026-10-03' }],
+      },
+    };
+    if (kind === 'trip-date') envelope.data.trips[0].startDate = 'invalid';
+    if (kind === 'schedule-time') envelope.data.schedules[0].scheduledAt = '2026-10-02T09:00:00+99:99';
+    if (kind === 'expense-metadata') envelope.data.expenses[0].createdAt = 'invalid';
+    if (kind === 'envelope') envelope.success = false;
+    jest.mocked(apiClient.post).mockResolvedValue(envelope as never);
+    const mutation = useActivateTrip() as unknown as { mutationFn: (id: string) => Promise<unknown> };
+    await expect(mutation.mutationFn(newTripId)).rejects.toMatchObject({ name: 'ZodError' });
+    expect(getDatabase().select().from(tripActivations).all()).toEqual([
+      expect.objectContaining({ tripId, isActivated: true }),
+    ]);
+    expect(getDatabase().select().from(trips).all()).toHaveLength(1);
+    expect(rawExpense()?.date).toBe(row.date);
+  },
+);
+
+it('정상 pull은 세 entity의 ISO 시각·date-only와 삭제 시각을 검사하고 저장한다', async () => {
+  const schedule = getDatabase().select().from(schedules).get();
+  if (!schedule) throw new Error('fixture 일정이 없습니다');
+  jest.mocked(syncApiClient.get).mockResolvedValue({
+    data: {
+      success: true,
+      data: {
+        trips: [{ ...trip, name: '새 여행 이름', version: 2 }],
+        schedules: [{ ...schedule, scheduledAt: '2026-11-01T01:30:12.345-08:00', deletedAt: now, version: 2 }],
+        expenses: [{ ...row, date: '2026-10-03', version: 2 }],
+        serverTime: now,
+      },
+    },
+  } as never);
+  await pullChanges();
+  expect(getDatabase().select().from(trips).get()?.name).toBe('새 여행 이름');
+  expect(getDatabase().select().from(schedules).get()).toMatchObject({
+    scheduledAt: '2026-11-01T01:30:12.345-08:00',
+    deletedAt: now,
+  });
+  expect(rawExpense()?.date).toBe('2026-10-03');
+  expect(getDatabase().select().from(syncMetadata).get()?.value).toBe(new Date(now).toISOString());
 });

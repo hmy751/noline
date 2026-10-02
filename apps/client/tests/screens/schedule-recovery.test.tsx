@@ -16,7 +16,7 @@ import { UpdateScheduleDrawer } from '@/features/schedule/update-schedule';
 
 jest.mock('@/shared/services/sync/api', () => ({
   __esModule: true,
-  default: { get: jest.fn(async () => ({ data: { data: { expenses: [], serverTime: '2026-09-28T00:00:00Z' } } })) },
+  default: { get: jest.fn(async () => ({ data: { success: true, data: { trips: [], schedules: [], expenses: [], serverTime: '2026-09-28T00:00:00Z' } } })) },
 }));
 jest.mock('@/shared/services/sync/queue', () => ({}));
 jest.mock('@/shared/services/sync/storage', () => ({ getLastSyncedAt: async () => null, setLastSyncedAt: jest.fn() }));
@@ -512,14 +512,14 @@ function mapRows(): Schedules {
     {
       ...rows('일정 B')[0],
       id: 'b',
-      scheduledAt: '2026-09-23T10:00:00+09:00',
+      scheduledAt: new Date(2026, 8, 23, 10).toISOString(),
       latitude: '37.6',
       longitude: '127.1',
     },
     {
       ...rows('일정 C')[0],
       id: 'c',
-      scheduledAt: '2026-09-23T11:00:00+09:00',
+      scheduledAt: new Date(2026, 8, 23, 11).toISOString(),
       latitude: '37.7',
       longitude: '127.2',
     },

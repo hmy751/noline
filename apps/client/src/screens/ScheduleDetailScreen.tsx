@@ -19,7 +19,7 @@ export interface ScheduleDetailScreenProps {
   onBack: () => void;
 }
 
-export default function ScheduleDetailScreen({ scheduleId, tripId, scheduledAt, onBack }: ScheduleDetailScreenProps) {
+export default function ScheduleDetailScreen({ scheduleId, tripId, onBack }: ScheduleDetailScreenProps) {
   const router = useRouter();
 
   const {
@@ -44,7 +44,8 @@ export default function ScheduleDetailScreen({ scheduleId, tripId, scheduledAt, 
   };
 
   const handleAddExpense = () => {
-    const expenseDate = formatISOToLocalDate(scheduledAt);
+    if (!schedule) return;
+    const expenseDate = formatISOToLocalDate(schedule.scheduledAt);
 
     router.push(`/create-expense?tripId=${tripId}&scheduleId=${scheduleId}&date=${expenseDate}`);
   };

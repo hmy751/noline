@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isoDateTime } from '../primitives/datetime';
 import { authProviderSchema } from '../entities/user';
 
 // ========================================
@@ -49,7 +50,7 @@ export const refreshTokenResponse = z.object({
 export const getCurrentUserResponse = z.object({
   success: z.literal(true),
   data: authUserSchema.extend({
-    createdAt: z.string().datetime({ offset: true }),
+    createdAt: isoDateTime,
   }),
 });
 

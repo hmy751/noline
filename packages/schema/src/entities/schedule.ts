@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isoDateTime } from '../primitives/datetime';
 
 // ========================================
 // Schedule Entity Schema (DB와 1:1 매핑)
@@ -13,9 +14,9 @@ import { z } from 'zod';
 export const scheduleEntity = z.object({
   // Client-Side ID 필드
   id: z.string().ulid(),
-  createdAt: z.string().datetime({ offset: true }),
-  updatedAt: z.string().datetime({ offset: true }),
-  deletedAt: z.string().datetime({ offset: true }).nullable().optional(),
+  createdAt: isoDateTime,
+  updatedAt: isoDateTime,
+  deletedAt: isoDateTime.nullable().optional(),
   version: z.number().default(1).optional(),
 
   // 비즈니스 필드
@@ -24,7 +25,7 @@ export const scheduleEntity = z.object({
   title: z.string(),
   location: z.string(),
   address: z.string().nullable(),
-  scheduledAt: z.string().datetime({ offset: true }),
+  scheduledAt: isoDateTime,
   latitude: z.string().nullable(), // DB decimal → string
   longitude: z.string().nullable(),
 });

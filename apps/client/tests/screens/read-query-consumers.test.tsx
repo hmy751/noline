@@ -25,7 +25,7 @@ jest.mock('@react-native-community/netinfo', () => ({
   default: { addEventListener: jest.fn(() => jest.fn()), refresh: jest.fn() },
 }));
 jest.mock('@/entities/trip/data/useGetTripActivation', () => ({ useGetTripActivation: jest.fn() }));
-jest.mock('expo-router', () => ({ useRouter: () => ({ push: jest.fn(), back: jest.fn() }) }));
+jest.mock('expo-router', () => ({ useRouter: () => ({ push: mockPush, back: jest.fn() }) }));
 jest.mock('lucide-react-native', () => new Proxy({}, { get: () => () => null }));
 jest.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
@@ -119,6 +119,7 @@ jest.mock('@/entities/route', () => ({ useAutoDownloadRoutes: () => ({ mutate: m
 jest.mock('@/features/schedule/update-schedule/LocationSearchModal', () => ({ LocationSearchModal: () => null }));
 jest.mock('@/shared/services/id/ulid', () => ({ generateId: () => 'new-schedule' }));
 
+const mockPush = jest.fn();
 const mockSaveExpense = jest.fn();
 const mockSaveSchedule = jest.fn();
 const mockDownloadRoutes = jest.fn();
@@ -318,4 +319,19 @@ it.each([
   expect(ScheduleRepository.getByTripId).not.toHaveBeenCalled();
   view.rerender(view.wrap(ui(true)));
   await waitFor(() => expect(ScheduleRepository.getByTripId).toHaveBeenCalledTimes(1));
+});
+
+it('일정에서 경비를 추가하면 오래된 navigation 시각 대신 현재 조회한 일정 날짜를 전달한다', async () => {
+  const latest = '2026-10-02T09:30:00Z';
+  jest.mocked(ScheduleRepository.getById).mockResolvedValue({ ...schedule, scheduledAt: latest });
+  jest.mocked(ExpenseRepository.getByScheduleId).mockResolvedValue([]);
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } });
+  clients.push(client);
+  const view = render(<QueryClientProvider client={client}>{detail}</QueryClientProvider>);
+  await waitFor(() => expect(view.getByText('경비 추가')).toBeTruthy());
+  fireEvent.press(view.getByText('경비 추가'));
+  const expected = jest
+    .requireActual<typeof import('@/shared/lib/datetime')>('@/shared/lib/datetime')
+    .formatISOToLocalDate(latest);
+  expect(mockPush).toHaveBeenCalledWith(`/create-expense?tripId=trip&scheduleId=s&date=${expected}`);
 });

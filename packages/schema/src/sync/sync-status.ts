@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isoDateTime } from '../primitives/datetime';
 import { tripEntity } from '../entities/trip';
 import { scheduleEntity } from '../entities/schedule';
 import { expenseEntity } from '../entities/expense';
@@ -13,7 +14,7 @@ import { expenseEntity } from '../entities/expense';
  * GET /api/sync/pull?lastSyncedAt=2025-10-24T10:00:00.000Z
  */
 export const syncPullQuerySchema = z.object({
-  lastSyncedAt: z.string().datetime().optional(), // ISO 8601 날짜 문자열
+  lastSyncedAt: isoDateTime.optional(), // ISO 8601 날짜 문자열
 });
 
 /**
@@ -26,33 +27,11 @@ export const syncPullQuerySchema = z.object({
  * - serverTime: 다음 동기화의 기준 시간
  */
 export const syncPullDataSchema = z.object({
-  trips: z.array(
-    tripEntity.extend({
-      // DB Date → ISO string 변환
-      createdAt: z.union([z.date(), z.string().datetime()]),
-      updatedAt: z.union([z.date(), z.string().datetime()]),
-      deletedAt: z.union([z.date(), z.string().datetime()]).nullable().optional(),
-      startDate: z.union([z.date(), z.string().datetime()]).nullable().optional(),
-      endDate: z.union([z.date(), z.string().datetime()]).nullable().optional(),
-    }),
-  ),
-  schedules: z.array(
-    scheduleEntity.extend({
-      // DB Date → ISO string 변환
-      createdAt: z.union([z.date(), z.string().datetime()]),
-      updatedAt: z.union([z.date(), z.string().datetime()]),
-      deletedAt: z.union([z.date(), z.string().datetime()]).nullable().optional(),
-    }),
-  ),
-  expenses: z.array(
-    expenseEntity.extend({
-      // DB Date → ISO string 변환
-      createdAt: z.union([z.date(), z.string().datetime()]),
-      updatedAt: z.union([z.date(), z.string().datetime()]),
-      deletedAt: z.union([z.date(), z.string().datetime()]).nullable().optional(),
-    }),
-  ),
-  serverTime: z.string().datetime(), // ISO 8601
+  // HTTP JSON 계약: 서버 serializer가 DB Date를 문자열로 바꾼 뒤 반환한다.
+  trips: z.array(tripEntity),
+  schedules: z.array(scheduleEntity),
+  expenses: z.array(expenseEntity),
+  serverTime: isoDateTime,
 });
 
 /**

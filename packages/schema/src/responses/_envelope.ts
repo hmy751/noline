@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isoDateTime } from '../primitives/datetime';
 
 // ========================================
 // Response Envelope Factories
@@ -29,6 +30,6 @@ export const deleteResponse = z.object({
   success: z.literal(true),
   data: z.object({
     id: z.string().ulid(),
-    deletedAt: z.string().datetime({ offset: true }),
+    deletedAt: isoDateTime,
   }),
 });

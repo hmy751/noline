@@ -31,10 +31,6 @@ export const createScheduleRequest = scheduleEntity
     // 필수 필드 검증 추가
     title: z.string().min(1, 'Title is required'),
     location: z.string().min(1, 'Location is required'),
-    scheduledAt: z.string().datetime({
-      offset: true,
-      message: 'Invalid datetime format. Use ISO 8601 format with timezone.',
-    }),
   });
 
 /**

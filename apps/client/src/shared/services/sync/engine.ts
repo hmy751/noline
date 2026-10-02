@@ -9,9 +9,9 @@ import { and, eq } from 'drizzle-orm';
 import { selectLocalUserId, useAuthStore } from '@/shared/store/auth';
 import { getQueueOwner } from '@/shared/services/auth/local-account';
 import { processPendingCleanups } from './cleanup-job';
-import { AuthRequiredError } from '@/shared/store/auth';
+import { AuthRequiredError, requireLocalUserId } from '@/shared/store/auth';
 import type { Query } from '@tanstack/react-query';
-import { expenseEntity } from '@repo/schema/entities/expense';
+import { syncPullResponseSchema } from '@repo/schema/sync/sync-status';
 
 /** sync-owned table의 endpoint는 여기서 관리하고 HTTP method는 action으로 결정한다. */
 const SYNC_PUSH_ENDPOINTS = {
@@ -186,11 +186,11 @@ export async function pullChanges(): Promise<void> {
     });
 
     // 정책: 서버 응답은 { success, data } 구조
-    const { trips, schedules, expenses: expenseRows, serverTime } = response.data.data;
-    // 다른 entity 쓰기도 시작하기 전에 경비 응답 계약을 확인한다.
-    const expenses = expenseEntity.array().parse(expenseRows);
-    const rows = [...(trips ?? []), ...(schedules ?? []), ...(expenses ?? [])];
-    if (rows.some((row: { userId: string }) => row.userId !== selectLocalUserId(useAuthStore.getState()))) {
+    // entity와 checkpoint 모두 검증한 뒤 첫 Local 쓰기를 시작한다.
+    const { trips, schedules, expenses, serverTime } = syncPullResponseSchema.parse(response.data).data;
+    const userId = requireLocalUserId();
+    const rows = [...trips, ...schedules, ...expenses];
+    if (rows.some((row) => row.userId !== userId)) {
       throw new Error('다른 계정의 동기화 응답입니다');
     }
 
@@ -203,27 +203,33 @@ export async function pullChanges(): Promise<void> {
 
     // 로컬 DB에 Upsert (ISO string 그대로 저장)
     if (trips && trips.length > 0) {
-      const normalizedTrips = (trips as Array<Record<string, unknown>>).map((trip) => ({
+      const normalizedTrips = trips.map((trip) => ({
         ...trip,
+        userId,
+        deletedAt: trip.deletedAt ?? null,
         version: trip.version ?? 1,
       }));
-      await upsertTrips(normalizedTrips as never[]);
+      await upsertTrips(normalizedTrips);
     }
 
     if (schedules && schedules.length > 0) {
-      const normalizedSchedules = (schedules as Array<Record<string, unknown>>).map((schedule) => ({
+      const normalizedSchedules = schedules.map((schedule) => ({
         ...schedule,
+        userId,
+        deletedAt: schedule.deletedAt ?? null,
         version: schedule.version ?? 1,
       }));
-      await upsertSchedules(normalizedSchedules as never[]);
+      await upsertSchedules(normalizedSchedules);
     }
 
     if (expenses && expenses.length > 0) {
-      const normalizedExpenses = (expenses as Array<Record<string, unknown>>).map((expense) => ({
+      const normalizedExpenses = expenses.map((expense) => ({
         ...expense,
+        userId,
+        deletedAt: expense.deletedAt ?? null,
         version: expense.version ?? 1,
       }));
-      await upsertExpenses(normalizedExpenses as never[]);
+      await upsertExpenses(normalizedExpenses);
     }
 
     await refreshSyncQueries();
