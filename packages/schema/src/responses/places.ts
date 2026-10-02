@@ -42,3 +42,15 @@ export const placesSearchResponse = z.object({
     searchContext: searchContextSchema,
   }),
 });
+
+/** GET /api/places/:placeId는 wrapper 없이 상세 객체를 반환한다. */
+export const placeDetailsResponse = z.object({
+  id: z.string(),
+  name: z.string(),
+  address: z.string(),
+  latitude: z.number().finite().min(-90).max(90),
+  longitude: z.number().finite().min(-180).max(180),
+  placeId: z.string(),
+  photoUrl: z.string().optional(),
+  rating: z.number().optional(),
+});

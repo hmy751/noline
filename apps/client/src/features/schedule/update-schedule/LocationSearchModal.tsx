@@ -1,21 +1,20 @@
 import { View, Text, Modal, StyleSheet } from 'react-native';
 import { X } from 'lucide-react-native';
 import { useState } from 'react';
-import { LocationSearchBar, LocationSearchResults, type Location } from '@/features/schedule/create-schedule';
-import { useLocationSearch } from '@/features/schedule/create-schedule';
-import { PolicyBasedMapView } from '@/shared/components';
+import { LocationSearchBar } from '@/shared/components/PlaceSearch/LocationSearchBar';
+import { LocationSearchResults } from '@/shared/components/PlaceSearch/LocationSearchResults';
+import { usePlaceResolutionSearch, type PlaceSearchContext } from '@/shared/services/places';
+import { PolicyBasedMapView, PolicyErrorDisplay } from '@/shared/components';
+import { getPlaceSearchPolicy } from '@/shared/policy/place-search';
+import { toUpdateLocationSelection, type UpdateLocationSelection } from './place-search-compatibility';
 
 type LocationSearchModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onSelectLocation: (location: Location) => void;
+  onSelectLocation: (location: UpdateLocationSelection) => void;
   tripId: string;
   initialQuery?: string;
-  cityContext?: {
-    cityName: string;
-    latitude?: number;
-    longitude?: number;
-  };
+  cityContext?: PlaceSearchContext;
 };
 
 /**
@@ -30,13 +29,17 @@ export function LocationSearchModal({
   onClose,
   onSelectLocation,
   tripId,
-  initialQuery = '',
   cityContext,
 }: LocationSearchModalProps) {
-  const { searchQuery, results, isSearching, handleSearch, clearSearch } = useLocationSearch(cityContext);
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+  // 부모는 보통 열린 동안에만 장착한다. 닫힌 채 장착돼도 입력·캐시를 유지하고 새 요청만 멈춘다.
+  const search = usePlaceResolutionSearch(cityContext, isOpen);
+  const { searchQuery, isSearching, handleSearch, clearSearch } = search;
+  const mapLocations = search.results.map(toUpdateLocationSelection);
+  const selectableLocations = search.policy.allowed && !search.isPlaceholderData ? mapLocations : [];
+  const [selectedLocation, setSelectedLocation] = useState<UpdateLocationSelection | null>(null);
 
-  const handleSelect = (location: Location) => {
+  const handleSelect = (location: UpdateLocationSelection) => {
+    if (!isOpen || !getPlaceSearchPolicy().allowed || !selectableLocations.includes(location)) return;
     setSelectedLocation(location);
     onSelectLocation(location);
     onClose();
@@ -59,14 +62,22 @@ export function LocationSearchModal({
         </View>
 
         {/* Search Bar */}
-        <LocationSearchBar value={searchQuery} onChangeText={handleSearch} onClear={clearSearch} autoFocus />
+        {search.policy.allowed ? (
+          <LocationSearchBar value={searchQuery} onChangeText={handleSearch} onClear={clearSearch} autoFocus />
+        ) : (
+          <PolicyErrorDisplay policy={search.policy} variant='inline' />
+        )}
 
         {/* Map + Results */}
         <View className='flex-1 relative'>
-          <PolicyBasedMapView tripId={tripId} locations={results} selectedLocation={selectedLocation} />
+          <PolicyBasedMapView tripId={tripId} locations={mapLocations} selectedLocation={selectedLocation} />
 
-          {(isSearching || results.length > 0) && (
-            <LocationSearchResults results={results} onSelectLocation={handleSelect} isSearching={isSearching} />
+          {search.policy.allowed && (isSearching || selectableLocations.length > 0) && (
+            <LocationSearchResults
+              results={selectableLocations}
+              onSelectLocation={handleSelect}
+              isSearching={isSearching}
+            />
           )}
         </View>
       </View>

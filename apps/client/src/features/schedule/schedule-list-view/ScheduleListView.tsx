@@ -1,7 +1,8 @@
-import { View, Text, ScrollView, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, RefreshControl, Alert } from 'react-native';
 import { router } from 'expo-router';
 import { Container, Stack, ScheduleCard } from '@/shared/components';
 import { Pressable } from '@repo/ui';
+import { useAppPolicy } from '@/shared/policy';
 
 interface Schedule {
   id: string;
@@ -42,6 +43,17 @@ export function ScheduleListView({
   refreshing = false,
   onRefresh,
 }: ScheduleListViewProps) {
+  const creationPolicy = useAppPolicy(selectedTripId ?? undefined).schedule.create;
+
+  const handleAddSchedule = (date: string) => {
+    if (!selectedTripId) return;
+    if (!creationPolicy.allowed) {
+      Alert.alert('일정을 추가할 수 없습니다', creationPolicy.reason);
+      return;
+    }
+    router.push(`/create-schedule?tripId=${selectedTripId}&date=${date}`);
+  };
+
   const refreshControl = onRefresh ? <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> : undefined;
 
   if (!hasTrip) {
@@ -86,11 +98,7 @@ export function ScheduleListView({
                 <Pressable
                   variant='outline'
                   className='flex-row items-center gap-3xs rounded-md border border-card-border bg-card px-xs py-3xs active:bg-muted'
-                  onPress={() => {
-                    if (selectedTripId) {
-                      router.push(`/create-schedule?tripId=${selectedTripId}&date=${group.date}`);
-                    }
-                  }}
+                  onPress={() => handleAddSchedule(group.date)}
                 >
                   <Text className='text-label text-foreground'>추가</Text>
                 </Pressable>

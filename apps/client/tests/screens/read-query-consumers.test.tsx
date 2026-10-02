@@ -10,7 +10,7 @@ import { ExpenseForm } from '@/features/expense/create-expense/ExpenseForm';
 import type { CreateExpenseFormData } from '@/features/expense/create-expense/schema';
 import { UpdateExpenseDrawer } from '@/features/expense/update-expense/UpdateExpenseDrawer';
 import { UpdateScheduleDrawer } from '@/features/schedule/update-schedule/UpdateScheduleDrawer';
-import { useCreateScheduleForm } from '@/features/schedule/create-schedule/useCreateScheduleForm';
+import { useSubmitSchedule } from '@/features/schedule/create-schedule/useSubmitSchedule';
 import { ScheduleRepository } from '@/entities/schedule/repository/schedule-repository';
 import { ExpenseRepository } from '@/entities/expense/repository/expense-repository';
 import { scheduleQueryKeys } from '@/entities/schedule/data/keys';
@@ -188,7 +188,7 @@ function CreateExpense() {
   );
 }
 function CreateSchedule() {
-  useCreateScheduleForm({ tripId: 'trip', selectedLocation: null });
+  useSubmitSchedule({ tripId: 'trip' });
   return <NativeText>일정 작성</NativeText>;
 }
 function setup(ui: React.ReactElement, cached = true) {

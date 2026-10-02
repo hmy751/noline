@@ -27,6 +27,7 @@ interface SmartMapViewProps {
   tripId: string | null;
   locations: Location[];
   selectedLocation: Location | null;
+  emptyMessage?: { title: string; description: string };
 }
 
 const styles = StyleSheet.create({
@@ -52,7 +53,7 @@ const styles = StyleSheet.create({
  *    - 'none': 지도 사용 불가 (offline_inactive)
  * 2. 빈 상태면 검색 유도 UI
  */
-export function PolicyBasedMapView({ tripId, locations, selectedLocation }: SmartMapViewProps) {
+export function PolicyBasedMapView({ tripId, locations, selectedLocation, emptyMessage }: SmartMapViewProps) {
   const mapRef = useRef<RNMapView>(null);
 
   // Policy Layer로 지도 제공자 결정
@@ -104,8 +105,10 @@ export function PolicyBasedMapView({ tripId, locations, selectedLocation }: Smar
           <View className='w-24 h-24 rounded-full bg-white/80 items-center justify-center mb-md shadow-sm'>
             <Search size={48} color='#228B22' />
           </View>
-          <Text className='text-title-large text-foreground mb-xs'>장소를 검색해주세요</Text>
-          <Text className='text-body text-muted-foreground text-center'>방문할 여행지를 찾아보세요</Text>
+          <Text className='text-title-large text-foreground mb-xs'>{emptyMessage?.title ?? '장소를 검색해주세요'}</Text>
+          <Text className='text-body text-muted-foreground text-center'>
+            {emptyMessage?.description ?? '방문할 여행지를 찾아보세요'}
+          </Text>
         </View>
       </LinearGradient>
     );

@@ -1,18 +1,23 @@
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { MapPin } from 'lucide-react-native';
-import type { Location } from './types';
+import type { PlaceCandidate } from '@/shared/services/places';
 
-type LocationSearchResultsProps = {
-  results: Location[];
-  onSelectLocation: (location: Location) => void;
+type PlaceLabel = Pick<PlaceCandidate, 'id' | 'name' | 'address'>;
+type LocationSearchResultsProps<T extends PlaceLabel> = {
+  results: T[];
+  onSelectLocation: (location: T) => void;
   isSearching?: boolean;
 };
 
 /**
  * 검색 결과 리스트 컴포넌트
  */
-export function LocationSearchResults({ results, onSelectLocation, isSearching = false }: LocationSearchResultsProps) {
+export function LocationSearchResults<T extends PlaceLabel>({
+  results,
+  onSelectLocation,
+  isSearching = false,
+}: LocationSearchResultsProps<T>) {
   // 검색 중이면 로딩 표시
   if (isSearching) {
     return (

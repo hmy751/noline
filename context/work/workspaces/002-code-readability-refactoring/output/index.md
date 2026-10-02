@@ -104,6 +104,14 @@ Node 20.18.1에서 2개 file의 2개 test와 server build가 통과했다. 실�
 
 `b4db89d`에 저장된 일정·경비 조회 조합은 [일정 feature](../../../../../apps/client/src/features/schedule/read-schedules/index.ts), [경비 feature](../../../../../apps/client/src/features/expense/read-expenses/index.ts), [공통 접근·실행 조합](../../../../../apps/client/src/shared/services/policy-query/index.ts)에서 읽는다. 공통 반환·실행 계약은 [검사](../../../../../apps/client/tests/shared/services/policy-query/read-query.test.tsx), 명명·FSD 판단과 기존 helper 제거는 [배치·교체 기록](../records/2026-09-29-09-policy-query-ownership-and-migration.md)에 있다. 앞선 한 곳 비교는 [시험 기록](../records/2026-09-29-08-schedule-read-query-actions-trial.md)에 보존한다.
 
+### 일정 생성과 Places 경계
+
+[생성 Screen](../../../../../apps/client/src/screens/CreateScheduleScreen.tsx)은 작성 단계와 수명을, [초안 훅](../../../../../apps/client/src/features/schedule/create-schedule/useCreateScheduleForm.ts)은 입력·채택 장소·검증을, [생성 검색 조합](../../../../../apps/client/src/features/schedule/create-schedule/useCreateScheduleSearch.ts)은 후보의 표시·선택을, [제출 훅](../../../../../apps/client/src/features/schedule/create-schedule/useSubmitSchedule.ts)은 생성 요청과 기존 후속 처리를 연결한다. [목록 추가 행동](../../../../../apps/client/src/features/schedule/schedule-list-view/ScheduleListView.tsx)은 진입 정책 확인·이동을 맡는다.
+
+[공통 Places 서비스](../../../../../apps/client/src/shared/services/places/index.ts)와 [상세 응답 schema](../../../../../packages/schema/src/responses/places.ts)는 검색 결과의 보장을, [수정 호환 adapter](../../../../../apps/client/src/features/schedule/update-schedule/place-search-compatibility.ts)는 기존 상세 실패의 차이를 소유한다. [생성 흐름 검사](../../../../../apps/client/tests/screens/create-schedule-flow.test.tsx), [Places API 검사](../../../../../apps/client/tests/shared/services/places/api.test.ts), [수정 소비 검사](../../../../../apps/client/tests/screens/update-place-search.test.tsx)에서 동작 근거를 찾는다.
+
+현재 범위와 남은 확인은 [Ticket 06](../current/memory/tickets/06-app-startup-lifecycle.md)과 [state](../current/state/index.md), 문제 배경·리뷰·구조 선택·검증·커밋 결정은 [후속 기록](../records/2026-10-02-01-schedule-create-boundaries-and-verification.md)이 소유한다. 이전 미커밋 상태의 판단은 [앞선 기록](../records/2026-10-01-01-schedule-create-provisional-review.md)에 보존한다.
+
 ## 17 — Trip·Expense 직렬화 선행 조각 (당시 16)
 
 - [Trip serializer](../../../../../apps/server/src/serializers/trip.ts): Trip DB row의 다섯 시간 값을 API ISO datetime 또는 null로 변환한다.

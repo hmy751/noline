@@ -1,224 +1,111 @@
-import { View, ActivityIndicator, Text, Keyboard } from 'react-native';
+import { View, Text, Keyboard, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { MobileHeader, DatePicker, TimePicker, PolicyBasedMapView, PolicyErrorDisplay } from '@/shared/components';
-import { useStep } from '@/shared/hooks/useStep';
-import {
-  useCreateScheduleForm,
-  useLocationSearch,
-  LocationSearchBar,
-  LocationSearchResults,
-  ScheduleForm,
-  ManualScheduleForm,
-  type Location,
-} from '@/features/schedule/create-schedule';
+import { MobileHeader, DatePicker, TimePicker } from '@/shared/components';
 import { useGetTrips, type TripResponse } from '@/entities/trip';
 import { useAppPolicy } from '@/shared/policy';
+import { useCreateScheduleForm, ScheduleForm, type Location } from '@/features/schedule/create-schedule';
+import { useCreateScheduleSearch } from '@/features/schedule/create-schedule/useCreateScheduleSearch';
+import { useSubmitSchedule } from '@/features/schedule/create-schedule/useSubmitSchedule';
+import { ScheduleSearchPanel } from '@/features/schedule/create-schedule/ScheduleSearchPanel';
 
-const STEPS = {
-  SEARCH: 1, // 장소 검색 단계
-  FORM: 2, // 일정 입력 폼 단계
-} as const;
+function exitCreateSchedule() {
+  if (router.canGoBack()) router.back();
+  else router.replace('/(tabs)/schedule');
+}
 
 export default function CreateScheduleScreen() {
-  const params = useLocalSearchParams<{ tripId?: string; date?: string }>();
-  const tripId = params.tripId || '';
-  const prefilledDate = params.date;
+  const { tripId = '', date } = useLocalSearchParams<{ tripId?: string; date?: string }>();
+  return <CreateScheduleContent key={tripId} tripId={tripId} initialDate={date} />;
+}
 
-  // Trip 정보 조회
-  const { data: tripsData, isLoading: isLoadingTrips } = useGetTrips();
-  const currentTrip = tripsData?.find((trip: TripResponse) => trip.id === tripId);
-
-  // 화면 안내와 실행 차단이 같은 여행 정책을 사용한다.
+function CreateScheduleContent({ tripId, initialDate }: { tripId: string; initialDate?: string }) {
+  const { data: trips, isLoading } = useGetTrips();
+  const trip = trips?.find((item: TripResponse) => item.id === tripId);
+  // 사용자 행동으로만 단계를 바꾼다. 연결 변화는 각 기능의 가용성에만 반영한다.
+  const [step, setStep] = useState<'search' | 'form' | 'change-place'>('search');
+  const draft = useCreateScheduleForm({ initialDate });
+  const submission = useSubmitSchedule({ tripId, onSuccess: exitCreateSchedule });
   const policy = useAppPolicy(tripId);
 
-  // 단계 관리
-  const { currentStep, goToNextStep, goToPrevStep } = useStep({
-    initialStep: STEPS.SEARCH,
-    maxStep: STEPS.FORM,
-  });
+  const search = useCreateScheduleSearch(
+    trip
+      ? {
+          cityName: trip.destination,
+          latitude: trip.latitude ? parseFloat(trip.latitude) : undefined,
+          longitude: trip.longitude ? parseFloat(trip.longitude) : undefined,
+        }
+      : undefined,
+    !!trip && step !== 'form',
+  );
 
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
-
-  // 여행 도시 정보를 검색에 전달
-  const cityContext = currentTrip
-    ? {
-        cityName: currentTrip.destination,
-        latitude: currentTrip.latitude ? parseFloat(currentTrip.latitude) : undefined,
-        longitude: currentTrip.longitude ? parseFloat(currentTrip.longitude) : undefined,
-      }
-    : undefined;
-
-  const { searchQuery, results, isSearching, handleSearch, clearSearch } = useLocationSearch(cityContext);
-
-  const {
-    form,
-    isPending,
-    datePickerVisible,
-    timePickerVisible,
-    handleShowTimePicker,
-    handleSelectDate,
-    handleSelectTime,
-    onSubmit,
-  } = useCreateScheduleForm({
-    tripId,
-    selectedLocation,
-    onSuccess: () => {
-      if (router.canGoBack()) {
-        router.back();
-      } else {
-        router.replace('/(tabs)/schedule');
-      }
-    },
-  });
-
-  const { watch } = form;
-
-  // prefilledDate가 있으면 초기값으로 설정
-  if (prefilledDate && !watch('date')) {
-    form.setValue('date', prefilledDate);
-  }
-
-  const handleBackPress = () => {
-    if (currentStep === STEPS.FORM) {
-      handleClearLocation();
-      return;
-    }
-
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace('/(tabs)/schedule');
-    }
-  };
-
-  const handleSelectLocation = (location: Location) => {
+  const selectPlace = (place: Location) => {
+    if (!search.canSelectPlace(place)) return;
     Keyboard.dismiss();
-    setSelectedLocation(location);
-    // clearSearch(); // 검색 결과를 바로 지우지 않도록 주석 처리
-    goToNextStep(); // 검색 → 폼 단계로 이동
+    draft.selectLocation(place);
+    setStep('form');
   };
 
-  const handleClearLocation = () => {
-    setSelectedLocation(null);
-    form.reset();
-    goToPrevStep(); // 폼 → 검색 단계로 이동
+  const { form } = draft;
+
+  const onSubmit = form.handleSubmit((values) => submission.submit(values, draft.selectedLocation));
+
+  const back = () => {
+    if (submission.isPending) return;
+    if (step === 'change-place') setStep('form');
+    else exitCreateSchedule();
   };
-
-  const handleCancel = () => {
-    handleClearLocation();
-  };
-
-  // Trip 로딩 중
-  if (isLoadingTrips) {
-    return (
-      <View className='flex-1 bg-background'>
-        <MobileHeader
-          title='새 일정 추가'
-          leftIcon={<ArrowLeft size={20} color='#1F1F1F' />}
-          onLeftPress={handleBackPress}
-        />
-        <View className='flex-1 items-center justify-center px-sm'>
-          <ActivityIndicator size='large' color='#228B22' />
-          <Text className='text-body text-muted-foreground mt-md'>여행 정보 불러오는 중...</Text>
-        </View>
-      </View>
-    );
-  }
-
-  if (!policy.schedule.create.allowed) {
-    return (
-      <View className='flex-1 bg-background'>
-        <MobileHeader
-          title='새 일정 추가'
-          leftIcon={<ArrowLeft size={20} color='#1F1F1F' />}
-          onLeftPress={handleBackPress}
-        />
-        <PolicyErrorDisplay policy={policy.schedule.create} variant='block' />
-      </View>
-    );
-  }
 
   return (
-    <View className='flex-1 bg-background'>
-      {/* Header */}
-      <MobileHeader
-        title='새 일정 추가'
-        leftIcon={<ArrowLeft size={20} color='#1F1F1F' />}
-        onLeftPress={handleBackPress}
+    <KeyboardAvoidingView className='flex-1 bg-background' behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <MobileHeader title='새 일정 추가' leftIcon={<ArrowLeft size={20} color='#1F1F1F' />} onLeftPress={back} />
+      {!trip ? (
+        <View className='flex-1 items-center justify-center p-md'>
+          {isLoading && <ActivityIndicator />}
+          <Text>{isLoading ? '여행 정보를 불러오는 중...' : '일정을 추가할 여행을 확인할 수 없어요.'}</Text>
+        </View>
+      ) : step !== 'form' ? (
+        <ScheduleSearchPanel
+          tripId={tripId}
+          search={search}
+          selectedLocation={draft.selectedLocation}
+          returning={step === 'change-place'}
+          onContinue={() => setStep('form')}
+          onSelect={selectPlace}
+        />
+      ) : (
+        <ScheduleForm
+          form={form}
+          location={{
+            selectedLocation: draft.selectedLocation,
+            searchAccess: search.policy,
+            isPending: submission.isPending,
+            onSearch: () => setStep('change-place'),
+            onEditLocationManually: draft.editLocationManually,
+          }}
+          submission={{
+            creationPolicy: policy.schedule.create,
+            submitError: submission.submitError,
+            isPending: submission.isPending,
+            onSubmit,
+            onCancel: exitCreateSchedule,
+          }}
+          onShowDatePicker={draft.handleShowDatePicker}
+          onShowTimePicker={draft.handleShowTimePicker}
+        />
+      )}
+      <DatePicker
+        visible={draft.datePickerVisible}
+        onClose={() => draft.handleSelectDate(form.getValues('date'))}
+        onSelectDate={draft.handleSelectDate}
       />
-
-      {/* 검색창 (검색 단계에만 표시) */}
-      {/* manual-only mode에서는 검색창을 제공하지 않는다. */}
-      {currentStep === STEPS.SEARCH && policy.schedule.create.mode !== 'manual-only' && (
-        <LocationSearchBar value={searchQuery} onChangeText={handleSearch} onClear={clearSearch} autoFocus />
-      )}
-
-      {/* 검색을 사용할 수 없는 이유를 입력 지점에서 안내한다. */}
-      {policy.schedule.create.mode === 'manual-only' && (
-        <PolicyErrorDisplay policy={policy.schedule.create} variant='banner' />
-      )}
-
-      {/* 지도 영역 + 결과/폼 */}
-      <View className='flex-1 relative' onTouchStart={() => Keyboard.dismiss()}>
-        <PolicyBasedMapView tripId={tripId} locations={results} selectedLocation={selectedLocation} />
-
-        {/* 검색 결과 리스트 (검색 단계 + 검색 중이거나 결과 있을 때) */}
-        {/* manual-only mode에서는 검색 결과도 노출하지 않는다. */}
-        {currentStep === STEPS.SEARCH &&
-          policy.schedule.create.mode !== 'manual-only' &&
-          (isSearching || results.length > 0) && (
-            <LocationSearchResults
-              results={results}
-              onSelectLocation={handleSelectLocation}
-              isSearching={isSearching}
-            />
-          )}
-
-        {/* 일정 입력 폼 (폼 단계일 때) */}
-        {currentStep === STEPS.FORM && selectedLocation && (
-          <ScheduleForm
-            selectedLocation={selectedLocation}
-            form={form}
-            onClearLocation={handleClearLocation}
-            onShowTimePicker={handleShowTimePicker}
-            onSubmit={onSubmit}
-            onCancel={handleCancel}
-            isPending={isPending}
-          />
-        )}
-
-        {/* Manual Input 폼 (manual-only 모드일 때) */}
-        {policy.schedule.create.mode === 'manual-only' && (
-          <ManualScheduleForm
-            form={form}
-            onShowTimePicker={handleShowTimePicker}
-            onSubmit={onSubmit}
-            onCancel={handleBackPress}
-            isPending={isPending}
-          />
-        )}
-      </View>
-
-      {/* Date Picker (폼 단계 또는 manual-only 모드에서 활성) */}
-      {(currentStep === STEPS.FORM || policy.schedule.create.mode === 'manual-only') && (
-        <DatePicker
-          visible={datePickerVisible}
-          onClose={() => handleSelectDate(watch('date') || '')}
-          onSelectDate={handleSelectDate}
-        />
-      )}
-
-      {/* Time Picker (폼 단계 또는 manual-only 모드에서 활성) */}
-      {(currentStep === STEPS.FORM || policy.schedule.create.mode === 'manual-only') && (
-        <TimePicker
-          visible={timePickerVisible}
-          onClose={() => handleSelectTime(watch('time') || '09:00')}
-          onSelectTime={handleSelectTime}
-          initialTime={watch('time') || '09:00'}
-        />
-      )}
-    </View>
+      <TimePicker
+        visible={draft.timePickerVisible}
+        onClose={() => draft.handleSelectTime(form.getValues('time'))}
+        onSelectTime={draft.handleSelectTime}
+        initialTime={form.watch('time') || '09:00'}
+      />
+    </KeyboardAvoidingView>
   );
 }

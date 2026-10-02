@@ -13,7 +13,7 @@ import { useAppPolicy } from '@/shared/policy';
 import { scheduleUpdateFormSchema, type ScheduleUpdateFormData } from './schema';
 import { combineDateTimeToISO } from '@/shared/lib/datetime';
 import { LocationSearchModal } from './LocationSearchModal';
-import type { Location } from '@/features/schedule/create-schedule';
+import type { UpdateLocationSelection } from './place-search-compatibility';
 
 export type UpdateScheduleDrawerProps = {
   isOpen: boolean;
@@ -53,7 +53,7 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
   const [locationSearchVisible, setLocationSearchVisible] = useState(false);
 
   // 선택된 장소 (재검색 시)
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<UpdateLocationSelection | null>(null);
 
   // Mutations and queries
   const { mutate: updateSchedule, isPending } = useUpdateSchedule();
@@ -87,7 +87,7 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
     setTimePickerVisible(false);
   };
 
-  const handleLocationSelect = (location: Location) => {
+  const handleLocationSelect = (location: UpdateLocationSelection) => {
     setSelectedLocation(location);
     setLocationSearchVisible(false);
   };
