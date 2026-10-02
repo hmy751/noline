@@ -1,4 +1,5 @@
 import { expenseDateInput } from '@repo/schema/requests/expense';
+import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
@@ -6,6 +7,7 @@ import { useCreateExpense } from '@/entities/expense';
 import { useGetTrips } from '@/entities/trip';
 import { generateId } from '@/shared/services/id/ulid';
 import { formatISOToLocalDate } from '@/shared/lib/datetime';
+import { expenseSubmitError } from '../expense-form/submit-error';
 import { createExpenseFormSchema, type CreateExpenseFormData } from './schema';
 
 interface UseCreateExpenseFormProps {
@@ -18,7 +20,6 @@ interface UseCreateExpenseFormProps {
 export const useCreateExpenseForm = ({ tripId, date, scheduleId, onSuccess }: UseCreateExpenseFormProps) => {
   const router = useRouter();
 
-  // ✅ CURRENCY_POLICY: 여행의 baseCurrency를 경비 기본 통화로 사용
   const { data: trips = [] } = useGetTrips();
   const selectedTrip = trips.find((trip) => trip.id === tripId);
   const defaultCurrency = selectedTrip?.baseCurrency || 'USD';
@@ -34,51 +35,54 @@ export const useCreateExpenseForm = ({ tripId, date, scheduleId, onSuccess }: Us
     defaultValues: {
       title: '',
       amount: '',
-      currency: defaultCurrency, // ✅ 여행의 기본 통화 사용
+      currency: defaultCurrency,
       category: '',
-      date: defaultDate, // YYYY-MM-DD
+      date: defaultDate,
       scheduleId: scheduleId || undefined,
     },
     mode: 'onChange',
   });
 
-  const { mutate: createExpense, isPending } = useCreateExpense();
+  // React가 다시 렌더링되기 전의 연속 탭도 차단한다. 표시 상태는 form이 관리한다.
+  const submitting = useRef(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const { mutateAsync: createExpense } = useCreateExpense();
 
-  const onValid = (data: CreateExpenseFormData) => {
-    createExpense(
-      {
-        id: generateId(), // ✅ 외부에서 ID 생성
-        tripId,
-        title: data.title,
-        amount: data.amount,
-        currency: data.currency,
-        category: data.category,
-        date: data.date, // ✅ 폼에서 선택한 날짜
-        scheduleId: data.scheduleId || null,
-        hasReceipt: false, // TODO: 영수증 업로드 기능 구현 예정
-        receiptUrl: null, // TODO: 영수증 업로드 기능 구현 예정
-      },
-      {
-        onSuccess: () => {
-          console.log('✅ Expense created successfully');
-          onSuccess?.();
-          router.back();
-        },
-      },
-    );
+  const onValid = async (data: CreateExpenseFormData) => {
+    setSubmitError(null);
+    await createExpense({
+      id: generateId(),
+      tripId,
+      title: data.title,
+      amount: data.amount,
+      currency: data.currency,
+      category: data.category,
+      date: data.date,
+      scheduleId: data.scheduleId || null,
+      hasReceipt: false,
+      receiptUrl: null,
+    });
+    onSuccess?.();
+    router.back();
   };
 
-  const onInvalid = () => {
-    console.log('Form validation failed');
-  };
-
-  const handleSubmit = () => {
-    void form.handleSubmit(onValid, onInvalid)();
+  const handleSubmit = async () => {
+    if (submitting.current) return;
+    submitting.current = true;
+    try {
+      await form.handleSubmit(onValid)();
+    } catch (error) {
+      setSubmitError(expenseSubmitError(error));
+    } finally {
+      submitting.current = false;
+    }
   };
 
   return {
     form,
-    isPending,
+    isPending: form.formState.isSubmitting,
+    submitError,
+    canLeave: () => !submitting.current,
     onSubmit: handleSubmit,
   };
 };

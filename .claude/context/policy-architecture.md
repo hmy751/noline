@@ -38,26 +38,18 @@ Network Store의 관측 상태는 `online/offline/unknown`이다. 현재 `useApp
 | --- | --- | --- |
 | Policy | allowed/mode/reason 결정 | schedule create가 `manual-only`인지 |
 | Router | Local/Remote 경로 결정 | `routeChildMutation`으로 DB/API 분기 |
-| UI | Policy를 사용자 경험으로 번역 | `PolicyErrorDisplay`, manual form |
+| UI | 제한된 기능 영역을 안내하고 작성 상태를 보존 | `PolicyErrorDisplay`, 일정 선택·저장 영역 |
 | Service | 외부 서비스 호출과 표시 | map/search/directions |
 
 Data hook 내부에 Policy check를 넣지 않는다. Policy는 화면이나 feature 조합부에서 읽고, data hook은 순수하게 데이터 작업을 수행한다.
 
-## 사용 패턴
+## 작성과 읽기의 제한을 구별한다
 
-```tsx
-const policy = useAppPolicy(tripId);
+이미 열린 일정·경비 생성/수정의 초안은 네트워크 상태가 바뀌어도 같은 입력 소유자와 폼을 유지한다. `allowed: false`를 이유로 작성 화면 전체를 제한 안내로 바꾸거나, `manual-only`를 이유로 별도 폼으로 교체하지 않는다. 기본 입력은 계속 보여 주고, 장소 검색·일정 조회·저장처럼 현재 실행할 수 없는 영역에 정책 안내를 둔다. 저장 오류도 초안에 붙여 보존하며 연결이 복구됐다는 이유로 자동 제출하지 않는다. 사용자가 다시 저장할 때 Router가 최신 실행 조건을 확인한다.
 
-if (!policy.schedule.create.allowed) {
-  return <PolicyErrorDisplay permission={policy.schedule.create} variant='block' />;
-}
+읽기 목록·상세는 별도 계약이다. 비활성 여행이 offline/unknown이면 기존 query cache를 삭제하지 않고 목록·상세 공개와 새 조회를 제한한다. 이미 편집 중인 초안의 값과 기존 연결 설명을 유지하는 것은 이 읽기 제한을 해제하는 일이 아니다. 일정 후보는 `useTripSchedulesReadQuery`가 공개하는 결과에서만 제공하며, 저장 위치를 UI에서 직접 선택하지 않는다.
 
-if (policy.schedule.create.mode === 'manual-only') {
-  return <ManualScheduleForm tripId={tripId} />;
-}
-
-return <ScheduleForm tripId={tripId} />;
-```
+활성 여행의 경비 생성·수정은 offline/unknown에도 `full`이다. 연결 대상은 같은 여행의 Local 일정이므로 온라인 검색 서비스처럼 제한하지 않는다. Expense의 날짜와 Schedule의 날짜는 독립적이고, 연결은 같은 여행 일정 하나에 대한 선택적 관계다. 모든 날짜의 일정을 날짜·시간순으로 제공하고, 날짜 변경은 기존 연결을 해제하지 않는다. 비활성 여행의 일정 목록이 제한되면 새 연결 선택을 막되 이미 열린 초안의 연결은 설명하고 해제할 수 있다. 이 경우에도 서버 저장은 복구 전까지 제한된다. 선택 근거는 [경비 초안과 일정 연결 결정](../decisions/2026-10-02-expense-draft-and-schedule-association.md)에 있다.
 
 Service Layer는 `policy.service`를 기준으로 선택한다.
 

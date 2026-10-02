@@ -49,9 +49,19 @@ jest.mock('@/shared/components', () => {
     DatePicker: ({ visible, onSelectDate }: { visible: boolean; onSelectDate: (date: string) => void }) => {
       const ReactRuntime = jest.requireActual<typeof import('react')>('react');
       const { View, Text, Pressable } = jest.requireActual<typeof import('react-native')>('react-native');
-      return visible ? ReactRuntime.createElement(View, null,
-        ...['2026-09-22', '2026-09-21'].map((date) => ReactRuntime.createElement(Pressable, { key: date, onPress: () => onSelectDate(date) }, ReactRuntime.createElement(Text, null, `선택 ${date}`))),
-      ) : null;
+      return visible
+        ? ReactRuntime.createElement(
+            View,
+            null,
+            ...['2026-09-22', '2026-09-21'].map((date) =>
+              ReactRuntime.createElement(
+                Pressable,
+                { key: date, onPress: () => onSelectDate(date) },
+                ReactRuntime.createElement(Text, null, `선택 ${date}`),
+              ),
+            ),
+          )
+        : null;
     },
     TimePicker: ({ visible, onSelectTime }: { visible: boolean; onSelectTime: (time: string) => void }) => {
       const ReactRuntime = jest.requireActual<typeof import('react')>('react');
@@ -80,33 +90,22 @@ jest.mock('@/shared/components/Form', () => {
   return { Field: Object.assign(View, { Title: Text, ElementsBox: View, Message: Text }) };
 });
 jest.mock('@repo/ui', () => {
-  const ReactRuntime = jest.requireActual<typeof import('react')>('react');
-  const { View, Text } = jest.requireActual<typeof import('react-native')>('react-native');
+  const { View } = jest.requireActual<typeof import('react-native')>('react-native');
   return {
     Drawer: View,
     Pressable: jest.requireActual<Pick<typeof import('@repo/ui'), 'Pressable'>>(
       '../../../../../packages/ui/src/components/Pressable',
     ).Pressable,
-    Select: Object.assign(
-      ({ children }: { children: React.ReactNode }) => ReactRuntime.createElement(View, null, children),
-      {
-        Trigger: View,
-        Value: () => null,
-        Portal: () => null,
-        Overlay: View,
-        Content: View,
-        Viewport: View,
-        Item: View,
-        ItemText: Text,
-      },
-    ),
+    Select: jest.requireActual<typeof import('../../../../../packages/ui/src/components/Select')>(
+      '../../../../../packages/ui/src/components/Select',
+    ).Select,
   };
 });
 
 const saveSchedule = jest.fn();
-const saveExpense = jest.fn<(variables: unknown, options?: { onSuccess?: () => void }) => void>();
+const saveExpense = jest.fn<(variables: unknown) => Promise<void>>();
 beforeEach(() => {
-  saveExpense.mockImplementation((_variables, options) => options?.onSuccess?.());
+  saveExpense.mockResolvedValue(undefined);
   useNetworkStore.setState({ realStatus: 'offline', checkStatus: 'idle', overrideStatus: null });
   jest
     .mocked(useGetTripActivation)
@@ -117,7 +116,7 @@ beforeEach(() => {
     .mockReturnValue({ mutate: saveSchedule } as unknown as ReturnType<typeof useUpdateSchedule>);
   jest
     .mocked(useUpdateExpense)
-    .mockReturnValue({ mutate: saveExpense } as unknown as ReturnType<typeof useUpdateExpense>);
+    .mockReturnValue({ mutateAsync: saveExpense } as unknown as ReturnType<typeof useUpdateExpense>);
 });
 
 it('오프라인 일정 수정은 장소 검색을 숨기고 저장 payload에서 기존 장소·좌표를 덮지 않는다', async () => {
@@ -168,7 +167,7 @@ it('오프라인 경비 수정은 연결된 일정과 입력값을 표시하고 
       }}
     />,
   );
-  expect(view.getByText('기존 연결 일정 연결을 유지합니다.')).toBeTruthy();
+  expect(view.getByText(/기존 연결 일정 · 2026-09-21/)).toBeTruthy();
   await act(async () => {
     fireEvent.press(view.getByText('저장'));
   });
@@ -176,6 +175,7 @@ it('오프라인 경비 수정은 연결된 일정과 입력값을 표시하고 
   expect(saveExpense.mock.calls[0][0]).toMatchObject({
     data: { title: '기존 경비', amount: '12', scheduleId: 'linked' },
   });
+  expect((saveExpense.mock.calls[0][0] as { data: object }).data).not.toHaveProperty('date');
 });
 
 it('수정 제한 안내가 나타났다 사라져도 작성 중인 값과 일정 연결을 유지한다', async () => {
@@ -201,7 +201,8 @@ it('수정 제한 안내가 나타났다 사라져도 작성 중인 값과 일�
   if (!Array.isArray(buttons)) throw new Error('제목 변경 확인 버튼이 없습니다');
   act(() => buttons.find((button) => button.text === '확인')?.onPress?.('작성 중 제목'));
   act(() => useAuthStore.setState({ status: 'signed-out' }));
-  expect(view.queryByText('저장')).toBeNull();
+  expect(view.getByText('작성 중 제목')).toBeTruthy();
+  expect(view.getByText('저장')).toBeTruthy();
   act(() => useAuthStore.setState({ status: 'reauth-required' }));
   expect(view.getByText('작성 중 제목')).toBeTruthy();
   await act(async () => {
@@ -255,7 +256,7 @@ it('경비 수정의 재확인 전후에도 작성 중인 값과 일정 연결�
     .mockResolvedValueOnce({ isConnected: true, isInternetReachable: true } as Awaited<
       ReturnType<typeof NetInfo.refresh>
     >);
-  await act(async () => fireEvent.press(view.getByRole('button', { name: '다시 확인' })));
+  await act(async () => fireEvent.press(view.getAllByRole('button', { name: '다시 확인' })[0]));
   expect(view.getByText('재확인 중 보존할 제목')).toBeTruthy();
   expect(saveExpense).not.toHaveBeenCalled();
   await act(async () => fireEvent.press(view.getByText('저장')));
@@ -265,6 +266,96 @@ it('경비 수정의 재확인 전후에도 작성 중인 값과 일정 연결�
   prompt.mockRestore();
 });
 
+it('활성 오프라인 수정도 일정 연결 해제를 null payload로 명시한다', async () => {
+  const view = render(
+    <UpdateExpenseDrawer
+      isOpen
+      onClose={jest.fn()}
+      expenseData={{
+        id: 'e',
+        tripId: 'trip',
+        title: '기존 경비',
+        amount: '12',
+        currency: 'USD',
+        category: 'food',
+        date: '2026-09-21',
+        scheduleId: 'linked',
+      }}
+    />,
+  );
+  fireEvent.press(view.getByText(/기존 연결 일정 ·/));
+  fireEvent.press(view.getByText('연결 안 함'));
+  await act(async () => fireEvent.press(view.getByText('저장')));
+  await waitFor(() =>
+    expect(saveExpense).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ scheduleId: null }) }),
+    ),
+  );
+});
+
+it('수정 저장 실패는 입력과 연결을 유지하고 자동 재시도하지 않는다', async () => {
+  saveExpense.mockRejectedValueOnce(new Error('SQLITE_FULL'));
+  const view = render(
+    <UpdateExpenseDrawer
+      isOpen
+      onClose={jest.fn()}
+      expenseData={{
+        id: 'e',
+        tripId: 'trip',
+        title: '기존 경비',
+        amount: '12',
+        currency: 'USD',
+        category: 'food',
+        date: '2026-09-21',
+        scheduleId: 'linked',
+      }}
+    />,
+  );
+  await act(async () => fireEvent.press(view.getByText('저장')));
+  expect(view.getByText('마지막 저장 실패: 경비를 저장하지 못했어요. 입력은 유지되니 다시 시도해주세요.')).toBeTruthy();
+  expect(view.getByText('기존 경비')).toBeTruthy();
+  expect(view.queryByText(/SQLITE_FULL/)).toBeNull();
+  expect(saveExpense).toHaveBeenCalledTimes(1);
+  await act(async () => fireEvent.press(view.getByText('저장')));
+  expect(saveExpense).toHaveBeenCalledTimes(2);
+});
+
+it('경비 수정은 저장 완료까지 중복 제출과 닫기를 막고 완료 후 한 번 닫는다', async () => {
+  let finish!: () => void;
+  saveExpense.mockReturnValueOnce(
+    new Promise<void>((resolve) => {
+      finish = resolve;
+    }),
+  );
+  const onClose = jest.fn();
+  const view = render(
+    <UpdateExpenseDrawer
+      isOpen
+      onClose={onClose}
+      expenseData={{
+        id: 'e',
+        tripId: 'trip',
+        title: '기존 경비',
+        amount: '12',
+        currency: 'USD',
+        category: 'food',
+        date: '2026-09-21',
+        scheduleId: 'linked',
+      }}
+    />,
+  );
+  const save = view.getByText('저장');
+  act(() => {
+    fireEvent.press(save);
+    fireEvent.press(save);
+  });
+  await waitFor(() => expect(saveExpense).toHaveBeenCalledTimes(1));
+  expect(view.getByText('저장 중...')).toBeTruthy();
+  fireEvent.press(view.getByText('취소'));
+  expect(onClose).not.toHaveBeenCalled();
+  await act(async () => finish());
+  expect(onClose).toHaveBeenCalledTimes(1);
+});
 
 it.each([false, true])(
   '경비 날짜를 변경 후 원래 날짜로 복귀: %s — 실제 변경만 전송하고 연결은 유지한다',

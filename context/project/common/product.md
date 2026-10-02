@@ -8,11 +8,13 @@ Noline은 여행 중 연결이 끊겨도 일정 확인·기록과 경비 관리�
 
 Trip은 여행 단위이며 Schedule과 Expense가 그 여행의 일정·경비를 나타낸다. 활성 여행의 데이터는 Local SQLite를 기준으로 읽고 쓰며 비활성 여행은 Server API가 기준이다. Activation Router가 Data Entity의 Local/Remote 선택을 맡는다. 지도·검색·길찾기는 사용자가 소유한 sync data가 아니므로 Policy Layer의 네트워크 사용·제한 판단을 따른다. 온라인에서는 Network-First로 최신 서비스를 우선하며, 여행 활성화가 온라인 서비스 사용까지 막는 조건은 아니다.
 
-오프라인 활성 여행은 제목·날짜·금액 같은 핵심 내용을 입력하고, 좌표 등 온라인 보강이 필요한 정보는 복구 뒤 보완하는 장면을 지원 목표로 둔다. 비활성 여행의 오프라인 편집과 오프라인 여행 생성은 이 모델의 지원 범위가 아니다. 통화는 자동 환산 합계로 섞지 않고 통화별로 관리하며, 상세 의미는 [통화와 금액](currency.md)이 소유한다. 현재 배포 대상은 iOS이며 Android 설정의 존재를 동등한 배포·검증으로 보지 않는다.
+오프라인 활성 여행은 제목·날짜·금액 같은 핵심 내용을 입력하고, 좌표 등 온라인 보강이 필요한 정보는 복구 뒤 보완하는 장면을 지원 목표로 둔다. 비활성 여행의 오프라인 조회·저장과 오프라인 여행 생성은 이 모델의 지원 범위가 아니다. 다만 이미 열린 작성 초안은 연결이 끊겨도 계속 표시·편집하고, 저장을 제한한 상태로 보존한다. 읽기 제한과 작성 초안의 수명에 대한 현재 기준은 [Policy Architecture](../../../.claude/context/policy-architecture.md)가 소유한다. 통화는 자동 환산 합계로 섞지 않고 통화별로 관리하며, 상세 의미는 [통화와 금액](currency.md)이 소유한다. 현재 배포 대상은 iOS이며 Android 설정의 존재를 동등한 배포·검증으로 보지 않는다.
 
 ## 함께 지킬 데이터 관계
 
-로컬 변경과 `sync_queue` 기록은 같은 transaction에 둬 한쪽만 남는 상태를 막는다. Entity ID는 클라이언트의 `generateId()`로 만들고 서버가 수용한다. `@repo/schema`의 Zod 계약에서 client/server 타입을 추론한다. 한 시점을 나타내는 값은 timezone을 포함한 ISO 8601 datetime으로 저장·전송한다. Expense `date`의 date-only API entity와 form·request·저장 경계 사이의 현재 차이 및 열린 선택은 [날짜와 시각](date-and-time.md)에서 구별한다. 서버는 인증과 사용자 소유권을 확인한다.
+Expense는 Trip에 속하고 같은 Trip의 Schedule 하나에 선택적으로 연결할 수 있다. 경비 날짜와 일정 날짜는 독립적이므로 날짜가 다른 일정에도 연결할 수 있으며, 경비 날짜를 바꿔도 연결은 유지한다. 활성 여행에서는 오프라인에도 Local 일정으로 연결·변경·해제할 수 있다. 경비 날짜의 입력·전송·표시는 `YYYY-MM-DD`로 맞추며 기존 datetime 호환과 서버 저장 표현은 [날짜와 시각](date-and-time.md)을 따른다. 날짜를 결제일이나 사용일 중 무엇으로 부를지는 이 연결·표현 계약과 별개로 열려 있다.
+
+로컬 변경과 `sync_queue` 기록은 같은 transaction에 둬 한쪽만 남는 상태를 막는다. Entity ID는 클라이언트의 `generateId()`로 만들고 서버가 수용한다. `@repo/schema`의 Zod 계약에서 client/server 타입을 추론한다. 한 시점을 나타내는 값은 timezone을 포함한 ISO 8601 datetime으로 저장·전송한다. Expense `date`의 date-only 계약과 기존 입력·저장 호환은 [날짜와 시각](date-and-time.md)에서 구별한다. 서버는 인증과 사용자 소유권을 확인한다.
 
 삭제·비활성화는 pending sync와 soft delete·cleanup 조건을 지켜 아직 서버에 반영하지 않은 입력을 보존한다. 정책상 제한은 기존 `useAppPolicy`, `PolicyErrorDisplay`, `NetworkStatusIndicator`를 통해 사용자에게 설명한다. 상세 규칙은 [rules](../../../.claude/rules/README.md)와 [guards](../../../.claude/guards/README.md)가 유지한다.
 

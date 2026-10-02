@@ -55,8 +55,7 @@ export const EXPENSE_POLICIES: EntityPolicyTable = {
     online_inactive: { allowed: true, mode: 'full' },
     offline_active: {
       allowed: true,
-      mode: 'manual-only',
-      reason: '오프라인에서는 일정을 연결할 수 없어요. 직접 입력해주세요.',
+      mode: 'full',
     },
     offline_inactive: {
       allowed: false,
@@ -77,8 +76,7 @@ export const EXPENSE_POLICIES: EntityPolicyTable = {
     online_inactive: { allowed: true, mode: 'full' },
     offline_active: {
       allowed: true,
-      mode: 'manual-only',
-      reason: '오프라인에서는 일정을 연결할 수 없어요.',
+      mode: 'full',
     },
     offline_inactive: {
       allowed: false,

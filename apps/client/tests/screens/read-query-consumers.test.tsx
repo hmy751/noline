@@ -113,7 +113,7 @@ jest.mock('@/entities/expense', () => ({
   CURRENCY_SYMBOLS: { USD: '$' },
 }));
 jest.mock('@/entities/expense/data/useUpdateExpense', () => ({
-  useUpdateExpense: () => ({ mutate: mockSaveExpense, isPending: false }),
+  useUpdateExpense: () => ({ mutateAsync: mockSaveExpense }),
 }));
 jest.mock('@/entities/route', () => ({ useAutoDownloadRoutes: () => ({ mutate: mockDownloadRoutes }) }));
 jest.mock('@/features/schedule/update-schedule/LocationSearchModal', () => ({ LocationSearchModal: () => null }));
@@ -176,7 +176,14 @@ const updateSchedule = (isOpen = true) => (
 
 function CreateExpense() {
   const form = useForm<CreateExpenseFormData>({
-    defaultValues: { title: '작성 중 경비', amount: '12', currency: 'USD', category: 'food', date: '2026-09-21', scheduleId: 's' },
+    defaultValues: {
+      title: '작성 중 경비',
+      amount: '12',
+      currency: 'USD',
+      category: 'food',
+      date: '2026-09-21',
+      scheduleId: 's',
+    },
   });
   return (
     <ExpenseForm

@@ -1,15 +1,16 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { View, Text, Alert, TouchableOpacity, ScrollView } from 'react-native';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Wallet, ChevronDown, Calendar as CalendarIcon, MapPin } from 'lucide-react-native';
-import { Drawer, Pressable, Select } from '@repo/ui';
-import { DatePicker, PolicyErrorDisplay } from '@/shared/components';
+import { Wallet, ChevronDown, Calendar as CalendarIcon } from 'lucide-react-native';
+import { Drawer, Select } from '@repo/ui';
+import { DatePicker } from '@/shared/components';
 import { Field } from '@/shared/components/Form';
 import { EXPENSE_CATEGORIES, CURRENCIES, CURRENCY_SYMBOLS } from '@/entities/expense';
 import { useUpdateExpense } from '@/entities/expense/data/useUpdateExpense';
-import { formatISOToLocalDate, formatISOToLocalTime } from '@/shared/lib/datetime';
-import { useTripSchedulesReadQuery } from '@/features/schedule/read-schedules';
+import { expenseSubmitError } from '../expense-form/submit-error';
+import { ExpenseScheduleField } from '../expense-form/ExpenseScheduleField';
+import { ExpenseSubmitActions } from '../expense-form/ExpenseSubmitActions';
 import { expenseUpdateFormSchema, type ExpenseUpdateFormData } from './schema';
 import { useAppPolicy } from '@/shared/policy';
 
@@ -33,8 +34,13 @@ export type UpdateExpenseDrawerProps = {
  * 제목, 금액, 통화, 카테고리, 날짜, 연결된 일정을 수정할 수 있는 UI
  */
 export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpenseDrawerProps) => {
-  // react-hook-form 설정
-  const { control, handleSubmit, reset, watch, formState: { defaultValues } } = useForm<ExpenseUpdateFormData>({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { isSubmitting, defaultValues },
+  } = useForm<ExpenseUpdateFormData>({
     resolver: zodResolver(expenseUpdateFormSchema),
     defaultValues: {
       title: expenseData?.title || '',
@@ -47,42 +53,24 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
     mode: 'onChange',
   });
 
-  // Picker visibility state
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
-  // useUpdateExpense mutation hook
-  const { mutate: updateExpense, isPending } = useUpdateExpense();
+  const { mutateAsync: updateExpense } = useUpdateExpense();
 
-  // 선택한 날짜 추적
   const selectedDate = watch('date');
 
-  // 여행의 모든 일정 조회
-  // 입력 상태는 유지하되, 연결 일정 조회는 편집 중에만 활성화한다.
-  const {
-    view: schedulesView,
-    access: schedulesAccess,
-    actions: schedulesActions,
-  } = useTripSchedulesReadQuery(expenseData?.tripId, { enabled: isOpen });
-  const schedules = schedulesView.kind === 'ready' ? schedulesView.data : undefined;
   const policy = useAppPolicy(expenseData?.tripId);
-
-  // 선택한 날짜의 일정만 필터링
-  const schedulesOnSelectedDate = useMemo(() => {
-    if (!selectedDate) {
-      return [];
-    }
-
-    const selectedLocalDate = selectedDate;
-
-    return (schedules ?? []).filter((schedule) => {
-      const scheduleDate = formatISOToLocalDate(schedule.scheduledAt);
-      return scheduleDate === selectedLocalDate;
-    });
-  }, [selectedDate, schedules]);
+  // 다시 렌더링되기 전의 연속 탭과 닫기를 차단한다. 표시 상태는 form이 관리한다.
+  const submitting = useRef(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const close = () => {
+    if (!submitting.current) onClose();
+  };
 
   // expenseData가 변경되면 폼 값 업데이트
   useEffect(() => {
     if (expenseData) {
+      setSubmitError(null);
       reset({
         title: expenseData.title,
         amount: expenseData.amount,
@@ -95,56 +83,48 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expenseData?.id]);
 
-  // 저장 핸들러 (유효성 검사는 zodResolver가 처리)
-  const onValid = (data: ExpenseUpdateFormData) => {
-    if (!expenseData) {
-      return;
-    }
+  const onValid = async (data: ExpenseUpdateFormData) => {
+    if (!expenseData) return;
 
-    updateExpense(
-      {
-        id: expenseData.id,
-        tripId: expenseData.tripId,
-        data: {
-          title: data.title,
-          amount: data.amount,
-          currency: data.currency,
-          category: data.category,
-          ...(data.date !== defaultValues?.date ? { date: data.date } : {}),
-          scheduleId: data.scheduleId || null,
-        },
+    setSubmitError(null);
+    await updateExpense({
+      id: expenseData.id,
+      tripId: expenseData.tripId,
+      data: {
+        title: data.title,
+        amount: data.amount,
+        currency: data.currency,
+        category: data.category,
+        ...(data.date !== defaultValues?.date ? { date: data.date } : {}),
+        scheduleId: data.scheduleId || null,
       },
-      {
-        onSuccess: () => {
-          reset(data);
-          Alert.alert('성공', '경비가 수정되었습니다.');
-          onClose();
-        },
-        onError: () => {
-          Alert.alert('오류', '경비 수정에 실패했습니다.');
-        },
-      },
-    );
+    });
+    // 같은 경비를 다시 편집해도 방금 저장한 날짜를 미변경 기준으로 사용한다.
+    reset(data);
+    Alert.alert('성공', '경비가 수정되었습니다.');
+    onClose();
   };
 
   const onInvalid = () => {
     Alert.alert('오류', '입력한 정보를 확인해주세요.');
   };
 
-  if (!expenseData) {
-    return null;
-  }
+  const submit = async () => {
+    if (submitting.current) return;
+    submitting.current = true;
+    try {
+      await handleSubmit(onValid, onInvalid)();
+    } catch (error) {
+      setSubmitError(expenseSubmitError(error));
+    } finally {
+      submitting.current = false;
+    }
+  };
 
-  if (!policy.expense.update.allowed) {
-    return (
-      <Drawer isOpen={isOpen} onClose={onClose} title='경비 수정'>
-        <PolicyErrorDisplay policy={policy.expense.update} variant='block' />
-      </Drawer>
-    );
-  }
+  if (!expenseData) return null;
 
   return (
-    <Drawer isOpen={isOpen} onClose={onClose} title='경비 수정'>
+    <Drawer isOpen={isOpen} onClose={close} title='경비 수정'>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View className='gap-md'>
           {/* 설명 */}
@@ -312,7 +292,6 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
             control={control}
             name='date'
             render={({ field: { value, onChange }, fieldState: { error } }) => {
-              // DatePicker에는 현재 기기의 날짜를 전달한다.
               const displayDate = value || '날짜 선택';
 
               return (
@@ -349,135 +328,27 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
             }}
           />
 
-          {/* 연결된 일정 (선택) */}
           <Controller
             control={control}
             name='scheduleId'
-            render={({ field: { value, onChange }, fieldState: { error } }) => {
-              const selectedSchedule = schedules?.find((s) => s.id === value);
-
-              if (schedulesView.kind !== 'ready') {
-                return (
-                  <Field>
-                    <Field.Title>연결된 일정 (선택)</Field.Title>
-                    <Field.ElementsBox>
-                      {value && <Text>기존 일정 연결을 유지합니다.</Text>}
-                      {schedulesView.kind === 'blocked' ? (
-                        <PolicyErrorDisplay policy={schedulesView.policy} variant='inline' />
-                      ) : schedulesView.kind === 'error' ? (
-                        <>
-                          <Text>일정 목록을 불러오지 못했어요.</Text>
-                          <Pressable onPress={() => schedulesActions.refetch()}>다시 불러오기</Pressable>
-                        </>
-                      ) : (
-                        <Text>일정 목록을 불러오고 있어요.</Text>
-                      )}
-                    </Field.ElementsBox>
-                  </Field>
-                );
-              }
-
-              if (policy.expense.update.mode === 'manual-only') {
-                return (
-                  <Field>
-                    <Field.Title>연결된 일정 (선택)</Field.Title>
-                    <Field.ElementsBox>
-                      <Text className='text-body text-foreground'>
-                        {value
-                          ? `${selectedSchedule?.title ?? '기존 일정'} 연결을 유지합니다.`
-                          : '연결된 일정이 없습니다.'}
-                      </Text>
-                      <PolicyErrorDisplay policy={policy.expense.update} variant='inline' />
-                    </Field.ElementsBox>
-                  </Field>
-                );
-              }
-
-              return (
-                <Field>
-                  <Field.Title>연결된 일정 (선택)</Field.Title>
-                  <Field.ElementsBox>
-                    {schedulesView.refreshFailed && (
-                      <View>
-                        <Text>일정 목록을 갱신하지 못했어요. 이전 내용을 표시하고 있어요.</Text>
-                        {schedulesAccess.canFetch && (
-                          <Pressable onPress={() => schedulesActions.refetch()}>다시 불러오기</Pressable>
-                        )}
-                      </View>
-                    )}
-                    <Select
-                      value={
-                        selectedSchedule
-                          ? {
-                              value: selectedSchedule.id,
-                              label: `${formatISOToLocalTime(selectedSchedule.scheduledAt)} ${selectedSchedule.title}`,
-                            }
-                          : undefined
-                      }
-                      onValueChange={(option) => onChange(option?.value || undefined)}
-                    >
-                      <Select.Trigger>
-                        <View className='flex-row items-center gap-xs flex-1'>
-                          <MapPin size={16} color='hsl(0, 0%, 45%)' />
-                          <Select.Value placeholder='일정 선택 (선택사항)' />
-                        </View>
-                        <ChevronDown size={16} color='hsl(0, 0%, 45%)' />
-                      </Select.Trigger>
-
-                      <Select.Portal>
-                        <Select.Overlay>
-                          <Select.Content>
-                            <Select.Viewport>
-                              {schedulesOnSelectedDate.length === 0 ? (
-                                <View className='px-md py-lg'>
-                                  <Text className='text-body text-center text-muted-foreground'>
-                                    {selectedDate ? '이 날의 일정이 없습니다' : '먼저 날짜를 선택해주세요'}
-                                  </Text>
-                                </View>
-                              ) : (
-                                schedulesOnSelectedDate.map((schedule) => {
-                                  const timeLabel = formatISOToLocalTime(schedule.scheduledAt);
-                                  const label = `${timeLabel} ${schedule.title}`;
-
-                                  return (
-                                    <Select.Item key={schedule.id} value={schedule.id} label={label}>
-                                      <View className='flex-col gap-3xs py-2xs'>
-                                        <Text className='text-body-large text-foreground'>{schedule.title}</Text>
-                                        <View className='flex-row items-center gap-2xs'>
-                                          <Text className='text-label text-muted-foreground'>{timeLabel}</Text>
-                                          <Text className='text-label text-muted-foreground'>•</Text>
-                                          <Text className='text-label text-muted-foreground'>{schedule.location}</Text>
-                                        </View>
-                                      </View>
-                                    </Select.Item>
-                                  );
-                                })
-                              )}
-                            </Select.Viewport>
-                          </Select.Content>
-                        </Select.Overlay>
-                      </Select.Portal>
-                    </Select>
-                  </Field.ElementsBox>
-                  {error && <Field.Message>{error.message}</Field.Message>}
-                </Field>
-              );
-            }}
+            render={({ field: { value, onChange }, fieldState: { error } }) => (
+              <ExpenseScheduleField
+                tripId={expenseData.tripId}
+                expenseDate={selectedDate}
+                value={value}
+                onChange={onChange}
+                error={error?.message}
+                enabled={isOpen}
+              />
+            )}
           />
-
-          {/* 버튼 영역 */}
-          <View className='flex-row gap-sm mt-md'>
-            <View className='flex-1'>
-              <Pressable variant='default' onPress={handleSubmit(onValid, onInvalid)} disabled={isPending}>
-                {isPending ? '저장 중...' : '저장'}
-              </Pressable>
-            </View>
-            <View className='flex-1'>
-              <Pressable variant='outline' onPress={onClose} disabled={isPending}>
-                취소
-              </Pressable>
-            </View>
-          </View>
+          <ExpenseSubmitActions
+            policy={policy.expense.update}
+            submitError={submitError}
+            isPending={isSubmitting}
+            onSubmit={submit}
+            onCancel={close}
+          />
         </View>
       </ScrollView>
     </Drawer>

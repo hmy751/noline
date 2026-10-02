@@ -1,15 +1,16 @@
 import { View, Text, TextInput, ScrollView, StyleSheet } from 'react-native';
 import { Controller } from 'react-hook-form';
-import { Wallet, ChevronDown, Calendar as CalendarIcon, MapPin } from 'lucide-react-native';
+import { Wallet, ChevronDown, Calendar as CalendarIcon } from 'lucide-react-native';
 import { Pressable, Select } from '@repo/ui';
 import { Field } from '@/shared/components/Form';
-import { DatePicker, PolicyErrorDisplay } from '@/shared/components';
+import { DatePicker } from '@/shared/components';
 import { EXPENSE_CATEGORIES, CURRENCIES, CURRENCY_SYMBOLS } from '@/entities/expense';
-import { formatISOToLocalDate, formatISOToLocalTime } from '@/shared/lib/datetime';
-import { useTripSchedulesReadQuery } from '@/features/schedule/read-schedules';
+import { ExpenseScheduleField } from '../expense-form/ExpenseScheduleField';
+import { ExpenseSubmitActions } from '../expense-form/ExpenseSubmitActions';
+import { useAppPolicy } from '@/shared/policy';
 import type { UseFormReturn } from 'react-hook-form';
 import type { CreateExpenseFormData } from './schema';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 
 type ExpenseFormProps = {
   form: UseFormReturn<CreateExpenseFormData>;
@@ -17,34 +18,20 @@ type ExpenseFormProps = {
   onSubmit: () => void;
   onCancel: () => void;
   isPending: boolean;
+  submitError?: string | null;
 };
 
 /**
  * 경비 입력 폼 컴포넌트
  */
-export function ExpenseForm({ form, tripId, onSubmit, onCancel, isPending }: ExpenseFormProps) {
+export function ExpenseForm({ form, tripId, onSubmit, onCancel, isPending, submitError }: ExpenseFormProps) {
   const { control, watch } = form;
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
   // 선택한 날짜 추적
   const selectedDate = watch('date');
 
-  const { view: schedulesView, access: schedulesAccess, actions: schedulesActions } = useTripSchedulesReadQuery(tripId);
-  const schedules = schedulesView.kind === 'ready' ? schedulesView.data : undefined;
-
-  // 선택한 날짜의 일정만 필터링
-  const schedulesOnSelectedDate = useMemo(() => {
-    if (!selectedDate) {
-      return [];
-    }
-
-    const selectedLocalDate = selectedDate;
-
-    return (schedules ?? []).filter((schedule) => {
-      const scheduleDate = formatISOToLocalDate(schedule.scheduledAt);
-      return scheduleDate === selectedLocalDate;
-    });
-  }, [selectedDate, schedules]);
+  const policy = useAppPolicy(tripId);
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -187,7 +174,7 @@ export function ExpenseForm({ form, tripId, onSubmit, onCancel, isPending }: Exp
           control={control}
           name='date'
           render={({ field: { value, onChange }, fieldState: { error } }) => {
-            // DatePicker에는 현재 기기의 날짜를 전달한다.
+            // 폼의 달력 날짜를 그대로 표시한다.
             const displayDate = value || '날짜 선택';
 
             return (
@@ -227,118 +214,26 @@ export function ExpenseForm({ form, tripId, onSubmit, onCancel, isPending }: Exp
           }}
         />
 
-        {/* 연결된 일정 (선택) */}
         <Controller
           control={control}
           name='scheduleId'
-          render={({ field: { value, onChange }, fieldState: { error } }) => {
-            const selectedSchedule = schedulesOnSelectedDate.find((s) => s.id === value);
-
-            if (schedulesView.kind !== 'ready') {
-              return (
-                <Field>
-                  <Field.Title>연결된 일정 (선택)</Field.Title>
-                  <Field.ElementsBox>
-                    {schedulesView.kind === 'blocked' ? (
-                      <PolicyErrorDisplay policy={schedulesView.policy} variant='inline' />
-                    ) : schedulesView.kind === 'error' ? (
-                      <>
-                        <Text>일정 목록을 불러오지 못했어요.</Text>
-                        <Pressable onPress={() => schedulesActions.refetch()}>다시 불러오기</Pressable>
-                      </>
-                    ) : (
-                      <Text>일정 목록을 불러오고 있어요.</Text>
-                    )}
-                  </Field.ElementsBox>
-                </Field>
-              );
-            }
-
-            return (
-              <Field>
-                <Field.Title>연결된 일정 (선택)</Field.Title>
-                <Field.ElementsBox>
-                  {schedulesView.refreshFailed && (
-                    <View>
-                      <Text>일정 목록을 갱신하지 못했어요. 이전 내용을 표시하고 있어요.</Text>
-                      {schedulesAccess.canFetch && (
-                        <Pressable onPress={() => schedulesActions.refetch()}>다시 불러오기</Pressable>
-                      )}
-                    </View>
-                  )}
-                  <Select
-                    value={
-                      selectedSchedule
-                        ? {
-                            value: selectedSchedule.id,
-                            label: `${formatISOToLocalTime(selectedSchedule.scheduledAt)} ${selectedSchedule.title}`,
-                          }
-                        : undefined
-                    }
-                    onValueChange={(option) => onChange(option?.value || undefined)}
-                  >
-                    <Select.Trigger>
-                      <View className='flex-row items-center gap-xs flex-1'>
-                        <MapPin size={16} color='hsl(0, 0%, 45%)' />
-                        <Select.Value placeholder='일정 선택 (선택사항)' />
-                      </View>
-                      <ChevronDown size={16} color='hsl(0, 0%, 45%)' />
-                    </Select.Trigger>
-
-                    <Select.Portal>
-                      <Select.Overlay>
-                        <Select.Content>
-                          <Select.Viewport>
-                            {schedulesOnSelectedDate.length === 0 ? (
-                              <View className='px-md py-lg'>
-                                <Text className='text-body text-center text-muted-foreground'>
-                                  {selectedDate ? '이 날의 일정이 없습니다' : '먼저 날짜를 선택해주세요'}
-                                </Text>
-                              </View>
-                            ) : (
-                              schedulesOnSelectedDate.map((schedule) => {
-                                const timeLabel = formatISOToLocalTime(schedule.scheduledAt);
-                                const label = `${timeLabel} ${schedule.title}`;
-
-                                return (
-                                  <Select.Item key={schedule.id} value={schedule.id} label={label}>
-                                    <View className='flex-col gap-3xs py-2xs'>
-                                      <Text className='text-body-large text-foreground'>{schedule.title}</Text>
-                                      <View className='flex-row items-center gap-2xs'>
-                                        <Text className='text-label text-muted-foreground'>{timeLabel}</Text>
-                                        <Text className='text-label text-muted-foreground'>•</Text>
-                                        <Text className='text-label text-muted-foreground'>{schedule.location}</Text>
-                                      </View>
-                                    </View>
-                                  </Select.Item>
-                                );
-                              })
-                            )}
-                          </Select.Viewport>
-                        </Select.Content>
-                      </Select.Overlay>
-                    </Select.Portal>
-                  </Select>
-                </Field.ElementsBox>
-                {error && <Field.Message>{error.message}</Field.Message>}
-              </Field>
-            );
-          }}
+          render={({ field: { value, onChange }, fieldState: { error } }) => (
+            <ExpenseScheduleField
+              tripId={tripId}
+              expenseDate={selectedDate}
+              value={value}
+              onChange={onChange}
+              error={error?.message}
+            />
+          )}
         />
-
-        {/* 버튼 */}
-        <View className='flex-row gap-sm mt-md'>
-          <View className='flex-1'>
-            <Pressable variant='default' onPress={onSubmit} disabled={isPending}>
-              {isPending ? '저장 중...' : '저장'}
-            </Pressable>
-          </View>
-          <View className='flex-1'>
-            <Pressable variant='outline' onPress={onCancel} disabled={isPending}>
-              취소
-            </Pressable>
-          </View>
-        </View>
+        <ExpenseSubmitActions
+          policy={policy.expense.create}
+          submitError={submitError}
+          isPending={isPending}
+          onSubmit={onSubmit}
+          onCancel={onCancel}
+        />
       </View>
     </ScrollView>
   );
