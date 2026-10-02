@@ -2,24 +2,31 @@
 
 ## 현재 위치
 
-제품 작업 브랜치는 `refactor/app-startup-lifecycle`이다. 일정 생성의 단일 초안 수명·기능별 정책 소비와 Places 서비스 경계 정리를 적용했고, 사용자는 코드와 대화 기록의 커밋을 승인했다. 전체 목표와 남은 범위는 [Ticket 06](../memory/tickets/06-app-startup-lifecycle.md), 선택 이유·평가 기준·실행 근거는 [후속 기록](../../records/2026-10-02-01-schedule-create-boundaries-and-verification.md)에서 이어간다.
+제품 브랜치는 `refactor/app-startup-lifecycle`이다. 일정 생성·Places 경계는 `78acff5`, 경비 날짜는 `4646752`, 일정 시각·데이터 입수 계약은 `d823b41`, 경비 초안·일정 연결 정책은 `a8e60a7`에 커밋했다. Ticket 06의 정책 소비·화면 제한·작성 수명 개선을 일정에 먼저 적용한 뒤 경비 생성·수정까지 이어 온 상태다. Ticket 06과 Workspace 전체는 아직 미완료다.
+
+[이번 세션 기록](../../records/2026-10-02-03-expense-time-decisions-and-verification.md)은 경비 정책 인터뷰, 시간 책임을 재검토한 이유, 독립 리뷰 요구·설명 정정, 검증과 마지막 보류 결정을 함께 보존한다. 이전 일정 결과와 경비로 돌아온 배경은 연결된 10월 2일 01·02 기록에서 읽는다.
 
 ## 현재 결과와 확인 범위
 
-검색·직접 입력·장소 변경은 같은 초안을 사용한다. 생성은 검증된 상세 장소를 받고, 수정의 기존 실패 호환값은 별도 adapter에 있다. 검색 지도 후보와 초안의 채택 장소를 구분한다. 초안 소유를 폼 내부로 옮기지 않았으며 저장은 기존 Entity/Repository/Router 경계를 유지한다.
+- 일정·경비는 열린 초안을 유지하고 조회·검색·저장 등 기능 영역에서 제한을 표시한다. 경비는 같은 여행의 모든 날짜 일정에 연결·변경·해제할 수 있고 경비 날짜 변경은 연결을 지우지 않는다. 활성 여행의 Local 일정 연결은 offline/unknown에도 가능하다.
+- Expense 날짜는 date-only, Schedule 시각은 timezone 포함 datetime으로 구별한다. 공통 schema가 규칙을 소유하고 Repository의 Router 전 입력·서버 요청·Local 반환·activation/pull 입수 경계에서 각 책임에 맞게 검사한다. PostgreSQL 물리 저장·기존 serializer를 유지하며 일괄 migration을 하지 않았다.
+- 현재 제품 상태에서 Main이 client 48 suites / 523 passed / 1 skipped와 변경 경비 코드 lint 통과를 확인했다. 시간 커밋만 분리한 상태의 512개, LA 132개 검사와 기존 typecheck 실패 범위는 세션 기록에 구별했다. 제품 Verify receipt는 생성하지 않았다.
+- 실앱에서 경비 날짜 독립성·연결 변경/해제·Debug 제한 중 입력 유지·복구 뒤 명시적 재시도를 확인했다. 활성 Local 경비와 비활성 Remote 경비의 개발 PostgreSQL 반영 및 해당 Local 큐가 비워진 것까지 확인했다. 실제 인터넷 단절 중 Local 저장은 미확인이다.
 
-최신 worker의 전체 client 검사는 45 suites / 443 tests 통과다. schema build·형식 검사 통과, 기존 충돌 규칙을 제외한 lint 오류 0·지도 경고 1, 기존 타입 오류 3건 유지다. Main은 실제 앱 재실행 후 online 표시와 Louvre 검색 결과 5개·지도 마커를 확인했다. 실제 작성 중 연결 전환·picker·오프라인 저장까지 검증한 것은 아니다.
+실앱 검증 후 네트워크 override는 해제했으며 테스트 경비 `Expense flow 1002`(EUR 19)와 `Expense remote 1002 recovered`(EUR 7)를 남겼다. 이 기록은 다음 실행 시 앱·서버가 계속 켜져 있다는 보장이 아니다.
 
-앞선 조회 조합 `b4db89d`, 다른 소비자 `eec00e1`, 2-A/2-B의 Query 복귀 기준과 2-C 복구 토스트를 추가하지 않는 선택은 유지한다. 자동 Maintain 실패 뒤 누락된 대화는 이번 명시적 요청으로 수동 기록하며 자동 lifecycle 복구를 뜻하지 않는다.
+## 다음 행동과 명시적 보류
 
-## 다음 행동
+사용자는 삭제 실패 이유 유실과 경비 상세의 특정 재시도 불일치를 이번에는 넘기고, 완료 작업 커밋과 전체 세션 기록을 먼저 요청했다. 두 문제는 보류이며 해결·폐기가 아니다. 다음 구현의 필수 선행으로 되살리거나 이번 커밋에 몰래 포함하지 않는다.
 
-실제 앱에서 하나의 일정을 작성하며 키보드·날짜/시간 picker, 장소 변경 검색과 작성 복귀, 연결 전환 중 초안 유지·활성 여행 오프라인 저장·목록/상세 재진입을 확인한다. 앱은 활성 파리 여행의 Louvre 검색 결과 화면까지 준비했으며 사용자 검사 결과는 아직 받지 않았다.
+다음 제품 검토는 Ticket 06의 나머지 홈·목록·상세·폼 종합 UX와 앱 foreground 복귀의 네트워크 재확인 연결이다. 제한 안내 중복, 읽기 제한과 작성 보존, 복구와 명시적 재시도가 전체 흐름에서 맞는지 대조한다. 그 결과와 남은 검증·보류 범위를 기준으로 06을 닫을 수 있는지 판단한다. 곧바로 07로 넘어가거나 경비 조사 전으로 되돌아가지 않는다. 복구 토스트 2-C는 현재 추가하지 않는 기존 선택을 유지한다.
 
-여행 기간 밖 날짜의 접근과 저장 후 과거 목록+500ms 경로 준비·Remote/경로의 정상 0 좌표 문제는 별도 남는다. 생성 검색의 부분 성공 UX 및 수정 검색의 legacy fallback·전체 실패 안내는 후속 판단 대상이다. 현 구조의 품질은 상태 수명·책임·타입 보장과 실제 변경 부담으로 평가한다.
+## 후속 Ticket과 검증 한계
 
-## 전체 완료와 남은 경계
+01~05의 기존 수락 범위는 유지한다. 이번 결과는 08의 날짜 범위, 10·11의 form, 14의 Local 반환·transaction, 15의 typed pull, 17의 요청 시각 계약 일부와 겹치므로 각 Ticket에서 선행 결과를 재사용한다. 대표 여행 계산·늦은 기본 통화·전체 form 재진입·저장 후 경로 준비·전체 cache 계약·sync 결과/중단 재개·cleanup·서버 나머지 접근 계약은 별도 완료로 남는다.
 
-Ticket 01~05의 수락은 각각의 기존 테스트 한계 안에서 유지하며, Project context 반영 후보도 01~05 범위다. 별도 Project context 브랜치·worktree의 결과를 이 작업 브랜치에 반영된 것으로 간주하지 않는다. Ticket 06과 Workspace 전체는 미완료이며 제품 Verify receipt는 아직 없다.
+일정 전체 native 작성·picker·실제 단절 저장, 비활성 초안의 기존 연결을 보유한 상태에서 제한·해제, 새 activation 전체는 이번 실앱 확인으로 완료하지 않았다. 여행 기간 밖 일정 접근, 저장 후 과거 목록과 500ms 경로 준비, 정상 0 좌표, 검색 부분 성공과 수정 legacy fallback 등의 별도 범위도 유지한다. Trip PATCH/PUT는 관련 07·17에서 계약을 대조한다.
 
-홈 안내 중복 등 종합 UX의 다른 후보, foreground 복귀 재확인, mutation 오류 처리와 최종 검증은 남아 있다. Trip PATCH/PUT 권위, 잘못된 scheduleId의 UX, 실제 기기의 server 주소도 기존 열린 판단이다. 후속 Ticket 14의 transaction·cache, 15의 sync 결과·재시도, 16의 cleanup, 17의 server entity, 18의 최종 Spec 대조 책임은 유지한다.
+## 기록 반영 상태
+
+자동 Maintain의 semantic/apply 실패 뒤 누락된 이번 세션은 사용자 명시적 요청으로 Main이 수동 보완했다. 현재 문서와 새 기록의 guarded apply 성공을 확인하며, 자동 lifecycle이나 대기 event 처리가 복구됐다고 주장하지 않는다. 기계 상태·receipt·active index는 변경하지 않는다.

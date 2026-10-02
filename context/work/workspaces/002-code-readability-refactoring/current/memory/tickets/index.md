@@ -62,4 +62,4 @@
 
 [추가 조사](../additional-research.md)의 `datetime.ts` 입력 mutation·offset 예제·미래 상대시간은 08, 카테고리·경쟁 Card export는 12, `syncStrategy`와 sync auth helper는 15, logout·계정 삭제 local 정리는 16이 맡는다. 여행 생성의 옛 hook과 실제 `TripDateForm` 연결은 13에서 확인한다. 짧은 Input·Checkbox·Switch의 범용 wrapper 추가와 생성 schema의 단순 partial 통일은 기존 근거대로 채택하지 않는다.
 
-아직 배치·기대 확인이 필요한 항목은 남겨 둔다. Trip PATCH/PUT는 07·17의 공동 확인 뒤 Main이 수정 담당을 확정한다. 날짜 변경 뒤 무효 `scheduleId`의 입력 UX는 11에서 003-06·07과 조율한다. Auth/OAuth·Places server 전반의 구조 개선, `RadioGroup`의 단언, 미사용 대표 통화 helper·미확인 export의 의미, 프로덕션 환경 파일 경로·Node 버전 강제는 확정된 구현 담당이 없다. 현재 분석의 낮은 근거 후보나 별도 배포 계약을 억지로 구현에 합치지 않되, 필요한 변경으로 확인되면 Main이 18 완료 전에 담당 실행을 배치한다. 알려진 누락을 마지막 검토까지 숨기지 않는다.
+아직 배치·기대 확인이 필요한 항목은 남겨 둔다. Trip PATCH/PUT는 07·17의 공동 확인 뒤 Main이 수정 담당을 확정한다. 날짜 차이와 무관한 선택적 일정 연결은 11의 채택 결과를 따른다. 일정 삭제·권한 변경 등 실제 무효 연결은 11에서 003-06·07과 대조한다. Auth/OAuth·Places server 전반의 구조 개선, `RadioGroup`의 단언, 미사용 대표 통화 helper·미확인 export의 의미, 프로덕션 환경 파일 경로·Node 버전 강제는 확정된 구현 담당이 없다. 현재 분석의 낮은 근거 후보나 별도 배포 계약을 억지로 구현에 합치지 않되, 필요한 변경으로 확인되면 Main이 18 완료 전에 담당 실행을 배치한다. 알려진 누락을 마지막 검토까지 숨기지 않는다.

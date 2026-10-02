@@ -8,7 +8,7 @@ sync push·pull·cleanup의 전부 성공, 부분 실패, 인증 중단과 재�
 
 ## 실행 맥락과 접근
 
-정적 코드 대조에서 개별 push task 실패는 `FAILED`로 바뀌지만 `pushChanges`가 성공으로 돌아오고, `syncData`는 pull 뒤 full completion을 기록한다. provider도 이 결과를 성공 시각으로 표시할 수 있다. retry 조건도 첫 5xx에서 `_retry`를 세우므로 다음 5xx가 조건을 통과하지 못하는 것으로 보이지만 실제 Axios 요청 횟수는 아직 실행으로 확인하지 않았다. pull은 response schema를 parse하지 않고 raw data를 `as never[]`로 upsert한다. 후속 06 구현에서 sync API의 공통 인증 interceptor 설치와 갱신 공유를 확인했다. `syncStrategy`는 현재 src의 실행 소비를 찾지 못했다. 이 선언의 유지·제거 판단과 전체 sync 결과 연결은 아직 남는다.
+정적 코드 대조에서 개별 push task 실패는 `FAILED`로 바뀌지만 `pushChanges`가 성공으로 돌아오고, `syncData`는 pull 뒤 full completion을 기록한다. provider도 이 결과를 성공 시각으로 표시할 수 있다. retry 조건도 첫 5xx에서 `_retry`를 세우므로 다음 5xx가 조건을 통과하지 못하는 것으로 보이지만 실제 Axios 요청 횟수는 아직 실행으로 확인하지 않았다. 최초 조사에서 pull은 response schema 없이 `as never[]`로 upsert했으나, 시간 후속 `d823b41`에서 아래와 같이 입수 계약을 적용했다. 후속 06 구현에서 sync API의 공통 인증 interceptor 설치와 갱신 공유를 확인했다. `syncStrategy`는 현재 src의 실행 소비를 찾지 못했다. 이 선언의 유지·제거 판단과 전체 sync 결과 연결은 아직 남는다.
 
 부분 실패의 정상 반환과 FAILED·IN_PROGRESS 제외는 [003-11](../../../../003-bug-investigation-and-fixes/current/memory/tickets/11-sync-retry-recovery.md)에서 분리 재현했고, 해당 Ticket이 실패·재시도·중단 복구를 맡는다. Axios retry 횟수·간격과 동시 trigger의 실제 요청 검증은 여전히 남아 있다. 일반 API와 sync의 공통 인증 갱신은 [06번](06-app-startup-lifecycle.md)의 구현·보완을 재사용하고 [003-02](../../../../003-bug-investigation-and-fixes/current/memory/tickets/02-auth-account-recovery.md)는 기존 근거로 연결한다. cursor·미전송 수정 충돌 정책은 [003-12](../../../../003-bug-investigation-and-fixes/current/memory/tickets/12-pull-consistency.md)의 책임이다. 이 Ticket의 typed pull 소비를 그 정책 해결로 확대하지 않는다.
 
@@ -31,4 +31,6 @@ sync engine은 PENDING과 retryCount 3 미만의 FAILED를 FIFO로 전송한다.
 
 HTTP 5xx 재시도는 인증 커밋에서 일반 요청 책임으로 수정했다. 실제 Axios adapter와 fake timer로 최초 요청을 포함해 총 4회 호출(재시도 3회)을 확인했다. 저장된 큐의 다음 실행 재시도와 별개다. 화면 Policy의 미사용 syncStrategy·uiMode 선언은 화면 정책 커밋에서 제거했다.
 
-pull response schema와 as never[] 제거, malformed pull·cleanup 부분 실패의 typed result, 중단된 IN_PROGRESS의 명시적 재개 정책은 남는다. 실제 네트워크·서버 DB를 실행하지 않았으므로 Ticket 전체 완료·검증·사용자 수락은 아니다.
+시간 후속 `d823b41`에서 pull 전체 response/entity/serverTime을 첫 Local 쓰기 전에 검증하고 `as never[]`를 제거했다. malformed envelope·시점과 checkpoint 선반영 방어를 검사했다. 이번 실앱 경비 확인에서는 Local CREATE/UPDATE가 개발 PostgreSQL에 반영되고 해당 큐가 비워지는 제한된 정상 흐름까지 Main이 확인했다. [세션 기록](../../../records/2026-10-02-03-expense-time-decisions-and-verification.md)의 자동 검사와 실앱 범위를 구별한다.
+
+cleanup 부분 실패의 typed result, 중단된 IN_PROGRESS의 명시적 재개, pull 전체 원자성·충돌·cursor 정책과 전체 실패 시나리오는 여전히 남는다. 정상 경비 두 건의 관찰을 Ticket 전체 완료나 사용자 수락으로 확대하지 않는다.

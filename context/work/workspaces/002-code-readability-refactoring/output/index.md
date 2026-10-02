@@ -121,3 +121,12 @@ Node 20.18.1에서 2개 file의 2개 test와 server build가 통과했다. 실�
 - [Trip serializer 단위 검사](../../../../../apps/server/tests/serializers/trip.test.ts), [Expense serializer 단위 검사](../../../../../apps/server/tests/serializers/expense.test.ts): 각 변환과 null·false 경계를 직접 검사한다.
 
 이 결과는 사용자가 Ticket 05의 3번보다 먼저 실행하도록 선택한 [17번 Ticket(당시 16번)](../current/memory/tickets/17-server-data-route-boundaries.md)의 좁은 조각이며 `fd1db26`으로 저장됐다. response schema 중복, request·update 계약, 오류와 ownership은 이 조각에서 완료하지 않았다. 최종 server test 8개 파일의 25개 test, build와 정적 형식 검사의 상세·한계는 [실행 기록](../records/2026-09-14-02-trip-expense-serialization.md)이 소유한다. 번호 재배치는 새 제품 산출물이 아니다.
+
+## Ticket 06 후속: 경비 초안·일정 연결과 날짜/시각 계약
+
+- [경비 일정 선택](../../../../../apps/client/src/features/expense/expense-form/ExpenseScheduleField.tsx), [저장 안내](../../../../../apps/client/src/features/expense/expense-form/ExpenseSubmitActions.tsx), [오류 해석](../../../../../apps/client/src/features/expense/expense-form/submit-error.ts): 생성·수정이 공유하는 영역별 책임. `a8e60a7`.
+- [공유 날짜/시각 기준](../../../../project/common/date-and-time.md), [시점 schema](../../../../../packages/schema/src/primitives/datetime.ts), [날짜 helper](../../../../../apps/client/src/shared/lib/datetime.ts): `4646752`·`d823b41`의 실제 계약과 호환 범위.
+- [경비 생성 검증](../../../../../apps/client/tests/screens/create-expense-flow.test.tsx), [수정 검증](../../../../../apps/client/tests/features/edit/offline-values.test.tsx), [Local·입수 계약 검증](../../../../../apps/client/tests/entities/temporal-local-contracts.test.ts): 초안·연결·저장과 시간 경계의 회귀 근거.
+- [세션 결정·검증·보류 기록](../records/2026-10-02-03-expense-time-decisions-and-verification.md): 선행 일정 작업과의 연결, 자동 검사·실앱·서버 DB 관찰의 차이, 삭제 실패·상세 재시도 보류와 남은 Ticket 범위.
+
+이 산출물은 06 전체 완료나 후속 08·10·11·14·15·17의 모든 책임 완료를 뜻하지 않는다.

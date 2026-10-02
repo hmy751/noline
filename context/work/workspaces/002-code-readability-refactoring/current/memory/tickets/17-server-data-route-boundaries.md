@@ -27,3 +27,5 @@ Trip route에는 client와 다른 update method, schema가 허용해도 route가
 공통화 전 Trip·Expense CRUD와 sync pull의 route 특성화 검사 8개가 통과했다. serializer 단위 검사는 구현 전 module 부재로 실패한 뒤 구현 후 통과했으며, 최종 server test 8개 파일의 25개 test, server build, 변경 파일 Prettier와 `git diff --check`가 통과했다. server 전체 typecheck에는 기존 `places.ts:138` 오류가 남았다. 상세 범위와 한계는 [실행 기록](../../../records/2026-09-14-02-trip-expense-serialization.md)에 있다.
 
 이 선행 조각은 `fd1db26 refactor(server): centralize trip and expense serialization`으로 저장됐으며, 당시 Ticket 16을 현재 17로 옮겨 같은 결과를 유지한다. Trip·Expense의 중복 entity/response parse, 누락된 response schema, request·update 계약, 오류 전달, 남은 ownership·soft-delete와 sync schema는 이 조각에서 변경하지 않았다. 후속 05의 activation 접근 결과는 별도 근거로 사용한다. 따라서 직렬화 결과만으로 Ticket 17 전체나 모든 공개 계약·접근 경계를 완료했다고 판단하지 않는다.
+
+2026-10-02 후속 `4646752`·`d823b41`에서 Expense 생성/수정 요청의 date-only·legacy datetime 호환, sync pull lastSyncedAt 검증과 shared 시점 schema를 적용했다. 서버의 물리 timestamp·serializer는 유지했다. 정상 경비 두 건의 개발 PostgreSQL 반영도 확인했지만 Trip method·허용 필드·전체 ownership·오류 계약은 그대로 남는다. 자세한 책임과 검증 범위는 [세션 기록](../../../records/2026-10-02-03-expense-time-decisions-and-verification.md)을 따른다.
