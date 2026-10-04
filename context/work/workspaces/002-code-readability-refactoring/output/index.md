@@ -130,3 +130,11 @@ Node 20.18.1에서 2개 file의 2개 test와 server build가 통과했다. 실�
 - [세션 결정·검증·보류 기록](../records/2026-10-02-03-expense-time-decisions-and-verification.md): 선행 일정 작업과의 연결, 자동 검사·실앱·서버 DB 관찰의 차이, 삭제 실패·상세 재시도 보류와 남은 Ticket 범위.
 
 이 산출물은 06 전체 완료나 후속 08·10·11·14·15·17의 모든 책임 완료를 뜻하지 않는다.
+
+## Ticket 06 후속: 홈 카드의 요약 표시
+
+- [홈 조합](../../../../../apps/client/src/screens/HomeScreen/MainTripSection.tsx), [카드](../../../../../apps/client/src/entities/trip/ui/TripCard.tsx), [요약 영역](../../../../../apps/client/src/entities/trip/ui/TripSummary.tsx): 기존 조회 결과를 사용하고 카드 안에서 상태별 표시를 소유하는 `e54fe42`의 제품 코드.
+- [요약 UI 검사](../../../../../apps/client/tests/entities/trip/TripSummary.test.tsx), [화면 연결 검사](../../../../../apps/client/tests/screens/read-query-consumers.test.tsx), [정책 검사](../../../../../apps/client/tests/shared/policy/useAppPolicy-network.test.ts): 공동 제한·부분 캐시·실패·복구와 정책 계약의 근거.
+- [설계 교정과 UX 후속 기록](../records/2026-10-04-01-home-summary-policy-and-ux-review.md): 중복 상태 체계를 제거한 이유, 검증 범위, foreground·날짜·폼의 다음 판단.
+
+현재 진행·남은 범위는 Ticket 06과 state가 소유한다. 로컬 HTML과 이미지에만 의존하지 않도록 핵심 관찰을 위 기록에 보존했다.
