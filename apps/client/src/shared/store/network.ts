@@ -1,4 +1,5 @@
 import { create, type StoreApi } from 'zustand';
+import { AppState } from 'react-native';
 import NetInfo, { type NetInfoState, type NetInfoSubscription } from '@react-native-community/netinfo';
 
 export type NetworkStatus = 'online' | 'offline' | 'unknown';
@@ -26,6 +27,7 @@ interface NetworkState {
  */
 interface NetworkSession {
   unsubscribe: NetInfoSubscription | null;
+  appStateSubscription: ReturnType<typeof AppState.addEventListener> | null;
   unknownCheckTimer: ReturnType<typeof setTimeout> | null;
 
   /**
@@ -87,6 +89,20 @@ function createNetworkActions(
 
     startUnknownCheck(session);
     ensureSubscribed(session);
+
+    let previousState = AppState.currentState;
+    session.appStateSubscription = AppState.addEventListener('change', (nextState) => {
+      if (!isActiveSession(session)) {
+        return;
+      }
+
+      const isReturning = previousState === 'background' || previousState === 'inactive';
+      previousState = nextState;
+      // 복귀 때 놓친 연결 변화를 수동 확인과 같은 경로로 확인한다.
+      if (isReturning && nextState === 'active') {
+        void refresh();
+      }
+    });
   }
 
   function cleanup() {
@@ -100,6 +116,7 @@ function createNetworkActions(
       clearUnknownCheckTimer(session);
       session.activeRefresh?.finish();
       session.unsubscribe?.();
+      session.appStateSubscription?.remove();
     }
 
     set({
@@ -150,6 +167,7 @@ function createNetworkActions(
   function createSession(): NetworkSession {
     return {
       unsubscribe: null,
+      appStateSubscription: null,
       unknownCheckTimer: null,
       observationRevision: 0,
       activeRefresh: null,

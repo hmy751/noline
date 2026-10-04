@@ -5,6 +5,7 @@ import NetInfo, {
   NetInfoStateType,
 } from '@react-native-community/netinfo';
 import { act, renderHook } from '@testing-library/react-native';
+import { AppState, type AppStateStatus } from 'react-native';
 
 import {
   networkStore,
@@ -32,6 +33,8 @@ const refreshMock = jest.mocked(NetInfo.refresh);
 
 let listeners: NetInfoChangeHandler[];
 let unsubscribeMock: ReturnType<typeof jest.fn>;
+let appStateListener: (state: AppStateStatus) => void;
+let removeAppStateListenerMock: ReturnType<typeof jest.fn>;
 
 function createObservation(isConnected: boolean | null, isInternetReachable: boolean | null): NetInfoState {
   return {
@@ -71,6 +74,11 @@ beforeEach(() => {
 
   listeners = [];
   unsubscribeMock = jest.fn();
+  removeAppStateListenerMock = jest.fn();
+  jest.spyOn(AppState, 'addEventListener').mockImplementation((_event, listener) => {
+    appStateListener = listener;
+    return { remove: removeAppStateListenerMock };
+  });
 
   addEventListenerMock.mockImplementation((listener) => {
     listeners.push(listener);
@@ -81,7 +89,42 @@ beforeEach(() => {
 
 afterEach(() => {
   networkStore.cleanup();
+  jest.restoreAllMocks();
   jest.useRealTimers();
+});
+
+describe('앱 복귀의 네트워크 재확인', () => {
+  it.each<AppStateStatus>(['background', 'inactive'])(
+    '%s에서 복귀하면 기존 재확인으로 실제 상태를 갱신한다',
+    async (state) => {
+      networkStore.init();
+      emitObservation(false, false);
+      refreshMock.mockResolvedValue(createObservation(true, true));
+
+      appStateListener(state);
+      expect(refreshMock).not.toHaveBeenCalled();
+      appStateListener('active');
+      await networkStore.refresh();
+
+      expect(refreshMock).toHaveBeenCalledTimes(1);
+      expect(networkStore.realStatus).toBe('online');
+      appStateListener('active');
+      expect(refreshMock).toHaveBeenCalledTimes(1);
+    },
+  );
+
+  it('중복 init은 구독을 추가하지 않고 cleanup 후 늦은 복귀는 감지를 재시작하지 않는다', () => {
+    networkStore.init();
+    networkStore.init();
+    expect(AppState.addEventListener).toHaveBeenCalledTimes(1);
+    appStateListener('background');
+
+    networkStore.cleanup();
+    expect(removeAppStateListenerMock).toHaveBeenCalledTimes(1);
+    appStateListener('active');
+    expect(refreshMock).not.toHaveBeenCalled();
+    expect(addEventListenerMock).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('인터넷 연결 관측 변환', () => {
