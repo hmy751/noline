@@ -116,3 +116,5 @@
 - [경비 초안·일정 연결과 시간 책임의 결정·검증·보류](2026-10-02-03-expense-time-decisions-and-verification.md): 일정 첫 적용에서 이어진 경비 정책 인터뷰, 서버 직렬화와 입력 계약의 차이, 세 번의 제품 커밋, 자동·실앱 검증 범위와 Ticket 06의 다음 경계. 삭제 실패·상세 재시도는 사용자 요청으로 보류한다.
 
 - [홈 요약의 표시 책임·정책 재사용과 UX 후속 검토](2026-10-04-01-home-summary-policy-and-ux-review.md): 비활성 홈 안내 개선, 기존 조회 상태 재사용으로 간결화한 이유, 최종 코드 커밋·자동/화면 검증 및 foreground·날짜·폼의 남은 경계.
+
+- [2026-10-04-02-foreground-network-refresh.md](2026-10-04-02-foreground-network-refresh.md): 기존 주기적 감지와 복귀 확인의 관계, store 세션 책임, 커밋과 실제 복귀 호출 검증.

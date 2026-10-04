@@ -2,7 +2,7 @@
 
 ## 현재 위치
 
-제품 브랜치는 `refactor/app-startup-lifecycle`이다. Ticket 06의 일정·경비 정책 소비 개선에 이어 홈 요약의 표시 책임과 기존 조회 결과 재사용을 `e54fe42`에 저장했다. Ticket 06과 Workspace 전체는 진행 중이다. 이번 범위의 결과와 후속 검토는 [Ticket 06](../memory/tickets/06-app-startup-lifecycle.md), 설계 교정의 이유·검증·사용자 저장 요청은 [10월 4일 기록](../../records/2026-10-04-01-home-summary-policy-and-ux-review.md)에서 읽는다.
+제품 브랜치는 `refactor/app-startup-lifecycle`이다. Ticket 06의 일정·경비 정책 소비 개선에 이어 홈 요약의 표시 책임과 기존 조회 결과 재사용을 `e54fe42`에 저장했다. 앱 복귀 재확인은 `d588a19`에 저장했다. [복귀 확인 기록](../../records/2026-10-04-02-foreground-network-refresh.md)에 필요성·책임 배치·검증 한계를 남겼다. Ticket 06과 Workspace 전체는 진행 중이다. 이번 범위의 결과와 후속 검토는 [Ticket 06](../memory/tickets/06-app-startup-lifecycle.md), 설계 교정의 이유·검증·사용자 저장 요청은 [10월 4일 기록](../../records/2026-10-04-01-home-summary-policy-and-ux-review.md)에서 읽는다.
 
 ## 현재 결과와 확인 범위
 
@@ -15,9 +15,9 @@
 
 ## 다음 행동과 명시적 보류
 
-홈 안내 구현은 저장됐다. 다음에는 Ticket 06의 남은 foreground 네트워크 재확인 연결과 목록·상세·폼 종합 UX, 날짜 기준 판단을 현재 증거에서 이어간다. 어떤 항목부터 구현할지는 다음 작업에서 정하며, 새 작업을 시작한 상태로 기록하지 않는다.
+홈 안내와 foreground 재확인 연결은 저장됐다. 다음에는 Ticket 06의 목록·상세·폼 종합 UX와 날짜 기준 판단을 현재 증거에서 이어간다. 날짜 기준 검토를 우선 제안했으며 아직 착수하지 않았다. 어떤 항목부터 구현할지는 다음 작업에서 정하며, 새 작업을 시작한 상태로 기록하지 않는다.
 
-- foreground: 앱과 설치 NetInfo에는 복귀마다 명시적으로 재확인하는 연결이 없다. 일반 관측·반복 도달 확인은 있으므로 갱신이 전혀 없다는 뜻은 아니다. 기존 refresh에 복귀 이벤트를 연결할지와 실제 기기 검증을 판단한다.
+- foreground: Network Store 세션이 복귀를 구독해 기존 refresh를 실행한다. 관련 2 suites / 43 tests 통과와 최신 시뮬레이터의 두 번 복귀에서 각각 1회 호출을 Main이 확인했다. 실제 기기 단절·복구 검증은 남는다.
 - 날짜: 현재 파리의 홈 9/30~10/2와 목록 9/29~10/1은 같은 timestamp의 현지/UTC 해석 차이로 원인이 확인됐다. Trip 기간의 달력 날짜 의미를 입력·대표 여행·활성 만료와 함께 판단해야 하며 이번에 수정하지 않았다.
 - UX·실행 확인: 실제 단절 Local 저장, 열린 폼의 연결 전환, 일정 전체 native 작성·picker, 새 activation 전체 등 남은 검증을 구분한다. 보고서 존재나 부분 관찰을 전체 수락으로 해석하지 않는다.
 

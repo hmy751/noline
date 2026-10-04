@@ -138,3 +138,8 @@ Node 20.18.1에서 2개 file의 2개 test와 server build가 통과했다. 실�
 - [설계 교정과 UX 후속 기록](../records/2026-10-04-01-home-summary-policy-and-ux-review.md): 중복 상태 체계를 제거한 이유, 검증 범위, foreground·날짜·폼의 다음 판단.
 
 현재 진행·남은 범위는 Ticket 06과 state가 소유한다. 로컬 HTML과 이미지에만 의존하지 않도록 핵심 관찰을 위 기록에 보존했다.
+
+## Ticket 06 후속: 앱 복귀 재확인
+
+- [Network Store](../../../../../apps/client/src/shared/store/network.ts)와 [검사](../../../../../apps/client/tests/shared/store/network.test.ts): `d588a19`, 기존 감지 세션 안에서 복귀 구독·재확인·해제를 관리한다.
+- [구현과 검증 기록](../records/2026-10-04-02-foreground-network-refresh.md): 주기적 감지와의 관계, 책임 배치 정정, 자동 검사와 시뮬레이터 두 차례 복귀 증거 및 실제 단절 미확인.
