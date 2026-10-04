@@ -1,13 +1,9 @@
 import { View, Text, ActivityIndicator, Alert } from 'react-native';
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { TripCard, type TripData, type ActivationStatus, useDeactivateTrip } from '@/entities/trip';
 import { useTripExpensesReadQuery } from '@/features/expense/read-expenses';
 import { useTripSchedulesReadQuery } from '@/features/schedule/read-schedules';
-import type { ReadQueryView } from '@/shared/services/policy-query';
-import { PolicyErrorDisplay } from '@/shared/components/ErrorBoundary';
-import { Pressable } from '@repo/ui';
-import { ScheduleRefreshError } from '../ScheduleQueryFeedback';
-import { ExpenseRefreshError } from '../ExpenseQueryFeedback';
+import { useNetworkCheck } from '@/shared/store/network';
 import { groupExpensesByCurrency } from '@/shared/lib/currency';
 import { getTripActivationStatusDetail } from '@/shared/services/offline-prep/metadata';
 
@@ -38,12 +34,15 @@ export function MainTripSection({
 
   const schedulesRead = useTripSchedulesReadQuery(mainTripData?.id);
   const expensesRead = useTripExpensesReadQuery(mainTripData?.id);
-  const schedules = schedulesRead.view.kind === 'ready' ? schedulesRead.view.data : undefined;
-  const expenses = expensesRead.view.kind === 'ready' ? expensesRead.view.data : undefined;
-  const expensesByCurrency = useMemo(
-    () => (expenses ? groupExpensesByCurrency(expenses, mainTripData?.baseCurrency) : undefined),
-    [expenses, mainTripData?.baseCurrency],
-  );
+  const { refresh, isRefreshing } = useNetworkCheck();
+  const scheduleView =
+    schedulesRead.view.kind === 'ready'
+      ? { ...schedulesRead.view, data: schedulesRead.view.data.length }
+      : schedulesRead.view;
+  const expenseView =
+    expensesRead.view.kind === 'ready'
+      ? { ...expensesRead.view, data: groupExpensesByCurrency(expensesRead.view.data, mainTripData?.baseCurrency) }
+      : expensesRead.view;
 
   // 비활성화 mutation
   const { mutate: deactivateTrip } = useDeactivateTrip();
@@ -117,14 +116,11 @@ export function MainTripSection({
         country: mainTripData.country || '',
         startDate: formatDate(mainTripData.startDate),
         endDate: formatDate(mainTripData.endDate),
-        scheduleCount: schedules?.length,
-        expensesByCurrency, // ✅ 통화별 경비 데이터 전달
-        baseCurrency: mainTripData.baseCurrency, // ✅ 빈 경비 시 표시용
       }
     : null;
 
   // 로딩 상태
-  if (isLoading) {
+  if (isLoading && !mainTripData) {
     return (
       <View className='flex-row items-center justify-center rounded-xl bg-card p-lg'>
         <ActivityIndicator size='large' color='#228B22' />
@@ -133,7 +129,7 @@ export function MainTripSection({
   }
 
   // 에러 상태
-  if (isError) {
+  if (isError && !mainTripData) {
     return (
       <View className='rounded-xl bg-card p-md'>
         <Text className='text-body text-muted-foreground text-center'>여행 정보를 불러올 수 없습니다.</Text>
@@ -152,49 +148,31 @@ export function MainTripSection({
 
   // 메인 여행 카드
   return (
-    <>
-      <TripCard
-        {...mainTrip}
-        scheduleSummary={
-          schedulesRead.view.kind !== 'ready' ? (
-            <SummaryFeedback view={schedulesRead.view} label='일정을' retry={() => schedulesRead.actions.refetch()} />
-          ) : undefined
-        }
-        expenseSummary={
-          expensesRead.view.kind !== 'ready' ? (
-            <SummaryFeedback view={expensesRead.view} label='경비를' retry={() => expensesRead.actions.refetch()} />
-          ) : undefined
-        }
-        activationStatus={activationStatus}
-        onActivatePress={
-          activationStatus !== 'online' ? undefined : () => onActivatePress(mainTripData.id, mainTrip.destination)
-        }
-        onDeactivatePress={activationStatus !== 'online' ? handleDeactivate : undefined}
-        onEditPress={onEditPress}
-      />
-      {schedulesRead.view.kind === 'ready' && schedulesRead.view.refreshFailed && (
-        <ScheduleRefreshError
-          retry={schedulesRead.access.canFetch ? () => schedulesRead.actions.refetch() : undefined}
-        />
-      )}
-      {expensesRead.view.kind === 'ready' && expensesRead.view.refreshFailed && (
-        <ExpenseRefreshError retry={expensesRead.access.canFetch ? () => expensesRead.actions.refetch() : undefined} />
-      )}
-    </>
+    <TripCard
+      {...mainTrip}
+      summary={{
+        schedule: {
+          view: scheduleView,
+          onRetry: schedulesRead.access.canFetch ? () => schedulesRead.actions.refetch() : undefined,
+          isRetrying: schedulesRead.query.isFetching,
+        },
+        expense: {
+          view: expenseView,
+          onRetry: expensesRead.access.canFetch ? () => expensesRead.actions.refetch() : undefined,
+          isRetrying: expensesRead.query.isFetching,
+        },
+        baseCurrency: mainTripData.baseCurrency ?? 'USD',
+        onRecheckNetwork: () => {
+          refresh();
+        },
+        isRecheckingNetwork: isRefreshing,
+      }}
+      activationStatus={activationStatus}
+      onActivatePress={
+        activationStatus !== 'online' ? undefined : () => onActivatePress(mainTripData.id, mainTrip.destination)
+      }
+      onDeactivatePress={activationStatus !== 'online' ? handleDeactivate : undefined}
+      onEditPress={onEditPress}
+    />
   );
-}
-
-function SummaryFeedback({ view, label, retry }: { view: ReadQueryView<unknown>; label: string; retry: () => void }) {
-  if (view.kind === 'blocked') return <PolicyErrorDisplay policy={view.policy} variant='inline' />;
-  if (view.kind === 'error') {
-    return (
-      <View>
-        <Text className='text-body text-primary-foreground'>{label} 불러오지 못했어요.</Text>
-        <Pressable variant='outline' onPress={retry}>
-          다시 불러오기
-        </Pressable>
-      </View>
-    );
-  }
-  return <Text className='text-body text-primary-foreground'>{view.kind === 'loading' ? '불러오는 중' : '—'}</Text>;
 }

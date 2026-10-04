@@ -1,30 +1,15 @@
 import { View, Text, type ViewProps, TouchableOpacity } from 'react-native';
-import type { ReactNode } from 'react';
 import { cn, Pressable } from '@repo/ui';
 import { Calendar, Download, Edit3, Trash2 } from 'lucide-react-native';
 import { ActivationBadge, type ActivationStatus } from './ActivationBadge';
-import { formatCurrencyDisplay } from '@/shared/lib/currency';
-
-/**
- * ✅ CURRENCY_POLICY: 통화별 경비 그룹
- */
-export interface CurrencyGroup {
-  currency: string;
-  amount: number;
-}
+import { TripSummary, type TripSummaryProps } from './TripSummary';
 
 interface TripCardProps extends ViewProps {
   destination: string;
   country: string;
   startDate: string;
   endDate: string;
-  scheduleCount?: number;
-  /** 조회 상태를 함께 표시하는 소비자가 기본 숫자 대신 제공하는 요약 내용. */
-  scheduleSummary?: ReactNode;
-  expenseSummary?: ReactNode;
-  // ✅ CURRENCY_POLICY: 통화별 경비 그룹 (주 통화 + 추가 통화)
-  expensesByCurrency?: CurrencyGroup[];
-  baseCurrency?: string; // 여행 기본 통화 (빈 경비 시 표시용)
+  summary: TripSummaryProps;
   // ✅ 활성화 시스템 관련
   activationStatus?: ActivationStatus;
   onActivatePress?: () => void;
@@ -38,11 +23,7 @@ export function TripCard({
   country,
   startDate,
   endDate,
-  scheduleCount,
-  scheduleSummary,
-  expenseSummary,
-  expensesByCurrency = [],
-  baseCurrency = 'USD',
+  summary,
   activationStatus = 'online',
   onActivatePress,
   onDeactivatePress,
@@ -50,11 +31,6 @@ export function TripCard({
   className,
   ...props
 }: TripCardProps) {
-  // ✅ CURRENCY_POLICY: 주 통화 (가장 많이 사용된 통화)
-  const primaryCurrency = expensesByCurrency.length > 0 ? expensesByCurrency[0] : null;
-  // ✅ 추가 통화 개수
-  const additionalCurrencyCount = Math.max(0, expensesByCurrency.length - 1);
-
   return (
     <View
       className={cn('rounded-xl bg-primary p-md', className)}
@@ -96,34 +72,7 @@ export function TripCard({
       {/* Divider */}
       <View className='mb-sm h-px bg-primary-foreground/20' />
 
-      {/* Stats */}
-      <View className='flex-row items-start justify-between gap-sm'>
-        {(scheduleSummary !== undefined || scheduleCount !== undefined) && (
-          <View className='flex-1 flex-col gap-3xs'>
-            <Text className='text-label text-primary-foreground/70'>일정</Text>
-            {scheduleSummary ?? <Text className='text-title-large text-primary-foreground'>{scheduleCount}개</Text>}
-          </View>
-        )}
-        {/* ✅ CURRENCY_POLICY: 주 통화 + 추가 통화 개수 표시 */}
-        <View className='flex-1 flex-col items-end gap-3xs'>
-          <Text className='text-label text-primary-foreground/70'>경비</Text>
-          {expenseSummary ??
-            (primaryCurrency ? (
-              <View className='flex-col items-end gap-3xs'>
-                {/* 주 통화 (큰 글씨) */}
-                <Text className='text-title-large text-primary-foreground'>
-                  {primaryCurrency.currency} {primaryCurrency.amount.toFixed(2)}
-                </Text>
-                {/* 추가 통화 개수 (작은 글씨) */}
-                {additionalCurrencyCount > 0 && (
-                  <Text className='text-label text-primary-foreground/70'>+{additionalCurrencyCount}개 통화</Text>
-                )}
-              </View>
-            ) : (
-              <Text className='text-title-large text-primary-foreground'>{formatCurrencyDisplay(0, baseCurrency)}</Text>
-            ))}
-        </View>
-      </View>
+      <TripSummary {...summary} />
 
       {/* 활성화 버튼 - 비활성 상태일 때만 표시 */}
       {activationStatus === 'online' && onActivatePress && (

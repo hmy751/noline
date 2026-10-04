@@ -18,6 +18,8 @@ import { expenseQueryKeys } from '@/entities/expense/data/keys';
 import { useGetTripActivation } from '@/entities/trip/data/useGetTripActivation';
 import { useAuthStore } from '@/shared/store/auth';
 import { useNetworkStore } from '@/shared/store/network';
+import { networkStore } from '@/shared/store/network';
+import NetInfo from '@react-native-community/netinfo';
 
 jest.mock('expo-secure-store', () => ({}));
 jest.mock('@react-native-community/netinfo', () => ({
@@ -199,14 +201,16 @@ function CreateSchedule() {
   useSubmitSchedule({ tripId: 'trip' });
   return <NativeText>일정 작성</NativeText>;
 }
-function setup(ui: React.ReactElement, cached = true) {
+function setup(ui: React.ReactElement, cached: boolean | 'schedule' | 'expense' = true) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false, gcTime: 0, refetchOnReconnect: false } },
   });
   clients.push(client);
-  if (cached) {
+  if (cached === true || cached === 'schedule') {
     client.setQueryData(scheduleQueryKeys.detail('s'), schedule);
     client.setQueryData(scheduleQueryKeys.list('trip'), [schedule]);
+  }
+  if (cached === true || cached === 'expense') {
     client.setQueryData(expenseQueryKeys.bySchedule('s'), [expense]);
     client.setQueryData(expenseQueryKeys.byTrip('trip'), [expense]);
   }
@@ -228,11 +232,13 @@ beforeEach(() => {
 });
 afterEach(async () => {
   cleanup();
+  networkStore.cleanup();
   for (const client of clients.splice(0)) {
     await client.cancelQueries();
     client.clear();
   }
   jest.restoreAllMocks();
+  jest.useRealTimers();
 });
 
 it('일정 상세는 비활성 여행의 캐시를 제한 중 숨기고 복귀 시 조회 없이 다시 표시한다', () => {
@@ -288,6 +294,108 @@ it('홈의 경비 최초 실패는 0원과 구분하고 정상 일정 요약을 
   await waitFor(() => expect(view.getByText('경비를 불러오지 못했어요.')).toBeTruthy());
   expect(view.getByText('1개')).toBeTruthy();
   expect(view.queryByText('USD 0.00')).toBeNull();
+});
+it.each([
+  {
+    cached: 'schedule' as const,
+    retained: '1개',
+    missing: 'USD 12.00',
+    message: '이 여행의 경비는 인터넷에 연결하면 볼 수 있어요.',
+  },
+  {
+    cached: 'expense' as const,
+    retained: 'USD 12.00',
+    missing: '1개',
+    message: '이 여행의 일정은 인터넷에 연결하면 볼 수 있어요.',
+  },
+])(
+  '강제 online·실제 offline에서 $cached 캐시만 있으면 정상 요약과 나머지 항목 제한을 함께 유지한다',
+  async ({ cached, retained, missing, message }) => {
+    useNetworkStore.setState({ realStatus: 'offline', overrideStatus: 'online', checkStatus: 'idle' });
+    const view = setup(home, cached);
+    await act(async () => undefined);
+    expect(view.getByText(retained)).toBeTruthy();
+    expect(view.queryByText(missing)).toBeNull();
+    expect(view.getByText(message)).toBeTruthy();
+    expect(view.queryByText('일정 · 경비')).toBeNull();
+    expect(ScheduleRepository.getByTripId).not.toHaveBeenCalled();
+    expect(ExpenseRepository.getByTripId).not.toHaveBeenCalled();
+    connect('online');
+    await waitFor(() => expect(view.getByText(missing)).toBeTruthy());
+    expect(view.getByText(retained)).toBeTruthy();
+    expect(view.queryByText(message)).toBeNull();
+  },
+);
+it('홈의 공동 제한에서 다시 확인은 기존 Store 작업을 공유하고 연결 복귀 뒤 캐시 숫자를 다시 표시한다', async () => {
+  jest.useFakeTimers();
+  jest.mocked(NetInfo.refresh).mockReset();
+  act(() => networkStore.init());
+  const view = setup(home);
+  expect(view.getAllByText('인터넷 연결을 확인하고 있어요.')).toHaveLength(1);
+  expect(view.queryByText('1개')).toBeNull();
+  act(() => jest.advanceTimersByTime(10_000));
+  expect(view.getAllByRole('button', { name: '다시 확인' })).toHaveLength(1);
+  let resolve!: (value: Awaited<ReturnType<typeof NetInfo.refresh>>) => void;
+  jest.mocked(NetInfo.refresh).mockImplementationOnce(
+    () =>
+      new Promise((done) => {
+        resolve = done;
+      }),
+  );
+  const recheck = view.getByRole('button', { name: '다시 확인' });
+  act(() => {
+    fireEvent.press(recheck);
+    fireEvent.press(recheck);
+  });
+  expect(NetInfo.refresh).toHaveBeenCalledTimes(1);
+  expect(view.getAllByText('인터넷 연결을 확인하고 있어요.')).toHaveLength(1);
+  expect(view.queryByRole('button', { name: '다시 확인' })).toBeNull();
+  await act(async () => {
+    resolve({ isConnected: true, isInternetReachable: true } as Awaited<ReturnType<typeof NetInfo.refresh>>);
+  });
+  expect(view.getByText('1개')).toBeTruthy();
+  expect(view.getByText('USD 12.00')).toBeTruthy();
+  expect(ScheduleRepository.getByTripId).not.toHaveBeenCalled();
+  expect(ExpenseRepository.getByTripId).not.toHaveBeenCalled();
+});
+it.each(['offline', 'unknown'] as const)('홈은 %s에서도 활성 여행의 Local 숫자를 유지한다', async (realStatus) => {
+  jest
+    .mocked(useGetTripActivation)
+    .mockReturnValue({ data: { isActivated: true } } as ReturnType<typeof useGetTripActivation>);
+  const view = setup(home);
+  connect(realStatus);
+  await act(async () => undefined);
+  expect(view.getByText('1개')).toBeTruthy();
+  expect(view.getByText('USD 12.00')).toBeTruthy();
+  expect(view.queryByText('일정 · 경비')).toBeNull();
+});
+it('홈의 갱신 실패는 기존 숫자를 유지하며 해당 항목의 재시도로 회복한다', async () => {
+  const view = setup(home);
+  jest.mocked(ExpenseRepository.getByTripId).mockRejectedValueOnce(new Error('server'));
+  await act(async () => {
+    await view.client.refetchQueries({ queryKey: expenseQueryKeys.byTrip('trip') });
+  });
+  await waitFor(() => expect(view.getByText('경비를 갱신하지 못했어요. 이전 내용을 표시하고 있어요.')).toBeTruthy());
+  expect(view.getByText('1개')).toBeTruthy();
+  expect(view.getByText('USD 12.00')).toBeTruthy();
+  fireEvent.press(view.getByRole('button', { name: '다시 불러오기' }));
+  await waitFor(() => expect(view.queryByText('경비를 갱신하지 못했어요. 이전 내용을 표시하고 있어요.')).toBeNull());
+  expect(ExpenseRepository.getByTripId).toHaveBeenCalledTimes(2);
+  expect(ScheduleRepository.getByTripId).not.toHaveBeenCalled();
+});
+it('기존 대표 여행이 있으면 여행 목록 재조회 실패에서도 기본 정보와 요약을 유지한다', async () => {
+  const view = setup(React.cloneElement(home, { isError: true }));
+  await act(async () => undefined);
+  expect(view.getByText('파리, 프랑스')).toBeTruthy();
+  expect(view.getByText('1개')).toBeTruthy();
+  expect(view.getByText('USD 12.00')).toBeTruthy();
+  expect(view.queryByText('여행 정보를 불러올 수 없습니다.')).toBeNull();
+});
+it('대표 여행이 없는 최초 여행 조회 실패는 여행 없음과 구별한다', async () => {
+  const view = setup(React.cloneElement(home, { mainTripData: null, isError: true }), false);
+  await act(async () => undefined);
+  expect(view.getByText('여행 정보를 불러올 수 없습니다.')).toBeTruthy();
+  expect(view.queryByText('아직 생성된 여행이 없습니다.')).toBeNull();
 });
 it.each([
   { name: '경비 생성', ui: <CreateExpense /> },

@@ -21,6 +21,7 @@ export const SCHEDULE_POLICIES: EntityPolicyTable = {
     offline_active: { allowed: true, mode: 'full' },
     offline_inactive: {
       allowed: false,
+      reasonCode: 'offline-inactive',
       reason: '인터넷에 연결되어 있지 않아요. 오프라인에서는 활성 여행을 선택해주세요.',
     },
   },
@@ -68,6 +69,7 @@ export const EXPENSE_POLICIES: EntityPolicyTable = {
     offline_active: { allowed: true, mode: 'full' },
     offline_inactive: {
       allowed: false,
+      reasonCode: 'offline-inactive',
       reason: '인터넷에 연결되어 있지 않아요. 오프라인에서는 활성 여행을 선택해주세요.',
     },
   },

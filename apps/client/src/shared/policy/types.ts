@@ -15,6 +15,8 @@ export interface OperationPolicy {
   pending?: boolean;
   mode?: OperationMode;
   reason?: string;
+  /** 일반 안내와 달라야 하는 비활성 오프라인 읽기 문구를 구별한다. */
+  reasonCode?: 'offline-inactive';
   recoveryAction?: 'recheck-network';
 }
 

@@ -60,6 +60,7 @@ it('최초 SQL 결과를 기다리는 동안 CRUD를 확인 중으로 두고 활
   for (const entity of [result.current.schedule, result.current.expense]) {
     expect(Object.values(entity).every((operation) => operation.pending && !operation.allowed)).toBe(true);
   }
+  expect(result.current.schedule.read).toEqual(result.current.expense.read);
   await act(async () => resolve(active));
   await waitFor(() => expect(result.current.schedule.read.allowed).toBe(true));
   expect(result.current.schedule.read.pending).toBeUndefined();
@@ -77,6 +78,7 @@ it('최초 조회 실패는 비활성 안내와 구별하고 재조회가 성공
   mockReadActivation.mockRejectedValueOnce(new Error('SQLite read failed'));
   const { result, client } = setup();
   await waitFor(() => expect(result.current.expense.read.reason).toBe('여행 활성 상태를 확인하지 못했어요.'));
+  expect(result.current.schedule.read).toEqual(result.current.expense.read);
   expect(result.current.expense.read.allowed).toBe(false);
   expect(result.current.expense.read.pending).toBeUndefined();
   mockReadActivation.mockResolvedValue(active);
@@ -139,7 +141,11 @@ it('로컬 세션이 없으면 활성 조회 대기보다 로그인 안내를 �
     }),
   );
   const { result } = setup();
-  expect(result.current.schedule.read).toEqual({ allowed: false, reason: '다시 로그인한 뒤 사용할 수 있습니다' });
+  expect(result.current.schedule.read).toEqual({
+    allowed: false,
+    reason: '다시 로그인한 뒤 사용할 수 있습니다',
+  });
+  expect(result.current.schedule.read).toEqual(result.current.expense.read);
 });
 
 it('대상 여행이 없는 호출은 비활성 기본 정책을 쓰고 활성 조회 대기로 남지 않는다', () => {
