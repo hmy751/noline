@@ -133,8 +133,7 @@ export const useDeactivateTrip = () => {
     },
     onSuccess: async (data) => {
       // 캐시 무효화 - 여행 목록 및 활성화 상태 다시 조회
-      queryClient.invalidateQueries({ queryKey: tripQueryKeys.base });
-      queryClient.invalidateQueries({ queryKey: tripQueryKeys.activeTrip() });
+      await cancelAndInvalidateQueries(queryClient, { queryKey: tripQueryKeys.base });
 
       // 정리된 데이터 반영 (Soft delete된 Schedule, Expense, Route)
       if (!data.alreadyDeactivated) {

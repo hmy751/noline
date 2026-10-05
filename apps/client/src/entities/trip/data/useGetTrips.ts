@@ -6,7 +6,7 @@ import { tripQueryKeys } from './keys';
 export const useGetTrips = () => {
   const query = useQuery({
     queryKey: tripQueryKeys.all(),
-    queryFn: () => TripRepository.getAllWithSource(),
+    queryFn: ({ signal }) => TripRepository.getAllWithSource(signal),
     staleTime: 5 * 60 * 1000, // 5분
     gcTime: 10 * 60 * 1000, // 10분
   });

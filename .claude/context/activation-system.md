@@ -34,20 +34,22 @@ Activation은 특정 여행을 오프라인에서도 사용할 수 있게 준비
 
 | 함수 | 사용 대상 | 분기 기준 |
 | --- | --- | --- |
-| `routeTripQuery` | Trip 목록/상세 조회 | 현재 사용자에게 활성화된 여행이 하나라도 있는가 |
-| `routeTripMutation` | Trip 생성/수정/삭제 | 현재 사용자에게 활성화된 여행이 하나라도 있는가 |
-| `routeChildQuery` | Schedule/Expense 조회 | 해당 `tripId`가 활성화되어 있는가 |
-| `routeChildMutation` | Schedule/Expense 생성/수정/삭제 | 해당 `tripId`가 활성화되어 있는가 |
+| `routeTripQuery` | Trip 목록 조회 | 실제 online·서버 인증이면 서버 갱신, 연결·인증 제한 또는 API 통신 장애에서는 활성 여행의 로컬 목록 |
+| `routeTripCreation` | Trip 생성 | 새 여행은 비활성이므로 인증·실제 온라인·debug 쓰기 제한 확인 후 서버 |
+| `routeChildQuery` | Trip 단건·Schedule/Expense 조회 | 해당 `tripId`가 활성화되어 있는가 |
+| `routeChildMutation` | Trip 수정·삭제와 Schedule/Expense 변경 | 해당 `tripId`가 활성화되어 있는가 |
 
 Entity hook이나 화면에서 직접 DB/API를 선택하지 않는다. `entities/*/repository/*`에서 Router를 호출하고, `data/` hook은 repository만 사용한다.
+
+비활성 Trip의 서버 변경 결과를 기존 로컬 목록에도 반영하는 책임과 한계는 [Data Layer Guide](./selective-activation-architecture.md#router-사용-기준)를 따른다.
 
 ## Metadata 함수
 
 `metadata.ts`는 활성화 상태 조회의 얇은 API다.
 
-- `getTripActivationStatus(tripId)`: Schedule/Expense 라우팅용 boolean.
+- `getTripActivationStatus(tripId)`: 대상 Trip 및 Schedule/Expense 라우팅용 boolean.
 - `getTripActivationStatusDetail(tripId)`: UI badge용 `online | preparing | ready`.
-- `hasAnyActivatedTrip()`: Trip 자체 라우팅용. 현재 `authStore.userId` 필터를 포함한다.
+- `hasAnyActivatedTrip()`: Trip 목록 라우팅용. 현재 `authStore.userId` 필터를 포함한다.
 - `getActivatedTripInfo()`: TripSelector 같은 UI에서 활성 여행 표시.
 - `getTripMetadata(tripId)`: 로컬 Trip 메타데이터 조회.
 - `getMapDownloadProgress(tripId)`: 지도 다운로드 진행률 조회.

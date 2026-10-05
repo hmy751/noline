@@ -36,10 +36,23 @@ apps/client/src/entities/{entity}/
 
 | 대상 | Query | Mutation |
 | --- | --- | --- |
-| Trip 자체 | `routeTripQuery` | `routeTripMutation` |
-| Schedule/Expense | `routeChildQuery(tripId, ...)` | `routeChildMutation(tripId, ...)` |
+| Trip 목록 | `routeTripQuery` | — |
+| Trip 생성 | — | `routeTripCreation(remote)` |
+| Trip 단건·Schedule/Expense | `routeChildQuery(tripId, ...)` | `routeChildMutation(tripId, ...)` |
 
-Trip 자체 라우팅은 "현재 사용자에게 활성화된 여행이 하나라도 있는가"를 본다. Schedule/Expense는 해당 `tripId`의 활성화 여부를 본다.
+새 Trip은 비활성 상태로 서버에서 생성한다. 다른 활성 여행의 존재는 생성 위치를 바꾸지 않는다. Trip 단건 조회·수정·삭제는 Schedule/Expense와 같이 대상 여행의 활성화 여부로 분기한다.
+
+Trip 목록은 실제 온라인·서버 인증 상태에서 서버의 전체 목록을 조회한다. Repository가 Local datasource에 목록 반영을 맡기며, 활성 여행과 미전송 Trip/Schedule/Expense 작업의 부모 여행은 로컬 값을 보존한다. 큐의 PENDING·IN_PROGRESS·FAILED를 모두 보존 대상으로 본다. 서버에서 사라진 나머지 비활성 사본은 soft delete로 숨긴다. 목록 반영은 하나의 transaction이고 `sync_queue`를 추가·삭제하지 않는다.
+
+이전 세션이나 취소된 Query 응답은 목록을 저장하지 않는다. 조회 출처는 서버만 반영한 `remote`, 보존할 로컬 여행이 섞인 `mixed`, 연결·인증 제한 중 활성 여행의 사본을 읽은 `local`로 구별한다. 여행 선택은 성공한 remote/mixed 결과에서만 사라진 선택을 정리한다.
+
+생성·수정·삭제와 활성화 변경 뒤에는 기존 `cancelAndInvalidateQueries`로 이전 조회를 취소하고 목록을 갱신한다. 최초 조회도 취소해야 변경 전 응답이 나중에 목록을 덮지 않는다. `useGetTrips`는 다른 Entity 조회와 같이 Repository·Query key·유효기간만 연결한다. 목록은 연결 상태와 무관하게 단일 key를 사용하고 기존 5분 staleTime을 유지한다.
+
+계정 전체 여행 목록은 여러 탭과 앱의 여행 선택에서 공유한다. `application/useTripListRefresh`를 로그인 후 작업 연결부에서 한 번 장착해 실제 네트워크·인증 상태가 바뀌면 같은 목록을 취소·갱신한다. 이 연결은 서버 접근 가능 여부를 계산하지 않으며 실제 DB/API 선택은 Router가 맡는다. 화면 강제값·확인 진행 상태만 바뀌면 목록을 갱신하지 않고, 해제 시 Store 구독을 정리한다. 일정·경비의 내용 접근은 기존 feature의 정책 조회 조합을 유지한다. 여행 목록은 연결이 끊겨도 이미 아는 기본 정보를 유지해야 하므로, 활성 여행 없이 재조회가 거부돼도 기존 Query 데이터를 그대로 제공한다.
+
+오프라인/unknown 또는 재인증 대기 중에는 활성 여행이 있어야 로컬 목록을 제공한다. 온라인으로 감지됐어도 API의 네트워크 오류·시간 초과·5xx 응답이면 같은 세션의 활성 여행이 있을 때 `local` 목록을 제공한다. 인증·응답 계약·미분류 오류나 로컬 반영 실패는 Query 오류로 전달한다. 로컬 목록은 서버의 최신 상태를 보장하지 않으며, 이미 성공한 서버 mutation을 재조회 실패로 되돌려 보고하지 않는다.
+
+변경 이유와 검증 범위는 [비활성 Trip 생성과 목록 캐시 결정](../decisions/2026-10-04-inactive-trip-creation.md)을 참고한다.
 
 ## Local Mutation 기준
 

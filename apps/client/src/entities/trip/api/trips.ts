@@ -57,7 +57,7 @@ export const fetchCreateTrip = async (data: CreateTripRequest): Promise<CreateTr
 export const fetchUpdateTrip = async (id: string, data: UpdateTripRequest): Promise<UpdateTripResponse> => {
   try {
     const validatedInput = updateTripRequest.parse(data);
-    const responseData = await apiClient.patch(`/api/trips/${id}`, validatedInput);
+    const responseData = await apiClient.put(`/api/trips/${id}`, validatedInput);
 
     const validated = tripResponse.parse(responseData);
     return validated.data;

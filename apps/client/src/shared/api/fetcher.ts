@@ -2,20 +2,10 @@ import axiosStatic, { type AxiosInstance, type AxiosResponse } from 'axios';
 import { apiAxios, baseURL } from './axios-instances';
 import { setupAuthInterceptors } from '@/shared/services/auth/auth-interceptor';
 import { AuthRequiredError } from '@/shared/store/auth';
+import { APIError } from './errors';
 
 export { baseURL };
-
-export class APIError extends Error {
-  constructor(
-    message: string,
-    public status: number,
-    public code: string,
-    public data?: unknown,
-  ) {
-    super(message);
-    this.name = 'APIError';
-  }
-}
+export { APIError } from './errors';
 
 function isAxiosResponse(value: unknown): value is AxiosResponse {
   return Boolean(

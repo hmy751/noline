@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { TripRepository } from '../repository/trip-repository';
 import type { UpdateTripRequest } from '../model';
 import { tripQueryKeys } from './keys';
+import { cancelAndInvalidateQueries } from '@/shared/lib/query-refresh';
 
 /**
  * 여행 수정 Mutation Hook
@@ -25,11 +26,7 @@ export const useUpdateTrip = () => {
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateTripRequest }) => TripRepository.update(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: tripQueryKeys.all(),
-      });
-    },
+    onSuccess: () => cancelAndInvalidateQueries(queryClient, { queryKey: tripQueryKeys.all() }),
     onError: (error) => {
       console.error('❌ Failed to update trip:', error);
     },

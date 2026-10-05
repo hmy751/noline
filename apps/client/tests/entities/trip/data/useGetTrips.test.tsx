@@ -4,11 +4,11 @@ import { renderHook, waitFor } from '@testing-library/react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useGetTrips } from '@/entities/trip/data/useGetTrips';
 import { routeTripQuery } from '@/shared/services/offline-prep/router';
-import { getTripsLocal } from '@/entities/trip/lib/trip-local';
+import { getTripsLocal, refreshTripListLocal } from '@/entities/trip/lib/trip-local';
 import { fetchAllTrips } from '@/entities/trip/api/trips';
 
-jest.mock('@/shared/services/offline-prep/router', () => ({ routeTripQuery: jest.fn(), routeTripMutation: jest.fn() }));
-jest.mock('@/entities/trip/lib/trip-local', () => ({ getTripsLocal: jest.fn() }));
+jest.mock('@/shared/services/offline-prep/router', () => ({ routeTripQuery: jest.fn(), routeTripCreation: jest.fn() }));
+jest.mock('@/entities/trip/lib/trip-local', () => ({ getTripsLocal: jest.fn(), refreshTripListLocal: jest.fn() }));
 jest.mock('@/entities/trip/api/trips', () => ({ fetchAllTrips: jest.fn() }));
 
 let client: QueryClient;
@@ -18,13 +18,16 @@ afterEach(() => {
 });
 
 describe('여행 목록과 조회 출처 전달', () => {
-  it.each(['local', 'remote'] as const)(
+  it.each(['local', 'remote', 'mixed'] as const)(
     '%s 조회 결과의 출처를 보존하고 화면에는 여행 배열을 제공한다',
     async (source) => {
       const trips = [{ id: 'trip-1' }] as Awaited<ReturnType<typeof getTripsLocal>>;
       jest.mocked(getTripsLocal).mockResolvedValue(trips);
       jest.mocked(fetchAllTrips).mockResolvedValue({ data: trips } as Awaited<ReturnType<typeof fetchAllTrips>>);
-      jest.mocked(routeTripQuery).mockImplementation((operations) => operations[source]());
+      jest
+        .mocked(routeTripQuery)
+        .mockImplementation((operations) => operations[source === 'local' ? 'local' : 'remote']());
+      jest.mocked(refreshTripListLocal).mockResolvedValue({ trips, hasLocalTrips: source === 'mixed' });
       client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 
       const view = renderHook(() => useGetTrips(), {

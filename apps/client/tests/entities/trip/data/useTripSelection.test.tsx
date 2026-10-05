@@ -13,7 +13,7 @@ jest.mock('@react-native-community/netinfo', () => ({
 
 function mockTripQuery(
   ids: string[],
-  source: 'local' | 'remote' = 'remote',
+  source: 'local' | 'remote' | 'mixed' = 'remote',
   options: { isSuccess?: boolean; isFetching?: boolean } = {},
 ) {
   jest.mocked(useGetTrips).mockReturnValue({
@@ -92,4 +92,11 @@ describe('여행 선택 유지와 기본 선택', () => {
 
     expect(useTripStore.getState().selectedTripId).toBe('remaining');
   });
+});
+
+it('서버 확인을 마친 mixed 목록에서도 삭제된 선택을 다른 여행으로 전환한다', () => {
+  useTripStore.setState({ selectedTripId: 'removed' });
+  mockTripQuery(['remaining'], 'mixed');
+  renderHook(() => useTripSelection());
+  expect(useTripStore.getState().selectedTripId).toBe('remaining');
 });

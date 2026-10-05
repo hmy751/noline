@@ -1,13 +1,13 @@
-import { requireLocalUserId, requireRemoteSession } from '@/shared/store/auth';
+import { requireLocalUserId } from '@/shared/store/auth';
 // Trip Local DataSource - SQLite 로컬 DB 작업
 
-import { getDatabase, trips } from '@/shared/db';
-import { eq, isNull, desc, sql } from 'drizzle-orm';
+import { getDatabase, trips, schedules, expenses, syncQueue } from '@/shared/db';
+import { eq, isNull, desc, sql, or, and, inArray } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
-import { selectLocalUserId, useAuthStore } from '@/shared/store/auth';
+import { AuthRequiredError, selectLocalUserId, useAuthStore } from '@/shared/store/auth';
 import { ownedRow, activeTripScope, assertActiveLocalTrip } from '@/shared/services/auth/local-access';
-import type { Trip, CreateTripRequest, UpdateTripRequest } from '../model';
+import type { Trip, UpdateTripRequest } from '../model';
 
 /**
  * 로컬 DB에서 현재 사용자의 여행 조회
@@ -56,55 +56,79 @@ export const getTripByIdLocal = async (id: string): Promise<Trip | undefined> =>
     .get();
 };
 
-/**
- * 로컬 DB에 여행 생성 + sync_queue 기록
- * - Client-Side ID: 외부에서 전달받은 ID 사용
- */
-export const createTripLocal = async (data: CreateTripRequest): Promise<Trip> => {
-  requireRemoteSession();
-  const id = data.id;
-  const now = getCurrentISOString();
-  const userId = requireLocalUserId(data.userId);
+/** 활성 여행과 전송 대기·진행·실패 작업의 부모 여행은 서버 목록으로 덮지 않는다. */
+function protectedTripScope() {
+  const db = getDatabase();
+  return or(
+    activeTripScope(trips.id),
+    inArray(trips.id, db.select({ id: syncQueue.recordId }).from(syncQueue).where(eq(syncQueue.tableName, 'trips'))),
+    inArray(
+      trips.id,
+      db
+        .select({ id: schedules.tripId })
+        .from(schedules)
+        .innerJoin(syncQueue, and(eq(syncQueue.tableName, 'schedules'), eq(syncQueue.recordId, schedules.id))),
+    ),
+    inArray(
+      trips.id,
+      db
+        .select({ id: expenses.tripId })
+        .from(expenses)
+        .innerJoin(syncQueue, and(eq(syncQueue.tableName, 'expenses'), eq(syncQueue.recordId, expenses.id))),
+    ),
+  );
+}
 
-  const newTrip = {
-    id,
-    userId,
-    name: data.name,
-    destination: data.destination,
-    country: data.country || null,
-    baseCurrency: data.baseCurrency || 'USD',
-    latitude: data.latitude?.toString() || null,
-    longitude: data.longitude?.toString() || null,
-    cityId: data.cityId || null,
-    startDate: data.startDate,
-    endDate: data.endDate,
-    createdAt: now,
-    updatedAt: now,
-    deletedAt: null,
-    version: 1,
-  };
+/** 서버의 전체 목록을 반영하고 로컬이 책임지는 여행을 보존한다. sync_queue는 변경하지 않는다. */
+export const refreshTripListLocal = async (serverTrips: Trip[], sessionId: symbol | null, signal?: AbortSignal) => {
+  return await withTransaction(async () => {
+    if (!useAuthStore.isCurrentSession(sessionId)) throw new AuthRequiredError();
+    if (signal?.aborted) throw new Error('취소된 여행 목록 조회입니다');
 
-  await withTransaction(async () => {
-    await getDatabase()
-      .insert(trips)
-      .values(newTrip as typeof trips.$inferInsert);
-    await addToSyncQueue('trips', id, 'CREATE', {
-      id,
-      userId,
-      name: data.name,
-      destination: data.destination,
-      country: data.country,
-      baseCurrency: data.baseCurrency,
-      latitude: data.latitude,
-      longitude: data.longitude,
-      cityId: data.cityId,
-      startDate: data.startDate,
-      endDate: data.endDate,
-    });
+    const userId = requireLocalUserId();
+
+    if (serverTrips.some((trip) => trip.userId !== userId)) throw new Error('다른 계정의 여행 목록입니다');
+
+    const localTrips = await getDatabase().select().from(trips).where(ownedRow(trips.userId)).all();
+    const protectedTrips = await getDatabase()
+      .select()
+      .from(trips)
+      .where(ownedRow(trips.userId, protectedTripScope()))
+      .all();
+    const protectedIds = new Set(protectedTrips.map((trip) => trip.id));
+    const serverIds = new Set(serverTrips.map((trip) => trip.id));
+
+    for (const trip of serverTrips) {
+      if (protectedIds.has(trip.id)) continue;
+
+      const record = { ...trip, userId, deletedAt: trip.deletedAt ?? null, version: trip.version ?? 1 };
+
+      await getDatabase()
+        .insert(trips)
+        .values(record)
+        .onConflictDoUpdate({
+          target: trips.id,
+          set: record,
+          setWhere: ownedRow(trips.userId),
+        });
+    }
+    // 서버에서 사라진 비활성 사본을 숨긴다. 미전송 삭제를 포함한 로컬 원본은 보존한다.
+    const now = getCurrentISOString();
+
+    for (const trip of localTrips) {
+      if (!serverIds.has(trip.id) && !protectedIds.has(trip.id) && trip.deletedAt === null) {
+        await getDatabase()
+          .update(trips)
+          .set({ deletedAt: now, updatedAt: now })
+          .where(ownedRow(trips.userId, eq(trips.id, trip.id)));
+      }
+    }
+
+    if (!useAuthStore.isCurrentSession(sessionId)) throw new AuthRequiredError();
+    if (signal?.aborted) throw new Error('취소된 여행 목록 조회입니다');
+
+    return { trips: await getTripsLocal(), hasLocalTrips: protectedTrips.length > 0 };
   });
-
-  console.log(`[TripLocal] Trip created locally: ${id} - ${data.name}`);
-  return newTrip;
 };
 
 /**

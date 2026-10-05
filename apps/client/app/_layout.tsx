@@ -9,6 +9,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import MapboxGL from '@rnmapbox/maps';
 
 import { AppInitialization } from '@/application/AppInitialization';
+import { useTripListRefresh } from '@/application/useTripListRefresh';
 
 import { useTripSelection } from '@/entities/trip/data/useTripSelection';
 import { SessionExpiredBanner } from '@/shared/components';
@@ -93,6 +94,7 @@ function AppNavigation({ status, userId }: { status: AuthStatus; userId: string 
 
 // 로그인할 때 연결되고 로그아웃하면 해제된다. 완료를 기다리지 않고 화면을 사용할 수 있다.
 function AuthenticatedEffects() {
+  useTripListRefresh();
   useTripSelection();
   useOfflineMapCleanup();
   usePendingCleanups();

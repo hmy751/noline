@@ -20,7 +20,7 @@ export function useTripSelection() {
       }
 
       // 로컬 목록이나 연결이 끊긴 동안 남은 캐시만으로 삭제를 판정하지 않는다.
-      if (dataSource !== 'remote' || networkStore.realStatus !== 'online') {
+      if ((dataSource !== 'remote' && dataSource !== 'mixed') || networkStore.realStatus !== 'online') {
         return;
       }
     }

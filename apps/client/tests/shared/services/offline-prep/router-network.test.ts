@@ -7,7 +7,7 @@ import { getTripActivationStatus, hasAnyActivatedTrip } from '@/shared/services/
 import {
   routeTripQuery,
   routeChildQuery,
-  routeTripMutation,
+  routeTripCreation,
   routeChildMutation,
 } from '@/shared/services/offline-prep/router';
 
@@ -46,13 +46,6 @@ const routeCases = [
     run: (operations: TestOperations) => routeChildQuery('trip-b', operations),
   },
   {
-    name: 'Trip 쓰기',
-    activationCondition: '전역 활성 여행이 있으면',
-    inactiveCondition: '전역 활성 여행이 없으면',
-    isMutation: true,
-    run: (operations: TestOperations) => routeTripMutation(operations),
-  },
-  {
     name: 'Child 쓰기',
     activationCondition: '소속 여행이 활성화돼 있으면',
     inactiveCondition: '소속 여행이 비활성이면',
@@ -77,44 +70,47 @@ beforeEach(() => {
 
 afterEach(() => networkStore.cleanup());
 
-describe.each(routeCases)('$name의 네트워크 소비', ({ run, activationCondition, inactiveCondition }) => {
-  it.each(networkStatuses)(`${activationCondition} %s에서 Local만 실행한다`, async (realStatus) => {
-    activationMock.mockResolvedValue(true);
-    anyActivationMock.mockResolvedValue(true);
-    useNetworkStore.setState({ realStatus });
-    const operations = createOperations();
-
-    await expect(run(operations)).resolves.toBe('local');
-
-    expect(operations.local).toHaveBeenCalledTimes(1);
-    expect(operations.remote).not.toHaveBeenCalled();
-  });
-
-  it.each(['offline', 'unknown'] as const)(
-    `${inactiveCondition} %s에서 Remote를 실행하지 않는다`,
-    async (realStatus) => {
+describe.each(routeCases.filter((route) => route.name !== 'Trip 조회'))(
+  '$name의 네트워크 소비',
+  ({ run, activationCondition, inactiveCondition }) => {
+    it.each(networkStatuses)(`${activationCondition} %s에서 Local만 실행한다`, async (realStatus) => {
+      activationMock.mockResolvedValue(true);
+      anyActivationMock.mockResolvedValue(true);
       useNetworkStore.setState({ realStatus });
       const operations = createOperations();
 
-      await expect(run(operations)).rejects.toMatchObject({
-        name: 'OfflineError',
-        action: realStatus === 'unknown' ? 'ONLINE_REQUIRED' : 'ACTIVATE_PROMPT',
-      });
+      await expect(run(operations)).resolves.toBe('local');
 
-      expect(operations.local).not.toHaveBeenCalled();
+      expect(operations.local).toHaveBeenCalledTimes(1);
       expect(operations.remote).not.toHaveBeenCalled();
-    },
-  );
+    });
 
-  it('화면 강제 online이 실제 unknown의 Remote 경로를 열지 않는다', async () => {
-    networkStore.setOverride('online');
-    const operations = createOperations();
+    it.each(['offline', 'unknown'] as const)(
+      `${inactiveCondition} %s에서 Remote를 실행하지 않는다`,
+      async (realStatus) => {
+        useNetworkStore.setState({ realStatus });
+        const operations = createOperations();
 
-    await expect(run(operations)).rejects.toMatchObject({ name: 'OfflineError' });
+        await expect(run(operations)).rejects.toMatchObject({
+          name: 'OfflineError',
+          action: realStatus === 'unknown' ? 'ONLINE_REQUIRED' : 'ACTIVATE_PROMPT',
+        });
 
-    expect(operations.remote).not.toHaveBeenCalled();
-  });
-});
+        expect(operations.local).not.toHaveBeenCalled();
+        expect(operations.remote).not.toHaveBeenCalled();
+      },
+    );
+
+    it('화면 강제 online이 실제 unknown의 Remote 경로를 열지 않는다', async () => {
+      networkStore.setOverride('online');
+      const operations = createOperations();
+
+      await expect(run(operations)).rejects.toMatchObject({ name: 'OfflineError' });
+
+      expect(operations.remote).not.toHaveBeenCalled();
+    });
+  },
+);
 
 describe.each(routeCases.filter((route) => route.name.startsWith('Child')))('$name의 소속 여행 판단', ({ run }) => {
   it('다른 활성 여행이 있어도 소속 여행이 비활성이면 실제 online에서 Remote만 실행한다', async () => {
@@ -200,4 +196,60 @@ describe.each(routeCases.filter((route) => route.isMutation))('$name의 debug �
     expect(operations.local).not.toHaveBeenCalled();
     expect(operations.remote).not.toHaveBeenCalled();
   });
+});
+
+describe('새 여행 생성', () => {
+  it.each([true, false])('다른 활성 여행 유무(%s)와 관계없이 서버에서 생성한다', async (hasActive) => {
+    anyActivationMock.mockResolvedValue(hasActive);
+    useNetworkStore.setState({ realStatus: 'online' });
+    const remote = jest.fn(async () => 'created');
+    await expect(routeTripCreation(remote)).resolves.toBe('created');
+    expect(remote).toHaveBeenCalledTimes(1);
+  });
+  it.each(['offline', 'unknown'] as const)('%s에서는 생성하지 않는다', async (realStatus) => {
+    anyActivationMock.mockResolvedValue(true);
+    useNetworkStore.setState({ realStatus });
+    const remote = jest.fn(async () => 'created');
+    await expect(routeTripCreation(remote)).rejects.toMatchObject({ name: 'OfflineError', action: 'ONLINE_REQUIRED' });
+    expect(remote).not.toHaveBeenCalled();
+  });
+  it('debug override와 재인증 대기는 서버 생성을 막는다', async () => {
+    useNetworkStore.setState({ realStatus: 'online', overrideStatus: 'offline' });
+    const remote = jest.fn(async () => 'created');
+    await expect(routeTripCreation(remote)).rejects.toThrow('화면 테스트 중');
+    networkStore.setOverride(null);
+    useAuthStore.setState({ status: 'reauth-required' });
+    await expect(routeTripCreation(remote)).rejects.toBeInstanceOf(AuthRequiredError);
+    expect(remote).not.toHaveBeenCalled();
+  });
+});
+
+it('활성 여행이 있어도 온라인 목록은 서버에서 갱신한다', async () => {
+  anyActivationMock.mockResolvedValue(true);
+  useNetworkStore.setState({ realStatus: 'online' });
+  const operations = createOperations();
+  await expect(routeTripQuery(operations)).resolves.toBe('remote');
+  expect(operations.local).not.toHaveBeenCalled();
+});
+it('재인증 중에는 활성 여행의 로컬 목록을 유지한다', async () => {
+  anyActivationMock.mockResolvedValue(true);
+  useAuthStore.setState({ status: 'reauth-required' });
+  useNetworkStore.setState({ realStatus: 'online' });
+  const operations = createOperations();
+  await expect(routeTripQuery(operations)).resolves.toBe('local');
+  expect(operations.remote).not.toHaveBeenCalled();
+});
+
+it.each(['offline', 'unknown'] as const)('활성 여행이 없는 %s 목록은 서버 요청을 열지 않는다', async (realStatus) => {
+  useNetworkStore.setState({ realStatus });
+  const operations = createOperations();
+  await expect(routeTripQuery(operations)).rejects.toMatchObject({ name: 'OfflineError' });
+  expect(operations.remote).not.toHaveBeenCalled();
+});
+it.each(['offline', 'unknown'] as const)('활성 여행이 있는 %s 목록은 로컬을 읽는다', async (realStatus) => {
+  anyActivationMock.mockResolvedValue(true);
+  useNetworkStore.setState({ realStatus });
+  const operations = createOperations();
+  await expect(routeTripQuery(operations)).resolves.toBe('local');
+  expect(operations.remote).not.toHaveBeenCalled();
 });

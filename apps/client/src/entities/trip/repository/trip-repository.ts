@@ -3,33 +3,30 @@
 import { createTripRequest, updateTripRequest } from '@repo/schema/requests/trip';
 import {
   routeTripQuery,
-  routeTripMutation,
+  routeTripCreation,
   routeChildQuery,
   routeChildMutation,
 } from '@/shared/services/offline-prep/router';
+import { useAuthStore } from '@/shared/store/auth';
 import * as TripLocal from '../lib/trip-local';
 import * as TripApi from '../api/trips';
 import type { Trip, CreateTripRequest, UpdateTripRequest, DeleteTripResponse } from '../model';
 
-interface TripListResult {
+export interface TripListResult {
   trips: Trip[];
-  source: 'local' | 'remote';
+  source: 'local' | 'remote' | 'mixed';
 }
 
-/**
- * Trip Repository
- *
- * - 활성화된 Trip 있음: Local DB 사용
- * - 비활성 상태: Server API 사용
- * - Router가 활성화 상태에 따라 자동 분기
- */
+/** 목록 조회가 서버 목록과 보존할 로컬 여행을 조합한다. 변경은 대상 여행의 저장소만 갱신한다. */
 export const TripRepository = {
-  getAllWithSource: async (): Promise<TripListResult> => {
+  getAllWithSource: async (signal?: AbortSignal): Promise<TripListResult> => {
     return await routeTripQuery<TripListResult>({
       local: async () => ({ trips: await TripLocal.getTripsLocal(), source: 'local' }),
       remote: async () => {
+        const sessionId = useAuthStore.getState().sessionId;
         const response = await TripApi.fetchAllTrips();
-        return { trips: response.data, source: 'remote' };
+        const result = await TripLocal.refreshTripListLocal(response.data, sessionId, signal);
+        return { trips: result.trips, source: result.hasLocalTrips ? 'mixed' : 'remote' };
       },
     });
   },
@@ -47,10 +44,7 @@ export const TripRepository = {
 
   create: async (data: CreateTripRequest): Promise<Trip> => {
     const input = createTripRequest.parse(data);
-    return await routeTripMutation({
-      local: () => TripLocal.createTripLocal(input),
-      remote: () => TripApi.fetchCreateTrip(input),
-    });
+    return await routeTripCreation(() => TripApi.fetchCreateTrip(input));
   },
 
   update: async (id: string, data: UpdateTripRequest): Promise<Trip> => {

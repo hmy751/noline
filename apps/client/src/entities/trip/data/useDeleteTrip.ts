@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { TripRepository } from '../repository/trip-repository';
 import { tripQueryKeys } from './keys';
+import { cancelAndInvalidateQueries } from '@/shared/lib/query-refresh';
 
 /**
  * 여행 삭제 Mutation Hook
@@ -19,11 +20,7 @@ export const useDeleteTrip = () => {
 
   return useMutation({
     mutationFn: (id: string) => TripRepository.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: tripQueryKeys.all(),
-      });
-    },
+    onSuccess: () => cancelAndInvalidateQueries(queryClient, { queryKey: tripQueryKeys.all() }),
     onError: (error) => {
       console.error('❌ Failed to delete trip:', error);
     },

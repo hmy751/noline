@@ -40,13 +40,6 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
       .where(and(eq(trips.userId, userId), isNull(trips.deletedAt)))
       .orderBy(desc(trips.createdAt));
 
-    if (!allTrips || allTrips.length === 0) {
-      return res.status(404).json({
-        error: 'Not found',
-        message: 'No trips found',
-      });
-    }
-
     // Zod로 응답 데이터 검증
     const validatedTrips = allTrips.map((trip) => {
       const validated = tripEntity.safeParse(serializeTrip(trip));

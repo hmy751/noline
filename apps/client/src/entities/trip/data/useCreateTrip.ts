@@ -2,11 +2,12 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { TripRepository } from '../repository/trip-repository';
 import type { CreateTripRequest } from '../model';
 import { tripQueryKeys } from './keys';
+import { cancelAndInvalidateQueries } from '@/shared/lib/query-refresh';
 
 /**
  * 여행 생성 Mutation Hook
  *
- * - Repository를 통해 활성화 상태에 따라 Local/Remote 자동 분기
+ * - Repository를 통해 서버에 생성하고 목록 재조회
  * - Client-Side ID: 외부에서 ID 생성하여 전달
  *
  * @example
@@ -26,11 +27,7 @@ export const useCreateTrip = () => {
 
   return useMutation({
     mutationFn: (data: CreateTripRequest) => TripRepository.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: tripQueryKeys.all(),
-      });
-    },
+    onSuccess: () => cancelAndInvalidateQueries(queryClient, { queryKey: tripQueryKeys.all() }),
     onError: (error) => {
       console.error('❌ Failed to create trip:', error);
     },

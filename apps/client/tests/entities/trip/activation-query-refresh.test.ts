@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, expect, it, jest } from '@jest/globals';
 import { QueryClient, QueryObserver } from '@tanstack/react-query';
 import { useActivateTrip } from '@/entities/trip/data/useActivateTrip';
+import { useCreateTrip } from '@/entities/trip/data/useCreateTrip';
+import { useUpdateTrip } from '@/entities/trip/data/useUpdateTrip';
+import { useDeleteTrip } from '@/entities/trip/data/useDeleteTrip';
 import { useDeactivateTrip } from '@/entities/trip/data/useDeactivateTrip';
 
 // DB 전환 성공 이후의 실제 onSuccess를 검사한다. Native DB transaction은 이 검사의 범위가 아니다.
@@ -35,6 +38,24 @@ afterEach(async () => {
 });
 
 it.each([
+  { name: '여행 생성 뒤 목록', hook: useCreateTrip, key: ['trip', 'all'], newValue: '새 목록', data: undefined },
+  { name: '여행 수정 뒤 목록', hook: useUpdateTrip, key: ['trip', 'all'], newValue: '새 목록', data: undefined },
+  { name: '여행 삭제 뒤 목록', hook: useDeleteTrip, key: ['trip', 'all'], newValue: '새 목록', data: undefined },
+  {
+    name: '활성화 뒤 여행 목록',
+    hook: useActivateTrip,
+    key: ['trip', 'all'],
+    newValue: '새 목록',
+    data: { tripId: 'trip', alreadyActivated: false },
+  },
+  {
+    name: '비활성화 뒤 여행 목록',
+    hook: useDeactivateTrip,
+    key: ['trip', 'all'],
+    newValue: '새 목록',
+    data: { tripId: 'trip', alreadyDeactivated: false },
+  },
+
   {
     name: '활성화 뒤 일정',
     hook: useActivateTrip,
