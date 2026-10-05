@@ -118,3 +118,5 @@
 - [홈 요약의 표시 책임·정책 재사용과 UX 후속 검토](2026-10-04-01-home-summary-policy-and-ux-review.md): 비활성 홈 안내 개선, 기존 조회 상태 재사용으로 간결화한 이유, 최종 코드 커밋·자동/화면 검증 및 foreground·날짜·폼의 남은 경계.
 
 - [2026-10-04-02-foreground-network-refresh.md](2026-10-04-02-foreground-network-refresh.md): 기존 주기적 감지와 복귀 확인의 관계, store 세션 책임, 커밋과 실제 복귀 호출 검증.
+
+- [여행 생성·목록 갱신의 책임과 검증](2026-10-05-01-trip-list-routing-and-query-lifecycle.md): 날짜 확인 중 발견한 생성 분기 결함, 사본 반영·Query 갱신 책임의 교정, 제품 커밋과 자동/native 증거 및 남은 날짜·UX 범위.

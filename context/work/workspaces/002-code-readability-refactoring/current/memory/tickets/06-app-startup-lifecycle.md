@@ -4,7 +4,7 @@
 
 앱을 켰을 때 네트워크·DB·인증 준비, Splash 해제, 첫 화면 선택과 인증 후 작업 시작이 어떤 조건으로 이어지는지 가까운 코드에서 이해하고 수정할 수 있게 한다. 서로 다른 boolean·effect·고정 지연에서 준비 상태를 다시 추론하는 부담을 줄이고 각 소비자가 필요한 상태를 사용하게 한다. 범용 startup framework나 폴더 재편 자체는 목표로 삼지 않는다. 앱 전체 준비 책임은 `application`에 두고, 해당 기능의 규칙·서비스와 화면 구성을 각 Owner에 연결한다.
 
-Ticket의 네트워크 계약은 **관측과 실제 요청·화면·sync 시작의 연결**이다. startup·sync·인증의 선행 개선을 바탕으로 일정·경비 목록과 경비 상세의 제한·복구 및 조회 조합을 구현했다. 일정 생성에 이어 경비 생성·수정의 초안 보존·일정 연결·저장 실패 안내와 날짜/시각 경계를 개선했다. 홈 요약의 표시 책임과 기존 조회 결과 재사용까지 개선했으며, foreground 재확인 연결과 온라인 시뮬레이터 복귀 호출 확인까지 마쳤다. 현재는 남은 종합 UX·실제 단절 검증과 날짜 기준을 대조하는 단계다. 아래 네트워크 전체 계약의 미구현은 남은 범위로 관리하며 자동으로 구현을 확대하지 않는다. 2026-09-15~16 논의에서 사용자는 Network Store 내부 개선과 정책 구체화를 먼저 선택했고, 직접 필요한 수정은 003으로 분리하지 않고 여기서 함께 수행하기로 했다. 첫 Store 단계와 필요한 소비부 호환 수정을 구현했다. 선택 이유와 조사 근거는 [논의 기록](../../../records/2026-09-16-01-network-policy-and-implementation-boundaries.md)에 있다.
+Ticket의 네트워크 계약은 **관측과 실제 요청·화면·sync 시작의 연결**이다. startup·sync·인증의 선행 개선을 바탕으로 일정·경비 목록과 경비 상세의 제한·복구 및 조회 조합을 구현했다. 일정 생성에 이어 경비 생성·수정의 초안 보존·일정 연결·저장 실패 안내와 날짜/시각 경계를 개선했다. 홈 요약의 표시 책임과 기존 조회 결과 재사용까지 개선했으며, foreground 재확인 연결과 온라인 시뮬레이터 복귀 호출 확인까지 마쳤다. 날짜 검토 중 드러난 새 여행 생성·목록 갱신 결함도 `ef47b87`에서 수정했다. 현재는 Trip 기간의 날짜 의미·표시 차이와 남은 종합 UX·실제 단절 검증을 대조하는 단계다. 아래 네트워크 전체 계약의 미구현은 남은 범위로 관리하며 자동으로 구현을 확대하지 않는다. 2026-09-15~16 논의에서 사용자는 Network Store 내부 개선과 정책 구체화를 먼저 선택했고, 직접 필요한 수정은 003으로 분리하지 않고 여기서 함께 수행하기로 했다. 첫 Store 단계와 필요한 소비부 호환 수정을 구현했다. 선택 이유와 조사 근거는 [논의 기록](../../../records/2026-09-16-01-network-policy-and-implementation-boundaries.md)에 있다.
 
 첫 범위가 만들 결과는 다음과 같다.
 
@@ -26,14 +26,14 @@ Noline은 Selective Local-First다. 활성 여행의 Trip·Schedule·Expense는 
 
 - [Network Store](../../../../../../../apps/client/src/shared/store/network.ts)는 초기 unknown, 순수 관측 변환, listener 기반 init과 cleanup, 10초 확인 불가 안내·수동 refresh를 구현했다. 실제 실행 상태와 화면 override의 읽기 경계를 구별한다. 초기의 임시 online·null 축약·앱의 추가 fetch는 제거했다.
 - [Root](../../../../../../../apps/client/app/_layout.tsx)는 앱 구성을 보여 주고, [AppInitialization](../../../../../../../apps/client/src/application/AppInitialization.tsx)이 네트워크 감지 수명과 DB→인증 복원→준비 완료를 소유한다. 첫 네트워크 결과를 기다리지 않는다. DB 준비 실패에는 Provider·화면을 연결하지 않고 실패·재시도 화면을 보여 준다.
-- [Activation Router](../../../../../../../apps/client/src/shared/services/offline-prep/router.ts)는 실제 online일 때만 Remote를 열도록 호환 수정했고, override 중 Router mutation은 Local/Remote 모두 거부한다. Trip 단건 조회·수정·삭제는 대상 여행의 활성 상태로 분기하도록 수정했다. 신규 생성과 inactive child의 대상 전달은 실제 소비 경로에서 계속 확인한다.
+- [Activation Router](../../../../../../../apps/client/src/shared/services/offline-prep/router.ts)는 실제 online일 때만 Remote를 열도록 호환 수정했고, override 중 Router mutation은 Local/Remote 모두 거부한다. Trip 단건 조회·수정·삭제는 대상 여행의 활성 상태로 분기하도록 수정했다. 신규 생성은 다른 여행의 활성 여부와 무관하게 Server로 보내고, inactive child의 대상 전달도 Repository에 연결했다.
 - [Schedule repository](../../../../../../../apps/client/src/entities/schedule/repository/schedule-repository.ts)와 [Expense repository](../../../../../../../apps/client/src/entities/expense/repository/expense-repository.ts)의 child 조회·수정·삭제는 호출 화면이 가진 tripId를 Router에 전달해 inactive Remote 경로가 Local 선조회에 의존하지 않는다.
 - [Policy hook](../../../../../../../apps/client/src/shared/policy/useAppPolicy.ts)은 unknown을 제한 모드로 처리하고 핵심 데이터인 Schedule·Expense의 CRUD와 지도·검색 정책을 반환한다. 수정·삭제는 실제 메뉴·편집 화면에 연결하며 Router가 실행 경로와 최종 차단을 맡는다. 공개 Places 요청은 보호 인증 client에서 분리했다. 활성 여부 최초 확인·실패는 비활성과 구별하며 기존 결과는 재조회 중에도 유지한다. unknown의 확인 중·확인 불가 안내와 재확인 버튼은 기존 Store에 연결했다.
 - [SyncProvider](../../../../../../../apps/client/src/shared/services/sync/provider.tsx)는 DB 준비와 인증 복원 시도 완료 뒤 mount되며 인증·세션 만료·실제 관측·override·종료 일시 중단을 구독한다. [sync lifecycle](../../../../../../../apps/client/src/shared/services/sync/lifecycle.ts)이 실행 순간의 DB 준비·인증·연결 조건, 공유 잠금과 종료 대기를 소유한다. 자동·주기·Debug 수동 실행이 같은 경계를 통과한다.
 - [QueryClient](../../../../../../../apps/client/src/shared/lib/queryClient.ts)와 조회 화면에는 이전 서버 응답이 남을 수 있다. 요청 중단만으로 제한 화면이 나타나지는 않으며, 조회 불가가 빈 목록과 합쳐지지 않아야 한다.
 - 경비 생성·수정은 Router 제한 이유를 저장 영역에 표시하고 실패 후 초안을 유지하도록 개선했다. 경비 삭제의 일반 실패 안내와 상세의 특정 재시도 불일치는 2026-10-02 사용자 요청으로 이번에는 보류한다. 모든 생성·삭제 경로가 해결된 것은 아니다.
 
-온라인 비활성 여행의 생성·수정·삭제 지원은 기존 계약이다. Local 선조회·잘못된 분기·Trip client PATCH와 server PUT 불일치는 그 계약을 막는 구현 문제로 대조한다. Trip 신규 생성은 아직 대상 여행 활성 정보가 없는 경우이므로 기존 생성 흐름을 확인해 분기 입력을 정한다. 새로운 사용자 허용 정책을 요구하는 항목으로 되돌리지 않는다.
+온라인 비활성 여행의 생성·수정·삭제 지원은 기존 계약이다. Local 선조회·잘못된 생성 분기와 Trip client PATCH/server PUT 불일치를 정상화했다. 신규 생성은 아직 활성화된 대상이 없으므로 Server에서 수행한다. 온라인 목록 조회의 사본 반영·Local 원본 보존·갱신 연결도 함께 적용했으며, 구체 결과와 검증 경계는 아래 여행 생성·목록 절을 따른다. 07·17 전체 완료로 확대하지 않는다.
 
 ## 채택한 네트워크·화면 정책
 
@@ -107,7 +107,7 @@ debug override가 없는 정상 동작에서 활성 여행은 unknown/offline이
 
 1. Network Store에 단일 상태 타입·순수 관측 변환, 초기 unknown, 중복 init 방지·cleanup·늦은 callback 억제와 10초 안내 연결을 만든다. 앱이 추가하는 중복 첫 fetch는 줄이되 라이브러리 내부의 native 조회까지 한 번이라고 보장하지 않는다.
 2. 실제 관측을 사용하는 요청 판단과 화면용 override 선택을 구별한다. React hook과 비React Router에서 같은 작은 순수 판단을 재사용하고 data 계층에서 UI hook을 호출하지 않는다. 활성 여부 로딩과 tripId 전달도 이 경계에서 확인한다.
-3. 대상 여행별 Local/Remote 분기, inactive child의 불필요한 Local 선조회와 실제 온라인 mutation 경로를 정상화한다. Trip 신규 생성·PATCH/PUT는 기존 계약을 대조해 필요한 수정 담당을 07·17과 맞춘다.
+3. 대상 여행별 Local/Remote 분기, inactive child의 불필요한 Local 선조회와 실제 온라인 mutation 경로를 정상화한다. Trip 신규 생성·PUT 정합성과 목록 갱신은 이 Ticket에서 선행 수정했으며 07·17은 이 결과를 재사용한다.
 4. 기존 useAppPolicy·제한 표시·NetworkStatusIndicator·mutation 오류 흐름을 연결한다. Query 캐시는 유지하고 화면 제한·현재 여행 복구 조회를 기존 React Query 흐름에 붙인다.
 5. sync 시작 조건은 DB 사용 가능, auth 초기화·인증 완료, 실제 online, debug 쓰기 차단 해제와 동시 실행 여부를 함께 확인한다. provider mount와 네트워크 복구가 겹쳐도 같은 실행을 중복 시작하지 않게 한다. engine 결과·queue 재시도 내부는 15의 범위다.
 6. background→active에서 현재 연결을 한 번 재확인하는 연결을 검토한다. 이전에 online/offline이었어도 foreground에서 stale할 수 있으므로 unknown만 재확인한다는 초기 후보를 고정하지 않는다. 별도 주기 polling이나 foreground 진입 때 강제 unknown은 추가하지 않는다.
@@ -223,6 +223,18 @@ completeLogin은 Store의 검증·저장 결과를 사용하고 실패한 서버
 
 ## 현재 상태와 실제 결과
 
+### 여행 생성·목록 갱신과 기존 Query 책임 정합성
+
+`ef47b87`에서 새 Trip은 Router의 인증·실제 online·debug 쓰기 제한을 거쳐 Server에서 생성하도록 고쳤다. 대상 활성 여부에 따른 기존 Trip 수정·삭제와 활성 여행의 Local mutation/큐 원자성은 유지한다. client 수정은 PUT으로 맞췄고 서버 빈 목록은 HTTP 200이다.
+
+온라인 목록 조회가 서버 전체 목록을 받아 transaction 안에서 사본을 갱신한다. 활성 여행·미전송 Trip 작업·Schedule/Expense 큐의 부모를 보호하며 큐 자체는 변경하지 않는다. 성공한 remote/mixed 목록은 삭제된 선택을 정리할 수 있다. 네트워크 오류·408·5xx에는 같은 세션의 활성 여행이 있을 때 Local 목록으로 이어가고 인증·계약·미분류 오류는 숨기지 않는다.
+
+useGetTrips는 기존 Entity 조회 패턴대로 단일 key·5분 staleTime을 유지한다. 로그인 앱의 application/useTripListRefresh가 실제 network/auth 변화 때 목록 취소·갱신을 한 번 연결하며 실행 조건과 저장소는 Router가 판단한다. 성공한 mutation·활성 변경 뒤에도 기존 cancelAndInvalidateQueries를 재사용한다. 목록 취소·세션 확인은 늦은 응답의 Query/DB 반영을 막으며 HTTP 전송 중단이나 mutation 취소를 뜻하지 않는다.
+
+최종 client 52 suites / 583 passed / 1 skipped와 변경 파일 형식·lint 오류 0을 확인했다. useGetTrips 선언 생성 TS4023은 해결했으나 전체 client 타입·선언 검사는 기존 7건, server 타입 검사는 기존 Places Language 오류가 남는다. server 빈 목록 검사와 build는 통과했다. 추가 취소·네트워크 보완 전 시뮬레이터에서는 Repository 생성·종료일 수정·삭제와 mixed 목록·기존 선택 복귀를 확인했고 테스트 여행은 soft delete했다. 최종 보완은 자동 검사로 확인했으며 최종 native 폼 전체·실제 단절 검증은 남는다.
+
+이 수정의 계기는 날짜 비교 중 드러난 생성 경로 결함이다. Trip 기간의 달력 날짜 의미와 홈·목록 표시 차이는 아직 수정하지 않았다. 서버에서 사라진 활성 여행의 충돌 해결·생성 응답 유실 후 중복 방지도 이번 보장이 아니다. 탈락한 mutation별 사본 갱신안, 조건별 Query key의 회귀와 refresh 분리 이유는 [여행 생성·목록 기록](../../../records/2026-10-05-01-trip-list-routing-and-query-lifecycle.md)에 보존한다. 기존 보류와 후속 Ticket 책임은 유지하며 06 전체를 완료 처리하지 않는다.
+
 ### 앱 복귀 시 네트워크 재확인
 
 `d588a19`에서 Network Store의 기존 init~cleanup 세션에 AppState 구독을 추가했다. background/inactive→active일 때 기존 refresh를 실행하며 수동 확인과 요청 공유·timeout·늦은 응답 처리를 재사용한다. AppInitialization은 시작·정리 호출만 유지하고 화면 훅에 구독을 추가하지 않는다. 중복 init과 해제 후 늦은 이벤트도 보호한다.
@@ -240,7 +252,7 @@ Main이 관련 2 suites / 43 tests 통과, 최신 시뮬레이터 두 차례 복
 
 간결화 전 native에서는 비활성 홈의 online/offline/unknown/복귀를 Debug 표시 강제로 관찰했고 임시 대표 여행 지정은 원복했다. 간결화 후 최신 앱은 원래 활성 홈의 2개·EUR 56 정상 표시를 확인했다. 실제 통신 단절과 native 전체 전환 재검증은 미확인이다. 구현·저장 완료와 종합 UX 수락·Ticket 완료를 구분한다. 선택 과정과 증거의 상한은 [홈 수정·후속 검토 기록](../../../records/2026-10-04-01-home-summary-policy-and-ux-review.md)에 있다.
 
-추가 UX 수집에서는 비활성 일정·경비 목록의 선택 유지·제한·내용 복귀, 기존 상세와 picker 취소 뒤 초안 유지를 확인했다. 열린 폼 그대로 연결 전환은 이번 native 수집으로 확인하지 않았다. 현재 홈·목록 날짜 차이는 같은 timestamp를 현지/UTC 날짜로 읽는 차이로 확인됐으나 Trip 기간의 제품 의미와 수정 선택은 남아 있다. 앱 및 설치 NetInfo에는 foreground마다 명시적 재확인 연결이 없으며 일반 관측·반복 확인과 구별해야 한다. 이 두 항목과 남은 종합 UX·기존 보류를 후속 판단한다.
+추가 UX 수집에서는 비활성 일정·경비 목록의 선택 유지·제한·내용 복귀, 기존 상세와 picker 취소 뒤 초안 유지를 확인했다. 열린 폼 그대로 연결 전환은 이번 native 수집으로 확인하지 않았다. 현재 홈·목록 날짜 차이는 같은 timestamp를 현지/UTC 날짜로 읽는 차이로 확인됐으나 Trip 기간의 제품 의미와 수정 선택은 남아 있다. foreground 재확인 연결은 위 절의 `d588a19`에서 구현했다. 날짜 검토 도중 발견한 생성·목록 결함은 아래 여행 결과를 따르며, 날짜 의미·표시 차이와 남은 종합 UX·기존 보류는 계속 판단한다.
 
 ### 네트워크 안내 후속 작업 1-A — 활성 여부 최초 확인
 
