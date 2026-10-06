@@ -22,6 +22,49 @@ it('동일 여행의 일정과 경비 읽기 정책표는 네 상태에서 같�
   expect(SCHEDULE_POLICIES.read).toEqual(EXPENSE_POLICIES.read);
 });
 
+it('여행 생성은 다른 여행의 활성 상태 조회를 기다리지 않는다', () => {
+  activationMock.mockReturnValue({ data: undefined } as ReturnType<typeof useGetTripActivation>);
+  useNetworkStore.setState({ realStatus: 'online', overrideStatus: null, checkStatus: 'idle' });
+  const { result } = renderHook(() => useAppPolicy('another-trip', { network: 'real' }));
+  expect(result.current.schedule.create.allowed).toBe(false);
+  expect(result.current.trip.update.pending).toBe(true);
+  expect(result.current.trip.create.allowed).toBe(true);
+});
+
+it.each(['signed-out', 'reauth-required', 'restore-failed', 'initializing'] as const)(
+  '%s에서는 공개 서비스 조회가 가능해도 새 여행 생성은 허용하지 않는다',
+  (status) => {
+    useAuthStore.setState({ status });
+    activationMock.mockReturnValue({ data: null } as ReturnType<typeof useGetTripActivation>);
+    useNetworkStore.setState({ realStatus: 'online', overrideStatus: null, checkStatus: 'idle' });
+    const { result } = renderHook(() => useAppPolicy(undefined, { network: 'real' }));
+    expect(result.current.service.searchMode).toBe('api');
+    expect(result.current.trip.create).toEqual({ allowed: false, reason: '다시 로그인한 뒤 사용할 수 있습니다' });
+  },
+);
+
+it.each(['offline', 'unknown'] as const)('실제 %s에서는 새 여행 생성을 제한한다', (realStatus) => {
+  activationMock.mockReturnValue({ data: null } as ReturnType<typeof useGetTripActivation>);
+  useNetworkStore.setState({ realStatus, overrideStatus: null, checkStatus: 'checking' });
+  const { result } = renderHook(() => useAppPolicy(undefined, { network: 'real' }));
+  expect(result.current.trip.create.allowed).toBe(false);
+  expect(result.current.trip.create.pending).toBe(realStatus === 'unknown' ? true : undefined);
+});
+
+it.each(['online', 'offline', 'unknown'] as const)(
+  '여행 생성도 강제 %s의 표시 정책과 실제 관측 정책을 구별한다',
+  (overrideStatus) => {
+    activationMock.mockReturnValue({ data: null } as ReturnType<typeof useGetTripActivation>);
+    useNetworkStore.setState({ realStatus: 'online', overrideStatus, checkStatus: 'idle' });
+    const { result } = renderHook(() => ({
+      display: useAppPolicy(),
+      real: useAppPolicy(undefined, { network: 'real' }),
+    }));
+    expect(result.current.display.trip.create.allowed).toBe(overrideStatus === 'online');
+    expect(result.current.real.trip.create.allowed).toBe(true);
+  },
+);
+
 it.each([
   {
     realStatus: 'unknown' as const,
@@ -47,6 +90,9 @@ it.each([
     activationMock.mockReturnValue({ data: null } as ReturnType<typeof useGetTripActivation>);
     useNetworkStore.setState({ realStatus, checkStatus, overrideStatus: null });
     const { result } = renderHook(() => useAppPolicy('trip-b'));
+    if (realStatus === 'unknown') {
+      expect(result.current.trip.create).toEqual(result.current.schedule.read);
+    }
     expect(result.current.schedule.read).toEqual(result.current.expense.read);
     for (const entity of [result.current.schedule, result.current.expense]) {
       for (const policy of Object.values(entity)) {
@@ -92,6 +138,7 @@ describe('Policy 표의 unknown 호환', () => {
     const { result } = renderHook(() => useAppPolicy('trip-b'));
 
     const { schedule, expense, service } = result.current;
+    expect(result.current.trip.update.allowed).toBe(isActivated);
     expect(schedule.read).toEqual(expense.read);
 
     expect(service.searchMode).toBe('disabled');
@@ -114,6 +161,7 @@ it('재인증 중에는 활성 여행 CRUD만 허용하며 실제 온라인 서�
   expect(Object.values(result.current.schedule).every(({ allowed }) => allowed)).toBe(true);
   expect(Object.values(result.current.expense).every(({ allowed }) => allowed)).toBe(true);
   expect(result.current.service.searchMode).toBe('api');
+  expect(result.current.trip.update.allowed).toBe(true);
 });
 
 it('재인증 중 비활성 여행은 서버가 온라인이어도 CRUD를 열지 않는다', () => {
@@ -123,6 +171,7 @@ it('재인증 중 비활성 여행은 서버가 온라인이어도 CRUD를 열�
   const { result } = renderHook(() => useAppPolicy('inactive'));
   expect(Object.values(result.current.schedule).every(({ allowed }) => !allowed)).toBe(true);
   expect(Object.values(result.current.expense).every(({ allowed }) => !allowed)).toBe(true);
+  expect(result.current.trip.update.allowed).toBe(false);
 });
 
 it.each(['offline', 'unknown'] as const)(
@@ -135,8 +184,10 @@ it.each(['offline', 'unknown'] as const)(
       real: useAppPolicy('trip', { network: 'real' }),
     }));
     expect(result.current.display.schedule.read.allowed).toBe(true);
+    expect(result.current.display.trip.create.allowed).toBe(true);
     expect(result.current.display.service.mapProvider).toBe('google');
     expect(result.current.real.schedule.read.allowed).toBe(false);
+    expect(result.current.real.trip.create.allowed).toBe(false);
     expect(result.current.real.schedule.read.reason).toBe(
       realStatus === 'unknown'
         ? '인터넷 연결을 확인할 수 없어요.'

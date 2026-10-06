@@ -17,7 +17,13 @@ export type {
 } from './types';
 
 // Constants (Entity-specific)
-export { SCHEDULE_POLICIES, EXPENSE_POLICIES, SERVICE_POLICIES } from './constants';
+export {
+  TRIP_CREATE_POLICIES,
+  TRIP_UPDATE_POLICIES,
+  SCHEDULE_POLICIES,
+  EXPENSE_POLICIES,
+  SERVICE_POLICIES,
+} from './constants';
 
 // Hooks
 export { useAppPolicy, type AppPolicy } from './useAppPolicy';

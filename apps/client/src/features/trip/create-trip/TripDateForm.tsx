@@ -11,9 +11,13 @@ import { tripDateFormSchema, type TripDateFormData } from './schema';
 import { useCreateTrip } from '@/entities/trip';
 import { useRouter } from 'expo-router';
 import { generateId } from '@/shared/services/id/ulid';
-import { dateToISODateTime } from '@/shared/lib/datetime';
+import { getTimeZoneDayStartISO } from '@/shared/lib/datetime';
 import { getCurrencyByCountryCode } from '@/shared/lib/country-currency';
-import { useDisplayNetworkStatus } from '@/shared/store/network';
+import { useCityTimeZone } from './useCityTimeZone';
+import { useAppPolicy } from '@/shared/policy';
+import { PolicyErrorDisplay } from '@/shared/components/ErrorBoundary/PolicyErrorDisplay';
+import { OfflineError } from '@/shared/services/offline-prep/errors';
+import { AuthRequiredError } from '@/shared/store/auth';
 
 type TripDateFormProps = {
   city: City;
@@ -23,10 +27,13 @@ export default function TripDateForm({ city }: TripDateFormProps) {
   const router = useRouter();
   const [pickerVisible, setPickerVisible] = useState(false);
   const [currentPicker, setCurrentPicker] = useState<'start' | 'end' | null>(null);
-  const networkStatus = useDisplayNetworkStatus();
-  const isOnline = networkStatus === 'online';
+  const cityTimeZone = useCityTimeZone(city, true);
+  const { canResolveTimeZone } = cityTimeZone;
+  const creationPolicy = useAppPolicy().trip.create;
+  const canCreateTrip = creationPolicy.allowed;
+  const timeZone = cityTimeZone.data;
 
-  const { control, handleSubmit, setValue, watch } = useForm<TripDateFormData>({
+  const { control, handleSubmit, setValue, setError, watch } = useForm<TripDateFormData>({
     resolver: zodResolver(tripDateFormSchema),
     defaultValues: {
       startDate: '',
@@ -35,7 +42,12 @@ export default function TripDateForm({ city }: TripDateFormProps) {
     mode: 'onChange',
   });
 
-  const { mutate: createTrip, isPending } = useCreateTrip();
+  const { mutate: createTrip, isPending, error: createError } = useCreateTrip();
+  const submitError = !createError
+    ? null
+    : createError instanceof OfflineError || createError instanceof AuthRequiredError
+      ? createError.message
+      : '여행을 만들지 못했어요. 입력한 날짜는 유지됩니다. 다시 시도해주세요.';
 
   const startDate = watch('startDate');
 
@@ -54,6 +66,19 @@ export default function TripDateForm({ city }: TripDateFormProps) {
   };
 
   const onValid = (data: TripDateFormData) => {
+    if (isPending || !canCreateTrip || !timeZone) return;
+
+    let startISO: string;
+    let endISO: string;
+
+    try {
+      startISO = getTimeZoneDayStartISO(data.startDate, timeZone);
+      endISO = getTimeZoneDayStartISO(data.endDate, timeZone);
+    } catch (error) {
+      setError('startDate', { message: error instanceof Error ? error.message : '날짜를 다시 선택해주세요.' });
+      return;
+    }
+
     createTrip(
       {
         id: generateId(), // ✅ 외부에서 ID 생성
@@ -65,8 +90,9 @@ export default function TripDateForm({ city }: TripDateFormProps) {
         latitude: city.latitude,
         longitude: city.longitude,
         cityId: city.id,
-        startDate: dateToISODateTime(data.startDate), // ✅ ISO datetime 변환
-        endDate: dateToISODateTime(data.endDate), // ✅ ISO datetime 변환
+        timeZone,
+        startDate: startISO,
+        endDate: endISO,
       },
       {
         onSuccess: () => {
@@ -87,6 +113,31 @@ export default function TripDateForm({ city }: TripDateFormProps) {
           <MapPin size={24} className='text-foreground' />
           <Text className='text-title-large font-semibold'>{city.name}</Text>
         </View>
+
+        {timeZone ? (
+          <Text className='text-label text-muted-foreground'>{`${city.name} 현지 시간 (${timeZone})`}</Text>
+        ) : (
+          <Text className='text-label text-muted-foreground'>
+            {cityTimeZone.isFetching
+              ? '도시 시간대를 확인하고 있어요.'
+              : !canResolveTimeZone
+                ? '도시 시간대 확인에는 인터넷 연결이 필요해요. 입력한 날짜는 유지됩니다.'
+                : cityTimeZone.isError
+                  ? '도시 시간대를 확인하지 못했어요. 입력한 날짜는 유지됩니다.'
+                  : '도시 시간대 확인을 기다리고 있어요.'}
+          </Text>
+        )}
+        {!timeZone && cityTimeZone.isError && (
+          <View className='gap-xs'>
+            <Pressable
+              variant='outline'
+              onPress={() => cityTimeZone.refetch()}
+              disabled={!canResolveTimeZone || cityTimeZone.isFetching}
+            >
+              시간대 다시 확인
+            </Pressable>
+          </View>
+        )}
 
         <View className='gap-lg'>
           <View className='flex-row items-center gap-xs pb-xs'>
@@ -135,16 +186,16 @@ export default function TripDateForm({ city }: TripDateFormProps) {
           />
         </View>
 
-        <Pressable variant='default' onPress={handleSubmit(onValid, onInvalid)} disabled={isPending || !isOnline}>
+        <Pressable
+          variant='default'
+          onPress={handleSubmit(onValid, onInvalid)}
+          disabled={isPending || !canCreateTrip || !timeZone}
+        >
           {isPending ? '생성 중...' : '여행 생성'}
         </Pressable>
 
-        {/* 오프라인 안내 */}
-        {!isOnline && (
-          <View className='mt-xs px-xs'>
-            <Text className='text-small text-center text-muted-foreground'>인터넷 연결이 필요합니다</Text>
-          </View>
-        )}
+        {!canCreateTrip && <PolicyErrorDisplay policy={creationPolicy} variant='inline' />}
+        {submitError && <Text className='text-small text-destructive'>{submitError}</Text>}
       </View>
       <DatePicker
         visible={pickerVisible}

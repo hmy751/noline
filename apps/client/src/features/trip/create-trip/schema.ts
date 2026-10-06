@@ -10,8 +10,8 @@ import { z } from 'zod';
  */
 export const tripDateFormSchema = z
   .object({
-    startDate: z.string().min(1, '시작일을 선택해주세요'),
-    endDate: z.string().min(1, '종료일을 선택해주세요'),
+    startDate: z.string().date('시작일을 선택해주세요'),
+    endDate: z.string().date('종료일을 선택해주세요'),
   })
   .refine(
     (data) => {

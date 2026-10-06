@@ -26,9 +26,10 @@ const create = {
 beforeEach(() => resetDbMock());
 
 describe('Trip 도시 시간대 계약과 이전 요청 호환', () => {
-  it('유효한 시간대를 보존하고 이전 entity·생성의 누락은 미확정 상태로 수용한다', () => {
+  it('새 생성은 유효한 IANA 시간대를 요구하고 이전 entity 누락은 미확정 null로 읽는다', () => {
     const { timeZone, ...legacy } = create;
-    expect(createTripRequest.safeParse(legacy).success).toBe(true);
+    expect(createTripRequest.safeParse(legacy).success).toBe(false);
+    expect(createTripRequest.safeParse({ ...create, timeZone: null }).success).toBe(false);
     expect(createTripRequest.parse(create).timeZone).toBe(timeZone);
     expect(tripEntity.parse(legacy).timeZone).toBeNull();
     expect(tripEntity.parse({ ...create, timeZone: null }).timeZone).toBeNull();

@@ -2,7 +2,13 @@ import { useMemo } from 'react';
 import { useAuthStore, hasLocalSession } from '@/shared/store/auth';
 import { useDisplayNetworkStatus, useRealNetworkStatus, useNetworkCheck } from '@/shared/store/network';
 import { useGetTripActivation } from '@/entities/trip/data/useGetTripActivation';
-import { EXPENSE_POLICIES, SCHEDULE_POLICIES, SERVICE_POLICIES } from './constants';
+import {
+  TRIP_CREATE_POLICIES,
+  TRIP_UPDATE_POLICIES,
+  EXPENSE_POLICIES,
+  SCHEDULE_POLICIES,
+  SERVICE_POLICIES,
+} from './constants';
 import type {
   ActivationStatus,
   EntityPolicy,
@@ -12,8 +18,9 @@ import type {
   ServicePolicy,
 } from './types';
 
-/** 현재 앱 상태에 맞게 선택된 Schedule·Expense·Service 정책이다. */
+/** 현재 앱 상태에 맞게 선택된 Trip 생성·수정, Schedule·Expense·Service 정책이다. */
 export interface AppPolicy {
+  trip: Pick<EntityPolicy, 'create' | 'update'>;
   schedule: EntityPolicy;
   expense: EntityPolicy;
   service: ServicePolicy;
@@ -39,14 +46,23 @@ export function useAppPolicy(
   const policyKey: PolicyKey = `${policyNetworkStatus}_${activationStatus}`;
 
   return useMemo(() => {
+    const loginRequired: OperationPolicy | undefined =
+      authStatus !== 'signed-in' ? { allowed: false, reason: '다시 로그인한 뒤 사용할 수 있습니다' } : undefined;
+    let networkUnconfirmed: OperationPolicy | undefined;
+    if (networkStatus === 'unknown') {
+      networkUnconfirmed =
+        checkStatus === 'checking'
+          ? { allowed: false, pending: true, reason: '인터넷 연결을 확인하고 있어요.' }
+          : { allowed: false, reason: '인터넷 연결을 확인할 수 없어요.', recoveryAction: 'recheck-network' };
+    }
+
+    const tripCreationPolicy = loginRequired ?? networkUnconfirmed ?? TRIP_CREATE_POLICIES[policyNetworkStatus];
+
     const needsReauthentication = authStatus === 'reauth-required';
     let unavailablePolicy: OperationPolicy | undefined;
 
     if (!hasLocalSession({ status: authStatus })) {
-      unavailablePolicy = {
-        allowed: false,
-        reason: '다시 로그인한 뒤 사용할 수 있습니다',
-      };
+      unavailablePolicy = loginRequired;
     } else if (tripId && activation === undefined) {
       // null은 조회 성공 후 활성 기록 없음, undefined는 아직 성공한 조회 결과 없음이다.
       // 기존 결과가 있으면 background 재조회 중이거나 실패해도 그 결과를 유지한다.
@@ -54,38 +70,32 @@ export function useAppPolicy(
         ? { allowed: false, reason: '여행 활성 상태를 확인하지 못했어요.' }
         : { allowed: false, pending: true, reason: '여행 활성 상태를 확인하고 있어요.' };
     } else if (needsReauthentication && !isTripActivated) {
-      unavailablePolicy = {
-        allowed: false,
-        reason: '다시 로그인한 뒤 사용할 수 있습니다',
-      };
-    } else if (tripId && !isTripActivated && networkStatus === 'unknown') {
-      unavailablePolicy =
-        checkStatus === 'checking'
-          ? { allowed: false, pending: true, reason: '인터넷 연결을 확인하고 있어요.' }
-          : { allowed: false, reason: '인터넷 연결을 확인할 수 없어요.', recoveryAction: 'recheck-network' };
+      unavailablePolicy = loginRequired;
+    } else if (tripId && !isTripActivated) {
+      unavailablePolicy = networkUnconfirmed;
     }
 
-    if (unavailablePolicy) {
-      const blockedEntityPolicy: EntityPolicy = {
-        create: unavailablePolicy,
-        read: unavailablePolicy,
-        update: unavailablePolicy,
-        delete: unavailablePolicy,
-      };
-
-      return {
-        schedule: blockedEntityPolicy,
-        expense: blockedEntityPolicy,
-        service: SERVICE_POLICIES[policyKey],
-      };
-    }
+    const blockedEntityPolicy: EntityPolicy | undefined = unavailablePolicy
+      ? { create: unavailablePolicy, read: unavailablePolicy, update: unavailablePolicy, delete: unavailablePolicy }
+      : undefined;
 
     return {
-      schedule: selectEntityPolicy(SCHEDULE_POLICIES, policyKey),
-      expense: selectEntityPolicy(EXPENSE_POLICIES, policyKey),
+      trip: { create: tripCreationPolicy, update: unavailablePolicy ?? TRIP_UPDATE_POLICIES[policyKey] },
+      schedule: blockedEntityPolicy ?? selectEntityPolicy(SCHEDULE_POLICIES, policyKey),
+      expense: blockedEntityPolicy ?? selectEntityPolicy(EXPENSE_POLICIES, policyKey),
       service: SERVICE_POLICIES[policyKey],
     };
-  }, [policyKey, authStatus, isTripActivated, tripId, activation, activationFailed, networkStatus, checkStatus]);
+  }, [
+    policyKey,
+    authStatus,
+    isTripActivated,
+    tripId,
+    activation,
+    activationFailed,
+    networkStatus,
+    checkStatus,
+    policyNetworkStatus,
+  ]);
 }
 
 function selectEntityPolicy(policyTable: EntityPolicyTable, policyKey: PolicyKey): EntityPolicy {

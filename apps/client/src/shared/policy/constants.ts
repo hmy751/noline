@@ -1,4 +1,18 @@
-import type { EntityPolicyTable, ServicePolicyTable } from './types';
+import type { EntityPolicyTable, NetworkStatus, OperationPolicy, PolicyKey, ServicePolicyTable } from './types';
+
+/** 새 여행은 서버에서 생성하므로 다른 여행의 활성 여부와 무관하다. */
+export const TRIP_CREATE_POLICIES: Record<Exclude<NetworkStatus, 'unknown'>, OperationPolicy> = {
+  online: { allowed: true },
+  offline: { allowed: false, reason: '여행을 만들려면 인터넷 연결이 필요해요' },
+};
+
+/** 기존 여행 수정은 대상 여행의 활성 여부를 따른다. */
+export const TRIP_UPDATE_POLICIES: Record<PolicyKey, OperationPolicy> = {
+  online_active: { allowed: true },
+  online_inactive: { allowed: true },
+  offline_active: { allowed: true },
+  offline_inactive: { allowed: false, reason: '오프라인에서는 활성화된 여행만 수정할 수 있어요.' },
+};
 
 /** 일정 CRUD의 화면 가용성. Local/Remote 실행 경로는 Activation Router가 결정한다. */
 export const SCHEDULE_POLICIES: EntityPolicyTable = {

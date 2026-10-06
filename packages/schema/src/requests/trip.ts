@@ -62,7 +62,7 @@ export const createTripRequest = tripEntity
     name: z.string().min(1, 'Name is required'),
     destination: z.string().min(1, 'Destination is required'),
     baseCurrency: z.string().default('USD'),
-    timeZone: ianaTimeZone.nullable().optional(),
+    timeZone: ianaTimeZone,
   });
 
 /** 시간대 도입 전 전송 대기 CREATE의 서버 수신에만 쓰는 호환 계약. 새 client 생성에는 쓰지 않는다. */

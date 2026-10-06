@@ -76,7 +76,7 @@ export const trips = pgTable('trips', {
   latitude: decimal('latitude', { precision: 10, scale: 7 }),
   longitude: decimal('longitude', { precision: 10, scale: 7 }),
   cityId: integer('city_id'),
-  timeZone: text('time_zone'), // 기존 여행의 미확정 시간대는 null로 보존
+  timeZone: text('time_zone'), // 기존 여행은 미확정(null), 새 여행은 요청 schema에서 필수
   // ✅ TIMESTAMPTZ: ISO 8601 with timezone 지원
   startDate: timestamp('start_date', { withTimezone: true }).notNull(),
   endDate: timestamp('end_date', { withTimezone: true }).notNull(),

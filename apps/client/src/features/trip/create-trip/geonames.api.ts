@@ -74,3 +74,23 @@ export const searchCities = async (namePrefix: string): Promise<City[]> => {
     return [];
   }
 };
+
+/** GeoNames timezoneId는 좌표의 Olson/IANA 시간대이며 DST 규칙도 포함한다.
+ * https://www.geonames.org/export/web-services.html#timezone
+ */
+export async function resolveCityTimeZone(city: Pick<City, 'latitude' | 'longitude'>): Promise<string> {
+  const response = await fetcher.get<{ timezoneId?: string }>('/timezoneJSON', {
+    params: { lat: city.latitude, lng: city.longitude, username: EXPO_PUBLIC_GEONAMES_USERNAME },
+  });
+  const timeZone = response.data.timezoneId;
+
+  if (!timeZone) throw new Error('도시 시간대를 확인하지 못했어요. 다시 시도해주세요.');
+
+  try {
+    new Intl.DateTimeFormat('en', { timeZone }).format();
+  } catch {
+    throw new Error('도시 시간대를 확인하지 못했어요. 다시 시도해주세요.');
+  }
+
+  return timeZone;
+}
