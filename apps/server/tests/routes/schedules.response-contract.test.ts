@@ -58,6 +58,7 @@ const tripRow = {
   latitude: null,
   longitude: null,
   cityId: null,
+  timeZone: null,
   startDate: new Date('2026-09-19T00:00:00.000Z'),
   endDate: new Date('2026-09-22T00:00:00.000Z'),
   createdAt: new Date(CREATED_AT),

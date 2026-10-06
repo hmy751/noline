@@ -18,7 +18,9 @@ beforeEach(() => {
     const sqlite = jest.requireMock<{ openDatabaseSync: ReturnType<typeof jest.fn> }>('expo-sqlite');
     const orm = jest.requireMock<{ drizzle: ReturnType<typeof jest.fn> }>('drizzle-orm/expo-sqlite');
     execSync = jest.fn();
-    openDatabase = sqlite.openDatabaseSync.mockReset().mockReturnValue({ execSync });
+    openDatabase = sqlite.openDatabaseSync
+      .mockReset()
+      .mockReturnValue({ execSync, getAllSync: () => [{ name: 'time_zone' }] });
     createClient = orm.drizzle.mockReset().mockReturnValue(client);
     database = jest.requireActual<typeof import('@/shared/db')>('@/shared/db');
   });

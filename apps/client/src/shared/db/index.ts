@@ -2,6 +2,7 @@ import { drizzle, type ExpoSQLiteDatabase } from 'drizzle-orm/expo-sqlite';
 import * as SQLite from 'expo-sqlite';
 import * as schema from './schema';
 import { sql } from 'drizzle-orm';
+import { migrateTripTimeZone } from './migrations/trip-time-zone';
 
 let databaseConnection: SQLite.SQLiteDatabase | undefined;
 
@@ -101,6 +102,7 @@ export async function initializeDatabase() {
         latitude TEXT,
         longitude TEXT,
         city_id INTEGER,
+        time_zone TEXT,
         start_date TEXT NOT NULL,
         end_date TEXT NOT NULL,
         created_at TEXT NOT NULL,
@@ -109,6 +111,9 @@ export async function initializeDatabase() {
         version INTEGER NOT NULL DEFAULT 1
       );
     `);
+
+    // 설치된 DB의 시각·대기 sync payload는 변경하지 않는다.
+    migrateTripTimeZone(expoDb);
 
     // Schedules 테이블 생성
     expoDb.execSync(`

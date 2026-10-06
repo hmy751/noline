@@ -8,6 +8,13 @@ import { addToSyncQueue } from '@/shared/services/sync/queue';
 import { AuthRequiredError, selectLocalUserId, useAuthStore } from '@/shared/store/auth';
 import { ownedRow, activeTripScope, assertActiveLocalTrip } from '@/shared/services/auth/local-access';
 import type { Trip, UpdateTripRequest } from '../model';
+import { tripEntity } from '@repo/schema/entities/trip';
+import { isTripDateRangeValid } from '@repo/schema/requests/trip';
+
+/** 시간대 호환만 적용한다. 기존 다른 필드의 오류로 시간대 확인·교정까지 막지 않는다. */
+function readTripTimeZone(trip: Trip): Trip {
+  return { ...trip, timeZone: tripEntity.shape.timeZone.parse(trip.timeZone) };
+}
 
 /**
  * 로컬 DB에서 현재 사용자의 여행 조회
@@ -36,14 +43,14 @@ export const getTripsLocal = async (): Promise<Trip[]> => {
     .all();
 
   console.log(`[TripLocal] Trips loaded from local DB: ${tripList.length} items for user ${userId}`);
-  return tripList;
+  return tripList.map(readTripTimeZone);
 };
 
 /**
  * 로컬 DB에서 특정 여행 조회
  */
 export const getTripByIdLocal = async (id: string): Promise<Trip | undefined> => {
-  return await getDatabase()
+  const trip = await getDatabase()
     .select()
     .from(trips)
     .where(
@@ -54,6 +61,7 @@ export const getTripByIdLocal = async (id: string): Promise<Trip | undefined> =>
       ),
     )
     .get();
+  return trip ? readTripTimeZone(trip) : undefined;
 };
 
 /** 활성 여행과 전송 대기·진행·실패 작업의 부모 여행은 서버 목록으로 덮지 않는다. */
@@ -137,17 +145,38 @@ export const refreshTripListLocal = async (serverTrips: Trip[], sessionId: symbo
  */
 export const updateTripLocal = async (id: string, data: UpdateTripRequest): Promise<Trip> => {
   const now = getCurrentISOString();
+  const { latitude, longitude, ...fields } = data;
 
   const dbData = {
-    ...data,
-    latitude: data.latitude?.toString() ?? null,
-    longitude: data.longitude?.toString() ?? null,
+    ...fields,
+    ...(latitude !== undefined ? { latitude: latitude?.toString() ?? null } : {}),
+    ...(longitude !== undefined ? { longitude: longitude?.toString() ?? null } : {}),
     updatedAt: now,
     version: sql`${trips.version} + 1`,
   };
 
-  await withTransaction(async () => {
+  const updated = await withTransaction(async () => {
     await assertActiveLocalTrip(id);
+
+    if (data.startDate !== undefined || data.endDate !== undefined || data.timeZone !== undefined) {
+      const existing = await getDatabase()
+        .select()
+        .from(trips)
+        .where(ownedRow(trips.userId, eq(trips.id, id)))
+        .get();
+
+      if (!existing) throw new Error('수정할 여행을 찾을 수 없습니다');
+      if (
+        !isTripDateRangeValid(
+          data.startDate ?? existing.startDate,
+          data.endDate ?? existing.endDate,
+          data.timeZone ?? existing.timeZone,
+        )
+      ) {
+        throw new Error('여행 시작일은 종료일보다 늦을 수 없습니다');
+      }
+    }
+
     await getDatabase()
       .update(trips)
       .set(dbData)
@@ -159,24 +188,20 @@ export const updateTripLocal = async (id: string, data: UpdateTripRequest): Prom
         ),
       );
     await addToSyncQueue('trips', id, 'UPDATE', data);
+
+    const updated = await getDatabase()
+      .select()
+      .from(trips)
+      .where(ownedRow(trips.userId, eq(trips.id, id)))
+      .get();
+
+    if (!updated) throw new Error('수정한 여행을 다시 불러오지 못했습니다');
+
+    return readTripTimeZone(updated);
   });
 
   console.log(`[TripLocal] Trip updated locally: ${id}`);
 
-  const updated = await getDatabase()
-    .select()
-    .from(trips)
-    .where(
-      ownedRow(
-        trips.userId,
-        eq(trips.id, id),
-        useAuthStore.getState().status === 'reauth-required' ? activeTripScope(trips.id) : undefined,
-      ),
-    )
-    .get();
-  if (!updated) {
-    throw new Error('수정한 여행을 다시 불러오지 못했습니다');
-  }
   return updated;
 };
 

@@ -20,6 +20,7 @@ export const trips = sqliteTable('trips', {
   latitude: text('latitude'),
   longitude: text('longitude'),
   cityId: integer('city_id'),
+  timeZone: text('time_zone'), // 기존 여행의 미확정 시간대는 null로 보존
   // ✅ ISO 8601 datetime string (e.g., "2024-01-15T09:00:00+09:00")
   startDate: text('start_date').notNull(), // ISO string - 필수
   endDate: text('end_date').notNull(), // ISO string - 필수

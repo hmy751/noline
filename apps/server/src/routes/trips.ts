@@ -2,7 +2,7 @@ import { Router } from 'express';
 import type { Request, Response } from 'express';
 import { db, trips, schedules, expenses } from '../db/index.js';
 import { desc, sql, eq, and, isNull } from 'drizzle-orm';
-import { createTripRequest, updateTripRequest } from '@repo/schema/requests/trip';
+import { legacyCreateTripRequest, updateTripRequest, isTripDateRangeValid } from '@repo/schema/requests/trip';
 import { tripEntity } from '@repo/schema/entities/trip';
 import { activateTripResponse, tripListResponse, tripResponse } from '@repo/schema/responses/trip';
 import { scheduleListResponse } from '@repo/schema/responses/schedule';
@@ -31,6 +31,7 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
         latitude: trips.latitude,
         longitude: trips.longitude,
         cityId: trips.cityId,
+        timeZone: trips.timeZone,
         startDate: trips.startDate,
         endDate: trips.endDate,
         createdAt: trips.createdAt,
@@ -75,7 +76,7 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
 router.post('/', requireAuth, async (req: Request, res: Response) => {
   try {
     // Zod로 요청 데이터 검증
-    const validationResult = createTripRequest.safeParse(req.body);
+    const validationResult = legacyCreateTripRequest.safeParse(req.body);
 
     if (!validationResult.success) {
       return res.status(400).json({
@@ -85,8 +86,20 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
       });
     }
 
-    const { id, userId, name, destination, country, baseCurrency, latitude, longitude, cityId, startDate, endDate } =
-      validationResult.data;
+    const {
+      id,
+      userId,
+      name,
+      destination,
+      country,
+      baseCurrency,
+      latitude,
+      longitude,
+      cityId,
+      timeZone,
+      startDate,
+      endDate,
+    } = validationResult.data;
 
     const start = new Date(startDate);
     const end = new Date(endDate);
@@ -98,7 +111,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
       });
     }
 
-    if (start > end) {
+    if (!isTripDateRangeValid(startDate, endDate, timeZone)) {
       return res.status(400).json({
         error: 'Invalid date range',
         message: 'startDate must be before endDate',
@@ -116,9 +129,10 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
         destination,
         country: country || null,
         baseCurrency: baseCurrency || 'USD', // 기본값: USD
-        latitude: latitude ? latitude.toString() : null,
-        longitude: longitude ? longitude.toString() : null,
+        latitude: latitude != null ? latitude.toString() : null,
+        longitude: longitude != null ? longitude.toString() : null,
         cityId: cityId || null,
+        timeZone,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
       })
@@ -164,7 +178,7 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
       });
     }
 
-    const { name, destination, country, baseCurrency, startDate, endDate } = validationResult.data;
+    const { name, destination, country, baseCurrency, timeZone, startDate, endDate } = validationResult.data;
 
     // 여행 존재 여부 및 소유권 확인
     const [existingTrip] = await db
@@ -189,6 +203,7 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
     if (destination !== undefined) updateData.destination = destination;
     if (country !== undefined) updateData.country = country;
     if (baseCurrency !== undefined) updateData.baseCurrency = baseCurrency;
+    if (timeZone !== undefined) updateData.timeZone = timeZone;
 
     if (startDate !== undefined) {
       if (startDate === null) {
@@ -221,11 +236,17 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
     }
 
     // 날짜 범위 검증
-    if (updateData.startDate || updateData.endDate) {
+    if (startDate !== undefined || endDate !== undefined || timeZone !== undefined) {
       const finalStart = updateData.startDate || existingTrip.startDate;
       const finalEnd = updateData.endDate || existingTrip.endDate;
 
-      if (finalStart && finalEnd && new Date(finalStart) > new Date(finalEnd)) {
+      if (
+        !isTripDateRangeValid(
+          finalStart.toISOString(),
+          finalEnd.toISOString(),
+          timeZone ?? existingTrip.timeZone ?? null,
+        )
+      ) {
         return res.status(400).json({
           error: 'Invalid date range',
           message: 'startDate must be before endDate',

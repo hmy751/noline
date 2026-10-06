@@ -58,6 +58,7 @@ jest.mock('expo-sqlite', () => ({
     const sqlite = new DatabaseSync(':memory:');
     return {
       execSync: (statement: string) => sqlite.exec(statement),
+      getAllSync: (query: string) => sqlite.prepare(query).all(),
       prepareSync: (query: string) => ({
         executeForRawResultSync: (params: unknown[]) => {
           const statement = sqlite.prepare(query);

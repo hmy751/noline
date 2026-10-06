@@ -1,14 +1,7 @@
 /** @jest-environment node */
 import { sql } from 'drizzle-orm';
 import { beforeEach, expect, it, jest } from '@jest/globals';
-import {
-  getDatabase,
-  initializeDatabase,
-  resetDatabase,
-  runDatabaseTransaction,
-  schedules,
-  trips,
-} from '@/shared/db';
+import { getDatabase, initializeDatabase, resetDatabase, runDatabaseTransaction, schedules, trips } from '@/shared/db';
 import { upsertSchedules } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
 
@@ -44,6 +37,7 @@ jest.mock('expo-sqlite', () => ({
 
     return {
       execSync: (statement: string) => sqlite.exec(statement),
+      getAllSync: (query: string) => sqlite.prepare(query).all(),
       prepareSync: (query: string) => ({
         executeForRawResultSync: (params: unknown[]) => {
           const statement = sqlite.prepare(query);
@@ -128,7 +122,9 @@ it('sync_queue 저장이 실패하면 같은 transaction의 entity 생성도 롤
 
   await expect(
     runDatabaseTransaction(async () => {
-      await getDatabase().insert(schedules).values({ ...schedule, id: 'new-schedule' });
+      await getDatabase()
+        .insert(schedules)
+        .values({ ...schedule, id: 'new-schedule' });
       await addToSyncQueue('schedules', 'new-schedule', 'CREATE', { ...schedule, id: 'new-schedule' });
     }),
   ).rejects.toThrow('queue failed');

@@ -55,6 +55,7 @@ export async function upsertTrips(records: Trip[]): Promise<void> {
               latitude: record.latitude,
               longitude: record.longitude,
               cityId: record.cityId,
+              timeZone: record.timeZone,
               startDate: record.startDate,
               endDate: record.endDate,
               updatedAt: record.updatedAt,

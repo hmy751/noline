@@ -60,6 +60,7 @@ jest.mock('expo-sqlite', () => ({
     const sqlite = new DatabaseSync(':memory:');
     return {
       execSync: (statement: string) => sqlite.exec(statement),
+      getAllSync: (statement: string) => sqlite.prepare(statement).all(),
       prepareSync: (query: string) => ({
         executeForRawResultSync: (params: unknown[]) => {
           const statement = sqlite.prepare(query);
@@ -92,6 +93,7 @@ const input = {
   startDate: now,
   endDate: now,
   cityId: null,
+  timeZone: 'Asia/Tokyo',
   latitude: 0,
   longitude: 0,
 };

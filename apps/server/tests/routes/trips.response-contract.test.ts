@@ -57,6 +57,7 @@ describe('Trip API 직렬화 계약', () => {
         latitude: null,
         longitude: null,
         cityId: null,
+        timeZone: 'Asia/Seoul',
         startDate: START_DATE,
         endDate: END_DATE,
       })

@@ -19,6 +19,7 @@ export const tripRow = {
   latitude: null,
   longitude: null,
   cityId: null,
+  timeZone: 'Asia/Seoul',
   startDate: new Date(START_DATE),
   endDate: new Date(END_DATE),
   createdAt: new Date(CREATED_AT),

@@ -34,6 +34,8 @@ import { useActivateTrip } from '@/entities/trip/data/useActivateTrip';
 import { pullChanges } from '@/shared/services/sync/engine';
 import apiClient from '@/shared/api/fetcher';
 import syncApiClient from '@/shared/services/sync/api';
+import { upsertTrips } from '@/shared/db/utils';
+import { getTripByIdLocal, updateTripLocal } from '@/entities/trip/lib/trip-local';
 
 jest.mock('@tanstack/react-query', () => ({
   ...jest.requireActual<object>('@tanstack/react-query'),
@@ -86,6 +88,7 @@ jest.mock('expo-sqlite', () => ({
     const sqlite = new DatabaseSync(':memory:');
     return {
       execSync: (statement: string) => sqlite.exec(statement),
+      getAllSync: (query: string) => sqlite.prepare(query).all(),
       prepareSync: (query: string) => ({
         executeForRawResultSync: (params: unknown[]) => {
           const statement = sqlite.prepare(query);
@@ -120,6 +123,7 @@ const trip = {
   latitude: null,
   longitude: null,
   cityId: null,
+  timeZone: 'Asia/Seoul',
   startDate: now,
   endDate: now,
   createdAt: now,
@@ -178,6 +182,51 @@ afterEach(() => {
 
 const rawExpense = () => getDatabase().select().from(expenses).where(eq(expenses.id, expenseId)).get();
 const queued = () => getDatabase().select().from(syncQueue).all();
+
+it('Trip 시간대만 확인하면 시각·좌표를 보존하고 같은 transaction의 큐에 시간대를 남긴다', async () => {
+  await getDatabase().update(trips).set({ timeZone: null, latitude: '0', longitude: '0' });
+  const updated = await updateTripLocal(tripId, { timeZone: 'Asia/Seoul' });
+  expect(updated).toMatchObject({
+    timeZone: 'Asia/Seoul',
+    startDate: now,
+    endDate: now,
+    latitude: '0',
+    longitude: '0',
+  });
+  expect((await queued()).map(({ payload }) => JSON.parse(payload))).toEqual([{ timeZone: 'Asia/Seoul' }]);
+  expect((await getTripByIdLocal(tripId))?.timeZone).toBe('Asia/Seoul');
+});
+
+it('Trip pull upsert는 삽입·충돌 수정 모두에서 서버 도시 시간대를 저장한다', async () => {
+  const normalized = { ...trip, deletedAt: null, version: 2 };
+  await upsertTrips([{ ...normalized, timeZone: 'Europe/Paris' }]);
+  expect((await getTripByIdLocal(tripId))?.timeZone).toBe('Europe/Paris');
+  const newId = '01ARZ3NDEKTSV4RRFFQ69G5FAZ';
+  await upsertTrips([{ ...normalized, id: newId, timeZone: 'America/New_York' }]);
+  expect((await getTripByIdLocal(newId))?.timeZone).toBe('America/New_York');
+  expect((await getTripByIdLocal(tripId))?.startDate).toBe(now);
+});
+
+it('Local Trip도 같은 도시 날짜의 기존 정오 시작과 자정 종료를 허용하며 원본 시작 시각은 유지한다', async () => {
+  const startDate = '2026-10-01T16:00:00Z';
+  const endDate = '2026-10-01T04:00:00Z';
+  await getDatabase().update(trips).set({ startDate, endDate: '2026-10-02T04:00:00Z', timeZone: 'America/New_York' });
+  const updated = await updateTripLocal(tripId, { endDate });
+  expect(updated).toMatchObject({ startDate, endDate });
+  expect((await queued()).map(({ payload }) => JSON.parse(payload))).toEqual([{ endDate }]);
+});
+
+it('Local Trip의 도시 날짜가 뒤집힌 수정은 행·만료·큐를 모두 보존한다', async () => {
+  await getDatabase()
+    .update(trips)
+    .set({ startDate: '2026-10-01T16:00:00Z', endDate: '2026-10-02T04:00:00Z', timeZone: 'America/New_York' });
+  const before = getDatabase().select().from(trips).get();
+  const activationBefore = getDatabase().select().from(tripActivations).get();
+  await expect(updateTripLocal(tripId, { endDate: '2026-09-30T04:00:00Z' })).rejects.toThrow('여행 시작일');
+  expect(getDatabase().select().from(trips).get()).toEqual(before);
+  expect(getDatabase().select().from(tripActivations).get()).toEqual(activationBefore);
+  expect(await queued()).toEqual([]);
+});
 
 it('세 목록과 단건 읽기가 같은 UTC 날짜를 반환하고 기존 행·큐는 변경하지 않는다', async () => {
   expect((await getAllExpensesLocal())[0].date).toBe('2026-10-01');

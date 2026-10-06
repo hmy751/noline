@@ -1,6 +1,18 @@
 import { z } from 'zod';
 import { isoDateTime } from '../primitives/datetime';
 
+/** IANA 시간대만 허용한다. 기기 기본 시간대나 UTC offset은 도시 시간대를 대신하지 않는다. */
+export const ianaTimeZone = z.string().refine((value) => {
+  if (!/^[A-Za-z_]+(?:\/[A-Za-z0-9_+.-]+)+$/.test(value) && value !== 'UTC') return false;
+
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: value }).format(0);
+    return true;
+  } catch {
+    return false;
+  }
+}, 'Invalid IANA time zone');
+
 // ========================================
 // Trip Entity Schema (DB와 1:1 매핑)
 // ========================================
@@ -28,6 +40,8 @@ export const tripEntity = z.object({
   latitude: z.string().nullable(), // DB decimal → string
   longitude: z.string().nullable(),
   cityId: z.number().nullable(),
+  // null은 시간대 도입 전 여행의 미확정 상태다. 기존 timestamp는 그대로 보존한다.
+  timeZone: ianaTimeZone.nullable().default(null),
   startDate: isoDateTime,
   endDate: isoDateTime,
 });
