@@ -9,7 +9,7 @@ import { getDatabase } from '@/shared/db';
 import { trips, offlineCities } from '@/shared/db/schema';
 import { queryClient } from '@/shared/lib/queryClient';
 import { offlineCityKeys } from '@/entities/offline-city/data/keys';
-import { TRIP_ACTIVATION_GRACE_DAYS } from '@/shared/lib/lifecycle';
+import { isTripExpired } from '@/shared/lib/lifecycle';
 
 /** 종료 유예 기간이 지난 여행의 도시 참조를 다시 계산한다. */
 export async function cleanupExpiredOfflineMaps(): Promise<void> {
@@ -28,11 +28,7 @@ export async function cleanupExpiredOfflineMaps(): Promise<void> {
         return false;
       }
 
-      const endDate = new Date(trip.endDate);
-      const expiryDate = new Date(endDate);
-      expiryDate.setDate(expiryDate.getDate() + TRIP_ACTIVATION_GRACE_DAYS);
-
-      return now > expiryDate;
+      return isTripExpired(trip, now);
     });
 
     console.log(`[OfflineMapCleanup] Found ${expiredTrips.length} expired trips`);
@@ -174,11 +170,7 @@ async function reconcileCityReferenceCount(cityId: number): Promise<void> {
       return true; // 종료일이 없으면 지도 참조 유지
     }
 
-    const endDate = new Date(trip.endDate);
-    const expiryDate = new Date(endDate);
-    expiryDate.setDate(expiryDate.getDate() + TRIP_ACTIVATION_GRACE_DAYS);
-
-    return now <= expiryDate; // 아직 만료 안됨
+    return !isTripExpired(trip, now);
   }).length;
 
   console.log(

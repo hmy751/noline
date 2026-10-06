@@ -17,7 +17,7 @@ import { routeQueryKeys } from '@/entities/route/data/keys';
 import { downloadOfflineMapInBackground } from '@/shared/services/offline-map/download';
 import { downloadRoutesForSchedules } from '@/shared/services/directions/route-downloader';
 import { generateId } from '@/shared/services/id/ulid';
-import { TRIP_ACTIVATION_GRACE_DAYS } from '@/shared/lib/lifecycle';
+import { getTripExpiryISO } from '@/shared/lib/lifecycle';
 import { cancelAndInvalidateQueries } from '@/shared/lib/query-refresh';
 import type { Trip } from '../model/types';
 import { activateTripResponse } from '@repo/schema/responses/trip';
@@ -77,6 +77,8 @@ export const useActivateTrip = () => {
       if (!trip) {
         throw new Error(`Trip not found in server response: ${tripId}`);
       }
+      if (!trip.timeZone) throw new Error('여행 도시의 시간대를 확인한 뒤 활성화해주세요.');
+      const expiresAt = getTripExpiryISO(trip.endDate, trip.timeZone);
 
       // 트랜잭션: 로컬 DB 업데이트
       await withTransaction(async () => {
@@ -116,9 +118,6 @@ export const useActivateTrip = () => {
           .where(eq(tripActivations.isActivated, true));
 
         // 활성화 레코드 생성 또는 업데이트 (upsert)
-        const expiresAt = new Date(trip.endDate);
-        expiresAt.setDate(expiresAt.getDate() + TRIP_ACTIVATION_GRACE_DAYS);
-
         await getDatabase()
           .insert(tripActivations)
           .values({
@@ -128,7 +127,7 @@ export const useActivateTrip = () => {
             isActivated: true,
             activatedAt: now,
             deactivatedAt: null,
-            expiresAt: expiresAt.toISOString(),
+            expiresAt,
             syncStatus: 'COMPLETED',
             lastSyncAt: now,
             syncProgress: 100,
@@ -144,7 +143,7 @@ export const useActivateTrip = () => {
               isActivated: true,
               activatedAt: now,
               deactivatedAt: null,
-              expiresAt: expiresAt.toISOString(),
+              expiresAt,
               syncStatus: 'COMPLETED',
               lastSyncAt: now,
               syncProgress: 100,

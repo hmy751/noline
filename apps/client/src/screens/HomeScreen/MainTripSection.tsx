@@ -1,3 +1,5 @@
+import { formatISOToTimeZoneDate } from '@/shared/lib/datetime';
+import { TripTimeZoneNotice } from '@/features/trip/TripTimeZoneNotice';
 import { View, Text, ActivityIndicator, Alert } from 'react-native';
 import { useState, useEffect, useCallback } from 'react';
 import { TripCard, type TripData, type ActivationStatus, useDeactivateTrip } from '@/entities/trip';
@@ -26,10 +28,10 @@ export function MainTripSection({
   refreshKey,
 }: MainTripSectionProps) {
   // 날짜 포맷팅 함수
-  const formatDate = (dateString: string | null) => {
+  const formatDate = (dateString: string | null, timeZone: string | null | undefined) => {
     if (!dateString) return '';
-    const date = new Date(dateString);
-    return `${date.getMonth() + 1}월 ${date.getDate()}일`;
+    const [, month, day] = formatISOToTimeZoneDate(dateString, timeZone ?? 'UTC').split('-');
+    return `${Number(month)}월 ${Number(day)}일`;
   };
 
   const schedulesRead = useTripSchedulesReadQuery(mainTripData?.id);
@@ -114,8 +116,8 @@ export function MainTripSection({
     ? {
         destination: mainTripData.destination,
         country: mainTripData.country || '',
-        startDate: formatDate(mainTripData.startDate),
-        endDate: formatDate(mainTripData.endDate),
+        startDate: formatDate(mainTripData.startDate, mainTripData.timeZone),
+        endDate: formatDate(mainTripData.endDate, mainTripData.timeZone),
       }
     : null;
 
@@ -148,31 +150,36 @@ export function MainTripSection({
 
   // 메인 여행 카드
   return (
-    <TripCard
-      {...mainTrip}
-      summary={{
-        schedule: {
-          view: scheduleView,
-          onRetry: schedulesRead.access.canFetch ? () => schedulesRead.actions.refetch() : undefined,
-          isRetrying: schedulesRead.query.isFetching,
-        },
-        expense: {
-          view: expenseView,
-          onRetry: expensesRead.access.canFetch ? () => expensesRead.actions.refetch() : undefined,
-          isRetrying: expensesRead.query.isFetching,
-        },
-        baseCurrency: mainTripData.baseCurrency ?? 'USD',
-        onRecheckNetwork: () => {
-          refresh();
-        },
-        isRecheckingNetwork: isRefreshing,
-      }}
-      activationStatus={activationStatus}
-      onActivatePress={
-        activationStatus !== 'online' ? undefined : () => onActivatePress(mainTripData.id, mainTrip.destination)
-      }
-      onDeactivatePress={activationStatus !== 'online' ? handleDeactivate : undefined}
-      onEditPress={onEditPress}
-    />
+    <View>
+      <TripTimeZoneNotice timeZone={mainTripData.timeZone} onRepair={onEditPress} />
+      <TripCard
+        {...mainTrip}
+        summary={{
+          schedule: {
+            view: scheduleView,
+            onRetry: schedulesRead.access.canFetch ? () => schedulesRead.actions.refetch() : undefined,
+            isRetrying: schedulesRead.query.isFetching,
+          },
+          expense: {
+            view: expenseView,
+            onRetry: expensesRead.access.canFetch ? () => expensesRead.actions.refetch() : undefined,
+            isRetrying: expensesRead.query.isFetching,
+          },
+          baseCurrency: mainTripData.baseCurrency ?? 'USD',
+          onRecheckNetwork: () => {
+            refresh();
+          },
+          isRecheckingNetwork: isRefreshing,
+        }}
+        activationStatus={activationStatus}
+        onActivatePress={
+          activationStatus !== 'online' || !mainTripData.timeZone
+            ? undefined
+            : () => onActivatePress(mainTripData.id, mainTrip.destination)
+        }
+        onDeactivatePress={activationStatus !== 'online' ? handleDeactivate : undefined}
+        onEditPress={onEditPress}
+      />
+    </View>
   );
 }

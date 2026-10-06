@@ -1,7 +1,7 @@
 import { requireLocalUserId } from '@/shared/store/auth';
 // Trip Local DataSource - SQLite 로컬 DB 작업
 
-import { getDatabase, trips, schedules, expenses, syncQueue } from '@/shared/db';
+import { getDatabase, trips, tripActivations, schedules, expenses, syncQueue } from '@/shared/db';
 import { eq, isNull, desc, sql, or, and, inArray } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
@@ -9,6 +9,7 @@ import { AuthRequiredError, selectLocalUserId, useAuthStore } from '@/shared/sto
 import { ownedRow, activeTripScope, assertActiveLocalTrip } from '@/shared/services/auth/local-access';
 import type { Trip, UpdateTripRequest } from '../model';
 import { tripEntity } from '@repo/schema/entities/trip';
+import { getTripExpiryISO } from '@/shared/lib/lifecycle';
 import { isTripDateRangeValid } from '@repo/schema/requests/trip';
 
 /** 시간대 호환만 적용한다. 기존 다른 필드의 오류로 시간대 확인·교정까지 막지 않는다. */
@@ -196,6 +197,12 @@ export const updateTripLocal = async (id: string, data: UpdateTripRequest): Prom
       .get();
 
     if (!updated) throw new Error('수정한 여행을 다시 불러오지 못했습니다');
+    if (updated.timeZone && (data.endDate !== undefined || data.timeZone !== undefined)) {
+      await getDatabase()
+        .update(tripActivations)
+        .set({ expiresAt: getTripExpiryISO(updated.endDate, updated.timeZone), updatedAt: now })
+        .where(ownedRow(tripActivations.userId, eq(tripActivations.tripId, id), eq(tripActivations.isActivated, true)));
+    }
 
     return readTripTimeZone(updated);
   });

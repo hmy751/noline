@@ -369,7 +369,9 @@ export function TripsSection({ onMainTripDataChange }: TripsSectionProps) {
         }}
         onEdit={() => selectedTrip && handleEditOtherTrip(selectedTrip)}
         onDelete={() => selectedTrip && handleDeleteOtherTrip(selectedTrip)}
-        onActivate={selectedTrip && !isSelectedTripActivated ? () => handleActivateOtherTrip(selectedTrip) : undefined}
+        onActivate={
+          selectedTrip?.timeZone && !isSelectedTripActivated ? () => handleActivateOtherTrip(selectedTrip) : undefined
+        }
         onDeactivate={
           selectedTrip && isSelectedTripActivated ? () => handleDeactivateOtherTrip(selectedTrip) : undefined
         }

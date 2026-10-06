@@ -1,6 +1,6 @@
 /** @jest-environment node */
 import { beforeEach, afterEach, expect, it, jest } from '@jest/globals';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { QueryClient } from '@tanstack/react-query';
 import {
   getDatabase,
@@ -195,6 +195,33 @@ it('Trip 시간대만 확인하면 시각·좌표를 보존하고 같은 transac
   });
   expect((await queued()).map(({ payload }) => JSON.parse(payload))).toEqual([{ timeZone: 'Asia/Seoul' }]);
   expect((await getTripByIdLocal(tripId))?.timeZone).toBe('Asia/Seoul');
+  expect(getDatabase().select().from(tripActivations).get()?.expiresAt).toBe('2026-10-09T15:00:00.000Z');
+});
+
+it('활성 여행의 기간·시간대 변경은 DST를 포함한 도시 만료일과 전송 대기 변경을 함께 갱신한다', async () => {
+  const input = { endDate: '2026-10-31T07:00:00Z', timeZone: 'America/Los_Angeles' };
+  const updated = await updateTripLocal(tripId, input);
+  expect(updated).toMatchObject(input);
+  expect(getDatabase().select().from(tripActivations).get()?.expiresAt).toBe('2026-11-08T08:00:00.000Z');
+  expect((await queued()).map(({ payload }) => JSON.parse(payload))).toEqual([input]);
+});
+
+it('만료 기록 갱신에 실패하면 여행 수정과 sync_queue도 같은 transaction에서 롤백한다', async () => {
+  const before = getDatabase().select().from(trips).get();
+  const activationBefore = getDatabase().select().from(tripActivations).get();
+  getDatabase().run(
+    sql.raw(
+      "CREATE TRIGGER fail_expiry_update BEFORE UPDATE ON trip_activations BEGIN SELECT RAISE(ABORT, 'expiry update failed'); END",
+    ),
+  );
+  try {
+    await expect(updateTripLocal(tripId, { endDate: '2026-10-03T00:00:00Z' })).rejects.toThrow();
+    expect(getDatabase().select().from(trips).get()).toEqual(before);
+    expect(getDatabase().select().from(tripActivations).get()).toEqual(activationBefore);
+    expect(await queued()).toEqual([]);
+  } finally {
+    getDatabase().run(sql.raw('DROP TRIGGER fail_expiry_update'));
+  }
 });
 
 it('Trip pull upsert는 삽입·충돌 수정 모두에서 서버 도시 시간대를 저장한다', async () => {

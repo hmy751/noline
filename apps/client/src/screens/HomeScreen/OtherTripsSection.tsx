@@ -1,3 +1,4 @@
+import { formatISOToTimeZoneDate } from '@/shared/lib/datetime';
 import { View, Text } from 'react-native';
 import { Pressable } from '@repo/ui';
 import { MoreVertical } from 'lucide-react-native';
@@ -20,10 +21,10 @@ export function OtherTripsSection({
   activatedTripId,
 }: OtherTripsSectionProps) {
   // 날짜 포맷팅 함수
-  const formatDate = (dateString: string | null) => {
+  const formatDate = (dateString: string | null, timeZone: string | null | undefined) => {
     if (!dateString) return '';
-    const date = new Date(dateString);
-    return `${date.getMonth() + 1}월 ${date.getDate()}일`;
+    const [, month, day] = formatISOToTimeZoneDate(dateString, timeZone ?? 'UTC').split('-');
+    return `${Number(month)}월 ${Number(day)}일`;
   };
 
   // 로딩 중이거나 에러 상태거나 여행이 없으면 렌더링하지 않음
@@ -50,8 +51,9 @@ export function OtherTripsSection({
                 {trip.destination}, {trip.country}
               </Text>
               <Text className='text-label text-muted-foreground'>
-                {formatDate(trip.startDate)} ~ {formatDate(trip.endDate)}
+                {formatDate(trip.startDate, trip.timeZone)} ~ {formatDate(trip.endDate, trip.timeZone)}
               </Text>
+              {!trip.timeZone && <Text className='text-label text-muted-foreground'>시간대 확인 필요 · UTC 기준</Text>}
             </View>
 
             {/* 우측: 메뉴 + 뱃지 */}
