@@ -122,3 +122,7 @@
 - [여행 생성·목록 갱신의 책임과 검증](2026-10-05-01-trip-list-routing-and-query-lifecycle.md): 날짜 확인 중 발견한 생성 분기 결함, 사본 반영·Query 갱신 책임의 교정, 제품 커밋과 자동/native 증거 및 남은 날짜·UX 범위.
 
 - [도시 시간대의 결정·일곱 커밋·검증과 원래 버그의 다음 순서](2026-10-06-01-city-time-zone-commits-and-original-bug-continuity.md): UTC 저장과 도시 기준의 관계, 기존 정책 재사용 교정, 단위별 검사·native 한계, 선택창 초기 표시로 이어지는 범위 정정.
+
+- [날짜·시간 선택창, 중앙 휠과 TimeField 적용](2026-10-06-02-picker-wheel-time-field-and-remaining-scope.md): 원래 UX 문제의 수정, 사용자 휠 요청과 RHF adapter 선택, 두 커밋·자동/native 검증 한계, 06 종료 검토와 후속 책임.
+
+- [Ticket 06 종료 판단과 남겨 둔 범위](2026-10-06-03-ticket-06-closure-and-followups.md): 원래 보고서와 수정 결과의 대조, 사용자 마무리 승인, 보류·후속·미검증·네트워크 오류 관찰의 차이와 다음 기본 후보.

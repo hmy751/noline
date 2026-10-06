@@ -158,3 +158,11 @@ Node 20.18.1에서 2개 file의 2개 test와 server build가 통과했다. 실�
 - [활성 만료](../../../../../apps/client/src/shared/lib/lifecycle.ts), [대표 여행 계산](../../../../../apps/client/src/entities/trip/utils/selectMainTrip.ts), [Local 계약 검사](../../../../../apps/client/tests/entities/temporal-local-contracts.test.ts): 도시 달력의 소비와 실제 SQLite rollback 근거.
 - [시간대 폼 검사](../../../../../apps/client/tests/features/edit/city-time-zone.test.tsx), [서버 계약 검사](../../../../../apps/server/tests/routes/trip-time-zone.test.ts), [접근성 검사](../../../../../apps/client/tests/components/action-accessibility.test.tsx): 입력·저장·호환 및 독립 버튼의 검증 진입점.
 - [대화·일곱 커밋·검증 기록](../records/2026-10-06-01-city-time-zone-commits-and-original-bug-continuity.md): 역할별 커밋과 확인 범위, 원래 보고서의 선택창 문제로 이어지는 이유.
+
+## Ticket 06·10 후속: 날짜·시간 선택과 폼 연결
+
+- [DatePicker](../../../../../apps/client/src/shared/components/DatePicker/DatePicker.tsx): 현재 날짜의 달·선택 표시와 재열기 초기화.
+- [TimePicker](../../../../../apps/client/src/shared/components/TimePicker/TimePicker.tsx): 중앙 고정 시·분 휠과 열린 동안의 임시 선택·확인 계약. `09b07f8`.
+- [TimeField](../../../../../apps/client/src/shared/components/Form/TimeField.tsx): 폼의 값·오류 구독과 시간 선택창 수명. [일정 생성 폼](../../../../../apps/client/src/features/schedule/create-schedule/ScheduleForm.tsx)과 [수정 폼](../../../../../apps/client/src/features/schedule/update-schedule/UpdateScheduleDrawer.tsx)에 적용했다. `3ab8f55`.
+- [picker 수명 검사](../../../../../apps/client/tests/components/picker-lifecycle.test.tsx), [휠 검사](../../../../../apps/client/tests/components/time-picker-wheel.test.tsx), [TimeField 검사](../../../../../apps/client/tests/components/time-field.test.tsx): 현재 값·확인·닫기·재열기와 실제 폼 연결의 회귀 근거.
+- [선택·구현·검증 기록](../records/2026-10-06-02-picker-wheel-time-field-and-remaining-scope.md): 책임 분리 이유, 리뷰 보완, 커밋 경계와 자동/native 확인의 차이. 다음 행동은 state와 해당 Ticket이 소유한다.
