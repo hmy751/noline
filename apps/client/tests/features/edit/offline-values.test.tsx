@@ -16,6 +16,7 @@ jest.mock('@react-native-community/netinfo', () => ({
   __esModule: true,
   default: { addEventListener: jest.fn(() => jest.fn()), refresh: jest.fn() },
 }));
+jest.mock('@/entities/trip', () => ({ useGetTrips: () => ({ data: [{ id: 'trip', timeZone: 'UTC' }] }) }));
 jest.mock('@/entities/trip/data/useGetTripActivation', () => ({
   useGetTripActivation: jest.fn(),
 }));

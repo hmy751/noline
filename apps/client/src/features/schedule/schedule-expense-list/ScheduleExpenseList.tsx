@@ -1,7 +1,6 @@
 import { View, Text } from 'react-native';
 import { Stack, ExpenseCard } from '@/shared/components';
 import { type Expense } from '@/entities/expense';
-import { formatISOToLocalDate } from '@/shared/lib/datetime';
 
 export interface ScheduleExpenseListProps {
   expenses: Expense[];

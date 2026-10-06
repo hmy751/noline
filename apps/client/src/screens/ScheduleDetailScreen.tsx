@@ -5,7 +5,7 @@ import { MapPin, Clock, Wallet, ChevronLeft } from 'lucide-react-native';
 import { Card, Pressable, Separator } from '@repo/ui';
 import { Container, Stack, MobileHeader } from '@/shared/components';
 import { ScheduleExpenseList } from '@/features/schedule/schedule-expense-list';
-import { formatISOToLocalDate, formatISOToTimeZoneDate, formatISOToTimeZoneTime } from '@/shared/lib/datetime';
+import { formatISOToTimeZoneDate, formatISOToTimeZoneTime } from '@/shared/lib/datetime';
 import { groupExpensesByCurrency, formatCurrencyDisplay } from '@/shared/lib/currency';
 import { useRouter } from 'expo-router';
 import { useScheduleReadQuery } from '@/features/schedule/read-schedules';
@@ -50,9 +50,10 @@ export default function ScheduleDetailScreen({ scheduleId, tripId, onBack }: Sch
 
   const handleAddExpense = () => {
     if (!schedule) return;
-    const expenseDate = formatISOToLocalDate(schedule.scheduledAt);
-
-    router.push(`/create-expense?tripId=${tripId}&scheduleId=${scheduleId}&date=${expenseDate}`);
+    const expenseDate = trip?.timeZone ? formatISOToTimeZoneDate(schedule.scheduledAt, trip.timeZone) : undefined;
+    router.push(
+      `/create-expense?tripId=${tripId}&scheduleId=${scheduleId}${expenseDate ? `&date=${expenseDate}` : ''}`,
+    );
   };
 
   const handleShowOnMap = () => {

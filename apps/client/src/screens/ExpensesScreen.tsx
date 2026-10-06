@@ -1,4 +1,6 @@
-import { getUTCDateRange } from '@/shared/lib/datetime';
+import { TripTimeZoneNotice } from '@/features/trip/TripTimeZoneNotice';
+import { EditTripDrawer } from '@/features/trip/update-trip';
+import { getTimeZoneDateRange } from '@/shared/lib/datetime';
 import { PolicyErrorDisplay } from '@/shared/components/ErrorBoundary';
 import { View, Text, ScrollView, Alert, RefreshControl } from 'react-native';
 import { Container, Stack, ExpenseCard, MobileHeader } from '@/shared/components';
@@ -34,6 +36,7 @@ export default function ExpensesScreen() {
 
   // 여행 데이터 조회
   const { data: trips = [] } = useGetTrips();
+  const [isTripEditOpen, setIsTripEditOpen] = useState(false);
   const selectedTrip = trips.find((trip) => trip.id === selectedTripId);
 
   const { access, actions, view } = useTripExpensesReadQuery(selectedTripId);
@@ -56,9 +59,12 @@ export default function ExpensesScreen() {
     }
   }, [access.canFetch, refetch]);
 
-  // Trip의 기존 UTC 날짜 기준을 두 목록 화면에서 동일하게 사용한다.
+  // 여행 도시의 달력 날짜 범위를 사용하며 경비의 literal 날짜는 그대로 유지한다.
   const dateRange = useMemo(
-    () => (selectedTrip ? getUTCDateRange(selectedTrip.startDate, selectedTrip.endDate) : []),
+    () =>
+      selectedTrip
+        ? getTimeZoneDateRange(selectedTrip.startDate, selectedTrip.endDate, selectedTrip.timeZone ?? 'UTC')
+        : [],
     [selectedTrip],
   );
 
@@ -152,6 +158,8 @@ export default function ExpensesScreen() {
 
   return (
     <View className='flex-1 bg-background'>
+      {selectedTrip && <TripTimeZoneNotice timeZone={selectedTrip.timeZone} onRepair={() => setIsTripEditOpen(true)} />}
+      {isTripEditOpen && <EditTripDrawer isOpen onClose={() => setIsTripEditOpen(false)} trip={selectedTrip ?? null} />}
       {/* Header */}
       <MobileHeader
         title='경비'

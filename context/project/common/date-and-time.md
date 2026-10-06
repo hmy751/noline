@@ -42,12 +42,12 @@ PostgreSQL Schedule row는 `Date` 값을 사용하고 API Schedule entity는 tim
 
 날짜 규칙은 [공유 schema](../../../packages/schema/src/entities/expense.ts)의 `expenseDate`와 [공유 입력 schema](../../../packages/schema/src/requests/expense.ts)의 `expenseDateInput`이 소유한다. `expenseDate`는 실제 달력에 존재하는 `YYYY-MM-DD`를 검사한다. `expenseDateInput`은 여기에 기존 offset 포함 datetime을 호환 입력으로 허용하고, 기존 서버 serializer와 같은 UTC 날짜로 정리한다. 예를 들어 `2026-10-02T01:00:00+09:00`는 `2026-10-01`이다. 시간대 없는 datetime과 잘못된 날짜는 거부한다. date-only는 그대로 통과하므로 반복 적용해도 값이 바뀌지 않는다.
 
-- 생성·수정 폼은 날짜 선택값을 그대로 보관한다. 새 경비의 기본 날짜는 기기의 오늘이다. 생성 navigation의 기존 datetime 입력은 폼 진입에서 호환 처리하고, 잘못된 값이면 날짜를 다시 선택하게 한다. 수정 폼은 앱 데이터의 date-only를 받고, 처음 연 값과 최종 날짜가 다를 때만 요청에 날짜를 포함한다. 날짜를 바꿨다가 되돌리거나 제목만 바꾸면 기존 저장값을 재작성하지 않는다.
+- 생성·수정 폼은 날짜 선택값을 그대로 보관한다. 새 경비의 기본 날짜는 여행 도시의 오늘이다. 일정에서 진입하면 해당 일정의 도시 날짜를 사용한다. 사용자가 입력한 날짜는 시간대 조회 완료나 일정 연결 변경만으로 덮어쓰지 않는다. 시간대 미확정 상태에서는 오늘을 추정해 채우지 않으며 명시적으로 선택한 date-only는 저장할 수 있다. 생성 navigation의 기존 datetime 입력은 폼 진입에서 호환 처리하고, 잘못된 값이면 날짜를 다시 선택하게 한다. 수정 폼은 앱 데이터의 date-only를 받고, 처음 연 값과 최종 날짜가 다를 때만 요청에 날짜를 포함한다. 날짜를 바꿨다가 되돌리거나 제목만 바꾸면 기존 저장값을 재작성하지 않는다.
 - [Expense Repository](../../../apps/client/src/entities/expense/repository/expense-repository.ts)는 create/update 요청을 공유 스키마로 검사한 뒤 Activation Router에 전달한다. 따라서 Local/Remote가 같은 날짜 값을 받는다. 날짜가 없는 부분 수정에는 날짜를 추가하지 않는다.
 - Local datasource는 전달받은 날짜를 DB text와 sync_queue에 같은 transaction으로 저장한다. 세 목록·단건 조회와 생성·수정 반환은 같은 Local row 변환으로 기존 datetime을 date-only로 읽는다. 기존 DB 행이나 큐를 일괄 수정하지는 않는다. 수정·삭제의 존재·접근 확인은 날짜 해석과 분리해 잘못된 날짜 행도 교정·삭제할 수 있다. 생성·수정 결과의 날짜 검사는 commit 전에 수행하며, 실패하면 행 변경과 큐 기록을 함께 롤백한다.
 - [서버 요청 경계](../../../apps/server/src/routes/expenses.ts)도 같은 create/update 스키마를 적용한다. 동기화 engine이 entity HTTP adapter를 거치지 않고 REST endpoint로 보내는 기존 datetime 큐도 여기서 수용한다. HTTP adapter에 별도 날짜 변환은 두지 않는다.
 - [server DB](../../../apps/server/src/db/schema.ts)의 timestamp 저장은 유지한다. 새로 전달된 date-only는 UTC 자정으로 저장하고, [기존 serializer](../../../apps/server/src/serializers/expense.ts)가 UTC 날짜를 응답한다. serializer는 요청 검사·입력 변환을 맡지 않는다.
-- 경비 목록의 날짜 묶기·상세·수정 폼·연결 일정의 초기 탐색은 데이터 경계에서 정리된 날짜를 그대로 사용한다. 조회 변환 실패는 Query 오류로 전달하고 화면 렌더에서 호환 검사를 반복하지 않는다. 경비 날짜에 `formatISOToLocalDate`를 적용하지 않는다. 연결 후보인 Schedule의 날짜·시간은 실제 시각이므로 기존 현지 시간 표시를 유지한다.
+- 경비 목록의 날짜 묶기·상세·수정 폼·연결 일정의 초기 탐색은 데이터 경계에서 정리된 날짜를 그대로 사용한다. 조회 변환 실패는 Query 오류로 전달하고 화면 렌더에서 호환 검사를 반복하지 않는다. 경비 날짜에 `formatISOToLocalDate`를 적용하지 않는다. 연결 후보인 Schedule의 날짜·시간은 실제 시각이므로 여행 도시 기준으로 표시한다.
 - 서버 입수 경비는 date-only entity를 요구한다. legacy datetime 허용은 기존 Local 행·요청 입력·큐의 호환에 한정한다. Activation·pull의 전체 입수 검사는 아래 기준을 따른다.
 
 ## 서버 데이터 입수와 여행 날짜 범위

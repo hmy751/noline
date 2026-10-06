@@ -443,7 +443,8 @@ it.each([
 });
 
 it('일정에서 경비를 추가하면 오래된 navigation 시각 대신 현재 조회한 일정 날짜를 전달한다', async () => {
-  const latest = '2026-10-02T09:30:00Z';
+  mockTimeZone = 'Asia/Tokyo';
+  const latest = '2026-10-02T01:30:00+09:00';
   jest.mocked(ScheduleRepository.getById).mockResolvedValue({ ...schedule, scheduledAt: latest });
   jest.mocked(ExpenseRepository.getByScheduleId).mockResolvedValue([]);
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } });
@@ -453,6 +454,17 @@ it('일정에서 경비를 추가하면 오래된 navigation 시각 대신 현�
   fireEvent.press(view.getByText('경비 추가'));
   const expected = jest
     .requireActual<typeof import('@/shared/lib/datetime')>('@/shared/lib/datetime')
-    .formatISOToLocalDate(latest);
+    .formatISOToTimeZoneDate(latest, 'Asia/Tokyo');
   expect(mockPush).toHaveBeenCalledWith(`/create-expense?tripId=trip&scheduleId=s&date=${expected}`);
 });
+
+it.each(['missing', 'loading'])(
+  '일정에서 경비를 추가할 때 여행 시간대 %s는 UTC 호환 날짜를 새 경비 기본값으로 넘기지 않는다',
+  async (state) => {
+    mockTimeZone = null;
+    mockTripsLoaded = state !== 'loading';
+    const view = setup(detail);
+    fireEvent.press(view.getByText('경비 추가'));
+    expect(mockPush).toHaveBeenCalledWith('/create-expense?tripId=trip&scheduleId=s');
+  },
+);

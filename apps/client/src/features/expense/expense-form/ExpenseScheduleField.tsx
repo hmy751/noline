@@ -1,3 +1,4 @@
+import { useGetTrips } from '@/entities/trip';
 import { useRef, useLayoutEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { ChevronDown, MapPin } from 'lucide-react-native';
@@ -6,7 +7,7 @@ import { Field } from '@/shared/components/Form';
 import { PolicyErrorDisplay } from '@/shared/components';
 import { useTripSchedulesReadQuery } from '@/features/schedule/read-schedules';
 import type { Schedule } from '@/entities/schedule';
-import { formatISOToLocalDate, formatISOToLocalTime, formatISOToLocalDateTime } from '@/shared/lib/datetime';
+import { formatISOToTimeZoneDate, formatISOToTimeZoneTime, formatISOToTimeZoneDateTime } from '@/shared/lib/datetime';
 
 type Props = {
   tripId: string;
@@ -17,17 +18,17 @@ type Props = {
   enabled?: boolean;
 };
 
-function scheduleLabel(schedule: Schedule): string {
-  return `${schedule.title} · ${formatISOToLocalDateTime(schedule.scheduledAt)}`;
+function scheduleLabel(schedule: Schedule, timeZone: string): string {
+  return `${schedule.title} · ${formatISOToTimeZoneDateTime(schedule.scheduledAt, timeZone)}`;
 }
 
-function groupSchedulesByDate(schedules: Schedule[]): Map<string, Schedule[]> {
+function groupSchedulesByDate(schedules: Schedule[], timeZone: string): Map<string, Schedule[]> {
   const groups = new Map<string, Schedule[]>();
   const chronological = [...schedules].sort(
     (a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime(),
   );
   for (const schedule of chronological) {
-    const date = formatISOToLocalDate(schedule.scheduledAt);
+    const date = formatISOToTimeZoneDate(schedule.scheduledAt, timeZone);
     const group = groups.get(date);
     if (group) group.push(schedule);
     else groups.set(date, [schedule]);
@@ -37,10 +38,13 @@ function groupSchedulesByDate(schedules: Schedule[]): Map<string, Schedule[]> {
 
 /** 후보 조회 권한과 초안에 이미 연결한 일정의 표시 수명을 분리한다. 날짜는 후보를 제한하지 않는다. */
 export function ExpenseScheduleField({ tripId, expenseDate, value, onChange, error, enabled = true }: Props) {
+  const { data: trips } = useGetTrips();
+  const timeZone = trips?.find((trip) => trip.id === tripId)?.timeZone;
+  const displayTimeZone = timeZone ?? 'UTC';
   const { view, access, actions } = useTripSchedulesReadQuery(tripId, { enabled });
   const schedules = view.kind === 'ready' ? view.data : [];
   const selected = schedules.find((schedule) => schedule.id === value);
-  const selectedLabel = selected ? scheduleLabel(selected) : undefined;
+  const selectedLabel = selected ? scheduleLabel(selected, displayTimeZone) : undefined;
   const remembered = useRef<{ tripId: string; id: string; label: string } | null>(null);
   useLayoutEffect(() => {
     if (selectedLabel && value) remembered.current = { tripId, id: value, label: selectedLabel };
@@ -56,7 +60,7 @@ export function ExpenseScheduleField({ tripId, expenseDate, value, onChange, err
   const groupOffsets = useRef<Record<string, number>>({});
   const hasScrolledToExpenseDate = useRef(false);
   const expenseDay = expenseDate;
-  const groups = groupSchedulesByDate(schedules);
+  const groups = groupSchedulesByDate(schedules, displayTimeZone);
 
   const scrollToExpenseDate = () => {
     scheduleList.current?.scrollTo({ y: groupOffsets.current[expenseDay] ?? 0, animated: false });
@@ -79,6 +83,7 @@ export function ExpenseScheduleField({ tripId, expenseDate, value, onChange, err
   return (
     <Field>
       <Field.Title>연결된 일정 (선택)</Field.Title>
+      {!timeZone && <Text className='text-label text-muted-foreground'>시간대 확인 필요 · UTC 기준</Text>}
       <Field.ElementsBox>
         {!canSelect ? (
           <View className='gap-sm'>
@@ -130,11 +135,15 @@ export function ExpenseScheduleField({ tripId, expenseDate, value, onChange, err
                         <View key={date} onLayout={(event) => handleGroupLayout(date, event.nativeEvent.layout.y)}>
                           <Text className='px-md py-xs text-label text-muted-foreground'>{date}</Text>
                           {daySchedules.map((schedule) => (
-                            <Select.Item key={schedule.id} value={schedule.id} label={scheduleLabel(schedule)}>
+                            <Select.Item
+                              key={schedule.id}
+                              value={schedule.id}
+                              label={scheduleLabel(schedule, displayTimeZone)}
+                            >
                               <View className='gap-3xs'>
                                 <Text>{schedule.title}</Text>
                                 <Text className='text-label text-muted-foreground'>
-                                  {formatISOToLocalTime(schedule.scheduledAt)}
+                                  {formatISOToTimeZoneTime(schedule.scheduledAt, displayTimeZone)}
                                 </Text>
                               </View>
                             </Select.Item>

@@ -1,4 +1,3 @@
-import { getUTCDateRange } from '@/shared/lib/datetime';
 import { expect, it } from '@jest/globals';
 import { makeCreateScheduleFormSchema } from '@/features/schedule/create-schedule/schema';
 import { makeScheduleUpdateFormSchema } from '@/features/schedule/update-schedule/schema';
@@ -24,16 +23,4 @@ it('도시의 DST 누락 시각은 생성·수정 폼의 time 오류로 전달�
     expect(result.success).toBe(false);
     if (!result.success) expect(result.error.issues.some((issue) => issue.path[0] === 'time')).toBe(true);
   }
-});
-
-it.each([
-  ['2026-03-07', '2026-03-10', ['2026-03-07', '2026-03-08', '2026-03-09', '2026-03-10']],
-  ['2026-10-31', '2026-11-03', ['2026-10-31', '2026-11-01', '2026-11-02', '2026-11-03']],
-])('DST 전환 기간 %s~%s의 여행 날짜는 중복·누락 없이 생성한다', (start, end, expected) => {
-  expect(getUTCDateRange(`${start}T00:00:00Z`, `${end}T00:00:00Z`)).toEqual(expected);
-});
-
-it('역전되거나 해석 불가능한 여행 범위는 빈 목록이다', () => {
-  expect(getUTCDateRange('2026-10-03', '2026-10-02')).toEqual([]);
-  expect(getUTCDateRange('invalid', '2026-10-02')).toEqual([]);
 });

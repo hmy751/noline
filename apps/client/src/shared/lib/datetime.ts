@@ -278,23 +278,3 @@ function zonedInstant(iso: string, timeZone: string): Temporal.ZonedDateTime {
   requireTimeZone(timeZone);
   return Temporal.Instant.from(iso).toZonedDateTimeISO(timeZone);
 }
-
-/** 기존 Trip timestamp의 UTC 날짜 기준으로 달력 날짜를 나열한다. */
-export function getUTCDateRange(startISO: string, endISO: string): string[] {
-  const current = new Date(startISO);
-  const end = new Date(endISO);
-
-  if (!Number.isFinite(current.getTime()) || !Number.isFinite(end.getTime())) return [];
-
-  current.setUTCHours(0, 0, 0, 0);
-  end.setUTCHours(0, 0, 0, 0);
-
-  const dates: string[] = [];
-
-  while (current <= end) {
-    dates.push(current.toISOString().split('T')[0]);
-    current.setUTCDate(current.getUTCDate() + 1);
-  }
-
-  return dates;
-}

@@ -1,12 +1,13 @@
 import { expenseDateInput } from '@repo/schema/requests/expense';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 import { useCreateExpense } from '@/entities/expense';
 import { useGetTrips } from '@/entities/trip';
 import { generateId } from '@/shared/services/id/ulid';
-import { formatISOToLocalDate } from '@/shared/lib/datetime';
+import { getTimeZoneToday, formatISOToTimeZoneDate } from '@/shared/lib/datetime';
+import { useTripSchedulesReadQuery } from '@/features/schedule/read-schedules';
 import { expenseSubmitError } from '../expense-form/submit-error';
 import { createExpenseFormSchema, type CreateExpenseFormData } from './schema';
 
@@ -22,13 +23,26 @@ export const useCreateExpenseForm = ({ tripId, date, scheduleId, onSuccess }: Us
 
   const { data: trips = [] } = useGetTrips();
   const selectedTrip = trips.find((trip) => trip.id === tripId);
+  const schedulesRead = useTripSchedulesReadQuery(tripId, { enabled: !!scheduleId });
+  const linkedSchedule =
+    schedulesRead.view.kind === 'ready'
+      ? schedulesRead.view.data.find((schedule) => schedule.id === scheduleId)
+      : undefined;
   const defaultCurrency = selectedTrip?.baseCurrency || 'USD';
 
   // Navigation 입력만 호환 처리한다. 잘못된 입력은 폼에서 날짜를 다시 선택하게 한다.
   const initialDate = date ? expenseDateInput.safeParse(date) : undefined;
   const defaultDate = date
-    ? (initialDate?.success ? initialDate.data : '')
-    : formatISOToLocalDate(new Date().toISOString());
+    ? initialDate?.success
+      ? initialDate.data
+      : ''
+    : !selectedTrip?.timeZone
+      ? ''
+      : linkedSchedule
+        ? formatISOToTimeZoneDate(linkedSchedule.scheduledAt, selectedTrip.timeZone)
+        : scheduleId && schedulesRead.view.kind !== 'ready'
+          ? ''
+          : getTimeZoneToday(selectedTrip.timeZone);
 
   const form = useForm<CreateExpenseFormData>({
     resolver: zodResolver(createExpenseFormSchema),
@@ -42,6 +56,13 @@ export const useCreateExpenseForm = ({ tripId, date, scheduleId, onSuccess }: Us
     },
     mode: 'onChange',
   });
+
+  // 여행 조회가 늦게 도착해도 사용자가 편집한 날짜는 덮어쓰지 않는다.
+  useEffect(() => {
+    if (!date && defaultDate && !form.getFieldState('date').isDirty && !form.getValues('date')) {
+      form.setValue('date', defaultDate);
+    }
+  }, [date, defaultDate, form]);
 
   // React가 다시 렌더링되기 전의 연속 탭도 차단한다. 표시 상태는 form이 관리한다.
   const submitting = useRef(false);

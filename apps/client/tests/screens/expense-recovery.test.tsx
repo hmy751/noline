@@ -58,7 +58,13 @@ jest.mock('@/shared/components', () => {
 jest.mock('@/entities/trip', () => ({
   TripSelector: () => null,
   useGetTrips: () => ({
-    data: ['trip', 'other'].map((id) => ({ id, startDate: mockTripDates.start, endDate: mockTripDates.end, baseCurrency: 'USD' })),
+    data: ['trip', 'other'].map((id) => ({
+      id,
+      startDate: `${mockTripDates.start}T00:00:00Z`,
+      endDate: `${mockTripDates.end}T00:00:00Z`,
+      timeZone: 'UTC',
+      baseCurrency: 'USD',
+    })),
   }),
 }));
 jest.mock('@/entities/expense/repository/expense-repository', () => ({
@@ -276,7 +282,6 @@ it.each([ExpensesScreen, ExpenseDetailScreen])('활성 여행은 offline에서�
   expect(view.getByText('기존 경비')).toBeTruthy();
   expect(fetchExpenses).not.toHaveBeenCalled();
 });
-
 
 it.each([
   { start: '2026-03-07', end: '2026-03-10' },
