@@ -1,7 +1,7 @@
 import { useCreateSchedule, type Schedule } from '@/entities/schedule';
 import { useTripSchedulesReadQuery } from '@/features/schedule/read-schedules';
 import { useAutoDownloadRoutes } from '@/entities/route';
-import { combineDateTimeToISO } from '@/shared/lib/datetime';
+import { combineDateTimeInTimeZoneToISO } from '@/shared/lib/datetime';
 import { generateId } from '@/shared/services/id/ulid';
 import { OfflineError } from '@/shared/services/offline-prep/errors';
 import { AuthRequiredError } from '@/shared/store/auth';
@@ -9,16 +9,24 @@ import type { CreateScheduleFormData } from './schema';
 import type { Location } from './types';
 
 /** 일정 추가 한 건의 제출과 기존 성공 후 처리를 연결한다. 초안·검색·화면 단계는 소유하지 않는다. */
-export function useSubmitSchedule({ tripId, onSuccess }: { tripId: string; onSuccess?: () => void }) {
+export function useSubmitSchedule({
+  tripId,
+  timeZone,
+  onSuccess,
+}: {
+  tripId: string;
+  timeZone?: string | null;
+  onSuccess?: () => void;
+}) {
   const mutation = useCreateSchedule();
   const { mutate: autoDownloadRoutes } = useAutoDownloadRoutes();
   const { query: schedulesQuery } = useTripSchedulesReadQuery(tripId);
   const schedules = schedulesQuery.data ?? [];
 
   const submit = (data: CreateScheduleFormData, place: Location | null) => {
-    if (mutation.isPending) return;
+    if (mutation.isPending || !timeZone) return;
     const id = generateId();
-    const scheduledAt = combineDateTimeToISO(data.date, data.time);
+    const scheduledAt = combineDateTimeInTimeZoneToISO(data.date, data.time, timeZone);
     mutation.mutate(
       {
         id,

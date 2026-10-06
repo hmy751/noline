@@ -279,52 +279,6 @@ function zonedInstant(iso: string, timeZone: string): Temporal.ZonedDateTime {
   return Temporal.Instant.from(iso).toZonedDateTimeISO(timeZone);
 }
 
-/**
- * 날짜와 시간을 조합해서 ISO string으로 변환
- *
- * @param date - 날짜 ("2024-01-15" 또는 Date 객체)
- * @param time - 시간 ("14:30" 형식)
- * @returns ISO 8601 string with timezone
- *
- * @example
- * ```ts
- * combineDateTimeToISO("2024-01-15", "14:30");
- * // → "2024-01-15T05:30:00.000Z" (기기가 Asia/Seoul인 경우)
- *
- * combineDateTimeToISO(new Date(), "14:30");
- * // → 오늘 날짜 14:30의 ISO string
- * ```
- */
-export function combineDateTimeToISO(date: string | Date, time: string): string {
-  const dateString = typeof date === 'string' ? date : formatISOToLocalDate(date.toISOString());
-
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) {
-    throw new Error('날짜와 시간을 다시 선택해주세요.');
-  }
-
-  const [year, month, day] = dateString.split('-').map(Number);
-  const [hours, minutes] = time.split(':').map(Number);
-  // 날짜 문자열을 UTC 자정으로 읽지 않고 로컬 달력의 구성요소로 만든다.
-  const dateObj = new Date(0);
-
-  dateObj.setFullYear(year, month - 1, day);
-  dateObj.setHours(hours, minutes, 0, 0);
-
-  if (
-    !Number.isFinite(dateObj.getTime()) ||
-    dateObj.getFullYear() !== year ||
-    dateObj.getMonth() !== month - 1 ||
-    dateObj.getDate() !== day ||
-    dateObj.getHours() !== hours ||
-    dateObj.getMinutes() !== minutes
-  ) {
-    // 존재하지 않는 날짜 또는 DST 전환으로 건너뛴 시간을 자동 보정하지 않는다.
-    throw new Error('현재 기기 시간대에서 사용할 수 없는 날짜·시간입니다. 다시 선택해주세요.');
-  }
-
-  return dateObj.toISOString();
-}
-
 /** 기존 Trip timestamp의 UTC 날짜 기준으로 달력 날짜를 나열한다. */
 export function getUTCDateRange(startISO: string, endISO: string): string[] {
   const current = new Date(startISO);
@@ -343,48 +297,4 @@ export function getUTCDateRange(startISO: string, endISO: string): string[] {
   }
 
   return dates;
-}
-
-/**
- * 날짜 문자열을 ISO datetime string으로 변환 (UTC 자정 기준)
- *
- * @param dateString - 날짜 문자열 ("2024-03-15" 형식 또는 ISO datetime)
- * @returns ISO 8601 datetime string
- *
- * @example
- * ```ts
- * dateToISODateTime("2024-03-15");
- * // → "2024-03-15T00:00:00.000Z"
- *
- * dateToISODateTime("2024-03-15T10:30:00.000Z");
- * // → "2024-03-15T10:30:00.000Z" (이미 ISO datetime이면 그대로 반환)
- * ```
- */
-export function dateToISODateTime(dateString: string): string {
-  if (!dateString) {
-    throw new Error('dateString is required');
-  }
-
-  // 이미 ISO datetime 형식인 경우 (T 포함)
-  if (dateString.includes('T')) {
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) {
-      throw new Error(`Invalid datetime string: ${dateString}`);
-    }
-    return date.toISOString();
-  }
-
-  // "YYYY-MM-DD" 형식인 경우
-  // YYYY-MM-DD 형식 검증
-  const dateOnlyRegex = /^\d{4}-\d{2}-\d{2}$/;
-  if (!dateOnlyRegex.test(dateString)) {
-    throw new Error(`Invalid date format: ${dateString}. Expected YYYY-MM-DD or ISO datetime`);
-  }
-
-  const date = new Date(dateString + 'T00:00:00.000Z'); // UTC 자정
-  if (isNaN(date.getTime())) {
-    throw new Error(`Invalid date: ${dateString}`);
-  }
-
-  return date.toISOString();
 }

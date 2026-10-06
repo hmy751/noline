@@ -1,16 +1,19 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createScheduleFormSchema, type CreateScheduleFormData } from './schema';
+import { makeCreateScheduleFormSchema, type CreateScheduleFormData } from './schema';
 import type { Location } from './types';
 
 /** 초안 값·장소 좌표·검증과 입력 보조 UI만 소유한다. 네트워크 변화로 초기화하지 않는다. */
-export function useCreateScheduleForm({ initialDate = '' }: { initialDate?: string } = {}) {
+export function useCreateScheduleForm({
+  initialDate = '',
+  timeZone,
+}: { initialDate?: string; timeZone?: string | null } = {}) {
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [timePickerVisible, setTimePickerVisible] = useState(false);
   const form = useForm<CreateScheduleFormData>({
-    resolver: zodResolver(createScheduleFormSchema),
+    resolver: zodResolver(makeCreateScheduleFormSchema(timeZone)),
     defaultValues: { title: '', location: '', address: '', date: initialDate, time: '09:00' },
     mode: 'onChange',
   });

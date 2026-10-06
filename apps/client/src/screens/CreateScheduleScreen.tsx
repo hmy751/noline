@@ -8,6 +8,7 @@ import { useAppPolicy } from '@/shared/policy';
 import { useCreateScheduleForm, ScheduleForm, type Location } from '@/features/schedule/create-schedule';
 import { useCreateScheduleSearch } from '@/features/schedule/create-schedule/useCreateScheduleSearch';
 import { useSubmitSchedule } from '@/features/schedule/create-schedule/useSubmitSchedule';
+import { TripTimeZoneNotice } from '@/features/trip/TripTimeZoneNotice';
 import { ScheduleSearchPanel } from '@/features/schedule/create-schedule/ScheduleSearchPanel';
 
 function exitCreateSchedule() {
@@ -25,8 +26,8 @@ function CreateScheduleContent({ tripId, initialDate }: { tripId: string; initia
   const trip = trips?.find((item: TripResponse) => item.id === tripId);
   // 사용자 행동으로만 단계를 바꾼다. 연결 변화는 각 기능의 가용성에만 반영한다.
   const [step, setStep] = useState<'search' | 'form' | 'change-place'>('search');
-  const draft = useCreateScheduleForm({ initialDate });
-  const submission = useSubmitSchedule({ tripId, onSuccess: exitCreateSchedule });
+  const draft = useCreateScheduleForm({ initialDate, timeZone: trip?.timeZone });
+  const submission = useSubmitSchedule({ tripId, timeZone: trip?.timeZone, onSuccess: exitCreateSchedule });
   const policy = useAppPolicy(tripId);
 
   const search = useCreateScheduleSearch(
@@ -60,6 +61,12 @@ function CreateScheduleContent({ tripId, initialDate }: { tripId: string; initia
   return (
     <KeyboardAvoidingView className='flex-1 bg-background' behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <MobileHeader title='새 일정 추가' leftIcon={<ArrowLeft size={20} color='#1F1F1F' />} onLeftPress={back} />
+      {trip && <TripTimeZoneNotice timeZone={trip.timeZone} />}
+      {trip?.timeZone && step === 'form' && (
+        <Text className='px-md py-xs text-label text-muted-foreground'>
+          {trip.destination} 현지 시간 ({trip.timeZone})
+        </Text>
+      )}
       {!trip ? (
         <View className='flex-1 items-center justify-center p-md'>
           {isLoading && <ActivityIndicator />}

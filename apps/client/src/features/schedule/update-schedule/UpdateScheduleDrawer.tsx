@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,14 +10,15 @@ import { useUpdateSchedule, type Schedule } from '@/entities/schedule';
 import { useTripSchedulesReadQuery } from '@/features/schedule/read-schedules';
 import { useAutoDownloadRoutes } from '@/entities/route';
 import { useAppPolicy } from '@/shared/policy';
-import { scheduleUpdateFormSchema, type ScheduleUpdateFormData } from './schema';
-import { combineDateTimeToISO } from '@/shared/lib/datetime';
+import { makeScheduleUpdateFormSchema, type ScheduleUpdateFormData } from './schema';
+import { combineDateTimeInTimeZoneToISO } from '@/shared/lib/datetime';
 import { LocationSearchModal } from './LocationSearchModal';
 import type { UpdateLocationSelection } from './place-search-compatibility';
 
 export type UpdateScheduleDrawerProps = {
   isOpen: boolean;
   onClose: () => void;
+  timeZone?: string | null;
   scheduleData?: {
     id: string;
     tripId: string;
@@ -35,7 +36,15 @@ export type UpdateScheduleDrawerProps = {
  * 일정 수정 드로어 컴포넌트
  * 제목, 날짜와 시간을 수정할 수 있는 UI
  */
-export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateScheduleDrawerProps) => {
+export const UpdateScheduleDrawer = ({
+  isOpen,
+  onClose,
+  scheduleData,
+  timeZone: suppliedTimeZone,
+}: UpdateScheduleDrawerProps) => {
+  const editingTimeZoneRef = useRef(suppliedTimeZone);
+  const timeZone = editingTimeZoneRef.current;
+  const defaultValuesRef = useRef<{ date: string; time: string } | undefined>(scheduleData ?? undefined);
   // react-hook-form 설정
   const {
     control,
@@ -44,7 +53,7 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
     reset,
     formState: { defaultValues },
   } = useForm<ScheduleUpdateFormData>({
-    resolver: zodResolver(scheduleUpdateFormSchema),
+    resolver: zodResolver(makeScheduleUpdateFormSchema(timeZone, defaultValuesRef.current)),
     defaultValues: {
       title: scheduleData?.title || '',
       date: scheduleData?.date || '',
@@ -73,12 +82,14 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
 
   // scheduleData가 변경되면 폼 값 및 상태 초기화
   useEffect(() => {
-    if (scheduleData) {
+    if (scheduleData && isOpen) {
+      editingTimeZoneRef.current = suppliedTimeZone;
+      defaultValuesRef.current = { date: scheduleData.date, time: scheduleData.time };
       reset({ title: scheduleData.title, date: scheduleData.date, time: scheduleData.time });
       setSelectedLocation(null); // 장소 재검색 결과 초기화
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scheduleData?.id]);
+  }, [scheduleData?.id, isOpen]);
 
   // Handlers
   const handleDateSelect = (selectedDate: string) => {
@@ -104,7 +115,9 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
 
     // 바꾸지 않은 시각은 재조합하지 않아 초·밀리초와 DST 중복 시각의 원본을 보존한다.
     const timeChanged = data.date !== defaultValues?.date || data.time !== defaultValues?.time;
-    const scheduledAt = timeChanged ? combineDateTimeToISO(data.date, data.time) : undefined;
+    if (timeChanged && !timeZone) return;
+    const scheduledAt =
+      timeChanged && timeZone ? combineDateTimeInTimeZoneToISO(data.date, data.time, timeZone) : undefined;
 
     // 장소 재검색한 경우 location 정보 추가
     const locationData = selectedLocation
@@ -128,6 +141,7 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
       },
       {
         onSuccess: (savedSchedule) => {
+          defaultValuesRef.current = { date: data.date, time: data.time };
           reset(data);
           Alert.alert('성공', '일정이 수정되었습니다.');
 
@@ -190,6 +204,12 @@ export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData }: UpdateSc
         {policy.schedule.update.mode === 'manual-only' && policy.schedule.update.reason && (
           <PolicyErrorDisplay policy={policy.schedule.update} variant='banner' />
         )}
+
+        <Text className='text-label text-muted-foreground'>
+          {timeZone
+            ? `여행 현지 시간 (${timeZone})`
+            : '시간대 확인 필요 · UTC 기준 · 날짜·시간 변경은 여행 편집에서 시간대를 확인한 뒤 가능합니다.'}
+        </Text>
 
         {/* 설명 */}
         <Text className='text-body text-muted-foreground'>{scheduleData.title}의 날짜와 시간을 수정합니다</Text>

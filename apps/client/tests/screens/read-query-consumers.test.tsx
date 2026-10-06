@@ -79,6 +79,7 @@ jest.mock('@/shared/components/Form', () => {
 });
 jest.mock('@/entities/trip', () => ({
   TripCard: jest.requireActual<typeof import('@/entities/trip/ui/TripCard')>('@/entities/trip/ui/TripCard').TripCard,
+  useGetTrips: () => ({ data: mockTripsLoaded ? [{ ...mockTrip, timeZone: mockTimeZone }] : undefined }),
   useDeactivateTrip: () => ({ mutate: jest.fn() }),
 }));
 jest.mock('@/shared/services/offline-prep/metadata', () => ({ getTripActivationStatusDetail: async () => 'online' }));
@@ -122,6 +123,8 @@ jest.mock('@/features/schedule/update-schedule/LocationSearchModal', () => ({ Lo
 jest.mock('@/shared/services/id/ulid', () => ({ generateId: () => 'new-schedule' }));
 
 const mockPush = jest.fn();
+let mockTimeZone: string | null = 'UTC';
+let mockTripsLoaded = true;
 const mockSaveExpense = jest.fn();
 const mockSaveSchedule = jest.fn();
 const mockDownloadRoutes = jest.fn();
@@ -148,17 +151,18 @@ const expense = {
 } as Awaited<ReturnType<typeof ExpenseRepository.getByTripId>>[number];
 const clients: QueryClient[] = [];
 const detail = <ScheduleDetailScreen scheduleId='s' tripId='trip' scheduledAt={date} onBack={jest.fn()} />;
-const trip = {
+const mockTrip = {
   id: 'trip',
   destination: '파리',
   country: '프랑스',
-  startDate: '2026-09-21',
-  endDate: '2026-09-23',
+  startDate: '2026-09-21T00:00:00Z',
+  endDate: '2026-09-23T00:00:00Z',
   baseCurrency: 'USD',
+  timeZone: 'UTC',
 } as React.ComponentProps<typeof MainTripSection>['mainTripData'];
 const home = (
   <MainTripSection
-    mainTripData={trip}
+    mainTripData={mockTrip}
     isLoading={false}
     isError={false}
     onEditPress={jest.fn()}
@@ -221,6 +225,8 @@ function connect(realStatus: 'online' | 'offline' | 'unknown') {
   act(() => useNetworkStore.setState({ realStatus, checkStatus: realStatus === 'unknown' ? 'checking' : 'idle' }));
 }
 beforeEach(() => {
+  mockTimeZone = 'UTC';
+  mockTripsLoaded = true;
   jest.mocked(ScheduleRepository.getByTripId).mockReset().mockResolvedValue([schedule]);
   jest.mocked(ScheduleRepository.getById).mockReset().mockResolvedValue(schedule);
   jest.mocked(ExpenseRepository.getByTripId).mockReset().mockResolvedValue([expense]);

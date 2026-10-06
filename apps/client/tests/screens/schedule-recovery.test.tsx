@@ -16,7 +16,11 @@ import { UpdateScheduleDrawer } from '@/features/schedule/update-schedule';
 
 jest.mock('@/shared/services/sync/api', () => ({
   __esModule: true,
-  default: { get: jest.fn(async () => ({ data: { success: true, data: { trips: [], schedules: [], expenses: [], serverTime: '2026-09-28T00:00:00Z' } } })) },
+  default: {
+    get: jest.fn(async () => ({
+      data: { success: true, data: { trips: [], schedules: [], expenses: [], serverTime: '2026-09-28T00:00:00Z' } },
+    })),
+  },
 }));
 jest.mock('@/shared/services/sync/queue', () => ({}));
 jest.mock('@/shared/services/sync/storage', () => ({ getLastSyncedAt: async () => null, setLastSyncedAt: jest.fn() }));
@@ -180,7 +184,7 @@ const fetchSchedules = jest.mocked(ScheduleRepository.getByTripId);
 const mockSaveSchedule = jest.fn();
 const clients: QueryClient[] = [];
 let mockClient: QueryClient;
-let mockTrips: { id: string; startDate: string; endDate: string; baseCurrency: string }[];
+let mockTrips: { id: string; startDate: string; endDate: string; baseCurrency: string; timeZone: string }[];
 
 function rows(title: string, tripId = 'trip'): Schedules {
   return [{ id: 'schedule', tripId, title, scheduledAt: '2026-09-21T10:00:00Z' }] as Schedules;
@@ -296,15 +300,16 @@ it('화면에서 수정 중인 제목과 날짜는 연결 제한·복귀와 조�
   const request = mockSaveSchedule.mock.calls[0][0] as { data: { title: string; scheduledAt: string } };
   expect(request.data.title).toBe('작성 중 제목');
   const savedDate = new Date(request.data.scheduledAt);
-  expect([savedDate.getFullYear(), savedDate.getMonth() + 1, savedDate.getDate()]).toEqual([2026, 9, 22]);
+  expect([savedDate.getUTCFullYear(), savedDate.getUTCMonth() + 1, savedDate.getUTCDate()]).toEqual([2026, 9, 22]);
 });
 
 beforeEach(() => {
   mockTrips = ['trip', 'other'].map((id) => ({
     id,
-    startDate: '2026-09-21',
-    endDate: '2026-09-23',
+    startDate: '2026-09-21T00:00:00Z',
+    endDate: '2026-09-23T00:00:00Z',
     baseCurrency: 'USD',
+    timeZone: 'UTC',
   }));
   fetchSchedules.mockReset();
   useNetworkStore.setState({ realStatus: 'online', overrideStatus: null, checkStatus: 'idle' });
@@ -597,7 +602,7 @@ it.each(['schedule', 'date'] as const)(
     });
     connect('online');
     if (removed === 'date') {
-      mockTrips = mockTrips.map((trip) => ({ ...trip, endDate: '2026-09-22' }));
+      mockTrips = mockTrips.map((trip) => ({ ...trip, endDate: '2026-09-22T00:00:00Z' }));
     }
     await act(async () => request.resolve(mapRows().filter((row) => row.id !== 'c')));
     const date = removed === 'date' ? '2026-09-21' : '2026-09-23';

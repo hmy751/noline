@@ -42,7 +42,7 @@ jest.mock('@/shared/components/Form', () => {
 });
 jest.mock('@repo/ui', () => jest.requireActual('../../../../packages/ui/src/components/Pressable'));
 jest.mock('@/entities/trip', () => ({
-  useGetTrips: () => ({ data: [{ id: 'trip', destination: 'Paris' }], isLoading: false }),
+  useGetTrips: () => ({ data: [{ id: 'trip', destination: 'Paris', timeZone: 'Europe/Paris' }], isLoading: false }),
 }));
 jest.mock('@/entities/trip/data/useGetTripActivation', () => ({
   useGetTripActivation: () => ({ data: mockActive ? { isActivated: true } : null }),

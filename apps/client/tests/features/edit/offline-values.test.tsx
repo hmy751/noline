@@ -122,6 +122,7 @@ beforeEach(() => {
 it('오프라인 일정 수정은 장소 검색을 숨기고 저장 payload에서 기존 장소·좌표를 덮지 않는다', async () => {
   const view = render(
     <UpdateScheduleDrawer
+      timeZone='UTC'
       isOpen
       onClose={jest.fn()}
       scheduleData={{
@@ -440,6 +441,7 @@ it.each(['unchanged', 'date', 'time', 'reverted'])(
   async (change) => {
     const view = render(
       <UpdateScheduleDrawer
+        timeZone='UTC'
         isOpen
         onClose={jest.fn()}
         scheduleData={{
@@ -469,8 +471,8 @@ it.each(['unchanged', 'date', 'time', 'reverted'])(
     else {
       if (!data.scheduledAt) throw new Error('변경한 시각이 요청에 없습니다');
       const saved = new Date(data.scheduledAt);
-      expect(saved.getDate()).toBe(change === 'date' ? 22 : 21);
-      expect(saved.getHours()).toBe(change === 'time' ? 11 : 10);
+      expect(saved.getUTCDate()).toBe(change === 'date' ? 22 : 21);
+      expect(saved.getUTCHours()).toBe(change === 'time' ? 11 : 10);
     }
   },
 );
@@ -478,6 +480,7 @@ it.each(['unchanged', 'date', 'time', 'reverted'])(
 it('일정 저장 성공 뒤 같은 입력으로 다시 저장하면 시각을 재전송하지 않는다', async () => {
   const view = render(
     <UpdateScheduleDrawer
+      timeZone='UTC'
       isOpen
       onClose={jest.fn()}
       scheduleData={{
@@ -499,4 +502,24 @@ it('일정 저장 성공 뒤 같은 입력으로 다시 저장하면 시각을 �
   act(() => callbacks.onSuccess({ scheduledAt: request.data.scheduledAt }));
   await act(async () => fireEvent.press(view.getByText('저장')));
   expect((saveSchedule.mock.calls[1][0] as { data: object }).data).not.toHaveProperty('scheduledAt');
+});
+
+it('수정 중 여행 시간대가 조회로 바뀌어도 처음 연 입력의 시간대를 재해석하지 않는다', async () => {
+  const scheduleData = { id: 's', tripId: 'trip', title: '기존 일정', date: '2026-09-21', time: '10:00' };
+  const view = render(<UpdateScheduleDrawer isOpen onClose={jest.fn()} timeZone={null} scheduleData={scheduleData} />);
+  fireEvent.press(view.getByText('10:00'));
+  fireEvent.press(view.getByText('선택 11:00'));
+  view.rerender(
+    <UpdateScheduleDrawer
+      isOpen
+      onClose={jest.fn()}
+      timeZone='Asia/Tokyo'
+      scheduleData={{ ...scheduleData, time: '19:00' }}
+    />,
+  );
+  expect(view.getByText('11:00')).toBeTruthy();
+  expect(view.getByText(/시간대 확인 필요 · UTC 기준/)).toBeTruthy();
+  await act(async () => fireEvent.press(view.getByText('저장')));
+  expect(saveSchedule).not.toHaveBeenCalled();
+  expect(view.getByText('여행 시간대를 먼저 확인해주세요.')).toBeTruthy();
 });

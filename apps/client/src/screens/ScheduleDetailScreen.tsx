@@ -1,9 +1,11 @@
+import { useGetTrips } from '@/entities/trip';
+import { TripTimeZoneNotice } from '@/features/trip/TripTimeZoneNotice';
 import { View, Text, ScrollView } from 'react-native';
 import { MapPin, Clock, Wallet, ChevronLeft } from 'lucide-react-native';
 import { Card, Pressable, Separator } from '@repo/ui';
 import { Container, Stack, MobileHeader } from '@/shared/components';
 import { ScheduleExpenseList } from '@/features/schedule/schedule-expense-list';
-import { formatISOToLocalDate, formatISOToLocalTime } from '@/shared/lib/datetime';
+import { formatISOToLocalDate, formatISOToTimeZoneDate, formatISOToTimeZoneTime } from '@/shared/lib/datetime';
 import { groupExpensesByCurrency, formatCurrencyDisplay } from '@/shared/lib/currency';
 import { useRouter } from 'expo-router';
 import { useScheduleReadQuery } from '@/features/schedule/read-schedules';
@@ -21,6 +23,9 @@ export interface ScheduleDetailScreenProps {
 
 export default function ScheduleDetailScreen({ scheduleId, tripId, onBack }: ScheduleDetailScreenProps) {
   const router = useRouter();
+  const { data: trips } = useGetTrips();
+  const trip = trips?.find((item) => item.id === tripId);
+  const displayTimeZone = trip?.timeZone ?? 'UTC';
 
   const {
     view: scheduleView,
@@ -87,8 +92,8 @@ export default function ScheduleDetailScreen({ scheduleId, tripId, onBack }: Sch
     );
   }
 
-  const scheduleDate = formatISOToLocalDate(schedule.scheduledAt);
-  const scheduleTime = formatISOToLocalTime(schedule.scheduledAt);
+  const scheduleDate = formatISOToTimeZoneDate(schedule.scheduledAt, displayTimeZone);
+  const scheduleTime = formatISOToTimeZoneTime(schedule.scheduledAt, displayTimeZone);
 
   return (
     <View className='flex-1 bg-background'>
@@ -99,6 +104,7 @@ export default function ScheduleDetailScreen({ scheduleId, tripId, onBack }: Sch
         onLeftPress={onBack}
       />
 
+      <TripTimeZoneNotice timeZone={trip?.timeZone} />
       {scheduleView.refreshFailed && (
         <ScheduleRefreshError retry={scheduleAccess.canFetch ? () => scheduleActions.refetch() : undefined} />
       )}

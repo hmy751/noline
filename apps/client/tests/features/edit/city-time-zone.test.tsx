@@ -6,6 +6,8 @@ import TripDateForm from '@/features/trip/create-trip/TripDateForm';
 import type { TripData } from '@/entities/trip';
 import { EditTripDrawer } from '@/features/trip/update-trip/EditTripDrawer';
 import { resolveCityTimeZone } from '@/features/trip/create-trip/geonames.api';
+import { makeCreateScheduleFormSchema } from '@/features/schedule/create-schedule/schema';
+import { makeScheduleUpdateFormSchema } from '@/features/schedule/update-schedule/schema';
 import { useAuthStore } from '@/shared/store/auth';
 import { useNetworkStore, networkStore } from '@/shared/store/network';
 import { useGetTripActivation } from '@/entities/trip/data/useGetTripActivation';
@@ -177,6 +179,20 @@ it('기존 여행 시간대 확인은 offset·초·밀리초를 가진 여행 �
   expect(view.getByText('시간대 확인 필요 · UTC 기준')).toBeTruthy();
   await act(async () => fireEvent.press(view.getByText('시간대 적용')));
   expect(mockUpdate.mock.calls[0][0]).toEqual({ id: 'legacy-trip', data: { timeZone: 'Asia/Tokyo' } });
+});
+
+it('같은 일정 입력은 도시의 DST 빈 시간을 거부하고 기기 시간대를 사용하지 않는다', () => {
+  const draft = { title: '일정', location: '장소', date: '2026-03-08', time: '02:30' };
+  expect(makeCreateScheduleFormSchema('America/New_York').safeParse(draft).success).toBe(false);
+  expect(makeCreateScheduleFormSchema('Asia/Tokyo').safeParse(draft).success).toBe(true);
+  expect(makeCreateScheduleFormSchema(null).safeParse(draft).success).toBe(false);
+});
+
+it('시간대 미확인 일정도 원래 날짜·시간을 보존하는 제목 변경은 허용한다', () => {
+  const original = { date: '2026-11-01', time: '01:30' };
+  const schema = makeScheduleUpdateFormSchema(null, original);
+  expect(schema.safeParse({ title: '새 제목', ...original }).success).toBe(true);
+  expect(schema.safeParse({ title: '새 제목', ...original, time: '02:30' }).success).toBe(false);
 });
 
 it('여행 편집 중 query의 시간대가 바뀌면 UTC 입력을 그대로 보관하고 다시 열도록 안내한다', () => {

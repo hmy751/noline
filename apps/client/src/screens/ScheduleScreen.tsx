@@ -1,3 +1,5 @@
+import { TripTimeZoneNotice } from '@/features/trip/TripTimeZoneNotice';
+import { EditTripDrawer } from '@/features/trip/update-trip';
 import { PolicyErrorDisplay } from '@/shared/components/ErrorBoundary';
 import { useState, useCallback } from 'react';
 import { View, Alert } from 'react-native';
@@ -12,7 +14,7 @@ import { ScheduleListView } from '@/features/schedule/schedule-list-view';
 import { ScheduleMapViewContainer } from '@/features/schedule/schedule-map-view';
 import { ScheduleMenu } from '@/features/schedule/schedule-menu';
 import { UpdateScheduleDrawer } from '@/features/schedule/update-schedule';
-import { formatISOToLocalDate, formatISOToLocalTime, getUTCDateRange } from '@/shared/lib/datetime';
+import { formatISOToTimeZoneDate, formatISOToTimeZoneTime, getTimeZoneDateRange } from '@/shared/lib/datetime';
 import { useAppPolicy } from '@/shared/policy';
 import { useTripSchedulesReadQuery } from '@/features/schedule/read-schedules';
 import { ScheduleQueryFeedback, ScheduleRefreshError } from './ScheduleQueryFeedback';
@@ -86,11 +88,12 @@ export default function ScheduleScreen() {
   }, [access.canFetch, refetch]);
 
   // 선택된 여행 정보
+  const [isTripEditOpen, setIsTripEditOpen] = useState(false);
   const selectedTrip = trips.find((trip: { id: string }) => trip.id === selectedTripId);
 
-  // Trip의 기존 UTC 날짜 기준을 두 목록 화면에서 동일하게 사용한다.
+  // 도시 시간대의 여행 기간으로 일정·경비 목록을 함께 구성한다.
   const dateRange = selectedTrip
-    ? getUTCDateRange(selectedTrip.startDate, selectedTrip.endDate)
+    ? getTimeZoneDateRange(selectedTrip.startDate, selectedTrip.endDate, selectedTrip.timeZone ?? 'UTC')
     : [];
 
   // 일정 메뉴 핸들러
@@ -175,14 +178,14 @@ export default function ScheduleScreen() {
       ? dateRange.map((date) => {
           const daySchedules = visibleSchedules
             .filter((schedule) => {
-              return formatISOToLocalDate(schedule.scheduledAt) === date;
+              return formatISOToTimeZoneDate(schedule.scheduledAt, selectedTrip?.timeZone ?? 'UTC') === date;
             })
             .map((schedule) => {
               return {
                 id: schedule.id,
                 tripId: schedule.tripId,
                 scheduledAt: schedule.scheduledAt,
-                time: formatISOToLocalTime(schedule.scheduledAt),
+                time: formatISOToTimeZoneTime(schedule.scheduledAt, selectedTrip?.timeZone ?? 'UTC'),
                 title: schedule.title,
                 location: schedule.location || '',
                 address: schedule.address,
@@ -251,6 +254,9 @@ export default function ScheduleScreen() {
       {/* Current Trip Selector - Sticky */}
       <TripSelector className='border-b border-card-border bg-background px-md py-sm' />
 
+      {selectedTrip && <TripTimeZoneNotice timeZone={selectedTrip.timeZone} onRepair={() => setIsTripEditOpen(true)} />}
+      {isTripEditOpen && <EditTripDrawer isOpen onClose={() => setIsTripEditOpen(false)} trip={selectedTrip ?? null} />}
+
       {/* Content */}
       {view.kind === 'ready' && view.refreshFailed && (
         <ScheduleRefreshError retry={access.canFetch ? onRefresh : undefined} />
@@ -298,6 +304,7 @@ export default function ScheduleScreen() {
 
       {/* Update Schedule Drawer */}
       <UpdateScheduleDrawer
+        timeZone={selectedTrip?.timeZone}
         isOpen={isUpdateDrawerOpen}
         onClose={() => {
           setIsUpdateDrawerOpen(false);
@@ -309,7 +316,7 @@ export default function ScheduleScreen() {
                 id: selectedSchedule.id,
                 tripId: selectedSchedule.tripId,
                 title: selectedSchedule.title,
-                date: formatISOToLocalDate(selectedSchedule.scheduledAt),
+                date: formatISOToTimeZoneDate(selectedSchedule.scheduledAt, selectedTrip?.timeZone ?? 'UTC'),
                 time: selectedSchedule.time,
                 location: selectedSchedule.location,
                 address: selectedSchedule.address,

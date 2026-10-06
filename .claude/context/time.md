@@ -16,6 +16,6 @@
 | schema contracts | `packages/schema/src/entities/*`, `packages/schema/src/requests/*` |
 | Schedule API serializer | `apps/server/src/serializers/schedule.ts` |
 
-React Native의 Schedule form은 date/time 값을 submit 경계에서 `combineDateTimeToISO` 같은 shared helper로 datetime에 결합하고, 표시는 `formatISOToLocalDate`, `formatISOToLocalTime`, `formatISOToLocalDateTime` 같은 helper를 사용한다. 이 경로를 Expense의 date-only 입력에 그대로 적용하지 않는다.
+React Native의 Schedule form은 date/time 값을 submit 경계에서 `combineDateTimeInTimeZoneToISO` 같은 shared helper로 datetime에 결합하고, 표시는 Trip 시간대를 받는 `formatISOToTimeZoneDate`, `formatISOToTimeZoneTime` 같은 helper를 사용한다. 이 경로를 Expense의 date-only 입력에 그대로 적용하지 않는다.
 
 Schedule 응답을 바꾸면 serializer와 일곱 route consumer를, Expense `date`를 바꾸면 shared schema와 client/server DB·serializer를 함께 확인한다. 문자열 포맷이 보장되지 않는 외부 입력은 shared schema 또는 helper로 검증·정규화한다.

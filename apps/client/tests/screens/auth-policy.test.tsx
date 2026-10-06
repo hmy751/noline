@@ -59,7 +59,17 @@ jest.mock('@/shared/components', () => {
 });
 jest.mock('@/entities/trip', () => ({
   TripSelector: () => null,
-  useGetTrips: () => ({ data: [{ id: 'trip', startDate: '2026-09-21', endDate: '2026-09-21', baseCurrency: 'USD' }] }),
+  useGetTrips: () => ({
+    data: [
+      {
+        id: 'trip',
+        startDate: '2026-09-21T00:00:00Z',
+        endDate: '2026-09-21T00:00:00Z',
+        timeZone: 'UTC',
+        baseCurrency: 'USD',
+      },
+    ],
+  }),
 }));
 jest.mock('@/entities/schedule/repository/schedule-repository', () => ({
   ScheduleRepository: { getByTripId: async () => mockSchedules },
