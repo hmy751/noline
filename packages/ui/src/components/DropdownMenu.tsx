@@ -41,8 +41,9 @@ export const DropdownMenu = forwardRef<React.ElementRef<typeof Modal>, DropdownM
 
     return (
       <Modal ref={ref} visible={isOpen} transparent animationType='fade' onRequestClose={onClose}>
-        <RNPressable className='flex-1' onPress={onClose}>
+        <RNPressable className='flex-1' onPress={onClose} accessible={false}>
           <RNPressable
+            accessible={false}
             className={cn(
               'absolute bg-card rounded-lg w-48 overflow-hidden shadow-lg border border-card-border',
               className,
@@ -76,6 +77,7 @@ export const DropdownMenuItem = forwardRef<React.ElementRef<typeof RNPressable>,
     return (
       <RNPressable
         ref={ref}
+        accessibilityRole='button'
         className={cn(
           'flex-row items-center gap-sm p-md active:bg-muted',
           showBorder && 'border-b border-card-border',

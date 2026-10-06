@@ -63,9 +63,10 @@ export const Drawer = ({ isOpen, onClose, children, title, showHandle = true, ch
   return (
     <Modal visible={isOpen} transparent animationType='fade' onRequestClose={onClose} statusBarTranslucent>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-        <TouchableWithoutFeedback onPress={onClose}>
+        <TouchableWithoutFeedback onPress={onClose} accessible={false}>
           <View className='flex-1 justify-end bg-black/50'>
-            <TouchableWithoutFeedback>
+            {/* 컨테이너가 내부 입력·버튼을 하나의 접근성 요소로 합치지 않게 한다. */}
+            <TouchableWithoutFeedback accessible={false}>
               <Animated.View
                 className='bg-card rounded-t-2xl max-h-[90vh]'
                 style={{ transform: [{ translateY: slideAnim }] }}

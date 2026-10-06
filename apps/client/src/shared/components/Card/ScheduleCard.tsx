@@ -34,22 +34,29 @@ export function ScheduleCard({
   const showLocationWarning = networkStore.realStatus === 'online' && !latitude;
 
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.95}>
-      <Card className={cn('p-sm flex-col gap-xs relative', className)}>
-        {/* Menu Button */}
-        {onMenuPress && (
-          <Pressable
-            variant='ghost'
-            className='absolute right-xs top-xs rounded-full p-2xs z-10'
-            onPress={(event) => {
-              event.stopPropagation();
-              onMenuPress(event);
-            }}
-          >
-            <MoreVertical size={20} color='#666' strokeWidth={2} />
-          </Pressable>
-        )}
+    <Card className={cn('p-sm flex-col gap-xs relative', className)}>
+      {/* Menu Button */}
+      {onMenuPress && (
+        <Pressable
+          variant='ghost'
+          accessibilityRole='button'
+          accessibilityLabel={`${title} 메뉴`}
+          className='absolute right-xs top-xs rounded-full p-2xs z-10'
+          onPress={(event) => {
+            event.stopPropagation();
+            onMenuPress(event);
+          }}
+        >
+          <MoreVertical size={20} color='#666' strokeWidth={2} />
+        </Pressable>
+      )}
 
+      <TouchableOpacity
+        onPress={onPress}
+        activeOpacity={0.95}
+        accessibilityRole={onPress ? 'button' : undefined}
+        className='gap-xs'
+      >
         {/* Title */}
         <Text className='text-title-medium text-foreground pr-8'>{title}</Text>
 
@@ -86,7 +93,7 @@ export function ScheduleCard({
             </View>
           )}
         </View>
-      </Card>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </Card>
   );
 }
