@@ -150,3 +150,11 @@ Node 20.18.1에서 2개 file의 2개 test와 server build가 통과했다. 실�
 - [useGetTrips](../../../../../apps/client/src/entities/trip/data/useGetTrips.ts), [앱 갱신 연결](../../../../../apps/client/src/application/useTripListRefresh.ts): 단일 목록 캐시와 앱에서 한 번 연결하는 상태 변화 구독.
 - [Trip lifecycle 검사](../../../../../apps/client/tests/entities/trip/trip-lifecycle.test.ts), [앱 목록 갱신 검사](../../../../../apps/client/tests/application/trip-list-refresh.test.tsx), [서버 빈 목록 검사](../../../../../apps/server/tests/routes/trips.list.test.ts): 저장·반영·보호·취소·복구와 HTTP 계약의 회귀 근거.
 - [제품 설계 결정](../../../../../.claude/decisions/2026-10-04-inactive-trip-creation.md), [작업 선택·검증 기록](../records/2026-10-05-01-trip-list-routing-and-query-lifecycle.md): 최종 책임과 탈락안, 사용자 정정, 검증 한계. 남은 날짜·UX 판단은 Ticket 06과 state를 따른다.
+
+## Ticket 06 후속: 도시 시간대와 접근성
+
+- [날짜·시각의 제품 기준](../../../../project/common/date-and-time.md), [설계 결정](../../../../../.claude/decisions/2026-10-06-trip-city-time-zone.md): UTC 저장과 도시 기준 입력·표시, 기존 데이터 호환의 현재 의미.
+- [공통 시간 변환](../../../../../apps/client/src/shared/lib/datetime.ts), [도시 시간대 조회](../../../../../apps/client/src/features/trip/create-trip/useCityTimeZone.ts), [여행 편집](../../../../../apps/client/src/features/trip/update-trip/EditTripDrawer.tsx): 공통 변환과 폼·조회·저장의 책임 연결.
+- [활성 만료](../../../../../apps/client/src/shared/lib/lifecycle.ts), [대표 여행 계산](../../../../../apps/client/src/entities/trip/utils/selectMainTrip.ts), [Local 계약 검사](../../../../../apps/client/tests/entities/temporal-local-contracts.test.ts): 도시 달력의 소비와 실제 SQLite rollback 근거.
+- [시간대 폼 검사](../../../../../apps/client/tests/features/edit/city-time-zone.test.tsx), [서버 계약 검사](../../../../../apps/server/tests/routes/trip-time-zone.test.ts), [접근성 검사](../../../../../apps/client/tests/components/action-accessibility.test.tsx): 입력·저장·호환 및 독립 버튼의 검증 진입점.
+- [대화·일곱 커밋·검증 기록](../records/2026-10-06-01-city-time-zone-commits-and-original-bug-continuity.md): 역할별 커밋과 확인 범위, 원래 보고서의 선택창 문제로 이어지는 이유.

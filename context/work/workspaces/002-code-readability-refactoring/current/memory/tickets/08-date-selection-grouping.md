@@ -8,9 +8,9 @@
 
 ## 실행 맥락과 접근
 
-최초 조사에서는 두 화면이 start/end로 date range를 각각 만들고 매 render 새 배열을 생성했다. 2026-10-02 시간 작업에서 공통 UTC 일자 순회 helper와 memoized 소비로 정리했으므로 이 부분을 다시 미구현으로 다루지 않는다. 그룹 계산은 이 배열을 dependency로 사용해 memoized 계산을 다시 수행한다. 범위 생성의 UTC ISO date와 그룹에 쓰는 local date 변환도 함께 확인해야 한다. `selectMainTrip`은 진행 중·미래·과거·날짜 없음의 우선순위가 이미 읽히지만 filter와 sort에서 같은 날짜를 반복 변환한다. 추가 조사에서는 `datetime.ts`가 받은 `Date`에 직접 시간을 설정하는 부작용, offset 설명과 UTC ISO 반환, 미래 상대시간 설명과 실제 결과도 구별할 후보로 남겼다.
+최초 조사에서는 두 화면이 start/end로 date range를 각각 만들고 매 render 새 배열을 생성했다. 2026-10-02 시간 작업에서 공통 UTC 일자 순회 helper와 memoized 소비로 정리했으므로 이 부분을 다시 미구현으로 다루지 않는다. 그룹 계산은 이 배열을 dependency로 사용해 memoized 계산을 다시 수행한다. 이후 도시 시간대 작업에서 범위·그룹을 Trip 도시 날짜로 연결했다. 새 검토는 이 결과를 기준으로 한다. `selectMainTrip`은 후속 도시 시간대 작업에서 여행별 날짜를 먼저 계산하는 구조로 바뀌었고 진행 중·미래·과거·날짜 없음 우선순위를 유지한다. 추가 조사에서는 `datetime.ts`가 받은 `Date`에 직접 시간을 설정하는 부작용, offset 설명과 UTC ISO 반환, 미래 상대시간 설명과 실제 결과도 구별할 후보로 남겼다.
 
-UTC/local 경계와 기간 밖 항목 접근은 [003-08](../../../../003-bug-investigation-and-fixes/current/memory/tickets/08-date-and-range-consistency.md)이 맡으며, 로스앤젤레스 날짜 이동과 기간 밖 일정 누락은 분리 재현 근거가 있다. 이 Ticket은 채택된 날짜 의미를 계산·그룹 consumer에 일관되게 전달하는 구조를 맡고 잘못된 날짜를 정상 보존값으로 고정하지 않는다. 미래 상대시간·입력 Date mutation이 단순 표현인지 동작 수정인지와 날짜 없는 여행 정책은 호출부·fixture를 보고 판단하며, 추가 수정 담당이 필요하면 Main이 정한다.
+최초 분리 당시 UTC/local 경계와 기간 밖 항목 접근은 [003-08](../../../../003-bug-investigation-and-fixes/current/memory/tickets/08-date-and-range-consistency.md)이 맡으며, 로스앤젤레스 날짜 이동과 기간 밖 일정 누락은 분리 재현 근거가 있다. 이 Ticket은 채택된 날짜 의미를 계산·그룹 consumer에 일관되게 전달하는 구조를 맡고 잘못된 날짜를 정상 보존값으로 고정하지 않는다. 미래 상대시간·입력 Date mutation이 단순 표현인지 동작 수정인지와 날짜 없는 여행 정책은 호출부·fixture를 보고 판단하며, 추가 수정 담당이 필요하면 Main이 정한다.
 
 대표 여행의 순수 계산은 이 Ticket에 유지한다. [06번](06-app-startup-lifecycle.md)이 맡는 초기 선택의 적용 시점, [003-03](../../../../003-bug-investigation-and-fixes/current/memory/tickets/03-trip-management.md)이 맡는 사용자 선택 보존과는 다르다. 계산 특성화는 독립 착수할 수 있지만 기대 날짜 의미가 미정인 시나리오는 완료로 닫지 않는다.
 
@@ -27,4 +27,6 @@ UTC/local 경계와 기간 밖 항목 접근은 [003-08](../../../../003-bug-inv
 
 기존 10을 08로 옮긴 뒤 Ticket 06의 시간 후속 `4646752`·`d823b41`에서 Expense date-only, 일정 현지 날짜/시각 결합, Date 입력 비변경, DST 누락 시각 거부, 두 화면의 공통 UTC 날짜 범위를 선행 적용했다. Main은 시간 변경만 분리한 client 512개와 LA 시간대 132개 통과를 확인했다. [세션 기록](../../../records/2026-10-02-03-expense-time-decisions-and-verification.md)과 Project 날짜 기준을 재사용한다.
 
-대표 여행 계산·미래 상대시간·날짜 없는 여행·기간 밖 일정 접근과 모든 grouping 의미의 대조는 남는다. Trip 날짜의 장기 domain 의미를 새로 정하지 않았으며 실제 기기 시간대/DST 검증이나 Ticket 전체 수락은 아니다.
+후속 `c7e9193`~`10ac928`에서 Trip 도시 시간대 기준을 채택하고, 두 목록의 날짜 범위·일정 그룹·홈 표시·대표 여행의 도시 달력 계산을 연결했다. 대표 여행은 여행별 날짜를 한 번 가공한 뒤 우선순위를 적용한다. Trip 기간은 도시 자정의 UTC ISO 시점, 종료일은 마지막 포함 날짜이며 경비 date-only는 유지한다. [최신 결정·검증 기록](../../../records/2026-10-06-01-city-time-zone-commits-and-original-bug-continuity.md)을 재사용한다.
+
+미래 상대시간·날짜 없는 여행의 전체 사례·기간 밖 일정 접근과 나머지 grouping 의미의 대조는 남는다. 이번 도시 날짜 수정이 기간 밖 항목 접근 정책을 정하거나 08 전체 수락을 뜻하지 않는다. 실제 기기 시간대/DST 전체 검증도 별도 미확인이다.

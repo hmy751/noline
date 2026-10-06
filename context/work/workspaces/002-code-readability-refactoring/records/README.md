@@ -120,3 +120,5 @@
 - [2026-10-04-02-foreground-network-refresh.md](2026-10-04-02-foreground-network-refresh.md): 기존 주기적 감지와 복귀 확인의 관계, store 세션 책임, 커밋과 실제 복귀 호출 검증.
 
 - [여행 생성·목록 갱신의 책임과 검증](2026-10-05-01-trip-list-routing-and-query-lifecycle.md): 날짜 확인 중 발견한 생성 분기 결함, 사본 반영·Query 갱신 책임의 교정, 제품 커밋과 자동/native 증거 및 남은 날짜·UX 범위.
+
+- [도시 시간대의 결정·일곱 커밋·검증과 원래 버그의 다음 순서](2026-10-06-01-city-time-zone-commits-and-original-bug-continuity.md): UTC 저장과 도시 기준의 관계, 기존 정책 재사용 교정, 단위별 검사·native 한계, 선택창 초기 표시로 이어지는 범위 정정.
