@@ -2,6 +2,7 @@ import React from 'react';
 import { Alert } from 'react-native';
 import { act, fireEvent, render, waitFor, cleanup } from '@testing-library/react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import DatePicker from '@/shared/components/DatePicker/DatePicker';
 import TripDateForm from '@/features/trip/create-trip/TripDateForm';
 import type { TripData } from '@/entities/trip';
 import { EditTripDrawer } from '@/features/trip/update-trip/EditTripDrawer';
@@ -406,4 +407,41 @@ it('최종 생성 실행이 거부되면 오류를 표시하고 날짜 초안을
   expect(view.getByText(mockCreateError.message)).toBeTruthy();
   expect(view.getByText('2026-10-01')).toBeTruthy();
   expect(view.getByText('2026-10-03')).toBeTruthy();
+});
+
+it('여행 생성은 날짜별 현재 값과 종료일 최소 날짜를 picker에 전달한다', async () => {
+  jest.mocked(resolveCityTimeZone).mockResolvedValue('Asia/Tokyo');
+  const view = open(<TripDateForm city={city} />);
+  fireEvent.press(view.getByText('시작일을 선택하세요'));
+  await act(async () => fireEvent.press(view.getByText('선택 2026-10-01')));
+  fireEvent.press(view.getByText('종료일을 선택하세요'));
+  expect(view.UNSAFE_getByType(DatePicker).props).toMatchObject({ selectedDate: '', minDate: '2026-10-01' });
+  await act(async () => fireEvent.press(view.getByText('선택 2026-10-03')));
+  fireEvent.press(view.getByText('2026-10-01'));
+  expect(view.UNSAFE_getByType(DatePicker).props.selectedDate).toBe('2026-10-01');
+  fireEvent(view.UNSAFE_getByType(DatePicker), 'close');
+  fireEvent.press(view.getByText('2026-10-03'));
+  expect(view.UNSAFE_getByType(DatePicker).props.selectedDate).toBe('2026-10-03');
+});
+
+it('여행 수정은 저장 전 변경한 기간으로 picker를 다시 연다', async () => {
+  const trip: TripData = {
+    ...tripMetadata,
+    id: 'trip',
+    cityId: city.id,
+    name: 'Tokyo 여행',
+    destination: 'Tokyo',
+    country: 'Japan',
+    latitude: '35.68',
+    longitude: '139.69',
+    timeZone: 'Asia/Tokyo',
+    startDate: '2026-09-29T15:00:00Z',
+    endDate: '2026-10-02T15:00:00Z',
+  };
+  const view = open(<EditTripDrawer isOpen onClose={jest.fn()} trip={trip} />);
+  fireEvent.press(view.getByText('2026. 9. 30.'));
+  expect(view.UNSAFE_getByType(DatePicker).props.selectedDate).toBe('2026-09-30');
+  await act(async () => fireEvent.press(view.getByText('선택 2026-10-01')));
+  fireEvent.press(view.getByText('2026. 10. 1.'));
+  expect(view.UNSAFE_getByType(DatePicker).props.selectedDate).toBe('2026-10-01');
 });

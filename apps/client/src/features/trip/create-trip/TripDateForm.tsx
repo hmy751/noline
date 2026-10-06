@@ -50,6 +50,7 @@ export default function TripDateForm({ city }: TripDateFormProps) {
       : '여행을 만들지 못했어요. 입력한 날짜는 유지됩니다. 다시 시도해주세요.';
 
   const startDate = watch('startDate');
+  const endDate = watch('endDate');
 
   const handleShowPicker = (pickerType: 'start' | 'end') => {
     setCurrentPicker(pickerType);
@@ -201,6 +202,7 @@ export default function TripDateForm({ city }: TripDateFormProps) {
         visible={pickerVisible}
         onClose={() => setPickerVisible(false)}
         onSelectDate={handleSelectDate}
+        selectedDate={currentPicker === 'start' ? startDate : endDate}
         minDate={currentPicker === 'end' && startDate ? startDate : undefined}
       />
     </>

@@ -97,3 +97,13 @@ it('확인 전 선택은 폼에 전달하지 않고 단순 닫기·재열기에�
   view.rerender(<TimePicker visible {...props} initialTime='23:59' />);
   expectSelected(view, '23', '59');
 });
+
+it('열린 동안 외부 초기값이 바뀌어도 선택 중인 시각을 유지한다', () => {
+  const onSelectTime = jest.fn();
+  const view = render(<TimePicker visible initialTime='09:00' onClose={jest.fn()} onSelectTime={onSelectTime} />);
+  chooseLateTime(view);
+  view.rerender(<TimePicker visible initialTime='10:30' onClose={jest.fn()} onSelectTime={onSelectTime} />);
+  expectSelected(view, '23', '59');
+  fireEvent.press(view.getByText('확인'));
+  expect(onSelectTime).toHaveBeenCalledWith('23:59');
+});

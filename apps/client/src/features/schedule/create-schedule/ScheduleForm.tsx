@@ -1,7 +1,7 @@
 import { View, TextInput, ScrollView, StyleSheet } from 'react-native';
 import { Controller, type UseFormReturn } from 'react-hook-form';
 import { Pressable } from '@repo/ui';
-import { Field } from '@/shared/components/Form';
+import { Field, TimeField } from '@/shared/components/Form';
 import type { CreateScheduleFormData } from './schema';
 import { ScheduleLocationField, type ScheduleLocationFieldProps } from './ScheduleLocationField';
 import { ScheduleSubmitActions, type ScheduleSubmitActionsProps } from './ScheduleSubmitActions';
@@ -11,11 +11,10 @@ type ScheduleFormProps = {
   location: Omit<ScheduleLocationFieldProps, 'control'>;
   submission: ScheduleSubmitActionsProps;
   onShowDatePicker: () => void;
-  onShowTimePicker: () => void;
 };
 
 /** 단일 폼의 필드와 영역을 조립한다. 정책 안내와 장소 표현은 각 영역이 소유한다. */
-export function ScheduleForm({ form, location, submission, onShowDatePicker, onShowTimePicker }: ScheduleFormProps) {
+export function ScheduleForm({ form, location, submission, onShowDatePicker }: ScheduleFormProps) {
   const { control } = form;
 
   return (
@@ -66,19 +65,14 @@ export function ScheduleForm({ form, location, submission, onShowDatePicker, onS
           />
         </View>
         <View className='flex-1'>
-          <Controller
-            control={control}
+          <TimeField
+            form={form}
             name='time'
-            render={({ field: { value }, fieldState: { error } }) => (
-              <Field>
-                <Field.Title>시간 *</Field.Title>
-                <Field.ElementsBox>
-                  <Pressable variant='outline' onPress={onShowTimePicker}>
-                    {value || '시간 선택'}
-                  </Pressable>
-                </Field.ElementsBox>
-                {error && <Field.Message>{error.message}</Field.Message>}
-              </Field>
+            title='시간 *'
+            renderTrigger={(value, open) => (
+              <Pressable variant='outline' onPress={open}>
+                {value || '시간 선택'}
+              </Pressable>
             )}
           />
         </View>

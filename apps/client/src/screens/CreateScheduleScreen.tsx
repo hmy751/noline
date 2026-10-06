@@ -2,7 +2,7 @@ import { View, Text, Keyboard, KeyboardAvoidingView, Platform, ActivityIndicator
 import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { MobileHeader, DatePicker, TimePicker } from '@/shared/components';
+import { MobileHeader, DatePicker } from '@/shared/components';
 import { useGetTrips, type TripResponse } from '@/entities/trip';
 import { useAppPolicy } from '@/shared/policy';
 import { useCreateScheduleForm, ScheduleForm, type Location } from '@/features/schedule/create-schedule';
@@ -99,19 +99,13 @@ function CreateScheduleContent({ tripId, initialDate }: { tripId: string; initia
             onCancel: exitCreateSchedule,
           }}
           onShowDatePicker={draft.handleShowDatePicker}
-          onShowTimePicker={draft.handleShowTimePicker}
         />
       )}
       <DatePicker
         visible={draft.datePickerVisible}
-        onClose={() => draft.handleSelectDate(form.getValues('date'))}
+        onClose={draft.handleCloseDatePicker}
+        selectedDate={form.watch('date')}
         onSelectDate={draft.handleSelectDate}
-      />
-      <TimePicker
-        visible={draft.timePickerVisible}
-        onClose={() => draft.handleSelectTime(form.getValues('time'))}
-        onSelectTime={draft.handleSelectTime}
-        initialTime={form.watch('time') || '09:00'}
       />
     </KeyboardAvoidingView>
   );

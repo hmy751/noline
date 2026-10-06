@@ -2,6 +2,7 @@ import React from 'react';
 import { afterEach, beforeEach, expect, it, jest } from '@jest/globals';
 import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { DatePicker, TimePicker } from '@/shared/components';
 import CreateScheduleScreen from '@/screens/CreateScheduleScreen';
 import { useAuthStore } from '@/shared/store/auth';
 import { useNetworkStore } from '@/shared/store/network';
@@ -38,8 +39,21 @@ jest.mock('@/shared/components', () => {
 });
 jest.mock('@/shared/components/Form', () => {
   const { View, Text } = jest.requireActual<typeof import('react-native')>('react-native');
+  return {
+    Field: Object.assign(View, { Title: Text, ElementsBox: View, Message: Text }),
+    TimeField: jest.requireActual<typeof import('@/shared/components/Form/TimeField')>(
+      '@/shared/components/Form/TimeField',
+    ).TimeField,
+  };
+});
+jest.mock('@/shared/components/Form/Field', () => {
+  const { View, Text } = jest.requireActual<typeof import('react-native')>('react-native');
   return { Field: Object.assign(View, { Title: Text, ElementsBox: View, Message: Text }) };
 });
+jest.mock('@/shared/components/TimePicker/TimePicker', () => ({
+  __esModule: true,
+  default: jest.requireMock<typeof import('@/shared/components')>('@/shared/components').TimePicker,
+}));
 jest.mock('@repo/ui', () => jest.requireActual('../../../../packages/ui/src/components/Pressable'));
 jest.mock('@/entities/trip', () => ({
   useGetTrips: () => ({ data: [{ id: 'trip', destination: 'Paris', timeZone: 'Europe/Paris' }], isLoading: false }),
@@ -511,5 +525,26 @@ it('잘못된 상세 좌표는 생성의 오류 UI로 연결되며 draft와 직�
   fireEvent.press(view.getByText('작성 중인 일정으로 돌아가기'));
   expect(view.getByDisplayValue('그대로 둘 제목')).toBeTruthy();
   expect(view.getByDisplayValue('그대로 둘 장소')).toBeTruthy();
+  expect(mockLocal).not.toHaveBeenCalled();
+});
+
+it('일정 생성 picker는 현재 초안을 받고 닫기·선택·재열기에서 그 값을 보존한다', async () => {
+  const view = open();
+  fireEvent.press(view.getByText('장소 직접 입력'));
+  fireEvent.press(view.getByText('2026-10-01'));
+  expect(view.UNSAFE_getByType(DatePicker).props).toMatchObject({ visible: true, selectedDate: '2026-10-01' });
+  await act(async () => fireEvent(view.UNSAFE_getByType(DatePicker), 'selectDate', '2026-09-30'));
+  expect(view.UNSAFE_getByType(DatePicker).props.visible).toBe(false);
+  fireEvent.press(view.getByText('2026-09-30'));
+  expect(view.UNSAFE_getByType(DatePicker).props.selectedDate).toBe('2026-09-30');
+  await act(async () => fireEvent(view.UNSAFE_getByType(DatePicker), 'close'));
+  expect(view.getByText('2026-09-30')).toBeTruthy();
+  fireEvent.press(view.getByText('09:00'));
+  expect(view.UNSAFE_getByType(TimePicker).props).toMatchObject({ visible: true, initialTime: '09:00' });
+  await act(async () => fireEvent(view.UNSAFE_getByType(TimePicker), 'selectTime', '23:59'));
+  fireEvent.press(view.getByText('23:59'));
+  expect(view.UNSAFE_getByType(TimePicker).props.initialTime).toBe('23:59');
+  await act(async () => fireEvent(view.UNSAFE_getByType(TimePicker), 'close'));
+  expect(view.getByText('23:59')).toBeTruthy();
   expect(mockLocal).not.toHaveBeenCalled();
 });

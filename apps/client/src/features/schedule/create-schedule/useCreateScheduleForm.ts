@@ -11,7 +11,6 @@ export function useCreateScheduleForm({
 }: { initialDate?: string; timeZone?: string | null } = {}) {
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [datePickerVisible, setDatePickerVisible] = useState(false);
-  const [timePickerVisible, setTimePickerVisible] = useState(false);
   const form = useForm<CreateScheduleFormData>({
     resolver: zodResolver(makeCreateScheduleFormSchema(timeZone)),
     defaultValues: { title: '', location: '', address: '', date: initialDate, time: '09:00' },
@@ -32,16 +31,11 @@ export function useCreateScheduleForm({
     selectLocation,
     editLocationManually,
     datePickerVisible,
-    timePickerVisible,
+    handleCloseDatePicker: () => setDatePickerVisible(false),
     handleShowDatePicker: () => setDatePickerVisible(true),
-    handleShowTimePicker: () => setTimePickerVisible(true),
     handleSelectDate: (date: string) => {
       form.setValue('date', date, { shouldValidate: true });
       setDatePickerVisible(false);
-    },
-    handleSelectTime: (time: string) => {
-      form.setValue('time', time, { shouldValidate: true });
-      setTimePickerVisible(false);
     },
   };
 }

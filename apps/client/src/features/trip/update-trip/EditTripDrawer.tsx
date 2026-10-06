@@ -42,6 +42,7 @@ export const EditTripDrawer = ({ isOpen, onClose, trip }: EditTripDrawerProps) =
     control,
     handleSubmit,
     setValue,
+    watch,
     reset,
     setError,
     formState: { defaultValues },
@@ -182,6 +183,7 @@ export const EditTripDrawer = ({ isOpen, onClose, trip }: EditTripDrawerProps) =
               visible={pickerVisible}
               onClose={() => setPickerVisible(false)}
               onSelectDate={handleSelectDate}
+              selectedDate={watch(currentPicker === 'start' ? 'startDate' : 'endDate')}
             />
           ) : null
         }

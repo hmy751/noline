@@ -2,6 +2,7 @@ import React from 'react';
 import { Alert } from 'react-native';
 import { afterEach, beforeEach, expect, it, jest } from '@jest/globals';
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
+import { DatePicker, TimePicker } from '@/shared/components';
 import { UpdateScheduleDrawer } from '@/features/schedule/update-schedule/UpdateScheduleDrawer';
 import { UpdateExpenseDrawer } from '@/features/expense/update-expense/UpdateExpenseDrawer';
 import { useUpdateSchedule } from '@/entities/schedule';
@@ -88,8 +89,21 @@ jest.mock('@/shared/components', () => {
 });
 jest.mock('@/shared/components/Form', () => {
   const { View, Text } = jest.requireActual<typeof import('react-native')>('react-native');
+  return {
+    Field: Object.assign(View, { Title: Text, ElementsBox: View, Message: Text }),
+    TimeField: jest.requireActual<typeof import('@/shared/components/Form/TimeField')>(
+      '@/shared/components/Form/TimeField',
+    ).TimeField,
+  };
+});
+jest.mock('@/shared/components/Form/Field', () => {
+  const { View, Text } = jest.requireActual<typeof import('react-native')>('react-native');
   return { Field: Object.assign(View, { Title: Text, ElementsBox: View, Message: Text }) };
 });
+jest.mock('@/shared/components/TimePicker/TimePicker', () => ({
+  __esModule: true,
+  default: jest.requireMock<typeof import('@/shared/components')>('@/shared/components').TimePicker,
+}));
 jest.mock('@repo/ui', () => {
   const { View } = jest.requireActual<typeof import('react-native')>('react-native');
   return {
@@ -523,4 +537,65 @@ it('수정 중 여행 시간대가 조회로 바뀌어도 처음 연 입력의 �
   await act(async () => fireEvent.press(view.getByText('저장')));
   expect(saveSchedule).not.toHaveBeenCalled();
   expect(view.getByText('여행 시간대를 먼저 확인해주세요.')).toBeTruthy();
+});
+
+it('일정 수정은 확인한 현재 날짜·시간으로 picker를 다시 연다', async () => {
+  const view = render(
+    <UpdateScheduleDrawer
+      isOpen
+      onClose={jest.fn()}
+      timeZone='UTC'
+      scheduleData={{ id: 's', tripId: 'trip', title: '일정', date: '2026-09-21', time: '10:00' }}
+    />,
+  );
+  fireEvent.press(view.getByText('2026-09-21'));
+  expect(view.UNSAFE_getByType(DatePicker).props.selectedDate).toBe('2026-09-21');
+  await act(async () => fireEvent.press(view.getByText('선택 2026-09-22')));
+  fireEvent.press(view.getByText('2026-09-22'));
+  expect(view.UNSAFE_getByType(DatePicker).props.selectedDate).toBe('2026-09-22');
+  fireEvent(view.UNSAFE_getByType(DatePicker), 'close');
+  fireEvent.press(view.getByText('10:00'));
+  await act(async () => fireEvent.press(view.getByText('선택 11:00')));
+  fireEvent.press(view.getByText('11:00'));
+  expect(view.UNSAFE_getByType(TimePicker).props.initialTime).toBe('11:00');
+  fireEvent(view.UNSAFE_getByType(TimePicker), 'close');
+  expect(view.getByText('11:00')).toBeTruthy();
+  expect(saveSchedule).not.toHaveBeenCalled();
+});
+
+it('다른 일정으로 전환하거나 drawer를 닫으면 열린 시간 선택을 폐기한다', () => {
+  const onClose = jest.fn();
+  const first = { id: 'a', tripId: 'trip', title: '첫 일정', date: '2026-09-21', time: '10:00' };
+  const second = { id: 'b', tripId: 'trip', title: '둘째 일정', date: '2026-09-22', time: '11:00' };
+  const view = render(<UpdateScheduleDrawer isOpen onClose={onClose} timeZone='UTC' scheduleData={first} />);
+  fireEvent.press(view.getByText('10:00'));
+  expect(view.UNSAFE_getByType(TimePicker).props.visible).toBe(true);
+  view.rerender(<UpdateScheduleDrawer isOpen onClose={onClose} timeZone='UTC' scheduleData={second} />);
+  expect(view.UNSAFE_getByType(TimePicker).props.visible).toBe(false);
+  expect(view.getByText('11:00')).toBeTruthy();
+  fireEvent.press(view.getByText('11:00'));
+  view.rerender(<UpdateScheduleDrawer isOpen={false} onClose={onClose} timeZone='UTC' scheduleData={second} />);
+  view.rerender(<UpdateScheduleDrawer isOpen onClose={onClose} timeZone='UTC' scheduleData={second} />);
+  expect(view.UNSAFE_getByType(TimePicker).props).toMatchObject({ visible: false, initialTime: '11:00' });
+  expect(saveSchedule).not.toHaveBeenCalled();
+});
+
+it('경비 수정 날짜 선택창은 현재 달력 날짜를 받는다', () => {
+  const view = render(
+    <UpdateExpenseDrawer
+      isOpen
+      onClose={jest.fn()}
+      expenseData={{
+        id: 'e',
+        tripId: 'trip',
+        title: '경비',
+        amount: '12',
+        currency: 'USD',
+        category: 'food',
+        date: '2026-09-21',
+      }}
+    />,
+  );
+  fireEvent.press(view.getByText('2026-09-21'));
+  expect(view.UNSAFE_getByType(DatePicker).props.selectedDate).toBe('2026-09-21');
 });

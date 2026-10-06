@@ -311,16 +311,11 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
                   {/* DatePicker Modal */}
                   <DatePicker
                     visible={isDatePickerOpen}
+                    selectedDate={value || undefined}
                     onClose={() => setIsDatePickerOpen(false)}
                     onSelectDate={(dateString) => {
                       onChange(dateString);
                       setIsDatePickerOpen(false);
-                    }}
-                    markedDates={{
-                      [displayDate]: {
-                        selected: true,
-                        selectedColor: 'hsl(120, 61%, 34%)',
-                      },
                     }}
                   />
                 </Field>

@@ -2,6 +2,7 @@ import React from 'react';
 import { afterEach, beforeEach, expect, it, jest } from '@jest/globals';
 import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { DatePicker } from '@/shared/components';
 import CreateExpenseScreen from '@/screens/CreateExpenseScreen';
 import { useAuthStore } from '@/shared/store/auth';
 import { useNetworkStore } from '@/shared/store/network';
@@ -14,7 +15,11 @@ jest.mock('@react-native-community/netinfo', () => ({
   default: { addEventListener: jest.fn(() => jest.fn()), refresh: jest.fn() },
 }));
 jest.mock('expo-router', () => ({
-  useLocalSearchParams: () => ({ tripId: '01ARZ3NDEKTSV4RRFFQ69G5FAV', date: mockExpenseDate, scheduleId: '01ARZ3NDEKTSV4RRFFQ69G5FAW' }),
+  useLocalSearchParams: () => ({
+    tripId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+    date: mockExpenseDate,
+    scheduleId: '01ARZ3NDEKTSV4RRFFQ69G5FAW',
+  }),
   useRouter: () => ({ back: mockExit }),
 }));
 jest.mock('lucide-react-native', () => new Proxy({}, { get: () => () => null }));
@@ -55,7 +60,9 @@ jest.mock('@repo/ui', () => ({
   ...(jest.requireActual('../../../../packages/ui/src/components/Pressable') as object),
   ...(jest.requireActual('../../../../packages/ui/src/components/Select') as object),
 }));
-jest.mock('@/entities/trip', () => ({ useGetTrips: () => ({ data: [{ id: '01ARZ3NDEKTSV4RRFFQ69G5FAV', baseCurrency: 'USD' }] }) }));
+jest.mock('@/entities/trip', () => ({
+  useGetTrips: () => ({ data: [{ id: '01ARZ3NDEKTSV4RRFFQ69G5FAV', baseCurrency: 'USD' }] }),
+}));
 jest.mock('@/entities/trip/data/useGetTripActivation', () => ({
   useGetTripActivation: () => ({ data: mockActive ? { isActivated: true } : null }),
 }));
@@ -78,8 +85,18 @@ jest.mock('@/entities/schedule', () => ({
 jest.mock('@/entities/schedule/repository/schedule-repository', () => ({
   ScheduleRepository: {
     getByTripId: async () => [
-      { id: '01ARZ3NDEKTSV4RRFFQ69G5FAW', tripId: '01ARZ3NDEKTSV4RRFFQ69G5FAV', title: '첫날 일정', scheduledAt: '2026-10-01T10:00:00Z' },
-      { id: '01ARZ3NDEKTSV4RRFFQ69G5FAX', tripId: '01ARZ3NDEKTSV4RRFFQ69G5FAV', title: '다음날 일정', scheduledAt: '2026-10-02T11:00:00Z' },
+      {
+        id: '01ARZ3NDEKTSV4RRFFQ69G5FAW',
+        tripId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+        title: '첫날 일정',
+        scheduledAt: '2026-10-01T10:00:00Z',
+      },
+      {
+        id: '01ARZ3NDEKTSV4RRFFQ69G5FAX',
+        tripId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+        title: '다음날 일정',
+        scheduledAt: '2026-10-02T11:00:00Z',
+      },
     ],
   },
 }));
@@ -151,7 +168,12 @@ it('활성 offline 초안은 다른 날짜 일정으로 연결을 바꾸고 경�
   await act(async () => fireEvent.press(view.getByText('저장')));
   await waitFor(() => expect(local).toHaveBeenCalledTimes(1));
   expect(local).toHaveBeenCalledWith(
-    expect.objectContaining({ title: '작성 중 경비', amount: '37', date: '2026-10-03', scheduleId: '01ARZ3NDEKTSV4RRFFQ69G5FAX' }),
+    expect.objectContaining({
+      title: '작성 중 경비',
+      amount: '37',
+      date: '2026-10-03',
+      scheduleId: '01ARZ3NDEKTSV4RRFFQ69G5FAX',
+    }),
   );
   expect(remote).not.toHaveBeenCalled();
 });
@@ -182,7 +204,9 @@ it('비활성 unknown은 초안과 연결을 표시하고 Router가 저장을 �
   expect(remote).not.toHaveBeenCalled();
   await act(async () => fireEvent.press(view.getByText('저장')));
   await waitFor(() => expect(remote).toHaveBeenCalledTimes(1));
-  expect(remote).toHaveBeenCalledWith(expect.objectContaining({ title: '확인 중에도 수정', scheduleId: '01ARZ3NDEKTSV4RRFFQ69G5FAW' }));
+  expect(remote).toHaveBeenCalledWith(
+    expect.objectContaining({ title: '확인 중에도 수정', scheduleId: '01ARZ3NDEKTSV4RRFFQ69G5FAW' }),
+  );
 });
 
 it('비활성의 실제 offline/display online 캐시도 새 후보 선택을 제한하지만 연결 해제는 가능하다', async () => {
@@ -252,7 +276,6 @@ it('제출 준비의 동기 예외도 잠금을 풀고 내부 진단을 숨겨 �
   await waitFor(() => expect(local).toHaveBeenCalledTimes(1));
 });
 
-
 it('잘못된 초기 날짜도 렌더에서 예외를 내지 않고 날짜를 다시 선택해 저장한다', async () => {
   mockExpenseDate = '2026-02-30';
   const view = await open();
@@ -262,4 +285,14 @@ it('잘못된 초기 날짜도 렌더에서 예외를 내지 않고 날짜를 �
   fireEvent.press(view.getByText('다른 날짜 선택'));
   await act(async () => fireEvent.press(view.getByText('저장')));
   expect(local).toHaveBeenCalledWith(expect.objectContaining({ date: '2026-10-03' }));
+});
+
+it('경비 생성 날짜 선택창은 현재 값을 받고 빈 날짜의 안내 문구를 전달하지 않는다', async () => {
+  mockExpenseDate = 'invalid';
+  const view = await open();
+  fireEvent.press(view.getByText('날짜 선택'));
+  expect(view.UNSAFE_getByType(DatePicker).props.selectedDate).toBeUndefined();
+  fireEvent.press(view.getByText('다른 날짜 선택'));
+  fireEvent.press(view.getByText('2026-10-03'));
+  expect(view.UNSAFE_getByType(DatePicker).props.selectedDate).toBe('2026-10-03');
 });

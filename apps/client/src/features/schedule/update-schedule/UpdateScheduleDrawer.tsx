@@ -4,8 +4,8 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Calendar, Clock, MapPin } from 'lucide-react-native';
 import { Drawer, Pressable } from '@repo/ui';
-import { DatePicker, PolicyErrorDisplay, TimePicker } from '@/shared/components';
-import { Field } from '@/shared/components/Form';
+import { DatePicker, PolicyErrorDisplay } from '@/shared/components';
+import { Field, TimeField } from '@/shared/components/Form';
 import { useUpdateSchedule, type Schedule } from '@/entities/schedule';
 import { useTripSchedulesReadQuery } from '@/features/schedule/read-schedules';
 import { useAutoDownloadRoutes } from '@/entities/route';
@@ -46,13 +46,7 @@ export const UpdateScheduleDrawer = ({
   const timeZone = editingTimeZoneRef.current;
   const defaultValuesRef = useRef<{ date: string; time: string } | undefined>(scheduleData ?? undefined);
   // react-hook-form 설정
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    reset,
-    formState: { defaultValues },
-  } = useForm<ScheduleUpdateFormData>({
+  const form = useForm<ScheduleUpdateFormData>({
     resolver: zodResolver(makeScheduleUpdateFormSchema(timeZone, defaultValuesRef.current)),
     defaultValues: {
       title: scheduleData?.title || '',
@@ -61,10 +55,17 @@ export const UpdateScheduleDrawer = ({
     },
     mode: 'onChange',
   });
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { defaultValues },
+  } = form;
 
   // Picker visibility state
   const [datePickerVisible, setDatePickerVisible] = useState(false);
-  const [timePickerVisible, setTimePickerVisible] = useState(false);
   const [locationSearchVisible, setLocationSearchVisible] = useState(false);
 
   // 선택된 장소 (재검색 시)
@@ -95,11 +96,6 @@ export const UpdateScheduleDrawer = ({
   const handleDateSelect = (selectedDate: string) => {
     setValue('date', selectedDate, { shouldValidate: true });
     setDatePickerVisible(false);
-  };
-
-  const handleTimeSelect = (selectedTime: string) => {
-    setValue('time', selectedTime, { shouldValidate: true });
-    setTimePickerVisible(false);
   };
 
   const handleLocationSelect = (location: UpdateLocationSelection) => {
@@ -269,23 +265,19 @@ export const UpdateScheduleDrawer = ({
         />
 
         {/* 시간 필드 */}
-        <Controller
-          control={control}
+        <TimeField
+          key={`${scheduleData.id}:${isOpen}`}
+          form={form}
           name='time'
-          render={({ field: { value }, fieldState: { error } }) => (
-            <Field>
-              <Field.Title>시간</Field.Title>
-              <Field.ElementsBox>
-                <TouchableOpacity
-                  className='h-11 flex-row items-center rounded-md border border-input bg-background px-sm'
-                  onPress={() => setTimePickerVisible(true)}
-                >
-                  <Clock size={16} color='#808080' />
-                  <Text className='text-body text-foreground ml-xs'>{value}</Text>
-                </TouchableOpacity>
-              </Field.ElementsBox>
-              {error && <Field.Message>{error.message}</Field.Message>}
-            </Field>
+          title='시간'
+          renderTrigger={(value, open) => (
+            <TouchableOpacity
+              className='h-11 flex-row items-center rounded-md border border-input bg-background px-sm'
+              onPress={open}
+            >
+              <Clock size={16} color='#808080' />
+              <Text className='text-body text-foreground ml-xs'>{value}</Text>
+            </TouchableOpacity>
           )}
         />
 
@@ -346,16 +338,7 @@ export const UpdateScheduleDrawer = ({
           visible={datePickerVisible}
           onClose={() => setDatePickerVisible(false)}
           onSelectDate={handleDateSelect}
-        />
-      )}
-
-      {/* TimePicker Modal */}
-      {timePickerVisible && (
-        <TimePicker
-          visible={timePickerVisible}
-          onClose={() => setTimePickerVisible(false)}
-          onSelectTime={handleTimeSelect}
-          initialTime={scheduleData.time}
+          selectedDate={watch('date')}
         />
       )}
 

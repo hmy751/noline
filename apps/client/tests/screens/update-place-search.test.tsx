@@ -38,8 +38,21 @@ jest.mock('@/shared/components', () => {
 });
 jest.mock('@/shared/components/Form', () => {
   const { View, Text } = jest.requireActual<typeof import('react-native')>('react-native');
+  return {
+    Field: Object.assign(View, { Title: Text, ElementsBox: View, Message: Text }),
+    TimeField: jest.requireActual<typeof import('@/shared/components/Form/TimeField')>(
+      '@/shared/components/Form/TimeField',
+    ).TimeField,
+  };
+});
+jest.mock('@/shared/components/Form/Field', () => {
+  const { View, Text } = jest.requireActual<typeof import('react-native')>('react-native');
   return { Field: Object.assign(View, { Title: Text, ElementsBox: View, Message: Text }) };
 });
+jest.mock('@/shared/components/TimePicker/TimePicker', () => ({
+  __esModule: true,
+  default: jest.requireMock<typeof import('@/shared/components')>('@/shared/components').TimePicker,
+}));
 jest.mock('@/entities/trip/data/useGetTripActivation', () => ({
   useGetTripActivation: () => ({ data: { isActivated: true } }),
 }));
