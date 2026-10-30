@@ -4,19 +4,15 @@
   "project_context": [
     {
       "path": "context/project/README.md",
-      "reason": "현재 제품 Owner와 필요한 주제별 본문을 찾는다."
+      "reason": "Project Context 보완 대상의 현재 Owner와 주제별 본문을 찾는다."
     },
     {
       "path": "context/project/common/product.md",
-      "reason": "입력 보존, 데이터와 서비스 책임 및 지원 범위를 유지한다."
+      "reason": "제품 의미와 데이터·서비스 관계를 Context에 복원하면서 보존할 공통 제약을 읽는다."
     },
     {
       "path": "context/project/current/architecture.md",
-      "reason": "현재 책임 배치와 제품·Harness 검증의 상한을 대조한다."
-    },
-    {
-      "path": "context/project/guidance/behavior-preserving-refactoring.md",
-      "reason": "기존 동작과 개선 효과를 따로 확인하고 필요한 소비자까지 살핀다."
+      "reason": "앱 실행·데이터 보존 Context를 보완할 기존 구조 설명과 지원·검증 범위를 대조한다."
     }
   ]
 }
