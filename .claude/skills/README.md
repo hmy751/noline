@@ -2,18 +2,23 @@
 
 이 디렉터리는 Noline의 로컬 운영 스킬 원본과 deprecated 스킬의 이력을 소유한다. 각 `SKILL.md`가 해당 스킬의 호출 조건·실행 방법을, `agents/openai.yaml`이 Codex 호출 설정을 소유한다. Project·Workspace의 지속 의미와 문서 관리 계약은 해당 context Owner에 남는다.
 
+스킬을 작성하거나 의미·구성을 바꿀 때는 [스킬 관리 정책](SKILLS-CONTENT-POLICY.md)을 읽는다.
+
 ## 설치된 역할과 진입점
 
 - [start-app](start-app/SKILL.md): 직접 앱 실행을 요청받았거나 작업 완료에 실제 앱 실행이 필수일 때 DB·서버·클라이언트를 켜고 연결을 확인한다.
 - [create-context-workspace](create-context-workspace/SKILL.md): 새 독립 Workspace의 초기 구성과 재진입 검토. [생성·전환 계약](../../context/work/workspaces/CREATE-AND-TRANSITION.md)을 적용한다.
-- [read-project-context](read-project-context/SKILL.md): 관련 작업의 본문 선택과 계약·예외·현재 차이의 이해·적용. [Project 읽기 기준](../../context/project/REFERENCE/reading.md)을 적용하며 이미 확보한 맥락으로 충분하면 반복 호출하지 않는다.
-- [update-project-context](update-project-context/SKILL.md): 여러 Workspace에 지속될 맥락의 갱신·누락 복원과 승인된 주제별 Owner 이동. [Project 관리 계약](../../context/project/MAINTENANCE.md)을 적용한다.
 - [work-discussion](work-discussion/SKILL.md): 사용자가 직접 호출했을 때 Work의 결과·선택을 구체화하고 Spec에 연결한다. 일반 작업 대화에서 자동으로 인터뷰를 시작하지 않는다.
 - [reconsider-work](reconsider-work/SKILL.md): 실제 결과·새 조건·변경 부담·막힘에 따라 현재 판단과 후속 행동을 다시 본다.
-- [work-artifact-briefing](work-artifact-briefing/SKILL.md): 기존 작업물의 역할·연결·상태와 근거가 뒷받침하는 범위를 조사해 설명한다.
-- [explanation-recovery](explanation-recovery/SKILL.md): 앞선 실제 설명에서 놓친 뜻·전제·논리 연결을 필요한 만큼 복구한다.
+
+- [context-update](context-update/SKILL.md): 허용된 Personal·Project 본문·형성 자료·읽기 경로를 한정 반영한다.
+- [explain](explain/SKILL.md): 개념·코드·결과·앞선 말의 뜻과 선택 이유를 실제 근거로 설명한다.
 
 위 목록은 역할을 찾는 색인이다. 상세 호출 조건과 설명·검토의 권한 경계는 각 스킬을 따른다. 고정 호출 순서나 모든 작업에서 실행하는 공통 workflow는 두지 않는다.
+
+## 이전 이름의 호환 진입
+
+[read-project-context](read-project-context/SKILL.md)는 [USAGE](../../context/USAGE.md)와 [Project 읽기 기준](../../context/project/REFERENCE/reading.md), [update-project-context](update-project-context/SKILL.md)는 context-update의 Project 범위, [work-artifact-briefing](work-artifact-briefing/SKILL.md)·[explanation-recovery](explanation-recovery/SKILL.md)는 explain을 안내한다. 기존 evidence·Decision·output이 참조하는 경로와 bridge는 남기고 독립 실행 본문·자동 선택은 전환했다. 새 작업은 현재 진입을 사용한다.
 
 ## Deprecated
 
@@ -23,9 +28,9 @@
 
 Context Harness 작업을 다루는 스킬은 root [AGENTS.md](../../AGENTS.md)에서 관련 context를 찾고, [Spec·Ticket 계약](../../context/work/workspaces/spec-and-tickets/README.md)의 내용·읽기·Main·Maintain 관계를 적용한다. 새 Workspace 초기 구성과 준비된 Workspace의 문서 유지를 구별한다. 자동 연결이 없을 때의 허용된 문서 반영은 같은 계약이 연결하는 Maintain 수동 fallback을 따른다. 스킬 설치·호출은 session activation이나 실제 문서 반영을 뜻하지 않는다.
 
-`work-discussion`, `work-artifact-briefing`, `explanation-recovery`는 각 호출 조건에 따라 [설명과 근거 기준](../../context/project/guidance/explanation-and-evidence-criteria.md)을 함께 읽는다. 이 기준의 범위·수명·consumer 관계는 [guidance 색인](../../context/project/guidance/README.md)이 연결한다. `reconsider-work`나 모든 Recover에 새 필수 입력으로 추가하지 않는다.
+`work-discussion`과 `explain`은 각 호출 조건에 따라 [설명과 근거 기준](shared/explanation-and-evidence-criteria.md)을 함께 읽는다. 이 기준의 범위·수명·consumer 관계는 [guidance 색인](../../context/project/guidance/README.md)이 연결한다. `reconsider-work`나 모든 Recover에 새 필수 입력으로 추가하지 않는다.
 
-Project 본문의 구성과 읽기 기준은 [Project reference](../../context/project/REFERENCE/README.md)가 연결한다. `read-project-context`는 읽기·적용을, `update-project-context`는 관리 계약에 따른 반영을 수행한다. 두 스킬을 매번 순서대로 호출하지 않으며, 읽기 스킬은 Recover나 Workspace activation을 대체하지 않는다.
+Project 본문의 구성과 읽기 기준은 [Project reference](../../context/project/REFERENCE/README.md)가 연결한다. 공통 읽기는 [USAGE](../../context/USAGE.md)로 수행하고 context-update는 각 영역의 관리 계약에 따라 반영한다. 공통 읽기는 Recover나 Workspace activation을 대체하지 않는다.
 
 ## 도구 연결과 이식
 

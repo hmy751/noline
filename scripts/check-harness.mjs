@@ -25,6 +25,8 @@ const expectedSkills = [
   'work-artifact-briefing',
   'explanation-recovery',
   'start-app',
+  'context-update',
+  'explain',
 ];
 
 function checkSymlink(linkPath, expectedTarget) {
@@ -59,6 +61,26 @@ function walkMarkdown(target) {
   return files;
 }
 
+// 코드 블록의 예시·보존 원문은 현재 문서에서 이동할 수 있는 링크가 아니다.
+function withoutFencedCode(text) {
+  let fence = null;
+  return text.split('\n').map((line) => {
+    const match = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
+    if (fence) {
+      if (match && match[1][0] === fence[0]
+        && match[1].length >= fence.length && match[2].trim() === '') {
+        fence = null;
+      }
+      return '';
+    }
+    if (match) {
+      fence = match[1];
+      return '';
+    }
+    return line;
+  }).join('\n');
+}
+
 function checkMarkdownLinks() {
   const activeInputs = [
     'CLAUDE.md',
@@ -85,7 +107,7 @@ function checkMarkdownLinks() {
   const linkPattern = /\[[^\]]+\]\((?!https?:|mailto:|#)([^)]+)\)/g;
 
   for (const file of files) {
-    const text = fs.readFileSync(file, 'utf8');
+    const text = withoutFencedCode(fs.readFileSync(file, 'utf8'));
     let match;
     while ((match = linkPattern.exec(text))) {
       let target = match[1].trim().replace(/^<|>$/g, '').split('#')[0];
@@ -135,7 +157,13 @@ function checkOnlyEntries(target, required, allowed = required) {
 }
 
 function checkExecutionSurfaces() {
-  checkOnlyEntries('.claude/skills', [...expectedSkills, 'README.md']);
+  checkOnlyEntries('.claude/skills', [
+    ...expectedSkills,
+    'README.md',
+    'shared',
+    'SKILLS-CONTENT-POLICY.md',
+    '_background',
+  ]);
   checkOnlyEntries('.agents', ['skills']);
   checkOnlyEntries('.agents/skills', [...expectedSkills, 'README.md']);
   checkOnlyEntries('.claude/agents', expectedExecutionAgents.map((agent) => `${agent}.md`));

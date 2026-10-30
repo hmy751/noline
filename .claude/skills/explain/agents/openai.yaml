@@ -1,0 +1,6 @@
+interface:
+  display_name: "설명"
+  short_description: "실제 코드와 근거를 연결해 뜻과 동작, 선택 이유를 설명합니다"
+  default_prompt: "$explain을 사용해 이 대상의 뜻과 동작, 선택 이유를 실제 근거로 설명해 주세요."
+policy:
+  allow_implicit_invocation: true

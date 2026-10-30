@@ -50,7 +50,7 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
 1. 도구별 파일은 공통 지침을 가리키거나 얇게 적응한다.
 2. 도구별 파일이 별도 정책 원천처럼 조용히 갈라지면 안 된다.
 3. Claude/Codex 양쪽 버전이 생기면 같은 내용인지, adapter인지, 의도적으로 다른지 기록한다.
-4. 새 agent/skill은 정책 본문을 복사하지 말고 어떤 문서를 읽고 어떤 산출물을 반환할지만 얇게 정의한다.
+4. skill은 호출 조건·판단·수행 방법을 충분히 설명하고, 제품 정책과 지속 context 관리 계약은 해당 Owner에 남긴다. 공통 실행 기준은 실제 consumer가 함께 쓰는 위치에서 소유한다. agent는 필요한 자료와 반환을 정한 report-only 실행자로 유지한다.
 5. bridge, agent, skill을 추가하거나 크게 바꾸면 최종 응답 전에 bridge drift를 점검한다.
 
 ## Workspace Guide Contract
@@ -140,8 +140,10 @@ pnpm harness:check
 
 agent/skill 파일은 discoverable 역할 정의일 뿐, 자동 team runner가 아니다. 여러 agent를 팀처럼 쓸 때의 호출 순서, 병렬화, 결과 통합은 메인 작업자가 정한다.
 
-새 실행자는 반복 사용으로 모양이 충분히 안정된 뒤에만 추가한다. agent나 skill이 커지면 내용을 owning docs로 되돌리고 실행자는 읽을 자료와 출력 형식만 남긴다.
+새 실행자는 반복 사용으로 모양이 충분히 안정된 뒤에만 추가한다. 제품 정책·지속 의미가 실행자에 쌓이면 owning docs로 되돌린다. skill의 수행 방법과 조건부 상세는 [스킬 관리 정책](../skills/SKILLS-CONTENT-POLICY.md)에 따라 충분히 유지하고, agent의 report-only 경계는 바꾸지 않는다.
 
 ## Context Harness 보완
 
-[Project layer](../../context/project/README.md)와 [Spec·Ticket](../../context/work/workspaces/spec-and-tickets/README.md)이 지속 내용과 유지 책임을 소유한다. [운영 skill 색인](../skills/README.md)은 생성·Project 읽기/갱신·논의·재판단·작업물 설명·설명 복구를 연결한다. `.claude/skills/` 원본과 `.agents/skills/` 상대 bridge를 유지하며 report-only agents와 각 host adapter를 대체하지 않는다. 최초 적용은 [2026-09-09 Decision](../decisions/2026-09-09-context-harness-upgrade.md), Project 본문의 구성·읽기·갱신 책임 보완은 [2026-09-14 Decision](../decisions/2026-09-14-project-context-authoring-and-reading.md)에 있다.
+[Project layer](../../context/project/README.md)와 [Spec·Ticket](../../context/work/workspaces/spec-and-tickets/README.md)이 지속 내용과 유지 책임을 소유한다. [운영 skill 색인](../skills/README.md)은 생성·Personal/Project 한정 갱신·논의·재판단·설명을 연결한다. `.claude/skills/` 원본과 `.agents/skills/` 상대 bridge를 유지하며 report-only agents와 각 host adapter를 대체하지 않는다. 최초 적용은 [2026-09-09 Decision](../decisions/2026-09-09-context-harness-upgrade.md), Project 본문의 구성·읽기·갱신 책임 보완은 [2026-09-14 Decision](../decisions/2026-09-14-project-context-authoring-and-reading.md)에 있다.
+
+공통 읽기는 [USAGE](../../context/USAGE.md)로 연결한다. 최신 Personal·설명·한정 갱신의 부분 반영과 기존 경로 호환 이유는 [2026-10-30 Decision](../decisions/2026-10-30-context-and-explanation-refresh.md)에 있다. Maintain·Work 전환 계약과 각 host 연결은 이번 보완에서 유지했다.

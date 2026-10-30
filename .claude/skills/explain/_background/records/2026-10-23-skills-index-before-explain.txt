@@ -1,0 +1,43 @@
+# 개발·작업 판단·설명 스킬 prototype
+
+[development](../../../../../../context/workspaces/014-ai-development-workflow-design/records/prototypes/development-workflow/skills/explain/_background/records/development/SKILL.md)는 개발 작업의 공통 수행 계약과 [독립 검토 상세](../../../../../../context/workspaces/014-ai-development-workflow-design/records/prototypes/development-workflow/skills/explain/_background/records/development/references/review.md)를 소유한다. 기존 DEVELOPMENT의 진입·본문을 옮기고 Main의 맥락 선택·재탐색·종합·전달·갱신을 연결했다. Personal은 개인의 판단 기준을, Project와 Work는 제품 맥락과 이번 작업을 계속 소유한다. [형성 자료](../../../../../../context/workspaces/014-ai-development-workflow-design/records/prototypes/development-workflow/skills/explain/_background/records/development/_background/README.md)에 사용자 목적·정정·독립 리뷰·이전 근거와 남은 설계를 보존했다. 상세 인계·호출·수정·종료는 후속이며 실제 운영 설치는 하지 않았다.
+
+04-02 브리핑은 [현재 SKILL.md](../../../../../../context/workspaces/014-ai-development-workflow-design/records/prototypes/development-workflow/skills/explain/_background/records/work-artifact-briefing/SKILL.md)에 책임·상태의 구별과 실제 코드 선정, 현재 구조의 이유와 설명 비중을 통합했다. [반영 근거](../../../../../../context/workspaces/014-ai-development-workflow-design/records/prototypes/development-workflow/skills/explain/_background/records/work-artifact-briefing/_background/records/2026-10-23-responsibility-explanation-integration.md)와 [직전판·통합판 비교](../../../../../../context/workspaces/014-ai-development-workflow-design/records/prototypes/development-workflow/skills/experiments/artifact-explanation-trip-responsibility-2026-10-23/comparison.md)를 구별한다. 같은 자료의 응답 비교에서는 양쪽 실제 코드 발췌가 없어 핵심 개선은 미관찰이다. 판본은 해당 실험 입력에 보존하며 실제 Noline·전역 운영 설치는 하지 않았고 복구 스킬은 유지한다.
+
+작업 정의의 충분성과 필요한 구체화를 판단하는 work-discussion의 채택 본문, 작업물 브리핑의 현재prototype 본문과 설명 복구의 보류 후보를 함께 둔다. work-discussion은04-01 설계 결과로 채택했고, 브리핑은04-02의 설명 깊이 비교 뒤 최신 통합안을 반영했다. 첫 전달·적용 시점·일반화 검증은 남아 있으며 실제 프로젝트나 전역 스킬에 설치한 상태는 아니다.
+
+스킬을 새로 만들거나 의미·구성을 바꿀 때는 [SKILLS-CONTENT-POLICY](../../../../../../context/workspaces/014-ai-development-workflow-design/records/prototypes/development-workflow/skills/explain/_background/records/SKILLS-CONTENT-POLICY.md)를 읽는다. 이 지침은 실행 본문·보조 자료·형성 근거의 구성과 갱신을 맡는다. work-discussion에는 [형성 자료와 읽기 경로](../../../../../../context/workspaces/014-ai-development-workflow-design/records/prototypes/development-workflow/skills/explain/_background/records/work-discussion/_background/README.md)를 구성했다. 두 설명 스킬에는 원래 연구·품질 보강·공동 적용·Spec/Ticket 연결을 복원한 [브리핑 형성 자료](../../../../../../context/workspaces/014-ai-development-workflow-design/records/prototypes/development-workflow/skills/explain/_background/records/work-artifact-briefing/_background/README.md)와 [복구 형성 자료](../../../../../../context/workspaces/014-ai-development-workflow-design/records/prototypes/development-workflow/skills/explain/_background/records/explanation-recovery/_background/README.md)를 구성했다. 원래 의도와04-02의 보류 후보를 구별하며, 이 배경 구성은 후보 채택이나 효과 확인을 뜻하지 않는다.
+
+| 필요한 일 | 읽을 본문 |
+| --- | --- |
+| 개발 작업을 맡아 관련 맥락·구현·검토·확인과 결과를 조율한다 | [development](../../../../../../context/workspaces/014-ai-development-workflow-design/records/prototypes/development-workflow/skills/explain/_background/records/development/SKILL.md) |
+| 기존 정의가 충분한지, 무엇을 더 구체화할지 판단한다 | [work-discussion](../../../../../../context/workspaces/014-ai-development-workflow-design/records/prototypes/development-workflow/skills/explain/_background/records/work-discussion/SKILL.md) |
+| 기존 코드·변경·문서의 전체 역할, 실제 연결과 확인 범위를 이해한다 | [work-artifact-briefing](../../../../../../context/workspaces/014-ai-development-workflow-design/records/prototypes/development-workflow/skills/explain/_background/records/work-artifact-briefing/SKILL.md) |
+| 앞선 응답의 뜻·지시 대상·빠진 전제나 결론의 연결을 복구한다 | [explanation-recovery](../../../../../../context/workspaces/014-ai-development-workflow-design/records/prototypes/development-workflow/skills/explain/_background/records/explanation-recovery/SKILL.md) |
+| 세 스킬이 공유하는 현재성·근거·설명 깊이·판정 경계를 확인한다 | [설명과 근거 기준](../../../../../../context/workspaces/014-ai-development-workflow-design/records/prototypes/development-workflow/skills/explain/_background/records/shared/explanation-and-evidence-criteria.md) |
+
+각 SKILL.md가 호출 조건과 구체 동작을 소유한다. 공통 기준은 스킬이 적용될 때 읽으며 모든 AI 응답의 상위 지침으로 자동 적용하지 않는다. 공통 기준을 바꾸는 작업 주체는 이 안내와 세 consumer의 연결을 함께 유지한다.
+
+공통 기준은 기존 기준판의 내용을 유지한 의존 자료다. 검토안의 본문 의미는 제시한 통합안과 같고 이 폴더에서 읽히도록 상대 경로만 조정했다. 이 안내는 세 consumer의 관계와 각 본문으로 들어가는 경로를 소유한다. 실제 배포 위치·root 운영 계약과 Maintain의 기록 책임 연결은 적용 단계에서 맞춘다.
+
+## work-discussion의 채택 범위
+
+기존 정의와 보완 후보를 대조하고, 충분성 질문에는 충분 여부와 실제 보완부터 답한다. 새 Work의 요구 발견·선택 제안과 필요한 구체화는 유지했다. 충분한 정의와 선택이 필요한 정의를 각1회 확인했으며 일반 성능 향상을 보장하지 않는다. reconsider-work는 기존 유지로 결정해 교체 본문을 만들지 않았다.
+
+## 이전 보류 후보의 대조 기록
+
+아래 표는 먼저 만들었던 두 스킬 후보의 변화다. 현재 브리핑은 위의 최신 반영 기록과SKILL.md를 기준으로 읽으며, 아래 적절성 추천 등의 문구를 현재 요구로 올리지 않는다.
+
+| 스킬·본문 위치 | 기존판 | 수정안 |
+| --- | --- | --- |
+| 브리핑 / 문서·분석·review 결과 | 원래 질문·기준과 finding·해석·미확인 구별 | 이전 문제·그 뒤 수정·이번 확인을 연결한다. 중요한 미확정은 허용 범위에서 더 조사하고 유지·변경·보류 판단까지 설명한다. |
+| 브리핑 / 실제 결과 첫 세 문단 | 전체 역할·대표 흐름, 이름과 책임 연결 | 핵심 구분과 근본 역할을 먼저 잡은 뒤 실제 코드의 조건·값·호출과 화면·로직 흐름으로 잇는다. 객체·함수라는 형태 설명이나 역할 표만으로 대신하지 않는다. |
+| 브리핑 / 구조 선택 문단 | 다음 선택에 도움이 되는 효과·제약 설명 | 이유·복잡성·적절성 질문에도 계약·소비자·대안·비용을 비교해 추천한다. 설명 가능한 역할과 적절한 설계를 구별하며 질문만으로 수정하지 않는다. |
+| 브리핑 / 관계를 구조로 보여 줄 때 | 문장만으로 관계를 되짚어야 할 때 구조 표현 | 명시적인 도식 요청을 포함하고, 도움이 되는 최소 구조를 고른다. 문단·표·목록을 내용에 맞게 사용하며 고정 형식은 두지 않는다. |
+| 브리핑 / 결과 목록·끝낼 때 | 결과 항목 목록과 본문의 역할·근거·종료 요구가 반복 | 결과 목록을 삭제하고 필요한 내용을 실제 결과·근거와 판정 경계·종료 조건에 합친다. |
+| 복구 / 무엇이 끊겼는지 찾는다 | 목록에서 실제 원인을 고른다 | 사용자 발화로 이해한 부분과 열린 질문을 구별한다. 추가 질문이나 AI 자기해석만으로 실패·혼동 원인을 확정하지 않는다. |
+| 복구 / 작은 복구 3·4번과 응답 구성 | 이해한 표현·유효한 용어에서 시작 | 아직 묻는 차이에 집중하고 필요하면 코드·값·대응·사례로 표현을 전환한다. 비교할 조건은 구분해 보여 준다. |
+| 복구 / 끝낼 때 | quiz·재진술·형식적 승인 기본 요구 금지 | 기본 금지를 유지하면서 요청한 질문식 학습을 허용하고 이후 직접 설명·코드 요청에 맞춰 전환한다. |
+| 복구 / 별도 금지 목록 | 같은 이름 혼동·새 비유·조건 삭제·범위 확대 등의 금지를 별도 열거 | 실제 뜻 확인·작은 복구·종료 문단에 통합한다. |
+
+두 스킬의 name·description, 대상별 조사와 원래 뜻 보존, source·실행·검증 구별, 수정 권한과 최종 판정 경계는 유지했다. 이 차이는 문구의 변화이며 실제 이해 개선 효과를 확인한 결과는 아니다.

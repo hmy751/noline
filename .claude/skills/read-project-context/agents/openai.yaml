@@ -1,6 +1,6 @@
 interface:
-  display_name: "Project 맥락 읽기"
-  short_description: "관련 Project 본문을 골라 계약과 현재 제약을 작업에 적용"
-  default_prompt: "$read-project-context를 사용해 이번 작업에 필요한 Project 본문을 읽고, 적용할 계약과 예외·현재 차이를 파악해줘."
+  display_name: "이전 read-project-context 경로"
+  short_description: "현재 공통 읽기 USAGE와 Project 읽기 기준으로 연결하는 명시 호출용 호환 안내"
+  default_prompt: "$read-project-context의 호환 안내에서 현재 수행 경로를 확인해줘."
 policy:
-  allow_implicit_invocation: true
+  allow_implicit_invocation: false

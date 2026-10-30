@@ -14,13 +14,13 @@
 - 프로필의 SQLite·Mapbox 저장 용량 집계와 refresh를 바꿀 때: [저장 용량 집계의 현재 경계](current/storage-statistics.md)
 - request·response schema, serializer, Schedule·Expense API와 접근 경계를 변경할 때: [API 계약과 변경 가이드](guidance/api-contracts.md)
 - 기존 동작을 유지하는 코드 가독성 리팩터링을 계획·구현·검증할 때: [동작을 보존하는 코드 리팩터링](guidance/behavior-preserving-refactoring.md)
-- 설명·논의에서 주장과 실제 근거의 관계를 다룰 때: [설명과 근거 기준](guidance/explanation-and-evidence-criteria.md)의 적용 조건
+- 설명·논의에서 주장과 실제 근거의 관계를 다룰 때: [공통 설명과 근거 기준](../../.claude/skills/shared/explanation-and-evidence-criteria.md)의 적용 조건
 - Selective Local-First를 선택한 이유가 필요할 때: [선택 근거](decisions/0001-selective-local-first.md)
 - 동기화·폼·지도·정책 UI 등 아직 Project로 옮기지 않은 상세 주제: [기존 Noline 작업 진입점](../../.claude/runbooks/README.md)과 [상세 맥락 색인](../../.claude/context/README.md)
 
 본문이 추가되거나 책임이 이동하면 이 주제별 경로도 실제 Owner에 맞춘다. 없는 가이드를 이미 구성된 것처럼 연결하지 않는다. 각 층의 전체 목록은 [common](common/README.md), [current](current/README.md), [guidance](guidance/README.md), [decisions](decisions/README.md)에서 찾는다.
 
-필요한 본문을 고르고 이번 작업에 적용하는 기준은 [읽기와 적용](REFERENCE/reading.md)에 있다. [read-project-context](../../.agents/skills/read-project-context/SKILL.md)는 적용할 본문을 아직 고르지 못했거나 기존 선택만으로 새 질문을 다루기 어려울 때 이를 실행한다. 이미 이해한 맥락으로 충분한 단순 작업마다 다시 호출하지 않는다.
+필요한 본문을 고르고 이번 작업에 적용하는 기준은 [읽기와 적용](REFERENCE/reading.md)에 있다. 공통 선택·대조·재사용은 [USAGE](../USAGE.md)를 따른다. 이미 이해한 맥락으로 충분한 단순 작업마다 같은 읽기를 반복하지 않는다.
 
 ## 물리 구조
 
@@ -73,8 +73,8 @@ Project 수준에서 현재 구현·지원·적용되는 범위와 연결 관계
 
 본문을 구성·복원·갱신하는 주체는 [MAINTENANCE.md](MAINTENANCE.md)를 직접 읽는다. 관리 계약은 갱신 시점·권한·영향·완료를, [reference](REFERENCE/README.md)는 본문 구성과 읽기의 판단 기준을 소유한다. 실제 제품 의미의 결정 책임은 사용자 또는 명시된 책임자에 있고, 기준·구현을 바꾸는 주체는 영향받은 문서를 맞춘다.
 
-[update-project-context](../../.agents/skills/update-project-context/SKILL.md)는 관리 계약을 적용한다. Workspace Maintain은 Project 본문을 갱신하지 않는다. Skill·Harness는 기준을 적용하는 교체 가능한 장치이며 제품 의미나 사람의 acceptance를 소유하지 않는다.
+[context-update의 Project 범위](../../.claude/skills/context-update/SKILL.md)는 관리 계약을 적용한다. Workspace Maintain은 Project 본문을 갱신하지 않는다. Skill·Harness는 기준을 적용하는 교체 가능한 장치이며 제품 의미나 사람의 acceptance를 소유하지 않는다.
 
-Workspace의 `recover.json`은 이 README를 안정된 진입점으로 선택하고 goal에 필요한 실제 내용만 추가한다. README만으로 내용 충분성을 대신하지 않으며, Project 전체·모든 층·관리 지침을 기본 입력에 싣지 않는다. 문서 선택과 실제 읽기·이해·적용은 구별한다. 읽기 스킬은 Recover나 session binding을 대체하지 않는다.
+Workspace의 `recover.json`은 이 README를 안정된 진입점으로 선택하고 goal에 필요한 실제 내용만 추가한다. README만으로 내용 충분성을 대신하지 않으며, Project 전체·모든 층·관리 지침을 기본 입력에 싣지 않는다. 문서 선택과 실제 읽기·이해·적용은 구별한다. 공통 읽기는 Recover나 session binding을 대체하지 않는다.
 
 책임 경계와 제거 가능한 장치의 관계에 `ai-system_context-ownership-boundary.md: 적용`, `ai-system_harness-rippability.md: 적용`.

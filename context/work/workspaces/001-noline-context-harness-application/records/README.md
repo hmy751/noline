@@ -1,5 +1,7 @@
 # Records
 
+- [2026-10-30 Reference 부분 보완](2026-10-30-01-reference-context-refresh.md): Personal·읽기·한정 갱신·설명 반영, Noline 기준 보존과 확인 상한.
+
 이 폴더는 Noline Context Harness application Workspace의 이식 선택과 검증 해석을 보존한다.
 
 - [`2026-09-04-01-initial-application.md`](2026-09-04-01-initial-application.md): source commit, target baseline, 책임별 적응과 제외 범위

@@ -10,7 +10,7 @@ description: 사용자가 `/` UI에서 선택해 `$work-discussion` skill을 직
 ## 시작
 
 1. 실제 적용 프로젝트의 root AI 지침(예: `AGENTS.md`, `CLAUDE.md`)과 그 지침이 안내하는 관련 맥락 위치를 확인하고 필요한 기존 문서를 읽는다.
-2. 공통 [`설명과 근거 기준`](../../../context/project/guidance/explanation-and-evidence-criteria.md)을 읽고 현재성·근거 범위·사람 판단 경계를 적용한다.
+2. 공통 [`설명과 근거 기준`](../shared/explanation-and-evidence-criteria.md)을 읽고 현재성·근거 범위·사람 판단 경계를 적용한다.
 3. 사용자가 가리킨 Work, 현재 대화에서 이미 정한 내용, 관련 Workspace의 Spec과 필요한 Ticket을 확인한다. Spec·Ticket의 위치와 유지 방식, Main·Maintain의 역할은 root AI 지침이 안내하는 해당 프로젝트의 운영 기준을 따른다.
 4. 현재 구현 사실이 선택을 바꿀 수 있으면 관련 source·configuration·test·사용 위치를 직접 조사한다. 사용자가 답할 수 없는 repository 질문으로 돌려보내지 않는다.
 

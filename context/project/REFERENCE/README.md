@@ -10,7 +10,7 @@ Project 전체의 정체성·물리 층·권위 관계는 [Project README](../RE
 - 관련 작업에서 어떤 본문을 읽고 어떻게 적용할지 판단할 때는 [읽기와 적용](reading.md)을 읽는다. 주제별 진입, 추가 자료를 읽을 조건, 코드 대조와 읽기의 종료를 다룬다.
 - 실제 갱신 시점·변경 권한·영향 범위·Owner 이동·완료 확인은 [MAINTENANCE.md](../MAINTENANCE.md)가 소유한다. 쓰기 기준을 이 폴더에 다시 정의하지 않는다.
 
-사람은 이 문서들에서 직접 기준을 적용할 수 있다. [읽기 스킬](../../../.claude/skills/read-project-context/SKILL.md)과 [갱신 스킬](../../../.claude/skills/update-project-context/SKILL.md)은 각각 필요한 기준을 읽고 적용하는 교체 가능한 실행 장치다. Skill을 제거해도 문서의 읽기 조건·권위·갱신 책임은 남는다.
+사람은 이 문서들에서 직접 기준을 적용할 수 있다. 공통 읽기는 [USAGE](../../USAGE.md)로 수행하고, 허용된 갱신은 [context-update](../../../.claude/skills/context-update/SKILL.md)가 필요한 관리·구성 기준을 적용한다. Skill을 제거해도 문서의 읽기 조건·권위·갱신 책임은 남는다.
 
 ## 이 기준을 바꿀 때
 

@@ -10,11 +10,10 @@
 
 [API 계약과 변경 가이드](api-contracts.md)는 client API, server route, 공유 schema, serializer와 user scope를 추가·수정·리팩터링할 때 읽는다. Schedule과 Expense의 구체적인 적용, 일반 조회와 sync의 soft-delete 차이, 현재 오류 정책의 열린 충돌을 함께 설명한다.
 
-[설명과 근거 기준](explanation-and-evidence-criteria.md)은 사용자가 의미와 실제 근거의 관계를 이해하고 다음 판단을 만들 수 있게 하는 조건부 기준이다. 제품 의미·현재 구현·완료 판단의 정본을 대체하지 않는다. 적용 범위·재검토 신호·제거 조건은 그 본문이 소유한다.
+[공통 설명과 근거 기준](../../../.claude/skills/shared/explanation-and-evidence-criteria.md)은 사용자가 의미와 실제 근거의 관계를 이해하고 다음 판단을 만들 수 있게 하는 조건부 기준이다. 제품 의미·현재 구현·완료 판단의 정본을 대체하지 않는다. 적용 범위·재검토 신호·제거 조건은 그 본문이 소유한다.
 
 - [work-discussion](../../../.agents/skills/work-discussion/SKILL.md): 명시 호출로 Work의 결과·선택을 구체화할 때 읽는다.
-- [work-artifact-briefing](../../../.agents/skills/work-artifact-briefing/SKILL.md): 기존 작업물의 역할·연결·현재 상태·근거 범위를 조사해 설명할 때 읽는다.
-- [explanation-recovery](../../../.agents/skills/explanation-recovery/SKILL.md): Project 사실·근거 범위·용어의 현재성이 앞선 설명의 뜻을 바꿀 때 읽는다. 대화만으로 충분하면 저장소를 먼저 읽지 않는다.
+- [explain](../../../.claude/skills/explain/SKILL.md): 개념·코드·작업 결과·앞선 말의 의미와 선택 이유를 설명할 때, 현재성·실행 여부·근거 범위가 답을 바꾸면 읽는다.
 
 호출 조건과 실행·종료 방법은 각 스킬이 소유한다. [reconsider-work](../../../.agents/skills/reconsider-work/SKILL.md)는 이 기준의 consumer가 아니다. 모든 대화나 모든 Workspace의 Recover 입력에 이 지침을 자동으로 추가하지 않는다. 설명 스킬을 사용할 때 필요한 범위에서 읽는다.
 

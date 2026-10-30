@@ -1,6 +1,6 @@
 interface:
-  display_name: "작업물 이해 브리핑"
-  short_description: "코드와 작업물의 역할·흐름·실제 상태를 조사해 설명합니다"
-  default_prompt: "$work-artifact-briefing을 사용해 이 작업물의 구조와 실제 동작을 브리핑해 주세요."
+  display_name: "이전 work-artifact-briefing 경로"
+  short_description: "현재 explain으로 연결하는 명시 호출용 호환 안내"
+  default_prompt: "$work-artifact-briefing의 호환 안내에서 현재 수행 경로를 확인해줘."
 policy:
-  allow_implicit_invocation: true
+  allow_implicit_invocation: false

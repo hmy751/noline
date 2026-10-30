@@ -1,5 +1,9 @@
 # 현재 이식 상태
 
+## 2026-10-30 Personal·읽기·한정 갱신·설명 보완
+
+Reference `f5082bc3`의 승인된 독립 묶음 반영과 정적·읽기 전용 확인을 마쳤다. Personal·공통 읽기·context-update·explain을 연결하고 Project의 Noline 고유 판단을 유지했다. 기본001·명시001·002 Recover는 기존 선택으로 성공했으며 구조 검사의 실패는 기존 링크8건 그대로다. 기존 Verify는 stale이고 actual host 호출·통합 확인과 제품 acceptance를 완료한 것은 아니다. 범위·보존·검증 근거는 [적용 기록](../../records/2026-10-30-01-reference-context-refresh.md)에 있다. Maintain·Work 계약·host 통합 확인은 ai-workspace014의02에서 이어 판단한다. 기존 제품 규약·artifacts·machine 계약과 과거 결과를 유지한다.
+
 ## 문서 작성 기준과 Maintainer 설정
 
 Workspace 사람용 문서의 내용 충분성·선택 이유와 조건 보존·구성·갱신 기준은 [문서 작성과 갱신](../../../DOCUMENT-WRITING.md)이 소유한다. Workspace README는 층·Owner·보존 경계와 읽기 경로를 맡고, Spec·Ticket과 생성·전환 기준은 각 절차 안에서 새 지침을 적용한다. 모든 문서에 같은 목차나 정보 순서를 강제하지 않는다.
