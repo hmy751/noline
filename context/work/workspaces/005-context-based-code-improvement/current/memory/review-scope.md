@@ -6,9 +6,9 @@
 | --- | --- |
 | 앱 준비·인증 복원·Local 이용·세션 변경 | 04의 [app-runtime 본문](../../../../../project/current/app-runtime/INDEX.md)에 현재 관계·이유·조건과 읽기 경로를 복원했다. |
 | DB 비동기 transaction·직렬 실행·sync/cleanup 종료 조율 | 04의 app-runtime 본문에 원자성 원칙과 실제 실행·중단·완료의 의미 및 보호 한계를 연결했다. |
-| 네트워크 관측·unknown·Debug 표시·foreground | 05에서 정책과 감지 수명·재확인의 관계를 보완한다. |
-| 일정·경비 조회·홈 요약·복구 표시 | 05에서 Query·접근·실행·표시와 부분 데이터 보존을 설명한다. 일반 FSD 예외 채택의 보류를 유지한다. |
-| 여행 생성·목록 사본·선택 보존·갱신 | 기존 selective-activation 본문을 05에서 재사용하고 실제 조회 설명과 연결한다. |
+| 네트워크 관측·unknown·Debug 표시·foreground | 05의 기존 Policy 본문에 관측·표시 강제값·감지 수명·재확인의 관계를 보완했다. |
+| 일정·경비 조회·홈 요약·복구 표시 | 05의 Policy·오류 본문에 Query·접근·실행·표시와 부분 데이터 보존을 연결했다. 일반 FSD 예외 채택의 보류를 유지했다. |
+| 여행 생성·목록 사본·선택 보존·갱신 | 05에서 기존 selective-activation 본문을 재사용하고 선택 정리 조건·실제 조회 설명과 연결했다. |
 | 일정·경비 초안·검색·저장 실패·일정 연결 | 06에서 기존 policy/manual-input과 form·실제 서비스의 관계를 보완한다. |
 | Places 공통 결과와 수정 화면 호환 | 06에서 서비스 보장과 legacy 처리의 현재 범위를 복원한다. |
 | picker·TimeField·날짜 입력 | 06에서 낡은 form/components 설명을 고치고 입력 수명을 연결한다. |

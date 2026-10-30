@@ -19,7 +19,7 @@
 | 앱 준비·세션·데이터 보존 | [Project 앱 실행 구조](../../context/project/current/app-runtime/INDEX.md) | [Client guide](../../apps/client/CLAUDE.md), [Transaction + Sync Queue](../rules/transaction-sync-queue.md) |
 | <a id="selective-activation-and-router"></a>Selective Activation and Router | [selective-activation-architecture.md](selective-activation-architecture.md), [activation-system.md](activation-system.md) | [Activation Router rule](../rules/activation-router.md) |
 | API 계약과 변경 | [Project API guidance](../../context/project/guidance/api-contracts.md), [repository/query 구현 경로](api-data.md) | [Add API Endpoint](../runbooks/README.md#api-endpoint) |
-| <a id="policy-layer"></a>Policy Layer | [policy-architecture.md](policy-architecture.md) | [Policy UI rule](../rules/policy-ui.md) |
+| <a id="policy-layer"></a>Policy Layer · 네트워크 관측·조회·화면 복구 | [policy-architecture.md](policy-architecture.md) | [Policy UI rule](../rules/policy-ui.md) |
 | <a id="time-and-date"></a>Time and date | [Project 날짜와 시각](../../context/project/common/date-and-time.md), [구현 helper 경로](time.md) | [ISO Time rule](../rules/iso-time.md) |
 | TypeScript and Zod | [typescript.md](typescript.md) | [Schema First rule](../rules/schema-first.md) |
 | <a id="components"></a>Components | [components.md](components.md) | [Build UI Components](../runbooks/README.md#component-guide) |

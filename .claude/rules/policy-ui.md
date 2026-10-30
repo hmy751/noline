@@ -15,6 +15,10 @@
 - UI는 막힌 action을 설명하되, underlying data ownership rule을 우회하지 않는다.
 - Local/Remote routing은 여전히 data hook과 repository 책임이다. Policy UI가 Activation Router를 우회하면 안 된다.
 
+## 함께 읽을 맥락
+
+unknown 재확인·Debug 표시·조회 제한·캐시 공개·홈 요약을 바꾸면 [네트워크·조회·화면 복구](../context/policy-architecture.md)를 읽는다. 최초 실패와 갱신 실패의 표현은 [오류 가이드](../context/error-handling.md)를 참조한다.
+
 ## 마무리 확인
 
 - [Guard Map](../guards/README.md)의 Policy UI를 확인한다.

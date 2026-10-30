@@ -20,6 +20,7 @@
 | Data Entity, repository, React Query | [API/Data context](../../.claude/context/api-data.md), [Activation Router rule](../../.claude/rules/activation-router.md) |
 | local write, sync queue, soft delete | [Transaction + Sync Queue rule](../../.claude/rules/transaction-sync-queue.md) |
 | form/manual input | [Form runbook](../../.claude/runbooks/README.md#form-pattern), [Form context](../../.claude/context/form.md) |
+| 네트워크 감지, 조회·캐시 표시, 홈 요약과 복구 | [네트워크·조회·화면 복구](../../.claude/context/policy-architecture.md), [오류 표현](../../.claude/context/error-handling.md) |
 | policy 제한 UI | [Policy UI rule](../../.claude/rules/policy-ui.md), [Policy context](../../.claude/context/policy-architecture.md) |
 | offline map/routing | [Offline map context](../../.claude/context/offline-map.md), [Offline routing context](../../.claude/context/offline-routing.md) |
 | UI composition | [Component context](../../.claude/context/components.md), [UI package guide](../../packages/ui/CLAUDE.md) |

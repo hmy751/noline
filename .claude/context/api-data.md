@@ -33,6 +33,8 @@ Trip, Schedule, Expense는 이 구조를 기준으로 작업한다. 작은 보�
 
 Repository는 Activation Router의 경계이며 화면과 data hook은 local/remote 선택을 알 필요가 없다. Mutation 성공 뒤에는 영향 범위의 query key만 invalidate한다. Activation/deactivation처럼 여러 entity를 pull하거나 cleanup하는 작업은 Trip, Schedule, Expense, Route key를 함께 확인한다.
 
+일정·경비 조회의 실행 조건과 캐시 표시를 바꿀 때에는 [조회 실행과 화면 표시](policy-architecture.md#조회-실행과-화면-표시를-구별한다)를 함께 읽는다. Entity hook의 데이터 책임과 feature의 Policy 조합, 최초 실패·갱신 실패·정상 빈 결과를 구별한다. 취소 후 갱신과 연결 복귀의 차이는 같은 본문의 [복구 설명](policy-architecture.md#연결-복귀와-데이터-갱신)에서 찾는다.
+
 ## 구현 대조
 
 - [ ] data hook이 repository를 거치고 직접 DB/API를 선택하지 않는가?

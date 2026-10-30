@@ -11,6 +11,7 @@
 - 날짜 필드의 datetime/date-only 계약과 열린 제품 판단을 확인할 때: [날짜와 시각의 데이터 의미](common/date-and-time.md)
 - client·server·schema·UI의 현재 책임과 지원·검증 범위를 확인할 때: [현재 구조와 지원 경계](current/architecture.md)
 - 앱 준비·재인증·로그아웃을 바꾸거나 로컬 데이터 보존과 실행 종료 순서를 확인할 때: [앱 실행·세션·데이터 보존](current/app-runtime/INDEX.md)
+- 네트워크 관측·일정/경비 조회·홈 표시·연결 복구를 바꿀 때: [네트워크·조회·화면 복구](../../.claude/context/policy-architecture.md). 상세 Owner는 기존 `.claude/context`에 유지한다.
 - 여행 생성의 GeoNames 요청·도시 선별·실패 반환을 바꿀 때: [도시 검색의 현재 경계](current/city-search.md)
 - 프로필의 SQLite·Mapbox 저장 용량 집계와 refresh를 바꿀 때: [저장 용량 집계의 현재 경계](current/storage-statistics.md)
 - request·response schema, serializer, Schedule·Expense API와 접근 경계를 변경할 때: [API 계약과 변경 가이드](guidance/api-contracts.md)
