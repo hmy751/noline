@@ -1,0 +1,18 @@
+{
+  "schema_version": 6,
+  "workspace_id": "006-project-context-reconstruction",
+  "project_context": [
+    {
+      "path": "context/project/README.md",
+      "reason": "현재 제품 주제와 Owner의 진입점을 찾고 재구성 대상의 지도를 이해한다."
+    },
+    {
+      "path": "context/project/common/product.md",
+      "reason": "제품 목적·활성 여행·데이터 관계를 이해하고 수집할 내용의 의미를 판단한다. 본문 자체도 보완 대상이다."
+    },
+    {
+      "path": "context/project/current/architecture.md",
+      "reason": "현재 책임·지원·검증 범위를 구별하며 과거 자료와 코드의 대조 지점을 찾는다. 최신성과 설명 충분성을 조사에서 재검토한다."
+    }
+  ]
+}

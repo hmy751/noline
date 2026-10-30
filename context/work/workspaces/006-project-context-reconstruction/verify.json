@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "workspace_id": "006-project-context-reconstruction",
+  "claim": "006의 초기 recover.json이 표준 JSON으로 파싱된다. 내용의 충분성, 문서 이관 정합성, 제품 동작이나 Work 완료를 증명하지 않는다. 본문 재구성 결과의 지속 검증은 실제 claim과 입력을 정해 별도 구성한다.",
+  "canonical_basis": [
+    "context/work/workspaces/006-project-context-reconstruction/current/memory/spec/04-quality-and-completion.md"
+  ],
+  "verification": {
+    "argv": [
+      "python3",
+      "-B",
+      "-m",
+      "json.tool",
+      "context/work/workspaces/006-project-context-reconstruction/recover.json"
+    ],
+    "evidence_paths": [
+      "context/work/workspaces/006-project-context-reconstruction/recover.json"
+    ],
+    "timeout_seconds": 10,
+    "max_output_chars": 10000
+  }
+}
