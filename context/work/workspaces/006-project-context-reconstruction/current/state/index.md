@@ -16,4 +16,12 @@
 
 `workspace.json`은 identity, `recover.json`은 읽을 Project 문서 선택, `verify.json`은 제한된 검증 명령, [status.json](status.json)은 마지막 Verify 결과와 receipt cursor를 맡는다. 제품 Verify를 실행하지 않아 결과·receipt는 null이다. `ready_for_verification`은 초기 machine 값이며 조사·이관 완료를 뜻하지 않는다. Freshness는 Recover가 계산한다.
 
-사용자가 조사 우선순위의 Spec·Ticket 반영과 기록 정리·커밋을 요청했다. 우선순위는 위 다음 행동과 해당 본문에 반영했다. active index와 session binding은 변경하지 않으며, 실제 자료 조사는 아직 착수 전이다.
+006 생성·조사 우선순위·기록은 `e5adab4`에 커밋했다. 실제 자료 조사는 아직 착수 전이다. active index와 session binding은 변경하지 않았다.
+
+## 다른 세션에서 이어갈 때
+
+Project root `/Users/hammyeong-yeon/Desktop/10_work/noline`에서 `python3 -B -m context.work.harness recover 006-project-context-reconstruction`으로 이 Workspace를 명시해 읽는다. 기본 active index는 001이므로 id 없는 Recover로 006을 선택했다고 판단하지 않는다. 현재 branch·HEAD·변경 상태도 확인해 위 커밋 이후의 변경을 구분한다. 인계 점검 당시 `.pnpm-store/`는 기존 untracked 항목이며 이 작업의 산출물이나 정리 대상이 아니다.
+
+Recover 뒤에는 [Ticket 01](../memory/tickets/01-source-map-and-improvement-candidates.md) 본문과 [source 색인](../../source/index.md)을 직접 읽는다. 둘은 Recover에서 링크만 제공될 수 있다. 첫 조사에서는 `.claude` 문서 지도와 현재 Project 본문을 대조하고, 위 순서로 002·004의 자료를 연결한다. 생성·과거 작업을 다시 수행하거나 새 Workspace를 만들 필요는 없다.
+
+이 재진입은 문서를 읽는 동작이다. 새 세션의 자동 기록 연결은 별도의 명시적 Workspace 선택과 [session binding 계약](../../../../harness/maintain/SESSION-BINDING-AND-LIFECYCLE.md)을 따르며, 이 인계 점검으로 새 세션이 활성화됐다고 간주하지 않는다. 전체 Harness 검사의 기존 002·003 역사 링크 오류 8개는 [검증 기록](../../records/2026-10-30-04-priority-verification.md)에 구분되어 있고, Ticket 01의 자료 조사 시작을 막는 오류는 아니다.
