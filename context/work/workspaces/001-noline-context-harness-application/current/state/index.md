@@ -1,5 +1,9 @@
 # 현재 이식 상태
 
+## 2026-10-30 개발 수행 스킬과 교체 경로
+
+새 development·improvement-loop와 논의·생성 보완을 반영하고 옛4개 실행 스킬·bridge를 정리한다. 적용·확인 결과는 [스킬 전환 기록](../../records/2026-10-30-02-development-skill-transition.md)에서 찾는다. Maintain 기록·생성·전환 계약은 유지하며 실제 host 통합은02 후속이다. 아래 첫 부분 반영은 이전 경과다.
+
 ## 2026-10-30 Personal·읽기·한정 갱신·설명 보완
 
 Reference `f5082bc3`의 승인된 독립 묶음 반영과 정적·읽기 전용 확인을 마쳤다. Personal·공통 읽기·context-update·explain을 연결하고 Project의 Noline 고유 판단을 유지했다. 기본001·명시001·002 Recover는 기존 선택으로 성공했으며 구조 검사의 실패는 기존 링크8건 그대로다. 기존 Verify는 stale이고 actual host 호출·통합 확인과 제품 acceptance를 완료한 것은 아니다. 범위·보존·검증 근거는 [적용 기록](../../records/2026-10-30-01-reference-context-refresh.md)에 있다. Maintain·Work 계약·host 통합 확인은 ai-workspace014의02에서 이어 판단한다. 기존 제품 규약·artifacts·machine 계약과 과거 결과를 유지한다.

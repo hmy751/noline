@@ -147,3 +147,5 @@ agent/skill 파일은 discoverable 역할 정의일 뿐, 자동 team runner가 �
 [Project layer](../../context/project/README.md)와 [Spec·Ticket](../../context/work/workspaces/spec-and-tickets/README.md)이 지속 내용과 유지 책임을 소유한다. [운영 skill 색인](../skills/README.md)은 생성·Personal/Project 한정 갱신·논의·재판단·설명을 연결한다. `.claude/skills/` 원본과 `.agents/skills/` 상대 bridge를 유지하며 report-only agents와 각 host adapter를 대체하지 않는다. 최초 적용은 [2026-09-09 Decision](../decisions/2026-09-09-context-harness-upgrade.md), Project 본문의 구성·읽기·갱신 책임 보완은 [2026-09-14 Decision](../decisions/2026-09-14-project-context-authoring-and-reading.md)에 있다.
 
 공통 읽기는 [USAGE](../../context/USAGE.md)로 연결한다. 최신 Personal·설명·한정 갱신의 부분 반영과 기존 경로 호환 이유는 [2026-10-30 Decision](../decisions/2026-10-30-context-and-explanation-refresh.md)에 있다. Maintain·Work 전환 계약과 각 host 연결은 이번 보완에서 유지했다.
+
+개발 수행·요청된 경험 개선의 추가와 옛4개 실행 경로 제거는 [개발 스킬 전환 결정](../decisions/2026-10-30-development-skill-transition.md)을 따른다. 위 이전 부분 반영의 호환 유지 판단에서 현재 consumer 전환을 마친 범위만 이어 변경했다. 기존 agent의 report-only 경계와 Maintain 운영 계약은 유지한다.

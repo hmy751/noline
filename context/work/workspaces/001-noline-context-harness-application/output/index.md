@@ -2,7 +2,9 @@
 
 이 Workspace의 선택된 결과는 Noline root에 설치한 Context Harness와 이를 연결한 기존 Noline harness 문서다. 실제 산출물은 Workspace 안에 복제하지 않는다.
 
-이번 보완의 기준과 확인 범위는 [2026-10-30 적용 기록](../records/2026-10-30-01-reference-context-refresh.md)에 있다. 새 [Personal](../../../../../context/personal/README.md), [공통 읽기](../../../../../context/USAGE.md), [본문 형식](../../../../../context/WRITING-FORMAT.md)과 [운영 스킬 색인](../../../../../.claude/skills/README.md)에서 현재 내용을 찾는다.
+이번 실행 스킬 전환의 범위·확인은 [스킬 전환 기록](../records/2026-10-30-02-development-skill-transition.md), 실제 수행 진입은 [development](../../../../../.claude/skills/development/SKILL.md)·[improvement-loop](../../../../../.claude/skills/improvement-loop/SKILL.md)에서 찾는다.
+
+앞선 context 보완의 기준과 확인 범위는 [2026-10-30 적용 기록](../records/2026-10-30-01-reference-context-refresh.md)에 있다. 새 [Personal](../../../../../context/personal/README.md), [공통 읽기](../../../../../context/USAGE.md), [본문 형식](../../../../../context/WRITING-FORMAT.md)과 [운영 스킬 색인](../../../../../.claude/skills/README.md)에서 현재 내용을 찾는다.
 
 - [Project 진입점](../../../../../context/project/README.md): Noline의 common/current/guidance와 Decision의 관계
 - [Project 관리 계약](../../../../../context/project/MAINTENANCE.md): 작성·복원·재구성·갱신 시 직접 읽는 기준

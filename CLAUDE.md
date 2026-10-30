@@ -175,6 +175,9 @@ pnpm harness:check
 
 ## Context Harness 운영 진입
 
+- 개발 구현·수정·검토·재개는 [development](.claude/skills/development/SKILL.md)를 적용하며 이번 요청의 범위와 Noline의 기존 제품·경로별 기준을 따른다.
+- 사용자가 대화를 돌아보고 체계 개선을 찾자고 요청하면 [improvement-loop](.claude/skills/improvement-loop/SKILL.md)를 사용한다. 작업 종료만으로 자동 실행하지 않는다.
+
 - `context/work/`의 Workspace·Harness를 다룰 때 [Work 지침](context/work/AGENTS.md)을 먼저 읽는다.
 - 필요한 맥락의 선택·대조·재사용은 [USAGE](context/USAGE.md)를 따른다. 개인 판단 관점은 [Personal](context/personal/README.md), 제품 계약·현재 구조는 [Project](context/project/README.md)에서 질문별로 고른다. 제품별 선택·적용은 [읽기 기준](context/project/REFERENCE/reading.md)을 따르며 이미 확보한 맥락으로 충분하면 반복 읽지 않는다.
 - Project 의미·현재 구현·조건부 기준의 구조와 권위 관계는 [Project README](context/project/README.md)를 따른다. 작성·복원·갱신·승인된 주제별 Owner 이동은 [Project 관리 계약](context/project/MAINTENANCE.md)을 직접 읽고, 여러 Work에 계속 유효할 변화·누락 복원·승인된 Owner 이동은 [context-update의 Project 범위](.claude/skills/context-update/SKILL.md)로 연결한다. Workspace Maintain과의 책임 경계는 Project README에서 찾는다.

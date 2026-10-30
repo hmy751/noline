@@ -1,0 +1,6 @@
+interface:
+  display_name: "경험과 체계 개선"
+  short_description: "요청한 대화 검토와 선택한 개선의 실제 반영"
+  default_prompt: "$improvement-loop의 호출 조건과 본문에 따라 이번 요청을 수행해줘."
+policy:
+  allow_implicit_invocation: false

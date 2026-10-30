@@ -1,0 +1,6 @@
+interface:
+  display_name: "개발 수행"
+  short_description: "요구·맥락·구현·검토·검증과 결과를 연결"
+  default_prompt: "$development의 호출 조건과 본문에 따라 이번 요청을 수행해줘."
+policy:
+  allow_implicit_invocation: true

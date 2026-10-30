@@ -1,0 +1,653 @@
+{
+  "source_base": "c23181d31bed4d32d54f59ff19933c9d93df58ff",
+  "target_base": "2839d467dfa999911385e1920fa482d0377dcbe5",
+  "manifest": {
+    "source_base": "c23181d31bed4d32d54f59ff19933c9d93df58ff",
+    "source": "Reference working tree with exact source hashes",
+    "paths": [
+      ".claude/_archive/skill-transition-2026-10-30/README.md",
+      ".claude/_archive/skill-transition-2026-10-30/explanation-recovery.txt",
+      ".claude/_archive/skill-transition-2026-10-30/read-project-context.txt",
+      ".claude/_archive/skill-transition-2026-10-30/update-project-context.txt",
+      ".claude/_archive/skill-transition-2026-10-30/work-artifact-briefing.txt",
+      ".claude/decisions/2026-09-14-project-context-authoring-and-reading.md",
+      ".claude/decisions/2026-10-30-development-skill-transition.md",
+      ".claude/harness/README.md",
+      ".claude/skills/README.md",
+      ".claude/skills/create-context-workspace/SKILL.md",
+      ".claude/skills/create-context-workspace/_background/README.md",
+      ".claude/skills/create-context-workspace/_background/context.md",
+      ".claude/skills/create-context-workspace/_background/evidence.md",
+      ".claude/skills/create-context-workspace/_background/records/2026-10-26-prototype-integration.md",
+      ".claude/skills/create-context-workspace/_background/records/2026-10-30-existing-work-contract-adaptation.md",
+      ".claude/skills/development/SKILL.md",
+      ".claude/skills/development/_background/README.md",
+      ".claude/skills/development/_background/context.md",
+      ".claude/skills/development/_background/evidence.md",
+      ".claude/skills/development/_background/evidence/development-before-skill.txt",
+      ".claude/skills/development/_background/records/2026-10-23-development-skill.md",
+      ".claude/skills/development/_background/records/2026-10-23-execution-integration.md",
+      ".claude/skills/development/_background/records/2026-10-24-verification-integration.md",
+      ".claude/skills/development/_background/records/2026-10-26-context-integration.md",
+      ".claude/skills/development/_background/records/2026-10-26-detail-expansion.md",
+      ".claude/skills/development/_background/records/2026-10-26-investigation-evidence-adoption.md",
+      ".claude/skills/development/_background/records/2026-10-30-existing-work-contract-adaptation.md",
+      ".claude/skills/development/agents/openai.yaml",
+      ".claude/skills/development/references/execution.md",
+      ".claude/skills/development/references/implementation.md",
+      ".claude/skills/development/references/review.md",
+      ".claude/skills/development/references/verification/INDEX.md",
+      ".claude/skills/development/references/verification/evidence.md",
+      ".claude/skills/improvement-loop/SKILL.md",
+      ".claude/skills/improvement-loop/_background/README.md",
+      ".claude/skills/improvement-loop/_background/context.md",
+      ".claude/skills/improvement-loop/_background/evidence.md",
+      ".claude/skills/improvement-loop/_background/records/2026-10-28-naming.md",
+      ".claude/skills/improvement-loop/_background/records/2026-10-28-prototype.md",
+      ".claude/skills/improvement-loop/_background/records/2026-10-28-structure.md",
+      ".claude/skills/improvement-loop/_background/records/2026-10-29-integration.md",
+      ".claude/skills/improvement-loop/_background/records/2026-10-29-limited-trial.md",
+      ".claude/skills/improvement-loop/_background/records/2026-10-29-means-comparison.md",
+      ".claude/skills/improvement-loop/_background/records/2026-10-30-existing-work-contract-adaptation.md",
+      ".claude/skills/improvement-loop/agents/openai.yaml",
+      ".claude/skills/improvement-loop/references/application.md",
+      ".claude/skills/improvement-loop/references/conversation.md",
+      ".claude/skills/improvement-loop/references/effects.md",
+      ".claude/skills/work-discussion/SKILL.md",
+      ".claude/skills/work-discussion/_background/README.md",
+      ".claude/skills/work-discussion/_background/context.md",
+      ".claude/skills/work-discussion/_background/evidence.md",
+      ".claude/skills/work-discussion/_background/records/2026-10-21-selection-and-policy-application.md",
+      ".claude/skills/work-discussion/_background/records/2026-10-30-existing-work-contract-adaptation.md",
+      "CLAUDE.md",
+      "context/work/workspaces/001-noline-context-harness-application/current/state/index.md",
+      "context/work/workspaces/001-noline-context-harness-application/output/index.md",
+      "context/work/workspaces/001-noline-context-harness-application/records/2026-10-30-02-development-skill-transition.md",
+      "context/work/workspaces/001-noline-context-harness-application/records/README.md",
+      "context/work/workspaces/001-noline-context-harness-application/verify.json",
+      "context/work/workspaces/002-code-readability-refactoring/records/README.md",
+      "context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md",
+      "context/work/workspaces/004-project-context-contracts-and-guidance/output/index.md",
+      "scripts/check-harness.mjs"
+    ],
+    "delete": [
+      ".agents/skills/explanation-recovery",
+      ".agents/skills/read-project-context",
+      ".agents/skills/update-project-context",
+      ".agents/skills/work-artifact-briefing",
+      ".claude/skills/explanation-recovery/SKILL.md",
+      ".claude/skills/explanation-recovery/agents/openai.yaml",
+      ".claude/skills/read-project-context/SKILL.md",
+      ".claude/skills/read-project-context/agents/openai.yaml",
+      ".claude/skills/update-project-context/SKILL.md",
+      ".claude/skills/update-project-context/agents/openai.yaml",
+      ".claude/skills/work-artifact-briefing/SKILL.md",
+      ".claude/skills/work-artifact-briefing/agents/openai.yaml"
+    ],
+    "symlinks": {
+      ".agents/skills/development": "../../.claude/skills/development",
+      ".agents/skills/improvement-loop": "../../.claude/skills/improvement-loop"
+    },
+    "historical_links": [
+      {
+        "file": ".claude/decisions/2026-09-14-project-context-authoring-and-reading.md",
+        "old": "../skills/read-project-context/SKILL.md",
+        "new": ".claude/_archive/skill-transition-2026-10-30/read-project-context.txt",
+        "role": "historical"
+      },
+      {
+        "file": ".claude/decisions/2026-09-14-project-context-authoring-and-reading.md",
+        "old": "../skills/update-project-context/SKILL.md",
+        "new": ".claude/_archive/skill-transition-2026-10-30/update-project-context.txt",
+        "role": "historical"
+      },
+      {
+        "file": "context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md",
+        "old": "../../../../../../.claude/skills/update-project-context/SKILL.md",
+        "new": ".claude/skills/context-update/SKILL.md",
+        "role": "current"
+      },
+      {
+        "file": "context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md",
+        "old": "../../../../../../.claude/skills/read-project-context/SKILL.md",
+        "new": "context/USAGE.md",
+        "role": "current"
+      },
+      {
+        "file": "context/work/workspaces/004-project-context-contracts-and-guidance/output/index.md",
+        "old": "../../../../../.claude/skills/update-project-context/SKILL.md",
+        "new": ".claude/skills/context-update/SKILL.md",
+        "role": "current"
+      },
+      {
+        "file": "context/work/workspaces/004-project-context-contracts-and-guidance/output/index.md",
+        "old": "../../../../../.claude/skills/read-project-context/SKILL.md",
+        "new": "context/USAGE.md",
+        "role": "current"
+      }
+    ],
+    "snapshots": [
+      {
+        "source": ".claude/skills/read-project-context/SKILL.md",
+        "snapshot": ".claude/_archive/skill-transition-2026-10-30/read-project-context.txt",
+        "commit": "4fb309d2ba50afaca44019879d7161964b9b2328",
+        "sha256": "ecbbd74e091c1387fc092fc906c97fbf624f82ea5812d7bc18e98042565547fc"
+      },
+      {
+        "source": ".claude/skills/update-project-context/SKILL.md",
+        "snapshot": ".claude/_archive/skill-transition-2026-10-30/update-project-context.txt",
+        "commit": "4fb309d2ba50afaca44019879d7161964b9b2328",
+        "sha256": "90fe055b2c01d1c62c9570851384eeeade613fd856b3bf79fb478cabba2d30f6"
+      },
+      {
+        "source": ".claude/skills/work-artifact-briefing/SKILL.md",
+        "snapshot": ".claude/_archive/skill-transition-2026-10-30/work-artifact-briefing.txt",
+        "commit": "4fb309d2ba50afaca44019879d7161964b9b2328",
+        "sha256": "5ccf61c506591e4f34df09c997738aa60b3bb3cb6c937100606b600c72b3a5fb"
+      },
+      {
+        "source": ".claude/skills/explanation-recovery/SKILL.md",
+        "snapshot": ".claude/_archive/skill-transition-2026-10-30/explanation-recovery.txt",
+        "commit": "4fb309d2ba50afaca44019879d7161964b9b2328",
+        "sha256": "9f3981002424b9e967e98cf8b13c05671f50271fb430e492a8acec749e6668ec"
+      }
+    ],
+    "reference_hashes": {
+      ".agents/skills/README.md": "879bd05660595d15b1697dc2da56a7d1e05c3c3d005dd9dd81bbedf784294cb6",
+      ".agents/skills/create-context-workspace/SKILL.md": "5630621498fdc1db3c3e888ac85fb3aeecf6cc1110fc3490682b4cb601df4489",
+      ".agents/skills/create-context-workspace/_background/README.md": "5dd8b8271e38f9f2c0f947522cf44c2a40b4f0af171d51489053fa6bf49323a7",
+      ".agents/skills/create-context-workspace/_background/context.md": "5636a3093b9babdf4b316423d09d2a3ea16af7611099f91ad391eabafedd34ca",
+      ".agents/skills/create-context-workspace/_background/evidence.md": "16b2cfc091a50e731361adb7fe20be710da5be15c4c70d8f87a24a7a830ffcef",
+      ".agents/skills/create-context-workspace/_background/records/2026-10-26-prototype-integration.md": "42ac7b4fef1ec8256a87c8db6b5070cf5225a41a6f0f162ced10168716dac274",
+      ".agents/skills/create-context-workspace/_background/records/2026-10-30-existing-work-contract-adaptation.md": "fc02672f8d9e03dac8d64525a848d320c981cf79928e9952ab26087f98907659",
+      ".agents/skills/development/SKILL.md": "3986ef355dadb9d406c03281198ce1ced91bdfec8dcff890a1a424e4c35a26e2",
+      ".agents/skills/development/_background/README.md": "d7cf0afada38891dcf9add119804f36e32bbbe1bf9a10356311ca65d45408579",
+      ".agents/skills/development/_background/context.md": "b1ac32701bd581cd40ff09ad4fdafe1a84d070b85d4fe80b83ddc19e57a9a485",
+      ".agents/skills/development/_background/evidence.md": "c0056d9c4b26fe3c235d82fc1242bf38db13f1fcee8b8ff75bef5639f777dd9b",
+      ".agents/skills/development/_background/evidence/development-before-skill.txt": "1a3138d4eff356d801e46da0040649d06b3460be8241e14971b2f252c4c6254f",
+      ".agents/skills/development/_background/records/2026-10-23-development-skill.md": "be381a23732a694d16f35af55cc20a7eaf308633a2f259081067559bf9f7a9b8",
+      ".agents/skills/development/_background/records/2026-10-23-execution-integration.md": "122188a215f1be33fd39c17955d761f2a9ef7421c021ba9786ab0dc0558531b8",
+      ".agents/skills/development/_background/records/2026-10-24-verification-integration.md": "21d8f0fabacef107c7bef065f98c45983faf74bbd7597472f34b657554cae0d4",
+      ".agents/skills/development/_background/records/2026-10-26-context-integration.md": "e542079568ee80ce13f1ada920db0ae5d71c7221f93ed743da35a29ebcbc40cf",
+      ".agents/skills/development/_background/records/2026-10-26-detail-expansion.md": "a3f12b3db169a4d794592e15c362a8b9a6888e30b492f3f3cbb45199b2f72c84",
+      ".agents/skills/development/_background/records/2026-10-26-investigation-evidence-adoption.md": "605e361bb8b3673a867b3b882244b88bd2d279979b8283911711cda0df980042",
+      ".agents/skills/development/_background/records/2026-10-30-existing-work-contract-adaptation.md": "f5150e30f75b32f02501088cb9a6db44442fda30b8b065fce51995eedd9f940c",
+      ".agents/skills/development/agents/openai.yaml": "ae4c2e3719a92736390a5a2e7dd7a12b9467c3a2a608d5ccdb10b4cebf181a6c",
+      ".agents/skills/development/references/execution.md": "17e73721277a5ffe6501c9b24bad128db544d861cd01ef780129e9e5b5942ac8",
+      ".agents/skills/development/references/implementation.md": "5336c79503482c57131c8a918d3b6ac35bd26434b488246a5407ddcac36e8872",
+      ".agents/skills/development/references/review.md": "c593d4d457984c46d349b388408921630dc7eacb53192fb866d9a117c685d24b",
+      ".agents/skills/development/references/verification/INDEX.md": "a28066591e512e75f1674fc180933329267a9a7ea0015de70e0281615a50abe7",
+      ".agents/skills/development/references/verification/evidence.md": "0a941c3b51bf2ac84eb746d55cd59b3a9a13c0864781ebf6e3ed0c8a9c262559",
+      ".agents/skills/improvement-loop/SKILL.md": "ad40ba305c89778d2d3a1d7eab9a63559d448101f549f5e9a6ddb7ab2d4286b6",
+      ".agents/skills/improvement-loop/_background/README.md": "14227ddb6769ba46d885db58a5f2f51e035469924022698563e63ff5972efec0",
+      ".agents/skills/improvement-loop/_background/context.md": "39c5421c39f91d262be83b032132f3d99318320ce60892bf0984f8d431898061",
+      ".agents/skills/improvement-loop/_background/evidence.md": "934d57c1d147792832003c3688d6c41fa65cf98991e0d39012de8ac915af460d",
+      ".agents/skills/improvement-loop/_background/records/2026-10-28-naming.md": "84c22d1739e384eb8332898b1bc6d2e2b01cdc9c9ade62a63d68472c5e353fb7",
+      ".agents/skills/improvement-loop/_background/records/2026-10-28-prototype.md": "ae57e44b59884745c2a329c2858fa5fb4f2eb19b34036ac2eb76cd34b5c9467f",
+      ".agents/skills/improvement-loop/_background/records/2026-10-28-structure.md": "88f0827b83a812341d4ae7ba4cea90fc3270868a8e50e3ee6766886b3594a61a",
+      ".agents/skills/improvement-loop/_background/records/2026-10-29-integration.md": "7e58c736ecc66275d9a0da2da1d7be6826edfb73a58df8404f93bd489e7b7ab6",
+      ".agents/skills/improvement-loop/_background/records/2026-10-29-limited-trial.md": "f6dd96303ac963907a3d2f42ec7ed0550081a2aaf51cbe83d748ed73618de8d3",
+      ".agents/skills/improvement-loop/_background/records/2026-10-29-means-comparison.md": "f4416ec77ae971cd3b25dd8b1736726a875c8f2ec354aeff8e32a3e2cc5f55ca",
+      ".agents/skills/improvement-loop/_background/records/2026-10-30-existing-work-contract-adaptation.md": "2fd515a562f5052c863f1c253cafddd7ebe156060474458a4db255773f84d13c",
+      ".agents/skills/improvement-loop/agents/openai.yaml": "ed4144b1a68137ce45430838db16fa897dcf71ba07f9ccf0ec4b5b3b73bce172",
+      ".agents/skills/improvement-loop/references/application.md": "2d912563a82f4422b3f0b3e18b58ad038bfe581f5c2a77ad5e7c79d657c6c3e1",
+      ".agents/skills/improvement-loop/references/conversation.md": "d07c5ebc6064115a1dcf62f318ee82793860a460699b7d4eee6071fa02b70fd2",
+      ".agents/skills/improvement-loop/references/effects.md": "6471d63309f72252185089c3ef4e727463f32d03be9948f1dc354bd65b695805",
+      ".agents/skills/work-discussion/SKILL.md": "7b54b68cf5394062b71bda9c2b77794b9f7616b949d5ca231930098304de60a6",
+      ".agents/skills/work-discussion/_background/README.md": "e90da3aa342f42545ff0e2510244d486c8ae126e13830e64d5058f853d0ed235",
+      ".agents/skills/work-discussion/_background/context.md": "1a50c58b4db69494df8e1055a796b05f38fdf7e262eef710f9222ee99573821b",
+      ".agents/skills/work-discussion/_background/evidence.md": "e16a0a668e2eb7da76beb407bbeafc0e2fc10c1bb913fe7ffedfd36546da442f",
+      ".agents/skills/work-discussion/_background/records/2026-10-21-selection-and-policy-application.md": "d0302cdaa039442eaad33d17048507e3b5fd22a9dfd325351207ee4a69c27512",
+      ".agents/skills/work-discussion/_background/records/2026-10-30-existing-work-contract-adaptation.md": "10483925125f49ee707e39770e2a15c5d35ab5bd22e1340c5090d8e20a7ea928",
+      "AGENTS.md": "63f890b0e5c546a2b1adc34f324af3255ae44dfb89cdf7f8cdd3782d7a9b4af0"
+    },
+    "preserved_historical_records": [
+      "context/work/workspaces/002-code-readability-refactoring/records/2026-09-14-05-project-context-structure-reading-and-maintenance.md",
+      "context/work/workspaces/002-code-readability-refactoring/records/2026-09-14-06-project-context-reference-insights-and-retest-direction.md"
+    ]
+  },
+  "after_hashes": {
+    ".claude/_archive/skill-transition-2026-10-30/README.md": "97f380af38a83daf66327f9b9c07569964cedbd763879e96b0d549b4c36fbf06",
+    ".claude/_archive/skill-transition-2026-10-30/explanation-recovery.txt": "9f3981002424b9e967e98cf8b13c05671f50271fb430e492a8acec749e6668ec",
+    ".claude/_archive/skill-transition-2026-10-30/read-project-context.txt": "ecbbd74e091c1387fc092fc906c97fbf624f82ea5812d7bc18e98042565547fc",
+    ".claude/_archive/skill-transition-2026-10-30/update-project-context.txt": "90fe055b2c01d1c62c9570851384eeeade613fd856b3bf79fb478cabba2d30f6",
+    ".claude/_archive/skill-transition-2026-10-30/work-artifact-briefing.txt": "5ccf61c506591e4f34df09c997738aa60b3bb3cb6c937100606b600c72b3a5fb",
+    ".claude/decisions/2026-09-14-project-context-authoring-and-reading.md": "2824d6c1d767379b2790ece8636d211de8c518174b7ae6cef640d75360a0ba3e",
+    ".claude/decisions/2026-10-30-development-skill-transition.md": "0a5fe166e552b1134bb9f414e28b10456afd3e33626ca180a206b9c2a1665746",
+    ".claude/harness/README.md": "12761d253c59e332ac0969526b06117c9a9bb87c20b2c3a807c4e0bb59ff8d86",
+    ".claude/skills/README.md": "9adbebfaed100a303b207f05f38a1ff2775e8a7683d4e4248982e2d4dc4d6c88",
+    ".claude/skills/create-context-workspace/SKILL.md": "e63daabe7cb64646066cd4a4146bc5bf319d21eb5901b39fe321a4e56a821343",
+    ".claude/skills/create-context-workspace/_background/README.md": "5dd8b8271e38f9f2c0f947522cf44c2a40b4f0af171d51489053fa6bf49323a7",
+    ".claude/skills/create-context-workspace/_background/context.md": "5636a3093b9babdf4b316423d09d2a3ea16af7611099f91ad391eabafedd34ca",
+    ".claude/skills/create-context-workspace/_background/evidence.md": "16b2cfc091a50e731361adb7fe20be710da5be15c4c70d8f87a24a7a830ffcef",
+    ".claude/skills/create-context-workspace/_background/records/2026-10-26-prototype-integration.md": "42ac7b4fef1ec8256a87c8db6b5070cf5225a41a6f0f162ced10168716dac274",
+    ".claude/skills/create-context-workspace/_background/records/2026-10-30-existing-work-contract-adaptation.md": "fc02672f8d9e03dac8d64525a848d320c981cf79928e9952ab26087f98907659",
+    ".claude/skills/development/SKILL.md": "0c2edc11859e632f03eefe1df1ec76566d4d70ae988bf49d85aa0866a2bc98a6",
+    ".claude/skills/development/_background/README.md": "d7cf0afada38891dcf9add119804f36e32bbbe1bf9a10356311ca65d45408579",
+    ".claude/skills/development/_background/context.md": "b1ac32701bd581cd40ff09ad4fdafe1a84d070b85d4fe80b83ddc19e57a9a485",
+    ".claude/skills/development/_background/evidence.md": "c0056d9c4b26fe3c235d82fc1242bf38db13f1fcee8b8ff75bef5639f777dd9b",
+    ".claude/skills/development/_background/evidence/development-before-skill.txt": "1a3138d4eff356d801e46da0040649d06b3460be8241e14971b2f252c4c6254f",
+    ".claude/skills/development/_background/records/2026-10-23-development-skill.md": "be381a23732a694d16f35af55cc20a7eaf308633a2f259081067559bf9f7a9b8",
+    ".claude/skills/development/_background/records/2026-10-23-execution-integration.md": "122188a215f1be33fd39c17955d761f2a9ef7421c021ba9786ab0dc0558531b8",
+    ".claude/skills/development/_background/records/2026-10-24-verification-integration.md": "21d8f0fabacef107c7bef065f98c45983faf74bbd7597472f34b657554cae0d4",
+    ".claude/skills/development/_background/records/2026-10-26-context-integration.md": "e542079568ee80ce13f1ada920db0ae5d71c7221f93ed743da35a29ebcbc40cf",
+    ".claude/skills/development/_background/records/2026-10-26-detail-expansion.md": "a3f12b3db169a4d794592e15c362a8b9a6888e30b492f3f3cbb45199b2f72c84",
+    ".claude/skills/development/_background/records/2026-10-26-investigation-evidence-adoption.md": "605e361bb8b3673a867b3b882244b88bd2d279979b8283911711cda0df980042",
+    ".claude/skills/development/_background/records/2026-10-30-existing-work-contract-adaptation.md": "f5150e30f75b32f02501088cb9a6db44442fda30b8b065fce51995eedd9f940c",
+    ".claude/skills/development/agents/openai.yaml": "ae4c2e3719a92736390a5a2e7dd7a12b9467c3a2a608d5ccdb10b4cebf181a6c",
+    ".claude/skills/development/references/execution.md": "ec13a54b1722a41b0b009a29cade5f7089c1b2873fe97c86cab0189326dcc6d9",
+    ".claude/skills/development/references/implementation.md": "5336c79503482c57131c8a918d3b6ac35bd26434b488246a5407ddcac36e8872",
+    ".claude/skills/development/references/review.md": "c593d4d457984c46d349b388408921630dc7eacb53192fb866d9a117c685d24b",
+    ".claude/skills/development/references/verification/INDEX.md": "a28066591e512e75f1674fc180933329267a9a7ea0015de70e0281615a50abe7",
+    ".claude/skills/development/references/verification/evidence.md": "0a941c3b51bf2ac84eb746d55cd59b3a9a13c0864781ebf6e3ed0c8a9c262559",
+    ".claude/skills/improvement-loop/SKILL.md": "ad40ba305c89778d2d3a1d7eab9a63559d448101f549f5e9a6ddb7ab2d4286b6",
+    ".claude/skills/improvement-loop/_background/README.md": "14227ddb6769ba46d885db58a5f2f51e035469924022698563e63ff5972efec0",
+    ".claude/skills/improvement-loop/_background/context.md": "39c5421c39f91d262be83b032132f3d99318320ce60892bf0984f8d431898061",
+    ".claude/skills/improvement-loop/_background/evidence.md": "934d57c1d147792832003c3688d6c41fa65cf98991e0d39012de8ac915af460d",
+    ".claude/skills/improvement-loop/_background/records/2026-10-28-naming.md": "84c22d1739e384eb8332898b1bc6d2e2b01cdc9c9ade62a63d68472c5e353fb7",
+    ".claude/skills/improvement-loop/_background/records/2026-10-28-prototype.md": "ae57e44b59884745c2a329c2858fa5fb4f2eb19b34036ac2eb76cd34b5c9467f",
+    ".claude/skills/improvement-loop/_background/records/2026-10-28-structure.md": "88f0827b83a812341d4ae7ba4cea90fc3270868a8e50e3ee6766886b3594a61a",
+    ".claude/skills/improvement-loop/_background/records/2026-10-29-integration.md": "7e58c736ecc66275d9a0da2da1d7be6826edfb73a58df8404f93bd489e7b7ab6",
+    ".claude/skills/improvement-loop/_background/records/2026-10-29-limited-trial.md": "f6dd96303ac963907a3d2f42ec7ed0550081a2aaf51cbe83d748ed73618de8d3",
+    ".claude/skills/improvement-loop/_background/records/2026-10-29-means-comparison.md": "f4416ec77ae971cd3b25dd8b1736726a875c8f2ec354aeff8e32a3e2cc5f55ca",
+    ".claude/skills/improvement-loop/_background/records/2026-10-30-existing-work-contract-adaptation.md": "2fd515a562f5052c863f1c253cafddd7ebe156060474458a4db255773f84d13c",
+    ".claude/skills/improvement-loop/agents/openai.yaml": "ed4144b1a68137ce45430838db16fa897dcf71ba07f9ccf0ec4b5b3b73bce172",
+    ".claude/skills/improvement-loop/references/application.md": "2d912563a82f4422b3f0b3e18b58ad038bfe581f5c2a77ad5e7c79d657c6c3e1",
+    ".claude/skills/improvement-loop/references/conversation.md": "d07c5ebc6064115a1dcf62f318ee82793860a460699b7d4eee6071fa02b70fd2",
+    ".claude/skills/improvement-loop/references/effects.md": "6471d63309f72252185089c3ef4e727463f32d03be9948f1dc354bd65b695805",
+    ".claude/skills/work-discussion/SKILL.md": "7b54b68cf5394062b71bda9c2b77794b9f7616b949d5ca231930098304de60a6",
+    ".claude/skills/work-discussion/_background/README.md": "e90da3aa342f42545ff0e2510244d486c8ae126e13830e64d5058f853d0ed235",
+    ".claude/skills/work-discussion/_background/context.md": "1a50c58b4db69494df8e1055a796b05f38fdf7e262eef710f9222ee99573821b",
+    ".claude/skills/work-discussion/_background/evidence.md": "e16a0a668e2eb7da76beb407bbeafc0e2fc10c1bb913fe7ffedfd36546da442f",
+    ".claude/skills/work-discussion/_background/records/2026-10-21-selection-and-policy-application.md": "d0302cdaa039442eaad33d17048507e3b5fd22a9dfd325351207ee4a69c27512",
+    ".claude/skills/work-discussion/_background/records/2026-10-30-existing-work-contract-adaptation.md": "10483925125f49ee707e39770e2a15c5d35ab5bd22e1340c5090d8e20a7ea928",
+    "CLAUDE.md": "2849aa7a4b356448e72376d499eca8435b873647f77b3bdc2d976b018d8ae2d1",
+    "context/work/workspaces/001-noline-context-harness-application/current/state/index.md": "fc9c2c1773a0f222a02a02f96237858a5a306345fa83df7594813d7beea4374b",
+    "context/work/workspaces/001-noline-context-harness-application/output/index.md": "1c4b08e2d5d5c79dcae5cefca7dc85a7b5a60619c4ed77f244561235b6dbfd3f",
+    "context/work/workspaces/001-noline-context-harness-application/records/2026-10-30-02-development-skill-transition.md": "07a806b3df0d4314f73db0c058ca643c36acabc10d4911f8e23c472ddf2f6562",
+    "context/work/workspaces/001-noline-context-harness-application/records/README.md": "24fc05dedf3b7e6d1dd7934329f1962c7db0667d2719dbc0dc1bc7bc262e1c98",
+    "context/work/workspaces/001-noline-context-harness-application/verify.json": "dcb13f47dc5bec7f6ca980e683022f37f7e447d6c88870967b7542c688b8acd9",
+    "context/work/workspaces/002-code-readability-refactoring/records/README.md": "16535684c60dd3e9db6b8cf79bd92e6171a96d64a3dc8f982e964bb77fccf428",
+    "context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md": "6adae4f85c1620a6ff5f58eb10fb9e23ed8d412938be7f7354609d402597b0ff",
+    "context/work/workspaces/004-project-context-contracts-and-guidance/output/index.md": "f7e1c79e245fa535f9721f9911b73362aa753e0eeb1764a63ef108e876353341",
+    "scripts/check-harness.mjs": "12fe3a4a19cd81b9ad9937926f1c78febeb3663e129d0242c9537c767dc83c80"
+  },
+  "preservation": {
+    "noline": {
+      "unchanged_existing": 34618,
+      "unexpected_changes": [],
+      "artifacts_unchanged": 1055,
+      "maintain_or_collector_unchanged": 32503
+    },
+    "workspace": {
+      "unchanged_existing": 9692,
+      "unexpected_changes": [],
+      "artifacts_unchanged": 0,
+      "maintain_or_collector_unchanged": 1322
+    }
+  },
+  "checks": {
+    "harness_checker_exit": 1,
+    "harness_checker_output": "보존 원문으로 대조한 과거 스킬 참조: 2건 (옛 URL은 현재 실행 경로가 아님)\nHarness check failed with 8 issue(s):\n- context/work/workspaces/002-code-readability-refactoring/records/2026-09-18-05-auth-session-implementation.md links to missing ../../../../../apps/client/src/shared/services/auth/session-restoration.ts\n- context/work/workspaces/002-code-readability-refactoring/records/2026-09-29-07-read-query-composition-trial.md links to missing ../../../../../apps/client/src/screens/read-query.ts\n- context/work/workspaces/002-code-readability-refactoring/records/2026-10-01-01-schedule-create-provisional-review.md links to missing ../../../../../apps/client/src/features/schedule/create-schedule/useLocationSearch.ts\n- context/work/workspaces/002-code-readability-refactoring/source/codebase-analysis/components.md links to missing ../../../../../../apps/client/src/features/trip/create-trip/useCreateTripForm.ts\n- context/work/workspaces/003-bug-investigation-and-fixes/current/memory/tickets/09-map-search-route-behavior.md links to missing ../../../../../../../apps/client/src/features/schedule/create-schedule/useLocationSearch.ts\n- context/work/workspaces/003-bug-investigation-and-fixes/records/2026-09-13-02-major-feature-category-investigation.md links to missing ../../../../../apps/client/src/features/schedule/create-schedule/useLocationSearch.ts\n- context/work/workspaces/003-bug-investigation-and-fixes/records/2026-09-13-02-major-feature-category-investigation.md links to missing ../../../../../apps/client/src/features/trip/create-trip/useCreateTripForm.ts\n- context/work/workspaces/003-bug-investigation-and-fixes/source/codebase-analysis/components.md links to missing ../../../../../../apps/client/src/features/trip/create-trip/useCreateTripForm.ts\n",
+    "history_assertions": {
+      "accepted": 2,
+      "rejected": 5
+    },
+    "yaml_frontmatter_parsed_both_projects": 32,
+    "harness_tests": "======================================================================\nFAIL: test_timeout_covers_descendant_after_group_leader_exits (context.work.harness.verify.tests.test_verify.VerifyTests.test_timeout_covers_descendant_after_group_leader_exits)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/hammyeong-yeon/Desktop/10_work/noline/context/work/harness/verify/tests/test_verify.py\", line 638, in test_timeout_covers_descendant_after_group_leader_exits\n    self.assertTrue(\n    ~~~~~~~~~~~~~~~^\n        descendant_pid_path.is_file(), completed.stdout + completed.stderr\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\nAssertionError: False is not true : {\n  \"workspace_id\": \"001-example\",\n  \"claim\": \"제품 값이 Project의 기대값과 일치한다.\",\n  \"result\": \"fail\",\n  \"exit_code\": 124,\n  \"receipt\": \"workspaces/001-example/records/receipts/verify/verify-20261030T064155573361Z-fe5bbdb37b6e47f8842e82682c518c61.json\",\n  \"status\": \"verification_failed\",\n  \"timed_out\": true\n}\n\n\n----------------------------------------------------------------------\nRan 124 tests in 9.119s\n\nFAILED (failures=1)\n",
+    "target_timeout_recheck": "test_timeout_covers_descendant_after_group_leader_exits (context.work.harness.verify.tests.test_verify.VerifyTests.test_timeout_covers_descendant_after_group_leader_exits) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.417s\n\nOK\n",
+    "baseline_timeout_recheck": "test_timeout_covers_descendant_after_group_leader_exits (context.work.harness.verify.tests.test_verify.VerifyTests.test_timeout_covers_descendant_after_group_leader_exits) ... ok\n\n----------------------------------------------------------------------\nRan 1 test in 0.399s\n\nOK\n",
+    "recover": {
+      "noline-recover-004-project-context-contracts-and-guidance.json": {
+        "workspace_id": "004-project-context-contracts-and-guidance",
+        "loaded_context_paths": [
+          {
+            "path_base": "work_root",
+            "path": "workspaces/004-project-context-contracts-and-guidance/current/memory/index.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/004-project-context-contracts-and-guidance/current/memory/spec/01-problem-goal-scope.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/004-project-context-contracts-and-guidance/current/memory/spec/02-behavior-and-cases.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/004-project-context-contracts-and-guidance/current/memory/spec/03-concepts-and-contracts.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/004-project-context-contracts-and-guidance/current/memory/spec/04-quality-and-completion.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/004-project-context-contracts-and-guidance/current/memory/spec/05-constraints-design-assumptions.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/004-project-context-contracts-and-guidance/current/memory/tickets/index.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/004-project-context-contracts-and-guidance/current/state/index.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/004-project-context-contracts-and-guidance/current/state/status.json"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/004-project-context-contracts-and-guidance/output/index.md"
+          },
+          {
+            "path_base": "project_root",
+            "path": "context/project/README.md"
+          },
+          {
+            "path_base": "project_root",
+            "path": "context/project/common/product.md"
+          },
+          {
+            "path_base": "project_root",
+            "path": "context/project/common/currency.md"
+          },
+          {
+            "path_base": "project_root",
+            "path": "context/project/common/date-and-time.md"
+          },
+          {
+            "path_base": "project_root",
+            "path": "context/project/guidance/api-contracts.md"
+          }
+        ]
+      },
+      "noline-recover-002-code-readability-refactoring.json": {
+        "workspace_id": "002-code-readability-refactoring",
+        "loaded_context_paths": [
+          {
+            "path_base": "work_root",
+            "path": "workspaces/002-code-readability-refactoring/current/memory/index.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/002-code-readability-refactoring/current/memory/spec/01-problem-goal-scope.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/002-code-readability-refactoring/current/memory/spec/02-behavior-and-cases.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/002-code-readability-refactoring/current/memory/spec/03-concepts-and-contracts.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/002-code-readability-refactoring/current/memory/spec/04-quality-and-completion.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/002-code-readability-refactoring/current/memory/spec/05-constraints-design-assumptions.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/002-code-readability-refactoring/current/memory/additional-research.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/002-code-readability-refactoring/current/memory/analysis-items.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/002-code-readability-refactoring/current/memory/project-context.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/002-code-readability-refactoring/current/memory/tickets/index.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/002-code-readability-refactoring/current/state/index.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/002-code-readability-refactoring/current/state/status.json"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/002-code-readability-refactoring/output/index.md"
+          },
+          {
+            "path_base": "project_root",
+            "path": "context/project/README.md"
+          },
+          {
+            "path_base": "project_root",
+            "path": "context/project/common/product.md"
+          },
+          {
+            "path_base": "project_root",
+            "path": "context/project/guidance/behavior-preserving-refactoring.md"
+          },
+          {
+            "path_base": "project_root",
+            "path": "context/project/guidance/api-contracts.md"
+          },
+          {
+            "path_base": "project_root",
+            "path": "context/project/common/date-and-time.md"
+          },
+          {
+            "path_base": "project_root",
+            "path": "context/project/common/currency.md"
+          },
+          {
+            "path_base": "project_root",
+            "path": "context/project/current/architecture.md"
+          }
+        ]
+      },
+      "reference-recover-default.json": {
+        "workspace_id": "001-default-timeout",
+        "loaded_context_paths": [
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-default-timeout/current/memory/index.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-default-timeout/current/memory/spec/01-problem-goal-scope.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-default-timeout/current/memory/spec/02-behavior-and-cases.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-default-timeout/current/memory/spec/03-concepts-and-contracts.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-default-timeout/current/memory/spec/04-quality-and-completion.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-default-timeout/current/memory/spec/05-constraints-design-assumptions.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-default-timeout/current/memory/project-context.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-default-timeout/current/memory/tickets/index.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-default-timeout/current/state/index.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-default-timeout/current/state/status.json"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-default-timeout/output/index.md"
+          },
+          {
+            "path_base": "project_root",
+            "path": "context/project/README.md"
+          },
+          {
+            "path_base": "project_root",
+            "path": "context/project/common/prd.md"
+          },
+          {
+            "path_base": "project_root",
+            "path": "context/project/current/architecture.md"
+          },
+          {
+            "path_base": "project_root",
+            "path": "context/project/decisions/0001-default-timeout.md"
+          }
+        ]
+      },
+      "noline-recover-default.json": {
+        "workspace_id": "001-noline-context-harness-application",
+        "loaded_context_paths": [
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-noline-context-harness-application/current/memory/index.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-noline-context-harness-application/current/memory/spec/01-problem-goal-scope.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-noline-context-harness-application/current/memory/spec/02-behavior-and-cases.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-noline-context-harness-application/current/memory/spec/03-concepts-and-contracts.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-noline-context-harness-application/current/memory/spec/04-quality-and-completion.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-noline-context-harness-application/current/memory/spec/05-constraints-design-assumptions.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-noline-context-harness-application/current/memory/project-context.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-noline-context-harness-application/current/memory/tickets/index.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-noline-context-harness-application/current/state/index.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-noline-context-harness-application/current/state/status.json"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-noline-context-harness-application/output/index.md"
+          },
+          {
+            "path_base": "project_root",
+            "path": "context/project/README.md"
+          },
+          {
+            "path_base": "project_root",
+            "path": "context/project/common/product.md"
+          },
+          {
+            "path_base": "project_root",
+            "path": "context/project/current/architecture.md"
+          },
+          {
+            "path_base": "project_root",
+            "path": "context/project/decisions/0001-selective-local-first.md"
+          }
+        ]
+      },
+      "noline-recover-001-noline-context-harness-application.json": {
+        "workspace_id": "001-noline-context-harness-application",
+        "loaded_context_paths": [
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-noline-context-harness-application/current/memory/index.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-noline-context-harness-application/current/memory/spec/01-problem-goal-scope.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-noline-context-harness-application/current/memory/spec/02-behavior-and-cases.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-noline-context-harness-application/current/memory/spec/03-concepts-and-contracts.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-noline-context-harness-application/current/memory/spec/04-quality-and-completion.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-noline-context-harness-application/current/memory/spec/05-constraints-design-assumptions.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-noline-context-harness-application/current/memory/project-context.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-noline-context-harness-application/current/memory/tickets/index.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-noline-context-harness-application/current/state/index.md"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-noline-context-harness-application/current/state/status.json"
+          },
+          {
+            "path_base": "work_root",
+            "path": "workspaces/001-noline-context-harness-application/output/index.md"
+          },
+          {
+            "path_base": "project_root",
+            "path": "context/project/README.md"
+          },
+          {
+            "path_base": "project_root",
+            "path": "context/project/common/product.md"
+          },
+          {
+            "path_base": "project_root",
+            "path": "context/project/current/architecture.md"
+          },
+          {
+            "path_base": "project_root",
+            "path": "context/project/decisions/0001-selective-local-first.md"
+          }
+        ]
+      }
+    }
+  },
+  "proof_ceiling": "Static installation and direct tests only; no host discovery/invocation/activation, durable Verify, product acceptance or commit."
+}

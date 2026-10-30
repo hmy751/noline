@@ -1,5 +1,7 @@
 # Records
 
+- [2026-10-30 개발 스킬 전환](2026-10-30-02-development-skill-transition.md): 신규 수행 묶음·기존 논의/생성 보완·옛 실행 경로 제거와 보존·검증 경계.
+
 - [2026-10-30 Reference 부분 보완](2026-10-30-01-reference-context-refresh.md): Personal·읽기·한정 갱신·설명 반영, Noline 기준 보존과 확인 상한.
 
 이 폴더는 Noline Context Harness application Workspace의 이식 선택과 검증 해석을 보존한다.

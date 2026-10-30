@@ -6,6 +6,9 @@
 
 ## 설치된 역할과 진입점
 
+- [development](development/SKILL.md): 개발 요청의 맥락·구현·개선 검토·검증·결과를 연결한다. Noline 제품·경로별 기준을 함께 적용한다.
+- [improvement-loop](improvement-loop/SKILL.md): 사용자가 대화를 돌아보고 개선을 찾자고 요청했을 때 선택한 개선·한정 시도와 경험을 잇는다. 자동 마무리 루프가 아니다.
+
 - [start-app](start-app/SKILL.md): 직접 앱 실행을 요청받았거나 작업 완료에 실제 앱 실행이 필수일 때 DB·서버·클라이언트를 켜고 연결을 확인한다.
 - [create-context-workspace](create-context-workspace/SKILL.md): 새 독립 Workspace의 초기 구성과 재진입 검토. [생성·전환 계약](../../context/work/workspaces/CREATE-AND-TRANSITION.md)을 적용한다.
 - [work-discussion](work-discussion/SKILL.md): 사용자가 직접 호출했을 때 Work의 결과·선택을 구체화하고 Spec에 연결한다. 일반 작업 대화에서 자동으로 인터뷰를 시작하지 않는다.
@@ -16,9 +19,9 @@
 
 위 목록은 역할을 찾는 색인이다. 상세 호출 조건과 설명·검토의 권한 경계는 각 스킬을 따른다. 고정 호출 순서나 모든 작업에서 실행하는 공통 workflow는 두지 않는다.
 
-## 이전 이름의 호환 진입
+## 교체한 실행 경로
 
-[read-project-context](read-project-context/SKILL.md)는 [USAGE](../../context/USAGE.md)와 [Project 읽기 기준](../../context/project/REFERENCE/reading.md), [update-project-context](update-project-context/SKILL.md)는 context-update의 Project 범위, [work-artifact-briefing](work-artifact-briefing/SKILL.md)·[explanation-recovery](explanation-recovery/SKILL.md)는 explain을 안내한다. 기존 evidence·Decision·output이 참조하는 경로와 bridge는 남기고 독립 실행 본문·자동 선택은 전환했다. 새 작업은 현재 진입을 사용한다.
+읽기는 [USAGE](../../context/USAGE.md), 한정 갱신은 context-update, 작업물·앞선 말의 설명은 explain을 사용한다. 옛 read-project-context·update-project-context·work-artifact-briefing·explanation-recovery 실행 폴더와 bridge는 제거했다. [전환 결정](../decisions/2026-10-30-development-skill-transition.md)에서 현재 검사·참조의 이동과 [당시 본문 보존](../_archive/skill-transition-2026-10-30/README.md)을 찾는다.
 
 ## Deprecated
 

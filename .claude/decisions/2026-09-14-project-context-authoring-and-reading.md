@@ -13,7 +13,7 @@
 - [Project README](../../context/project/README.md)는 정체성·세 층의 관계·권위와 주제별 읽기 경로를 소유한다.
 - [Project reference](../../context/project/REFERENCE/README.md)는 구성 판단과 읽기·적용 기준을 연결한다. 구성과 읽기는 소비 시점이 달라 별도 본문으로 두며 갱신 절차는 복제하지 않는다.
 - [MAINTENANCE.md](../../context/project/MAINTENANCE.md)는 갱신 시점·권한·영향 범위·Owner 이동·완료 확인을 소유한다.
-- [읽기 스킬](../skills/read-project-context/SKILL.md)과 [갱신 스킬](../skills/update-project-context/SKILL.md)은 기준을 읽고 적용한다. 제품 의미·문서별 읽기 조건을 스킬에 복제하거나 Workspace Maintain의 쓰기 범위를 넓히지 않는다.
+- [읽기 스킬](../_archive/skill-transition-2026-10-30/read-project-context.txt)과 [갱신 스킬](../_archive/skill-transition-2026-10-30/update-project-context.txt)은 기준을 읽고 적용한다. 제품 의미·문서별 읽기 조건을 스킬에 복제하거나 Workspace Maintain의 쓰기 범위를 넓히지 않는다.
 
 이 배치는 사람이나 다른 실행 장치가 같은 기준을 적용할 수 있게 한다. 대신 문서와 스킬의 연결을 함께 관리해야 하는 비용이 있다. 주제별 routing이나 스킬 호출만으로 실제 읽기·이해·적용이 보장되지는 않는다.
 

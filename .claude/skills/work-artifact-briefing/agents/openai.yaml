@@ -1,6 +1,0 @@
-interface:
-  display_name: "이전 work-artifact-briefing 경로"
-  short_description: "현재 explain으로 연결하는 명시 호출용 호환 안내"
-  default_prompt: "$work-artifact-briefing의 호환 안내에서 현재 수행 경로를 확인해줘."
-policy:
-  allow_implicit_invocation: false

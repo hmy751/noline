@@ -6,8 +6,10 @@ Main은 통화의 금액과 code/symbol 동시 표시, 대표 금액과 나머�
 
 날짜의 장기 의미, 금액 정밀도와 `주 통화` 라벨, 서버 오류 계약은 아직 사용자 선택이 필요하다. Ticket 01에서는 [대표 사례](spec/02-behavior-and-cases.md)와 직접 코드를 새 Project Owner에 대조하며 이 선택만 이어 간다.
 
-지침 분석·수정이나 Project 갱신 전에 [Project 관리 계약](../../../../../project/MAINTENANCE.md), [구성 기준](../../../../../project/REFERENCE/composition.md), [읽기 기준](../../../../../project/REFERENCE/reading.md)을 직접 읽는다. 관리 지침은 Recover의 제품 본문 선택에 억지로 넣지 않고 작업 시점에 읽는다. [갱신 스킬](../../../../../../.claude/skills/update-project-context/SKILL.md)과 [읽기 스킬](../../../../../../.claude/skills/read-project-context/SKILL.md)은 해당 기준을 적용하는 실행 경로다.
+지침 분석·수정이나 Project 갱신 전에 [Project 관리 계약](../../../../../project/MAINTENANCE.md), [구성 기준](../../../../../project/REFERENCE/composition.md), [읽기 기준](../../../../../project/REFERENCE/reading.md)을 직접 읽는다. 관리 지침은 Recover의 제품 본문 선택에 억지로 넣지 않고 작업 시점에 읽는다. [갱신 스킬](../../../../../../.claude/skills/context-update/SKILL.md)과 [읽기 스킬](../../../../../USAGE.md)은 해당 기준을 적용하는 실행 경로다.
 
 Ticket 02의 지침 시험과 원복 전 초안 평가는 [02 실행 기록](../../records/2026-09-14-02-guidance-failure-analysis-and-retest.md)에 보존돼 있다. 원복 뒤 작성된 문서의 채택 전 검토와 현재 기준을 구별한다.
 
 이전 진입점을 대조할 때는 [.claude 문서 지도](../../../../../../.claude/README.md), [API·날짜 runbook](../../../../../../.claude/runbooks/README.md), [server guide](../../../../../../apps/server/CLAUDE.md)에서 실제 경로를 따라간다. 원문·코드·이전 합의의 정확한 접근점과 용도는 [source 색인](../../source/index.md)에 있다.
+
+2026-10-30 실행 경로 전환: 당시 읽기·갱신 스킬의 현재 책임은 USAGE·context-update로 이어진다. 위 접근 링크만 새 정본에 맞췄으며 이 Workspace의 당시 선택·진행·검증은 바꾸지 않았다. [전환 근거](../../../../../../.claude/decisions/2026-10-30-development-skill-transition.md).

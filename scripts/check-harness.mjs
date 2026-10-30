@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const failures = [];
+const preservedHistoricalReferences = [];
 
 const rel = (target) => path.relative(root, target) || '.';
 const exists = (target) => fs.existsSync(path.join(root, target));
@@ -18,15 +20,13 @@ const expectedExecutionAgents = [
 const expectedSkills = [
   'noline-work',
   'create-context-workspace',
-  'read-project-context',
-  'update-project-context',
   'work-discussion',
   'reconsider-work',
-  'work-artifact-briefing',
-  'explanation-recovery',
   'start-app',
   'context-update',
   'explain',
+  'development',
+  'improvement-loop',
 ];
 
 function checkSymlink(linkPath, expectedTarget) {
@@ -81,6 +81,23 @@ function withoutFencedCode(text) {
   }).join('\n');
 }
 
+// 원문 보존 대상인 두 과거 기록의 옛 링크만 교체 직전 보존판으로 대조한다.
+// 현재 링크나 변경된 기록은 이 예외를 얻지 않으며 일반 missing 검사에서 실패한다.
+const historicalSkillRecords = new Map([
+  ['context/work/workspaces/002-code-readability-refactoring/records/2026-09-14-05-project-context-structure-reading-and-maintenance.md', 'f5acb5611d35f1b39e2f75b20ef96e01ee4b7ba4605de1cd6ad60bbcf4bfc922'],
+  ['context/work/workspaces/002-code-readability-refactoring/records/2026-09-14-06-project-context-reference-insights-and-retest-direction.md', '7219239249f7c868ae3c69b866ea3639b5224bf11f65c6f550d5c10d5a91e593'],
+]);
+
+function hasPreservedHistoricalTarget(file, target) {
+  const expectedRecordHash = historicalSkillRecords.get(rel(file));
+  if (!expectedRecordHash || rel(target) !== '.claude/skills/update-project-context/SKILL.md') return false;
+  const sha256 = (filePath) => createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
+  const snapshot = path.join(root, '.claude/_archive/skill-transition-2026-10-30/update-project-context.txt');
+  return fs.existsSync(snapshot)
+    && sha256(file) === expectedRecordHash
+    && sha256(snapshot) === '90fe055b2c01d1c62c9570851384eeeade613fd856b3bf79fb478cabba2d30f6';
+}
+
 function checkMarkdownLinks() {
   const activeInputs = [
     'CLAUDE.md',
@@ -115,7 +132,11 @@ function checkMarkdownLinks() {
       target = decodeURI(target);
       const absoluteTarget = path.resolve(path.dirname(file), target);
       if (!fs.existsSync(absoluteTarget)) {
-        failures.push(`${rel(file)} links to missing ${match[1]}`);
+        if (hasPreservedHistoricalTarget(file, absoluteTarget)) {
+          preservedHistoricalReferences.push(`${rel(file)} -> ${rel(absoluteTarget)}`);
+        } else {
+          failures.push(`${rel(file)} links to missing ${match[1]}`);
+        }
       }
     }
   }
@@ -339,6 +360,10 @@ checkRootPlans();
 checkMarkdownLinks();
 // Durable Verify snapshots regular inputs; Git/index whitespace is checked by the default run.
 if (!process.argv.includes('--no-git-diff')) checkGitDiffWhitespace();
+
+if (preservedHistoricalReferences.length > 0) {
+  console.log(`보존 원문으로 대조한 과거 스킬 참조: ${preservedHistoricalReferences.length}건 (옛 URL은 현재 실행 경로가 아님)`);
+}
 
 if (failures.length > 0) {
   console.error(`Harness check failed with ${failures.length} issue(s):`);
