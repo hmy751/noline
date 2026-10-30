@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "workspace_id": "005-context-based-code-improvement",
+  "claim": "초기 recover.json이 Python 표준 JSON 파서로 읽힌다. Workspace schema·내용 충분성·제품 동작·개선 효과·전체 완료를 증명하지 않는다. 제품 검증 때 해당 claim과 입력을 다시 정의한다.",
+  "canonical_basis": [
+    "context/work/workspaces/005-context-based-code-improvement/current/memory/spec/04-quality-and-completion.md"
+  ],
+  "verification": {
+    "argv": [
+      "python3",
+      "-B",
+      "-m",
+      "json.tool",
+      "context/work/workspaces/005-context-based-code-improvement/recover.json"
+    ],
+    "evidence_paths": [
+      "context/work/workspaces/005-context-based-code-improvement/recover.json"
+    ],
+    "timeout_seconds": 10,
+    "max_output_chars": 10000
+  }
+}
