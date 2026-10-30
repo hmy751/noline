@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import React from 'react';
 import * as FileSystem from 'expo-file-system';
 import type { FileInfo } from 'expo-file-system';
 import MapboxGL from '@rnmapbox/maps';
@@ -7,6 +8,7 @@ import { act, renderHook, waitFor } from '@testing-library/react-native';
 import { useStorageStats } from '@/features/profile/hooks/useStorageStats';
 
 jest.mock('expo-file-system', () => ({
+  __esModule: true,
   documentDirectory: 'file:///documents/',
   getInfoAsync: jest.fn(),
   readDirectoryAsync: jest.fn(),
@@ -145,6 +147,31 @@ describe('저장 용량 통계', () => {
     expect(readDirectoryAsyncMock).not.toHaveBeenCalled();
   });
 
+  it('문서 디렉터리를 사용할 수 없으면 이전 용량을 0 B로 바꾸고 native 조회를 시작하지 않는다', async () => {
+    arrangeDbFiles([['noline.db', 1024]]);
+    getPacksMock.mockResolvedValue([createPack('seoul', 2048)]);
+
+    const { result } = renderHook(() => useStorageStats());
+
+    await waitFor(() => expect(result.current.stats.totalSize).toBe('3 KB'));
+
+    jest.replaceProperty(FileSystem, 'documentDirectory', null);
+    jest.clearAllMocks();
+
+    await act(async () => {
+      await result.current.refresh();
+    });
+
+    expect(result.current.stats).toEqual({
+      dbSize: '0 B',
+      mapPackSize: '0 B',
+      totalSize: '0 B',
+    });
+    expect(getInfoAsyncMock).not.toHaveBeenCalled();
+    expect(readDirectoryAsyncMock).not.toHaveBeenCalled();
+    expect(getPacksMock).not.toHaveBeenCalled();
+  });
+
   it('native module이 반환한 유효하지 않은 용량은 합산하지 않는다', async () => {
     arrangeDbFiles([
       ['valid.db', 1024],
@@ -279,5 +306,55 @@ describe('저장 용량 통계', () => {
     });
 
     expect(result.current.stats.mapPackSize).toBe('2 KB');
+  });
+
+  it('unmount 뒤 끝난 새로고침은 React 상태 반영을 요청하지 않는다', async () => {
+    const actualUseState = React.useState;
+    const stateUpdates = jest.fn();
+
+    // React가 unmount 뒤 갱신을 무시해도 Hook의 잘못된 반영 시도는 검출합니다.
+    jest.spyOn(React, 'useState').mockImplementation((initialState?: unknown) => {
+      const [state, setState] = actualUseState(initialState);
+      return [
+        state,
+        (nextState: unknown) => {
+          stateUpdates(nextState);
+          setState(nextState);
+        },
+      ];
+    });
+
+    arrangeDbFiles([]);
+    getPacksMock.mockResolvedValueOnce([createPack('initial', 1024)]);
+
+    const { result, unmount } = renderHook(() => useStorageStats());
+
+    await waitFor(() => expect(result.current.stats.mapPackSize).toBe('1 KB'));
+    expect(stateUpdates).toHaveBeenCalledWith({
+      dbSize: '0 B',
+      mapPackSize: '1 KB',
+      totalSize: '1 KB',
+    });
+
+    const pendingPacks = createDeferred<TestPack[]>();
+    getPacksMock.mockReturnValueOnce(pendingPacks.promise);
+
+    let pendingRefresh!: Promise<void>;
+    act(() => {
+      pendingRefresh = result.current.refresh();
+    });
+    await waitFor(() => expect(getPacksMock).toHaveBeenCalledTimes(2));
+
+    unmount();
+    stateUpdates.mockClear();
+
+    const latePack = createPack('late', 2048);
+    await act(async () => {
+      pendingPacks.resolve([latePack]);
+      await pendingRefresh;
+    });
+
+    expect(latePack.status).toHaveBeenCalledTimes(1);
+    expect(stateUpdates).not.toHaveBeenCalled();
   });
 });
