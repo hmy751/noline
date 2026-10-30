@@ -16,6 +16,7 @@
 | 작업 | 먼저 볼 문서 |
 | --- | --- |
 | client 기능/버그 공통 | [Runbooks](../../.claude/runbooks/README.md), [Guard Map](../../.claude/guards/README.md) |
+| 앱 준비, 재로그인, 로그아웃·탈퇴, 세션 변경과 저장 조율 | [앱 실행·세션·데이터 보존](../../context/project/current/app-runtime/INDEX.md) |
 | Data Entity, repository, React Query | [API/Data context](../../.claude/context/api-data.md), [Activation Router rule](../../.claude/rules/activation-router.md) |
 | local write, sync queue, soft delete | [Transaction + Sync Queue rule](../../.claude/rules/transaction-sync-queue.md) |
 | form/manual input | [Form runbook](../../.claude/runbooks/README.md#form-pattern), [Form context](../../.claude/context/form.md) |

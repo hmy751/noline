@@ -4,7 +4,8 @@ Recover는 Project README·제품 의미·현재 구조를 기본 입력으로 �
 
 - [Project 입구](../../../../../project/README.md): 주제별 현재 Owner와 물리 층의 책임.
 - [제품 의미](../../../../../project/common/product.md): 데이터 소유와 일정·경비 관계 및 보존 제약.
-- [현재 구조](../../../../../project/current/architecture.md): 앱·패키지·검증 관계의 기존 설명. 04에서 앱 수명과 연결을 보완한다.
+- [현재 구조](../../../../../project/current/architecture.md): 앱·패키지·검증 관계와 앱 준비·세션 수명의 전체 위치.
+- [앱 실행·세션·데이터 보존](../../../../../project/current/app-runtime/INDEX.md): 04에서 복원한 앱 준비·로컬 이용·로그인·종료의 관계. 05/06에서 인증과 실행 수명을 연결할 때 읽는다.
 - [관리 계약](../../../../../project/MAINTENANCE.md), [구성 기준](../../../../../project/REFERENCE/composition.md), [읽기 기준](../../../../../project/REFERENCE/reading.md): 본문 충분성·권위·진입과 완료 확인.
 - [기존 상세 입구](../../../../../../.claude/context/README.md): policy·form·manual-input·components·선택적 활성화 등 05/06의 기존 본문 Owner.
 - [날짜와 시각](../../../../../project/common/date-and-time.md), [통화](../../../../../project/common/currency.md), [API 계약](../../../../../project/guidance/api-contracts.md): 이미 반영된 의미를 폼·조회·보존 경계와 연결할 때 읽는다.

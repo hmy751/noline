@@ -8,9 +8,9 @@
 
 ## 실행 맥락과 접근
 
-기존 current/architecture의 앱 책임 설명을 보완하고, 인증·앱 수명에 기존 상세 Owner가 충분한지 확인해 필요한 주제 본문을 구성한다. 원자성 compact rule은 유지하며 실제 DB 실행·중단의 관계와 상세 설명 경로를 연결한다. 최초 startup/auth 기록과 후속 재로그인·종료 결정을 현재 구현에 대조한다.
+현재 architecture는 전체 구성과 상세 진입을, 새 app-runtime 본문은 앱 준비·계정 이용·로그인·종료의 연결을 설명한다. 원자성 compact rule과 기존 Activation Router·Policy의 상세 Owner는 유지한다. 최초 startup/auth 기록과 후속 재로그인·종료 결정을 현재 구현에 대조해 대체된 선택과 현재 지원을 구별했다.
 
-우선 AppInitialization, Root의 navigation/인증 후 effects, auth Store와 login/logout/session-lifecycle, DB index/utils, sync lifecycle과 cleanup pause를 따라간다. 현재 코드와 실제 소비자가 답해야 하는 관계를 먼저 잡고 최종 파일 분할을 정한다.
+AppInitialization, Root의 navigation/인증 후 effects, auth Store와 login/logout/session-lifecycle, DB index/utils, sync lifecycle과 cleanup pause를 대조했다. 현재 코드와 실제 소비자가 답해야 하는 관계를 app-runtime 본문으로 묶었다.
 
 - [앱 준비·실패·책임 선택](../../../../002-code-readability-refactoring/records/2026-09-18-02-app-initialization-and-style.md)
 - [후속 인증 책임과 보존](../../../../002-code-readability-refactoring/records/2026-09-21-04-auth-responsibilities-and-regression-fixes.md)
@@ -18,6 +18,26 @@
 - [세션 변경 조율](../../../../../../../apps/client/src/shared/services/auth/session-lifecycle.ts)
 - [DB 준비·직렬 실행](../../../../../../../apps/client/src/shared/db/index.ts)
 - [현재 구조 설명](../../../../../../project/current/architecture.md)
+
+## 본문이 답할 구체적인 질문
+
+앱을 켜고, 기존 여행을 이용하고, 세션을 바꾸거나 종료하는 흐름으로 설명한다. 각 질문의 답에는 사용자에게 나타나는 결과, 보존할 데이터, 처리 책임과 그 이유를 함께 둔다.
+
+| 장면 | 본문에서 복원할 질문 |
+| --- | --- |
+| 앱 시작 | DB 준비 실패와 인증 정보 복원 실패는 각각 어느 화면에서 재시도하는가? 앱 준비 완료가 보장하는 범위는 어디까지인가? |
+| 인증 만료 후 이용 | 재인증이 필요해도 어떤 로컬 접근이 가능한가? 서버 요청과 다른 계정 로그인에는 어떤 제한이 있으며 기존 여행은 왜 보존하는가? |
+| 로그인 | 토큰을 저장하는 것과 로그인 절차를 마치는 것은 어떻게 다른가? 늦게 끝난 이전 세션의 작업이 새 세션에 적용되지 않게 하는 책임은 어디에 있는가? |
+| 세션 변경 중 작업 | 실행 중 sync·cleanup·DB 작업을 어떤 순서로 기다리며 새 작업은 언제 막는가? 종료 대기가 동기화 성공까지 뜻하는가? |
+| 로그아웃·탈퇴 | 미동기화 데이터가 있거나 서버 요청·로컬 정리에 실패하면 무엇을 유지하거나 비우는가? 명시적 데이터 폐기와 일반 종료는 어떻게 다른가? |
+
+## 산출물 구성과 조사 경계
+
+기존 `current/architecture.md`에 앱 준비·세션·저장의 큰 관계와 상세 진입을 보완했다. 상세는 [앱 실행·세션·데이터 보존](../../../../../../project/current/app-runtime/INDEX.md)에서 시작·계정 이용·로그인·종료 흐름으로 묶는다. 여러 모듈이 보존하는 같은 데이터의 관계를 이해하는 것이 독립 본문의 이유다. 형성 자료는 초기 자동 계정 전환의 대체, 앱 준비 책임과 종료 순서의 선택 이유를 보존한다. Project 입구·client guide·기존 context 지도·transaction rule에서 본문으로 연결했다.
+
+002의 최초 설명과 후속 인증 책임·종료 결정의 대체 관계를 현재 코드·관련 테스트에 대조했다. 시작·이용·종료마다 기존 설명, 빠진 관계, 현재 보장되지 않는 부분을 구별해 본문에 반영했다. 네트워크 관측·조회 복구의 상세는 05가 맡으며 여기서는 앱·세션 수명과 연결되는 조건까지만 설명한다.
+
+새 제품 결정 없이 이미 채택된 의미를 복원했다. 확인한 구현 한계는 본문에 남기고 제품 수정으로 범위를 넓히지 않았다.
 
 ## 완료 조건과 확인 방법
 
@@ -28,4 +48,10 @@
 
 ## 현재 상태와 실제 결과
 
-실행 범위를 구성했다. 앞선 전체 대응 조사에서 관련 기록·Context·코드 일부를 확보했다. 본문 보완과 대표 읽기 확인은 아직 수행하지 않았다. 실제 편집 시 현재판과 후속 결정을 확인하고 결과를 이 본문에 갱신한다.
+본문 보완과 대표 읽기·근거 대조를 마쳤다. DB 준비 실패와 복원 실패, 재인증 중 Local 이용, 같은 계정 재로그인과 명시적 데이터 폐기, Store 저장과 전체 세션 변경의 책임을 현재 본문에서 설명한다. 종료 대기와 sync 성공, DB 원자성과 서버·기기 전체 정리의 차이도 함께 반영했다.
+
+Main이 Project README와 client guide·transaction rule에서 본문을 찾아 대표 질문을 적용하고 실제 구현과 대조했다. 관련 기존 Jest 14개 suite·146개 test가 통과했다. 이 결과는 문서의 의미 충분성을 대신하지 않으며, 별도 독자의 적용이나 실기기 OAuth·SecureStore·강제 종료 복구를 확인한 것은 아니다.
+
+전체 harness 검사는 기존 002·003의 끊어진 링크 8건으로 실패했다. 변경·신규 문서의 상대 링크·참조 anchor·EOF·끝 공백, git diff --check 및 명시적 005 Recover를 확인했다. 보기 개선 뒤에도 기존 근거 링크를 모두 유지하고 해당 문서 검사를 통과했다. 제품 코드·테스트는 수정하지 않았다. 여행별 cleanup의 PENDING 한정 검사·처리 수, 별도 지도 정리의 수명과 앱 강제 종료 뒤 복구는 현재 본문에 남긴 제품 한계이며 이번 Ticket이 구현한 결과가 아니다. 상세 대조와 실행 근거는 [완료 기록](../../../records/2026-10-30-11-app-runtime-context.md)에 있다.
+
+사용자의 보기 개선 요청에 따라 본문 첫머리에 시작·재인증·종료 요약을 두고 긴 문단을 역할별로 나눴다. 표는 상태·데이터·후속 행동을 비교하도록 정돈했으며 기존 조건·예외·근거는 유지했다. [정리와 저장 기록](../../../records/2026-10-30-12-app-runtime-presentation-and-save.md)에서 후속 확인 범위를 찾는다.

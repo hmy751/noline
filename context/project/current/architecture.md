@@ -10,6 +10,14 @@ Trip·Schedule·Expense의 data hook은 repository를 호출하고 repository의
 
 실제 sync source는 [engine](../../../apps/client/src/shared/services/sync/engine.ts), [queue](../../../apps/client/src/shared/services/sync/queue.ts), [cleanup job](../../../apps/client/src/shared/services/sync/cleanup-job.ts)에서 찾는다. 비활성화 시 pending task가 있으면 cleanup을 미루는 모델을 따른다. 지도·검색·길찾기는 [Policy 설명](../../../.claude/context/policy-architecture.md)을 따르며 Data Router를 확대 적용하지 않는다.
 
+## 앱 준비와 세션 수명
+
+`application/AppInitialization`은 DB 준비와 기기 인증 복원을 마친 뒤 하위 화면을 연다. DB 실패는 앱 준비 화면에서 재시도하고, 인증 복원 실패는 데이터를 보존한 채 로그인 화면에서 다룬다. Root layout은 준비된 앱의 화면과 인증 후 작업을 연결한다. 여행 목록 갱신·선택, 지도·pending cleanup, sync 완료는 앱 진입의 선행 조건이 아니다.
+
+Auth Store는 현재 계정과 인증 수단을 관리한다. 재인증이 필요해도 같은 계정의 활성 여행을 로컬에서 계속 이용하고, 로그인 서비스는 기존 데이터를 유지하며 인증을 복구한다. 명시적 로그아웃·탈퇴는 실행 중 sync·pending cleanup·DB 작업을 기다린 뒤 미전송 여부와 데이터 정리를 처리한다. Store의 기기 저장 순서와 서비스의 전체 절차 조율은 범위가 다르다.
+
+이 연결은 2026-10-30 현재 소스와 관련 검사에 대조했다. 상태별 접근, 변경할 책임, 실패 시 남는 데이터와 실제 보호의 한계는 [앱 실행·세션·데이터 보존](app-runtime/INDEX.md)이 설명한다. 특히 종료 대기와 전송 성공, 로그아웃의 미전송 검사와 여행별 cleanup 검사를 구별한다. 이 보완이 위 전체 구현 지도의 모든 영역을 다시 확인했다는 뜻은 아니다.
+
 ## 지원 경계와 확인 방법
 
 제품 문서는 iOS 중심 배포, 활성 여행의 오프라인 핵심 입력, 온라인 보강과 통화별 관리를 설명한다. Android 동등 지원, 외부 공급자·운영 DB 상태, 실제 네트워크 전환·동시 sync의 성공은 이 지도에 사용한 source 대조만으로 확인되지 않는다. 기능별 현재 여부는 해당 source와 실제 환경에서 다시 판정한다.

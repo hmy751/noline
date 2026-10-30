@@ -16,6 +16,7 @@
 | 주제 | 맥락 source | 먼저 볼 rule/runbook |
 | --- | --- | --- |
 | Architecture and FSD | [architecture.md](architecture.md) | [Runbooks](../runbooks/README.md) |
+| 앱 준비·세션·데이터 보존 | [Project 앱 실행 구조](../../context/project/current/app-runtime/INDEX.md) | [Client guide](../../apps/client/CLAUDE.md), [Transaction + Sync Queue](../rules/transaction-sync-queue.md) |
 | <a id="selective-activation-and-router"></a>Selective Activation and Router | [selective-activation-architecture.md](selective-activation-architecture.md), [activation-system.md](activation-system.md) | [Activation Router rule](../rules/activation-router.md) |
 | API 계약과 변경 | [Project API guidance](../../context/project/guidance/api-contracts.md), [repository/query 구현 경로](api-data.md) | [Add API Endpoint](../runbooks/README.md#api-endpoint) |
 | <a id="policy-layer"></a>Policy Layer | [policy-architecture.md](policy-architecture.md) | [Policy UI rule](../rules/policy-ui.md) |

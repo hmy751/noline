@@ -5,6 +5,7 @@
 현재 본문은 다음과 같다.
 
 - [구조·지원·검증 지도](architecture.md): client·server·schema·UI의 실제 책임과 제품·Harness 검증의 범위를 구별할 때 읽는다.
+- [앱 실행·세션·데이터 보존](app-runtime/README.md): 앱 준비, 같은 계정의 로컬 이용, 로그인·로그아웃과 DB·sync 종료의 관계를 설명하는 본문과 형성 자료를 안내한다.
 - [도시 검색의 현재 경계](city-search.md): 여행 생성의 GeoNames 요청·응답 선별, 변환과 실패 반환을 바꿀 때 읽는다.
 - [저장 용량 집계의 현재 경계](storage-statistics.md): 프로필의 SQLite·Mapbox 집계, 부분 실패와 refresh 상태를 바꿀 때 읽는다.
 

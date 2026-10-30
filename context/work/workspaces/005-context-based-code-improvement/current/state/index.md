@@ -2,7 +2,9 @@
 
 현재 목표는 002에서 얻은 제품·구조·계약을 Project Context에 복원·보완하는 것이다. 개인 판단·협업 방식·스킬 개선은 후순위다. Spec과 실행 Ticket을 이 목표에 맞춰 재구성했다.
 
-첫 실행은 [04 — 앱 실행·세션·데이터 보존](../memory/tickets/04-app-runtime-context.md)이다. 앱 준비·인증·DB 작업과 종료 조율의 현재 관계를 복원하고, 본문과 실제 읽기 경로를 보완한다. 이어 [05 — 네트워크·조회·화면 복구](../memory/tickets/05-network-read-context.md), [06 — 작성·장소·날짜 입력](../memory/tickets/06-draft-input-context.md)을 수행한다. 세 Ticket은 범위를 구성한 상태이며 Project 본문의 보완 완료를 뜻하지 않는다.
+[04 — 앱 실행·세션·데이터 보존](../memory/tickets/04-app-runtime-context.md)의 본문 보완과 대표 읽기·근거 대조를 마쳤다. 관련 기존 Jest 14개 suite·146개 test가 통과했다. 실제 native와 앱 강제 종료 뒤 복구까지 검증한 것은 아니며, 확인한 제품 한계는 새 본문에 남겼다. [산출물](../../output/index.md)과 [확인 기록](../../records/2026-10-30-11-app-runtime-context.md)에서 이어 읽는다.
+
+다음은 [05 — 네트워크·조회·화면 복구](../memory/tickets/05-network-read-context.md)다. 실제 관측·표시 정책·조회 실행·내용 표시와 복구의 관계를 기존 상세 Owner에 보완한다. 이후 [06 — 작성·장소·날짜 입력](../memory/tickets/06-draft-input-context.md)을 수행한다. 05·06의 본문 보완은 아직 시작하지 않았다.
 
 이미 반영된 날짜·API·통화·도시 검색·저장 용량·여행 목록 계약은 [범위 지도](../memory/review-scope.md)에 따라 재사용·대조한다. 새 파일이나 티켓의 수로 전체 축적을 대신하지 않는다. 조사·본문 수정·읽기 경로·확인은 각 Ticket이 함께 맡는다.
 
