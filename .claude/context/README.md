@@ -27,7 +27,7 @@
 | <a id="offline-map"></a>Offline map | [offline-map.md](offline-map.md) | client workspace guide |
 | <a id="offline-routing"></a>Offline routing | [offline-routing.md](offline-routing.md) | sync-owned data가 관련되면 [Debug Sync Issues](../runbooks/README.md#sync-debug) |
 | <a id="currency"></a>Currency | [Project 통화와 금액](../../context/project/common/currency.md), [구현 helper 경로](currency.md) | [Display Currency/Amounts](../runbooks/README.md#currency-utils) |
-| <a id="forms-and-manual-input"></a>Forms and manual input | [form.md](form.md), [manual-input.md](manual-input.md) | [Implement Forms](../runbooks/README.md#form-pattern) |
+| <a id="forms-and-manual-input"></a>작성 초안·장소·날짜 입력 / Manual Input | [form.md](form.md), [manual-input.md](manual-input.md) | [Implement Forms](../runbooks/README.md#form-pattern) |
 
 ## 아카이브 경계
 

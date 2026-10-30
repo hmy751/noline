@@ -22,6 +22,8 @@ Trip `startDate`·`endDate`는 ISO datetime 저장·전송 계약을 유지한�
 
 기존 SQLite에는 nullable 시간대 column을 추가하고 기존 행·전송 대기 큐를 보존한다. 새 client의 생성 요청은 시간대가 필수다. 서버는 과거 client의 미전송 Trip CREATE에 한해 시간대 없는 입력을 호환 수용한다. 시간대가 있는 값은 일반 응답·활성화·동기화·로컬 upsert를 거쳐 보존한다.
 
+폼의 초안·선택창 임시값·저장값을 연결하거나 확인·취소·재열기를 바꿀 때에는 [작성·입력 가이드](../../../.claude/context/form.md#날짜시간-선택창과-폼의-연결)를 함께 읽는다. 날짜·시각 필드의 의미와 저장 경계는 이 본문이 계속 소유한다.
+
 ## 시점 검증과 일정 입력의 책임
 
 공유 [시점 schema](../../../packages/schema/src/primitives/datetime.ts)는 timezone이 있는 ISO 형식뿐 아니라 실제로 해석 가능한 시점인지 검사한다. `+99:99`처럼 형식 검사를 통과해도 유효한 시각이 아닌 값은 거절한다. Trip·Schedule·Expense·User의 시점 필드, 삭제 응답과 동기화 기준 시각은 같은 검사를 사용한다. 유효한 offset을 `Z`로 강제 재작성하지는 않는다.

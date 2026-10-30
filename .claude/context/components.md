@@ -17,7 +17,7 @@ Noline의 현재 UI 기준은 React Native/Expo, NativeWind className, `@repo/ui
 | `packages/ui` | 앱 도메인을 모르는 atom | `Button`, `Input`, `Card`, `Select`, `Pressable` |
 | `shared/components` | client 앱 공용 조합 | `MobileHeader`, `Field`, `DatePicker`, `PolicyErrorDisplay` |
 | `entities/*/ui` | 비즈니스 entity 표시 | `TripCard`, `TripSelector` |
-| `features/*` | 사용자 action과 form flow | `ScheduleForm`, `ManualExpenseForm` |
+| `features/*` | 사용자 action과 form flow | `ScheduleForm`, `ExpenseForm` |
 | `screens/*` | 화면 조립 | `HomeScreen`, `CreateScheduleScreen` |
 | `app/` | Expo Router 연결 | route file, layout file |
 
@@ -35,9 +35,11 @@ Noline의 현재 UI 기준은 React Native/Expo, NativeWind className, `@repo/ui
 
 폼 UI는 [form.md](form.md)를 우선한다.
 
-- `react-hook-form`의 `Controller`로 React Native input을 연결한다.
+- 일반 React Native input은 `Controller`로 연결하고, 시간 입력은 기존 `TimeField` adapter를 사용한다.
 - field label, description, error message는 `Field` 조합을 우선 사용한다.
 - submit side effect는 feature hook이나 entity data hook으로 분리한다.
+
+`TimeField`는 RHF 값·오류를 구독하고 선택창 열기·확인 반영을 연결한다. `TimePicker`는 RHF를 모르는 임시 선택을, `DatePicker`는 현재 날짜의 달력 표시를 맡는다. 날짜 탭과 시간 확인의 반영 시점, 닫기·재열기·다른 항목 전환은 [폼의 선택창 수명](form.md#날짜시간-선택창과-폼의-연결)을 따른다. 모든 picker 상태를 feature hook에 모으거나 컴포넌트 이름만 바꾸는 기준으로 사용하지 않는다.
 
 ## Map and Policy UI
 

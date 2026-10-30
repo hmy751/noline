@@ -57,7 +57,7 @@ server route와 client-facing API contract를 바꿀 때 사용한다.
 
 ## <a id="form-pattern"></a>Form 구현
 
-client form과 manual input flow에 사용한다.
+client form과 manual input flow에 사용한다. 먼저 [작성·입력 Context](../context/form.md)에서 초안·선택창·저장값의 수명과 실제 초기화 조건을 확인한다. 장소 검색이나 picker를 바꾸면 같은 본문의 해당 책임과 소비자를 함께 읽는다.
 
 1. 기존 codebase가 쓰는 위치에서는 React Hook Form과 Zod resolver를 사용한다.
 2. form-only state는 local로 두고, submit 시 request shape으로 변환한다.
