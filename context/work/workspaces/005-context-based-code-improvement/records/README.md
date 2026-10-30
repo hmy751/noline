@@ -32,4 +32,6 @@
 
 - [2026-10-30 Context 보완 완료와 저장](2026-10-30-16-context-completion-save.md): 06 저장 범위·최종 확인과 04–06 결과의 완료 경계.
 
+- [2026-10-30 사용자 요청에 따른 종료와 다음 논의](2026-10-30-17-workspace-close-and-next-discussion.md): 원하는 방향과의 불일치, 결과 보존과 목표 수락의 구별, 다음 Workspace의 범위 미정.
+
 기존 record는 당시 근거로 보존하고 보완은 새 기록에 연결한다. 제품 검증 receipt는 별도 receipts/verify 경계를 사용한다.

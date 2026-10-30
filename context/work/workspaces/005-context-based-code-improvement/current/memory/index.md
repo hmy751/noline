@@ -1,5 +1,7 @@
 # Project Context 보완의 작업 정의
 
+이 Workspace는 사용자 요청으로 종료했다. 아래 Spec·Ticket은 수행했던 작업 정의와 결과를 보존하며 추가 실행 지시가 아니다. 문서 보완 수행과 목표 달성의 차이, 다음 논의는 [현재 상태](../state/index.md)와 [종료 기록](../../records/2026-10-30-17-workspace-close-and-next-discussion.md)을 따른다.
+
 002의 실제 축적을 현재 제품·구조·계약 본문으로 복원한다. 개인 판단과 협업 방식 개선은 후순위다. 개선 루프는 작업 방법이며 상시 자동화가 아니다.
 
 1. [문제·목표·범위](spec/01-problem-goal-scope.md)
