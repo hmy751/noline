@@ -62,3 +62,6 @@ __pycache__/
 
 # Local simulator screenshots and verification gallery
 /artifacts/ticket-06-simulator/
+
+# Local Context Harness review evidence bundle
+/artifacts/context-harness-review-20261011/
