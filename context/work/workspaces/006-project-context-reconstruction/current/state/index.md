@@ -1,27 +1,26 @@
 # 현재 상태와 다음 행동
 
-006은 005 종료 뒤 새 방향으로 생성한 Workspace다. 하나의 Spec과 Ticket 01을 구성했으며, 광범위한 자료 조사와 Project 본문 반영은 아직 시작하지 않았다. 생성 결과의 확인은 [기록 색인](../../records/README.md)에서 찾는다.
+006은 첫 조사와 Ticket 02의 제품·여행 접근 범위 이관을 마쳤다. 2026-10-31에는 내용·구현 대조 뒤 빠져 있던 문서 구성 판단 때문에 02를 다시 열었고, 변경 문서 전체를 역할별로 교정해 독립 재확인을 마쳤다. 다음 실행은 03이다. 다른 주제의 이관과 006 전체 완료는 남아 있다.
+
+- [01](../memory/tickets/01-source-map-and-improvement-candidates.md): 첫 자료·보완 후보 지도 완료.
+- [02](../memory/tickets/02-product-activation-and-travel-access.md): 한정 이관과 내용·구성 교정 완료. 현재 입력 보존 계약과 일정 수정의 구현 차이는 구분해 남겼다.
+- [03](../memory/tickets/03-data-storage-sync-and-cleanup.md): 실행 대기. 이번 교정에서 조사·이관에 착수하지 않았다.
+- 04–08: 지도·경로, 구조, 폼·날짜, 통화·API·오류, 온보딩·전체 읽기 점검의 권장 후속 범위.
+
+## 다음 Ticket에서도 적용할 판단
+
+[Spec 04](../memory/spec/04-quality-and-completion.md#후속-ticket의-내용-판단과-리뷰)에 따라 기존 내용의 현재 적합성과 문서 역할에 맞는 구성을 함께 판단한다. 기존 표·목록·체크리스트가 적합하면 유지할 수 있다. 새 형식으로 통일하거나 원문을 그대로 옮겼다는 사실로 판단을 대신하지 않는다. 재배치 뒤에는 조건·예외·이유·규칙 강도·예시 범위와 주변 읽기 경로를 대조한다.
+
+이관한 주제는 현재 가이드·Project 본문·형성 자료만으로 필요한 뜻과 선택 이유를 이해하게 한다. 옛 제품 자료는 일반 읽기에서 제외되는 archive로 격리하거나 제거하고, 역사 조사 접근점과 현재 읽기를 구별한다. 제품 약속과 코드 차이는 드러내며 문서 수정으로 제품 결함까지 해결했다고 쓰지 않는다.
+
+## 현재 결과와 확인 한계
+
+02의 실제 산출물·원본 대응은 [이관 결과](../../output/ticket-02-result.md), 내용·구성별 수정과 유지 이유는 [재리뷰](../../output/ticket-02-content-review.md)에 있다. 부분 검토의 발견 없음이나 기존 테스트 통과를 전체 문서·제품 검증으로 확대하지 않는다. 이번 구성 교정은 문서 중심이며 제품 코드를 바꾸지 않았다.
+
+다른 주제가 함께 쓰는 옛 결정·혼합 문서와 Project의 미이관 링크는 남아 있다. 역사 Work에는 삭제된 Policy 경로의 링크도 보존하므로 전체 Harness 통과를 주장하지 않는다. 현재 제품 안내를 되살리는 대신 006의 [보존본 대응](../../output/ticket-02-result.md#옛-자료-처리와-역사-조사-경로)에서 조사한다.
 
 ## 다음 행동
 
-[Ticket 01](../memory/tickets/01-source-map-and-improvement-candidates.md)을 시작한다. 먼저 `.claude` 문서와 루트·앱·패키지의 `CLAUDE.md`·`AGENTS.md`·README 등 분산된 컨텍스트를 현재 Project 본문에 대조해 옮길 의미, 보존할 근거, 중복·충돌과 본문 보완 기회를 드러낸다. 여기에 002의 전체 작업 축적과 004의 계약 논의·이관 결과를 연결하고, 005와 다른 흩어진 자료로 후보를 넓힌다. `.claude`에 대응 문서가 없는 중요한 내용도 추가하며, 전체 이관 완료를 다른 자료 조사의 선행 조건으로 두지 않는다. 각 exact 경로와 읽을 이유는 Ticket 본문에 있고, 추가 원자료는 [source 색인](../../source/index.md)에서 선택한다. 다른 Workspace 전체를 Recover할 필요는 없다.
+03에서 Local 변경·queue·push/pull·여행 정리·계정 종료의 관계를 현재 코드와 채택된 데이터 보존 계약에 대조한다. 여행별 PENDING 검사와 FAILED·IN_PROGRESS 보존 범위의 차이를 우선 확인한다. 문서 사실 정정, 제품 결함과 새 제품 선택을 구별하며 유효한 설명·형식을 판단해 재사용한다.
 
-첫 결과는 자료 목록과 실질적인 보완 기회, 필요한 검증·제품 논의, 권장 우선순위와 후속 Ticket 묶음이다. 이를 사용자와 논의한 뒤 주제별 실행을 구체화한다. 지금 정해진 것은 문서 중심의 수집·검증·적극적인 본문 재구성 방향과 `.claude`와 분산된 가이드·Project의 대응 관계를 먼저 드러내는 조사 순서이며, 최종 주제 수와 아카이브 배치는 아직 정하지 않았다.
-
-## 이어받을 조건
-
-005 결과는 보존된 근거지만 그 작업이 사용자 기대를 달성했다는 판단은 이어받지 않는다. `.claude` 제품 문서는 이관 원자료이며 최종 개선의 중심은 `context/project`다. 루트·앱·패키지의 가이드도 실제 보완·정리 대상이며, 그 위치에 남길 안내·기준과 Project에 통합할 내용을 판단한다. 현재 파일 구조도 재검토할 수 있다. 스킬·설정·실행 연결은 별도 논의 없이 개편하지 않는다.
-
-## 기계 상태와 사람 판단
-
-`workspace.json`은 identity, `recover.json`은 읽을 Project 문서 선택, `verify.json`은 제한된 검증 명령, [status.json](status.json)은 마지막 Verify 결과와 receipt cursor를 맡는다. 제품 Verify를 실행하지 않아 결과·receipt는 null이다. `ready_for_verification`은 초기 machine 값이며 조사·이관 완료를 뜻하지 않는다. Freshness는 Recover가 계산한다.
-
-006 생성·조사 우선순위·기록은 `e5adab4`에 커밋했다. 실제 자료 조사는 아직 착수 전이다. active index와 session binding은 변경하지 않았다.
-
-## 다른 세션에서 이어갈 때
-
-Project root `/Users/hammyeong-yeon/Desktop/10_work/noline`에서 `python3 -B -m context.work.harness recover 006-project-context-reconstruction`으로 이 Workspace를 명시해 읽는다. 기본 active index는 001이므로 id 없는 Recover로 006을 선택했다고 판단하지 않는다. 현재 branch·HEAD·변경 상태도 확인해 위 커밋 이후의 변경을 구분한다. 인계 점검 당시 `.pnpm-store/`는 기존 untracked 항목이며 이 작업의 산출물이나 정리 대상이 아니다.
-
-Recover 뒤에는 [Ticket 01](../memory/tickets/01-source-map-and-improvement-candidates.md) 본문과 [source 색인](../../source/index.md)을 직접 읽는다. 둘은 Recover에서 링크만 제공될 수 있다. 첫 조사에서는 `.claude` 문서 지도, 루트·앱·패키지의 가이드와 현재 Project 본문을 함께 대조하고, 위 순서로 002·004의 자료를 연결한다. 생성·과거 작업을 다시 수행하거나 새 Workspace를 만들 필요는 없다.
-
-이 재진입은 문서를 읽는 동작이다. 새 세션의 자동 기록 연결은 별도의 명시적 Workspace 선택과 [session binding 계약](../../../../harness/maintain/SESSION-BINDING-AND-LIFECYCLE.md)을 따르며, 이 인계 점검으로 새 세션이 활성화됐다고 간주하지 않는다. 전체 Harness 검사의 기존 002·003 역사 링크 오류 8개는 [검증 기록](../../records/2026-10-30-04-priority-verification.md)에 구분되어 있고, Ticket 01의 자료 조사 시작을 막는 오류는 아니다.
+예정 06에서는 일정 수정의 online → offline/unknown → online 전환 중 입력 표시·편집과 내부 값 보존, 자동 제출 없음, 복귀 후 재저장을 확인한다. 현재 Drawer가 전체 입력 영역을 제한 안내로 바꾼다는 사실은 확인했지만 입력값 소실까지 확인된 것은 아니다.

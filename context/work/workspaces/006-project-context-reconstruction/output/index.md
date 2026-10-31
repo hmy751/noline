@@ -1,5 +1,11 @@
-# 현재 산출물
+# 산출물과 읽을 이유
 
-아직 자료·보완 후보 지도나 재구성된 Project 본문을 산출물로 선택하지 않았다. 생성된 [Spec과 실행 정의](../current/memory/index.md)는 작업을 시작하기 위한 기준이며 Project 재구성의 완료 결과가 아니다.
+| 산출물 | 언제 읽는가 |
+| --- | --- |
+| [첫 조사와 보완 후보](source-map-and-candidates.md) | 분산 자료의 조사 당시 상태, 후보별 보완 이유·근거·남은 검증과 후속 묶음을 고를 때 |
+| [Ticket 02 이관 결과](ticket-02-result.md) | 실제 Project 산출물과 옛 원본의 처리, 현재 읽기 경로와 남은 이관 범위를 확인할 때 |
+| [Ticket 02 내용·구성 재리뷰](ticket-02-content-review.md) | 기존 설명의 적합성, 역할별 수정·유지 이유, 발견·교정과 확인 한계를 검토할 때 |
 
-Ticket 01의 지도와 이후 반영한 Project 본문이 생기면 실제 canonical을 이 색인에서 연결한다. Project 산출물을 이 폴더에 복제하지 않는다.
+현재 제품 설명은 [제품 기준](../../../../project/common/product.md), [여행 접근](../../../../project/guidance/travel-access/INDEX.md), [선택 이유](../../../../project/decisions/0001-selective-local-first.md)와 가까운 형성 자료가 소유한다. 이 폴더는 그 본문을 복제하지 않고 조사·검토 결과를 남긴다.
+
+최신 실행 상태와 다음 행동은 [state](../current/state/index.md)를 따른다. 문서 이관 결과를 제품 구현 차이의 해소나 006 전체 완료로 해석하지 않는다.
