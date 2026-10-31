@@ -22,7 +22,9 @@
 - server 오류 응답·client 변환·표시·재시도를 바꿀 때: [오류 전달과 공개 응답](guidance/error-handling.md). 기존 기준과 현재 미충족을 구별한다.
 - 기존 동작을 유지하는 코드 가독성 리팩터링을 계획·구현·검증할 때: [동작을 보존하는 코드 리팩터링](guidance/behavior-preserving-refactoring.md)
 - 설명·논의에서 주장과 실제 근거의 관계를 다룰 때: [공통 설명과 근거 기준](../../.claude/skills/shared/explanation-and-evidence-criteria.md)의 적용 조건
-- Selective Local-First를 선택한 이유가 필요할 때: [선택 근거](decisions/0001-selective-local-first.md)
+- Selective Local-First와 선택적 오프라인 준비를 선택한 이유가 필요할 때: [선택 근거](decisions/0001-selective-local-first.md)
+- 제품 지식·규칙·위험을 주제별 본문에 통합한 이유를 재검토할 때: [주제별 Owner 선택](decisions/0002-topic-ownership.md)
+- Project 세 층과 주제 구성, 의미·사실·읽기 경로 검증의 형성 이유가 필요할 때: [구성·검증 선택](decisions/0003-context-structure-and-verification.md)
 - 로컬 개발 환경을 준비하고 실행할 때: [개발 시작](../../START_GUIDE.md). 서버 환경·DB 도구는 [서버 안내](../../apps/server/README.md)에서 찾는다.
 
 본문이 추가되거나 책임이 이동하면 이 주제별 경로도 실제 Owner에 맞춘다. 없는 가이드를 이미 구성된 것처럼 연결하지 않는다. 각 층의 전체 목록은 [common](common/README.md), [current](current/README.md), [guidance](guidance/README.md), [decisions](decisions/README.md)에서 찾는다.

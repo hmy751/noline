@@ -13,6 +13,14 @@
     {
       "path": "context/project/current/architecture.md",
       "reason": "현재 책임·지원·검증 범위를 구별하며 과거 자료와 코드의 대조 지점을 찾는다. 최신성과 설명 충분성을 조사에서 재검토한다."
+    },
+    {
+      "path": "context/project/decisions/0002-topic-ownership.md",
+      "reason": "제품 지식과 개발 기준을 주제별 Owner로 통합한 이유·비용·과거 구조와의 대체 관계를 확인한다."
+    },
+    {
+      "path": "context/project/decisions/0003-context-structure-and-verification.md",
+      "reason": "Project 구성과 의미·사실·읽기 경로 검증을 선택한 배경을 재구성의 판단 근거로 사용한다."
     }
   ]
 }

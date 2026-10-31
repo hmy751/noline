@@ -26,8 +26,7 @@
 | 현재 작업 복구·새 Context Workspace | [Context Harness](./context/README.md) |
 | 코드 수정에 적용할 제품 기준 | [제품 개발 기준](context/project/guidance/README.md) |
 | 깊은 아키텍처/기능 맥락 | [Noline Project context](./context/project/README.md) |
-| 하네스 레이어 개편 이유 | [Decision: Harness Layer Model](./.claude/decisions/2026-05-06-harness-layer-model.md) |
-| 최근 하네스 실행 기록 | [Harness Execution Record](./.claude/audits/2026-05-06-harness-execution-plan.md) |
+| 제품 지식·개발 기준의 책임 선택 | [주제별 Owner 통합 이유](./context/project/decisions/0002-topic-ownership.md) |
 
 ## Project Identity
 
@@ -96,9 +95,6 @@ noline/
 ├── .claude/
 │   ├── harness/         # AI/developer harness and bridge model
 │   ├── skills/          # 호출 조건·수행 방법과 공유 기준
-│   ├── decisions/       # Harness decision records
-│   ├── sessions/        # Session records
-│   ├── audits/          # Document audit/test evidence
 │   └── _archive/        # Deprecated historical material
 ├── .agents/             # Codex skill bridge
 ├── .codex/              # Codex 설정과 lifecycle hook
@@ -144,7 +140,7 @@ pnpm harness:check
 - root `context/`는 Project context와 Workspace 운영 상태의 별도 층이다. 기본적으로 기존 제품 설명을 복제하지 않으며, 승인된 주제별 Owner 이동은 [Project 관리 계약](./context/project/MAINTENANCE.md)에 따라 유효한 의미와 authority를 함께 전환한다.
 - 기존 history, session, reference, archive 문서를 삭제하거나 현재 정책처럼 고치기 전에 [Document Map](./.claude/README.md)에서 역할을 확인한다.
 - active guide와 코드가 충돌하면 코드를 확인하고 active guide만 최소 수정한다.
-- 제품 선택의 이유는 Project의 대응 본문·형성 자료나 `context/project/decisions/`에, 하네스 구조 변경은 [.claude/decisions/](./.claude/decisions/)에 남긴다.
+- 제품 선택의 이유는 Project의 대응 본문·형성 자료나 `context/project/decisions/`에, 실행 방식의 형성 이유는 해당 스킬·관리 본문 가까이에, 이번 작업의 선택·검증은 Work 기록에 남긴다.
 - skill은 호출 조건·판단·수행 방법을 소유하고, 제품 정책과 지속 context의 관리 계약은 owning docs에 남긴다. agent는 report-only 실행자로 유지한다.
 
 ## Context Harness 운영 진입

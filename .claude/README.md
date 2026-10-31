@@ -11,7 +11,7 @@
    - [packages/schema/CLAUDE.md](../packages/schema/CLAUDE.md)
    - [packages/ui/CLAUDE.md](../packages/ui/CLAUDE.md)
 3. 코드 작업이면 [제품 개발 기준](../context/project/guidance/README.md)에서 주제를 골라 계약·실패 위험·변경 시 확인할 조건을 함께 읽는다.
-4. 관련 작업의 의미·계약·현재 차이를 이해할 때 [Project 주제별 진입](../context/project/README.md)에서 본문을 선택한다. 제품 선택 이유는 해당 Project 형성 자료에서 읽고, 하네스 변경 이유는 decisions에서 찾는다. 옛 제품 원본은 역사 조사에만 사용한다. 본문 선택·근거 대조·재사용은 [USAGE](../context/USAGE.md)를 따른다.
+4. 관련 작업의 의미·계약·현재 차이를 이해할 때 [Project 주제별 진입](../context/project/README.md)에서 본문을 선택한다. 제품 선택 이유는 해당 Project 형성 자료에서 읽고, 프로젝트의 지속 구조 선택은 Project decisions에서, 실행 방식의 형성 이유는 해당 스킬·관리 본문에서 찾는다. 옛 제품 원본은 역사 조사에만 사용한다. 본문 선택·근거 대조·재사용은 [USAGE](../context/USAGE.md)를 따른다.
 
 ## 역할 구분
 
@@ -21,10 +21,7 @@
 | [../context/](../context/) | Personal 판단 기준·경험, 승인된 주제의 Project-wide 의미·current canonical, Workspace current/source/output/records, Recover·Maintain·Verify | 지속 작업을 복구하거나 새 Context Workspace를 만들 때 읽는다. 주제별 Owner는 [Project context](../context/project/README.md)에서 확인한다. |
 | [skills/](skills/README.md) | 로컬 운영 스킬 | 각 스킬의 호출 조건을 따른다. |
 | [Project](../context/project/README.md) | 제품 의미·현재 구조·개발 기준·실패 위험과 선택 이유 | 같은 주제 본문에서 적용 조건과 확인 방법을 읽고 실제 코드와 대조한다. |
-| [decisions/](decisions/) | 하네스 구조·운영 변경의 이유 | 당시 결정과 후속 변경을 구별한다. 현재 책임 배치는 harness와 Project가 소유한다. |
-| [sessions/](sessions/) | 설계/구현 세션 기록 | 왜 그런 선택을 했는지 확인하는 기록이다. active policy로 바로 사용하지 않는다. |
 | [_archive/](_archive/) | 과거 구현 가이드와 deprecated 맥락 | 역사 자료다. 명시 요청 없이 현재 구현 기준으로 끌어올리지 않는다. |
-| [audits/](audits/) | 문서 품질 검증, 하네스 점검, 리팩터링 테스트 | active guide가 아니다. 현재 정책과 충돌하면 active source를 우선한다. |
 | [CHANGELOG.md](CHANGELOG.md) | 정책/기능 변화의 긴 이력 | 큰 흐름을 볼 때 사용한다. 세부 구현은 코드와 active guide를 확인한다. |
 | [settings.json](settings.json) | 공유 Claude Code lifecycle hook 설정 | `SessionStart`·prompt·response-end·session-end를 explicit-unbound Maintain adapter에 연결한다. 개인 권한은 여기 넣지 않는다. |
 | [settings.local.json](settings.local.json) | Claude 로컬 설정 | 개인 권한과 machine-specific 선택만 둔다. 공유 hook을 덮어쓰거나 하네스 개편 이유만으로 수정하지 않는다. |
@@ -58,6 +55,6 @@ Codex bridge:
 - 오래된 가이드가 유용하지만 현재 기준으로 위험하면 `_archive/`로 이동하고, 현재 깊은 제품 맥락과 필요한 이유는 `../context/project/`에서 설명한다.
 - 오래된 용어가 history, session, implementation, reference, archive에 남아 있어도 현재 정책처럼 고치지 않는다.
 - active guide에서 현재 코드와 충돌하는 표현은 코드 확인 후 수정한다.
-- 문서를 이동하기 전에 먼저 이 지도나 [corpus inventory](audits/2026-05-06-doc-corpus-inventory.md)에서 현재 역할과 목표 역할을 분명히 한다.
-- 하네스 구조나 작업 방식이 바뀌면 [decisions/](decisions/)에 결정 기록을 남긴다.
+- 문서를 이동하기 전에 이 지도와 해당 Owner의 현재 관리 계약에서 역할·이동 범위·실제 소비 경로를 확인한다.
+- 지속할 프로젝트 구조 선택은 [Project decisions](../context/project/decisions/README.md), 실행 방식의 형성 이유는 해당 스킬·관리 본문, 이번 작업의 선택·검증은 Work 기록에 남긴다.
 - workspace guide가 길어지면 제품의 상세 설명·적용 방법은 owning Project 본문에 두고, 필요한 본문 선택은 기존 Project 색인과 경로별 guide에서 안내한다. 당시 기록은 기록 Owner에 보존한다.

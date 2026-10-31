@@ -48,7 +48,7 @@
 
 ## 읽기 경로와 검증 선언
 
-Root·Project·Document Map·Harness·rules·guards·runbooks·Claude/Codex agent의 현재 진입을 바꿨다. 세 agent는 report-only 역할을 유지하며 자료 선택만 Project로 맞췄다. 하네스 책임 전환은 [결정 기록](../../../../../.claude/decisions/2026-10-31-project-product-context-ownership.md)에 남겼다.
+Root·Project·Document Map·Harness·rules·guards·runbooks·Claude/Codex agent의 현재 진입을 바꿨다. 세 agent는 report-only 역할을 유지하며 자료 선택만 Project로 맞췄다. 하네스 책임 전환은 [결정 기록](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-10-31-project-product-context-ownership.md.txt)에 남겼다.
 
 Default 001과 current-generation metadata로 확인한 explicit-bound 002·006을 live consumer로 확인했다. 002 output의 당시 결정을 현재 선별 설명인 것처럼 이름 붙이지 않도록 구별하고 현재 읽기는 Project로 전환했다. 과거 기록의 원문은 수정하지 않았다. 001 Verify evidence에서 기존 누락 8개와 이번 이동으로 사라진 입력 4개를 제거하고 실제 여행 접근·데이터 수명·지도·app-runtime Owner와 개발 안내를 선언했다. claim·고정 명령·receipt·status는 바꾸지 않았다.
 

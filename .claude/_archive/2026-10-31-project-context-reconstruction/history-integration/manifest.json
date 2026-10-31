@@ -1,0 +1,145 @@
+{
+  "source_commit": "1648540783d1d2f92337a2d61b7ea7b0cc8e1b25",
+  "files": [
+    {
+      "original": ".claude/audits/2026-05-06-doc-corpus-inventory.md",
+      "snapshot": "audits/2026-05-06-doc-corpus-inventory.md.txt",
+      "sha256": "d17681960780d240ac04b1e44ae3e2fd4646968aaf6c43f9c0902c4030e1ecb6"
+    },
+    {
+      "original": ".claude/audits/2026-05-06-harness-execution-plan.md",
+      "snapshot": "audits/2026-05-06-harness-execution-plan.md.txt",
+      "sha256": "7bf57bec6eb49e20e4e7d7a2dac4c8b928e77276e3f2252c31d937a728db3ee7"
+    },
+    {
+      "original": ".claude/audits/2026-05-06-harness-layer-followup-handoff.md",
+      "snapshot": "audits/2026-05-06-harness-layer-followup-handoff.md.txt",
+      "sha256": "9295a045955d11783b019e7c300ee451c68621ba8960311b65ef7331bf15ea0a"
+    },
+    {
+      "original": ".claude/audits/2026-05-06-harness-restructure-handoff.md",
+      "snapshot": "audits/2026-05-06-harness-restructure-handoff.md.txt",
+      "sha256": "7bea19123682e49973d8bef3a76439624ae1173a167cf51b250c01ebf7eb8c3b"
+    },
+    {
+      "original": ".claude/audits/README.md",
+      "snapshot": "audits/README.md.txt",
+      "sha256": "cdc518ec36342b8e6324db56ba974cab6c1aa4c149096429c39b154f3ef66700"
+    },
+    {
+      "original": ".claude/audits/doc-refactor-test.md",
+      "snapshot": "audits/doc-refactor-test.md.txt",
+      "sha256": "ffa3c2f0f7fd634de423d4790f28064ed7666dfa7239a0f42f2b9eb366bf47cc"
+    },
+    {
+      "original": ".claude/decisions/2026-05-06-ai-harness-restructure.md",
+      "snapshot": "decisions/2026-05-06-ai-harness-restructure.md.txt",
+      "sha256": "7834c8c7a022a73a340852e631578d159df382924e7c2bb37a76a295e7d7b480"
+    },
+    {
+      "original": ".claude/decisions/2026-05-06-commit-message-convention.md",
+      "snapshot": "decisions/2026-05-06-commit-message-convention.md.txt",
+      "sha256": "6f32ace73f72867f67db867cab5b5a29dfe3055a4b09ff0ed7d0da78be74f22d"
+    },
+    {
+      "original": ".claude/decisions/2026-05-06-harness-execution-cleanup.md",
+      "snapshot": "decisions/2026-05-06-harness-execution-cleanup.md.txt",
+      "sha256": "58f2309d05ef548988e053c99a1445f64ce7b04448ae69603333e1517487f537"
+    },
+    {
+      "original": ".claude/decisions/2026-05-06-harness-execution-layer.md",
+      "snapshot": "decisions/2026-05-06-harness-execution-layer.md.txt",
+      "sha256": "5dd0d309ec80121f0a47416ea23db79e97f246ac0af2aaece6196a696d7aa7b2"
+    },
+    {
+      "original": ".claude/decisions/2026-05-06-harness-layer-model.md",
+      "snapshot": "decisions/2026-05-06-harness-layer-model.md.txt",
+      "sha256": "6aed932c874afd1336465db7abffd1b4134d983b0191ebe51aa1be10dea1f538"
+    },
+    {
+      "original": ".claude/decisions/2026-05-06-workspace-guide-harness-contract.md",
+      "snapshot": "decisions/2026-05-06-workspace-guide-harness-contract.md.txt",
+      "sha256": "2362c7164d4dd6da69f50d929be3ba49e607be6414e88dd1221122ede2189afa"
+    },
+    {
+      "original": ".claude/decisions/2026-09-04-context-harness-application.md",
+      "snapshot": "decisions/2026-09-04-context-harness-application.md.txt",
+      "sha256": "ab8de46e69d8d1ff1b3fdc15d82d671e41f1bd06607107f936c49b36a355f0ad"
+    },
+    {
+      "original": ".claude/decisions/2026-09-09-context-harness-upgrade.md",
+      "snapshot": "decisions/2026-09-09-context-harness-upgrade.md.txt",
+      "sha256": "5024683394c52a9a519f44b1703ab41bed8983d428e35ff98cfe22675cd86a08"
+    },
+    {
+      "original": ".claude/decisions/2026-09-10-deprecate-noline-work.md",
+      "snapshot": "decisions/2026-09-10-deprecate-noline-work.md.txt",
+      "sha256": "936fe511a404d6a2e5301cba40ebba26b3171850effe4979a04f43bb48ea76ba"
+    },
+    {
+      "original": ".claude/decisions/2026-09-10-evidence-collector-installation.md",
+      "snapshot": "decisions/2026-09-10-evidence-collector-installation.md.txt",
+      "sha256": "8a649983caa6d14e7078f89600252f80ef8c9f25bf85dfa9c583f0c2d4e7c138"
+    },
+    {
+      "original": ".claude/decisions/2026-09-11-workspace-writing-contract.md",
+      "snapshot": "decisions/2026-09-11-workspace-writing-contract.md.txt",
+      "sha256": "7a41870ddff9a736cd36d53629f1ef2999fe70a0acd11c9701b2bd3d2312e3f9"
+    },
+    {
+      "original": ".claude/decisions/2026-09-12-spec-ticket-execution-criteria.md",
+      "snapshot": "decisions/2026-09-12-spec-ticket-execution-criteria.md.txt",
+      "sha256": "8aa1d8fc6822cfe96ad7d8a5d7c11af17a2de6080ca9df826dff490092324e4e"
+    },
+    {
+      "original": ".claude/decisions/2026-09-14-project-context-authoring-and-reading.md",
+      "snapshot": "decisions/2026-09-14-project-context-authoring-and-reading.md.txt",
+      "sha256": "2824d6c1d767379b2790ece8636d211de8c518174b7ae6cef640d75360a0ba3e"
+    },
+    {
+      "original": ".claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md",
+      "snapshot": "decisions/2026-09-14-project-context-semantic-and-routing-verification.md.txt",
+      "sha256": "0737935af0d8a4e49d2347f13e9293c26d7635df1bd082b5fb5092e22a806f4c"
+    },
+    {
+      "original": ".claude/decisions/2026-10-01-start-app-skill.md",
+      "snapshot": "decisions/2026-10-01-start-app-skill.md.txt",
+      "sha256": "bbfd32f77c50f98f5ee93deab338b882d76bb51c018511f5a4f939925daf2434"
+    },
+    {
+      "original": ".claude/decisions/2026-10-30-context-and-explanation-refresh.md",
+      "snapshot": "decisions/2026-10-30-context-and-explanation-refresh.md.txt",
+      "sha256": "0b81f75f6c070c7b6387987eff9c9a3b53080a48cad41c6785916fbb41aaa9a7"
+    },
+    {
+      "original": ".claude/decisions/2026-10-30-development-skill-transition.md",
+      "snapshot": "decisions/2026-10-30-development-skill-transition.md.txt",
+      "sha256": "0a5fe166e552b1134bb9f414e28b10456afd3e33626ca180a206b9c2a1665746"
+    },
+    {
+      "original": ".claude/decisions/2026-10-31-product-rules-owner-integration.md",
+      "snapshot": "decisions/2026-10-31-product-rules-owner-integration.md.txt",
+      "sha256": "b9b50df10e45eff19dccd5e0d449b5dcc2cf72883b489cf90cfbfb0a068fa4a8"
+    },
+    {
+      "original": ".claude/decisions/2026-10-31-project-product-context-ownership.md",
+      "snapshot": "decisions/2026-10-31-project-product-context-ownership.md.txt",
+      "sha256": "16cdb4ae168b0894c26c0b56944fceda7c2b93b18cae569538e01ffde159c409"
+    },
+    {
+      "original": ".claude/sessions/2025-11-06-activation-architecture-design.md",
+      "snapshot": "sessions/2025-11-06-activation-architecture-design.md.txt",
+      "sha256": "be0cb0170f55d0e101fa0a63755d64588035ef69511b920a12f0f27081adbb73"
+    },
+    {
+      "original": ".claude/sessions/2025-11-07-offline-map-implementation.md",
+      "snapshot": "sessions/2025-11-07-offline-map-implementation.md.txt",
+      "sha256": "9e2605ca29a1b4f291332442fee5d6160636568c640d6bf51210e0e3ce3b163c"
+    },
+    {
+      "original": ".claude/sessions/2025-11-08-offline-routing-implementation.md",
+      "snapshot": "sessions/2025-11-08-offline-routing-implementation.md.txt",
+      "sha256": "da5cbe92e596406ccc46d89dde8eb5b06f45af158880cff2db42c111334ec23b"
+    }
+  ]
+}

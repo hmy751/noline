@@ -20,8 +20,10 @@
 
 ## 현재 문서
 
-- [`0001-selective-local-first.md`](0001-selective-local-first.md): Selective Local-First의 선택 의미·기각 대안·용어의 이유와 재검토 조건
+- [`0001-selective-local-first.md`](0001-selective-local-first.md): 선택적 준비와 비활성 여행의 온라인 의존, Data/Service 분리·용어의 선택 이유와 재검토 조건
+- [`0002-topic-ownership.md`](0002-topic-ownership.md): 작은 루트·분리된 규칙/위험/context에서 Project 주제별 Owner 통합으로 전환한 이유·비용·대체 관계
+- [`0003-context-structure-and-verification.md`](0003-context-structure-and-verification.md): Project 세 층과 주제 구성, 의미·사실·실제 읽기 경로를 따로 확인하는 선택과 제한된 재시험
 
 결정이 대체되면 과거 문서를 지우지 않고 상태와 대체 결정을 연결한다. 현재 제품 의미·구현 지도·조건부 지침은 각각의 책임 층에서도 함께 갱신한다.
 
-Project로 이관한 제품 주제의 필요한 선택 이유는 이 폴더나 해당 본문의 형성 자료가 소유한다. Selective Local-First·Policy·여행 접근은 0001과 여행 접근 형성 자료에서 읽는다. 아직 이관하지 않은 다른 제품 주제와 하네스 결정의 책임을 이 이동만으로 바꾸지는 않는다.
+Project로 이관한 제품 주제의 필요한 선택 이유는 이 폴더나 해당 본문의 형성 자료가 소유한다. Selective Local-First·Policy·여행 접근은 0001과 여행 접근 형성 자료에서 읽는다. 이번에 통합한 하네스·문서 구조 선택의 범위는 0002의 제품 지식·개발 기준 Owner 전환과 0003의 Project 구성·검증 선택이다. 그 밖의 실행 방식의 형성 이유는 해당 스킬·관리 Owner가, 한 작업의 진행·검증은 Work가 맡는다. 과거 `.claude/decisions`·`audits`·`sessions`의 원문 보존판은 각 결정에서 추가 증거로 연결하며 현재 기준이나 일반 읽기의 필수 경로로 쓰지 않는다.

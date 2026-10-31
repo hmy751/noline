@@ -1,0 +1,68 @@
+{
+  "purpose": "이동 전 원문을 가리키는 변경하지 않은 역사 문서의 재접근 지도. 검사 예외나 현재 경로의 유효성 선언이 아니다.",
+  "links": [
+    {
+      "file": ".claude/CHANGELOG.md",
+      "target": ".claude/decisions/2026-05-06-harness-execution-layer.md",
+      "link": "./decisions/2026-05-06-harness-execution-layer.md",
+      "snapshot": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-05-06-harness-execution-layer.md.txt",
+      "source_sha256": "641cf782fcb6fa364e9d112323bfbe173539f0b07ef40239651cdd099a7a1f99"
+    },
+    {
+      "file": "context/work/workspaces/001-noline-context-harness-application/records/2026-09-11-03-workspace-writing-and-maintainer-settings.md",
+      "target": ".claude/decisions/2026-09-11-workspace-writing-contract.md",
+      "link": "../../../../../.claude/decisions/2026-09-11-workspace-writing-contract.md",
+      "snapshot": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-11-workspace-writing-contract.md.txt",
+      "source_sha256": "80f6f786e09b71b92797db1f646715b15e313e8eafe105e61c0a3c0bf8da0e1c"
+    },
+    {
+      "file": "context/work/workspaces/001-noline-context-harness-application/records/2026-10-30-02-development-skill-transition.md",
+      "target": ".claude/decisions/2026-10-30-development-skill-transition.md",
+      "link": "../../../../../.claude/decisions/2026-10-30-development-skill-transition.md",
+      "snapshot": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-10-30-development-skill-transition.md.txt",
+      "source_sha256": "c818d9b3a556ddb095d6acbbd7e4530f6c5b1a8ae0fe358cbed453e07451dcd1"
+    },
+    {
+      "file": "context/work/workspaces/002-code-readability-refactoring/output/index.md",
+      "target": ".claude/decisions/2026-09-12-spec-ticket-execution-criteria.md",
+      "link": "../../../../../.claude/decisions/2026-09-12-spec-ticket-execution-criteria.md",
+      "snapshot": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-12-spec-ticket-execution-criteria.md.txt",
+      "source_sha256": "be2f1b57b4b991538b4011c5d8ef502fdcca8938c11eefe547473b6fed46ebc1"
+    },
+    {
+      "file": "context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md",
+      "target": ".claude/decisions/2026-10-30-development-skill-transition.md",
+      "link": "../../../../../../.claude/decisions/2026-10-30-development-skill-transition.md",
+      "snapshot": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-10-30-development-skill-transition.md.txt",
+      "source_sha256": "6adae4f85c1620a6ff5f58eb10fb9e23ed8d412938be7f7354609d402597b0ff"
+    },
+    {
+      "file": "context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/tickets/02-guidance-failure-analysis-and-retest.md",
+      "target": ".claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md",
+      "link": "../../../../../../../.claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md",
+      "snapshot": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-14-project-context-semantic-and-routing-verification.md.txt",
+      "source_sha256": "fd8204bcd38e76a38c64034def8b4ec86f2d3745ca1e831586071cafb2e9a309"
+    },
+    {
+      "file": "context/work/workspaces/004-project-context-contracts-and-guidance/output/index.md",
+      "target": ".claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md",
+      "link": "../../../../../.claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md",
+      "snapshot": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-14-project-context-semantic-and-routing-verification.md.txt",
+      "source_sha256": "f7e1c79e245fa535f9721f9911b73362aa753e0eeb1764a63ef108e876353341"
+    },
+    {
+      "file": "context/work/workspaces/004-project-context-contracts-and-guidance/output/index.md",
+      "target": ".claude/decisions/2026-10-30-development-skill-transition.md",
+      "link": "../../../../../.claude/decisions/2026-10-30-development-skill-transition.md",
+      "snapshot": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-10-30-development-skill-transition.md.txt",
+      "source_sha256": "f7e1c79e245fa535f9721f9911b73362aa753e0eeb1764a63ef108e876353341"
+    },
+    {
+      "file": "context/work/workspaces/004-project-context-contracts-and-guidance/records/2026-09-14-02-guidance-failure-analysis-and-retest.md",
+      "target": ".claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md",
+      "link": "../../../../../.claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md",
+      "snapshot": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-14-project-context-semantic-and-routing-verification.md.txt",
+      "source_sha256": "54c0dca1e30e595cb16636477f7e5dcff538bd3aaf6df01f75f7db759aecb10e"
+    }
+  ]
+}

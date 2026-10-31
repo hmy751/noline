@@ -4,7 +4,8 @@
   "claim": "Noline의 현재 지침·Context Harness regular input과 실행 시 관찰한 bridge·경로 구조가 정해진 구조 검사를 통과한다. 선언 파일 freshness는 이후 directory·symlink topology, Git index 또는 제품 동작을 증명하지 않는다.",
   "canonical_basis": [
     ".claude/harness/README.md",
-    ".claude/decisions/2026-09-09-context-harness-upgrade.md",
+    "context/README.md",
+    "context/project/README.md",
     "context/work/workspaces/001-noline-context-harness-application/current/memory/spec/04-quality-and-completion.md"
   ],
   "verification": {
@@ -15,7 +16,6 @@
     ],
     "evidence_paths": [
       ".claude/README.md",
-      ".claude/audits/2026-05-06-harness-execution-plan.md",
       "context/project/guidance/development-boundaries/INDEX.md",
       "context/project/guidance/development-boundaries/README.md",
       "context/project/guidance/development-boundaries/_background/README.md",
@@ -23,14 +23,6 @@
       "context/project/guidance/development-boundaries/layers.md",
       "context/project/guidance/development-boundaries/schema-and-types.md",
       "context/project/guidance/development-boundaries/ui.md",
-      ".claude/decisions/2026-05-06-ai-harness-restructure.md",
-      ".claude/decisions/2026-05-06-commit-message-convention.md",
-      ".claude/decisions/2026-05-06-harness-execution-cleanup.md",
-      ".claude/decisions/2026-05-06-harness-execution-layer.md",
-      ".claude/decisions/2026-05-06-harness-layer-model.md",
-      ".claude/decisions/2026-05-06-workspace-guide-harness-contract.md",
-      ".claude/decisions/2026-09-04-context-harness-application.md",
-      ".claude/decisions/2026-09-12-spec-ticket-execution-criteria.md",
       "context/project/guidance/README.md",
       ".claude/hooks/maintain.py",
       "context/project/guidance/travel-access/INDEX.md",
@@ -153,7 +145,6 @@
       ".claude/skills/work-discussion/_background/records/2026-10-21-selection-and-policy-application.md",
       ".claude/skills/work-discussion/_background/records/2026-10-30-existing-work-contract-adaptation.md",
       ".claude/harness/README.md",
-      ".claude/decisions/2026-09-14-project-context-authoring-and-reading.md",
       "context/work/workspaces/002-code-readability-refactoring/records/2026-09-14-05-project-context-structure-reading-and-maintenance.md",
       "context/work/workspaces/002-code-readability-refactoring/records/2026-09-14-06-project-context-reference-insights-and-retest-direction.md",
       "context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md",
@@ -169,7 +160,6 @@
       ".claude/_archive/skill-transition-2026-10-30/read-project-context.txt",
       ".claude/_archive/skill-transition-2026-10-30/update-project-context.txt",
       ".claude/_archive/skill-transition-2026-10-30/work-artifact-briefing.txt",
-      ".claude/decisions/2026-10-30-development-skill-transition.md",
       ".claude/skills/development/_background/evidence/development-before-skill.txt",
       "context/work/workspaces/001-noline-context-harness-application/records/2026-10-30-02-development-skill-transition.md",
       "context/work/workspaces/002-code-readability-refactoring/records/README.md",
@@ -212,9 +202,8 @@
       "context/project/current/app-runtime/_background/context.md",
       "apps/server/README.md",
       "apps/server/scripts/README.md",
-      ".claude/decisions/2026-10-31-project-product-context-ownership.md",
-      ".claude/audits/README.md",
-      ".claude/decisions/2026-10-31-product-rules-owner-integration.md"
+      "context/project/decisions/0002-topic-ownership.md",
+      "context/project/decisions/0003-context-structure-and-verification.md"
     ],
     "timeout_seconds": 90,
     "max_output_chars": 20000

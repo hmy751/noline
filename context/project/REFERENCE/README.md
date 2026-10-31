@@ -16,8 +16,6 @@ Project 전체의 정체성·물리 층·권위 관계는 [Project README](../RE
 
 새 문제를 기존 기준과 대조하고, 영향을 받는 기준 본문과 실제 소비 경로를 맞춘다. 각 실패를 금지문으로 덧붙이거나 모든 주제를 같은 양식으로 고정하지 않는다. 구성 기준의 소비자는 작성·갱신 주체이고, 읽기 기준의 소비자는 관련 작업을 수행하는 주체다. 한쪽 기준의 변경만으로 모든 제품 문서나 스킬을 일괄 수정하지 않는다.
 
-선택 배경과 보류한 판단은 [구성·읽기 기준 결정](../../../.claude/decisions/2026-09-14-project-context-authoring-and-reading.md)에 있다. 세부 기준을 크게 바꿀 때 확인하되 일반 제품 작업의 필수 읽기로 추가하지 않는다. 특히 `current`의 독립적인 효용은 재구성 결과로 확인할 대상이며, 이 reference는 제거·축소나 문서 수를 미리 정하지 않는다.
-
-첫 적용의 실패와 후속 재시험에서 확정한 검증 관계는 [의미·사실·진입 경로 검증 결정](../../../.claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md)에 있다. 일반 제품 작업의 입력은 이 이력이 아니라 위 기준과 관련 주제 본문이다.
+세 층·주제 구성의 선택 배경, `current`의 효용과 보류, 첫 적용 실패에서 의미·사실·읽기 경로를 나누어 확인하게 된 이유는 [Project 구성·검증 결정](../decisions/0003-context-structure-and-verification.md)에 있다. 기준을 크게 바꾸거나 반복 실패를 재검토할 때 읽는다. 일반 제품 작업의 필수 입력은 이 이력이 아니라 위 기준과 관련 주제 본문이다. 제품 규칙·위험·설명을 주제별 Owner에 모은 전환 이유는 [주제별 Owner 결정](../decisions/0002-topic-ownership.md)에서 확인한다.
 
 책임과 관리 장치의 관계에 `ai-system_context-ownership-boundary.md: 적용`, `ai-system_responsibility-cohesion.md: 적용`, `ai-system_harness-rippability.md: 적용`.
