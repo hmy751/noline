@@ -22,7 +22,7 @@
 | 작성 초안, 장소 선택, 날짜·시간 picker와 manual input | [작성·입력 Context](../../.claude/context/form.md), [Form runbook](../../.claude/runbooks/README.md#form-pattern) |
 | 네트워크 감지, 조회·캐시 표시, 홈 요약과 복구 | [네트워크·조회·화면 복구](../../context/project/guidance/travel-access/INDEX.md), [오류 표현](../../.claude/context/error-handling.md) |
 | policy 제한 UI | [Policy UI rule](../../.claude/rules/policy-ui.md), [Policy context](../../context/project/guidance/travel-access/INDEX.md) |
-| offline map/routing | [Offline map context](../../.claude/context/offline-map.md), [Offline routing context](../../.claude/context/offline-routing.md) |
+| offline map/routing | [지도 준비·공유·경로 표시](../../context/project/guidance/offline-maps-and-routes/INDEX.md) |
 | UI composition | [Component context](../../.claude/context/components.md), [UI package guide](../../packages/ui/CLAUDE.md) |
 
 ## Ownership

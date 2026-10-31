@@ -63,7 +63,7 @@ pull은 현재 계정의 활성 여행 ID와 마지막 checkpoint를 서버에 �
 
 [활성화 hook](../../../../apps/client/src/entities/trip/data/useActivateTrip.ts)은 서버 activate 응답을 검증하고, [날짜 계약](../../common/date-and-time.md)에 따라 마지막 여행일과 그 뒤 도시 달력 7일 전체가 끝난 다음 자정을 만료 시각으로 계산한다. 이 유예 기간과 삭제 행의 vacuum 7일은 다른 기준이다. 같은 transaction에서 계정·세션을 다시 확인하고 Trip 메타데이터, 기존 활성 상태 해제, 대상 활성 metadata와 Schedule·Expense를 반영한다. 이후 지도·경로 다운로드를 백그라운드로 시작하고 관련 Query를 갱신한다. 이미 활성 여행이면 데이터 재입수 대신 Local 일정으로 경로 다운로드를 다시 요청한다.
 
-`dataDownloaded=true`·`syncStatus='COMPLETED'`는 이 데이터 입수 상태다. 지도 다운로드 성공을 기다려 활성화하는 구조가 아니다. [metadata의 상세 배지](../../../../apps/client/src/shared/services/offline-prep/metadata.ts)에서 `ready`는 현재 mapDownloaded를 보며 모든 경로 준비의 증거가 아니다. 실제 지도 pack·경로 준비와 만료 정리는 그 서비스 결과를 별도로 확인한다. 만료 값이 존재한다는 사실만으로 Router가 시각마다 차단한다고 판단하지 않는다.
+`dataDownloaded=true`·`syncStatus='COMPLETED'`는 이 데이터 입수 상태다. 지도 다운로드 성공을 기다려 활성화하는 구조가 아니다. [metadata의 상세 배지](../../../../apps/client/src/shared/services/offline-prep/metadata.ts)에서 `ready`는 현재 mapDownloaded를 보며 모든 경로 준비의 증거가 아니다. 실제 지도 pack·경로 준비와 만료 정리는 [지도·경로 기준](../offline-maps-and-routes/INDEX.md)에서 native 자원·metadata·저장 경로의 차이를 별도로 확인한다. 만료 값이 존재한다는 사실만으로 Router가 시각마다 차단한다고 판단하지 않는다.
 
 새 여행으로 전환하며 이전 isActivated를 내리는 작업은 이전 여행의 비활성화 hook·정리 전체를 호출하는 것과 다르다. 활성화의 upsert도 미전송 변경과 서버 값의 충돌을 해결하지 않는다. 재입수·전환을 바꾸면 기존 queue, 이전 cleanup 예약, 원본 행과 지도 작업의 관계를 함께 확인한다.
 

@@ -46,8 +46,9 @@ const policyDocuments = [
   '.claude/context/currency.md',
   '.claude/context/form.md',
   '.claude/context/manual-input.md',
-  '.claude/context/offline-routing.md',         // v3.0 오프라인 라우팅
-  '.claude/context/offline-map.md',             // v3.0 오프라인 지도
+  'context/project/guidance/offline-maps-and-routes/INDEX.md', // 준비·표시 관계
+  'context/project/guidance/offline-maps-and-routes/map-packs.md',
+  'context/project/guidance/offline-maps-and-routes/routes.md',
 
 ];
 ```

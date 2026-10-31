@@ -10,6 +10,8 @@
 
 [데이터 저장·동기화·정리](data-lifecycle/INDEX.md)는 Local mutation·queue·push/pull·활성화·cleanup을 바꿀 때 읽는다. 보존 계약과 실제 상태 판정·완료 범위의 차이, 계정 종료와의 관계를 설명한다.
 
+[오프라인 지도·경로](offline-maps-and-routes/INDEX.md)는 준비 결과·native pack과 metadata·일정 변경 뒤 경로의 관계를 설명한다. 다운로드·재사용·정리·표시를 바꿀 때 실제 자원과 완료 근거를 확인한다.
+
 [동작을 보존하는 코드 리팩터링](behavior-preserving-refactoring.md)은 기존 동작을 유지하며 표현·흐름·책임과 여러 소비 지점의 수정 부담을 줄일 때 읽는다. 변경 전후의 동작 보존과 개선 효과를 따로 판단하고, mock·native·DB 등 검증 경계의 상한을 구별한다.
 
 [API 계약과 변경 가이드](api-contracts.md)는 client API, server route, 공유 schema, serializer와 user scope를 추가·수정·리팩터링할 때 읽는다. Schedule과 Expense의 구체적인 적용, 일반 조회와 sync의 soft-delete 차이, 현재 오류 정책의 열린 충돌을 함께 설명한다.

@@ -1,3 +1,5 @@
+> 역사 보존 자료 — 2026-10-31 Project로 현재 의미와 필요한 선택 이유를 이관했다. 현재 적용은 [지도·경로 본문](../../context/project/guidance/offline-maps-and-routes/INDEX.md)을 따른다. 아래는 원본이며 오래된 경로·완료 표시·예시는 현재 보장이 아니다.
+
 # ADR-002: Mapbox 오프라인 지도 통합
 
 **날짜**: 2025-11-07

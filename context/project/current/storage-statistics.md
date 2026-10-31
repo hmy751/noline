@@ -24,3 +24,5 @@ Hook은 SQLite 파일과 Mapbox offline pack의 byte를 순서대로 모아 `dbS
 [Hook test](../../../apps/client/tests/features/profile/hooks/useStorageStats.test.ts)는 FileSystem과 Mapbox를 대체해 빈 입력·파일 선별·표시, 부분 실패, 유효하지 않은 byte, refresh와 겹친 요청을 실제 hook에서 확인한다. 이는 Expo 파일 경로, Mapbox native pack, development build와 실제 기기 연결을 입증하지 않는다. Native API shape, 집계 순서, 반환 필드, Profile consumer나 최신 요청 적용 방식이 바뀌면 이 본문과 검사를 다시 대조한다.
 
 완료 과정과 초기의 얕은 정리에서 보강된 이유는 Workspace 002 [Ticket 03](../../work/workspaces/002-code-readability-refactoring/current/memory/tickets/03-storage-stats.md), [리팩터링 실행 기록](../../work/workspaces/002-code-readability-refactoring/records/2026-09-11-04-storage-stats-refactor.md), [최초 범위 재확인](../../work/workspaces/002-code-readability-refactoring/records/2026-09-12-01-ticket-03-initial-scope-reanalysis.md)이 소유한다.
+
+지도 pack의 재사용·삭제와 metadata 수명을 바꾸는 작업은 [지도 준비·정리](../guidance/offline-maps-and-routes/map-packs.md)를 함께 확인한다. 용량 조회의 성공은 지도 준비나 정리 완료 판정을 대신하지 않는다.
