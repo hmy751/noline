@@ -1,6 +1,6 @@
 # 여행 중 일정과 경비를 이어가는 제품 기준
 
-Noline의 목적·사용자 장면·활성 여행의 의미와 보존할 데이터 관계를 판단할 때 읽는다. 이 본문은 해당 제품 의미의 Project 정본이다. 관련 개발의 조회·표시·복구 계약은 [여행 접근](../guidance/travel-access/INDEX.md), 저장·동기화와 준비 알고리즘은 연결된 상세 Owner가 맡는다.
+Noline의 목적·사용자 장면·활성 여행의 의미와 보존할 데이터 관계를 판단할 때 읽는다. 이 본문은 해당 제품 의미의 Project 정본이다. 관련 개발의 조회·표시·복구 계약은 [여행 접근](../guidance/travel-access/INDEX.md), 저장·동기화·준비와 정리의 개발 기준은 [데이터 수명](../guidance/data-lifecycle/INDEX.md)이 맡는다.
 
 ## 여행 하나를 준비해 연결이 끊겨도 기록을 이어간다
 
@@ -45,7 +45,7 @@ Expense는 Trip에 속하고 같은 Trip의 Schedule 하나에 선택적으로 �
 
 로컬 변경과 `sync_queue` 기록은 같은 transaction에 둬 한쪽만 남는 상태를 막는다. Entity ID는 클라이언트의 `generateId()`로 만들고 서버가 수용한다. `@repo/schema`의 Zod 계약에서 client/server 타입을 추론한다. 한 시점을 나타내는 값은 timezone을 포함한 ISO 8601 datetime으로 저장·전송한다. Expense `date`의 date-only 계약과 기존 입력·저장 호환은 [날짜와 시각](date-and-time.md)에서 구별한다. 서버는 인증과 사용자 소유권을 확인한다.
 
-삭제·비활성화는 pending sync와 soft delete·cleanup 조건을 지켜 아직 서버에 반영하지 않은 입력을 보존한다. 정책상 제한은 기존 `useAppPolicy`, `PolicyErrorDisplay`, `NetworkStatusIndicator`를 통해 사용자에게 설명한다. 상세 규칙은 [rules](../../../.claude/rules/README.md)와 [guards](../../../.claude/guards/README.md)가 유지한다.
+삭제·비활성화는 미전송 변경과 soft delete·cleanup 조건을 지켜 아직 서버에 반영하지 않은 입력을 보존해야 한다. 현재 여행별 정리는 PENDING 중심이어서 이 보존 계약을 모두 충족하지 못한다. FAILED·IN_PROGRESS, 귀속 불명 작업과 재활성화의 차이는 [데이터 정리 기준](../guidance/data-lifecycle/INDEX.md#여행을-정리할-때-모든-미전송-상태와-현재-활성-여부를-확인한다)에서 구별한다. 정책상 제한은 기존 `useAppPolicy`, `PolicyErrorDisplay`, `NetworkStatusIndicator`를 통해 사용자에게 설명한다. 상세 규칙은 [rules](../../../.claude/rules/README.md)와 [guards](../../../.claude/guards/README.md)가 유지한다.
 
 ## 지원 범위와 갱신
 

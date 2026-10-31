@@ -35,7 +35,7 @@ const policyDocuments = [
   // 상세 가이드
   '.claude/context/typescript.md',
   '.claude/context/architecture.md',
-  '.claude/context/selective-activation-architecture.md',
+  'context/project/guidance/data-lifecycle/INDEX.md',
   'context/project/guidance/travel-access/INDEX.md',        // v3.0 Policy Layer
   '.claude/context/time.md',
   '.claude/context/api-data.md',
@@ -45,7 +45,6 @@ const policyDocuments = [
   // 기능별 가이드
   '.claude/context/currency.md',
   '.claude/context/form.md',
-  '.claude/context/activation-system.md',
   '.claude/context/manual-input.md',
   '.claude/context/offline-routing.md',         // v3.0 오프라인 라우팅
   '.claude/context/offline-map.md',             // v3.0 오프라인 지도
@@ -83,7 +82,7 @@ const policies: PolicyRule[] = [
     filePatterns: ['apps/client/src/entities/**/*.ts'],
     keywords: ['withTransaction', 'sync_queue', 'transaction'],
     severity: 'high',
-    source: '.claude/context/selective-activation-architecture.md:234-289',
+    source: 'context/project/guidance/data-lifecycle/INDEX.md',
   },
   {
     name: 'ISO 8601 시간 형식',
@@ -99,7 +98,7 @@ const policies: PolicyRule[] = [
     filePatterns: ['apps/client/src/entities/**/*.ts', 'apps/server/src/routes/**/*.ts'],
     keywords: ['ulid', 'generateId', 'client-side-id'],
     severity: 'critical',
-    source: '.claude/context/selective-activation-architecture.md:123-156',
+    source: 'context/project/guidance/data-lifecycle/INDEX.md',
   },
   {
     name: 'Soft Delete',
@@ -266,7 +265,7 @@ function recommendDocumentation(affectedPolicies: AffectedPolicy[]) {
 파일: apps/client/src/entities/expense/model/mutations.ts
 감지: withTransaction 사용
 정책: "DB + sync_queue 원자성 보장"
-출처: .claude/context/selective-activation-architecture.md:234-289
+출처: context/project/guidance/data-lifecycle/INDEX.md
 
 변경 내용:
 
@@ -294,7 +293,7 @@ Decision에 포함할 내용:
 관련 정책 문서:
 
 - packages/schema/CLAUDE.md
-- .claude/context/selective-activation-architecture.md
+- context/project/guidance/data-lifecycle/INDEX.md
 
 다음 단계: /doc-save --decision
 ```

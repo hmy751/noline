@@ -35,7 +35,7 @@ Trip/Schedule/Expense처럼 sync-owned Data Entity를 추가하거나 확장할 
 
 ## <a id="sync-debug"></a>동기화 문제 디버깅
 
-local/remote state, pending sync, activation, deletion path가 어긋날 때 사용한다.
+local/remote state, pending sync, activation, deletion path가 어긋날 때 사용한다. [데이터 저장·동기화·정리](../../context/project/guidance/data-lifecycle/INDEX.md)에서 보존 계약과 현재 구현 차이를 먼저 확인한다.
 
 1. 문제가 난 trip, entity, activation state, user를 확인한다.
 2. Data Layer 코드가 Activation Router를 우회했는지 확인한다.

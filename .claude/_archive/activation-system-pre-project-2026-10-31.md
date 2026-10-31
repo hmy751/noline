@@ -1,3 +1,5 @@
+> 역사 보존본 — 2026-10-31 Project 데이터 저장·동기화·정리 이관 전 원문이다. 아래 active/완료 표현은 당시의 설명이며 현재 보장이 아니다. 일반 작업에서는 Project 주제별 진입을 사용한다.
+
 # Activation System Guide
 
 > 문서 상태: active source.

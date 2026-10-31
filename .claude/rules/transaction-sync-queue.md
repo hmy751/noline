@@ -18,5 +18,5 @@
 ## 마무리 확인
 
 - [Guard Map](../guards/README.md)의 Transaction + sync_queue와 Soft Delete를 확인한다.
-- cleanup 동작을 바꾼다면 [Deactivation Sync Queue Safety](../decisions/2025-11-20-deactivation-sync-queue-safety.md)를 읽는다.
+- cleanup 동작을 바꾼다면 [데이터 보존과 정리 기준](../../context/project/guidance/data-lifecycle/INDEX.md)를 읽는다.
 - 로그인·로그아웃과 저장이 겹치는 경로를 바꾼다면 [앱 실행·세션·데이터 보존](../../context/project/current/app-runtime/INDEX.md)에서 접수된 DB 작업 대기와 새 transaction 차단, cleanup의 실제 보호 범위를 확인한다.

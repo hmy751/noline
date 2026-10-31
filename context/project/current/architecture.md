@@ -8,7 +8,7 @@
 
 Trip·Schedule·Expense의 data hook은 repository를 호출하고 repository의 Activation Router가 local/remote 구현을 고른다. Trip 자체 query와 child entity query는 활성 판단 단위가 다르므로 실제 변경에서는 [Activation Router rule](../../../.claude/rules/activation-router.md)을 확인한다. 활성화된 여행은 SQLite와 queue를 사용하고, Sync Engine은 queue에 남은 변경을 서버로 보낸다. Router의 데이터 위치 선택과 Sync Engine의 동기화 수행은 다른 책임이다.
 
-실제 sync source는 [engine](../../../apps/client/src/shared/services/sync/engine.ts), [queue](../../../apps/client/src/shared/services/sync/queue.ts), [cleanup job](../../../apps/client/src/shared/services/sync/cleanup-job.ts)에서 찾는다. 비활성화 시 pending task가 있으면 cleanup을 미루는 모델을 따른다. 지도·검색·길찾기는 [Policy 설명](../guidance/travel-access/INDEX.md)을 따르며 Data Router를 확대 적용하지 않는다.
+실제 sync source는 [engine](../../../apps/client/src/shared/services/sync/engine.ts), [queue](../../../apps/client/src/shared/services/sync/queue.ts), [cleanup job](../../../apps/client/src/shared/services/sync/cleanup-job.ts)에서 찾는다. 저장·전송·정리의 계약과 현재 구현 차이는 [데이터 수명 가이드](../guidance/data-lifecycle/INDEX.md)가 설명한다. 비활성화 정리는 현재 PENDING 중심이라 FAILED·IN_PROGRESS와 귀속 불명 작업 보호가 부족하며 로그아웃·vacuum의 보호와 다르다. 지도·검색·길찾기는 [Policy 설명](../guidance/travel-access/INDEX.md)을 따르며 Data Router를 확대 적용하지 않는다.
 
 ## 앱 준비와 세션 수명
 

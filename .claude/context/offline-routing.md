@@ -909,7 +909,7 @@ Profile: 3개
 ## 🔗 관련 문서
 
 - [Offline Map Feature](./offline-map.md) - 오프라인 지도 기능
-- [Selective Activation Architecture](selective-activation-architecture.md) - Client-Side ID, 활성화 패턴
+- [데이터 저장·동기화·정리](../../context/project/guidance/data-lifecycle/INDEX.md) - Client-Side ID, 활성화 패턴
 - [Client CLAUDE.md](../../apps/client/CLAUDE.md) - 클라이언트 가이드
 
 ## 📝 체크리스트

@@ -46,7 +46,7 @@
 | `signed-in` | 계정에 맞는 로컬 접근과 인증이 필요한 원격 요청의 기본 조건 충족 | 실제 작업에는 여행 활성화·네트워크 등 해당 정책도 적용된다. |
 | `reauth-required` | 같은 계정의 활성 여행 Local CRUD 유지 | 인증이 필요한 원격 요청과 새 sync는 막고 재로그인을 안내한다. |
 
-인증 만료에 별도의 로컬 이용 기한을 추가하지 않는다. 여행 활성화 자체의 기한·상태는 기존 [활성화 설명](../../../../.claude/context/activation-system.md)과 [Activation Router](../../../../.claude/rules/activation-router.md)의 책임이다. 화면의 제한·작성 값 유지와 Service Layer 허용 조건은 [Policy 설명](../../guidance/travel-access/INDEX.md)을 따른다.
+인증 만료에 별도의 로컬 이용 기한을 추가하지 않는다. 여행 활성화 자체의 기한·상태는 [데이터 준비·정리 기준](../../guidance/data-lifecycle/INDEX.md)과 [Activation Router](../../../../.claude/rules/activation-router.md)의 책임이다. 화면의 제한·작성 값 유지와 Service Layer 허용 조건은 [Policy 설명](../../guidance/travel-access/INDEX.md)을 따른다.
 
 ### 계정 판단과 데이터 소유권의 위치
 
@@ -111,7 +111,7 @@ DB의 `withTransaction`은 entity 변경과 sync_queue 추가를 하나로 처�
 
 **종료 대기는 실행 중인 sync가 끝났다는 뜻이다.** 성공까지 강제하거나 새 sync를 시작해 큐를 비우는 절차는 아니다. 로그아웃은 대기 뒤 큐를 다시 검사한다.
 
-엔진은 인증 중단과 남은 FAILED·IN_PROGRESS를 오류로 전달한다. `completed`도 그 실행의 push/pull이 끝났다는 결과이며, 그 뒤 추가된 모든 변경·모든 지도 정리·모든 화면 갱신 완료까지 뜻하지 않는다.
+엔진은 인증 중단과 남은 FAILED·IN_PROGRESS를 오류로 전달한다. `completed`는 엔진의 정상 반환이다. 활성 여행이 없어 pull을 생략해도 push가 정상 종료하면 기록될 수 있다. DB의 pull checkpoint와 메모리 실행 성공 시각, 그 뒤 추가된 변경·지도 정리·화면 갱신 완료를 구별한다. 자세한 범위는 [저장·동기화 기준](../../guidance/data-lifecycle/INDEX.md#pull과-완료-표시를-바꾸면-반영-경계를-확인한다)을 따른다.
 
 ## 로그아웃·탈퇴: 남는 데이터와 후속 상태
 
@@ -134,13 +134,7 @@ DB의 `withTransaction`은 entity 변경과 sync_queue 추가를 하나로 처�
 
 세션 종료가 기다리는 cleanup은 `processPendingCleanups`로 공유되는 실행이다. 별도 [지도 만료 정리 hook](../../../../apps/client/src/shared/services/offline-map/useOfflineMapCleanup.ts)은 예약 전 해제 시 타이머를 취소하지만 이미 시작한 전체 지도 작업을 이 세션 조율이 기다리는 구조는 아니다. pending cleanup 뒤의 캐시 재조회도 정리 완료와 별개다.
 
-데이터 보존 판정은 경로마다 차이가 있다.
-
-- **여행별 미전송 검사:** 로그아웃은 세 가지 미동기화 상태를 모두 보지만, `hasPendingTasksForTrip`은 현재 PENDING만 대상으로 Trip의 recordId 또는 일정·경비 payload의 tripId를 확인한다.
-- **cleanup 처리 수:** 미전송 때문에 실제 삭제를 건너뛴 여행도 포함될 수 있다. 이 수치나 세션 종료 보호만으로 여행별 cleanup 전체가 안전하게 완료됐다고 판단할 수 없다.
-- **vacuum의 원본 보존:** 큐가 일정·경비 원본을 참조하면 상태와 무관하게 보존해 재전송·계정 검사를 가능하게 한다.
-
-여행별 미전송 판정·처리 수 개선과 중단된 IN_PROGRESS의 재개 정책은 별도 제품 작업으로 남아 있다.
+여행별 보존 판정은 계정 종료와 다르다. 여행 비활성화·pending cleanup은 현재 PENDING과 payload의 tripId에 의존하지만 로그아웃은 세 미전송 상태를 모두 본다. vacuum은 queue가 참조하는 원본을 상태와 무관하게 보존한다. 재활성화 예약, 처리 수, 실행 계기와 남은 보호 공백은 [여행 정리 기준](../../guidance/data-lifecycle/INDEX.md#여행을-정리할-때-모든-미전송-상태와-현재-활성-여부를-확인한다)이 소유한다. 세션 종료 대기의 보완을 여행별 정리 전체의 안전 보장으로 확대하지 않는다.
 
 ## 확인 근거와 갱신
 
