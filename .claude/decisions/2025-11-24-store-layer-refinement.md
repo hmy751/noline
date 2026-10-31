@@ -265,7 +265,7 @@ shared/
 
 - [CHANGELOG.md](..//CHANGELOG.md#2025-11-24)
 - [architecture.md](../context/architecture.md)
-- Policy Architecture: [policy-architecture.md](../context/policy-architecture.md)
+- Policy Architecture: [policy-architecture.md](../../context/project/guidance/travel-access/INDEX.md)
 
 ---
 

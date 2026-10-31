@@ -1,6 +1,6 @@
 # 경비 초안 보존과 일정 연결의 독립성
 
-2026-10-02 사용자 논의에서 확정한 제품 선택이다. 현재 제한·소비 기준은 [Policy Architecture](../context/policy-architecture.md), 여행 데이터 관계는 [제품 기준](../../context/project/common/product.md)이 설명한다. 이 기록의 채택 상태는 구현·검증 완료나 사용자 acceptance를 뜻하지 않는다.
+2026-10-02 사용자 논의에서 확정한 제품 선택이다. 현재 제한·소비 기준은 [Policy Architecture](../../context/project/guidance/travel-access/INDEX.md), 여행 데이터 관계는 [제품 기준](../../context/project/common/product.md)이 설명한다. 이 기록의 채택 상태는 구현·검증 완료나 사용자 acceptance를 뜻하지 않는다.
 
 ## 연결의 의미를 먼저 정했다
 

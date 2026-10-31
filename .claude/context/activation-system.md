@@ -3,6 +3,8 @@
 > 문서 상태: active source.
 > 과거 구현 계획, phase checklist, rollback 메모는 [_archive/activation-system-rollout-history.md](../_archive/activation-system-rollout-history.md)에 보존되어 있다. 이 문서는 현재 코드에서 바로 작업할 때 읽는 짧은 기준이다.
 
+활성화의 제품 의미는 [Project 제품 기준](../../context/project/common/product.md), 기능 접근·화면 복구는 [Project 여행 접근](../../context/project/guidance/travel-access/INDEX.md)이 소유한다. 이 문서는 준비·해제의 실행과 metadata를 설명한다.
+
 ## 현재 모델
 
 Activation은 특정 여행을 오프라인에서도 사용할 수 있게 준비하는 상태다.
@@ -41,7 +43,7 @@ Activation은 특정 여행을 오프라인에서도 사용할 수 있게 준비
 
 Entity hook이나 화면에서 직접 DB/API를 선택하지 않는다. `entities/*/repository/*`에서 Router를 호출하고, `data/` hook은 repository만 사용한다.
 
-비활성 Trip의 서버 변경 결과를 기존 로컬 목록에도 반영하는 책임과 한계는 [Data Layer Guide](./selective-activation-architecture.md#router-사용-기준)를 따른다.
+비활성 Trip의 서버 변경 결과를 기존 로컬 목록에도 반영하는 책임과 한계는 [Project 여행 목록 계약](../../context/project/guidance/travel-access/INDEX.md#router와-계정-전체-여행-목록의-계약)를 따른다.
 
 ## Metadata 함수
 

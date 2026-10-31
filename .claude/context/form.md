@@ -13,7 +13,7 @@ alwaysApply: false
 - **[장소 후보와 채택](#장소-후보와-초안에-채택한-장소):** 지도에 보이는 위치, 선택 가능한 결과, 초안에 연결된 좌표를 구별한다.
 - **[날짜·시간 선택](#날짜시간-선택창과-폼의-연결):** 선택창의 확인·닫기·재열기와 저장 요청의 날짜 의미를 연결한다.
 
-날짜·시각·통화의 제품 의미와 요청 계약은 각각 [날짜와 시각](../../context/project/common/date-and-time.md), [통화와 금액](../../context/project/common/currency.md), [API 계약](../../context/project/guidance/api-contracts.md)이 소유한다. 읽기 제한·네트워크 재확인은 [Policy 본문](policy-architecture.md), 인증·실행 종료는 [앱 실행 구조](../../context/project/current/app-runtime/INDEX.md)를 참조한다.
+날짜·시각·통화의 제품 의미와 요청 계약은 각각 [날짜와 시각](../../context/project/common/date-and-time.md), [통화와 금액](../../context/project/common/currency.md), [API 계약](../../context/project/guidance/api-contracts.md)이 소유한다. 읽기 제한·네트워크 재확인은 [Policy 본문](../../context/project/guidance/travel-access/INDEX.md), 인증·실행 종료는 [앱 실행 구조](../../context/project/current/app-runtime/INDEX.md)를 참조한다.
 
 ## 기본 조합과 책임
 
@@ -66,7 +66,7 @@ React Native input은 `register` 대신 `Controller`로 연결한다. `Field`는
 
 [경비 생성 훅](../../apps/client/src/features/expense/create-expense/useCreateExpenseForm.ts)은 초안·제출 수명을 유지하고, 생성·수정 폼은 [ExpenseScheduleField](../../apps/client/src/features/expense/expense-form/ExpenseScheduleField.tsx)와 [ExpenseSubmitActions](../../apps/client/src/features/expense/expense-form/ExpenseSubmitActions.tsx)를 공유한다. 별도의 ManualExpenseForm으로 교체하지 않는다.
 
-일정 선택 영역은 같은 여행의 모든 날짜 일정을 시간순으로 제공하고, 경비 날짜는 초기 탐색 위치로만 사용한다. 경비 날짜 변경이 기존 연결을 해제하지 않는다. 연결을 없애면 요청에서 `scheduleId: null`로 명시한다. 데이터 관계와 선택 이유는 [경비 초안·일정 연결 결정](../decisions/2026-10-02-expense-draft-and-schedule-association.md)을 따른다.
+일정 선택 영역은 같은 여행의 모든 날짜 일정을 시간순으로 제공하고, 경비 날짜는 초기 탐색 위치로만 사용한다. 경비 날짜 변경이 기존 연결을 해제하지 않는다. 연결을 없애면 요청에서 `scheduleId: null`로 명시한다. 데이터 관계와 선택 이유는 [Project 경비 초안·일정 연결 근거](../../context/project/guidance/travel-access/_background/evidence.md#경비-초안과-일정-연결)을 따른다.
 
 후보를 조회할 수 없는 동안에는 전체 일정 목록을 별도로 복제해 공개하지 않는다. 이미 선택한 일정의 설명만 초안의 여행 ID·일정 ID와 함께 기억한다. 기억한 설명이 없으면 기존 연결을 유지한다는 안내를 사용하며, 후보 제한 중에도 기존 연결을 설명하고 해제할 수 있다. 새 선택은 조회 `view`가 ready이고 `access.canFetch`가 허용해야 한다. 이 조건은 활성 여행의 Local 후보 조회와 비활성 여행의 제한을 같은 화면에서 구별한다.
 
@@ -140,7 +140,7 @@ A를 초안에 채택한 채 B를 검색하면 지도는 B 후보를 보여 줄 
 
 ## 저장 제한·실패·종료
 
-연결 변화는 장소 검색·일정 후보·저장 같은 해당 기능의 가용성에 반영한다. 열린 기본 입력을 다른 폼이나 전체 차단 화면으로 교체하지 않는다. 활성 여행의 일정 `manual-only`와 경비 `full`의 차이는 외부 장소 검색과 Local 일정 연결의 차이이며, 상세 제한은 [Manual Input](manual-input.md)과 [Policy](policy-architecture.md#작성과-읽기의-제한을-구별한다)가 소유한다.
+연결 변화는 장소 검색·일정 후보·저장 같은 해당 기능의 가용성에 반영한다. 작성 기준은 열린 기본 입력을 다른 폼이나 전체 차단 화면으로 교체하지 않는 것이다. 현재 일정 수정은 정책 제한 때 입력 영역을 대체하므로 아래 Project 작성 계약의 구현 차이를 함께 확인한다. 활성 여행의 일정 `manual-only`와 경비 `full`의 차이는 외부 장소 검색과 Local 일정 연결의 차이이며, 상세 제한은 [Manual Input](manual-input.md)과 [Policy](../../context/project/guidance/travel-access/INDEX.md#작성과-읽기의-제한을-구별한다)가 소유한다.
 
 저장 영역의 정책 안내와 마지막 저장 실패는 서로 다른 정보다. 현재 생성 일정과 생성·수정 경비의 저장 버튼은 진행 중일 때 비활성화하고, 최종 실행 조건은 Repository/Router에서 검사한다. 사전 안내가 있다는 사실만으로 버튼이 항상 잠긴다고 가정하지 않는다. 저장 실패는 초안을 남기며 네트워크 복구만으로 다시 제출하지 않는다.
 

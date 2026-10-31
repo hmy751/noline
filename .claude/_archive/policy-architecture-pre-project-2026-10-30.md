@@ -1,9 +1,11 @@
+> 2026-10-30 이관 직전 본문 보존. 당시 설명이며 현재 정본은 [Project 여행 접근](../../context/project/guidance/travel-access/INDEX.md)이다. 상대 링크만 원래 대상을 유지하도록 보정했다.
+
 # 네트워크·조회·화면 복구와 Policy
 
 > 문서 상태: active source.
-> v3.0 rollout 설명과 phase checklist는 [_archive/policy-architecture-v3-rollout.md](../_archive/policy-architecture-v3-rollout.md)에 보존되어 있다.
+> v3.0 rollout 설명과 phase checklist는 [_archive/policy-architecture-v3-rollout.md](policy-architecture-v3-rollout.md)에 보존되어 있다.
 
-Policy Layer는 "현재 상태에서 기능을 사용할 수 있는가"와 "어떤 UI 모드로 보여줄 것인가"를 결정한다. Data Entity의 Local/Remote 저장 위치는 [Selective Activation](./selective-activation-architecture.md)의 Activation Router가 결정한다.
+Policy Layer는 "현재 상태에서 기능을 사용할 수 있는가"와 "어떤 UI 모드로 보여줄 것인가"를 결정한다. Data Entity의 Local/Remote 저장 위치는 [Selective Activation](../context/selective-activation-architecture.md)의 Activation Router가 결정한다.
 
 - **[연결 관측](#네트워크-관측과-재확인의-수명):** 실제 상태와 화면용 강제 표시를 구별하고, 미확정 상태의 재확인을 기존 Store에서 처리한다.
 - **[조회와 표시](#조회-실행과-화면-표시를-구별한다):** 실행 가능 여부, 남아 있는 캐시, 지금 공개할 내용을 따로 판단한다.
@@ -21,8 +23,8 @@ Policy Layer는 "현재 상태에서 기능을 사용할 수 있는가"와 "어�
 | Policy exports | `apps/client/src/shared/policy/index.ts` |
 | Policy UI | `apps/client/src/shared/components/ErrorBoundary/PolicyErrorDisplay.tsx` |
 | 실제 관측·화면 강제값·재확인 | [Network Store](../../apps/client/src/shared/store/network.ts) |
-| 조회 접근·상태·실행 조합 | [policy-query](../../apps/client/src/shared/services/policy-query/) |
-| 구체 일정·경비 조회 | [read-schedules](../../apps/client/src/features/schedule/read-schedules/), [read-expenses](../../apps/client/src/features/expense/read-expenses/) |
+| 조회 접근·상태·실행 조합 | [policy-query](../../apps/client/src/shared/services/policy-query) |
+| 구체 일정·경비 조회 | [read-schedules](../../apps/client/src/features/schedule/read-schedules), [read-expenses](../../apps/client/src/features/expense/read-expenses) |
 | 홈 요약 표시 | [MainTripSection](../../apps/client/src/screens/HomeScreen/MainTripSection.tsx), [TripSummary](../../apps/client/src/entities/trip/ui/TripSummary.tsx) |
 
 ## 네트워크 관측과 재확인의 수명
@@ -134,7 +136,7 @@ Data hook 내부에 Policy check를 넣지 않는다. Policy는 화면이나 fea
 | --- | --- | --- |
 | 비활성 여행의 일정·경비 목록/상세 | 캐시는 유지하되 표시 정책이 막히면 내용을 가림. 허용 상태의 갱신 실패는 기존 내용 유지 | 각 화면과 조회 조합의 `view` |
 | 홈의 대표 여행 카드 | 여행 기본 정보는 유지하고 일정·경비 요약을 각각 판정 | MainTripSection의 데이터 집계, TripSummary의 표시 |
-| 계정 전체 여행 목록 | 이미 아는 여행 기본 정보와 선택을 보존하는 별도 계약 | [여행 목록·선택 계약](selective-activation-architecture.md#router-사용-기준) |
+| 계정 전체 여행 목록 | 이미 아는 여행 기본 정보와 선택을 보존하는 별도 계약 | [여행 목록·선택 계약](../context/selective-activation-architecture.md#router-사용-기준) |
 | 이미 열린 작성 폼 | 입력값·기존 연결 설명을 유지하고 실행할 수 없는 영역만 제한 | 아래 작성 계약과 해당 폼 |
 
 홈은 기존 조회 `view`를 그대로 소비하며 MainTripSection은 ready 데이터만 일정 수·통화별 금액으로 가공한다. TripCard는 배치를, TripSummary는 공간에 맞는 정상·로딩·제한·오류 표현을 맡는다. 동일한 상태 타입이나 정책을 홈 전용으로 다시 만들지 않은 이유다.
@@ -159,7 +161,7 @@ Data hook 내부에 Policy check를 넣지 않는다. Policy는 화면이나 fea
 
 현재 전역 Query 설정은 focus/reconnect 자동 재조회를 끄고, 기본 freshness는 5분이다. 따라서 “연결 복귀마다 모든 조회가 다시 실행된다”고 설명하지 않는다. 일정·경비의 유효한 캐시가 복귀 즉시 다시 보이는 것과 서버를 새로 조회한 것은 다르다. 실제 설정은 [queryClient](../../apps/client/src/shared/lib/queryClient.ts)와 Entity hook에서 확인한다.
 
-[취소 후 갱신 helper](../../apps/client/src/shared/lib/query-refresh.ts)는 데이터가 없는 최초 조회까지 취소한 뒤 invalidate를 요청한다. 최초 요청을 공유해 변경 전 결과가 늦게 적용되는 일을 피하기 위한 순서다. helper는 취소를 기다리지만 새 조회의 완료는 기다리지 않는다. 여행 목록의 응답 보존·remote/mixed/local 출처·fallback·선택 변경은 기존 [Selective Activation 본문](selective-activation-architecture.md#router-사용-기준)이 소유한다.
+[취소 후 갱신 helper](../../apps/client/src/shared/lib/query-refresh.ts)는 데이터가 없는 최초 조회까지 취소한 뒤 invalidate를 요청한다. 최초 요청을 공유해 변경 전 결과가 늦게 적용되는 일을 피하기 위한 순서다. helper는 취소를 기다리지만 새 조회의 완료는 기다리지 않는다. 여행 목록의 응답 보존·remote/mixed/local 출처·fallback·선택 변경은 기존 [Selective Activation 본문](../context/selective-activation-architecture.md#router-사용-기준)이 소유한다.
 
 ## 작성과 읽기의 제한을 구별한다
 
@@ -203,4 +205,4 @@ if (policy.service.mapProvider === 'none') {
 
 2026-10-30 현재 소스와 [Network Store 검사](../../apps/client/tests/shared/store/network.test.ts), [공통 조회 계약 검사](../../apps/client/tests/shared/services/policy-query/read-query.test.tsx), [화면 소비자 검사](../../apps/client/tests/screens/read-query-consumers.test.tsx), [여행 목록 갱신 검사](../../apps/client/tests/application/trip-list-refresh.test.tsx)를 대조했다. 이 검사는 제어된 NetInfo·repository와 React Query/화면 연결의 범위다. Debug 표시 전환이나 대역 검사를 실제 인터넷 단절·백그라운드 Wi-Fi 전환 검증으로 확대하지 않는다.
 
-복구 토스트를 새로 추가하지 않는 선택, 경비 삭제 실패 이유·특정 상세 재시도의 보류는 유지한다. 전역 새 FSD 예외나 보류된 UX를 이 설명만으로 채택하지 않는다. 관련 상태·소비자·query 갱신 경로를 바꾸는 주체가 이 본문과 [오류 가이드](error-handling.md), 영향받는 진입을 함께 확인한다.
+복구 토스트를 새로 추가하지 않는 선택, 경비 삭제 실패 이유·특정 상세 재시도의 보류는 유지한다. 전역 새 FSD 예외나 보류된 UX를 이 설명만으로 채택하지 않는다. 관련 상태·소비자·query 갱신 경로를 바꾸는 주체가 이 본문과 [오류 가이드](../context/error-handling.md), 영향받는 진입을 함께 확인한다.

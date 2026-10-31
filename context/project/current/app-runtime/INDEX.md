@@ -6,7 +6,7 @@
 - **[재인증](#인증-상태와-로컬-접근):** 인증이 만료돼도 같은 계정의 활성 여행을 계속 이용한다. 같은 계정 재로그인은 기존 데이터를 유지하며 인증을 복구한다.
 - **[로그아웃·탈퇴](#로그아웃탈퇴-남는-데이터와-후속-상태):** 진행 중 작업을 기다리고 미전송 여부를 확인한다. 명시적 로그아웃으로 정리한 미전송 변경은 복구되지 않는다.
 
-이미 채택된 사용자 흐름과 현재 client 구현의 연결을 설명한다. Activation Router·Policy·transaction의 상세 계약은 기존 Owner가 계속 소유한다. 초기 자동 계정 전환을 대체한 결정과 선택 이유·발췌는 [형성 맥락](_background/context.md)에서 찾는다.
+이미 채택된 사용자 흐름과 현재 client 구현의 연결을 설명한다. Activation Router·Policy·조회의 계약은 [여행 접근](../../guidance/travel-access/INDEX.md)이, Local 변경·queue 원자성은 [Transaction rule](../../../../.claude/rules/transaction-sync-queue.md)이 소유한다. 초기 자동 계정 전환을 대체한 결정과 선택 이유·발췌는 [형성 맥락](_background/context.md)에서 찾는다.
 
 ## 앱 시작: 진입 조건과 실패 처리
 
@@ -46,7 +46,7 @@
 | `signed-in` | 계정에 맞는 로컬 접근과 인증이 필요한 원격 요청의 기본 조건 충족 | 실제 작업에는 여행 활성화·네트워크 등 해당 정책도 적용된다. |
 | `reauth-required` | 같은 계정의 활성 여행 Local CRUD 유지 | 인증이 필요한 원격 요청과 새 sync는 막고 재로그인을 안내한다. |
 
-인증 만료에 별도의 로컬 이용 기한을 추가하지 않는다. 여행 활성화 자체의 기한·상태는 기존 [활성화 설명](../../../../.claude/context/activation-system.md)과 [Activation Router](../../../../.claude/rules/activation-router.md)의 책임이다. 화면의 제한·작성 값 유지와 Service Layer 허용 조건은 [Policy 설명](../../../../.claude/context/policy-architecture.md)을 따른다.
+인증 만료에 별도의 로컬 이용 기한을 추가하지 않는다. 여행 활성화 자체의 기한·상태는 기존 [활성화 설명](../../../../.claude/context/activation-system.md)과 [Activation Router](../../../../.claude/rules/activation-router.md)의 책임이다. 화면의 제한·작성 값 유지와 Service Layer 허용 조건은 [Policy 설명](../../guidance/travel-access/INDEX.md)을 따른다.
 
 ### 계정 판단과 데이터 소유권의 위치
 

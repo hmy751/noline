@@ -18,4 +18,4 @@
 ## 마무리 확인
 
 - [Guard Map](../guards/README.md)의 Activation Router와 Data/Service 분리를 확인한다.
-- routing 판단이 애매하면 수정 전에 [Selective Activation context](../context/README.md#selective-activation-and-router)를 읽는다.
+- routing 판단이 애매하면 수정 전에 [Project Router·여행 목록 계약](../../context/project/guidance/travel-access/INDEX.md#router와-계정-전체-여행-목록의-계약)를 읽는다.

@@ -20,8 +20,8 @@
 | Data Entity, repository, React Query | [API/Data context](../../.claude/context/api-data.md), [Activation Router rule](../../.claude/rules/activation-router.md) |
 | local write, sync queue, soft delete | [Transaction + Sync Queue rule](../../.claude/rules/transaction-sync-queue.md) |
 | 작성 초안, 장소 선택, 날짜·시간 picker와 manual input | [작성·입력 Context](../../.claude/context/form.md), [Form runbook](../../.claude/runbooks/README.md#form-pattern) |
-| 네트워크 감지, 조회·캐시 표시, 홈 요약과 복구 | [네트워크·조회·화면 복구](../../.claude/context/policy-architecture.md), [오류 표현](../../.claude/context/error-handling.md) |
-| policy 제한 UI | [Policy UI rule](../../.claude/rules/policy-ui.md), [Policy context](../../.claude/context/policy-architecture.md) |
+| 네트워크 감지, 조회·캐시 표시, 홈 요약과 복구 | [네트워크·조회·화면 복구](../../context/project/guidance/travel-access/INDEX.md), [오류 표현](../../.claude/context/error-handling.md) |
+| policy 제한 UI | [Policy UI rule](../../.claude/rules/policy-ui.md), [Policy context](../../context/project/guidance/travel-access/INDEX.md) |
 | offline map/routing | [Offline map context](../../.claude/context/offline-map.md), [Offline routing context](../../.claude/context/offline-routing.md) |
 | UI composition | [Component context](../../.claude/context/components.md), [UI package guide](../../packages/ui/CLAUDE.md) |
 

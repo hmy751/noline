@@ -36,7 +36,7 @@ const policyDocuments = [
   '.claude/context/typescript.md',
   '.claude/context/architecture.md',
   '.claude/context/selective-activation-architecture.md',
-  '.claude/context/policy-architecture.md',        // v3.0 Policy Layer
+  'context/project/guidance/travel-access/INDEX.md',        // v3.0 Policy Layer
   '.claude/context/time.md',
   '.claude/context/api-data.md',
   '.claude/context/components.md',

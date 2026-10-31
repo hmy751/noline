@@ -20,8 +20,8 @@
 
 ## 현재 문서
 
-- [`0001-selective-local-first.md`](0001-selective-local-first.md): Selective Local-First의 선택 의미와 상세 결정 접근점
+- [`0001-selective-local-first.md`](0001-selective-local-first.md): Selective Local-First의 선택 의미·기각 대안·용어의 이유와 재검토 조건
 
 결정이 대체되면 과거 문서를 지우지 않고 상태와 대체 결정을 연결한다. 현재 제품 의미·구현 지도·조건부 지침은 각각의 책임 층에서도 함께 갱신한다.
 
-Noline의 기존 [상세 Decision Owner](../../../.claude/decisions/)는 그대로 유지한다. 중요한 하네스 선택도 기존 Owner에 기록하고 여기에는 관련 재진입 경로를 연결한다.
+Project로 이관한 제품 주제의 필요한 선택 이유는 이 폴더나 해당 본문의 형성 자료가 소유한다. Selective Local-First·Policy·여행 접근은 0001과 여행 접근 형성 자료에서 읽는다. 아직 이관하지 않은 다른 제품 주제와 하네스 결정의 책임을 이 이동만으로 바꾸지는 않는다.

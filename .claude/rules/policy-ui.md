@@ -17,7 +17,7 @@
 
 ## 함께 읽을 맥락
 
-unknown 재확인·Debug 표시·조회 제한·캐시 공개·홈 요약을 바꾸면 [네트워크·조회·화면 복구](../context/policy-architecture.md)를 읽는다. 최초 실패와 갱신 실패의 표현은 [오류 가이드](../context/error-handling.md)를 참조한다.
+unknown 재확인·Debug 표시·조회 제한·캐시 공개·홈 요약을 바꾸면 [네트워크·조회·화면 복구](../../context/project/guidance/travel-access/INDEX.md)를 읽는다. 최초 실패와 갱신 실패의 표현은 [조회 표시·실패 계약](../../context/project/guidance/travel-access/INDEX.md#조회-실행과-화면-표시를-구별한다)를 참조한다.
 
 ## 마무리 확인
 

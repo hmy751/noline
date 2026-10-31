@@ -43,6 +43,8 @@ export async function getTrip(req, res) {
 
 ## Client Data Pattern
 
+아래 코드는 오류 전달의 개략 예시다. 실제 hook·query key와 API 연결은 [API/Data](api-data.md)와 해당 소스에서 확인한다.
+
 ```typescript
 export function useGetTrip(tripId: string) {
   return useQuery({
@@ -60,37 +62,7 @@ export function useGetTrip(tripId: string) {
 }
 ```
 
-화면은 **처음 내용을 얻지 못한 실패**와 **기존 내용의 갱신 실패**를 구별한다. 모든 `isError`에서 화면 전체를 오류로 바꾸면 재조회 실패만으로 유효한 내용을 가리게 된다. 위 코드는 오류 전달의 개략 예시이며 실제 Entity hook·query key는 [API/Data 구현 경로](api-data.md)에서 찾는다.
-
-일정·경비의 정책 조회 소비자는 `query.data`만으로 표시를 결정하지 않고 기존 `view`를 사용한다. [조회 실행과 화면 표시](policy-architecture.md#조회-실행과-화면-표시를-구별한다)가 이 순서와 접근 조건을 소유한다.
-
-| 상태 | 표현과 복구 |
-| --- | --- |
-| `blocked` | 캐시를 유지하더라도 제한된 내용을 공개하지 않고 정책 안내를 표시 |
-| `loading` / `error` | 최초 조회 중 또는 실패를 표시. 빈 목록·0원·대상 삭제로 대신하지 않음 |
-| `ready` | 성공한 내용 표시. 빈 배열도 정상 결과 |
-| `ready` + `refreshFailed` | 기존 내용을 유지하고 해당 영역의 갱신 실패를 안내 |
-| `unselected` / `idle` | 대상 미선택·소비자 비활성 조건을 화면 맥락에 맞게 처리 |
-
-홈에서 한쪽 요약만 실패하면 정상인 다른 요약을 유지한다. 상세에서는 목록 조회 성공과 특정 ID의 존재 여부를 별도로 판단하며, 조회 중·오류를 대상 부재로 성급히 바꾸지 않는다. 실제 표현은 [홈 요약](../../apps/client/src/entities/trip/ui/TripSummary.tsx)과 [경비 상세](../../apps/client/src/screens/ExpenseDetailScreen.tsx)에서 확인한다. 경비 상세의 특정 재시도·삭제 실패 이유 처리는 여전히 보류 범위이며, 이 문서 보완으로 해결한 것으로 보지 않는다.
-
-재조회는 접근 조건을 확인하는 `actions.refetch`로 요청한다. `finished`는 호출이 끝났다는 의미이고 오류가 결과 안에 남을 수 있다. 진행 표시를 끝내는 일과 성공 안내는 구별한다. 네트워크 재확인은 [연결 관측](policy-architecture.md#연결-복귀와-데이터-갱신)을 갱신하는 별도 행동이다.
-
-## Policy Error Pattern
-
-다음은 일정 읽기 영역의 제한 처리 발췌다. 나머지 `view` 상태는 위 표에 따라 해당 화면에서 표현한다.
-
-```tsx
-const { view } = useTripSchedulesReadQuery(tripId);
-
-if (view.kind === 'blocked') {
-  return <PolicyErrorDisplay policy={view.policy} variant='block' />;
-}
-```
-
-실제 prop은 `policy`다. pending·`recoveryAction`·재확인 진행은 기존 [PolicyErrorDisplay](../../apps/client/src/shared/components/ErrorBoundary/PolicyErrorDisplay.tsx)를 재사용한다. 홈처럼 좁은 영역은 같은 정책 결과를 사용하되 공간에 맞는 표시를 맡는다.
-
-이미 열린 작성 폼은 제한을 이유로 전체를 위 예시처럼 교체하지 않는다. [작성과 읽기의 구별](policy-architecture.md#작성과-읽기의-제한을-구별한다)에 따라 입력을 유지하고 사용할 수 없는 동작 영역에 안내한다. 저장 실패도 초안을 유지하며 연결 복구만으로 자동 제출하지 않는다.
+화면의 최초 실패·갱신 실패·제한·초안 보존과 재시도는 [Project 여행 접근·화면 복구](../../context/project/guidance/travel-access/INDEX.md#오류와-제한은-발생한-영역에서-표현한다)가 소유한다. 해당 작업은 새 본문에서 계약·선택 이유와 실제 소비자를 함께 확인한다. 이 문서에 남은 서버 오류·중앙 오류 계층 후보는 별도 주제다.
 
 ## 확장 후보
 

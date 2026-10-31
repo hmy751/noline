@@ -20,7 +20,7 @@
 | 작업 | 먼저 볼 문서 |
 | --- | --- |
 | primitive 추가/수정 | [Component runbook](../../.claude/runbooks/README.md#component-guide), [Component context](../../.claude/context/components.md) |
-| policy 제한 UI | [Policy UI rule](../../.claude/rules/policy-ui.md), [Policy context](../../.claude/context/policy-architecture.md) |
+| policy 제한 UI | [Policy UI rule](../../.claude/rules/policy-ui.md), [Policy context](../../context/project/guidance/travel-access/INDEX.md) |
 | app composition | [Client guide](../../apps/client/CLAUDE.md), [Form context](../../.claude/context/form.md) |
 | TypeScript props style | [TypeScript/Zod context](../../.claude/context/typescript.md) |
 

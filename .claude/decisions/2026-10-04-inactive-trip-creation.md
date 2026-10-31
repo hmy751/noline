@@ -1,6 +1,6 @@
 # 비활성 Trip 생성과 여행 목록 조회의 책임
 
-2026-10-04. 활성 여행은 Local, 비활성 여행은 Server라는 기존 원칙에 생성과 목록 갱신을 맞춘다. 현재 기준은 [Data Layer Guide](../context/selective-activation-architecture.md#router-사용-기준)가 소유한다.
+2026-10-04. 활성 여행은 Local, 비활성 여행은 Server라는 기존 원칙에 생성과 목록 갱신을 맞춘다. 현재 기준은 [Project 여행 목록 계약](../../context/project/guidance/travel-access/INDEX.md#router와-계정-전체-여행-목록의-계약)가 소유한다.
 
 ## 문제와 결정
 

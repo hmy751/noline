@@ -11,15 +11,15 @@
 
 ## 현재 맥락 source
 
-예전 `core/`와 `features/` 본문 문서는 이 디렉터리로 이동했다. 아직 Owner를 옮기지 않은 깊은 설명은 `context/`가 소유하고, 승인되어 Project로 옮긴 주제는 표의 `context/project/` 본문이 현재 의미를 소유한다. 이 디렉터리의 대응 파일은 호환 routing과 구현 위치만 남긴다. `rules/`와 `runbooks/`는 짧은 guard와 반복 작업 진입을 맡는다.
+예전 `core/`와 `features/` 본문 문서는 이 디렉터리로 이동했다. 아직 Owner를 옮기지 않은 깊은 설명은 `context/`가 소유하고, 승인되어 Project로 옮긴 주제는 표의 `context/project/` 본문이 현재 의미를 소유한다. 여행 접근·Policy의 옛 대응 파일은 현재 경로에서 제거했다. 다른 주제의 미이관 상세·구현 안내는 아래에서 구별한다. `rules/`와 `runbooks/`는 짧은 guard와 반복 작업 진입을 맡는다.
 
 | 주제 | 맥락 source | 먼저 볼 rule/runbook |
 | --- | --- | --- |
 | Architecture and FSD | [architecture.md](architecture.md) | [Runbooks](../runbooks/README.md) |
 | 앱 준비·세션·데이터 보존 | [Project 앱 실행 구조](../../context/project/current/app-runtime/INDEX.md) | [Client guide](../../apps/client/CLAUDE.md), [Transaction + Sync Queue](../rules/transaction-sync-queue.md) |
-| <a id="selective-activation-and-router"></a>Selective Activation and Router | [selective-activation-architecture.md](selective-activation-architecture.md), [activation-system.md](activation-system.md) | [Activation Router rule](../rules/activation-router.md) |
+| <a id="selective-activation-and-router"></a>Selective Activation and Router | [Project Router·여행 목록](../../context/project/guidance/travel-access/INDEX.md#router와-계정-전체-여행-목록의-계약), [Local mutation·sync](selective-activation-architecture.md), [준비·해제](activation-system.md) | [Activation Router rule](../rules/activation-router.md) |
 | API 계약과 변경 | [Project API guidance](../../context/project/guidance/api-contracts.md), [repository/query 구현 경로](api-data.md) | [Add API Endpoint](../runbooks/README.md#api-endpoint) |
-| <a id="policy-layer"></a>Policy Layer · 네트워크 관측·조회·화면 복구 | [policy-architecture.md](policy-architecture.md) | [Policy UI rule](../rules/policy-ui.md) |
+| <a id="policy-layer"></a>Policy Layer · 네트워크 관측·조회·화면 복구 | [Project 여행 접근·Policy](../../context/project/guidance/travel-access/INDEX.md) | [Policy UI rule](../rules/policy-ui.md) |
 | <a id="time-and-date"></a>Time and date | [Project 날짜와 시각](../../context/project/common/date-and-time.md), [구현 helper 경로](time.md) | [ISO Time rule](../rules/iso-time.md) |
 | TypeScript and Zod | [typescript.md](typescript.md) | [Schema First rule](../rules/schema-first.md) |
 | <a id="components"></a>Components | [components.md](components.md) | [Build UI Components](../runbooks/README.md#component-guide) |

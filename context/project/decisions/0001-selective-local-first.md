@@ -3,24 +3,24 @@
 - 상태: 채택
 - Project common context 편입일: 2026-09-04
 
-## 결정
+## 결정과 선택 이유
 
-활성화된 여행의 sync-owned data는 Local SQLite를 기준으로 다루고, 비활성 여행은 Server API를 기준으로 다룬다. Trip·Schedule·Expense의 local/remote 선택은 Activation Router가 소유한다. 지도·검색·길찾기는 데이터 Owner가 아니므로 Policy Layer가 현재 상태에 맞춰 Network-First 또는 제한된 동작을 선택한다.
+활성화된 여행의 sync-owned data는 Local SQLite를 기준으로 다루고, 비활성 여행은 Server API를 기준으로 다룬다. 모든 여행을 오프라인 편집 대상으로 만들기보다 사용자가 준비한 여행에 저장·동기화 책임을 집중한다. Trip·Schedule·Expense의 local/remote 선택은 Activation Router가 소유한다. 새 여행은 아직 활성화되지 않았으므로 서버에서 생성하고, 다른 여행의 활성 상태를 생성 위치의 근거로 쓰지 않는다.
 
-클라이언트는 entity ID를 만들고 서버는 이를 수용한다. local mutation과 `sync_queue` 기록은 같은 transaction에 둔다. `@repo/schema`는 client/server 계약의 원천이다.
+지도·검색·길찾기는 사용자 소유 데이터를 동기화하는 책임과 다르다. 활성 여행의 데이터가 Local에 있다는 이유로 온라인 서비스까지 제한하지 않도록 Policy Layer가 네트워크 조건에 맞는 기능·표시 모드를 정한다. 클라이언트는 Entity ID를 만들고 서버는 이를 수용한다. Local mutation과 `sync_queue` 기록은 같은 transaction에 두며 `@repo/schema`는 client/server 계약의 원천이다.
 
-## 결과와 경계
+## 비교했던 대안과 책임 경계
 
-비활성 여행을 오프라인에서 편집하는 복잡도를 의도적으로 제한하고, 사용자가 활성화한 여행에 오프라인 준비를 집중한다. 이 결정은 특정 UI·route·sync 구현의 상세 Owner를 옮기지 않으며, 실제 구현 변경은 해당 workspace guide·rule·code를 함께 검토해야 한다.
+2025-11-20 Data/Service 분리 결정은 활성 여행에서 온라인 지도까지 제한되던 문제를 다뤘다. 온라인이면 데이터 Router도 Server 우선으로 바꾸는 대안은 미전송 변경과 데이터 소유권을 흔들 위험으로 기각했다. 사용자가 완전 온라인/오프라인 모드를 고르는 대안은 전환 판단의 복잡도를 사용자에게 넘긴다는 이유로 기각했다. 서비스 가용성과 데이터 소유권을 나누는 방식이 현재 선택이다. 당시 위험 판단과 현재 동작의 검증은 구별한다.
 
-## 상세 근거
+같은 날 Policy 책임 결정은 data hook 안에 UI 가용성 검사를 넣는 대안보다 화면·feature에서 Policy를 소비하고 data hook은 CRUD에 집중하는 구성을 선택했다. 이후 열린 초안 보존 계약에 따라 제한은 실행할 수 없는 영역에 적용한다. 당시의 전체 화면 교체 예시를 현재 폼에 그대로 적용하지 않는다. 선택의 최소 발췌와 후속 전환은 [여행 접근 형성 근거](../guidance/travel-access/_background/evidence.md)에 있다.
 
-- root [`CLAUDE.md`](../../../CLAUDE.md)의 Core Invariants
-- [Selective Activation architecture](../../../.claude/context/selective-activation-architecture.md)
-- [Data/Service separation decision](../../../.claude/decisions/2025-11-20-data-service-separation.md)
-- [Policy Layer separation decision](../../../.claude/decisions/2025-11-20-policy-layer-separation.md)
-- [Terminology unification](../../../.claude/decisions/2026-03-21-terminology-unification.md)
+## 현재 이름이 뜻하는 것
 
-## 현재 authority와 재검토
+2026-03-21 용어 정리는 모든 데이터가 Local 우선이라는 오해를 줄이기 위해 `Selective Local-First`를, 대상 여행의 활성 상태로 분기한다는 실체를 드러내기 위해 `Activation Router`를 선택했다. `Echo Protocol`은 클라이언트가 ID를 생성하고 서버가 수용하는 동작을 과하게 이름 붙인 표현으로 보고 `Client-Side ID Generation`으로 맞췄다. 오프라인 준비를 설명할 때의 ‘보험’은 준비의 의미이며 구독 결제 계약을 뜻하지 않는다. 과거 기록의 용어와 코드의 기존 파일·함수명을 일괄 바꾸는 결정은 아니었다.
 
-현재 제품 의미는 [common](../common/product.md), 구현 경계는 [current](../current/architecture.md)에서 읽는다. 이 문서는 선택 이유의 요약이며 상세 rule·code의 Owner를 대체하지 않는다. 활성 여행의 범위, 오프라인 편집 정책 또는 데이터·서비스 소유 구분을 바꾸는 요구가 생기면 기존 상세 결정과 함께 재검토한다. 당시 자료에 없는 대안·불확실성을 새로 꾸며 기록하지 않는다.
+## 현재 설명과 다시 판단할 조건
+
+제품 장면과 보존할 데이터 관계는 [제품 기준](../common/product.md), 실제 책임 배치는 [현재 구조](../current/architecture.md), Router·여행 목록·Policy·화면 계약은 [여행 접근](../guidance/travel-access/INDEX.md)이 소유한다. 활성 여행의 범위, 비활성 여행의 오프라인 편집, 데이터와 서비스의 구분 또는 미전송 변경 보존을 바꾸는 요구가 생기면 이 선택과 해당 코드를 함께 재검토한다.
+
+이 문서는 채택된 의미·이유를 보존하며 실제 sync·지도 준비·cleanup 성공이나 제품 검증 완료를 선언하지 않는다. 출처는 2025-11-20 Data/Service·Policy 책임 결정, 2026-03-21 용어 결정과 이후 여행 생성·초안 보존 선택이며, 현재 읽기에 필요한 이유는 위 본문과 가까운 형성 근거에 담았다.

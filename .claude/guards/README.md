@@ -12,15 +12,15 @@
 
 | Guard | 적용 영역 | 지켜야 할 것 | Rule / Context |
 | --- | --- | --- | --- |
-| Activation Router | `apps/client/src/entities/**`, data hooks, repository | Trip/Schedule/Expense 같은 Data Layer는 활성화 상태에 따라 Local/Remote를 분기한다. Hook이나 UI에서 직접 DB/API를 선택하지 않는다. | [Activation Router](../rules/activation-router.md), [Selective Activation context](../context/README.md#selective-activation-and-router) |
-| Data/Service 분리 | Data: Trip/Schedule/Expense, Service: Map/Search/Directions | Data Layer는 Router와 sync_queue 책임을 갖고, Service Layer는 Policy 기반 Network-First로 다룬다. | [Activation Router](../rules/activation-router.md), [data-service-separation.md](../decisions/2025-11-20-data-service-separation.md) |
+| Activation Router | `apps/client/src/entities/**`, data hooks, repository | Trip/Schedule/Expense 같은 Data Layer는 활성화 상태에 따라 Local/Remote를 분기한다. Hook이나 UI에서 직접 DB/API를 선택하지 않는다. | [Activation Router](../rules/activation-router.md), [Router·여행 목록 계약](../../context/project/guidance/travel-access/INDEX.md#router와-계정-전체-여행-목록의-계약) |
+| Data/Service 분리 | Data: Trip/Schedule/Expense, Service: Map/Search/Directions | Data Layer는 Router와 sync_queue 책임을 갖고, Service Layer는 Policy 기반 Network-First로 다룬다. | [Activation Router](../rules/activation-router.md), [Data/Service 선택 이유](../../context/project/decisions/0001-selective-local-first.md) |
 | Transaction + sync_queue | Local mutation, offline input, activation/deactivation | 로컬 DB 변경과 sync_queue 추가는 `withTransaction`으로 원자성을 보장한다. | [Transaction + Sync Queue](../rules/transaction-sync-queue.md), [deactivation-sync-queue-safety.md](../decisions/2025-11-20-deactivation-sync-queue-safety.md) |
 | Client-Side ID | Entity create, request schema, server create route | 클라이언트가 `generateId()`로 ID를 만들고, 서버는 클라이언트 ID를 수용한다. `ulid()` 직접 호출은 피한다. | [Client-Side ID](../rules/client-side-id.md), [packages/schema/CLAUDE.md](../../packages/schema/CLAUDE.md) |
 | Schema-first | `packages/schema/**`, client/server type contract | `@repo/schema`는 schema가 원천이다. 타입은 schema import 후 `z.infer`로 추론한다. | [Schema First](../rules/schema-first.md), [packages/schema/CLAUDE.md](../../packages/schema/CLAUDE.md) |
 | ISO 8601 time | 날짜/시간 필드, DB schema, request/response | 한 시점은 ISO datetime with timezone을 사용하고, 경비의 달력 날짜는 공유 date-only 계약을 따른다. | [ISO Time](../rules/iso-time.md), [Time context](../context/README.md#time-and-date) |
 | Soft Delete | delete flow, list query, sync pull/push | 데이터는 `deletedAt`으로 숨기고 조회에서는 `deletedAt IS NULL` 필터를 유지한다. hard delete는 sync 안전 조건을 확인한 뒤 제한적으로만 한다. | [Transaction + Sync Queue](../rules/transaction-sync-queue.md), [deactivation-sync-queue-safety.md](../decisions/2025-11-20-deactivation-sync-queue-safety.md) |
 | Auth/user scope | server routes, local data filtering, sync | 보호된 서버 route는 인증과 user ownership을 확인하고, 로컬 데이터는 userId 기준으로 분리한다. | [Auth/User Scope](../rules/auth-user-scope.md), [apps/server/CLAUDE.md](../../apps/server/CLAUDE.md) |
-| Policy UI | offline/online, active/inactive 상태에 따른 UI | 컴포넌트는 임의 조건보다 `useAppPolicy` 결과를 우선 확인하고, 제한 상태는 `PolicyErrorDisplay` 등 기존 UX 패턴으로 안내한다. | [Policy UI](../rules/policy-ui.md), [Policy context](../context/README.md#policy-layer) |
+| Policy UI | offline/online, active/inactive 상태에 따른 UI | 컴포넌트는 임의 조건보다 `useAppPolicy` 결과를 우선 확인하고, 제한 상태는 `PolicyErrorDisplay` 등 기존 UX 패턴으로 안내한다. | [Policy UI](../rules/policy-ui.md), [여행 접근·Policy](../../context/project/guidance/travel-access/INDEX.md) |
 
 ## 자주 걸리는 실패 패턴
 

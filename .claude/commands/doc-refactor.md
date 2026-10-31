@@ -88,7 +88,7 @@ const CURRENT_POLICIES = {
     rule: '4-State Matrix로 CRUD 권한 제어',
     states: ['online_active', 'online_inactive', 'offline_active', 'offline_inactive'],
     required: ['useAppPolicy'],
-    guide: '.claude/context/policy-architecture.md',
+    guide: 'context/project/guidance/travel-access/INDEX.md',
   },
 
   // Data/Service Layer 분리
@@ -96,7 +96,7 @@ const CURRENT_POLICIES = {
     rule: 'Data Layer는 Router, Service Layer는 Policy 기반',
     dataLayer: ['Trip', 'Schedule', 'Expense'],  // sync_queue 필요
     serviceLayer: ['Map', 'Search', 'Directions'],  // 소유권 없음
-    guide: '.claude/decisions/2025-11-20-data-service-separation.md',
+    guide: 'context/project/decisions/0001-selective-local-first.md',
   },
 
   // Manual Input 정책
@@ -153,7 +153,7 @@ const POLICY_HISTORY = {
     core: 'v2.0 활성화 정책 + 네트워크 상태 → 4-State Matrix로 CRUD 제어',
     layer: '확장 레이어 (v2.0 위에 구축)',
     current: true,
-    guide: '.claude/context/policy-architecture.md',
+    guide: 'context/project/guidance/travel-access/INDEX.md',
   },
 };
 ```
