@@ -7,7 +7,8 @@
 | [Ticket 02 내용·구성 재리뷰](ticket-02-content-review.md) | 기존 설명의 적합성, 역할별 수정·유지 이유, 발견·교정과 확인 한계를 검토할 때 |
 | [Ticket 03 저장·동기화·정리 결과](ticket-03-result.md) | 새 데이터 수명 본문·원본 격리, 코드 대조에서 확인한 보호 공백, 독립 검토·검증과 후속 우선순위를 확인할 때 |
 | [Ticket 04 지도·경로 결과](ticket-04-result.md) | 기존 내용·형식의 판단, 준비·최신성·정리 공백, 원본 격리와 검토·확인 범위를 확인할 때 |
+| [Ticket 05 구조·UI·schema 결과](ticket-05-result.md) | 기존 설명·형식의 판단, 현재 계층 예외·타입 검증 정정, 원본 격리와 검토·확인 범위를 확인할 때 |
 
-현재 제품 설명은 [제품 기준](../../../../project/common/product.md), [여행 접근](../../../../project/guidance/travel-access/INDEX.md), [선택 이유](../../../../project/decisions/0001-selective-local-first.md), [저장·동기화·정리](../../../../project/guidance/data-lifecycle/INDEX.md), [지도·경로](../../../../project/guidance/offline-maps-and-routes/INDEX.md)와 가까운 형성 자료가 소유한다. 이 폴더는 그 본문을 복제하지 않고 조사·검토 결과를 남긴다.
+현재 제품 설명은 [제품 기준](../../../../project/common/product.md), [여행 접근](../../../../project/guidance/travel-access/INDEX.md), [선택 이유](../../../../project/decisions/0001-selective-local-first.md), [저장·동기화·정리](../../../../project/guidance/data-lifecycle/INDEX.md), [지도·경로](../../../../project/guidance/offline-maps-and-routes/INDEX.md), [구조·UI·schema](../../../../project/guidance/development-boundaries/INDEX.md)와 가까운 형성 자료가 소유한다. 이 폴더는 그 본문을 복제하지 않고 조사·검토 결과를 남긴다.
 
 최신 실행 상태와 다음 행동은 [state](../current/state/index.md)를 따른다. 문서 이관 결과를 제품 구현 차이의 해소나 006 전체 완료로 해석하지 않는다.

@@ -139,7 +139,7 @@ API guidance는 Schedule의 접근·직렬화와 새 입수 검사를 다루지�
 - [입력 수명](../../../../../.claude/context/form.md)
 - [지도 원자료](../../../../../.claude/_archive/offline-map-pre-project-2026-10-31.md)
 - [경로 원자료](../../../../../.claude/_archive/offline-routing-pre-project-2026-10-31.md)
-- [구조 원자료](../../../../../.claude/context/architecture.md)
+- [구조 원자료](../../../../../.claude/_archive/architecture-pre-project-2026-10-31.md)
 - [날짜 본문](../../../../project/common/date-and-time.md)
 - [통화 본문](../../../../project/common/currency.md)
 - [API 본문](../../../../project/guidance/api-contracts.md)
