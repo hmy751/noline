@@ -9,17 +9,17 @@
 - `apps/server/CLAUDE.md`가 서버 workspace guide의 원천이다.
 - `apps/server/AGENTS.md`는 이 파일을 가리키는 Codex bridge symlink다. 별도 정책 원천처럼 수정하지 않는다.
 - 작업에 필요한 기준은 아래 Start Here와 [Runbooks](../../.claude/runbooks/README.md)에서 직접 찾는다.
-- client/schema와 함께 지켜야 하는 정책은 이 파일에 복사하지 않고 `rules/`, `guards/`, `runbooks/`, `context/project/` 중 가장 작은 owner로 보낸다.
+- client/schema와 함께 지켜야 하는 정책은 이 파일에 복사하지 않고 `context/project/`의 주제별 Owner 또는 실행 순서를 맡는 `runbooks/`로 보낸다.
 
 ## Start Here
 
 | 작업 | 먼저 볼 문서 |
 | --- | --- |
-| API endpoint 추가/수정 | [API 계약과 변경 가이드](../../context/project/guidance/api-contracts.md), [API endpoint runbook](../../.claude/runbooks/README.md#api-endpoint), [Schema First rule](../../.claude/rules/schema-first.md) |
-| auth/user ownership | [Auth/User Scope rule](../../.claude/rules/auth-user-scope.md), [Guard Map](../../.claude/guards/README.md) |
-| client-created ID create flow | [Client-Side ID rule](../../.claude/rules/client-side-id.md) |
-| sync endpoint | [Transaction + Sync Queue rule](../../.claude/rules/transaction-sync-queue.md), [Sync debug runbook](../../.claude/runbooks/README.md#sync-debug) |
-| time fields | [ISO Time rule](../../.claude/rules/iso-time.md), [Time context](../../context/project/common/date-and-time.md) |
+| API endpoint 추가/수정 | [API 계약과 변경 가이드](../../context/project/guidance/api-contracts.md), [API endpoint runbook](../../.claude/runbooks/README.md#api-endpoint), [Schema First 기준](../../context/project/guidance/development-boundaries/schema-and-types.md) |
+| auth/user ownership | [Auth/User Scope 기준](../../context/project/guidance/api-contracts.md), [제품 기준·위험 점검](../../context/project/guidance/README.md) |
+| client-created ID create flow | [Client-Side ID 기준](../../context/project/guidance/data-lifecycle/INDEX.md#생성-id는-localqueue서버에서-같은-값을-유지한다) |
+| sync endpoint | [Transaction + Sync Queue 기준](../../context/project/guidance/data-lifecycle/INDEX.md), [Sync debug runbook](../../.claude/runbooks/README.md#sync-debug) |
+| time fields | [날짜·시점 기준](../../context/project/common/date-and-time.md) |
 | error handling | [오류 전달·공개 응답](../../context/project/guidance/error-handling.md) |
 
 ## Ownership

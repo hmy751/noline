@@ -16,7 +16,7 @@
 
 기본 의존은 화면 조립에서 feature·entity·공통 기반을 사용하는 방향이다. 실제 shared Policy·지도 UI 등에는 entity 참조가 남고, 일정·경비 폼은 공개 일정 조회 feature를 재사용한다. 이 지도는 이를 엄격한 FSD 준수나 모든 같은 계층 참조의 허용으로 설명하지 않는다. 현재 적용 조건과 비용은 계층 기준에서 확인한다.
 
-Trip·Schedule·Expense의 data hook은 repository를 호출하고 repository의 Activation Router가 local/remote 구현을 고른다. Trip 자체 query와 child entity query는 활성 판단 단위가 다르므로 실제 변경에서는 [Activation Router rule](../../../.claude/rules/activation-router.md)을 확인한다. 활성화된 여행은 SQLite와 queue를 사용하고, Sync Engine은 queue에 남은 변경을 서버로 보낸다. Router의 데이터 위치 선택과 Sync Engine의 동기화 수행은 다른 책임이다.
+Trip·Schedule·Expense의 data hook은 repository를 호출하고 repository의 Activation Router가 local/remote 구현을 고른다. Trip 자체 query와 child entity query는 활성 판단 단위가 다르므로 실제 변경에서는 [여행 접근·Router 기준](../guidance/travel-access/INDEX.md#router와-계정-전체-여행-목록의-계약)을 확인한다. 활성화된 여행은 SQLite와 queue를 사용하고, Sync Engine은 queue에 남은 변경을 서버로 보낸다. Router의 데이터 위치 선택과 Sync Engine의 동기화 수행은 다른 책임이다.
 
 실제 sync source는 [engine](../../../apps/client/src/shared/services/sync/engine.ts), [queue](../../../apps/client/src/shared/services/sync/queue.ts), [cleanup job](../../../apps/client/src/shared/services/sync/cleanup-job.ts)에서 찾는다. 저장·전송·정리의 계약과 현재 구현 차이는 [데이터 수명 가이드](../guidance/data-lifecycle/INDEX.md)가 설명한다. 비활성화 정리는 현재 PENDING 중심이라 FAILED·IN_PROGRESS와 귀속 불명 작업 보호가 부족하며 로그아웃·vacuum의 보호와 다르다. 지도·검색·길찾기는 [Policy 설명](../guidance/travel-access/INDEX.md)을 따르며 Data Router를 확대 적용하지 않는다.
 
@@ -38,4 +38,4 @@ Auth Store는 현재 계정과 인증 수단을 관리한다. 재인증이 필�
 
 Root [Context Harness](../../README.md)는 Project layer와 Workspace Spec·Ticket·state를 연결한다. Noline의 `.claude/skills/` 원본은 `.agents/skills/` bridge로 공유한다. Codex·Claude lifecycle wrapper가 설치돼 있지만 새 session은 unbound이며 hook trust·사용자 explicit activation·실제 event receipt 전에는 `activation_pending`이다. Claude adapter의 semantic runner는 기존 Codex 구현을 재사용한다.
 
-상세 Owner와 코드·테스트·runtime이 바뀌면 변경 책임자가 관련 부분을 갱신한다. 이 지도는 위치·현재 관계를 요약한다. 제품 계약은 대응 Project 본문과 rules/guards가, 구현 사실은 실제 source가 근거이며 둘의 충돌은 구별한다. [개발 기준의 형성 자료](../guidance/development-boundaries/_background/README.md)에서 구조·UI·schema 선택 이유를 찾는다. 전체 상세 문서 최신화 여부를 이 지도만으로 주장하지 않는다.
+상세 Owner와 코드·테스트·runtime이 바뀌면 변경 책임자가 관련 부분을 갱신한다. 이 지도는 위치·현재 관계를 요약한다. 제품 계약·위험·변경 확인 조건은 대응 Project 본문이 소유하고 구현 사실은 실제 source를 근거로 하며, 둘의 충돌은 구별한다. [개발 기준의 형성 자료](../guidance/development-boundaries/_background/README.md)에서 구조·UI·schema 선택 이유를 찾는다. 전체 상세 문서 최신화 여부를 이 지도만으로 주장하지 않는다.

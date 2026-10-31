@@ -26,7 +26,7 @@
 | UI | 제한된 기능 영역을 안내하고 작성 상태를 보존 | `PolicyErrorDisplay`, 일정 선택·저장 영역 |
 | Service | 외부 서비스 호출과 표시 | map/search/directions |
 
-화면·feature의 기능 제한을 바꿀 때는 임의의 연결 조건을 다시 만들지 않고 `useAppPolicy` 결과를 소비한다. Data hook을 추가하거나 고칠 때는 Policy 검사를 넣지 않고 데이터 작업을 맡긴다. Service의 가용성은 Data Router 대신 `policy.service`를 사용한다. 이 구분으로 UI 가용성, 저장 위치와 CRUD 책임이 한곳에 섞이지 않게 한다.
+화면·feature의 기능 제한을 바꿀 때는 임의의 연결 조건을 다시 만들지 않고 `useAppPolicy` 결과를 소비한다. Data hook을 추가하거나 고칠 때는 Policy 검사를 넣지 않고 데이터 작업을 맡긴다. Service의 가용성은 Data Router 대신 `policy.service`를 사용한다. 제한 안내는 `PolicyErrorDisplay`·`NetworkStatusIndicator` 같은 기존 패턴을 우선하며, 안내를 숨기거나 화면 조건을 바꿔도 Router의 데이터 소유권·실제 실행 조건을 우회하지 않는다. 이 구분으로 UI 가용성, 저장 위치와 CRUD 책임이 한곳에 섞이지 않게 한다.
 
 여행의 생성·수정 UI 가용성은 `policy.trip.create`와 `policy.trip.update`로 제공한다. `constants.ts`에서 새 여행 생성은 다른 여행의 활성 여부와 무관한 온라인·오프라인 정책을, 기존 여행 수정은 대상 여행의 4-state 정책을 선택한다. 인증·unknown 안내와 활성 상태 최초 확인은 기존 공통 제약을 재사용한다. 생성·편집 폼은 기본 display 정책으로 버튼과 인라인 제한 안내를 구성하며, 실제 실행 순간의 인증·연결·Debug 쓰기 차단과 저장 위치는 Router가 확인한다.
 
@@ -94,6 +94,8 @@ Local session이 없으면 로그인 안내를 먼저 적용한다. 여행 활�
 | 계정 전체 여행 목록 | `routeTripQuery`가 실제 온라인·서버 인증 상태에서 서버 전체 목록을 조회한다. 연결·인증 제한 중에는 활성 여행이 있어야 Local 목록을 새로 제공한다. |
 
 온라인으로 감지돼도 API의 네트워크 오류·시간 초과·5xx가 발생하면 같은 세션의 활성 여행이 있을 때 Local 목록으로 fallback한다. 인증·응답 계약·미분류 오류나 Local 반영 실패를 숨기는 fallback은 하지 않는다. 이미 성공한 서버 변경을 후속 목록 조회 실패 때문에 실패한 변경으로 되돌려 보고하지 않는다.
+
+새 sync-owned entity는 UI 연결 전에 repository에서 Router와 Local/Remote 책임을 정한다. Hook·화면이 DB/API를 직접 선택하면 활성 여행의 미전송 기록과 서버 사본이 갈라질 수 있다. 변경 전후에는 활성·비활성 × 실제 online·offline, unknown과 Debug override, 계정 세션을 함께 확인한다. 계정 전체 목록과 새 여행 생성은 위의 별도 분기를 유지한다. Data/Service 소유 경계를 바꾸려면 관련 제품 결정도 함께 재판단하며, 외부 서비스 호출을 편의상 sync queue에 넣지 않는다.
 
 ### 목록 반영과 화면 선택을 구별한다
 

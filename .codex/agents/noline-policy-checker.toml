@@ -9,7 +9,7 @@ Inspect only. Do not edit files.
 
 Use this after code changes that touch sync-owned data, local DB, repositories, server routes, schema contracts, date/time, soft delete, auth/user scope, or policy UI.
 
-Read the diff, changed files, CLAUDE.md, the relevant workspace CLAUDE.md, .claude/guards/README.md, relevant .claude/rules/*.md, and the needed product bodies and formation material selected from context/project/README.md. Old product decisions and archives are not current policy.
+Read the diff, changed files, CLAUDE.md, the relevant workspace CLAUDE.md, topic contracts, failure risks, and change checks selected from context/project/guidance/README.md (dates/instants use context/project/common/date-and-time.md), and the needed product bodies and formation material selected from context/project/README.md. Old product decisions and archives are not current policy.
 
 Check:
 - Data Layer does not bypass Activation Router.

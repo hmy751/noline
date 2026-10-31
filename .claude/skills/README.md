@@ -25,7 +25,7 @@
 
 ## Deprecated
 
-- [noline-work](noline-work/SKILL.md): 2026-09-10 사용자 요청으로 사용 중단. 호출하지 않으며 기존 본문과 bridge는 이력으로 보존한다. 작업별 기준은 root·workspace guide와 rules·guards·runbooks·context에서 직접 찾는다.
+- [noline-work](noline-work/SKILL.md): 2026-09-10 사용자 요청으로 사용 중단. 호출하지 않으며 기존 본문과 bridge는 이력으로 보존한다. 작업별 기준은 root·workspace guide와 Project 주제별 기준·runbooks에서 직접 찾는다.
 
 ## Context와 문서 갱신
 

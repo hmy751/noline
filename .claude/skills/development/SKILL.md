@@ -49,7 +49,7 @@ Personal의 판단 내용을 검토용 기준집으로 다시 쓰거나, Project
 
 맡은 질문의 본문 선택·유효한 읽기 재사용·원문과 실물 대조는 대상 context의 공통 사용 방법을 따른다. 이 Project에서는 [USAGE](../../../context/USAGE.md)를 사용한다. 일반 재개의 실제 읽기 순서는 대상 Work 지침이 정하며, 한정 질문이나 Work 없는 요청에 전체 인수를 요구하지 않는다. 기준·사례·형성 자료의 의미와 읽을 조건은 각 영역이 소유한다. 더 정확한 이해나 형성 의도 확인에도 필요한 형성 자료를 선택할 수 있다.
 
-Noline에서는 [root 지침](../../../CLAUDE.md)과 작업 경로의 app/package 지침에서 제품 불변식·rules·guards·runbooks를 선택한다. Personal의 일반 판단이 Noline의 더 엄격한 규약이나 열린 제품 결정을 대체하지 않는다. 실제 앱 실행이 필요하면 기존 [start-app](../start-app/SKILL.md)의 조건을 따르고, deprecated noline-work는 호출하지 않는다.
+Noline에서는 [root 지침](../../../CLAUDE.md)과 작업 경로의 app/package 지침에서 제품 불변식과 Project의 주제별 기준·위험·확인 조건, 필요한 runbook을 선택한다. Personal의 일반 판단이 Noline의 더 엄격한 규약이나 열린 제품 결정을 대체하지 않는다. 실제 앱 실행이 필요하면 기존 [start-app](../start-app/SKILL.md)의 조건을 따르고, deprecated noline-work는 호출하지 않는다.
 
 ## 작업 중 판단이 바뀌는 곳에서 맥락을 다시 고른다
 

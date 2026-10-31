@@ -7,8 +7,8 @@
 ## 사용 방식
 
 1. 아래 작업 이름을 통해 새 runbook으로 이동한다.
-2. 관련 [rules](../rules/README.md)와 [guards](../guards/README.md)를 먼저 확인한다.
-3. 긴 설명이 필요할 때만 [Project context](../../context/project/README.md)로 내려간다.
+2. [제품 개발 기준](../../context/project/guidance/README.md)에서 해당 주제 본문의 계약·실패 위험·확인 조건을 읽는다.
+3. 구현 상태나 선택 이유가 필요하면 [Project context](../../context/project/README.md)에서 관련 본문과 형성 자료를 고른다.
 
 ## 빠른 작업표
 

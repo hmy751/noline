@@ -45,7 +45,7 @@ Expense는 Trip에 속하고 같은 Trip의 Schedule 하나에 선택적으로 �
 
 로컬 변경과 `sync_queue` 기록은 같은 transaction에 둬 한쪽만 남는 상태를 막는다. Entity ID는 클라이언트의 `generateId()`로 만들고 서버가 수용한다. `@repo/schema`의 Zod 계약에서 client/server 타입을 추론한다. 한 시점을 나타내는 값은 timezone을 포함한 ISO 8601 datetime으로 저장·전송한다. Expense `date`의 date-only 계약과 기존 입력·저장 호환은 [날짜와 시각](date-and-time.md)에서 구별한다. 서버는 인증과 사용자 소유권을 확인한다.
 
-삭제·비활성화는 미전송 변경과 soft delete·cleanup 조건을 지켜 아직 서버에 반영하지 않은 입력을 보존해야 한다. 현재 여행별 정리는 PENDING 중심이어서 이 보존 계약을 모두 충족하지 못한다. FAILED·IN_PROGRESS, 귀속 불명 작업과 재활성화의 차이는 [데이터 정리 기준](../guidance/data-lifecycle/INDEX.md#여행을-정리할-때-모든-미전송-상태와-현재-활성-여부를-확인한다)에서 구별한다. 정책상 제한은 기존 `useAppPolicy`, `PolicyErrorDisplay`, `NetworkStatusIndicator`를 통해 사용자에게 설명한다. 상세 규칙은 [rules](../../../.claude/rules/README.md)와 [guards](../../../.claude/guards/README.md)가 유지한다.
+삭제·비활성화는 미전송 변경과 soft delete·cleanup 조건을 지켜 아직 서버에 반영하지 않은 입력을 보존해야 한다. 현재 여행별 정리는 PENDING 중심이어서 이 보존 계약을 모두 충족하지 못한다. FAILED·IN_PROGRESS, 귀속 불명 작업과 재활성화의 차이는 [데이터 정리 기준](../guidance/data-lifecycle/INDEX.md#여행을-정리할-때-모든-미전송-상태와-현재-활성-여부를-확인한다)에서 구별한다. 정책상 제한은 기존 `useAppPolicy`, `PolicyErrorDisplay`, `NetworkStatusIndicator`를 통해 사용자에게 설명한다. 관련 작업의 계약·실패 위험·확인 조건은 [여행 접근·Policy](../guidance/travel-access/INDEX.md), [데이터 수명](../guidance/data-lifecycle/INDEX.md), [개발 기준](../guidance/development-boundaries/INDEX.md)에서 함께 확인한다.
 
 ## 지원 범위와 갱신
 

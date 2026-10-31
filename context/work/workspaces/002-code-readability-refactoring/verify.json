@@ -3,7 +3,7 @@
   "workspace_id": "002-code-readability-refactoring",
   "claim": "당시 설치된 TypeScript와 외부 의존성 및 선언된 로컬 입력을 사용한 client noEmit 타입 검사가 통과한다. server 검사, 실제 앱 동작, 리팩토링 효과, 버그 해결 또는 Work 전체 완료를 증명하지 않는다. 외부 node_modules와 이후 새로 포함된 파일은 기존 snapshot freshness의 보장 밖이다.",
   "canonical_basis": [
-    ".claude/rules/schema-first.md",
+    "context/project/guidance/development-boundaries/schema-and-types.md",
     "context/work/workspaces/002-code-readability-refactoring/current/memory/spec/04-quality-and-completion.md"
   ],
   "verification": {

@@ -72,7 +72,7 @@ Project 수준에서 현재 구현·지원·적용되는 범위와 연결 관계
 
 각 내용 문서는 자신이 맡은 의미 범위와 현재 권위를 밝힌다. 제품·아키텍처·기능의 현재 의미와 필요한 선택 이유는 Project 본문과 가까운 형성 자료가 소유한다. 옛 제품 문서는 일반 읽기에서 제외했다. 원자료의 역사 조사와 현재 제품 판단을 구별하며 archive를 우회 Owner로 쓰지 않는다.
 
-현재 제품 본문은 위 읽기 경로에 연결된 범위다. 탐색·compact 작업 지침·실행 진입은 root [CLAUDE.md](../../CLAUDE.md), [rules](../../.claude/rules/README.md), [guards](../../.claude/guards/README.md), [runbooks](../../.claude/runbooks/README.md)가 소유한다. 환경 준비 절차는 개발 시작·서버 안내가 소유하며 같은 내용을 Project에 복제하지 않는다. 구현 사실은 [apps](../../apps/)·[packages](../../packages/)의 코드와 테스트에서 확인한다. 현재 코드나 최근 문서라는 이유만으로 제품 결정을 자동 대체하지 않는다.
+현재 제품 본문은 위 읽기 경로에 연결된 범위다. 제품 개발 계약·위험과 변경 시 확인 조건은 해당 주제의 Project 본문이 함께 소유한다. 탐색·실행 진입은 root [CLAUDE.md](../../CLAUDE.md)와 [runbooks](../../.claude/runbooks/README.md)가 소유한다. 환경 준비 절차는 개발 시작·서버 안내가 소유하며 같은 내용을 Project에 복제하지 않는다. 구현 사실은 [apps](../../apps/)·[packages](../../packages/)의 코드와 테스트에서 확인한다. 현재 코드나 최근 문서라는 이유만으로 제품 결정을 자동 대체하지 않는다.
 
 한 Workspace의 목표·진행·후보·시행착오·검증 이력은 Work에 남긴다. 첫 Workspace에서 얻은 내용도 지속되는 적용 범위와 근거가 확인되면 Project 본문에 반영할 수 있다. 사용자가 한정한 주제의 Owner 이동을 관련 없는 제품 문서 전체 개편으로 넓히지 않는다.
 

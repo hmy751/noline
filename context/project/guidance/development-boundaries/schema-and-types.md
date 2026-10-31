@@ -14,7 +14,7 @@
 | `sync` | push/pull·queue 관련 계약. 전송 payload의 실제 검증과 저장 절차는 각 실행부가 맡는다. |
 | `primitives` | 여러 schema가 함께 사용하는 값의 의미·검증. 공개 import 가능 여부는 package export를 확인한다. |
 
-Schema와 같은 DTO shape를 손으로 복제하지 않는다. 사용처에서 `z.infer<typeof schema>`로 추론하고 client model에서 재export할 수 있다. Schema package의 기본 공개 대상은 schema지만, 현재 `entities/user.ts`의 `AuthProvider`처럼 schema에서 추론한 type export도 있다. 따라서 “type import가 전부 불가능”하다고 설명하지 않는다. 이 예외는 별도 수기 DTO를 허용하는 근거가 아니다.
+Client/server의 공유 타입을 새로 만들거나 바꿀 때는 Zod schema를 먼저 정의·갱신하고 그 계약을 import한다. Schema와 같은 DTO shape를 손으로 복제하지 않는다. 사용처에서 `z.infer<typeof schema>`로 추론하고 client model에서 재export할 수 있다. Schema package의 기본 공개 대상은 schema지만, 현재 `entities/user.ts`의 `AuthProvider`처럼 schema에서 추론한 type export도 있다. 따라서 “type import가 전부 불가능”하다고 설명하지 않는다. 이 예외는 별도 수기 DTO를 허용하는 근거가 아니다.
 
 현재 지원하는 subpath와 root export는 [package.json](../../../../packages/schema/package.json)과 [index.ts](../../../../packages/schema/src/index.ts)에서 각각 확인한다. 예를 들어 `@repo/schema/entities/trip`은 있지만 `@repo/schema/entities` 묶음 export는 없다. 파일이 있다는 사실만으로 공개 import 경로라고 추론하지 않는다.
 
@@ -43,6 +43,8 @@ const request = createExpenseRequest.parse(input); // input은 경계에서 받�
 기본 타입 선언은 `type`을 사용한다. Union·utility 조합·함수 signature·props도 같은 기본을 따르고, declaration merging이나 class 구현 등 interface의 이유가 있는 경우를 구별한다. 현재 UI·network·policy에는 interface 사용이 남아 있으므로 전부 이 기준을 준수한다고 설명하지 않는다. 문서 이관을 이유로 제품 타입을 일괄 변경하지 않는다.
 
 선택적인 prop은 `?`로 표시하고 기본값은 구현에서 정한다. 여러 성공·실패 상태는 discriminated union으로 좁힐 수 있으며, generic·Pick/Omit 같은 도구는 실제 재사용 관계를 표현할 때 쓴다. 교육용 store·인증 예제를 새 인프라나 실제 보안 보장으로 복사하지 않는다.
+
+공유 shape를 바꾸면 schema export·추론 타입·실제 request/response parse 소비자를 함께 확인한다. Form-only state는 유지할 수 있으나 submit 결과가 공유 request로 수렴하는지 확인하고, create의 ID 보존은 [생성 ID 계약](../data-lifecycle/INDEX.md#생성-id는-localqueue서버에서-같은-값을-유지한다)을 따른다. 수기 DTO를 추가하거나 schema만 바꾸고 한쪽 소비자를 남기면 TypeScript 통과 여부와 별개로 실제 전송 계약이 갈라질 수 있다.
 
 ## 코드 스타일은 기존 기준과 실제 검사 범위를 나누어 적용한다
 

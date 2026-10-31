@@ -19,12 +19,12 @@
 
 | 작업 | 먼저 볼 문서 |
 | --- | --- |
-| schema contract 공통 | [Schema First rule](../../.claude/rules/schema-first.md), [TypeScript/Zod context](../../context/project/guidance/development-boundaries/schema-and-types.md) |
+| schema contract 공통 | [공유 schema·타입 기준](../../context/project/guidance/development-boundaries/schema-and-types.md) |
 | 새 Entity 추가 | [Add Entity runbook](../../.claude/runbooks/README.md#add-entity) |
-| create request ID 전략 | [Client-Side ID rule](../../.claude/rules/client-side-id.md) |
-| datetime field | [ISO Time rule](../../.claude/rules/iso-time.md), [Time context](../../context/project/common/date-and-time.md) |
+| create request ID 전략 | [Client-Side ID 기준](../../context/project/guidance/data-lifecycle/INDEX.md#생성-id는-localqueue서버에서-같은-값을-유지한다) |
+| datetime field | [날짜·시점 기준](../../context/project/common/date-and-time.md) |
 | API/data usage | [API 계약과 변경](../../context/project/guidance/api-contracts.md) |
-| server/client 영향 확인 | [Guard Map](../../.claude/guards/README.md) |
+| server/client 영향 확인 | [제품 기준·위험 점검](../../context/project/guidance/README.md) |
 
 ## Ownership
 
@@ -66,4 +66,4 @@ schema 변경이 API route나 client data hook까지 닿으면 `pnpm server type
 
 ## Update Rule
 
-이 파일에는 schema 작업자가 시작 전에 알아야 할 계약 경계만 남긴다. 공유 타입·검증과 표현 차이의 상세는 [TypeScript/Zod context](../../context/project/guidance/development-boundaries/schema-and-types.md) 또는 `rules/`로 보낸다.
+이 파일에는 schema 작업자가 시작 전에 알아야 할 계약 경계만 남긴다. 공유 타입·검증과 표현 차이의 상세는 [TypeScript/Zod context](../../context/project/guidance/development-boundaries/schema-and-types.md)에서 관리한다.

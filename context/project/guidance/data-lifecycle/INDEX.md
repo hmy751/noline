@@ -23,6 +23,14 @@ Local 쓰기를 만들면 Entity 변경과 `addToSyncQueue`를 같은 `withTrans
 
 Map/Search/Directions는 사용자 소유 Data Entity가 아니다. 이 서비스에 Activation Router나 `sync_queue`를 확대 적용하지 않고 [여행 접근의 서비스 정책](../travel-access/INDEX.md)을 사용한다.
 
+## 생성 ID는 Local·queue·서버에서 같은 값을 유지한다
+
+Sync 대상 Entity 생성은 client의 [generateId()](../../../../apps/client/src/shared/services/id/ulid.ts)로 ID를 만들고, 공유 create request·Local insert·queue payload·서버 insert까지 그 ID를 유지한다. React Native 호출부에서 `ulid()`를 직접 호출하거나 서버가 새 ID로 바꾸지 않는다. 현재 wrapper는 Expo Crypto를 사용한다. 오프라인에서 먼저 생성한 일정·경비와 그 연결을 서버 응답 뒤 다시 매핑하지 않으려는 계약이다. 대신 request와 서버도 client ID를 수용해야 하며, ID 생성 위치 하나만 고쳐서는 전체 흐름을 유지할 수 없다.
+
+현재 여행·일정·경비 생성 폼이 ID를 만들고 세 create request schema가 그 필드를 요구하며 서버 create route는 전달받은 값을 저장한다. 새 여행은 Remote에서 생성하므로 ‘client 생성 ID’와 ‘Local 생성’을 같은 뜻으로 읽지 않는다. Client ID 수용은 인증 사용자나 부모 소유권 검사를 생략할 이유도 아니다. [API 접근 경계](../api-contracts.md#사용자-데이터를-다루면-인증과-소유권을-각각-검사한다)를 함께 지킨다.
+
+Create 흐름이나 request schema를 바꾸면 동일 ID가 Local 행·CREATE payload·HTTP 요청·서버 응답에 보존되는지, 자식의 부모 ID가 바뀌지 않는지 확인한다. 응답 전 앱 중단 뒤 같은 CREATE를 재전송하는 처리는 별도 확인 대상이다. 클라이언트 ID만으로 충돌 불가능이나 중복 요청의 멱등성을 보장하지 않는다.
+
 ## push를 바꾸면 전송 상태와 두 종류의 재시도를 구별한다
 
 [engine](../../../../apps/client/src/shared/services/sync/engine.ts)은 queue의 변경을 각 Entity REST API에 보낸다. CREATE는 POST, UPDATE는 PUT, DELETE는 ID 경로의 DELETE다. `api.ts`에 선언된 `/api/sync/push`는 실제 전송 경로가 아니며 현재 서버 해당 route는 501을 반환한다.

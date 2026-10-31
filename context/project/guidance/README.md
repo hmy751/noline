@@ -37,4 +37,4 @@
 
 ## 기존 Noline 실행 기준
 
-[Rules](../../../.claude/rules/README.md), [Guards](../../../.claude/guards/README.md), [Runbooks](../../../.claude/runbooks/README.md)는 compact guard와 반복 작업 진입을 유지한다. 이번에 편입한 통화·날짜·API·동작 보존 리팩터링의 충분한 현재 의미와 적용 계약은 위 Project 본문이 소유하고, 기존 경로는 해당 본문으로 이어져야 한다. 아직 옮기지 않은 정책은 기존 Owner가 계속 소유한다.
+제품 개발 계약·실패 위험·변경 시 확인 조건은 위 주제별 본문에서 함께 관리한다. Local 변경·ID·삭제는 데이터 수명, Router·Policy는 여행 접근, 공유 schema는 개발 기준, 날짜는 날짜와 시각, 인증·ownership은 API 계약에서 찾는다. [Runbooks](../../../.claude/runbooks/README.md)는 관련 본문을 선택하는 반복 작업 진입을 소유한다. 규칙과 위험 지도의 별도 제품 정본은 유지하지 않는다.

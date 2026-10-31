@@ -1,0 +1,38 @@
+{
+  ".claude/rules/schema-first.md": {
+    "snapshot": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/schema-first.md",
+    "sha256": "63028f7ea09f4c4abbf0d2eaa4046c74f7f5b04e0da7d8b1ce5d7ed468b3804b"
+  },
+  ".claude/rules/auth-user-scope.md": {
+    "snapshot": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/auth-user-scope.md",
+    "sha256": "1924ea8079c15060aea63a68c39fa8d95106432d9c18851efd53fcfe2c5eb08b"
+  },
+  ".claude/rules/activation-router.md": {
+    "snapshot": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/activation-router.md",
+    "sha256": "71ff36908ddcd6f0a8c8b2b8964e6ac044363b42aa052bef04fe3b7dcc17d5d2"
+  },
+  ".claude/rules/README.md": {
+    "snapshot": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/README.md",
+    "sha256": "8ceeb4b46bfefc474bf6cf84efbe1ee7563a1cfaf38475be76d87ebdf335184b"
+  },
+  ".claude/rules/iso-time.md": {
+    "snapshot": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/iso-time.md",
+    "sha256": "5dfc1365360e6f38376ddbcf7d7561bf9d770128bbb308f6898c4c274215c4ce"
+  },
+  ".claude/rules/transaction-sync-queue.md": {
+    "snapshot": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/transaction-sync-queue.md",
+    "sha256": "76380c6f2e075989757cfd539c9214846203ee3c6c7ba07129b36885f9be1983"
+  },
+  ".claude/rules/client-side-id.md": {
+    "snapshot": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/client-side-id.md",
+    "sha256": "4bf2a60e9111ae5df5ae79ad777efcc682e58fe4d90527205e88eab940e25e76"
+  },
+  ".claude/rules/policy-ui.md": {
+    "snapshot": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/policy-ui.md",
+    "sha256": "18ef254eb88992e797050cd04ed572061f29f2354e459a8b01e040113a5ca5b8"
+  },
+  ".claude/guards/README.md": {
+    "snapshot": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/guards/README.md",
+    "sha256": "f08d451dfbda1b165180c0b7a2f38f52d36db750fcf34e70bd118a4d4cec5cb2"
+  }
+}

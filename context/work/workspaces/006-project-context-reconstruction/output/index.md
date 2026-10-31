@@ -12,8 +12,10 @@
 | [Ticket 07 통화·API·오류 결과](ticket-07-result.md) | 표시·저장 정밀도와 API·오류 경계의 실제 차이, 기존 형식·선택 이유 판단, 원본 격리·검증 한계와 후속을 확인할 때 |
 | [Ticket 08 개발 시작·전체 읽기 결과](ticket-08-result.md) | 개발 안내 교정·남은 제품 결정 격리·전체 후보와 대표 질문·검증 선언 및 한계를 확인할 때 |
 | [남은 역사 참조](ticket-08-historical-references.md) | 전체 Harness의 실패 위치와 역사 Workspace 재개 시 필요한 경로 정리를 확인할 때 |
-| [`.claude` 추가 정리 후보](claude-cleanup-candidates.md) | 남은 명령·deprecated 스킬·검토 기준·호환 경로의 정리 이유와 실제 소비자, 유지 영역을 판단할 때 |
+| [`.claude` 추가 정리 후보](claude-cleanup-candidates.md) | 조사 당시의 충돌·소비자 근거를 찾을 때. 당시 일괄 유지 권고는 철회됐으며 현재 범위는 09–13을 따른다 |
+| [Ticket 09–13 실행 구성](ticket-recomposition-09-13.md) | 남은 범위의 담당 결과·완료 근거·의존 관계와 기존 넓은 09를 대체한 이유를 확인할 때 |
+| [Ticket 09 제품 기준·위험 점검 통합 결과](ticket-09-result.md) | rules·guards의 Project Owner 통합, 제품 라우팅과 개발 수행의 구분, 원본·소비자 전환과 독립 검토·확인 한계를 확인할 때 |
 
 현재 제품 설명은 [제품 기준](../../../../project/common/product.md), [여행 접근](../../../../project/guidance/travel-access/INDEX.md), [선택 이유](../../../../project/decisions/0001-selective-local-first.md), [저장·동기화·정리](../../../../project/guidance/data-lifecycle/INDEX.md), [지도·경로](../../../../project/guidance/offline-maps-and-routes/INDEX.md), [구조·UI·schema](../../../../project/guidance/development-boundaries/INDEX.md), [작성·입력](../../../../project/guidance/writing-and-input/INDEX.md), [날짜와 시각](../../../../project/common/date-and-time.md)과 [통화](../../../../project/common/currency.md)·[API](../../../../project/guidance/api-contracts.md)·[오류](../../../../project/guidance/error-handling.md), 가까운 형성 자료가 소유한다. 이 폴더는 그 본문을 복제하지 않고 조사·검토 결과를 남긴다.
 
-최신 실행 상태와 다음 행동은 [state](../current/state/index.md)를 따른다. 문서 이관 결과를 제품 구현 차이의 해소나 006 전체 완료로 해석하지 않는다.
+최신 실행 상태와 다음 행동은 [state](../current/state/index.md)를 따른다. 문서 이관·통합 결과를 제품 구현 차이의 해소나 006 전체 완료로 해석하지 않는다.

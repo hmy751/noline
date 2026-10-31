@@ -1,13 +1,39 @@
-# Project Context 수집·검증·재구성
+# 006 — Project Context 재구성과 남은 `.claude` 정리
 
-흩어진 제품 자료와 002의 작업 축적을 검증하고, 기존 `context/project` 본문까지 재구성해 다음 개발에서 의미·이유·현재 차이를 이해할 수 있게 한다. 이관이 끝나면 현재 가이드와 Project에서 필요한 설명을 얻고, `.claude/context`·`.claude/decisions` 등 옛 제품 문서로 돌아가지 않는다. 옛 자료는 일반 읽기에서 제외되는 아카이브로 격리하거나 제거한다.
+흩어진 제품 설명·선택 이유·구현 경험을 현재 코드와 유효한 계약에 대조해, 다음 개발자가 제품의 의미와 판단 기준을 현재 체계에서 이해할 수 있게 만드는 Workspace다. 기존 `context/project`도 검토·재구성 대상이며, 파일을 옮기거나 링크를 모으는 것으로 끝내지 않는다.
 
-005 종료 뒤 새 목표와 범위로 구성한 독립 Workspace다. 하나의 Spec이 전체 결과를 맡고, 첫 조사에서 드러난 주제·우선순위에 따라 실행 Ticket을 나눈다.
+## 이 작업을 이어받을 때
 
-- [현재 상태와 다음 행동](current/state/index.md): 현재 진행 중인 Ticket과 다음 실행, 남은 범위.
-- [Spec](current/memory/index.md): 수집부터 검증·본문 재구성·이관·읽기 경로 정리까지의 목표와 기준.
-- [Ticket 색인](current/memory/tickets/index.md): 01의 조사 결과, 02의 실제 이관 결과와 03 이후 후속 범위.
-- [원자료](source/index.md): 사용자 원문과 002·004·005, 기존 문서에 접근하는 경로.
-- [산출물](output/index.md) · [기록](records/README.md)
+Project root에서 **006 id를 명시해** 재진입한다.
 
-명시적으로 재진입하려면 Project root에서 `python3 -B -m context.work.harness recover 006-project-context-reconstruction`을 실행한다. Recover는 위 현재 상태와 실행 정의를 복구하는 절차이며 이관 완료를 증명하지 않는다.
+```bash
+python3 -B -m context.work.harness recover 006-project-context-reconstruction
+```
+
+Recover는 읽기 전용 재진입이며 Workspace 선택·자동 기록 연결이나 제품 검증을 대신하지 않는다. 새 세션에서 자동 Maintain을 사용할 때는 Project의 [session binding 계약](../../harness/maintain/SESSION-BINDING-AND-LIFECYCLE.md)에 따라 현재 세션을 006에 명시적으로 연결한다. 기본 active Workspace나 다른 세션의 연결을 006이라고 추정하지 않는다.
+
+1. [현재 상태](current/state/index.md)에서 완료 범위·다음 실행·미확인을 읽는다.
+2. [Spec](current/memory/index.md)에서 목표·권위·작업 경계를 확인하고, 특히 [내용·형식 판단과 완료 기준](current/memory/spec/04-quality-and-completion.md)을 적용한다.
+3. [Ticket 색인](current/memory/tickets/index.md)에서 현재 실행할 Ticket을 고른다. [09–13 구성](output/ticket-recomposition-09-13.md)은 후속 범위와 나눈 이유를 설명하며 실행 상태를 별도로 소유하지 않는다.
+4. [산출물 색인](output/index.md)에서 관련 주제의 기존 결과·현재 제품 본문·검증 한계를 찾아 재사용한다. 모든 과거 원문을 처음부터 다시 읽는 순서가 아니다.
+5. 판단이 바뀐 이유가 필요하면 [기록](records/README.md), 실제 사용자 표현·원자료가 필요하면 [source](source/index.md)로 내려간다.
+
+## 왜 이 범위가 되었는가
+
+005의 국소 보완만으로는 분산된 내용과 기존 Project 구성의 부족을 해결하지 못했다. 006은 하나의 Spec 아래 자료를 넓게 대조하고 주제별 설명·선택 이유·읽기 경로를 함께 완성하는 작업으로 시작했다.
+
+처음 제품 주제를 이관하는 과정에서 사용자는 아카이빙이 ‘옛 자료에 계속 돌아가도 되는 보존’이 아니라 **현재 읽기에서 옛 제품 문서를 제외하는 것**임을 명확히 했다. 유효한 의미와 필요한 이유를 새 Owner에 충분히 담고, 원본은 역사 조사·복구용으로 격리하거나 제거한다. 이 정정은 [당시 기록](records/2026-10-30-07-archive-intent-and-workspace-correction.md)에 있다.
+
+이어 원문 내용과 체크리스트를 판단 없이 가져온 문제가 드러났다. 기존 설명이 현재에도 맞는지와 새 구성·형식이 역할에 적합한지를 함께 검토하도록 기준을 보완했다. 표·목록·예시는 유효하면 유지하되 조건·예외·이유·비용을 잃지 않는다. [내용 재리뷰](output/ticket-02-content-review.md)와 [형식 판단 기록](records/2026-10-31-04-document-role-and-format-review.md)이 그 이유와 실제 사례를 담는다.
+
+02–08의 주제별 결과 뒤에는 남은 `.claude` 자료를 ‘현재 쓰이므로 유지’로 분류한 판단을 다시 교정했다. **필요한 역할의 보존과 현 위치·구조의 유지는 별개**다. 필요한 내용은 현재 체계에 통합·보강하고 낡거나 불필요한 내용은 제외하며, 실제 소비자에 필요한 연결을 대체한 뒤 정리한다. [정정과 재구성 기록](records/2026-10-31-07-continuity-and-ticket-recomposition.md)에 당시 발화와 선택 이유를 남겼다. 이 범위와 권한은 최신 Spec, 구체 배치는 09–13이 소유한다.
+
+## 다음 작업에도 보존할 판단
+
+- 기존 원문과 받을 본문 모두 검토한다. 코드의 현재 동작, 채택된 계약, 과거 결정·실험의 지위를 구별한다.
+- 내용은 주제와 책임에 맞춰 합치거나 나눈다. `.claude` 폴더명·현재 참조·기존 형식을 유지하거나 폐기할 이유로 단독 사용하지 않는다.
+- 한 주제에서 내용 판단·통합·선택 이유·참조/도구 연결 전환·옛 경로 격리·검증까지 마친다. 앞선 Ticket의 필수 작업을 마지막 검증으로 미루지 않는다.
+- 현재 가이드·본문·형성 자료만으로 필요한 답을 얻도록 한다. ‘참고’라는 이름으로 옛 자료를 필수 읽기로 남기지 않는다.
+- 대표 사례·정적 링크·제품 검사·실제 host 동작의 증명 범위를 구별한다. 앞선 workflows 간접 경로 누락처럼 검사기의 입력 밖 경로도 실제 진입에서 도달하면 확인한다.
+
+상세 계약을 이 README에 복제하지 않는다. 최신 진행은 state, 실행 범위는 Ticket, 판단 기준은 Spec, 당시 선택·정정은 records, 제품의 현재 설명은 Project가 소유한다. 문서 이관 완료·제품 보호 공백의 해결·006 전체 수락도 서로 다른 판단이다.

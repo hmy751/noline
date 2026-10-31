@@ -19,7 +19,7 @@
 
 ## Entity를 바꾸면 저장·조회 경계를 따라간다
 
-Sync 소유 entity의 기본 흐름은 `data hook → repository → local lib / remote api`다. `model`은 공유 schema에서 타입을 연결하고 `data`는 query key와 React Query 설정을 소유한다. `repository`가 Activation Router를 사용하므로 feature나 화면이 네트워크 상태로 SQLite/API를 직접 선택하지 않는다. Local mutation과 queue의 원자성은 [transaction rule](../../../../.claude/rules/transaction-sync-queue.md)을 지킨다.
+Sync 소유 entity의 기본 흐름은 `data hook → repository → local lib / remote api`다. `model`은 공유 schema에서 타입을 연결하고 `data`는 query key와 React Query 설정을 소유한다. `repository`가 Activation Router를 사용하므로 feature나 화면이 네트워크 상태로 SQLite/API를 직접 선택하지 않는다. Local mutation과 queue의 원자성은 [Local 변경·queue 계약](../data-lifecycle/INDEX.md#local-변경과-queue를-같이-확정한다)을 지킨다.
 
 `model/api/lib/repository/data/ui/utils`는 필요한 책임을 찾는 지도이지 새 entity마다 빈 폴더를 만들라는 양식이 아니다. 예를 들어 [Expense API](../../../../apps/client/src/entities/expense/api/expenses.ts)는 request parse·HTTP·response parse를 맡고, Local 저장과 Router는 별도 구현이다. 지도 pack이나 외부 장소 검색에 동일한 sync-owned entity 구조를 강제하지 않는다.
 

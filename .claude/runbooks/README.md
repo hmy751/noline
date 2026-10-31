@@ -5,21 +5,21 @@
 ## 읽는 방식
 
 1. 아래에서 작업 유형을 고른다.
-2. 연결된 규칙과 workspace guide를 연다.
-3. 수정 전후에 [Guard Map](../guards/README.md)을 확인한다.
-4. 규칙만으로 부족할 때만 [맥락 지도](../../context/project/README.md)을 읽는다.
+2. 연결된 Project 주제별 기준과 workspace guide를 연다.
+3. [제품 개발 기준](../../context/project/guidance/README.md)에서 해당 주제의 적용 조건·실패 위험·변경 전후 확인 조건을 함께 읽는다.
+4. 현재 구현이나 선택 이유가 필요하면 [Project 지도](../../context/project/README.md)에서 관련 본문과 형성 자료를 고른다.
 
 ## 빠른 작업표
 
-| 작업 | 먼저 볼 규칙 | workspace/context |
+| 작업 | 먼저 볼 제품 기준 | workspace/context |
 | --- | --- | --- |
-| [새 Entity 추가](#add-entity) | [Schema First](../rules/schema-first.md), [Client-Side ID](../rules/client-side-id.md), [Activation Router](../rules/activation-router.md) | [packages/schema](../../packages/schema/CLAUDE.md), [client](../../apps/client/CLAUDE.md), [server](../../apps/server/CLAUDE.md) |
-| [동기화 문제 디버깅](#sync-debug) | [Activation Router](../rules/activation-router.md), [Transaction + Sync Queue](../rules/transaction-sync-queue.md) | [Selective Activation context](../../context/project/guidance/travel-access/INDEX.md) |
-| [API endpoint 추가](#api-endpoint) | [Schema First](../rules/schema-first.md), [Auth/User Scope](../rules/auth-user-scope.md), [Client-Side ID](../rules/client-side-id.md) | [server](../../apps/server/CLAUDE.md), [schema](../../packages/schema/CLAUDE.md) |
-| [Form 구현](#form-pattern) | [Schema First](../rules/schema-first.md), [Policy UI](../rules/policy-ui.md), [ISO Time](../rules/iso-time.md) | [Form context](../../context/project/guidance/writing-and-input/INDEX.md) |
-| [날짜/시간 처리](#datetime-utils) | [ISO Time](../rules/iso-time.md) | [Time context](../../context/project/common/date-and-time.md) |
-| [통화/금액 표시](#currency-utils) | hard rule 없음. context 먼저 확인 | [Currency context](../../context/project/common/currency.md) |
-| [UI 컴포넌트 작성](#component-guide) | [Policy UI](../rules/policy-ui.md) | [packages/ui](../../packages/ui/CLAUDE.md), [Component context](../../context/project/guidance/development-boundaries/ui.md) |
+| [새 Entity 추가](#add-entity) | [Schema First](../../context/project/guidance/development-boundaries/schema-and-types.md), [Client-Side ID](../../context/project/guidance/data-lifecycle/INDEX.md), [Activation Router](../../context/project/guidance/travel-access/INDEX.md) | [packages/schema](../../packages/schema/CLAUDE.md), [client](../../apps/client/CLAUDE.md), [server](../../apps/server/CLAUDE.md) |
+| [동기화 문제 디버깅](#sync-debug) | [Activation Router](../../context/project/guidance/travel-access/INDEX.md), [Transaction + Sync Queue](../../context/project/guidance/data-lifecycle/INDEX.md) | [Selective Activation context](../../context/project/guidance/travel-access/INDEX.md) |
+| [API endpoint 추가](#api-endpoint) | [Schema First](../../context/project/guidance/development-boundaries/schema-and-types.md), [Auth/User Scope](../../context/project/guidance/api-contracts.md), [Client-Side ID](../../context/project/guidance/data-lifecycle/INDEX.md) | [server](../../apps/server/CLAUDE.md), [schema](../../packages/schema/CLAUDE.md) |
+| [Form 구현](#form-pattern) | [Schema First](../../context/project/guidance/development-boundaries/schema-and-types.md), [Policy UI](../../context/project/guidance/travel-access/INDEX.md), [ISO Time](../../context/project/common/date-and-time.md) | [Form context](../../context/project/guidance/writing-and-input/INDEX.md) |
+| [날짜/시간 처리](#datetime-utils) | [ISO Time](../../context/project/common/date-and-time.md) | [Time context](../../context/project/common/date-and-time.md) |
+| [통화/금액 표시](#currency-utils) | 통화 계약 확인 | [Currency context](../../context/project/common/currency.md) |
+| [UI 컴포넌트 작성](#component-guide) | [Policy UI](../../context/project/guidance/travel-access/INDEX.md) | [packages/ui](../../packages/ui/CLAUDE.md), [Component context](../../context/project/guidance/development-boundaries/ui.md) |
 
 ## <a id="add-entity"></a>새 Entity 추가
 

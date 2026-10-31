@@ -1,21 +1,23 @@
 # 현재 상태와 다음 행동
 
-006은 첫 조사와 Ticket 02–08의 주제별 문서 이관·독립 검토·한정 검증을 마쳤다. 현재 제품 읽기는 Project와 개발 시작·경로별 guide에서 이어지며 옛 `.claude/context`·제품 결정의 읽기 의존을 제거했다. 006 전체 목표의 사용자 수락과 제품 보호 공백의 해결은 별도다.
+**다음 실행은 Ticket 10의 반복 개발·문서 관리 절차 통합이다.** 01의 첫 조사와 02–09의 주제별 이관·통합·검토는 Main이 완료로 판단했다. 10–13의 실행과 006 전체 사용자 수락은 남아 있다.
 
-Ticket 07은 작업 `1a614ab`, 기록 `f466a32`로 분리 커밋했다. Ticket 08 작업은 `bebf123`으로 커밋했고 기록은 별도 커밋으로 묶는다. `.claude`의 남은 정리 후보 조사도 마쳤으며 추가 삭제·이동은 실행하지 않았다.
+## 지금 이어갈 작업
 
-## 현재 결과와 확인 범위
+[10](../memory/tickets/10-development-and-document-workflows.md)은 runbooks·workflows·옛 commands·deprecated noline-work와 현재 관련 skill을 함께 대조한다. 스킬을 단순 분배기로 축소하지 않고, 호출 조건·판단·수행 방법·워크플로와 선택하는 지침·관리 계약을 실제 개발 흐름에서 확인한다. 제품 기준을 읽는 입력 경로와 개발 수행 책임은 구별하되 함께 필요한 연결은 유지한다.
 
-02–07의 내용 판단·원본 대응·제품 차이는 [산출물 색인](../../output/index.md)의 주제별 결과에 있다. 현재 코드와 유효 계약을 함께 대조하고 기존 형식이 적합하면 유지한다는 [공통 기준](../memory/spec/04-quality-and-completion.md)을 후속에도 적용한다.
+이후 기본 순서는 [11 공유 실행 기준·도구 연결](../memory/tickets/11-shared-execution-and-host-connections.md) → [12 남은 선택 이유·역사 자료](../memory/tickets/12-historical-reasons-and-reading-separation.md) → [13 전체 검증·종료 판단](../memory/tickets/13-integrated-verification-and-acceptance.md)이다. 각 Ticket은 자신이 바꾸는 범위의 내용 판단·Owner 통합·참조와 도구 연결 전환·옛 경로 정리·검증까지 맡으며, 앞선 미완성을 12·13으로 넘기지 않는다.
 
-[08 결과](../../output/ticket-08-result.md)는 개발 시작의 환경변수·OAuth·새 DB·native 빌드 안내, 세션 선택 이유와 비용, 남은 원본 격리·현재 진입 전환을 설명한다. 원문 11개 보존, 링크 592개, Recover 006·002·001·default, 001 evidence 214개의 존재를 확인했다. 세션 검사 107개와 대역 한계를 확인했으며 실제 기기·DB·배포 성공을 입증하지 않는다.
+## Ticket 09 결과와 적용 기준
 
-전체 Harness에는 [보존 기록·비활성 Workspace의 참조 47건](../../output/ticket-08-historical-references.md)이 남는다. 검사기를 완화하지 않았으며 전체 Harness·001 Verify 통과를 주장하지 않는다. 역사 Workspace를 재개할 때 current/output의 읽기 경로를 대조해야 한다.
+[Ticket 09 결과](../../output/ticket-09-result.md)는 기존 rules·guards의 제품 규칙과 위험 점검을 Project 주제별 Owner에 통합하고 현재 소비 경로를 전환한 범위와 확인 한계를 설명한다. Activation Router는 여행 활성 상태에 따라 Local SQLite와 Server API를 고르는 제품 책임이며 개발 작업의 스킬·절차를 고르는 라우팅이 아니다.
 
-## 다음 판단
+Main은 원본 9개의 보존·현재 경로 제거, 영향받은 guide·agent·checker·Verify 선언 전환과 독립 검토를 거쳐 Ticket 09를 완료로 판단했다. 제품 코드는 바꾸지 않았고 실제 앱·JWT·PostgreSQL·native SQLite 실행은 확인 범위가 아니다. 02–08 전체를 다시 반복하지 않고 이후 통합이 영향을 주는 본문만 재확인한다.
 
-[추가 정리 조사](../../output/claude-cleanup-candidates.md)에서 옛 문서 관리 command 네 개·deprecated noline-work·observer의 낡은 skill 기준·workflows 호환 지도를 후속 후보로 제시했다. 권장 순서는 명령·스킬 발견 경로 정리, 검토 기준·호환 지도 정리이며 현재 rules·guards·runbooks·hooks와 역사 근거는 유지한다. 추가 조사에서 발견한 workflows의 옛 context 링크 한 곳은 08 이관 누락으로 교정했다.
+## 확인 상한과 남은 범위
 
-제품 후속은 접근·공개 안전성을 기존 003과 먼저 대조하고, 금액은 입력·저장·합산·표시 기대값을 함께 정하는 구성이 적합하다. 데이터·지도·입력·구조 공백과 서버 배포 환경 경로 차이는 각 결과에 보존했으며 이번 문서 정리로 해결됐다고 보지 않는다.
+전체 harness 검사는 역사 링크 52건 때문에 실패했다. 이 가운데 비활성 003에 남은 옛 rule/guard 링크 5건은 현재 소비자 누락과 구별하며 새 예외로 숨기지 않았다. 002 선언에는 이번 변경과 무관한 리팩터링 이전 제품 파일 누락 6건이 남아 있고 002 전체 Verify의 실행·통과는 주장되지 않았다.
 
-자동 Maintain의 08 반영 실패 뒤 연결을 해제하고 수동 guarded apply로 누락 Ticket·state·Project 선택·기록을 복구했다. 기존 실패 event는 보존했다. 자동 연결 재개는 별도 control 결과로 확인하며 이 기록 복구를 자동 event 성공으로 표현하지 않는다.
+006 Verify는 JSON parse만 검사하므로 Ticket 09 통합의 충분성이나 제품 동작을 입증하지 않는다. 10–13의 통합·도구 연결·역사 분리·전체 검증과 사용자 acceptance도 아직 남아 있다.
+
+데이터·지도·입력·접근/공개·금액·배포의 기존 제품 공백은 문서 이관으로 해결되지 않았다. 주제별 실제 산출물과 제품 차이는 [output 색인](../../output/index.md)에서 선택한다.

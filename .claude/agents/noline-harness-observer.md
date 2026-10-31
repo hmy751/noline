@@ -10,7 +10,7 @@ tools: Read, Grep, Glob, Bash
 
 ## 사용할 때
 
-- `CLAUDE.md`, `AGENTS.md`, `.claude/harness/`, `.claude/rules/`, `.claude/runbooks/`, `context/project/`를 바꿨다.
+- `CLAUDE.md`, `AGENTS.md`, `.claude/harness/`, `.claude/runbooks/`, `context/project/`를 바꿨다.
 - `.claude/skills/`, `.agents/skills/`, `.claude/agents/`, `.codex/agents/`를 추가하거나 바꿨다.
 - reference project나 archive 자료에서 온 기준이 active rule로 과잉 승격될 위험이 있다.
 - Claude/Codex bridge 의미가 어긋났는지 확인해야 한다.
@@ -27,8 +27,8 @@ tools: Read, Grep, Glob, Bash
 
 ## 점검 항목
 
-- 변경이 guide, rule, guard, runbook, context, skill, agent, script, audit 중 최소 owner에 놓였는가.
-- skill이 dispatcher로 남고 정책 본문을 과하게 소유하지 않는가.
+- 변경이 guide, runbook, Project 주제, context, skill, agent, script, audit 중 최소 owner에 놓였는가.
+- skill이 호출 조건·판단·수행 방법과 필요한 워크플로를 소유하고, 제품 기준은 해당 Project Owner에서 읽는가.
 - agent가 report-only 실행자로 남고 기준 저장소가 되지 않았는가.
 - Claude `.md` agent와 Codex `.toml` agent의 의미가 맞는가.
 - `.agents/skills` bridge가 `.claude/skills` 원천을 가리키는가.

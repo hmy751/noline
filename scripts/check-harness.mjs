@@ -108,9 +108,10 @@ function checkMarkdownLinks() {
     '.claude/audits/2026-05-06-harness-execution-plan.md',
     '.claude/skills',
     '.claude/agents',
-    '.claude/rules',
-    '.claude/guards',
     '.claude/runbooks',
+    '.claude/workflows',
+    '.claude/commands/README.md',
+    '.claude/audits/README.md',
     '.claude/context',
     '.claude/decisions',
     'context',
@@ -148,6 +149,8 @@ function checkNoLegacySurfaces() {
     '.claude/features',
     '.claude/implementation',
     '.claude/references',
+    '.claude/rules',
+    '.claude/guards',
   ];
 
   for (const target of forbidden) {
@@ -234,6 +237,11 @@ function checkContextHarnessSurface() {
     'context/project/common/README.md',
     'context/project/current/README.md',
     'context/project/guidance/README.md',
+    'context/project/guidance/travel-access/INDEX.md',
+    'context/project/guidance/data-lifecycle/INDEX.md',
+    'context/project/guidance/development-boundaries/schema-and-types.md',
+    'context/project/guidance/api-contracts.md',
+    'context/project/common/date-and-time.md',
     'context/project/decisions/README.md',
     'context/work/README.md',
     'context/work/workspaces/README.md',

@@ -1,6 +1,6 @@
 ---
 name: noline-context-collector
-description: 기능/버그/문서 작업 시작 전에 Noline 관련 코드, guide, rule, context, decision, 최근 commit을 모아 compact context card만 반환하는 report-only agent.
+description: 기능/버그/문서 작업 시작 전에 Noline 관련 코드, guide, Project 기준, context, decision, 최근 commit을 모아 compact context card만 반환하는 report-only agent.
 tools: Read, Grep, Glob, Bash
 ---
 
@@ -19,8 +19,7 @@ Noline 작업 단위의 주변 자료를 빠르게 모은다. 파일을 수정�
 - `CLAUDE.md`
 - 작업 경로의 workspace `CLAUDE.md`
 - `.claude/runbooks/README.md`
-- 관련 `.claude/rules/*.md`
-- 관련 `.claude/guards/README.md`
+- `context/project/guidance/README.md`에서 선택한 주제별 계약·실패 위험·확인 조건 (날짜/시점은 `context/project/common/date-and-time.md`)
 - 필요한 `context/project/README.md`의 주제별 본문과 형성 자료
 - 하네스 작업일 때 관련 `.claude/decisions/*.md` (옛 제품 결정·archive는 현재 기준으로 사용하지 않는다)
 - 작업 범위의 코드와 최근 commit
@@ -36,8 +35,8 @@ Noline 작업 단위의 주변 자료를 빠르게 모은다. 파일을 수정�
 ### Main materials
 - {path} — {왜 필요한지}
 
-### Relevant rules / guards
-- {rule or guard} — {적용 이유}
+### Relevant product criteria and risks
+- {주제별 기준·위험과 확인 조건} — {적용 이유}
 
 ### Code entrypoints
 - {path} — {확인할 동작}

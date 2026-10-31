@@ -20,8 +20,7 @@ Noline의 고비용 실패를 구현 변경 뒤에 점검한다. 파일을 수�
 - 변경 diff와 관련 파일
 - `CLAUDE.md`
 - 작업 workspace `CLAUDE.md`
-- `.claude/guards/README.md`
-- 관련 `.claude/rules/*.md`
+- `context/project/guidance/README.md`에서 선택한 주제별 계약·실패 위험·확인 조건 (날짜/시점은 `context/project/common/date-and-time.md`)
 - 필요한 경우 `context/project/README.md`에서 고른 제품 본문과 형성 자료 (옛 제품 결정·archive를 현재 기준으로 사용하지 않는다)
 
 ## 점검 항목

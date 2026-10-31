@@ -70,7 +70,7 @@ Trip activation은 `activateTripResponse`, sync pull은 `syncPullResponseSchema`
 
 ## 적용과 재확인
 
-새 필드나 변환을 만들 때에는 이름에 `date`가 있다는 이유로 표현을 고르지 말고, 그 값이 한 시점인지 달력 날짜인지 먼저 정한다. datetime은 shared helper와 offset-aware schema를 사용하고, date-only는 timezone 변환으로 날짜가 이동하지 않는지 request·DB·response를 함께 확인한다.
+새 필드나 변환을 만들 때에는 이름에 `date`가 있다는 이유로 표현을 고르지 말고, 그 값이 한 시점인지 달력 날짜인지 먼저 정한다. datetime은 shared helper와 offset-aware schema를 사용하고, date-only는 timezone 변환으로 날짜가 이동하지 않는지 request·DB·response를 함께 확인한다. 저장·전송과 표시 format을 분리하며 새 local formatter를 만들기 전에 shared datetime utility를 먼저 찾는다. SQLite의 TEXT 저장과 PostgreSQL의 timezone-aware 시점 표현을 대조하고, locale 표시 문자열이 persisted data에 섞이지 않는지 확인한다. 일정의 분리 입력은 submit에서 시점으로 결합하지만 Expense의 date-only에는 시각을 붙이지 않는다.
 
 Schedule의 일곱 소비 경로, Expense form·request·entity·두 DB와 serializer 중 하나가 바뀌면 이 본문의 사실 범위를 다시 대조한다. 관련 근거는 Workspace 002의 [Ticket 05](../../work/workspaces/002-code-readability-refactoring/current/memory/tickets/05-schedule-response.md)와 [Schedule 실행 기록](../../work/workspaces/002-code-readability-refactoring/records/2026-09-14-01-schedule-serialization-and-response-contract.md)에 있다. Mock route 검사는 실제 PostgreSQL·JWT·배포를 입증하지 않는다.
 

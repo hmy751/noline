@@ -15,6 +15,16 @@ Client API·repository·query hook, server route, 공유 schema·serializer·use
 
 Response schema를 선언하거나 client에서만 parse하는 것으로 server가 실제 계약을 적용했다고 보지 않는다. Server가 검증하지 않으면 잘못 조립한 성공 응답을 보낼 수 있고, client가 검증하지 않으면 activation처럼 여러 entity를 받는 경계에서 잘못된 표현이 local 저장으로 이어질 수 있다.
 
+## 사용자 데이터를 다루면 인증과 소유권을 각각 검사한다
+
+보호된 route·sync endpoint는 DB 접근 전에 인증을 확인하고 인증된 `req.userId`를 기준으로 조회·변경 범위를 제한한다. Client가 보낸 `userId`는 권한의 근거가 아니다. 생성 schema가 호환을 위해 해당 필드를 수용하더라도 서버가 저장할 소유자는 인증 결과에서 정한다. 인증된 사용자라는 사실과 특정 Trip·Schedule·Expense를 다룰 권한은 별개다.
+
+부모 ID나 연결 ID를 받는 쓰기는 그 대상도 사용자 소유인지, 삭제되지 않았는지, 허용된 부모·자식 관계인지 확인한다. 선행 조회 뒤 mutation을 ID만으로 실행하지 말고 실제 쓰기 조건에도 소유 범위와 삭제 조건을 유지한다. 아래의 Expense·Trip 차이는 이 기준의 현재 불충족이며 허용 예외가 아니다. Sync pull에서도 사용자 범위는 유지하되 삭제 사실을 전파하기 위한 soft-delete 행을 제외하지 않는다.
+
+Local 조회·변경·입수 데이터도 현재 기기 계정의 소유 범위를 유지한다. Router를 통과했다는 사실만으로 개별 row의 귀속 확인을 대신하지 않는다. 세션 교체 중 이전 응답·queue·계정 데이터의 보존과 격리는 [앱 실행·세션](../current/app-runtime/INDEX.md), 미전송 원본 보호는 [데이터 수명](data-lifecycle/INDEX.md)이 맡는다.
+
+Route·sync·Local ownership을 바꾸면 인증 없음·다른 사용자·삭제된 부모/자식·조작된 ownership 필드와 실제 mutation 조건을 대조한다. 자기 계정의 정상 요청만 성공한 결과로 계정 격리를 확인하지 않는다. 현재 대표 근거는 [서버 인증 middleware](../../../apps/server/src/middleware/auth.ts), 세 Entity route와 [sync pull](../../../apps/server/src/routes/sync.ts)이며 아래에서 경로별 지원 차이와 검증 방법을 구별한다.
+
 ## Schedule을 바꿀 때 일곱 응답 경로와 조회 목적을 함께 대조한다
 
 [Schedule entity](../../../packages/schema/src/entities/schedule.ts)는 `scheduledAt`, `createdAt`, `updatedAt`, nullable `deletedAt`을 offset-aware ISO datetime string으로 요구한다. PostgreSQL row의 `Date`를 이 표현으로 바꾸는 책임은 [serializeSchedule](../../../apps/server/src/serializers/schedule.ts)에 있다.
@@ -39,7 +49,7 @@ HTTP interceptor에서 변환된 APIError와 API 함수가 응답 parse 도중 �
 
 [Expense route](../../../apps/server/src/routes/expenses.ts)의 생성·수정은 serializeExpense 결과를 entity로 검사한 뒤 envelope를 직접 조립하고, 삭제는 최외곽 response 검사를 하지 않는다. [Trip route](../../../apps/server/src/routes/trips.ts)의 삭제도 response 검사가 없다. 이것은 위의 최외곽 검증 기준을 완전히 적용한 상태가 아니며 client parse가 server 검증을 대신하지 않는다.
 
-접근 경계도 같은 수준으로 구현돼 있지 않다. Expense 생성은 인증 userId를 사용하지만 입력의 부모 Trip·Schedule 소유자·삭제 여부·연결 관계를 조회해 검증하지 않는다. 수정의 scheduleId 연결도 같은 공백이 있다. Trip 수정·삭제는 선행 ownership 조회 뒤 mutation을 ID만으로 수행하고 선행 조회에 non-deleted 조건이 없다. Schedule의 부모 확인·scoped mutation을 이 경로의 현재 보장으로 확대하지 않는다. 이는 [Auth/User Scope](../../../.claude/rules/auth-user-scope.md)와 일반 조회·삭제 계약의 확인·보완 대상이며 새 허용 정책이 아니다.
+접근 경계도 같은 수준으로 구현돼 있지 않다. Expense 생성은 인증 userId를 사용하지만 입력의 부모 Trip·Schedule 소유자·삭제 여부·연결 관계를 조회해 검증하지 않는다. 수정의 scheduleId 연결도 같은 공백이 있다. Trip 수정·삭제는 선행 ownership 조회 뒤 mutation을 ID만으로 수행하고 선행 조회에 non-deleted 조건이 없다. Schedule의 부모 확인·scoped mutation을 이 경로의 현재 보장으로 확대하지 않는다. 이는 위 인증·소유권 기준과 일반 조회·삭제 계약의 확인·보완 대상이며 새 허용 정책이 아니다.
 
 생성·수정 body와 sync pull의 lastSyncedAt은 공유 schema를 검사하지만 대부분의 목록 query·path ID는 직접 사용한다. “요청을 검사한다”는 기준과 모든 입력 경계가 이미 검사된 상태는 다르다.
 
