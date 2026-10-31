@@ -17,3 +17,7 @@
 - [2026-10-31 — 문서 역할·형식 판단과 전체 변경분 교정](2026-10-31-04-document-role-and-format-review.md): 기존 형식 재사용을 허용하면서 역할·조건·의미 보존을 판단한 근거와 후속 Ticket 적용.
 
 날짜별 기록은 당시 판단·실행 근거를 보존한다. 현재 진행과 다음 행동은 [state](../current/state/index.md)에서 읽는다.
+
+- [2026-10-31 — Ticket 08 결과와 기록 복구](2026-10-31-05-ticket-08-result-and-record-recovery.md): 이관 결과·검토 근거, 자동 반영 실패와 수동 복구, 커밋·추가 조사 범위.
+
+- [2026-10-31 — 복구 반영과 추가 정리 조사](2026-10-31-06-record-repair-and-cleanup-investigation.md): guarded apply 성공·작업 커밋, 놓친 간접 경로 교정과 남은 실행층 정리 후보.
