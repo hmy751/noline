@@ -27,7 +27,7 @@
 | Area | Server가 소유하는 것 | 다른 owner로 보낼 것 |
 | --- | --- | --- |
 | `src/routes/*` | route boundary, request parse, response shape, ownership filter | shared request/response schema는 `packages/schema` |
-| `src/middleware/auth.ts` | auth transport와 `req.user` boundary | auth policy drift는 rule/decision |
+| `src/middleware/auth.ts` | auth transport와 `req.userId` boundary | auth policy drift는 rule/decision |
 | `src/middleware/errorHandler.ts` | HTTP error conversion | client error UI는 `apps/client` |
 | `src/db/schema.ts` | PostgreSQL/Drizzle table shape | cross-workspace contract는 schema package |
 | `src/routes/sync.ts` | authenticated sync pull/push boundary | client queue mechanics는 `apps/client` |

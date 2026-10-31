@@ -84,6 +84,8 @@ client form과 manual input flow에 사용한다. 먼저 [작성·입력 Context
 
 ## <a id="component-guide"></a>UI 컴포넌트 작성
 
+[UI 책임](../../context/project/guidance/development-boundaries/ui.md)에서 primitive·앱 조합·domain·workflow를 구별한다. 계층 이동이나 조회 훅 재사용이 관련되면 [계층과 예외](../../context/project/guidance/development-boundaries/layers.md)를 함께 읽는다.
+
 1. 재사용 primitive는 `packages/ui`, domain component는 owning client slice에 둔다.
 2. 외부 margin은 부모가 제어한다.
 3. props type을 명시한다.

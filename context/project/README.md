@@ -10,6 +10,7 @@
 - 경비의 통화 분리, 합계·대표 표시와 금액 정밀도 경계를 판단할 때: [통화와 금액의 제품 의미](common/currency.md)
 - 날짜 필드의 datetime/date-only 계약과 열린 제품 판단을 확인할 때: [날짜와 시각의 데이터 의미](common/date-and-time.md)
 - client·server·schema·UI의 현재 책임과 지원·검증 범위를 확인할 때: [현재 구조와 지원 경계](current/architecture.md)
+- 코드의 계층·재사용·UI 책임·TypeScript와 공유 schema를 바꿀 때: [구조·UI·schema 개발 기준](guidance/development-boundaries/INDEX.md). 일반 기준과 실제 의존 예외를 구별한다.
 - 앱 준비·재인증·로그아웃을 바꾸거나 로컬 데이터 보존과 실행 종료 순서를 확인할 때: [앱 실행·세션·데이터 보존](current/app-runtime/INDEX.md)
 - Router·여행 목록·선택·네트워크 관측·일정/경비 조회·홈 표시·연결 복구를 바꿀 때: [네트워크·조회·화면 복구](guidance/travel-access/INDEX.md). 이 주제의 현재 계약은 Project 본문이 소유한다.
 - Local 저장·queue·push/pull·활성화·비활성화·cleanup을 바꿀 때: [데이터 저장·동기화·정리](guidance/data-lifecycle/INDEX.md). 미전송 보호 계약과 여행별 구현 공백을 함께 확인한다.
@@ -68,7 +69,7 @@ Project 수준에서 현재 구현·지원·적용되는 범위와 연결 관계
 
 ## Authority와 작업 경계
 
-각 내용 문서는 자신이 맡은 의미 범위와 현재 권위를 밝힌다. 기존 상세 canonical을 옮기지 않은 범위는 해당 Owner와 충돌 우선순위를 명시하고, 승인된 주제별 이동을 마친 범위는 Project 본문이 현재 의미를 소유한다. 이관한 여행 접근·Policy·데이터 수명·지도·경로의 옛 문서는 일반 읽기에서 제외하고 필요한 근거는 Project 형성 자료에서 읽는다. 다른 주제의 미이동 상세는 별도 범위로 구별하며 같은 현재 답을 중복 소유하지 않는다.
+각 내용 문서는 자신이 맡은 의미 범위와 현재 권위를 밝힌다. 기존 상세 canonical을 옮기지 않은 범위는 해당 Owner와 충돌 우선순위를 명시하고, 승인된 주제별 이동을 마친 범위는 Project 본문이 현재 의미를 소유한다. 이관한 여행 접근·Policy·데이터 수명·지도·경로·구조·UI·TypeScript의 옛 문서는 일반 읽기에서 제외하고 필요한 근거는 Project 형성 자료에서 읽는다. 다른 주제의 미이동 상세는 별도 범위로 구별하며 같은 현재 답을 중복 소유하지 않는다.
 
 현재 제품 본문은 위 읽기 경로에 연결된 범위다. 미이동 상세 의미와 작업 지침은 root [CLAUDE.md](../../CLAUDE.md), [.claude/context](../../.claude/context/README.md), [rules](../../.claude/rules/README.md), [guards](../../.claude/guards/README.md), [runbooks](../../.claude/runbooks/README.md)가 계속 소유한다. 구현 사실은 [apps](../../apps/)·[packages](../../packages/)의 코드와 테스트에서 확인한다. 현재 코드나 최근 문서라는 이유만으로 제품 결정을 자동 대체하지 않는다.
 

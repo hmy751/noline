@@ -1,3 +1,5 @@
+> 역사 보존 자료 — 2026-10-31에 현재 Owner를 Project로 옮겼다. 이 파일의 아래 본문은 당시 원본이며 현재 지침·일반 읽기 경로가 아니다. 명시적인 역사 조사·복구에만 사용한다.
+
 ---
 globs: '*.ts,*.tsx'
 description: TypeScript 코드 스타일 & 모범 사례 - interface와 type 사용법, 타입 안전성 패턴, 에러 처리 타입, 일관된 TypeScript 개발을 위한 DO/DON'T 가이드라인을 정의합니다.

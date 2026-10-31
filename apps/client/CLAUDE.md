@@ -23,7 +23,8 @@
 | 네트워크 감지, 조회·캐시 표시, 홈 요약과 복구 | [네트워크·조회·화면 복구](../../context/project/guidance/travel-access/INDEX.md), [오류 표현](../../.claude/context/error-handling.md) |
 | policy 제한 UI | [Policy UI rule](../../.claude/rules/policy-ui.md), [Policy context](../../context/project/guidance/travel-access/INDEX.md) |
 | offline map/routing | [지도 준비·공유·경로 표시](../../context/project/guidance/offline-maps-and-routes/INDEX.md) |
-| UI composition | [Component context](../../.claude/context/components.md), [UI package guide](../../packages/ui/CLAUDE.md) |
+| 구조·계층·재사용 | [계층과 현재 예외](../../context/project/guidance/development-boundaries/layers.md) |
+| UI composition | [Component context](../../context/project/guidance/development-boundaries/ui.md), [UI package guide](../../packages/ui/CLAUDE.md) |
 
 ## Ownership
 

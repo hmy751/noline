@@ -33,13 +33,13 @@ const policyDocuments = [
   'packages/ui/CLAUDE.md',
 
   // 상세 가이드
-  '.claude/context/typescript.md',
-  '.claude/context/architecture.md',
+  'context/project/guidance/development-boundaries/schema-and-types.md',
+  'context/project/guidance/development-boundaries/layers.md',
   'context/project/guidance/data-lifecycle/INDEX.md',
   'context/project/guidance/travel-access/INDEX.md',        // v3.0 Policy Layer
   '.claude/context/time.md',
   '.claude/context/api-data.md',
-  '.claude/context/components.md',
+  'context/project/guidance/development-boundaries/ui.md',
   '.claude/context/error-handling.md',
 
   // 기능별 가이드
@@ -123,7 +123,7 @@ const policies: PolicyRule[] = [
     filePatterns: ['packages/ui/**/*.tsx', 'apps/client/src/**/*.tsx'],
     keywords: ['margin', 'component', 'ui'],
     severity: 'low',
-    source: '.claude/context/components.md:89-112',
+    source: 'context/project/guidance/development-boundaries/ui.md',
   },
   // ... CLAUDE.md에서 더 많은 정책 자동 추출
 ];
@@ -315,7 +315,7 @@ Decision에 포함할 내용:
 파일: packages/ui/src/Card.tsx
 감지: margin 스타일 제거
 정책: "재사용성을 위해 컴포넌트는 내부만 관리"
-출처: .claude/context/components.md:89-112
+출처: context/project/guidance/development-boundaries/ui.md
 
 📝 권장사항: CHANGELOG 업데이트
 

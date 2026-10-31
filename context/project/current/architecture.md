@@ -1,10 +1,20 @@
 # 현재 구현과 검증 경계
 
-작업 범위와 영향을 받을 책임, 실제로 확인할 명령을 정할 때 읽는다. 2026-09-14 현재 제품 tree, root guide·package 구성과 아래 상세 Owner를 대조했다. 이 지도는 해당 구현과 문서의 대조 범위를 설명하며 앱 전체 동작을 재실행한 증거는 아니다.
+작업 범위와 영향을 받을 책임, 실제로 확인할 명령을 정할 때 읽는다. 2026-10-31에 제품 tree, root·app/package guide, 대표 호출 경로와 아래 상세 Owner를 대조했다. 이 지도는 해당 구현과 문서의 대조 범위를 설명하며 앱 전체 동작을 재실행한 증거는 아니다.
 
 ## 구성과 흐름
 
-[client](../../../apps/client/CLAUDE.md)는 React Native·Expo 화면, FSD entity/data/repository 구조, SQLite와 활성화·정책 UI를 맡는다. [server](../../../apps/server/CLAUDE.md)는 Express route, 인증·user scope, PostgreSQL/Drizzle와 sync endpoint를 맡는다. [schema](../../../packages/schema/CLAUDE.md)는 Zod entity/request/response/sync 계약을, [UI](../../../packages/ui/CLAUDE.md)는 domain logic과 분리된 공유 primitive를 맡는다. pnpm workspace가 각 package의 개발·검증 명령을 연결한다.
+| 실제 위치 | 현재 책임과 변경 시 읽을 기준 |
+| --- | --- |
+| [client](../../../apps/client/CLAUDE.md) | React Native·Expo 화면, SQLite, Router·Policy와 앱 실행. `app`의 navigation/provider 연결, `src/application`의 준비·수명 조합, screens/features/entities/shared를 구별한다. [계층 기준](../guidance/development-boundaries/layers.md)이 배치와 현재 의존 예외를 설명한다. |
+| [server](../../../apps/server/CLAUDE.md) | Express route·인증·소유권, PostgreSQL/Drizzle, sync와 외부 인증 service. DB schema는 `apps/server/src/db/schema.ts`에 있다. |
+| [schema](../../../packages/schema/CLAUDE.md) | Zod entity/request/response/sync와 공통 값 검증. TypeScript 추론과 실제 parse는 [공유 계약 기준](../guidance/development-boundaries/schema-and-types.md)에서 구별한다. |
+| [UI](../../../packages/ui/CLAUDE.md) | React Native primitive·shell과 공개 export. 앱 조합과 domain workflow는 client에 남긴다. [UI 책임](../guidance/development-boundaries/ui.md)을 따른다. |
+| 공통 도구 | `packages/eslint-config`, `packages/typescript-config`와 pnpm workspace가 검사·설정을 연결한다. |
+
+현재 `packages/db`나 Prisma 기반 공통 DB package는 없다. Client DB는 `apps/client/src/shared/db`, 서버 DB는 위 server 경로가 소유한다. 공유 schema와 각 저장소 schema는 같은 파일이나 같은 런타임 표현이 아니다.
+
+기본 의존은 화면 조립에서 feature·entity·공통 기반을 사용하는 방향이다. 실제 shared Policy·지도 UI 등에는 entity 참조가 남고, 일정·경비 폼은 공개 일정 조회 feature를 재사용한다. 이 지도는 이를 엄격한 FSD 준수나 모든 같은 계층 참조의 허용으로 설명하지 않는다. 현재 적용 조건과 비용은 계층 기준에서 확인한다.
 
 Trip·Schedule·Expense의 data hook은 repository를 호출하고 repository의 Activation Router가 local/remote 구현을 고른다. Trip 자체 query와 child entity query는 활성 판단 단위가 다르므로 실제 변경에서는 [Activation Router rule](../../../.claude/rules/activation-router.md)을 확인한다. 활성화된 여행은 SQLite와 queue를 사용하고, Sync Engine은 queue에 남은 변경을 서버로 보낸다. Router의 데이터 위치 선택과 Sync Engine의 동기화 수행은 다른 책임이다.
 
@@ -28,4 +38,4 @@ Auth Store는 현재 계정과 인증 수단을 관리한다. 재인증이 필�
 
 Root [Context Harness](../../README.md)는 Project layer와 Workspace Spec·Ticket·state를 연결한다. Noline의 `.claude/skills/` 원본은 `.agents/skills/` bridge로 공유한다. Codex·Claude lifecycle wrapper가 설치돼 있지만 새 session은 unbound이며 hook trust·사용자 explicit activation·실제 event receipt 전에는 `activation_pending`이다. Claude adapter의 semantic runner는 기존 Codex 구현을 재사용한다.
 
-상세 Owner와 코드·테스트·runtime이 바뀌면 변경 책임자가 관련 부분을 갱신한다. [기존 Noline 문서 지도](../../../.claude/README.md)와 실제 source가 이 요약에 우선하며 전체 상세 문서 최신화 여부를 이 지도만으로 주장하지 않는다.
+상세 Owner와 코드·테스트·runtime이 바뀌면 변경 책임자가 관련 부분을 갱신한다. 이 지도는 위치·현재 관계를 요약한다. 제품 계약은 대응 Project 본문과 rules/guards가, 구현 사실은 실제 source가 근거이며 둘의 충돌은 구별한다. [개발 기준의 형성 자료](../guidance/development-boundaries/_background/README.md)에서 구조·UI·schema 선택 이유를 찾는다. 전체 상세 문서 최신화 여부를 이 지도만으로 주장하지 않는다.

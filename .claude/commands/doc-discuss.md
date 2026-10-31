@@ -32,7 +32,7 @@
 // 키워드 기반 문서 매칭
 const documentMap = {
   Entity: ['packages/schema/CLAUDE.md', 'context/project/guidance/data-lifecycle/INDEX.md'],
-  Component: ['packages/ui/CLAUDE.md', '.claude/context/components.md'],
+  Component: ['packages/ui/CLAUDE.md', 'context/project/guidance/development-boundaries/ui.md'],
   API: ['apps/server/CLAUDE.md', '.claude/context/api-data.md'],
   Sync: ['context/project/guidance/data-lifecycle/INDEX.md'],
   Time: ['.claude/context/time.md'],

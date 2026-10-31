@@ -6,6 +6,8 @@
 
 ## 현재 지침과 소비자
 
+[구조·UI·schema 개발 기준](development-boundaries/INDEX.md)은 계층 배치, 제한적 조회 재사용, UI 상태·간격·부작용과 공유 타입·런타임 검증을 구별한다. 현재 예외를 새 기본 규칙으로 넓히지 않으면서 관련 코드를 바꿀 때 읽는다.
+
 [여행 접근과 화면 복구](travel-access/INDEX.md)는 네트워크 관측·Policy·조회 실행·캐시 표시·작성 중 입력 보존을 연결한다. 화면이나 조회를 바꿀 때 실제 조건·사용자 장면·실패 후 남는 값을 확인한다.
 
 [데이터 저장·동기화·정리](data-lifecycle/INDEX.md)는 Local mutation·queue·push/pull·활성화·cleanup을 바꿀 때 읽는다. 보존 계약과 실제 상태 판정·완료 범위의 차이, 계정 종료와의 관계를 설명한다.

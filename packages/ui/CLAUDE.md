@@ -19,10 +19,10 @@
 
 | 작업 | 먼저 볼 문서 |
 | --- | --- |
-| primitive 추가/수정 | [Component runbook](../../.claude/runbooks/README.md#component-guide), [Component context](../../.claude/context/components.md) |
+| primitive 추가/수정 | [Component runbook](../../.claude/runbooks/README.md#component-guide), [Component context](../../context/project/guidance/development-boundaries/ui.md) |
 | policy 제한 UI | [Policy UI rule](../../.claude/rules/policy-ui.md), [Policy context](../../context/project/guidance/travel-access/INDEX.md) |
 | app composition | [Client guide](../../apps/client/CLAUDE.md), [Form context](../../.claude/context/form.md) |
-| TypeScript props style | [TypeScript/Zod context](../../.claude/context/typescript.md) |
+| TypeScript props style | [TypeScript/Zod context](../../context/project/guidance/development-boundaries/schema-and-types.md) |
 
 ## Ownership
 
@@ -59,4 +59,4 @@ pnpm harness:check
 
 ## Update Rule
 
-이 파일에는 UI primitive 작업자가 시작 전에 알아야 할 경계만 남긴다. 컴포넌트 철학의 긴 설명, 레거시 web 예시, 앱 조합 사례는 [Component context](../../.claude/context/components.md) 또는 `_archive/`로 보낸다.
+이 파일에는 UI primitive 작업자가 시작 전에 알아야 할 경계만 남긴다. 컴포넌트 철학의 긴 설명, 레거시 web 예시, 앱 조합 사례는 [Component context](../../context/project/guidance/development-boundaries/ui.md) 에서 설명한다. 과거 web 예시는 현재 기준으로 사용하지 않는다.
