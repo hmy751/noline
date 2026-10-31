@@ -103,7 +103,7 @@ const CURRENT_POLICIES = {
   manualInput: {
     rule: 'offline_active에서 API 없이 데이터 입력 지원',
     required: ['policy.schedule.create.mode 체크'],
-    guide: '.claude/context/manual-input.md',
+    guide: 'context/project/guidance/writing-and-input/places.md',
   },
 };
 ```

@@ -18,7 +18,7 @@
 
 일반 React Native input은 기존 React Hook Form의 `Controller` 연결을 사용하고 label·설명·오류는 `Field` 조합을 우선한다. 시간 입력은 [TimeField](../../../../apps/client/src/shared/components/Form/TimeField.tsx)가 RHF 값·오류와 선택창 열기·확인 반영을 연결한다. `TimePicker`는 RHF를 모르는 임시 선택, `DatePicker`는 달력 표시와 날짜 선택을 맡는다. 모든 picker 상태를 feature hook으로 옮기지 않는다.
 
-임시 선택을 바꾸는 것과 저장할 폼 값을 확정하는 것은 다르다. 현재 TimeField는 확인 때 값을 쓰고 닫을 때 picker 초안을 버린다. 이 UI 책임 설명은 생성·수정 폼의 전체 reset·초안 수명까지 같다는 보장이 아니다. 그 변경은 별도 작성·입력 주제의 범위이며, 이 문서에서 새 폼 계약을 만들지 않는다.
+임시 선택을 바꾸는 것과 저장할 폼 값을 확정하는 것은 다르다. 현재 TimeField는 확인 때 값을 쓰고 닫을 때 picker 초안을 버린다. 이 UI 책임 설명은 생성·수정 폼의 전체 reset·초안 수명까지 같다는 보장이 아니다. 그 변경은 [작성·입력의 선택창](../writing-and-input/pickers.md)과 [초안 수명](../writing-and-input/drafts.md)을 함께 확인한다.
 
 ## 정책 안내와 지도는 기존 경계를 사용한다
 

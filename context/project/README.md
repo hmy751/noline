@@ -15,14 +15,14 @@
 - Router·여행 목록·선택·네트워크 관측·일정/경비 조회·홈 표시·연결 복구를 바꿀 때: [네트워크·조회·화면 복구](guidance/travel-access/INDEX.md). 이 주제의 현재 계약은 Project 본문이 소유한다.
 - Local 저장·queue·push/pull·활성화·비활성화·cleanup을 바꿀 때: [데이터 저장·동기화·정리](guidance/data-lifecycle/INDEX.md). 미전송 보호 계약과 여행별 구현 공백을 함께 확인한다.
 - 지도 pack 준비·공유·정리와 일정 변경 뒤 경로 계산·표시를 바꿀 때: [오프라인 지도·경로](guidance/offline-maps-and-routes/INDEX.md). 실제 완료와 현재 준비 공백을 구별한다.
-- 일정·경비의 초안, 장소 채택, 선택창과 저장 요청을 바꿀 때: [작성 초안·장소·날짜 입력](../../.claude/context/form.md). 날짜·통화·API 계약은 각 기존 본문과 연결한다.
+- 일정·경비의 초안, 장소 채택, 선택창과 저장 요청을 바꿀 때: [작성 초안·장소·날짜 입력](guidance/writing-and-input/INDEX.md). 날짜·통화·API 계약은 각 본문과 연결한다.
 - 여행 생성의 GeoNames 요청·도시 선별·실패 반환을 바꿀 때: [도시 검색의 현재 경계](current/city-search.md)
 - 프로필의 SQLite·Mapbox 저장 용량 집계와 refresh를 바꿀 때: [저장 용량 집계의 현재 경계](current/storage-statistics.md)
 - request·response schema, serializer, Schedule·Expense API와 접근 경계를 변경할 때: [API 계약과 변경 가이드](guidance/api-contracts.md)
 - 기존 동작을 유지하는 코드 가독성 리팩터링을 계획·구현·검증할 때: [동작을 보존하는 코드 리팩터링](guidance/behavior-preserving-refactoring.md)
 - 설명·논의에서 주장과 실제 근거의 관계를 다룰 때: [공통 설명과 근거 기준](../../.claude/skills/shared/explanation-and-evidence-criteria.md)의 적용 조건
 - Selective Local-First를 선택한 이유가 필요할 때: [선택 근거](decisions/0001-selective-local-first.md)
-- 폼 등 아직 Project로 옮기지 않은 상세 주제: [기존 Noline 작업 진입점](../../.claude/runbooks/README.md)과 [상세 맥락 색인](../../.claude/context/README.md)
+- API 구현·오류 등 아직 Project로 옮기지 않은 상세 주제: [기존 Noline 작업 진입점](../../.claude/runbooks/README.md)과 [상세 맥락 색인](../../.claude/context/README.md)
 
 본문이 추가되거나 책임이 이동하면 이 주제별 경로도 실제 Owner에 맞춘다. 없는 가이드를 이미 구성된 것처럼 연결하지 않는다. 각 층의 전체 목록은 [common](common/README.md), [current](current/README.md), [guidance](guidance/README.md), [decisions](decisions/README.md)에서 찾는다.
 
@@ -69,7 +69,7 @@ Project 수준에서 현재 구현·지원·적용되는 범위와 연결 관계
 
 ## Authority와 작업 경계
 
-각 내용 문서는 자신이 맡은 의미 범위와 현재 권위를 밝힌다. 기존 상세 canonical을 옮기지 않은 범위는 해당 Owner와 충돌 우선순위를 명시하고, 승인된 주제별 이동을 마친 범위는 Project 본문이 현재 의미를 소유한다. 이관한 여행 접근·Policy·데이터 수명·지도·경로·구조·UI·TypeScript의 옛 문서는 일반 읽기에서 제외하고 필요한 근거는 Project 형성 자료에서 읽는다. 다른 주제의 미이동 상세는 별도 범위로 구별하며 같은 현재 답을 중복 소유하지 않는다.
+각 내용 문서는 자신이 맡은 의미 범위와 현재 권위를 밝힌다. 기존 상세 canonical을 옮기지 않은 범위는 해당 Owner와 충돌 우선순위를 명시하고, 승인된 주제별 이동을 마친 범위는 Project 본문이 현재 의미를 소유한다. 이관한 여행 접근·Policy·데이터 수명·지도·경로·구조·UI·TypeScript·작성·입력·날짜의 옛 문서는 일반 읽기에서 제외하고 필요한 근거는 Project 형성 자료에서 읽는다. 다른 주제의 미이동 상세는 별도 범위로 구별하며 같은 현재 답을 중복 소유하지 않는다.
 
 현재 제품 본문은 위 읽기 경로에 연결된 범위다. 미이동 상세 의미와 작업 지침은 root [CLAUDE.md](../../CLAUDE.md), [.claude/context](../../.claude/context/README.md), [rules](../../.claude/rules/README.md), [guards](../../.claude/guards/README.md), [runbooks](../../.claude/runbooks/README.md)가 계속 소유한다. 구현 사실은 [apps](../../apps/)·[packages](../../packages/)의 코드와 테스트에서 확인한다. 현재 코드나 최근 문서라는 이유만으로 제품 결정을 자동 대체하지 않는다.
 

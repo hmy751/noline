@@ -22,7 +22,7 @@
 | schema contract 공통 | [Schema First rule](../../.claude/rules/schema-first.md), [TypeScript/Zod context](../../context/project/guidance/development-boundaries/schema-and-types.md) |
 | 새 Entity 추가 | [Add Entity runbook](../../.claude/runbooks/README.md#add-entity) |
 | create request ID 전략 | [Client-Side ID rule](../../.claude/rules/client-side-id.md) |
-| datetime field | [ISO Time rule](../../.claude/rules/iso-time.md), [Time context](../../.claude/context/time.md) |
+| datetime field | [ISO Time rule](../../.claude/rules/iso-time.md), [Time context](../../context/project/common/date-and-time.md) |
 | API/data usage | [API/Data context](../../.claude/context/api-data.md) |
 | server/client 영향 확인 | [Guard Map](../../.claude/guards/README.md) |
 

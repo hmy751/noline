@@ -153,7 +153,7 @@ Node 20.18.1에서 2개 file의 2개 test와 server build가 통과했다. 실�
 
 ## Ticket 06 후속: 도시 시간대와 접근성
 
-- [날짜·시각의 제품 기준](../../../../project/common/date-and-time.md), [설계 결정](../../../../../.claude/decisions/2026-10-06-trip-city-time-zone.md): UTC 저장과 도시 기준 입력·표시, 기존 데이터 호환의 현재 의미.
+- [날짜·시각의 제품 기준](../../../../project/common/date-and-time.md), [도시 시간대 선택 이유](../../../../project/common/_background/date-and-time/context.md#utc-저장을-유지하면서-도시-시간대를-명시했다): UTC 저장과 도시 기준 입력·표시, 기존 데이터 호환의 현재 의미.
 - [공통 시간 변환](../../../../../apps/client/src/shared/lib/datetime.ts), [도시 시간대 조회](../../../../../apps/client/src/features/trip/create-trip/useCityTimeZone.ts), [여행 편집](../../../../../apps/client/src/features/trip/update-trip/EditTripDrawer.tsx): 공통 변환과 폼·조회·저장의 책임 연결.
 - [활성 만료](../../../../../apps/client/src/shared/lib/lifecycle.ts), [대표 여행 계산](../../../../../apps/client/src/entities/trip/utils/selectMainTrip.ts), [Local 계약 검사](../../../../../apps/client/tests/entities/temporal-local-contracts.test.ts): 도시 달력의 소비와 실제 SQLite rollback 근거.
 - [시간대 폼 검사](../../../../../apps/client/tests/features/edit/city-time-zone.test.tsx), [서버 계약 검사](../../../../../apps/server/tests/routes/trip-time-zone.test.ts), [접근성 검사](../../../../../apps/client/tests/components/action-accessibility.test.tsx): 입력·저장·호환 및 독립 버튼의 검증 진입점.

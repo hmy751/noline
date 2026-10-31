@@ -21,7 +21,7 @@
 | --- | --- |
 | primitive 추가/수정 | [Component runbook](../../.claude/runbooks/README.md#component-guide), [Component context](../../context/project/guidance/development-boundaries/ui.md) |
 | policy 제한 UI | [Policy UI rule](../../.claude/rules/policy-ui.md), [Policy context](../../context/project/guidance/travel-access/INDEX.md) |
-| app composition | [Client guide](../../apps/client/CLAUDE.md), [Form context](../../.claude/context/form.md) |
+| app composition | [Client guide](../../apps/client/CLAUDE.md), [Form context](../../context/project/guidance/writing-and-input/INDEX.md) |
 | TypeScript props style | [TypeScript/Zod context](../../context/project/guidance/development-boundaries/schema-and-types.md) |
 
 ## Ownership

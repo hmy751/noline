@@ -1,6 +1,6 @@
 # 날짜와 시각의 데이터 의미
 
-저장·전송 필드가 한 시점을 나타내는지 달력 날짜만 나타내는지 판단할 때 읽는다. 이 본문은 이 주제의 현재 Project 기준을 소유한다. 기존 [Time context](../../../.claude/context/time.md)는 구현 helper와 이전 경로를 연결하는 호환 진입점으로 남는다.
+저장·전송 필드가 한 시점을 나타내는지 달력 날짜만 나타내는지 판단할 때 읽는다. 이 본문은 이 주제의 현재 Project 기준을 소유한다. 형성 의도·호환 선택·재검토 조건은 [형성 자료](_background/date-and-time/README.md)에서 찾는다. 아래 본문은 현재 필드 의미와 적용 경계를, 형성 자료는 왜 이 기준을 택했는지를 설명한다.
 
 ## 필드의 의미를 먼저 구별한다
 
@@ -12,7 +12,7 @@ Expense `date`는 경비가 속하는 달력 날짜이며 `YYYY-MM-DD`로 입력
 
 여행의 시간 기준은 기기 위치가 아니라 Trip의 `timeZone`이다. `Europe/Paris` 같은 IANA 식별자를 저장하며, 고정된 `+02:00` offset으로 대체하지 않는다. 같은 도시라도 날짜에 따라 DST offset이 달라질 수 있기 때문이다. 한 도시를 대표하는 현재 Trip에서는 일정마다 시간대를 복제하지 않는다. 여러 도시나 항공편의 출발·도착 시간을 독립적으로 지원할 때 이 소유 경계를 다시 판단한다.
 
-Trip `startDate`·`endDate`는 ISO datetime 저장·전송 계약을 유지한다. 새 여행과 사용자가 변경한 기간은 도시의 시작일·종료일 자정을 UTC로 변환한다. 종료일은 여행에 포함되는 마지막 달력 날짜이며 그날 시작 시점에 여행이 끝났다는 뜻이 아니다. 일정·경비 목록은 두 시점을 도시 날짜로 읽고 양 끝을 포함해 달력 일자로 나열한다. 날짜를 24시간씩 더해 만들지 않는다. 기간 순서 검사는 변경값과 기존값을 합친 뒤 같은 도시의 달력 날짜로 비교한다. 과거에 자정 이외의 시각으로 저장된 시작일과 새 종료일이 같은 도시 날짜이면 하루 여행으로 허용하며, Server와 Local이 같은 검사를 적용한다.
+Trip `startDate`·`endDate`는 ISO datetime 저장·전송 계약을 유지한다. 새 여행과 사용자가 변경한 기간은 도시의 시작일·종료일의 첫 유효 시점(보통 자정)을 UTC로 변환한다. 자정에 DST 공백이 있으면 그 날짜의 첫 존재하는 시각을 사용하고 날짜 전체가 없으면 거절한다. 이 날짜 경계 계산은 아래 일정의 임의 시각 입력에서 DST 공백을 거절하는 계약과 다르다. 종료일은 여행에 포함되는 마지막 달력 날짜이며 그날 시작 시점에 여행이 끝났다는 뜻이 아니다. 일정·경비 목록은 두 시점을 도시 날짜로 읽고 양 끝을 포함해 달력 일자로 나열한다. 날짜를 24시간씩 더해 만들지 않는다. 기간 순서 검사는 변경값과 기존값을 합친 뒤 같은 도시의 달력 날짜로 비교한다. 과거에 자정 이외의 시각으로 저장된 시작일과 새 종료일이 같은 도시 날짜이면 하루 여행으로 허용하며, Server와 Local이 같은 검사를 적용한다.
 
 예를 들어 파리의 2026-09-30~10-02 여행은 `2026-09-29T22:00:00Z`~`2026-10-01T22:00:00Z`로 저장한다. 10월 2일 오전 9시 일정은 `2026-10-02T07:00:00Z`, 같은 날 경비는 `2026-10-02`다. 서울·파리·미국 기기에서 이 여행을 열어도 여행 날짜와 일정 시각은 파리 기준으로 같다.
 
@@ -20,9 +20,9 @@ Trip `startDate`·`endDate`는 ISO datetime 저장·전송 계약을 유지한�
 
 시간대 도입 전 Trip의 누락·null은 미확정 상태로 구별한다. 읽기용 UTC 호환 표시는 시간대 확인이 필요하다는 안내와 함께 사용한다. 도시 좌표로 시간대를 확인한 후 기존 여행 수정 경로로 저장하며, 이때 기존 기간·일정 timestamp를 일괄 이동시키지 않는다. 기존 입력의 원래 현지 날짜는 timestamp만으로 복원할 수 없으므로 기간을 바꾸려면 사용자의 명시적인 날짜 편집을 받는다. 시간대가 없는 여행에서 새 일정 시각이나 여행 기간을 기기 기준으로 저장하지 않는다.
 
-기존 SQLite에는 nullable 시간대 column을 추가하고 기존 행·전송 대기 큐를 보존한다. 새 client의 생성 요청은 시간대가 필수다. 서버는 과거 client의 미전송 Trip CREATE에 한해 시간대 없는 입력을 호환 수용한다. 시간대가 있는 값은 일반 응답·활성화·동기화·로컬 upsert를 거쳐 보존한다.
+기존 SQLite에는 nullable 시간대 column을 추가하고 기존 행·전송 대기 큐를 보존한다. 새 client의 생성 요청은 시간대가 필수다. 과거 client의 미전송 Trip CREATE를 보존하려는 호환으로 서버 생성 경계는 시간대 누락·null을 수용한다. 실제 POST /trips는 요청 전체에 legacy schema를 적용하며 과거 큐에서 왔는지 판별하지 않는다. 새 client의 필수 입력 계약과 서버의 더 넓은 호환 수용 범위를 구별한다. 시간대가 있는 값은 일반 응답·활성화·동기화·로컬 upsert를 거쳐 보존한다.
 
-폼의 초안·선택창 임시값·저장값을 연결하거나 확인·취소·재열기를 바꿀 때에는 [작성·입력 가이드](../../../.claude/context/form.md#날짜시간-선택창과-폼의-연결)를 함께 읽는다. 날짜·시각 필드의 의미와 저장 경계는 이 본문이 계속 소유한다.
+폼의 초안·선택창 임시값·저장값을 연결하거나 확인·취소·재열기를 바꿀 때에는 [작성·입력 가이드](../guidance/writing-and-input/pickers.md)를 함께 읽는다. 날짜·시각 필드의 의미와 저장 경계는 이 본문이 계속 소유한다.
 
 ## 시점 검증과 일정 입력의 책임
 
@@ -32,7 +32,7 @@ Schedule 생성·수정 폼은 여행 도시 시간대의 `YYYY-MM-DD`와 `HH:mm
 
 수정은 최종 날짜·시간이 처음 연 폼 값과 다른 경우에만 `scheduledAt`을 포함한다. 되돌린 입력이나 제목·장소만 바꾸는 수정은 원래 offset·초·밀리초와 DST 중복 시각의 원본을 보존한다. 폼을 열 때의 날짜·시간과 해석할 시간대를 함께 고정하므로 편집 중 조회 결과가 갱신돼도 초안의 해석 기준이 바뀌지 않는다. 미확정 상태에서 연 폼은 시간대 확인 후 다시 열어 날짜·시간을 편집한다. 저장 성공 후에는 비교 기준을 저장한 폼 값으로 갱신한다. 경비 생성으로 이동할 때는 오래된 navigation 시각 대신 현재 조회한 일정의 현지 날짜를 기본값으로 넘긴다.
 
-Schedule·Trip Repository는 Expense와 같이 공유 생성·수정 요청을 검사한 뒤 Activation Router로 전달한다. Local Schedule은 시각의 표현을 유지하며 목록·단건·mutation 결과를 반환할 때 시점 계약을 검사한다. 결과 검사 실패는 commit 전에 행·큐를 함께 롤백하고, 존재·접근 확인을 시각 검사와 분리해 잘못된 기존 행도 시각 교정이나 삭제가 가능하다. 목록은 SQLite TEXT 순서 대신 실제 시점으로 정렬해 offset이 다른 값도 순서가 맞는다.
+Schedule·Trip Repository는 Expense와 같이 공유 생성·수정 요청을 검사한 뒤 Activation Router로 전달한다. Local Schedule은 scheduledAt의 표현을 유지하며 목록·단건·mutation 결과를 반환할 때 그 필드의 시점 계약을 검사한다. 이 반환 변환은 createdAt·updatedAt·deletedAt까지 entity 전체를 검사하는 경계가 아니다. 결과 검사 실패는 commit 전에 행·큐를 함께 롤백하고, 존재·접근 확인을 시각 검사와 분리해 잘못된 기존 행도 시각 교정이나 삭제가 가능하다. 목록은 SQLite TEXT 순서 대신 실제 시점으로 정렬해 offset이 다른 값도 순서가 맞는다.
 
 ## Schedule 응답의 시간 계약
 
@@ -60,16 +60,28 @@ Trip activation은 `activateTripResponse`, sync pull은 `syncPullResponseSchema`
 
 홈·여행 목록의 기간 표시, 일정·경비의 날짜 구간과 일정 묶기, 폼 초기값은 같은 여행 시간대를 사용한다. 주요 여행 선택의 진행 중 → 미래 → 과거 우선순위는 유지하되, 오늘과 기간은 각 여행의 도시 날짜로 비교한다.
 
-활성화 유예 기간은 마지막 여행일을 포함하고 그 다음 날부터 도시 달력 7일을 온전히 보장한다. 마지막 날이 10월 2일이면 10월 10일 도시 자정이 만료 경계다. 활성화와 오프라인 지도 정리는 같은 계산을 사용한다. 기간 또는 시간대를 수정하면 저장된 만료 시각도 맞춘다. 미확정 시간대를 추정해 기존 활성 여행을 조기 정리하지 않는다. 전송 대기 데이터 보호·soft-delete vacuum의 별도 7일 규칙은 바꾸지 않는다.
+활성화 유예 기간은 마지막 여행일을 포함하고 그 다음 날부터 도시 달력 7일을 온전히 보장한다. 마지막 날이 10월 2일이면 10월 10일 도시 날짜의 첫 유효 시점이 만료 경계다. 활성화와 오프라인 지도 정리는 같은 계산을 사용한다. 활성 Trip의 Local 수정에서 종료일 또는 시간대가 바뀌면 저장된 expiresAt도 맞춘다. 반면 sync pull/upsert는 Trip만 갱신하고 activation의 expiresAt을 함께 고치지 않는다. 현재 지도 만료 판정은 최신 Trip으로 다시 계산하므로 저장된 만료 기록의 최신성과 실제 만료 판정을 구별한다. 미확정 시간대를 추정해 기존 활성 여행을 조기 정리하지 않는다. 전송 대기 데이터 보호·soft-delete vacuum의 별도 7일 규칙은 바꾸지 않는다.
 
-2026-09-14의 서버 직렬화 작업은 DB row → 응답 표현을 통일했다. 당시 폼의 datetime과 수정 요청의 date-only 불일치는 그대로 남아 있었다. 이후 직접 수정 API에만 둔 보정도 Local 동기화에는 적용되지 않았다. 사용자가 공유 규칙과 저장 전 경계의 일관성을 요청해 위 책임 배치를 채택했다. [선택과 호환 범위](../../../.claude/decisions/2026-10-02-expense-date-boundaries.md)에 근거를 남긴다.
+2026-09-14의 서버 직렬화 작업은 DB row → 응답 표현을 통일했다. 당시 폼의 datetime과 수정 요청의 date-only 불일치는 그대로 남아 있었다. 이후 직접 수정 API에만 둔 보정도 Local 동기화에는 적용되지 않았다. 사용자가 공유 규칙과 저장 전 경계의 일관성을 요청해 위 책임 배치를 채택했다. [선택과 호환 범위](_background/date-and-time/context.md#같은-날짜-규칙을-저장-전-경계에서-적용했다)에 근거를 남긴다.
 
 기존 datetime을 원래 사용자가 어느 현지 날짜로 의도했는지 역추정하지 않는다. 호환은 기존 서버 응답의 UTC 날짜를 보존하며, 이전에 잘못 저장된 날짜의 복원이나 DB column migration은 별도 작업이다.
 
-도시 시간대 기준의 선택과 UTC 저장 유지 이유는 [여행 도시 시간대 결정](../../../.claude/decisions/2026-10-06-trip-city-time-zone.md)에 남긴다. 과거 UTC 날짜 구간 개선과 이번 도시 기준 통일은 서로 다른 변경이다.
+도시 시간대 기준의 선택과 UTC 저장 유지 이유는 [도시 시간대 선택](_background/date-and-time/context.md#utc-저장을-유지하면서-도시-시간대를-명시했다)에 남긴다. 과거 UTC 날짜 구간 개선과 이번 도시 기준 통일은 서로 다른 변경이다.
 
 ## 적용과 재확인
 
 새 필드나 변환을 만들 때에는 이름에 `date`가 있다는 이유로 표현을 고르지 말고, 그 값이 한 시점인지 달력 날짜인지 먼저 정한다. datetime은 shared helper와 offset-aware schema를 사용하고, date-only는 timezone 변환으로 날짜가 이동하지 않는지 request·DB·response를 함께 확인한다.
 
 Schedule의 일곱 소비 경로, Expense form·request·entity·두 DB와 serializer 중 하나가 바뀌면 이 본문의 사실 범위를 다시 대조한다. 관련 근거는 Workspace 002의 [Ticket 05](../../work/workspaces/002-code-readability-refactoring/current/memory/tickets/05-schedule-response.md)와 [Schedule 실행 기록](../../work/workspaces/002-code-readability-refactoring/records/2026-09-14-01-schedule-serialization-and-response-contract.md)에 있다. Mock route 검사는 실제 PostgreSQL·JWT·배포를 입증하지 않는다.
+
+## 구현 위치와 변경 책임
+
+| 확인할 책임 | 현재 근거 |
+| --- | --- |
+| 도시 날짜·시각 변환·달력 순회 | [datetime helper](../../../apps/client/src/shared/lib/datetime.ts) |
+| Local 저장·transaction·upsert | [DB helper](../../../apps/client/src/shared/db/utils.ts), [SQLite schema](../../../apps/client/src/shared/db/schema.ts) |
+| 서버 물리 저장 표현 | [PostgreSQL schema](../../../apps/server/src/db/schema.ts) |
+| 입력·entity·응답 계약 | [shared schema](../../../packages/schema/src/), [개발 시 타입·검증 기준](../guidance/development-boundaries/schema-and-types.md) |
+| Schedule·Expense 응답 변환 | [Schedule serializer](../../../apps/server/src/serializers/schedule.ts), [Expense serializer](../../../apps/server/src/serializers/expense.ts) |
+
+2026-10-31 대조에서 Local scheduledAt 검사, 서버 생성의 시간대 호환 수용, 날짜 시작 시점과 만료 기록의 적용 범위를 위처럼 정밀화했다. 공유 schema·대표 입력/저장/입수 경로를 확인한 범위이며 모든 날짜 필드·모든 native 소비자 검증을 뜻하지 않는다. 시간대 제공자나 실제 PostgreSQL·JWT·기기 실행 상태가 필요한 변경은 해당 실행 경계를 별도로 확인한다.

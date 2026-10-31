@@ -1,3 +1,5 @@
+> 역사 보존 자료 — 2026-10-31에 현재 Owner를 Project로 옮겼다. 아래 본문은 당시 원본이며 현재 지침·일반 읽기 경로가 아니다. 명시적인 역사 조사·복구에만 사용한다.
+
 # 날짜·시각 구현 경로와 호환 진입
 
 > 현재 datetime/date-only 의미와 열린 제품 판단은 [Project 날짜와 시각](../../context/project/common/date-and-time.md)이 소유한다.

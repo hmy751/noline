@@ -184,7 +184,7 @@ Local session이 없으면 로그인 안내를 먼저 적용한다. 여행 활�
 
 **작성 계약:** 이미 열린 일정·경비 생성/수정의 초안은 네트워크 상태가 바뀌어도 같은 입력 소유자와 폼을 유지해야 한다. `allowed: false`를 이유로 작성 화면 전체를 제한 안내로 바꾸거나, `manual-only`를 이유로 별도 폼으로 교체하지 않는다. 기본 입력은 계속 보여 주고, 장소 검색·일정 조회·저장처럼 현재 실행할 수 없는 영역에 정책 안내를 둔다. 저장 오류도 초안에 붙여 보존하며 연결이 복구됐다는 이유로 자동 제출하지 않는다. 사용자가 다시 저장할 때 Router가 최신 실행 조건을 확인한다.
 
-**현재 구현 차이:** [UpdateScheduleDrawer](../../../../apps/client/src/features/schedule/update-schedule/UpdateScheduleDrawer.tsx)는 `policy.schedule.update.allowed === false`이면 입력 영역 대신 Drawer 전체에 제한 안내를 반환한다. 따라서 비활성 여행의 일정을 수정하다 offline/unknown으로 바뀌는 경우 기본 입력을 계속 보이게 한다는 계약을 충족하지 못한다. 폼 상태를 소유한 hook은 이 분기보다 앞에 있으므로 이 코드만으로 입력값이 삭제된다고 판단하지 않는다. 입력 표시·편집 제한과 내부 값의 보존은 구분해서 확인해야 한다. 이 차이는 계약을 축소할 근거가 아니며, 폼 후속 작업에서는 열린 상태의 연결 전환·복귀·재저장을 직접 검증해야 한다.
+**현재 구현 차이:** [UpdateScheduleDrawer](../../../../apps/client/src/features/schedule/update-schedule/UpdateScheduleDrawer.tsx)는 `policy.schedule.update.allowed === false`이면 입력 영역 대신 Drawer 전체에 제한 안내를 반환한다. 따라서 비활성 여행의 일정을 수정하다 offline/unknown으로 바뀌는 경우 기본 입력을 계속 보이게 한다는 계약을 충족하지 못한다. 폼 상태를 소유한 hook은 이 분기보다 앞에 있다. 제어된 online→offline/unknown→online 검사에서는 같은 항목을 계속 연 채 수정한 제목·확인한 시각이 복귀와 명시적 재저장 payload까지 유지됐고 자동 제출은 없었다. 입력 표시·편집 계약의 불충족은 그대로 남는다. 제한 중 TimeField의 미확정 선택은 해제되므로 폼 값과 같은 수명으로 보지 않는다. 실제 부모의 닫기·재열기와 확인 범위는 [초안 수명](../writing-and-input/drafts.md)에서 구별한다. 이 확인을 실제 인터넷 단절·native 동작 전체의 검증으로 확대하지 않는다.
 
 일정·경비의 읽기 목록·상세는 별도 계약이다. 비활성 여행이 offline/unknown이면 기존 query cache를 삭제하지 않고 목록·상세 공개와 새 조회를 제한한다. 이미 편집 중인 초안의 값과 기존 연결 설명을 유지하는 것은 이 읽기 제한을 해제하는 일이 아니다. 일정 후보는 `useTripSchedulesReadQuery`가 공개하는 결과에서만 제공하며, 저장 위치를 UI에서 직접 선택하지 않는다.
 

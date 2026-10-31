@@ -19,7 +19,7 @@
 | auth/user ownership | [Auth/User Scope rule](../../.claude/rules/auth-user-scope.md), [Guard Map](../../.claude/guards/README.md) |
 | client-created ID create flow | [Client-Side ID rule](../../.claude/rules/client-side-id.md) |
 | sync endpoint | [Transaction + Sync Queue rule](../../.claude/rules/transaction-sync-queue.md), [Sync debug runbook](../../.claude/runbooks/README.md#sync-debug) |
-| time fields | [ISO Time rule](../../.claude/rules/iso-time.md), [Time context](../../.claude/context/time.md) |
+| time fields | [ISO Time rule](../../.claude/rules/iso-time.md), [Time context](../../context/project/common/date-and-time.md) |
 | error handling | [Error handling context](../../.claude/context/error-handling.md) |
 
 ## Ownership

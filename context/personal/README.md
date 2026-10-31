@@ -20,7 +20,7 @@
 
 제품 요구와 개인 선호가 충돌하면 무엇이 달라지는지 드러내고 이번 작업의 권한 안에서 선택한다. 제품의 명시된 완료 약속을 이름만 좁혀 없애거나, 한 사례의 Hook·클래스·타이머 위치를 모든 Project에 강제하지 않는다. 작업에 사용한 기준과 그 조건은 Work에 남긴다.
 
-Noline에 적용할 때는 [Project 진입점](../project/README.md)에서 제품 계약과 현재 구현을 함께 찾는다. 타입·명명·중괄호·진단 출력은 [TypeScript 규약](../project/guidance/development-boundaries/schema-and-types.md), 폼은 [React Native Form](../../.claude/context/form.md), UI 공통화는 [컴포넌트 가이드](../project/guidance/development-boundaries/ui.md)와 [UI package 지침](../../packages/ui/CLAUDE.md)을 대조한다. Personal의 일반 기준이 기존의 더 엄격한 제품 규약을 해제하지 않는다.
+Noline에 적용할 때는 [Project 진입점](../project/README.md)에서 제품 계약과 현재 구현을 함께 찾는다. 타입·명명·중괄호·진단 출력은 [TypeScript 규약](../project/guidance/development-boundaries/schema-and-types.md), 폼은 [React Native Form](../project/guidance/writing-and-input/INDEX.md), UI 공통화는 [컴포넌트 가이드](../project/guidance/development-boundaries/ui.md)와 [UI package 지침](../../packages/ui/CLAUDE.md)을 대조한다. Personal의 일반 기준이 기존의 더 엄격한 제품 규약을 해제하지 않는다.
 
 오류 반환·전파와 재시도/UI 책임은 [API 계약](../project/guidance/api-contracts.md)과 해당 구현에서 확인한다. 일반 비동기 예시만으로 모든 함수에 catch·로그·null 반환을 도입하지 않는다. 서버 오류 정책의 열린 선택도 이 기준 추가만으로 확정하지 않는다. 동작 보존 변경에서는 [Noline 리팩터링 기준](../project/guidance/behavior-preserving-refactoring.md)을 함께 적용한다.
 

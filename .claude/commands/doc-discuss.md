@@ -35,8 +35,8 @@ const documentMap = {
   Component: ['packages/ui/CLAUDE.md', 'context/project/guidance/development-boundaries/ui.md'],
   API: ['apps/server/CLAUDE.md', '.claude/context/api-data.md'],
   Sync: ['context/project/guidance/data-lifecycle/INDEX.md'],
-  Time: ['.claude/context/time.md'],
-  Form: ['.claude/context/form.md'],
+  Time: ['context/project/common/date-and-time.md'],
+  Form: ['context/project/guidance/writing-and-input/INDEX.md'],
   // ... 등등
 };
 ```

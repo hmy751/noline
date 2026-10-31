@@ -37,15 +37,15 @@ const policyDocuments = [
   'context/project/guidance/development-boundaries/layers.md',
   'context/project/guidance/data-lifecycle/INDEX.md',
   'context/project/guidance/travel-access/INDEX.md',        // v3.0 Policy Layer
-  '.claude/context/time.md',
+  'context/project/common/date-and-time.md',
   '.claude/context/api-data.md',
   'context/project/guidance/development-boundaries/ui.md',
   '.claude/context/error-handling.md',
 
   // 기능별 가이드
   '.claude/context/currency.md',
-  '.claude/context/form.md',
-  '.claude/context/manual-input.md',
+  'context/project/guidance/writing-and-input/INDEX.md',
+  'context/project/guidance/writing-and-input/places.md',
   'context/project/guidance/offline-maps-and-routes/INDEX.md', // 준비·표시 관계
   'context/project/guidance/offline-maps-and-routes/map-packs.md',
   'context/project/guidance/offline-maps-and-routes/routes.md',
@@ -91,7 +91,7 @@ const policies: PolicyRule[] = [
     filePatterns: ['**/*.ts'],
     keywords: ['date', 'time', 'timestamp', 'Date', 'DateTime'],
     severity: 'medium',
-    source: '.claude/context/time.md:45-78',
+    source: 'context/project/common/date-and-time.md',
   },
   {
     name: 'Client-Side ID Generation',

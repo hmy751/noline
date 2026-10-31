@@ -1,3 +1,5 @@
+> 역사 보존 자료 — 2026-10-31에 현재 Owner를 Project로 옮겼다. 아래 본문은 당시 원본이며 현재 지침·일반 읽기 경로가 아니다. 명시적인 역사 조사·복구에만 사용한다.
+
 # 경비 초안 보존과 일정 연결의 독립성
 
 2026-10-02 사용자 논의에서 확정한 제품 선택이다. 현재 제한·소비 기준은 [Policy Architecture](../../context/project/guidance/travel-access/INDEX.md), 여행 데이터 관계는 [제품 기준](../../context/project/common/product.md)이 설명한다. 이 기록의 채택 상태는 구현·검증 완료나 사용자 acceptance를 뜻하지 않는다.
