@@ -12,7 +12,7 @@
 - [`context/work/`](../../../../../context/work/): Workspace collection과 Recover·Maintain·Verify·validation Harness
 - [Workspace 문서 작성과 갱신](../../DOCUMENT-WRITING.md): 내용 충분성·이유와 조건 보존·구성·편집의 canonical
 - [Maintainer 역할 설정](../../../harness/maintain/workspace-context-maintainer.toml): 수동 role과 자동 runner가 함께 읽는 모델·추론 수준
-- [`.claude/harness/README.md`](../../../../../.claude/harness/README.md): 기존 Noline AI harness와 새 운영 층의 관계
+- [루트 가이드](../../../../../CLAUDE.md): 프로젝트 진입·bridge와 공통 지침, [Maintain 연결 계약](../../../harness/maintain/SESSION-BINDING-AND-LIFECYCLE.md): host lifecycle과 공통 구현의 관계
 - [`.claude/skills/create-context-workspace/SKILL.md`](../../../../../.claude/skills/create-context-workspace/SKILL.md): 설치 이후 새 Workspace를 구성하는 Claude source skill
 - [`.agents/skills/create-context-workspace`](../../../../../.agents/skills/create-context-workspace): Codex skill bridge symlink
 - [`.codex/maintain.json`](../../../../../.codex/maintain.json): Codex·Claude Code가 함께 읽는 default-unbound explicit admission 설정

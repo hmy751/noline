@@ -3,7 +3,7 @@
   "workspace_id": "001-noline-context-harness-application",
   "claim": "Noline의 현재 지침·Context Harness regular input과 실행 시 관찰한 bridge·경로 구조가 정해진 구조 검사를 통과한다. 선언 파일 freshness는 이후 directory·symlink topology, Git index 또는 제품 동작을 증명하지 않는다.",
   "canonical_basis": [
-    ".claude/harness/README.md",
+    "CLAUDE.md",
     "context/README.md",
     "context/project/README.md",
     "context/work/workspaces/001-noline-context-harness-application/current/memory/spec/04-quality-and-completion.md"
@@ -15,7 +15,6 @@
       "--no-git-diff"
     ],
     "evidence_paths": [
-      ".claude/README.md",
       "context/project/guidance/development-boundaries/INDEX.md",
       "context/project/guidance/development-boundaries/README.md",
       "context/project/guidance/development-boundaries/_background/README.md",
@@ -144,7 +143,6 @@
       ".agents/skills/work-discussion/_background/evidence.md",
       ".agents/skills/work-discussion/_background/records/2026-10-21-selection-and-policy-application.md",
       ".agents/skills/work-discussion/_background/records/2026-10-30-existing-work-contract-adaptation.md",
-      ".claude/harness/README.md",
       "context/work/workspaces/002-code-readability-refactoring/records/2026-09-14-05-project-context-structure-reading-and-maintenance.md",
       "context/work/workspaces/002-code-readability-refactoring/records/2026-09-14-06-project-context-reference-insights-and-retest-direction.md",
       "context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md",

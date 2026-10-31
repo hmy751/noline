@@ -1,0 +1,30 @@
+{
+  "verify001": {
+    "workspace_id": "001-noline-context-harness-application",
+    "claim": "Noline의 현재 지침·Context Harness regular input과 실행 시 관찰한 bridge·경로 구조가 정해진 구조 검사를 통과한다. 선언 파일 freshness는 이후 directory·symlink topology, Git index 또는 제품 동작을 증명하지 않는다.",
+    "result": "fail",
+    "exit_code": 1,
+    "receipt": "workspaces/001-noline-context-harness-application/records/receipts/verify/verify-20261031T063730080905Z-1b9fd8b9150d4e0ab5403c7a2bbd4faa.json",
+    "status": "verification_failed",
+    "timed_out": false
+  },
+  "recover": {
+    "001-noline-context-harness-application": {
+      "exit_code": 0,
+      "packet_sha256": "6b3133ebe3d7e0207f80f9984227b30d864ac44afd615a1860c8483e9d81d260"
+    },
+    "002-code-readability-refactoring": {
+      "exit_code": 0,
+      "packet_sha256": "c4c52f7e8e2d4f0654861e778d41d43fc67ae1ee2d3affa98168510b3a37dc57"
+    },
+    "006-project-context-reconstruction": {
+      "exit_code": 0,
+      "packet_sha256": "ab0074b152f3768ce99bae6153af85ec3876e15af9d85020d395dd440f9ac07e",
+      "observed_after_current_update": true
+    }
+  },
+  "limits": [
+    "strict checker historical links64 fail; prior62 + old004current1 + original006survey output1",
+    "Recover exit0 is not Verify pass or user acceptance"
+  ]
+}

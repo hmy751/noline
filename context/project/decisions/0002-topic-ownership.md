@@ -7,7 +7,7 @@
 
 제품 목적·의미·현재 구조와 개발 기준은 Project의 대응 주제 본문에서 이해한다. 규칙의 적용 조건, 실패 위험과 변경 시 확인할 관계도 같은 주제에서 설명한다. 루트와 경로별 guide는 책임 경계·필요한 본문·명령으로 안내하고, 스킬은 작업의 판단·수행 방법을 맡는다. 중요한 선택 이유는 Project decisions나 해당 주제의 형성 자료에 남긴다.
 
-이 문서는 그 책임 배치를 선택한 이유와 이전 구조의 변천을 보존한다. 실제 제품 계약은 [Project 주제별 입구](../README.md), 구성·이동 기준은 [REFERENCE](../REFERENCE/README.md)와 [관리 계약](../MAINTENANCE.md), 실행층과 bridge는 [Noline AI Harness](../../../.claude/harness/README.md)가 소유한다. Work의 진행·시행착오·검증 이력과 스킬의 수행 책임을 Project Decision으로 옮기지 않는다.
+이 문서는 그 책임 배치를 선택한 이유와 이전 구조의 변천을 보존한다. 실제 제품 계약은 [Project 주제별 입구](../README.md), 구성·이동 기준은 [REFERENCE](../REFERENCE/README.md)와 [관리 계약](../MAINTENANCE.md), 공통 수행은 [스킬](../../../.agents/skills/README.md), 프로젝트 진입과 bridge 기준은 [루트 가이드](../../../CLAUDE.md), Maintain 연결은 [Work 계약](../../work/harness/maintain/SESSION-BINDING-AND-LIFECYCLE.md)이 소유한다. Work의 진행·시행착오·검증 이력과 스킬의 수행 책임을 Project Decision으로 옮기지 않는다.
 
 ## 작은 입구와 분리된 상세로 시작했던 이유
 

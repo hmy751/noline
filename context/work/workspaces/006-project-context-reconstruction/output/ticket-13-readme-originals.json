@@ -1,0 +1,17 @@
+{
+  "role": "삭제 직전 원문의 Git 재접근 경로. 현재 지침이 아니다.",
+  "files": [
+    {
+      "path": ".claude/README.md",
+      "commit": "7e5dd4298a1a2a40d61621bd86abb4f08e3a379c",
+      "git_blob": "af0a8eec360d17ffb8c39352d2ed4a1c6ed234bf",
+      "sha256": "9f9f36fb5a0c18cfa79c72e538021e7f4ac2d1811be1b23ea3a7d367bb943f1f"
+    },
+    {
+      "path": ".claude/harness/README.md",
+      "commit": "7e5dd4298a1a2a40d61621bd86abb4f08e3a379c",
+      "git_blob": "d3fe42484897d50c9ed0dc2bfa0547bb06d72381",
+      "sha256": "15e6adf86050d5c51f6073a348795addd816dd4d0a4dc14eeced2b57969662ad"
+    }
+  ]
+}

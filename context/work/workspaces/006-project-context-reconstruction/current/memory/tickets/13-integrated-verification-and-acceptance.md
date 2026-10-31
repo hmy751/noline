@@ -34,8 +34,20 @@ Ticket 09–12의 자체 검증이 끝난 뒤 마지막에 실행한다. 새 내
 - 001 구조 검사는 역사 링크 62건으로 실패했고, 002 client noEmit 타입 검사는 좌표·Mapbox·UI package rootDir 관련 제품 오류로 실패했다. 두 실패는 새 append-only receipt와 `verification_failed` 상태로 남겼다.
 - 그 뒤 001·002·006 Recover는 모두 exit 0이었다. 001·002의 receipt freshness가 fresh라는 사실은 입력 일치이며 검사 통과가 아니다.
 
-이 대조 뒤 남은 `.claude/README.md`, `.claude/harness/README.md`, `.claude/_archive`의 역할과 기존 배치 필요성을 다시 검토했다. 두 README의 탐색·Owner·보존 설명은 루트 가이드와 Context에 상당 부분 중복되고, 필요한 host 연결은 settings·hook·skills symlink로 한정할 수 있다는 판단이다. 사용자는 이 판단을 기록하고 변경을 차례로 진행하라고 했다.
+Main 보고에 따르면 Ticket 12·13 결과, 검증 실패와 한계, 배치 재검토 이유 및 다음 순서는 commit `7e5dd42`에 보존됐다. 관련 없는 Personal 변경과 `.pnpm-store`는 이 커밋에서 제외됐다.
 
-다음 실행은 현재 Ticket 12·13 결과를 중간 커밋으로 보존한 뒤, 두 README의 유효한 공통 내용을 기존 Owner에 통합하고 제거 가능성을 확인하며 archive를 root 보존 경계로 옮기는 것이다. 그다음 프로젝트 root·하위 `CLAUDE.md` 계층을 정리한다. 전역 `CLAUDE.md` 개편은 여러 Project에 영향을 주므로 별도 작업으로 구분하며 006 종료의 선행 조건으로 삼지 않는다.
+사용자가 내용을 남기기 전에 필요성과 더 나은 배치를 먼저 판단하라고 요청한 뒤, 두 README의 내용을 넓게 이관한다는 앞선 접근을 다시 검토했다. Main은 다음과 같이 판단했다.
+
+- `.claude/README.md`의 제품 탐색·Context 사용·스킬 선택·경로별 작업 안내는 기존 Project·USAGE·스킬 색인·경로별 가이드와 중복되므로 별도 이관 없이 제거하는 편이 낫다.
+- `.claude/harness/README.md`의 레이어·Owner, bridge, 스킬 연결, Maintain 상세도 기존 루트·Context·Project·스킬 색인·Work 계약이 이미 맡는다.
+- 제거 뒤 실제로 빠지는 공통 기준만 기존 Owner에 짧게 보완한다. 실제 보완한 내용은 프로젝트 commit 메시지 기준, 하네스 구조·연결 변경 뒤 `harness:check`를 실행할 조건, 하위 가이드가 자기 경로의 책임만 맡는 경계다.
+- 반복·비용이 큰 실패만 하네스화한다는 조건, 반복 사용 뒤에만 실행자를 추가한다는 조건, 모든 agent를 report-only로 일반화하는 표현, 막연한 최종 bridge drift 점검은 현재 기준으로 그대로 유지하지 않는다.
+- 새 관리 문서는 만들지 않으며, 두 README를 통째로 축약하거나 복제하지 않는다. 제거할 때 직접 링크, Verify 입력과 검사기가 요구하는 경로를 함께 전환한다.
+
+사용자는 이 판단안을 채택했고 Main은 적용을 완료했다. [두 README 통합 결과](../../../output/ticket-13-readme-integration.md)에서 실제 반영·제외와 원문 재접근을 확인한다. 두 파일은 제거됐고 root·Context·Project의 직접 연결, 001 output·Verify 입력, 006 source 색인과 검사기를 맞췄다. 원문은 삭제 직전 commit의 Git blob·SHA-256으로 재접근할 수 있다. 독립 개선 검토는 의미 누락이나 과도한 이관을 찾지 못했다.
+
+현재 strict 검사는 역사 링크 64건으로 실패한다. 앞선 62건에 004 당시 current와 006 최초 조사 지도에 남은 옛 Document Map 링크 각 1건이 더해졌다. 001의 실제 Verify 실패는 새 receipt로 남겼고, 이후 001·002·006 Recover는 모두 성공했다. 실패를 pass나 전체 수락으로 보고하지 않는다. 별도 검증에서 발견한 current의 미적용 표시는 이번 갱신으로 실제 결과에 맞췄다.
+
+다음 단계는 `.claude/_archive`의 root 보존 경계 이동이며, 그 뒤 프로젝트 root·하위 `CLAUDE.md` 계층을 정리한다. 전역 개편은 별도 작업으로 구분하고 006 종료의 선행 조건으로 삼지 않는다.
 
 006 전체 사용자 수락은 아직 받지 않았다. 로컬 배치 정리와 프로젝트 `CLAUDE.md` 단계의 결과·검증 한계를 제시한 뒤 별도로 판단받는다.

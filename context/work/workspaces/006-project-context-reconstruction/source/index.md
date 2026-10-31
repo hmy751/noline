@@ -11,7 +11,7 @@
 | [002 산출물](../../002-code-readability-refactoring/output/index.md) · [002 Ticket](../../002-code-readability-refactoring/current/memory/tickets/index.md) · [002 기록](../../002-code-readability-refactoring/records/README.md) | 작업 전체를 펼친 후 주제별 구현·선택 이유·검증 근거와 후속 수정을 찾는다. 과거 pass를 현재 사실로 올리지 않는다. |
 | [004 제품 질문과 선택](../../004-project-context-contracts-and-guidance/current/memory/tickets/01-product-contract-agreements.md) · [004 산출물](../../004-project-context-contracts-and-guidance/output/index.md) · [004 source](../../004-project-context-contracts-and-guidance/source/index.md) | 논의 방식, 이미 이관한 내용과 당시 미결 질문을 살핀다. 현재성은 이후 기록·코드에 대조한다. |
 | [005 산출물](../../005-context-based-code-improvement/output/index.md) · [005 종료 기록](../../005-context-based-code-improvement/records/2026-10-30-17-workspace-close-and-next-discussion.md) | 기존 보완 내용·근거의 재사용과 종료의 의미를 확인한다. 후속 방향에 대한 추가 발화는 위 사용자 원문에 있다. |
-| [기존 문서 지도](../../../../../.claude/README.md) | 제품 설명·결정·기록·실행 지침·archive의 역할을 구별하며 수집을 시작한다. |
+| [옛 문서 지도·하네스 원문 재접근](../output/ticket-13-readme-integration.md#원문과-역사-참조) | 제거된 두 README를 조사 자료로 다시 읽을 때 commit·원래 경로·해시를 확인한다. 현재 개발은 root·Project·Work·스킬의 각 Owner에서 시작한다. |
 | [루트 가이드](../../../../../CLAUDE.md) · [client](../../../../../apps/client/CLAUDE.md) · [server](../../../../../apps/server/CLAUDE.md) · [schema](../../../../../packages/schema/CLAUDE.md) · [UI](../../../../../packages/ui/CLAUDE.md) | 최초 대응 조사부터 현재 의미·경로별 기준·Project 연결을 대조한다. 각 위치의 `AGENTS.md`와 주변 README도 포함하며 유지·보완·통합·이관할 내용을 판단한다. |
 | [Project 진입점](../../../../project/README.md) | 현재 본문의 내용·구성·Owner와 자료의 대응을 살핀다. 현재 본문을 source로 복제하지 않는다. |
 

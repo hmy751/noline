@@ -13,7 +13,7 @@
   - [apps/server/CLAUDE.md](./apps/server/CLAUDE.md)
   - [packages/schema/CLAUDE.md](./packages/schema/CLAUDE.md)
   - [packages/ui/CLAUDE.md](./packages/ui/CLAUDE.md)
-- 하네스 구조와 tool bridge 규칙은 [Noline AI Harness](./.claude/harness/README.md)를 따른다.
+- 도구별 연결은 같은 공통 본문을 가리키거나 host 차이만 적응한다. 연결을 바꿀 때 원본·adapter·의도적인 차이를 구별하고 양쪽 소비 경로를 확인한다.
 - 작업의 지속 상태와 선택된 Project context는 root [Context Harness](./context/README.md)를 따른다. 제품 의미·현재 구조·개발 기준과 필요한 선택 이유는 [`context/project/`](./context/project/README.md)의 대응 문서가 소유한다. 옛 제품 원본은 일반 읽기에서 제외했다.
 - 실행층은 [운영 skill 색인](./.agents/skills/README.md)에서 찾는다. `.claude/settings.json`과 `.codex/hooks.json`은 각각의 host lifecycle을 explicit-unbound Maintain adapter에 연결한다. 제품 기준 본문은 Project의 주제별 Owner가 소유하며, 실행층은 필요한 본문을 직접 선택한다.
 
@@ -21,8 +21,8 @@
 
 | 필요 | 읽을 문서 |
 | --- | --- |
-| `.claude` 자료 역할 파악 | [Document Map](./.claude/README.md) |
-| 하네스/bridge 작업 | [Noline AI Harness](./.claude/harness/README.md) |
+| 스킬 원본·host 발견 경로 | [공통 스킬 연결](./.agents/skills/README.md#도구-연결과-이식) |
+| Maintain·host lifecycle 연결 | [session binding 계약](./context/work/harness/maintain/SESSION-BINDING-AND-LIFECYCLE.md) |
 | 현재 작업 복구·새 Context Workspace | [Context Harness](./context/README.md) |
 | 코드 수정에 적용할 제품 기준 | [제품 개발 기준](context/project/guidance/README.md) |
 | 깊은 아키텍처/기능 맥락 | [Noline Project context](./context/project/README.md) |
@@ -93,7 +93,6 @@ noline/
 │   ├── eslint-config/   # Shared lint config
 │   └── typescript-config/ # Shared TypeScript config
 ├── .claude/
-│   ├── harness/         # AI/developer harness and bridge model
 │   ├── skills -> ../.agents/skills/ # Claude skill 연결
 │   └── _archive/        # Deprecated historical material
 ├── .agents/skills/      # 공통 스킬 원본과 Codex 발견 경로
@@ -138,10 +137,18 @@ pnpm harness:check
 - 제품 계약·개발 기준·실패 위험과 적용·검증 방법은 `context/project/`의 같은 주제 본문에서 관리한다.
 - 깊은 아키텍처·기능·선택 이유는 `context/project/`의 대응 본문과 형성 자료가 소유한다. 옛 `.claude/context/`·제품 결정·그 archive를 현재 읽기의 필수 경로로 되살리지 않는다.
 - root `context/`는 Project context와 Workspace 운영 상태의 별도 층이다. 기본적으로 기존 제품 설명을 복제하지 않으며, 승인된 주제별 Owner 이동은 [Project 관리 계약](./context/project/MAINTENANCE.md)에 따라 유효한 의미와 authority를 함께 전환한다.
-- 기존 history, session, reference, archive 문서를 삭제하거나 현재 정책처럼 고치기 전에 [Document Map](./.claude/README.md)에서 역할을 확인한다.
+- 역사 자료를 정리할 때 해당 Owner의 관리 계약과 실제 소비 경로를 확인한다. 당시 기록·원문과 현재 기준을 구별한다.
 - active guide와 코드가 충돌하면 코드를 확인하고 active guide만 최소 수정한다.
 - 제품 선택의 이유는 Project의 대응 본문·형성 자료나 `context/project/decisions/`에, 실행 방식의 형성 이유는 해당 스킬·관리 본문 가까이에, 이번 작업의 선택·검증은 Work 기록에 남긴다.
 - skill은 호출 조건·판단·수행 방법을 소유하고, 제품 정책과 지속 context의 관리 계약은 owning docs에 남긴다. agent는 report-only 실행자로 유지한다.
+
+하위 app/package 가이드는 해당 경로의 구현 책임·위험 경계·명령과 필요한 Project 본문 선택을 안내한다. 제품 상세는 Project, 이번 작업의 조사·검증은 Work에 두며 가이드에 중복 축적하지 않는다.
+
+지침·문서 Owner·bridge·스킬 연결을 바꾼 뒤에는 `pnpm harness:check`를 실행한다. 이는 경로·연결·형식 검사이며 의미 충분성이나 실제 host 호출 성공은 별도로 확인한다.
+
+## 커밋 메시지
+
+새 커밋은 변경의 책임과 의도를 추적하도록 가능한 한 `type(scope): summary` 형태를 사용한다. runtime 변경은 `client`·`server`·`schema`·`ui`, 문서 변경은 `context`·`harness`·`readme`·`archive`처럼 가장 작은 유효 scope를 고른다. 여러 workspace에 걸친 기능은 `auth` 같은 domain scope를 사용할 수 있고, repo 전체 변경이거나 유용한 scope가 없으면 생략할 수 있다. 기존 이력은 이 기준에 맞춰 다시 쓰지 않는다.
 
 ## Context Harness 운영 진입
 

@@ -14,7 +14,7 @@
 - 관련 작업에서 필요한 Project 본문을 선택하고 적용할 때: [USAGE](USAGE.md)와 [Project 읽기 기준](project/REFERENCE/reading.md)
 - Project context를 작성·복원·갱신할 때: [`project/MAINTENANCE.md`](project/MAINTENANCE.md)의 내용 충분성·변경·관리 기준
 - 현재 작업을 복구하거나 Workspace·Harness를 다룰 때: [`work/README.md`](work/README.md)
-- Noline의 구현 규칙·깊은 맥락을 찾을 때: root [`CLAUDE.md`](../CLAUDE.md)와 [`.claude/README.md`](../.claude/README.md)
+- Noline의 구현 규칙·깊은 맥락을 찾을 때: root [`CLAUDE.md`](../CLAUDE.md)와 [Project 주제별 본문](project/README.md)
 
 Harness를 제거하거나 다른 실행 장치로 바꾸더라도 Project common context와 각 Workspace의 README·`current/`·`source/`·`output/`·`records/` 의미는 남아야 한다.
 
