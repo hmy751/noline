@@ -1,6 +1,6 @@
 # Ticket 06 — 작성·입력·날짜 재구성
 
-상태: 완료. 2026-10-31, 작성·입력과 날짜의 기존 본문·결정을 실제 부모 소비자, 코드와 저장 경계에 대조해 Project로 이관하고 독립 검토·검증을 마쳤다. 이 완료는 문서 이관 범위이며 확인한 제품 차이의 수정, 전체 client·server test나 실제 앱 검증, 006 전체 이관 완료를 뜻하지 않는다. 이번 변경은 아직 커밋하지 않았다.
+상태: 완료. 2026-10-31, 작성·입력과 날짜의 기존 본문·결정을 실제 부모 소비자, 코드와 저장 경계에 대조해 Project로 이관하고 독립 검토·검증을 마쳤다. 이 완료는 문서 이관 범위이며 확인한 제품 차이의 수정, 전체 client·server test나 실제 앱 검증, 006 전체 이관 완료를 뜻하지 않는다. 작업과 Workspace 기록은 분리해 커밋했다.
 
 ## 맡은 결과와 범위
 
@@ -41,4 +41,4 @@ Ticket 05에서 UI adapter·picker 책임과 폼 전체 수명을 분리한 뒤,
 
 Main 결과 문서에 따르면 중복 실행을 제외한 기존 client 16 suites·175 tests와 server 8 suites·57 tests가 통과했고, 실제 RHF·Policy와 대역 mutation·Drawer·picker를 사용한 임시 probe 4개도 통과했다. 변경 문서 상대 링크 594개, `git diff --check`, 관련 explicit·default Recover와 원본 보존·대표 읽기 검증도 통과했다. 독립 검토·검증은 필수 수정이나 Ticket 06 범위의 blocking 발견을 남기지 않았다.
 
-검사는 전체 client·server suite, 실제 native 앱, PostgreSQL·JWT, 서버 저장 성공이나 실제 network 단절·재접속 sync를 입증하지 않는다. 임시 probe는 저장소의 지속 테스트로 추가되지 않았다. 전체 Harness 검사는 역사 링크 오류 37건 때문에 실패했고 default 001 Verify 선언의 기존 누락 입력 8개도 남아 있다. 제품 코드와 지속 테스트는 변경하지 않았고 Ticket 06 변경은 아직 커밋하지 않았다. 다음 문서 이관은 Ticket 07의 통화·API·오류다.
+검사는 전체 client·server suite, 실제 native 앱, PostgreSQL·JWT, 서버 저장 성공이나 실제 network 단절·재접속 sync를 입증하지 않는다. 임시 probe는 저장소의 지속 테스트로 추가되지 않았다. 전체 Harness 검사는 역사 링크 오류 37건 때문에 실패했고 default 001 Verify 선언의 기존 누락 입력 8개도 남아 있다. 제품 코드와 지속 테스트는 변경하지 않았다. Ticket 06 작업은 `57dd61d`, Workspace 기록은 `6d95e18`로 분리해 커밋했으며 후속 통화·API·오류 이관은 Ticket 07에서 이어졌다.
