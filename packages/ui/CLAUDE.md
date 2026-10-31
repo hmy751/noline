@@ -1,19 +1,19 @@
 # Noline UI Package Guide
 
-> `@repo/ui` pure primitive harness entrypoint.
+> `@repo/ui` 공유 UI primitive의 코드 경로 안내.
 
 ## Overview
 
 `@repo/ui`는 비즈니스 로직 없는 React Native UI primitive 패키지다. 앱 조합 컴포넌트와 screen workflow는 `apps/client`가 소유한다.
 
-## Harness Role
+## 이 가이드의 책임
 
-이 파일은 `packages/ui`를 수정할 때 AI 작업자가 먼저 읽는 path-scoped 실행 가이드다. 목적은 pure primitive 경계와 앱 composition 경계를 빠르게 잡는 것이고, 디자인 시스템 문서를 길게 보존하는 것이 아니다.
+이 파일은 `packages/ui`를 수정할 때 primitive와 앱 조합의 책임 경계·명령과 필요한 Project 본문을 안내한다. 개발 수행과 저장소 공통 규칙은 [루트 가이드](../../CLAUDE.md)에서 연결한다.
 
 - `packages/ui/CLAUDE.md`가 UI package guide의 원천이다.
 - `packages/ui/AGENTS.md`는 이 파일을 가리키는 Codex bridge symlink다. 별도 정책 원천처럼 수정하지 않는다.
 - 작업에 필요한 본문은 아래 Start Here에서 직접 선택한다. 본문별 적용 조건에 따라 필요한 내용만 추가로 읽는다.
-- policy UI, form composition, domain UI는 이 파일에 누적하지 않고 client/context owner로 보낸다.
+- policy UI·form composition·domain UI의 구현은 client가 맡고, 제품 계약과 UI 조합 기준은 Project의 해당 주제 본문이 소유한다. 아래 Component Boundary는 primitive 변경에서 놓치기 쉬운 경계의 요약이며 상세 조건·예외·검증 방법은 연결한 Project 본문에서 관리한다.
 
 ## Start Here
 
@@ -26,7 +26,7 @@
 
 ## Ownership
 
-| Area | UI package가 소유하는 것 | 다른 owner로 보낼 것 |
+| 코드 영역 | 이 경로의 구현 책임 | 관련 계약·다른 코드 영역 |
 | --- | --- | --- |
 | `src/components/*` | domain-free primitive and shell components | Trip/Schedule/Expense UI |
 | `src/lib/utils.ts` | className/style utility | app business helper |
@@ -56,6 +56,8 @@ packages/ui/src/
 pnpm --filter @repo/ui lint
 pnpm harness:check
 ```
+
+공개 컴포넌트의 props·export를 바꾸면 실제 client 소비자를 확인하고 [client 가이드](../../apps/client/CLAUDE.md)의 타입·관련 렌더링 검사를 선택한다.
 
 ## Update Rule
 

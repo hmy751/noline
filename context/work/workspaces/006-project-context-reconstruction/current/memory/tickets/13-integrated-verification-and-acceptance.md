@@ -46,14 +46,14 @@ Main 보고에 따르면 Ticket 12·13 결과, 검증 실패와 한계, 배치 �
 
 사용자는 이 판단안을 채택했고 Main은 적용을 완료했다. [두 README 통합 결과](../../../output/ticket-13-readme-integration.md)에서 실제 반영·제외와 원문 재접근을 확인한다. 두 파일은 제거됐고 root·Context·Project의 직접 연결, 001 output·Verify 입력, 006 source 색인과 검사기를 맞췄다. 원문은 삭제 직전 commit의 Git blob·SHA-256으로 재접근할 수 있다. 독립 개선 검토는 의미 누락이나 과도한 이관을 찾지 못했다.
 
-현재 strict 검사는 역사 링크 64건으로 실패한다. 앞선 62건에 004 당시 current와 006 최초 조사 지도에 남은 옛 Document Map 링크 각 1건이 더해졌다. 001의 실제 Verify 실패는 새 receipt로 남겼고, 이후 001·002·006 Recover는 모두 성공했다. 실패를 pass나 전체 수락으로 보고하지 않는다. 별도 검증에서 발견한 current의 미적용 표시는 이번 갱신으로 실제 결과에 맞췄다.
+두 README 정리 당시 strict 검사는 역사 링크 64건으로 실패했다. 앞선 62건에 004 당시 current와 006 최초 조사 지도에 남은 옛 Document Map 링크 각 1건이 더해졌다. 001의 실제 Verify 실패는 새 receipt로 남겼고, 이후 001·002·006 Recover는 모두 성공했다. 실패를 pass나 전체 수락으로 보고하지 않는다. 별도 검증에서 발견한 current의 미적용 표시는 이번 갱신으로 실제 결과에 맞췄다.
 
 두 README 적용 결과와 기록은 사용자 요청에 따라 commit `db1a4bb`에 보존했다. 이어 archive 124개 파일을 바이트·원래 경로·기존 manifest를 유지해 root `_archive`로 이동했다. [Archive 이동 결과](../../../output/ticket-13-archive-result.md)와 경로표에서 실제 이동과 현재·역사 참조를 구별한다. 현재 스킬·output·검증 선언·checker는 root 위치를 사용하며 날짜별 Work records와 기존 receipt는 수정하지 않았다.
 
-strict 실패는 65건이다. 앞선 64건에 001 날짜별 기록의 옛 archive 링크 1건이 추가됐다. 001의 전환된 regular 입력으로 실제 Verify 실패 receipt를 만들었고 live 소비자 001·002·006 Recover는 모두 성공했다. 원문 해시와 이동 경로표로 재접근하며 검사 예외를 늘리지 않는다. archive 이동·참조 전환·검증 결과와 Work 기록은 사용자 요청에 따라 commit `19b5c7a`에 보존됐다. 관련 없는 Personal 변경과 `.pnpm-store`는 이 커밋에서 제외됐다.
+archive 이동 직후 strict 실패는 65건이었다. 앞선 64건에 001 날짜별 기록의 옛 archive 링크 1건이 추가됐다. 001의 전환된 regular 입력으로 실제 Verify 실패 receipt를 만들었고 live 소비자 001·002·006 Recover는 모두 성공했다. 원문 해시와 이동 경로표로 재접근하며 검사 예외를 늘리지 않는다. archive 이동·참조 전환·검증 결과와 Work 기록은 사용자 요청에 따라 commit `19b5c7a`에 보존됐다. 관련 없는 Personal 변경과 `.pnpm-store`는 이 커밋에서 제외됐다.
 
 로컬 CLAUDE 정리는 [Ticket 14](14-local-project-guides-and-workflow-boundaries.md)로 분리했다. 루트·하위 가이드의 프로젝트 고유 안내를 유지하고 development·Context와의 중복·충돌 및 오래된 사실을 정리하는 적용·확인은 14가 맡는다. 이 Ticket은 그 결과를 포함해 전체 목표와 읽기·도구 연결을 대조한다. 기존 README·archive 정리 결과는 그대로 유효하다.
 
-초기 루트 구성안의 과도한 수행 책임과 development 재검토에 따른 교정 이유는 [논의 기록](../../../records/2026-10-31-11-claude-guide-scope-and-development-boundary.md)에 보존했다. 이번에 실제로 완료한 것은 티켓·기록 분리이며 지침 적용은 아직 시작하지 않았다.
+초기 루트 구성안의 과도한 수행 책임과 development 재검토에 따른 교정 이유는 [논의 기록](../../../records/2026-10-31-11-claude-guide-scope-and-development-boundary.md)에 보존했다. 이후 로컬 지침의 적용·독립 검토·별도 검증까지 완료했다. [Ticket 14 결과](../../../output/ticket-14-local-guides-result.md)에서 실제 문안·책임 경계 보완과 근거를 확인한다.
 
-14의 적용·자체 확인 뒤 전체 검증과 사용자 수락 판단을 이어간다. 전역 개편은 별도 작업이며 006 종료의 선행 조건이 아니다. 006 전체 사용자 수락은 아직 받지 않았다.
+14의 최신 문안은 별도 재검증을 마쳤으며, 이 Ticket에서 앞선 전체 결과와 현재 검증 근거를 다시 대조한다. 최신 checker 직접 실행은 기존 64건으로 실패했고 신규 오류는 없다. 006 활성 output의 깨진 README 연결 1건을 복구한 결과이며 전체 검사 통과는 아니다. 전역 개편은 별도 작업이며 006 종료의 선행 조건이 아니다. 006 전체 사용자 수락은 아직 받지 않았다.

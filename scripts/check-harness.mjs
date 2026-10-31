@@ -359,8 +359,8 @@ function checkWorkspaceGuideContract() {
 
   for (const [guide, maxLines] of Object.entries(workspaceGuides)) {
     const text = fs.readFileSync(path.join(root, guide), 'utf8');
-    if (!text.includes('## Harness Role')) {
-      failures.push(`${guide} must document its path-scoped Harness Role`);
+    if (!text.includes('## 이 가이드의 책임')) {
+      failures.push(`${guide} must document its path-scoped guide responsibility`);
     }
     if (!text.includes('AGENTS.md')) {
       failures.push(`${guide} must state the local AGENTS.md bridge boundary`);

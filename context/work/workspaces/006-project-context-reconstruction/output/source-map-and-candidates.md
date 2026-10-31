@@ -129,7 +129,7 @@ API guidance는 Schedule의 접근·직렬화와 새 입수 검사를 다루지�
 
 아래 옛 문서 링크는 006의 이관 조사와 그 판단을 재검토하기 위한 원자료 경로다. 최종 Project의 개발 읽기 경로로 재사용하지 않는다. 원본의 격리·제거 결과는 주제별 결과에 남긴다.
 
-- [기존 문서 지도](../../../../../.claude/README.md)
+- 첫 조사 때 읽은 `.claude/README.md`는 제거됐다. [삭제 전 원문 식별자](ticket-13-readme-originals.json)로 당시 자료에 재접근하며, 현재 지침의 진입은 [루트 가이드](../../../../../CLAUDE.md)가 맡는다.
 - [현재 Project 진입](../../../../project/README.md)
 - [제품 본문](../../../../project/common/product.md)
 - [현재 구조](../../../../project/current/architecture.md)

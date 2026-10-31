@@ -38,6 +38,7 @@
 | [Archive 이동 경로표와 해시](ticket-13-archive-move-manifest.json) | 124개 파일의 old_path·new_path·SHA와 기준 commit을 대조할 때 |
 | [Archive 이동 검사 원문](ticket-13-archive-check.txt) | strict 검사 65건 실패와 새 역사 링크 1건을 확인할 때 |
 | [Archive 이동 Verify·Recover](ticket-13-archive-verification.json) | 001 실제 실패 receipt와 live 소비자 재진입 결과를 확인할 때 |
+| [Ticket 14 로컬 프로젝트 가이드 정리 결과](ticket-14-local-guides-result.md) | 루트와 하위 CLAUDE 가이드의 책임 정리, development·Context와의 경계, 독립 검토·별도 검증, 최신 64건 검사 한계와 Ticket 13으로 넘길 범위를 확인할 때 |
 
 현재 제품 설명은 [제품 기준](../../../../project/common/product.md), [여행 접근](../../../../project/guidance/travel-access/INDEX.md), [선택 이유](../../../../project/decisions/0001-selective-local-first.md), [저장·동기화·정리](../../../../project/guidance/data-lifecycle/INDEX.md), [지도·경로](../../../../project/guidance/offline-maps-and-routes/INDEX.md), [구조·UI·schema](../../../../project/guidance/development-boundaries/INDEX.md), [작성·입력](../../../../project/guidance/writing-and-input/INDEX.md), [날짜와 시각](../../../../project/common/date-and-time.md)과 [통화](../../../../project/common/currency.md)·[API](../../../../project/guidance/api-contracts.md)·[오류](../../../../project/guidance/error-handling.md), 가까운 형성 자료가 소유한다. 이 폴더는 그 본문을 복제하지 않고 조사·검토 결과를 남긴다.
 

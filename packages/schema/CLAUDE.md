@@ -1,19 +1,19 @@
 # Noline Schema Package Guide
 
-> `@repo/schema` contract harness entrypoint.
+> `@repo/schema` 공유 계약의 코드 경로 안내.
 
 ## Package Purpose
 
 `@repo/schema`는 client/server가 공유하는 Zod contract의 원천이다. 공유 shape는 schema에서 정의하고 TypeScript type은 `z.infer`로 추론한다. 각 사용처의 추론이 기본이며 `AuthProvider`처럼 schema에서 추론해 export하는 현재 타입도 있다. 타입 추론은 런타임 검증을 실행하지 않는다.
 
-## Harness Role
+## 이 가이드의 책임
 
-이 파일은 `packages/schema`를 수정할 때 AI 작업자가 먼저 읽는 path-scoped 실행 가이드다. 목적은 contract blast radius를 빠르게 잡는 것이고, Zod 전체 사용법을 가르치는 것이 아니다.
+이 파일은 `packages/schema`를 수정할 때 공유 계약의 변경 영향·소비 경계·명령과 필요한 Project 본문을 안내한다. 개발 수행과 저장소 공통 규칙은 [루트 가이드](../../CLAUDE.md)에서 연결한다.
 
 - `packages/schema/CLAUDE.md`가 schema package guide의 원천이다.
 - `packages/schema/AGENTS.md`는 이 파일을 가리키는 Codex bridge symlink다. 별도 정책 원천처럼 수정하지 않는다.
 - 작업에 필요한 본문은 아래 Start Here에서 직접 선택한다. 본문별 적용 조건에 따라 필요한 내용만 추가로 읽는다.
-- schema 변경은 client/server 양쪽에 영향을 준다. 아래의 공유 계약과 실제 요청·응답·저장 소비자를 변경 범위에 맞춰 대조한다.
+- schema 변경은 client/server 양쪽에 영향을 준다. 아래 계약 경계는 공유 계약 변경에서 놓치기 쉬운 기준의 요약이며 상세 조건·예외·검증 방법은 연결한 Project 주제 본문에서 관리한다. 실제 요청·응답·저장 소비자를 변경 범위에 맞춰 대조한다.
 
 ## Start Here
 
@@ -28,13 +28,14 @@
 
 ## Ownership
 
-| Area | Schema package가 소유하는 것 | 다른 owner로 보낼 것 |
+| 코드 영역 | 이 경로의 구현 책임 | 관련 계약·다른 코드 영역 |
 | --- | --- | --- |
 | `src/entities/*` | 공유 entity shape (물리 DB 표현과 직렬화는 별도) | local/remote routing은 client repository |
+| `src/primitives/datetime.ts` | 공유 datetime 검증 표현 | 필드별 날짜·시점 의미는 Project, 표시는 client util |
 | `src/requests/*` | API request payload validation | form-only local state는 client feature |
-| `src/responses/*` | API response wrapper and data shape | HTTP status/error handling은 server |
+| `src/responses/*` | API response wrapper and data shape. 공통 envelope 정의는 `_envelope.ts` | HTTP status/error handling은 server |
 | `src/sync/*` | sync payload/status contract | client queue mechanics와 server transaction flow |
-| `src/index.ts` | public export surface | workspace-specific import style |
+| `src/index.ts`·`package.json`·`tsup.config.ts` | 공개 export와 소비할 빌드 진입 | app별 호출·저장 처리는 client/server |
 
 ## Contract Rules
 
@@ -49,6 +50,7 @@
 ```text
 packages/schema/src/
 ├── entities/
+├── primitives/       # datetime 검증
 ├── requests/
 ├── responses/
 ├── sync/
@@ -62,7 +64,7 @@ pnpm schema build
 pnpm harness:check
 ```
 
-schema 변경이 API route나 client data hook까지 닿으면 `pnpm server typecheck`, `pnpm server build`, `pnpm client lint`도 고려한다.
+schema 변경이 API route나 client data hook까지 닿으면 `pnpm server typecheck`, `pnpm server build`, `pnpm client test:typecheck`와 관련 client/server 테스트도 고려한다. `build`는 schema 빌드·선언 생성을 확인하며 실제 payload의 런타임 검증을 대신하지 않는다.
 
 ## Update Rule
 

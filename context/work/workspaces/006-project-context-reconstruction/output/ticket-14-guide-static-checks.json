@@ -1,0 +1,672 @@
+{
+  "scope": "Ticket14 static checks, no product/host execution claim",
+  "head": "961de724a92fdf59af5f10f3f7d67e4a9b643552",
+  "files": [
+    {
+      "path": "CLAUDE.md",
+      "sha256": "2819117e151c7dc96861b1dda63f1cbcc3bfe18845d767b767113696293af639"
+    },
+    {
+      "path": "apps/client/CLAUDE.md",
+      "sha256": "8a8bb7431221bc6ed779be71d166c8a2a6fd49b8bddf5fda20c67b171db5c3fe"
+    },
+    {
+      "path": "apps/server/CLAUDE.md",
+      "sha256": "abbf709c97fa3f6604d9b32ae6cffd8af5cb9d323b49ef79e7969130db661d1d"
+    },
+    {
+      "path": "packages/schema/CLAUDE.md",
+      "sha256": "37f3dad104be7d391744d3dedd1945b746bdf5ea475eca69a867721671d8e3a9"
+    },
+    {
+      "path": "packages/ui/CLAUDE.md",
+      "sha256": "995e62e88538de99b3228a70acacb39ae4dcaa4890288fa150f4cc535b4f13b5"
+    },
+    {
+      "path": "scripts/check-harness.mjs",
+      "sha256": "e34e9d6497a49242a853ff3946101539372b117b3e2d3bd048909aa132cd699e"
+    },
+    {
+      "path": "context/project/current/architecture.md",
+      "sha256": "b1c217a91cf31d9fab92f9e5839a18861b9aeff68829cbb976abd4f2d35a6ea0"
+    },
+    {
+      "path": "context/work/workspaces/006-project-context-reconstruction/output/source-map-and-candidates.md",
+      "sha256": "51202f2c941c0ec482db4b6ef87fd6616c158c9cddda7139b50135b74fd04103"
+    }
+  ],
+  "links": [
+    {
+      "from": "CLAUDE.md",
+      "target": "context/project/README.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": ".agents/skills/development/SKILL.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": ".agents/skills/explain/SKILL.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": ".agents/skills/context-update/SKILL.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": ".agents/skills/create-context-workspace/SKILL.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/work/AGENTS.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": ".agents/skills/improvement-loop/SKILL.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": ".agents/skills/README.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/README.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/USAGE.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/project/README.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/project/REFERENCE/reading.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/README.md#본문을-관리할-때",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/project/MAINTENANCE.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/work/AGENTS.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/work/harness/maintain/SESSION-BINDING-AND-LIFECYCLE.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": ".agents/skills/SKILLS-CONTENT-POLICY.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/project/decisions/0001-selective-local-first.md#현재-이름이-뜻하는-것",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/project/guidance/travel-access/INDEX.md#router와-계정-전체-여행-목록의-계약",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/project/guidance/travel-access/INDEX.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/project/guidance/offline-maps-and-routes/INDEX.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/project/guidance/data-lifecycle/INDEX.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/project/guidance/data-lifecycle/INDEX.md#사용자-삭제와-기기-사본-정리를-구별한다",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/project/guidance/development-boundaries/schema-and-types.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/project/common/date-and-time.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/project/common/currency.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/project/guidance/api-contracts.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/project/README.md#읽는-경로",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/project/guidance/README.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/project/decisions/0002-topic-ownership.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "apps/client/CLAUDE.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "apps/server/CLAUDE.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "packages/schema/CLAUDE.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "packages/ui/CLAUDE.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "START_GUIDE.md",
+      "exists": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": ".agents/skills/README.md#도구-연결과-이식",
+      "exists": true
+    },
+    {
+      "from": "apps/client/CLAUDE.md",
+      "target": "../../CLAUDE.md",
+      "exists": true
+    },
+    {
+      "from": "apps/client/CLAUDE.md",
+      "target": "../../context/project/guidance/README.md",
+      "exists": true
+    },
+    {
+      "from": "apps/client/CLAUDE.md",
+      "target": "../../context/project/current/app-runtime/INDEX.md",
+      "exists": true
+    },
+    {
+      "from": "apps/client/CLAUDE.md",
+      "target": "../../context/project/guidance/api-contracts.md",
+      "exists": true
+    },
+    {
+      "from": "apps/client/CLAUDE.md",
+      "target": "../../context/project/guidance/travel-access/INDEX.md",
+      "exists": true
+    },
+    {
+      "from": "apps/client/CLAUDE.md",
+      "target": "../../context/project/guidance/data-lifecycle/INDEX.md",
+      "exists": true
+    },
+    {
+      "from": "apps/client/CLAUDE.md",
+      "target": "../../context/project/guidance/writing-and-input/INDEX.md",
+      "exists": true
+    },
+    {
+      "from": "apps/client/CLAUDE.md",
+      "target": "../../context/project/guidance/travel-access/INDEX.md",
+      "exists": true
+    },
+    {
+      "from": "apps/client/CLAUDE.md",
+      "target": "../../context/project/guidance/error-handling.md",
+      "exists": true
+    },
+    {
+      "from": "apps/client/CLAUDE.md",
+      "target": "../../context/project/guidance/travel-access/INDEX.md",
+      "exists": true
+    },
+    {
+      "from": "apps/client/CLAUDE.md",
+      "target": "../../context/project/guidance/offline-maps-and-routes/INDEX.md",
+      "exists": true
+    },
+    {
+      "from": "apps/client/CLAUDE.md",
+      "target": "../../context/project/guidance/development-boundaries/layers.md",
+      "exists": true
+    },
+    {
+      "from": "apps/client/CLAUDE.md",
+      "target": "../../context/project/guidance/development-boundaries/ui.md",
+      "exists": true
+    },
+    {
+      "from": "apps/client/CLAUDE.md",
+      "target": "../../packages/ui/CLAUDE.md",
+      "exists": true
+    },
+    {
+      "from": "apps/client/CLAUDE.md",
+      "target": "../../context/project/guidance/data-lifecycle/INDEX.md",
+      "exists": true
+    },
+    {
+      "from": "apps/client/CLAUDE.md",
+      "target": "../../context/project/guidance/travel-access/INDEX.md",
+      "exists": true
+    },
+    {
+      "from": "apps/client/CLAUDE.md",
+      "target": "../../context/project/guidance/api-contracts.md",
+      "exists": true
+    },
+    {
+      "from": "apps/client/CLAUDE.md",
+      "target": "../../context/project/guidance/travel-access/INDEX.md",
+      "exists": true
+    },
+    {
+      "from": "apps/client/CLAUDE.md",
+      "target": "../../context/project/common/date-and-time.md",
+      "exists": true
+    },
+    {
+      "from": "apps/server/CLAUDE.md",
+      "target": "../../CLAUDE.md",
+      "exists": true
+    },
+    {
+      "from": "apps/server/CLAUDE.md",
+      "target": "../../context/project/guidance/api-contracts.md",
+      "exists": true
+    },
+    {
+      "from": "apps/server/CLAUDE.md",
+      "target": "../../context/project/guidance/development-boundaries/schema-and-types.md",
+      "exists": true
+    },
+    {
+      "from": "apps/server/CLAUDE.md",
+      "target": "../../context/project/guidance/api-contracts.md",
+      "exists": true
+    },
+    {
+      "from": "apps/server/CLAUDE.md",
+      "target": "../../context/project/guidance/README.md",
+      "exists": true
+    },
+    {
+      "from": "apps/server/CLAUDE.md",
+      "target": "../../context/project/guidance/data-lifecycle/INDEX.md#생성-id는-localqueue서버에서-같은-값을-유지한다",
+      "exists": true
+    },
+    {
+      "from": "apps/server/CLAUDE.md",
+      "target": "../../context/project/guidance/data-lifecycle/INDEX.md",
+      "exists": true
+    },
+    {
+      "from": "apps/server/CLAUDE.md",
+      "target": "../../context/project/common/date-and-time.md",
+      "exists": true
+    },
+    {
+      "from": "apps/server/CLAUDE.md",
+      "target": "../../context/project/guidance/error-handling.md",
+      "exists": true
+    },
+    {
+      "from": "apps/server/CLAUDE.md",
+      "target": "../../context/project/guidance/api-contracts.md",
+      "exists": true
+    },
+    {
+      "from": "apps/server/CLAUDE.md",
+      "target": "README.md",
+      "exists": true
+    },
+    {
+      "from": "packages/schema/CLAUDE.md",
+      "target": "../../CLAUDE.md",
+      "exists": true
+    },
+    {
+      "from": "packages/schema/CLAUDE.md",
+      "target": "../../context/project/guidance/development-boundaries/schema-and-types.md",
+      "exists": true
+    },
+    {
+      "from": "packages/schema/CLAUDE.md",
+      "target": "../../context/project/guidance/development-boundaries/schema-and-types.md",
+      "exists": true
+    },
+    {
+      "from": "packages/schema/CLAUDE.md",
+      "target": "../../context/project/guidance/development-boundaries/layers.md#entity를-바꾸면-저장조회-경계를-따라간다",
+      "exists": true
+    },
+    {
+      "from": "packages/schema/CLAUDE.md",
+      "target": "../../context/project/guidance/data-lifecycle/INDEX.md",
+      "exists": true
+    },
+    {
+      "from": "packages/schema/CLAUDE.md",
+      "target": "../../context/project/guidance/data-lifecycle/INDEX.md#생성-id는-localqueue서버에서-같은-값을-유지한다",
+      "exists": true
+    },
+    {
+      "from": "packages/schema/CLAUDE.md",
+      "target": "../../context/project/common/date-and-time.md",
+      "exists": true
+    },
+    {
+      "from": "packages/schema/CLAUDE.md",
+      "target": "../../context/project/guidance/api-contracts.md",
+      "exists": true
+    },
+    {
+      "from": "packages/schema/CLAUDE.md",
+      "target": "../../context/project/guidance/README.md",
+      "exists": true
+    },
+    {
+      "from": "packages/schema/CLAUDE.md",
+      "target": "../../context/project/common/date-and-time.md",
+      "exists": true
+    },
+    {
+      "from": "packages/schema/CLAUDE.md",
+      "target": "../../context/project/guidance/development-boundaries/schema-and-types.md",
+      "exists": true
+    },
+    {
+      "from": "packages/ui/CLAUDE.md",
+      "target": "../../CLAUDE.md",
+      "exists": true
+    },
+    {
+      "from": "packages/ui/CLAUDE.md",
+      "target": "../../context/project/guidance/development-boundaries/ui.md",
+      "exists": true
+    },
+    {
+      "from": "packages/ui/CLAUDE.md",
+      "target": "../../context/project/guidance/travel-access/INDEX.md",
+      "exists": true
+    },
+    {
+      "from": "packages/ui/CLAUDE.md",
+      "target": "../../apps/client/CLAUDE.md",
+      "exists": true
+    },
+    {
+      "from": "packages/ui/CLAUDE.md",
+      "target": "../../context/project/guidance/writing-and-input/INDEX.md",
+      "exists": true
+    },
+    {
+      "from": "packages/ui/CLAUDE.md",
+      "target": "../../context/project/guidance/development-boundaries/schema-and-types.md",
+      "exists": true
+    },
+    {
+      "from": "packages/ui/CLAUDE.md",
+      "target": "../../apps/client/CLAUDE.md",
+      "exists": true
+    },
+    {
+      "from": "packages/ui/CLAUDE.md",
+      "target": "../../context/project/guidance/development-boundaries/ui.md",
+      "exists": true
+    }
+  ],
+  "anchors": [
+    {
+      "from": "CLAUDE.md",
+      "target": "context/README.md#본문을-관리할-때",
+      "valid": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/project/decisions/0001-selective-local-first.md#현재-이름이-뜻하는-것",
+      "valid": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/project/guidance/travel-access/INDEX.md#router와-계정-전체-여행-목록의-계약",
+      "valid": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/project/guidance/data-lifecycle/INDEX.md#사용자-삭제와-기기-사본-정리를-구별한다",
+      "valid": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": "context/project/README.md#읽는-경로",
+      "valid": true
+    },
+    {
+      "from": "CLAUDE.md",
+      "target": ".agents/skills/README.md#도구-연결과-이식",
+      "valid": true
+    },
+    {
+      "from": "apps/server/CLAUDE.md",
+      "target": "../../context/project/guidance/data-lifecycle/INDEX.md#생성-id는-localqueue서버에서-같은-값을-유지한다",
+      "valid": true
+    },
+    {
+      "from": "packages/schema/CLAUDE.md",
+      "target": "../../context/project/guidance/development-boundaries/layers.md#entity를-바꾸면-저장조회-경계를-따라간다",
+      "valid": true
+    },
+    {
+      "from": "packages/schema/CLAUDE.md",
+      "target": "../../context/project/guidance/data-lifecycle/INDEX.md#생성-id는-localqueue서버에서-같은-값을-유지한다",
+      "valid": true
+    }
+  ],
+  "bridges": [
+    {
+      "path": "AGENTS.md",
+      "target": "CLAUDE.md",
+      "valid": true
+    },
+    {
+      "path": "apps/client/AGENTS.md",
+      "target": "CLAUDE.md",
+      "valid": true
+    },
+    {
+      "path": "apps/server/AGENTS.md",
+      "target": "CLAUDE.md",
+      "valid": true
+    },
+    {
+      "path": "packages/schema/AGENTS.md",
+      "target": "CLAUDE.md",
+      "valid": true
+    },
+    {
+      "path": "packages/ui/AGENTS.md",
+      "target": "CLAUDE.md",
+      "valid": true
+    }
+  ],
+  "skill_canonical_and_bridge_valid": true,
+  "commands": [
+    {
+      "guide": "CLAUDE.md",
+      "command": "pnpm lint",
+      "package": "package.json",
+      "script": "eslint . --ext .js,.jsx,.ts,.tsx"
+    },
+    {
+      "guide": "CLAUDE.md",
+      "command": "pnpm harness:check",
+      "package": "package.json",
+      "script": "node scripts/check-harness.mjs"
+    },
+    {
+      "guide": "apps/client/CLAUDE.md",
+      "command": "pnpm client start",
+      "package": "apps/client/package.json",
+      "script": "expo start"
+    },
+    {
+      "guide": "apps/client/CLAUDE.md",
+      "command": "pnpm client lint",
+      "package": "apps/client/package.json",
+      "script": "eslint . --ext .js,.jsx,.ts,.tsx"
+    },
+    {
+      "guide": "apps/client/CLAUDE.md",
+      "command": "pnpm client test --runInBand",
+      "package": "apps/client/package.json",
+      "script": "jest --config jest.config.cjs"
+    },
+    {
+      "guide": "apps/client/CLAUDE.md",
+      "command": "pnpm client test:typecheck",
+      "package": "apps/client/package.json",
+      "script": "tsc --project tsconfig.json --noEmit"
+    },
+    {
+      "guide": "apps/client/CLAUDE.md",
+      "command": "pnpm harness:check",
+      "package": "package.json",
+      "script": "node scripts/check-harness.mjs"
+    },
+    {
+      "guide": "apps/server/CLAUDE.md",
+      "command": "pnpm server dev",
+      "package": "apps/server/package.json",
+      "script": "NODE_ENV=development tsx watch src/index.ts"
+    },
+    {
+      "guide": "apps/server/CLAUDE.md",
+      "command": "pnpm server typecheck",
+      "package": "apps/server/package.json",
+      "script": "tsc --noEmit"
+    },
+    {
+      "guide": "apps/server/CLAUDE.md",
+      "command": "pnpm server build",
+      "package": "apps/server/package.json",
+      "script": "tsup"
+    },
+    {
+      "guide": "apps/server/CLAUDE.md",
+      "command": "pnpm server test",
+      "package": "apps/server/package.json",
+      "script": "vitest run"
+    },
+    {
+      "guide": "apps/server/CLAUDE.md",
+      "command": "pnpm server test:integration",
+      "package": "apps/server/package.json",
+      "script": "node scripts/run-integration-tests.mjs"
+    },
+    {
+      "guide": "apps/server/CLAUDE.md",
+      "command": "pnpm server db:generate",
+      "package": "apps/server/package.json",
+      "script": "drizzle-kit generate:pg"
+    },
+    {
+      "guide": "apps/server/CLAUDE.md",
+      "command": "pnpm server db:push",
+      "package": "apps/server/package.json",
+      "script": "drizzle-kit push:pg"
+    },
+    {
+      "guide": "apps/server/CLAUDE.md",
+      "command": "pnpm server db:studio",
+      "package": "apps/server/package.json",
+      "script": "drizzle-kit studio"
+    },
+    {
+      "guide": "apps/server/CLAUDE.md",
+      "command": "pnpm harness:check",
+      "package": "package.json",
+      "script": "node scripts/check-harness.mjs"
+    },
+    {
+      "guide": "packages/schema/CLAUDE.md",
+      "command": "pnpm schema build",
+      "package": "packages/schema/package.json",
+      "script": "tsup"
+    },
+    {
+      "guide": "packages/schema/CLAUDE.md",
+      "command": "pnpm harness:check",
+      "package": "package.json",
+      "script": "node scripts/check-harness.mjs"
+    },
+    {
+      "guide": "packages/ui/CLAUDE.md",
+      "command": "pnpm --filter @repo/ui lint",
+      "package": "packages/ui/package.json",
+      "script": "eslint ."
+    },
+    {
+      "guide": "packages/ui/CLAUDE.md",
+      "command": "pnpm harness:check",
+      "package": "package.json",
+      "script": "node scripts/check-harness.mjs"
+    }
+  ],
+  "checker": {
+    "before_issue_count": 65,
+    "after_issue_count": 64,
+    "added": [],
+    "removed": [
+      "- context/work/workspaces/006-project-context-reconstruction/output/source-map-and-candidates.md links to missing ../../../../../.claude/README.md"
+    ],
+    "execution": "node scripts/check-harness.mjs (pnpm wrapper failed fetching package tool)"
+  },
+  "errors": []
+}

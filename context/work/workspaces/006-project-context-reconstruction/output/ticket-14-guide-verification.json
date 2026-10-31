@@ -1,0 +1,260 @@
+{
+  "scope": "Ticket14 independent bounded verification; eight current files, no implementation/host acceptance claim",
+  "head": "961de724a92fdf59af5f10f3f7d67e4a9b643552",
+  "files": [
+    {
+      "path": "CLAUDE.md",
+      "sha256": "2819117e151c7dc96861b1dda63f1cbcc3bfe18845d767b767113696293af639",
+      "matches_main_fixed_input": true
+    },
+    {
+      "path": "apps/client/CLAUDE.md",
+      "sha256": "8a8bb7431221bc6ed779be71d166c8a2a6fd49b8bddf5fda20c67b171db5c3fe",
+      "matches_main_fixed_input": true
+    },
+    {
+      "path": "apps/server/CLAUDE.md",
+      "sha256": "abbf709c97fa3f6604d9b32ae6cffd8af5cb9d323b49ef79e7969130db661d1d",
+      "matches_main_fixed_input": true
+    },
+    {
+      "path": "packages/schema/CLAUDE.md",
+      "sha256": "37f3dad104be7d391744d3dedd1945b746bdf5ea475eca69a867721671d8e3a9",
+      "matches_main_fixed_input": true
+    },
+    {
+      "path": "packages/ui/CLAUDE.md",
+      "sha256": "995e62e88538de99b3228a70acacb39ae4dcaa4890288fa150f4cc535b4f13b5",
+      "matches_main_fixed_input": true
+    },
+    {
+      "path": "scripts/check-harness.mjs",
+      "sha256": "e34e9d6497a49242a853ff3946101539372b117b3e2d3bd048909aa132cd699e",
+      "matches_main_fixed_input": true
+    },
+    {
+      "path": "context/project/current/architecture.md",
+      "sha256": "b1c217a91cf31d9fab92f9e5839a18861b9aeff68829cbb976abd4f2d35a6ea0",
+      "matches_main_fixed_input": true
+    },
+    {
+      "path": "context/work/workspaces/006-project-context-reconstruction/output/source-map-and-candidates.md",
+      "sha256": "51202f2c941c0ec482db4b6ef87fd6616c158c9cddda7139b50135b74fd04103",
+      "matches_main_fixed_input": true
+    }
+  ],
+  "checks": {
+    "harness": {
+      "command": "node scripts/check-harness.mjs",
+      "exit": 1,
+      "before_reused_count": 65,
+      "current_count": 64,
+      "added": [],
+      "removed": [
+        "- context/work/workspaces/006-project-context-reconstruction/output/source-map-and-candidates.md links to missing ../../../../../.claude/README.md"
+      ],
+      "matches_main_after": true,
+      "log": "/tmp/noline-ticket14-verifier-check.txt"
+    },
+    "links": {
+      "count": 85,
+      "missing": []
+    },
+    "bridges": [
+      [
+        "AGENTS.md",
+        true
+      ],
+      [
+        "apps/client/AGENTS.md",
+        true
+      ],
+      [
+        "apps/server/AGENTS.md",
+        true
+      ],
+      [
+        "packages/schema/AGENTS.md",
+        true
+      ],
+      [
+        "packages/ui/AGENTS.md",
+        true
+      ]
+    ],
+    "static_probe_reuse": {
+      "sha_matched": true,
+      "original": "/tmp/noline-ticket14-static.json",
+      "assertion_review": "local targets/heading slugs/symlinks/package scripts inspected; command success not asserted; root command aliases additionally inspected"
+    },
+    "readme_originals": [
+      {
+        "path": ".claude/README.md",
+        "sha_matches": true
+      },
+      {
+        "path": ".claude/harness/README.md",
+        "sha_matches": true
+      }
+    ],
+    "diff_check": {
+      "exit": 0,
+      "output": ""
+    }
+  },
+  "findings": [],
+  "requirement_results": [
+    {
+      "requirement": "root/local guide role and current boundaries preserved",
+      "status": "충족 근거 있음"
+    },
+    {
+      "requirement": "Main development versus context reading/management ownership",
+      "status": "충족 근거 있음"
+    },
+    {
+      "requirement": "five representative bounded read-path cases",
+      "status": "충족 근거 있음"
+    },
+    {
+      "requirement": "product summary conditions/exceptions/current gaps",
+      "status": "충족 근거 있음"
+    },
+    {
+      "requirement": "commands and paths grounded in source/config",
+      "status": "충족 근거 있음"
+    },
+    {
+      "requirement": "checker title update and original source access",
+      "status": "충족 근거 있음"
+    }
+  ],
+  "unverified": [
+    "Actual host skill discovery/call effectiveness",
+    "Full app execution/runtime behavior",
+    "All harness checks passing (64 pre-existing failures)",
+    "006 overall acceptance; Work completion records excluded from target"
+  ],
+  "representative_cases": [
+    {
+      "request": "기존 개발 작업 재개",
+      "path": [
+        "CLAUDE.md:9",
+        "development/SKILL.md:31",
+        "context/work/AGENTS.md:21",
+        "context/USAGE.md:11"
+      ],
+      "observation": "개발 요청은 development, 기존 Work는 Work 진입으로 연결되고 기존 Workspace 재개에 생성 skill을 재호출하지 않는다. 세션 활성화는 별도 계약이다.",
+      "kind": "independent document read-path walk, no session control"
+    },
+    {
+      "request": "sync 변경",
+      "path": [
+        "apps/client/CLAUDE.md:20",
+        "apps/server/CLAUDE.md:21",
+        "context/project/guidance/data-lifecycle/INDEX.md"
+      ],
+      "observation": "Local/queue 원자성, REST push와 501 endpoint, 실패·재시도·cleanup 미충족을 현재 Owner에서 확인한다. Router·API·schema 연결도 이어진다.",
+      "kind": "independent read-path walk and selected source comparison"
+    },
+    {
+      "request": "설명만 요청",
+      "path": [
+        "CLAUDE.md:9",
+        "CLAUDE.md:13",
+        ".agents/skills/explain/SKILL.md"
+      ],
+      "observation": "explain 직접 접근이 가능하고 읽기·설명만으로 코드/문서 수정·최종 수락 권한이 생기지 않는다.",
+      "kind": "independent document read-path walk"
+    },
+    {
+      "request": "지정 Project 갱신",
+      "path": [
+        "CLAUDE.md:14",
+        "CLAUDE.md:23",
+        ".agents/skills/context-update/SKILL.md",
+        "context/project/MAINTENANCE.md"
+      ],
+      "observation": "지정 반영은 context-update와 관리 계약으로 연결되며 새 약속·Owner 이동·Work 변경 권한을 자동 부여하지 않는다.",
+      "kind": "independent document read-path walk"
+    },
+    {
+      "request": "한정 구현 위임",
+      "path": [
+        "CLAUDE.md:9",
+        ".agents/skills/development/references/execution.md",
+        ".agents/skills/development/references/implementation.md",
+        "context/USAGE.md"
+      ],
+      "observation": "한정 목표·범위·계약을 먼저 읽고 전체 Workspace 인수·생성·session control로 확대하지 않는다. report-only 일반화가 제거됐고 구현 권한은 실제 배정을 따른다.",
+      "kind": "independent document read-path walk"
+    }
+  ],
+  "source_comparisons": [
+    "router.ts full routing branches versus root summary",
+    "sync.ts requireAuth/user filters/501 and engine.ts entity REST routes",
+    "schedule-local/expense-local withTransaction + queue insertion",
+    "schema datetime/envelope/package export/tsup config versus guide map",
+    "server integration runner and vitest exclude; client jest testMatch; root command aliases",
+    "UI Project composition contract and actual primitive export surface",
+    "data lifecycle current cleanup/pull gaps and API ownership/response-validation gaps remain explicit in linked Owners"
+  ],
+  "reuse_limitations": [
+    "Main probe uses current targets and package-script existence, not process/runtime success; reviewed and reused for anchors and commands after all eight SHA matched.",
+    "65-issue before log was reused, not independently regenerated from a baseline checkout; current 64-issue output was independently executed and compared.",
+    "Wrapper registry-fetch failure reused from supplied log; direct registered node program execution provides checker result without dependency installation."
+  ],
+  "end_input_sha_stable": true,
+  "followup_reverification": {
+    "scope": "Only four local guide ownership headings, summary status, client representative implementation/contract rows; previous other evidence reused after unchanged SHA confirmation.",
+    "prior_sha": {
+      "apps/client/CLAUDE.md": "4e18e7c82be88ffc4090d2afe17a870d7b0c377533440cab166edf26d469fd84",
+      "apps/server/CLAUDE.md": "546e2623bf21de82b555467bf5caff2d3f7cc85af5be3e4dacd68428921f7a5e",
+      "packages/schema/CLAUDE.md": "ff1ac02dfa8defc7f42b520595556f4e5756ab36c8d6732349b5ce1c2784a843",
+      "packages/ui/CLAUDE.md": "19f47dc50fa096dd433f31c30547fec3d03e521e87958650ed81695470dbaf63"
+    },
+    "exact_delta_confirmation": [
+      {
+        "path": "apps/client/CLAUDE.md",
+        "exact_previous_sha_reconstructed": true,
+        "replacement_count": 7
+      },
+      {
+        "path": "apps/server/CLAUDE.md",
+        "exact_previous_sha_reconstructed": true,
+        "replacement_count": 2
+      },
+      {
+        "path": "packages/schema/CLAUDE.md",
+        "exact_previous_sha_reconstructed": true,
+        "replacement_count": 2
+      },
+      {
+        "path": "packages/ui/CLAUDE.md",
+        "exact_previous_sha_reconstructed": true,
+        "replacement_count": 2
+      }
+    ],
+    "status": "충족 근거 있음",
+    "findings": [],
+    "reason": "All implementation responsibilities and risk/contract bullet bodies remain unchanged. New heading distinguishes implementation location from related contracts; summary statement explicitly retains Project detailed conditions/exceptions/verification authority. Client lib/repository remain implementers under existing queue/routing contracts. UI implementation client versus product/composition contract Project distinction agrees with prior verified boundaries. No permission, rule strength, or Owner transfer was added.",
+    "checks": {
+      "current_harness_exit": 1,
+      "current_harness_issues": 64,
+      "matches_new_main_log": true,
+      "diff_check_exit": 0,
+      "main_static_errors": [],
+      "main_links": 85,
+      "main_anchors": 9,
+      "main_bridges": 5,
+      "main_commands": 20
+    },
+    "invalidated_prior_evidence": "Prior four file hashes and prior wording assessment replaced by this exact-delta semantic check; original code comparisons and unchanged contracts/commands remain valid.",
+    "limits": "No product tests, host execution or overall 006 acceptance; unchanged prior unverified items remain."
+  },
+  "preserved_artifacts": {
+    "/tmp/noline-ticket14-verifier-check.txt": "ticket-14-guide-verifier-check.txt",
+    "/tmp/noline-ticket14-static.json": "ticket-14-guide-static-checks.json",
+    "note": "Temporary paths in the original verifier report identify execution inputs; these relative output paths preserve the readback evidence."
+  }
+}

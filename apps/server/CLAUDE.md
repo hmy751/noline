@@ -1,15 +1,15 @@
-# Noline Server Workspace Guide
+# Noline Server App Guide
 
-> Express/TypeScript server harness entrypoint.
+> Express·TypeScript 서버의 코드 경로 안내.
 
-## Harness Role
+## 이 가이드의 책임
 
-이 파일은 `apps/server`를 수정할 때 AI 작업자가 먼저 읽는 path-scoped 실행 가이드다. 목적은 server-only 책임과 위험 경계를 빠르게 잡는 것이고, 배포/운영 참고서를 늘리는 것이 아니다.
+이 파일은 `apps/server`를 수정할 때 서버의 구현 책임·위험 경계·명령과 필요한 Project 본문을 안내한다. 개발 수행과 저장소 공통 규칙은 [루트 가이드](../../CLAUDE.md)에서 연결한다.
 
-- `apps/server/CLAUDE.md`가 서버 workspace guide의 원천이다.
+- `apps/server/CLAUDE.md`가 서버 app guide의 원천이다.
 - `apps/server/AGENTS.md`는 이 파일을 가리키는 Codex bridge symlink다. 별도 정책 원천처럼 수정하지 않는다.
 - 작업에 필요한 본문은 아래 Start Here에서 직접 선택한다. 본문별 적용 조건에 따라 필요한 내용만 추가로 읽는다.
-- client/schema와 함께 지켜야 하는 정책은 이 파일에 복사하지 않고 `context/project/`의 주제별 Owner에서 계약·적용·검증 방법과 함께 관리한다.
+- 아래 위험 경계는 서버 변경에서 놓치기 쉬운 제품 기준의 요약이다. 상세 계약·조건·예외·검증 방법은 연결한 Project 주제 본문에서 관리한다.
 
 ## Start Here
 
@@ -24,13 +24,13 @@
 
 ## Ownership
 
-| Area | Server가 소유하는 것 | 다른 owner로 보낼 것 |
+| 코드 영역 | 이 경로의 구현 책임 | 관련 계약·다른 코드 영역 |
 | --- | --- | --- |
 | `src/routes/*` | route boundary, request parse, response shape, ownership filter | shared request/response schema는 `packages/schema` |
 | `src/middleware/auth.ts` | auth transport와 `req.userId` boundary | 인증·소유권 계약은 [Project API 기준](../../context/project/guidance/api-contracts.md) |
 | `src/middleware/errorHandler.ts` | HTTP error conversion | client error UI는 `apps/client` |
 | `src/db/schema.ts` | PostgreSQL/Drizzle table shape | cross-workspace contract는 schema package |
-| `src/routes/sync.ts` | authenticated sync pull/push boundary | client queue mechanics는 `apps/client` |
+| `src/routes/sync.ts` | 인증된 sync pull과 아직 501을 반환하는 push 진입. 현재 client push는 Entity REST route를 사용 | client queue mechanics는 `apps/client` |
 | `src/services/*` | server-side OAuth/JWT/external service integration | client policy UI는 client guide |
 
 ## High-Risk Checks
@@ -62,12 +62,16 @@ apps/server/src/
 pnpm server dev
 pnpm server typecheck
 pnpm server build
+pnpm server test
+pnpm server test:integration
 pnpm server db:generate
 pnpm server db:push
 pnpm server db:studio
 pnpm harness:check
 ```
 
+`test`는 PostgreSQL integration을 제외한 Vitest 검사를 실행한다. `test:integration`은 Docker와 Compose가 필요하며 별도 테스트 DB를 띄워 현재 schema를 적용하고 검사 뒤 테스트 DB·volume을 정리한다. 서버 실행·환경과 DB 도구의 사용 조건은 [서버 안내](README.md)를 따른다. 명령 안내는 현재 검사 통과를 뜻하지 않는다.
+
 ## Update Rule
 
-이 파일에는 server 작업자가 시작 전에 알아야 할 경계만 남긴다. 상세 route 예시, 배포 후보, 긴 운영 블루프린트는 코드 확인 뒤 `context/project/`나 `_archive/`로 분리한다.
+이 파일에는 서버 작업의 경로·책임·위험과 명령을 남긴다. 지속할 제품 계약·현재 지원과 선택 이유는 Project의 해당 Owner에, 환경 준비는 서버 안내에, 이번 구현·조사·검증과 미채택 배포 후보는 Work에 둔다. 역사 원문은 재검토·복구 목적의 보존물로 구별한다.
