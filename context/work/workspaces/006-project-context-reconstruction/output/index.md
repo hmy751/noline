@@ -25,7 +25,7 @@
 | [Ticket 12 역사 자료 정리 결과](ticket-12-result.md) | CHANGELOG 판단·보존·제거와 63개 역사 링크의 현재 소비·재접근 판정 및 두 원판 공백을 확인할 때 |
 | [Ticket 12 역사 재접근 지도](ticket-12-historical-access.md) | 고유 target 29개의 Git·archive 재접근 위치와 두 미커밋 원판의 근거 한계를 사람이 검토할 때 |
 | [Ticket 12 역사 링크 상세](ticket-12-historical-links.json) | baseline 63회 참조의 source hash·행·target과 최종 62건 판정을 기계적으로 대조할 때 |
-| [Ticket 13 전체 대조 결과](ticket-13-result.md) | 최초 후보와 현재 Owner, 최종 교정·독립 검토, live consumer·Verify·Recover 결과와 후속 배치 재검토를 확인할 때 |
+| [Ticket 13 전체 대조 결과](ticket-13-result.md) | 최초 후보와 현재 Owner, 최종 교정·독립 검토, README·archive·로컬 가이드의 실제 완료 및 종료 판단·남은 한계를 확인할 때 |
 | [Ticket 13 live consumer 관찰](ticket-13-live-consumers.json) | default와 current-generation binding의 당시 관찰 및 세 Workspace Recover 결과를 대조할 때 |
 | [Ticket 13 Verify 결과](ticket-13-verification-results.json) | 001·002의 실제 실패 receipt와 세 Workspace Recover 결과를 확인할 때 |
 | [Ticket 13 Verify 입력 조정](ticket-13-verify-input-reconciliation.json) | 002의 삭제된 입력 6개를 현재 책임 파일 9개로 전환한 근거를 확인할 때 |
@@ -38,8 +38,11 @@
 | [Archive 이동 경로표와 해시](ticket-13-archive-move-manifest.json) | 124개 파일의 old_path·new_path·SHA와 기준 commit을 대조할 때 |
 | [Archive 이동 검사 원문](ticket-13-archive-check.txt) | strict 검사 65건 실패와 새 역사 링크 1건을 확인할 때 |
 | [Archive 이동 Verify·Recover](ticket-13-archive-verification.json) | 001 실제 실패 receipt와 live 소비자 재진입 결과를 확인할 때 |
-| [Ticket 14 로컬 프로젝트 가이드 정리 결과](ticket-14-local-guides-result.md) | 루트와 하위 CLAUDE 가이드의 책임 정리, development·Context와의 경계, 독립 검토·별도 검증, 최신 64건 검사 한계와 Ticket 13으로 넘길 범위를 확인할 때 |
+| [Ticket 14 로컬 프로젝트 가이드 정리 결과](ticket-14-local-guides-result.md) | 루트와 하위 CLAUDE 가이드의 책임 정리, development·Context와의 경계, 독립 검토·별도 검증, 최신 64건 검사 한계와 Ticket 13 최종 대조의 입력을 확인할 때 |
+| [최종 독립 검증](ticket-13-final-independent-verification.md) | 현재 읽기·Owner·archive·host 근거 재사용과 발견된 기록 보완의 판단을 확인할 때 |
+| [최종 Verify·Recover 근거](ticket-13-final-verification.json) | 최신 001 실제 실패 receipt·세 Workspace 재진입 및 보존한 검증 원문의 해시를 확인할 때 |
+| [최종 checker 원문](ticket-13-final-check.txt) | 기존 64건의 동일 재현을 대조할 때 |
 
 현재 제품 설명은 [제품 기준](../../../../project/common/product.md), [여행 접근](../../../../project/guidance/travel-access/INDEX.md), [선택 이유](../../../../project/decisions/0001-selective-local-first.md), [저장·동기화·정리](../../../../project/guidance/data-lifecycle/INDEX.md), [지도·경로](../../../../project/guidance/offline-maps-and-routes/INDEX.md), [구조·UI·schema](../../../../project/guidance/development-boundaries/INDEX.md), [작성·입력](../../../../project/guidance/writing-and-input/INDEX.md), [날짜와 시각](../../../../project/common/date-and-time.md)과 [통화](../../../../project/common/currency.md)·[API](../../../../project/guidance/api-contracts.md)·[오류](../../../../project/guidance/error-handling.md), 가까운 형성 자료가 소유한다. 이 폴더는 그 본문을 복제하지 않고 조사·검토 결과를 남긴다.
 
-최신 실행 상태와 다음 행동은 [state](../current/state/index.md)를 따른다. 문서 이관·통합 결과를 제품 구현 차이의 해소나 006 전체 완료로 해석하지 않는다.
+최신 실행 상태와 다음 행동은 [state](../current/state/index.md)를 따른다. 006의 문서 실행 완료 판단은 최종 대조에 있으며 제품 구현 차이의 해소나 전체 검사 통과로 확대하지 않는다.

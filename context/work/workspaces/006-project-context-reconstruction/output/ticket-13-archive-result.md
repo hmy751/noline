@@ -22,8 +22,8 @@ archive 안 Markdown의 상대 링크·명령·완료 표시는 당시 자료다
 
 ## 확인과 한계
 
-strict 검사는 65건으로 실패한다. README 정리 이후의 역사 실패 64건과 위 frozen 001 record의 옛 archive 링크 1건이다. [검사 원문](ticket-13-archive-check.txt)과 [검증 결과](ticket-13-archive-verification.json)에 기록한다. 현재 소비자 연결의 새 실패로 통과를 가장하거나 원문을 고쳐 green으로 만들지 않았다.
+archive 이동 당시 strict 검사는 65건으로 실패했다. README 정리 이후의 역사 실패 64건과 위 frozen 001 record의 옛 archive 링크 1건이다. [검사 원문](ticket-13-archive-check.txt)과 [검증 결과](ticket-13-archive-verification.json)에 기록한다. 현재 소비자 연결의 새 실패로 통과를 가장하거나 원문을 고쳐 green으로 만들지 않았다.
 
 001은 전환된 regular 입력으로 실제 Verify를 실행해 실패 receipt를 새로 남겼다. 001·002·006 Recover는 모두 exit 0이었다. 독립 개선 검토는 필수 구조 변경을 찾지 못했고, 내부 상대 링크 비용을 위와 같이 보완하도록 권고했다. 별도 요구 검증도 124개 파일의 바이트·크기·SHA 일치, 기존 provenance 보존, 현재 경로 전환, 실제 65건 실패, 001 receipt와 regular 입력 해시 일치, 세 Recover packet 해시 일치를 확인했다. 내부 링크의 정확한 횟수는 추출 방식에 따라 달라 결과에서 단정하지 않으며, 새 위치에서 클릭이 끊기는 한계와 옛 경로 기준 재접근 방법을 설명한다. 이 이동은 제품 타입 오류·미커밋 원판 2개 부재·전체 역사 링크 문제를 해소하지 않는다.
 
-다음은 프로젝트 root·앱·패키지 CLAUDE 지침의 책임·중복·구성을 판단하는 단계다. archive 이동은 아직 커밋하지 않았으며 006 전체 수락도 남아 있다.
+archive 이동은 `19b5c7a`에 보존됐다. 이후 [Ticket 14](ticket-14-local-guides-result.md)의 루트·하위 가이드 정리와 독립 검증도 끝났고, 변경 가능한 006 조사 지도 링크를 고쳐 최신 strict 실패는 64건이다. 당시 65건의 검사 원문과 receipt는 보존한다. 전체 실행의 최신 판단과 한계는 [최종 대조](ticket-13-result.md)를 따른다.

@@ -39,3 +39,7 @@
 ## 로컬 CLAUDE와 개발 수행 책임
 
 - [2026-10-31 — CLAUDE 범위와 development 책임 재검토](2026-10-31-11-claude-guide-scope-and-development-boundary.md): 초기 루트 구성안의 수행 중복, 사용자 정정 원문, 현재 적용 계획과 Ticket 14 분리 이유.
+
+## 최종 통합 확인과 마무리
+
+- [2026-10-31 — 006 최종 확인과 남은 한계](2026-10-31-12-integrated-completion-and-remaining-limits.md): 전체 문서 목표 대조, 낡은 미완료 기록 보완, 실제 Verify·Recover와 조건부 마무리 요청의 범위.

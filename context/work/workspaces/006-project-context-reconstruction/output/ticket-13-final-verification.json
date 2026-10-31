@@ -1,0 +1,89 @@
+{
+  "date": "2026-10-31",
+  "basis_commit": "05b5787",
+  "verify001": {
+    "workspace_id": "001-noline-context-harness-application",
+    "claim": "Noline의 현재 지침·Context Harness regular input과 실행 시 관찰한 bridge·경로 구조가 정해진 구조 검사를 통과한다. 선언 파일 freshness는 이후 directory·symlink topology, Git index 또는 제품 동작을 증명하지 않는다.",
+    "result": "fail",
+    "exit_code": 1,
+    "receipt": "workspaces/001-noline-context-harness-application/records/receipts/verify/verify-20261031T073007024367Z-aa36333b8e7846628b934b91a2b5afcb.json",
+    "status": "verification_failed",
+    "timed_out": false
+  },
+  "verify002_reused": {
+    "workspace_id": "002-code-readability-refactoring",
+    "claim": "당시 설치된 TypeScript와 외부 의존성 및 선언된 로컬 입력을 사용한 client noEmit 타입 검사가 통과한다. server 검사, 실제 앱 동작, 리팩토링 효과, 버그 해결 또는 Work 전체 완료를 증명하지 않는다. 외부 node_modules와 이후 새로 포함된 파일은 기존 snapshot freshness의 보장 밖이다.",
+    "result": "fail",
+    "exit_code": 2,
+    "receipt": "workspaces/002-code-readability-refactoring/records/receipts/verify/verify-20261031T061856953626Z-8eefff29beff432ea0c2113c11947b64.json",
+    "status": "verification_failed",
+    "timed_out": false
+  },
+  "recover_before_record_update": [
+    {
+      "workspace_id": "001-noline-context-harness-application",
+      "exit_code": 0,
+      "packet_sha256": "262aed5c8b130861d0eb05457f8e87e6bedc02d26a58b948c8788ba9a99ae678",
+      "receipt_freshness_observation": {
+        "status": "fresh",
+        "snapshot_file_count": 191,
+        "changed_file_count": 0,
+        "missing_file_count": 0,
+        "unavailable_file_count": 0
+      }
+    },
+    {
+      "workspace_id": "002-code-readability-refactoring",
+      "exit_code": 0,
+      "packet_sha256": "b2103160ffff771e4f195ba4bb2869a6b5cb380539a28e8e6abf89ef95b0ab33",
+      "receipt_freshness_observation": {
+        "status": "fresh",
+        "snapshot_file_count": 273,
+        "changed_file_count": 0,
+        "missing_file_count": 0,
+        "unavailable_file_count": 0
+      }
+    },
+    {
+      "workspace_id": "006-project-context-reconstruction",
+      "exit_code": 0,
+      "packet_sha256": "2c0d151d516004db85053ad723427b74b1db34248ddc3e0c2eb4b4944f4d3196",
+      "receipt_freshness_observation": {
+        "status": "not_applicable",
+        "snapshot_file_count": 0,
+        "changed_file_count": 0,
+        "missing_file_count": 0,
+        "unavailable_file_count": 0
+      }
+    }
+  ],
+  "preserved_artifacts": {
+    "/tmp/noline-006-final-verification.md": {
+      "preserved_path": "output/ticket-13-final-independent-verification.md",
+      "sha256": "f0947616c0ec5994964f630a6e3d85da9b08017f9fb89e7758db84d66f79c6db"
+    },
+    "/tmp/noline-006-final-check.txt": {
+      "preserved_path": "output/ticket-13-final-check.txt",
+      "sha256": "bf46b795160ddea150747318f87668a88282b0a21fc187d51508465cc36867e1"
+    }
+  },
+  "scope": "001 actual Verify fail exit1 historical64; 002 existing product typecheck failure reused, not rerun. Recover succeeded for001/002/006. Freshness is not pass. Independent report covers current links/owners, archive124, latest8 guide inputs and bounded Ticket11 host evidence. Product tests and full host behavior not claimed.",
+  "after_record_update": {
+    "recover006": {
+      "exit_code": 0,
+      "packet_sha256": "1515ea013c340383644938753cc0200a713fd406429f54a7dda849fb3bee9645"
+    },
+    "changed_markdown_link_check": {
+      "documents": 8,
+      "local_links": 110,
+      "missing": 0
+    },
+    "checker": {
+      "exit_code": 1,
+      "issues": 64,
+      "identical_to_independent_log": true
+    },
+    "git_diff_check": "pass",
+    "independent_record_recheck": "앞선 기록 보완 발견 해결. 현재 result/state/Ticket13/새record의 완료 범위 일치, README/archive 당시 검사와 후속 완료 구별. 새 중요 모순·필수 미실행 없음."
+  }
+}
