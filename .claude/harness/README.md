@@ -11,22 +11,24 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
 | 레이어 | Owner | 역할 | 읽는 방식 |
 | --- | --- | --- | --- |
 | Root guide | [../../CLAUDE.md](../../CLAUDE.md) | 프로젝트 정체성, bridge, 빠른 탐색, 핵심 불변식 | 항상 작게 유지 |
-| Context Harness | [../../context/README.md](../../context/README.md) | Project context, 지속 Workspace와 Recover·Maintain·Verify 운영 | 승인된 주제별 Owner 이동과 미이동 범위를 Project 계약에서 구분 |
+| Context Harness | [../../context/README.md](../../context/README.md) | Project context, 지속 Workspace와 Recover·Maintain·Verify 운영 | 주제별 제품 본문과 작업 운영을 구분 |
 | Workspace guides | `apps/*/CLAUDE.md`, `packages/*/CLAUDE.md` | app/package별 구현 규칙과 명령 | 경로에 따라 읽음 |
 | Document map | [../README.md](../README.md) | `.claude` corpus의 역할과 읽는 순서 | 문서 작업 시 시작점 |
 | Rules | [../rules/](../rules/) | 짧고 검증 가능한 task/path 규칙 | 작업/경로에 따라 읽음 |
 | Guards | [../guards/](../guards/) | 데이터 손실, sync 누락, auth 누락 같은 고비용 실패 점검 | 위험한 수정 전후 |
 | Runbooks | [../runbooks/](../runbooks/) | 반복 작업의 시작 순서 | 작업 진입점 |
-| Context | [../context/](../context/) | 깊은 아키텍처, cross-cutting engineering context, 기능별 설명 | 필요할 때만 |
+| Project context | [../../context/project/](../../context/project/) | 깊은 제품·아키텍처·개발 기준·선택 이유 | 주제에 맞춰 선택 |
 | Skill | [../skills/README.md](../skills/README.md) | 로컬 운영 스킬과 deprecated 스킬 이력 | 각 스킬의 호출 조건에 따라 읽음 |
 | Agents | [../agents/](../agents/) + [../../.codex/agents/](../../.codex/agents/) | context 수집, policy drift 점검, harness observer | 필요할 때만 report-only |
 | Commands | [../commands/](../commands/) | Claude command reference와 문서 관리 workflow | Claude 참고 자료 |
-| Decisions | [../decisions/](../decisions/) | 정책, 용어, 하네스 구조가 왜 바뀌었는지 | 근거 기록 |
+| Decisions | [../decisions/](../decisions/) | 하네스 구조·운영이 왜 바뀌었는지 | 근거 기록 |
 | Audits | [../audits/](../audits/) | 문서 품질 검증과 하네스 점검 evidence | 근거 기록, policy 아님 |
 | Sessions | [../sessions/](../sessions/) | 작업 이력과 증거 | history |
 | Archive | [../_archive/](../_archive/) | 과거 맥락, 오래된 reference, deprecated guidance | history |
 
-예전 `core/`와 `features/` 본문 문서는 [context](../context/)로 이동했다. 새 하네스 entrypoint는 `rules/`, `guards/`, `runbooks/`, `context/`를 기준으로 유지한다.
+제품 본문은 [Project](../../context/project/README.md)에 통합했다. 옛 `core/`·`features/`·`.claude/context/`와 제품 결정은 현재 읽기 경로로 사용하지 않는다. `.claude`의 실행 지침·도구 연결과 하네스 결정 이력은 유지한다.
+
+제품 Owner 전환의 범위와 역사 자료 처리 이유는 [2026-10-31 결정](../decisions/2026-10-31-project-product-context-ownership.md)에 있다.
 
 ## Claude/Codex 브릿지
 
@@ -60,7 +62,7 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
 - 이 workspace가 소유하는 구현 책임은 무엇인가.
 - 같은 폴더의 `AGENTS.md`가 bridge symlink인지, 별도 정책 원천인지.
 - 작업자가 루트 guide에서 들어온 뒤 어떤 rule, guard, runbook을 먼저 확인해야 하는가.
-- 어떤 내용은 이 파일에 쌓지 않고 `rules/`, `guards/`, `runbooks/`, `context/`, `sessions/`, `_archive/`로 보내야 하는가.
+- 어떤 내용은 이 파일에 쌓지 않고 `rules/`, `guards/`, `runbooks/`, Project 본문, `sessions/`, `_archive/`로 보내야 하는가.
 
 workspace guide는 짧게 유지한다. 긴 feature 설명, 교육용 예시, 디버깅 사례, 배포 후보가 필요하면 owning context나 archive로 분리한다. `pnpm harness:check`는 각 workspace guide가 `Harness Role`, local `AGENTS.md` bridge를 갖고 있고 과도하게 길어지지 않는지 확인한다.
 
@@ -81,9 +83,9 @@ workspace guide는 짧게 유지한다. 긴 feature 설명, 교육용 예시, �
 2. 루트 `CLAUDE.md`는 탐색용으로 유지한다. 모든 상세 패턴을 루트로 끌어올리지 않는다.
 3. 한 번의 디버깅 세션에서 생긴 불편을 바로 일반 규칙으로 승격하지 않는다. 반복되거나 비용이 큰 실패일 때만 하네스화한다.
 4. reference project에서 영향을 받았다면 표면 형식을 복사하지 말고 Noline의 역할 모델로 번역한다.
-5. `rules/`는 짧고 검증 가능하게, `context/`는 깊은 설명을 보존하게, `runbooks/`는 실행 순서만 빠르게 유지한다.
+5. `rules/`는 짧고 검증 가능하게, `context/project/`는 깊은 제품 설명을 보존하게, `runbooks/`는 실행 순서만 빠르게 유지한다.
 6. 이후 작업 방식에 영향을 주는 하네스 변경은 [decisions/](../decisions/)에 기록한다.
-7. Context Harness는 기존 깊은 제품 설명을 기본적으로 복제하지 않는다. 승인된 주제별 Owner 이동은 Project 관리 계약에 따라 현재 의미와 authority를 함께 전환하고, 미이동 범위는 기존 상세 Owner를 유지한다.
+7. 제품 설명은 Project 관리 계약에 따라 현재 의미·필요한 선택 이유·authority를 함께 관리한다. 옛 원본을 현재 본문의 필수 읽기 경로로 연결하지 않는다.
 
 ## 커밋 메시지 기준
 
@@ -136,7 +138,7 @@ pnpm harness:check
 - `noline-policy-checker`: Router, `withTransaction`, `generateId`, schema-first, ISO time, auth ownership, soft delete 정책 drift를 보는 report-only checker.
 - `noline-harness-observer`: 하네스/bridge 변경 뒤 구조 drift와 Claude/Codex parity를 보는 report-only observer.
 
-`noline-work`는 2026-09-10 사용자 요청으로 deprecated 처리했다. 작업별 기준은 root·workspace guide와 rules·guards·runbooks·context에서 직접 찾는다. 기존 스킬 본문과 bridge는 이력으로 남기며 현재 workflow로 실행하지 않는다. [결정 기록](../decisions/2026-09-10-deprecate-noline-work.md)
+`noline-work`는 2026-09-10 사용자 요청으로 deprecated 처리했다. 작업별 기준은 root·workspace guide와 rules·guards·runbooks·Project에서 직접 찾는다. 기존 스킬 본문과 bridge는 이력으로 남기며 현재 workflow로 실행하지 않는다. [결정 기록](../decisions/2026-09-10-deprecate-noline-work.md)
 
 agent/skill 파일은 discoverable 역할 정의일 뿐, 자동 team runner가 아니다. 여러 agent를 팀처럼 쓸 때의 호출 순서, 병렬화, 결과 통합은 메인 작업자가 정한다.
 

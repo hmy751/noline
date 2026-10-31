@@ -8,7 +8,7 @@
 
 1. 아래 작업 이름을 통해 새 runbook으로 이동한다.
 2. 관련 [rules](../rules/README.md)와 [guards](../guards/README.md)를 먼저 확인한다.
-3. 긴 설명이 필요할 때만 [context](../context/README.md)로 내려간다.
+3. 긴 설명이 필요할 때만 [Project context](../../context/project/README.md)로 내려간다.
 
 ## 빠른 작업표
 

@@ -10,7 +10,7 @@ tools: Read, Grep, Glob, Bash
 
 ## 사용할 때
 
-- `CLAUDE.md`, `AGENTS.md`, `.claude/harness/`, `.claude/rules/`, `.claude/runbooks/`, `.claude/context/`를 바꿨다.
+- `CLAUDE.md`, `AGENTS.md`, `.claude/harness/`, `.claude/rules/`, `.claude/runbooks/`, `context/project/`를 바꿨다.
 - `.claude/skills/`, `.agents/skills/`, `.claude/agents/`, `.codex/agents/`를 추가하거나 바꿨다.
 - reference project나 archive 자료에서 온 기준이 active rule로 과잉 승격될 위험이 있다.
 - Claude/Codex bridge 의미가 어긋났는지 확인해야 한다.

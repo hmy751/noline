@@ -22,7 +22,7 @@ Noline의 고비용 실패를 구현 변경 뒤에 점검한다. 파일을 수�
 - 작업 workspace `CLAUDE.md`
 - `.claude/guards/README.md`
 - 관련 `.claude/rules/*.md`
-- 필요한 경우 관련 `.claude/context/*.md`와 decision record
+- 필요한 경우 `context/project/README.md`에서 고른 제품 본문과 형성 자료 (옛 제품 결정·archive를 현재 기준으로 사용하지 않는다)
 
 ## 점검 항목
 
@@ -30,7 +30,7 @@ Noline의 고비용 실패를 구현 변경 뒤에 점검한다. 파일을 수�
 - local mutation과 `sync_queue` insert가 같은 transaction 안에 있는가.
 - schema가 source of truth이고 타입이 `z.infer`로 이어지는가.
 - create flow가 `generateId()`와 client-created ID 수용을 유지하는가.
-- 시간 값이 ISO 8601 datetime with timezone으로 저장/전송되는가.
+- 시점은 timezone을 포함한 ISO datetime, 달력 날짜는 Project의 date-only 계약으로 저장/전송되는가.
 - server route가 auth와 user ownership을 확인하는가.
 - delete/list/cleanup이 soft delete와 pending sync safety를 지키는가.
 - 제한 UI가 기존 policy primitive를 우선 사용하는가.

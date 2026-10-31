@@ -21,8 +21,8 @@ Noline 작업 단위의 주변 자료를 빠르게 모은다. 파일을 수정�
 - `.claude/runbooks/README.md`
 - 관련 `.claude/rules/*.md`
 - 관련 `.claude/guards/README.md`
-- 필요한 경우에만 `.claude/context/*.md`
-- 관련 `.claude/decisions/*.md`
+- 필요한 `context/project/README.md`의 주제별 본문과 형성 자료
+- 하네스 작업일 때 관련 `.claude/decisions/*.md` (옛 제품 결정·archive는 현재 기준으로 사용하지 않는다)
 - 작업 범위의 코드와 최근 commit
 
 ## 출력

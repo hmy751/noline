@@ -13,7 +13,7 @@
 - 루트 가이드와 작업 위치의 workspace `CLAUDE.md`를 먼저 확인한다.
 - 작업 범위가 닿는 규칙만 연다.
 - 수정 전후에는 [guards](../guards/README.md)에서 고비용 실패 가능성을 점검한다.
-- 규칙만으로 부족할 때만 [context](../context/README.md)로 내려간다.
+- 규칙만으로 부족할 때만 [context](../../context/project/README.md)로 내려간다.
 
 ## 브릿지 메모
 

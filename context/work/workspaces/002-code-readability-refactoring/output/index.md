@@ -149,7 +149,7 @@ Node 20.18.1에서 2개 file의 2개 test와 server build가 통과했다. 실�
 - [Trip Repository](../../../../../apps/client/src/entities/trip/repository/trip-repository.ts), [Router](../../../../../apps/client/src/shared/services/offline-prep/router.ts), [Local 사본 반영](../../../../../apps/client/src/entities/trip/lib/trip-local.ts): `ef47b87`의 생성 저장소·조회 경로·보호할 원본 경계.
 - [useGetTrips](../../../../../apps/client/src/entities/trip/data/useGetTrips.ts), [앱 갱신 연결](../../../../../apps/client/src/application/useTripListRefresh.ts): 단일 목록 캐시와 앱에서 한 번 연결하는 상태 변화 구독.
 - [Trip lifecycle 검사](../../../../../apps/client/tests/entities/trip/trip-lifecycle.test.ts), [앱 목록 갱신 검사](../../../../../apps/client/tests/application/trip-list-refresh.test.tsx), [서버 빈 목록 검사](../../../../../apps/server/tests/routes/trips.list.test.ts): 저장·반영·보호·취소·복구와 HTTP 계약의 회귀 근거.
-- [제품 설계 결정](../../../../../.claude/decisions/2026-10-04-inactive-trip-creation.md), [작업 선택·검증 기록](../records/2026-10-05-01-trip-list-routing-and-query-lifecycle.md): 최종 책임과 탈락안, 사용자 정정, 검증 한계. 남은 날짜·UX 판단은 Ticket 06과 state를 따른다.
+- [현재 제품 설명과 선별한 선택 이유](../../../../project/guidance/travel-access/_background/evidence.md#새-여행과-목록-반영), [당시 작업 선택·검증 기록](../records/2026-10-05-01-trip-list-routing-and-query-lifecycle.md): 현재 읽기는 Project에서 시작한다. 당시 설계 결정 원문은 006 Ticket 08의 원본 대응표에 보존 위치를 남겼으며, 위 현재 설명이 당시 원문 전체를 대체한다는 뜻은 아니다. 남은 날짜·UX 판단은 Ticket 06과 state를 따른다.
 
 ## Ticket 06 후속: 도시 시간대와 접근성
 

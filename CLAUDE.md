@@ -2,7 +2,7 @@
 
 > Noline: 네트워크가 없어도 여행은 계속된다. Selective Local-First 여행 관리 앱.
 
-이 파일은 루트 탐색 허브다. 상세 정책은 workspace guide, [rules](./.claude/rules/README.md), [guards](./.claude/guards/README.md), [runbooks](./.claude/runbooks/README.md), [context](./.claude/context/README.md)가 나누어 소유한다.
+이 파일은 루트 탐색 허브다. 상세 정책은 workspace guide, [rules](./.claude/rules/README.md), [guards](./.claude/guards/README.md), [runbooks](./.claude/runbooks/README.md), [Project context](./context/project/README.md)가 나누어 소유한다.
 
 ## Claude/Codex Bridge
 
@@ -14,7 +14,7 @@
   - [packages/schema/CLAUDE.md](./packages/schema/CLAUDE.md)
   - [packages/ui/CLAUDE.md](./packages/ui/CLAUDE.md)
 - 하네스 구조와 tool bridge 규칙은 [Noline AI Harness](./.claude/harness/README.md)를 따른다.
-- 작업의 지속 상태와 선택된 Project context는 root [Context Harness](./context/README.md)를 따른다. 승인되어 Owner가 이동한 주제는 [`context/project/`](./context/project/README.md)의 대응 문서가 현재 의미를 소유하고, 이동하지 않은 깊은 제품 설명은 [`.claude/context/`](./.claude/context/README.md)가 계속 소유한다.
+- 작업의 지속 상태와 선택된 Project context는 root [Context Harness](./context/README.md)를 따른다. 제품 의미·현재 구조·개발 기준과 필요한 선택 이유는 [`context/project/`](./context/project/README.md)의 대응 문서가 소유한다. 옛 제품 원본은 일반 읽기에서 제외했다.
 - 실행층은 [운영 skill 색인](./.claude/skills/README.md)과 `.claude/agents/`, `.codex/agents/`에서 찾는다. `noline-work`는 deprecated이며 호출하지 않는다. `.claude/settings.json`과 `.codex/hooks.json`은 각각의 host lifecycle을 explicit-unbound Maintain adapter에 연결한다. 기준 본문은 주제별로 명시된 rules/guards/runbooks/context Owner가 소유한다.
 
 ## Start Here
@@ -28,7 +28,7 @@
 | 코드 수정 중 지켜야 할 compact rule | [Noline Rules](./.claude/rules/README.md) |
 | 코드 변경 전후 보호 정책 점검 | [Noline Guard Map](./.claude/guards/README.md) |
 | 반복 작업 시작 순서 | [Noline Runbooks](./.claude/runbooks/README.md) |
-| 깊은 아키텍처/기능 맥락 | [Noline Context Map](./.claude/context/README.md) |
+| 깊은 아키텍처/기능 맥락 | [Noline Project context](./context/project/README.md) |
 | 하네스 레이어 개편 이유 | [Decision: Harness Layer Model](./.claude/decisions/2026-05-06-harness-layer-model.md) |
 | 최근 하네스 실행 기록 | [Harness Execution Record](./.claude/audits/2026-05-06-harness-execution-plan.md) |
 
@@ -57,7 +57,7 @@ Noline은 불안정한 네트워크 환경에서도 여행 계획과 경비 기�
 | ID 전략 | Client-Side ID Generation | Echo Protocol |
 | UX 비유 | 오프라인 보험 | 오프라인 구독 |
 
-용어 변경의 이유는 [2026-03-21 terminology decision](./.claude/decisions/2026-03-21-terminology-unification.md)에 기록되어 있다. 역사 문서의 오래된 용어는 그대로 둘 수 있지만, 현재 정책 설명에서는 위 용어를 사용한다.
+용어 변경의 이유는 [현재 용어의 선택 이유](./context/project/decisions/0001-selective-local-first.md#현재-이름이-뜻하는-것)에 기록되어 있다. 역사 문서의 오래된 용어는 그대로 둘 수 있지만, 현재 정책 설명에서는 위 용어를 사용한다.
 
 ## Core Invariants
 
@@ -67,7 +67,7 @@ Noline은 불안정한 네트워크 환경에서도 여행 계획과 경비 기�
 4. 로컬 mutation과 `sync_queue` 추가는 `withTransaction` 안에서 원자적으로 처리한다.
 5. Entity 생성 ID는 클라이언트가 `generateId()`로 만들고, 서버는 클라이언트 ID를 수용한다.
 6. `@repo/schema`가 클라이언트/서버 타입 계약의 원천이다. 타입은 schema에서 `z.infer`로 추론한다.
-7. 시간 값은 ISO 8601 datetime with timezone으로 저장/전송하고, 표시는 shared util에서 처리한다.
+7. 시점은 timezone을 포함한 ISO datetime, 달력 날짜는 date-only 계약을 따른다. 필드별 의미와 현재 차이는 [날짜와 시각](./context/project/common/date-and-time.md)에서 확인하고 표시는 shared util에서 처리한다.
 8. delete flow는 soft delete와 cleanup 안전 조건을 따른다.
 9. 서버 route는 인증과 user ownership을 확인한다.
 10. 정책 제한 UI는 `useAppPolicy`, `PolicyErrorDisplay`, `NetworkStatusIndicator` 같은 기존 패턴을 먼저 사용한다.
@@ -85,7 +85,7 @@ Noline은 불안정한 네트워크 환경에서도 여행 계획과 경비 기�
 | 날짜/시간 | [ISO Time](./.claude/rules/iso-time.md) |
 | 서버 인증/소유권 | [Auth/User Scope](./.claude/rules/auth-user-scope.md) |
 | 정책 제한 UI | [Policy UI](./.claude/rules/policy-ui.md) |
-| 깊은 맥락 | [Context Map](./.claude/context/README.md) |
+| 깊은 맥락 | [Project context](./context/project/README.md) |
 
 ## Workspace Ownership
 
@@ -112,12 +112,11 @@ noline/
 │   ├── rules/           # Compact task/path rules
 │   ├── guards/          # High-cost failure map
 │   ├── runbooks/        # Repeated task entry points
-│   ├── context/         # Deep architecture and feature context sources
 │   ├── harness/         # AI/developer harness and bridge model
 │   ├── skills/          # 호출 조건·수행 방법과 공유 기준
 │   ├── agents/          # Claude report-only execution agents
 │   ├── commands/        # Claude command references
-│   ├── decisions/       # Decision records
+│   ├── decisions/       # Harness decision records
 │   ├── sessions/        # Session records
 │   ├── audits/          # Document audit/test evidence
 │   └── _archive/        # Deprecated historical material
@@ -160,12 +159,12 @@ pnpm harness:check
 
 - 루트는 탐색과 핵심 불변식만 소유한다.
 - 상세 정책은 가장 작은 owner 문서에 둔다.
-- 반복 작업은 `runbooks/`, compact rule은 `rules/`, 깊은 설명은 `context/`에서 시작한다.
-- Owner가 이동하지 않은 깊은 아키텍처와 기능 설명은 `.claude/context/`가 소유한다. 승인되어 이동한 주제의 현재 의미는 `context/project/`의 대응 canonical이 소유한다. 예전 `core/`와 `features/` 경로를 새 entrypoint로 되살리지 않는다.
+- 반복 작업은 `.claude/runbooks/`, compact rule은 `.claude/rules/`, 깊은 제품 설명은 `context/project/`에서 시작한다.
+- 깊은 아키텍처·기능·선택 이유는 `context/project/`의 대응 본문과 형성 자료가 소유한다. 옛 `.claude/context/`·제품 결정·그 archive를 현재 읽기의 필수 경로로 되살리지 않는다.
 - root `context/`는 Project context와 Workspace 운영 상태의 별도 층이다. 기본적으로 기존 제품 설명을 복제하지 않으며, 승인된 주제별 Owner 이동은 [Project 관리 계약](./context/project/MAINTENANCE.md)에 따라 유효한 의미와 authority를 함께 전환한다.
 - 기존 history, session, reference, archive 문서를 삭제하거나 현재 정책처럼 고치기 전에 [Document Map](./.claude/README.md)에서 역할을 확인한다.
 - active guide와 코드가 충돌하면 코드를 확인하고 active guide만 최소 수정한다.
-- 정책이나 하네스 구조가 바뀌면 [decisions/](./.claude/decisions/)에 결정 기록을 남긴다.
+- 제품 선택의 이유는 Project의 대응 본문·형성 자료나 `context/project/decisions/`에, 하네스 구조 변경은 [.claude/decisions/](./.claude/decisions/)에 남긴다.
 - `.claude/commands/`는 Claude command reference다. Codex로 자동 이식하지 않는다.
 - skill은 호출 조건·판단·수행 방법을 소유하고, 제품 정책과 지속 context의 관리 계약은 owning docs에 남긴다. agent는 report-only 실행자로 유지한다.
 

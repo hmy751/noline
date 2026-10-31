@@ -1,297 +1,83 @@
-# Noline Server
+# Noline API 서버
 
-Express + Drizzle ORM + TypeScript 기반 여행 경비 관리 API 서버
+Express 4·TypeScript ESM·Drizzle/PostgreSQL 기반 API 서버다. 처음 로컬 DB와 iOS 앱을 함께 준비할 때는 [개발 시작](../../START_GUIDE.md)을 따른다. 이 문서는 서버 환경·명령·코드 위치와 배포 전에 확인할 조건을 소유한다. 개발 계약은 [API 가이드](../../context/project/guidance/api-contracts.md), [오류 전달](../../context/project/guidance/error-handling.md), [서버 작업 지침](CLAUDE.md)에서 찾는다.
 
-## 🛠️ 기술 스택
+## 실행과 검사
 
-- **Runtime**: Node.js 20+
-- **Framework**: Express 4
-- **ORM**: Drizzle ORM
-- **Database**: PostgreSQL
-- **Language**: TypeScript (ESM)
-- **Build**: tsup (프로덕션), tsx (개발)
-- **Validation**: Zod
-
-## 📦 설치 및 실행
-
-### 1. 환경 변수 설정
-
-환경별 `.env` 파일을 생성하세요:
-
-#### 개발 환경 (`.env.development`)
+아래 명령은 저장소 루트 기준이다. 먼저 의존성과 공유 schema, 개발 DB를 준비한다.
 
 ```bash
-# Development Environment
-NODE_ENV=development
-PORT=3000
-HOST=localhost
-
-# Database (PostgreSQL)
-DATABASE_URL=postgresql://postgres:password@localhost:5432/noline_dev
-
-# JWT
-JWT_SECRET=dev-secret-key-not-for-production
-JWT_ISSUER=noline-api
-JWT_EXPIRES_IN=7d
-
-# CORS
-CORS_ORIGIN=http://localhost:8081
+pnpm server dev
+pnpm server typecheck
+pnpm server build
 ```
 
-#### 프로덕션 환경 (`.env.production`)
+`dev`는 `NODE_ENV=development tsx watch src/index.ts`, `build`는 Node20 대상의 tsup 빌드다. 공유 schema가 바뀌면 `pnpm schema build`를 먼저 실행한다. production 실행은 빌드 뒤 `pnpm server start`이고 `NODE_ENV=production node dist/index.js`를 실행한다. native 앱·OAuth·실제 DB 연결 성공은 타입/빌드 성공과 별도로 확인한다.
 
-```bash
-# Production Environment
-NODE_ENV=production
-PORT=3000
-HOST=0.0.0.0
-
-# Database (PostgreSQL)
-DATABASE_URL=postgresql://user:password@db.example.com:5432/noline_prod
-
-# JWT
-JWT_SECRET=CHANGE_THIS_IN_PRODUCTION
-JWT_ISSUER=noline-api
-JWT_EXPIRES_IN=7d
-
-# CORS (프로덕션 도메인)
-CORS_ORIGIN=https://yourdomain.com
-```
-
-**자동 로딩:**
-
-- `pnpm dev` → `.env.development` 로드
-- `pnpm start` → `.env.production` 로드
-
-**빠른 설정:**
-
-```bash
-cd apps/server
-
-# 개발 환경 파일 생성
-cat > .env.development << 'EOF'
-NODE_ENV=development
-PORT=3000
-HOST=localhost
-DATABASE_URL=postgresql://postgres:password@localhost:5432/noline_dev
-JWT_SECRET=dev-secret-key-not-for-production
-JWT_ISSUER=noline-api
-JWT_EXPIRES_IN=7d
-CORS_ORIGIN=http://localhost:8081
-EOF
-```
-
-### 2. 의존성 설치
-
-```bash
-pnpm install
-```
-
-### 3. 데이터베이스 설정
-
-**Docker로 PostgreSQL 시작:**
-
-```bash
-# PostgreSQL 시작
-pnpm docker:up
-
-# 상태 확인
-docker ps
-
-# 로그 확인 (선택)
-pnpm docker:logs
-```
-
-**테이블은 이미 생성되어 있습니다!** ✅
-
-만약 테이블을 다시 생성하려면:
-
-```bash
-# 방법 1: Drizzle Kit 사용 (대화형)
-pnpm db:push
-# y 입력
-
-# 방법 2: 컨테이너 재시작 (데이터 유지)
-pnpm docker:down
-pnpm docker:up
-```
-
-### 4. 서버 실행
-
-```bash
-# 개발 모드 (hot reload)
-pnpm dev
-
-# 프로덕션 빌드
-pnpm build
-
-# 프로덕션 실행
-pnpm start
-```
-
-## 📁 프로젝트 구조
-
-```
-apps/server/
-├── src/
-│   ├── config/          # 환경 변수 설정
-│   │   └── index.ts
-│   ├── db/              # Drizzle ORM
-│   │   ├── schema.ts    # 데이터베이스 스키마
-│   │   └── index.ts     # DB 인스턴스
-│   ├── middleware/      # Express 미들웨어
-│   │   ├── errorHandler.ts
-│   │   └── notFound.ts
-│   ├── routes/          # API 라우트
-│   │   └── index.ts
-│   ├── app.ts           # Express 앱 설정
-│   └── index.ts         # 서버 진입점
-├── drizzle.config.ts    # Drizzle 설정
-├── tsconfig.json        # TypeScript 설정
-├── tsup.config.ts       # 빌드 설정
-└── package.json
-```
-
-## 🗄️ 데이터베이스 스키마
-
-### Users
-
-- `id`: 사용자 ID (Primary Key)
-- `email`: 이메일 (Unique)
-- `password`: 비밀번호 (해시)
-- `name`: 이름
-- `profileImageUrl`: 프로필 이미지 URL
-
-### Trips
-
-- `id`: 여행 ID (Primary Key)
-- `userId`: 사용자 ID (Foreign Key)
-- `name`: 여행 이름
-- `destination`: 목적지
-- `startDate`: 시작일
-- `endDate`: 종료일
-
-### Schedules
-
-- `id`: 일정 ID (Primary Key)
-- `tripId`: 여행 ID (Foreign Key)
-- `title`: 일정 제목
-- `location`: 위치
-- `startTime`: 시작 시간
-- `endTime`: 종료 시간
-- `order`: 순서
-- `memo`: 메모
-
-### Expenses
-
-- `id`: 경비 ID (Primary Key)
-- `tripId`: 여행 ID (Foreign Key)
-- `scheduleId`: 일정 ID (Foreign Key, nullable)
-- `title`: 경비 제목
-- `amount`: 금액
-- `currency`: 통화
-- `category`: 카테고리 (Enum)
-- `date`: 날짜
-- `memo`: 메모
-- `isSynced`: 동기화 상태
+| 명령 | 실제 영향 |
+| --- | --- |
+| `pnpm server test` | Vitest 검사. 테스트별 의존 환경은 검사 설정에서 확인한다. |
+| `pnpm server test:integration` | 전용 Compose project의 PostgreSQL14 test DB(55432)에 현 schema를 적용하고 검사 뒤 test volume을 제거한다. 로컬 개발 DB의 읽기 검사와 다르다. |
+| `pnpm server db:generate` | `drizzle-kit generate:pg`로 schema SQL 파일 생성. DB 적용은 하지 않는다. |
+| `pnpm server db:push` | `drizzle-kit push:pg`로 대상 DB를 현재 Drizzle schema에 맞춘다. 변경 내용을 확인해야 한다. |
+| `pnpm server db:studio` | 설정한 DB를 탐색·수정할 수 있는 Drizzle Studio. |
+| `pnpm server docker:up/down/logs` | workspace Compose 조작. 스크립트가 `/usr/local/bin/docker`를 고정하므로 설치 경로가 다르면 PATH의 `docker compose`를 직접 사용한다. |
 
-## 🔌 API 엔드포인트
+`test:integration`의 Docker 경로는 `DOCKER_BIN`으로 바꿀 수 있다. 스크립트·실행 디렉터리는 [package.json](package.json), [integration runner](scripts/run-integration-tests.mjs)에서 확인한다.
 
-### Health Check
+## 환경 설정
 
-```
-GET /api/health
-```
+개발 파일 예시는 [개발 시작의 환경 설정](../../START_GUIDE.md#2-개발-환경-파일)에 있다. 복사할 `env.example`은 없다. 기존 파일 전체를 출력하거나 예시 생성 명령으로 덮어쓰지 않는다.
 
-**Response:**
+개발 실행은 [config/index.ts](src/config/index.ts)의 소스 위치를 기준으로 `apps/server/.env.development`를 읽는다. production 실행은 필요한 값을 **프로세스 환경으로 주입**하는 것을 기준으로 한다. 이미 주입된 값은 dotenv가 덮어쓰지 않는다.
 
-```json
-{
-  "status": "ok",
-  "message": "Server is running",
-  "timestamp": "2025-10-21T..."
-}
-```
+현재 dotenv 경로는 `import.meta.url`에서 얻은 디렉터리의 두 단계 위를 사용한다. 개발의 `src/config/index.ts`와 달리 [tsup 설정](tsup.config.ts)은 서버 소스를 `dist/index.js` 하나로 묶는다. 이 production bundle에서는 같은 계산이 `apps/.env.production`을 가리키므로 `apps/server/.env.production`을 만들었다고 로드되는 것은 아니다. 기존 `dist/index.js`에서도 이 경로 계산을 정적으로 확인했다. 소스 실행과 bundle 실행의 환경 파일 기준을 일치시키는 코드 수정은 후속 과제이며 이 문서는 이를 수정하거나 production 파일 로드를 검증하지 않았다.
 
-### API Info
+| 변수 | 용도와 현재 기본값 |
+| --- | --- |
+| `DATABASE_URL` | 필수. PostgreSQL 연결 문자열. Compose 개발 기본 DB는 `noline_dev`다. |
+| `JWT_SECRET` | 필수. 서버 token 서명용 비밀값. |
+| `HOST`, `PORT` | 기본 localhost, 3000. LAN 기기·배포에서는 접근 가능한 바인딩을 지정한다. |
+| `CORS_ORIGIN` | 기본 `http://localhost:8081`. 브라우저 client origin과 맞춘다. |
+| `JWT_ISSUER` | 기본 `noline-api`. 만료는 config의 access=1h, refresh=30d다. `JWT_EXPIRES_IN`은 읽지 않는다. |
+| `GOOGLE_WEB_CLIENT_ID`, `GOOGLE_IOS_CLIENT_ID` | Google ID token 검증 audience. client OAuth 등록과 맞춘다. `GOOGLE_CLIENT_ID`는 현재 config가 읽지 않는다. |
+| `APPLE_CLIENT_ID` | Apple identity token audience. 개발/production 앱 bundle과 맞춘다. |
+| `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY` | Apple code 교환·token revoke 설정. PEM의 `\n` 줄바꿈을 해석한다. |
+| `GOOGLE_PLACES_API_KEY`, `GOOGLE_GEO_DIRECTIONS_API_KEY` | 장소 검색·Google 경로 서비스. |
 
-```
-GET /api
-```
+부팅은 DATABASE_URL/JWT_SECRET 존재를 검사하고 DB에 SELECT1을 실행한 뒤 listener를 연다. 이것이 외부 서비스 키·OAuth·모든 테이블의 유효성을 확인하는 것은 아니다.
 
-**Response:**
+## DB 준비와 변경
 
-```json
-{
-  "name": "Noline API",
-  "version": "1.0.0",
-  "description": "Travel expense tracking API"
-}
-```
+[Compose](docker-compose.yml)는 PostgreSQL14, 컨테이너 `noline-postgres`, 포트5432, DB `noline_dev`와 지속 volume을 준비한다. 테이블 초기화 SQL이나 migration을 자동 실행하지 않는다. 따라서 새 로컬 DB에는 `pnpm server db:push`가 필요하다. 컨테이너 down/up은 volume을 유지하며 schema 재생성 방법이 아니다.
 
-## 🚀 NPM Scripts
+현재 DB shape의 원천은 [src/db/schema.ts](src/db/schema.ts)다. OAuth users·refresh_tokens와 Trip/Schedule/Expense를 정의한다. 상세 필드를 README에 복제하지 않는다. 예전 password 기반 users, schedules의 startTime/endTime/order/memo, expenses의 isSynced 설명은 현재 shape가 아니다. shared 입출력 계약은 [packages/schema](../../packages/schema/)와 대조한다.
 
-| 명령어             | 설명                       |
-| ------------------ | -------------------------- |
-| `pnpm dev`         | 개발 서버 실행 (tsx watch) |
-| `pnpm build`       | 프로덕션 빌드 (tsup)       |
-| `pnpm start`       | 프로덕션 서버 실행         |
-| `pnpm typecheck`   | 타입 체크                  |
-| `pnpm clean`       | 빌드 파일 삭제             |
-| `pnpm db:generate` | 마이그레이션 파일 생성     |
-| `pnpm db:push`     | 데이터베이스에 스키마 적용 |
-| `pnpm db:studio`   | Drizzle Studio 실행        |
+`drizzle.config.ts`는 현재 실행 디렉터리에서 `.env.development` 또는 `.env.production`을 찾는다. 루트의 `pnpm server ...` alias 또는 `apps/server`에서 실행하면 workspace 경로를 사용한다. 로컬 `drizzle/`은 ignore 대상이고 과거 생성물이 남아 있어도 최신 migration 체인으로 간주하지 않는다. 현재 package script에는 일반 `db:migrate` runner가 없다. 운영 schema 적용은 필요한 DDL·기존 데이터 영향·백업·적용 순서를 별도로 준비해야 하며 `db:generate`만으로 적용이 끝나지 않는다.
 
-## 🔧 개발 가이드
+[DB 스크립트 안내](scripts/README.md)는 기존 DB 열 추가와 과거 변환·물리삭제 스크립트를 구별한다. 현재 OAuth 로그인에서 사용자를 생성하므로 과거 테스트 유저 seed를 새 환경 준비에 사용하지 않는다.
 
-### 새로운 라우트 추가
+## 라우트와 인증을 찾는 위치
 
-1. `src/routes/` 에 라우터 파일 생성
-2. `src/routes/index.ts` 에서 라우터 import 및 등록
+[app.ts](src/app.ts)가 `/api`에 [routes/index.ts](src/routes/index.ts)를 연결한다.
 
-### 데이터베이스 스키마 변경
+| 경로 | 코드와 역할 |
+| --- | --- |
+| `GET /api/health` | `status`, `message`, timestamp 반환. 요청마다 DB를 검사하지 않는다. |
+| `GET /api` | API 이름·버전·설명. |
+| `/api/auth` | [auth.ts](src/routes/auth.ts): Google/Apple 로그인, refresh, logout, me, account 삭제. |
+| `/api/trips` | [trips.ts](src/routes/trips.ts): 여행 CRUD, 여행별 일정, 활성화/비활성화. |
+| `/api/schedules` | [schedules.ts](src/routes/schedules.ts): 일정 CRUD. |
+| `/api/expenses` | [expenses.ts](src/routes/expenses.ts): 경비 CRUD. |
+| `/api/places` | [places.ts](src/routes/places.ts): 장소 검색·상세. |
+| `/api/sync` | [sync.ts](src/routes/sync.ts): pull/push. |
 
-1. `src/db/schema.ts` 수정
-2. `pnpm db:generate` 실행 (마이그레이션 파일 생성)
-3. `pnpm db:push` 실행 (스키마 적용)
+Trip/Schedule/Expense·sync와 인증이 필요한 계정 route는 Bearer access token을 검증한다. [requireAuth](src/middleware/auth.ts)가 `req.userId`를 설정하고 route가 소유권을 확인한다. 장소 route는 현재 같은 인증 미들웨어를 쓰지 않는다. 모든 route가 같은 인증·parse·응답 wrapper를 적용했다고 일반화하지 말고 [API 계약의 현재 차이](../../context/project/guidance/api-contracts.md)를 확인한다.
 
-### 환경 변수 추가
+## 배포 전 확인
 
-1. `.env` 파일에 변수 추가
-2. `src/config/index.ts` 에서 타입 정의 및 로드
+[render.yaml](../../render.yaml)은 의존성/schema/server build와 `apps/server`에서 production start를 정의한다. production 환경값은 실제 호스팅 환경의 프로세스 환경으로 주입한다. 위의 bundle 경로 차이가 해결되기 전에는 workspace의 `.env.production` 자동 로드에 의존하지 않는다. 이 설정 파일의 존재만으로 배포·DB migration 완료를 판단하지 않는다.
 
-## 📝 코딩 규칙
+현재 파일에는 `HOST`가 없는데 서버 기본은 localhost이며, `GOOGLE_CLIENT_ID` 선언은 config가 읽는 두 변수명과 다르다. 실제 대시보드의 override는 이 문서에서 확인하지 않았다. 외부에서 닿는 host/port와 OAuth audience를 배포 대상에서 확인해야 한다. 스키마 변경을 포함하면 DB DDL → 서버 → client 순서와 구버전 호환을 검토한다.
 
-- **모든 async 함수는 try-catch 필수**
-- **Zod로 요청 검증 필수**
-- **Early Return 패턴 사용**
-- **res 후에는 명시적 return**
-- **민감 정보 로깅 금지**
-
-자세한 내용은 프로젝트 rules 참고:
-
-- `03-backend-express-guide.md`
-- `05-typescript-guide.md`
-- `07-error-handling.md`
-
-## 🐛 문제 해결
-
-### Database connection error
-
-PostgreSQL이 실행 중인지 확인하세요:
-
-```bash
-# macOS (Homebrew)
-brew services start postgresql@14
-
-# Docker
-docker run --name postgres -e POSTGRES_PASSWORD=password -p 5432:5432 -d postgres
-```
-
-### Port already in use
-
-`.env` 파일에서 PORT를 변경하세요.
-
-## 📄 라이센스
-
-ISC
+서버·DB·외부 서비스 설정을 바꾸는 책임자가 실행 절차와 이 안내를 함께 갱신한다. 2026-10-31 정적 대조 범위이며 새 설치·production 실행 검증 기록은 아니다.

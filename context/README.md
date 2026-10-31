@@ -6,7 +6,7 @@
 - [`project/`](project/): 여러 Workspace가 공유하는 Noline의 지속 의미·현재 구현·조건부 기준을 common/current/guidance 물리 layer로 나누고 Decision을 연결하는 Project context
 - [`work/`](work/): Workspace의 current·source·output·records와 이를 Recover·Maintain·Verify하는 교체 가능한 Harness 운영 경계
 
-`.claude/context/`는 Owner가 이동하지 않은 깊은 제품·기능 설명과 이동 뒤 남은 구현 배경·호환 routing을, `.claude/rules/`·`guards/`·`runbooks/`는 작업 지침을 계속 소유한다. 승인되어 이동한 주제의 현재 의미는 [`project/README.md`](project/README.md)가 가리키는 대응 canonical이 소유한다. 구현 사실과 충돌하면 현재 기준과 실제 코드를 대조해 영향받은 본문을 갱신하며, authority 충돌은 Project 관리 계약에 따라 판단한다.
+`.claude/rules/`·`guards/`·`runbooks/`는 compact 작업 지침과 실행 진입을 소유한다. 깊은 제품·기능 설명과 필요한 선택 이유의 현재 의미는 [`project/README.md`](project/README.md)가 가리키는 대응 canonical이 소유한다. 구현 사실과 충돌하면 현재 기준과 실제 코드를 대조해 영향받은 본문을 갱신하며, authority 충돌은 Project 관리 계약에 따라 판단한다.
 
 ## 시작점
 

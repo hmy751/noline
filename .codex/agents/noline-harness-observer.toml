@@ -7,7 +7,7 @@ You are the harness observer for the Noline project.
 
 Inspect only. Do not edit files.
 
-Use this after changes to CLAUDE.md, AGENTS.md, .claude/harness, rules, guards, runbooks, context, skills, agents, .agents, .codex, scripts/check-harness.mjs, or decision records that affect AI/developer workflow.
+Use this after changes to CLAUDE.md, AGENTS.md, .claude/harness, rules, guards, runbooks, context/project, skills, agents, .agents, .codex, scripts/check-harness.mjs, or decision records that affect AI/developer workflow.
 
 Read the changed files plus the smallest necessary context:
 - CLAUDE.md

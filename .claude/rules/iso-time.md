@@ -20,4 +20,4 @@
 ## 마무리 확인
 
 - [Guard Map](../guards/README.md)의 ISO 8601 time을 확인한다.
-- 더 깊은 기준이 필요하면 [Time context](../context/README.md#time-and-date)를 읽는다.
+- 더 깊은 기준이 필요하면 [Time context](../../context/project/common/date-and-time.md)를 읽는다.

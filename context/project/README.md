@@ -23,7 +23,7 @@
 - 기존 동작을 유지하는 코드 가독성 리팩터링을 계획·구현·검증할 때: [동작을 보존하는 코드 리팩터링](guidance/behavior-preserving-refactoring.md)
 - 설명·논의에서 주장과 실제 근거의 관계를 다룰 때: [공통 설명과 근거 기준](../../.claude/skills/shared/explanation-and-evidence-criteria.md)의 적용 조건
 - Selective Local-First를 선택한 이유가 필요할 때: [선택 근거](decisions/0001-selective-local-first.md)
-- 아직 이관하지 않은 개발 시작·운영 상세 주제: [기존 Noline 작업 진입점](../../.claude/runbooks/README.md)과 [상세 맥락 색인](../../.claude/context/README.md)
+- 로컬 개발 환경을 준비하고 실행할 때: [개발 시작](../../START_GUIDE.md). 서버 환경·DB 도구는 [서버 안내](../../apps/server/README.md), 반복 개발 작업은 [Runbooks](../../.claude/runbooks/README.md)에서 찾는다.
 
 본문이 추가되거나 책임이 이동하면 이 주제별 경로도 실제 Owner에 맞춘다. 없는 가이드를 이미 구성된 것처럼 연결하지 않는다. 각 층의 전체 목록은 [common](common/README.md), [current](current/README.md), [guidance](guidance/README.md), [decisions](decisions/README.md)에서 찾는다.
 
@@ -70,9 +70,9 @@ Project 수준에서 현재 구현·지원·적용되는 범위와 연결 관계
 
 ## Authority와 작업 경계
 
-각 내용 문서는 자신이 맡은 의미 범위와 현재 권위를 밝힌다. 기존 상세 canonical을 옮기지 않은 범위는 해당 Owner와 충돌 우선순위를 명시하고, 승인된 주제별 이동을 마친 범위는 Project 본문이 현재 의미를 소유한다. 이관한 여행 접근·Policy·데이터 수명·지도·경로·구조·UI·TypeScript·작성·입력·날짜의 옛 문서는 일반 읽기에서 제외하고 필요한 근거는 Project 형성 자료에서 읽는다. 다른 주제의 미이동 상세는 별도 범위로 구별하며 같은 현재 답을 중복 소유하지 않는다.
+각 내용 문서는 자신이 맡은 의미 범위와 현재 권위를 밝힌다. 제품·아키텍처·기능의 현재 의미와 필요한 선택 이유는 Project 본문과 가까운 형성 자료가 소유한다. 옛 제품 문서는 일반 읽기에서 제외했다. 원자료의 역사 조사와 현재 제품 판단을 구별하며 archive를 우회 Owner로 쓰지 않는다.
 
-현재 제품 본문은 위 읽기 경로에 연결된 범위다. 미이동 상세 의미와 작업 지침은 root [CLAUDE.md](../../CLAUDE.md), [.claude/context](../../.claude/context/README.md), [rules](../../.claude/rules/README.md), [guards](../../.claude/guards/README.md), [runbooks](../../.claude/runbooks/README.md)가 계속 소유한다. 구현 사실은 [apps](../../apps/)·[packages](../../packages/)의 코드와 테스트에서 확인한다. 현재 코드나 최근 문서라는 이유만으로 제품 결정을 자동 대체하지 않는다.
+현재 제품 본문은 위 읽기 경로에 연결된 범위다. 탐색·compact 작업 지침·실행 진입은 root [CLAUDE.md](../../CLAUDE.md), [rules](../../.claude/rules/README.md), [guards](../../.claude/guards/README.md), [runbooks](../../.claude/runbooks/README.md)가 소유한다. 환경 준비 절차는 개발 시작·서버 안내가 소유하며 같은 내용을 Project에 복제하지 않는다. 구현 사실은 [apps](../../apps/)·[packages](../../packages/)의 코드와 테스트에서 확인한다. 현재 코드나 최근 문서라는 이유만으로 제품 결정을 자동 대체하지 않는다.
 
 한 Workspace의 목표·진행·후보·시행착오·검증 이력은 Work에 남긴다. 첫 Workspace에서 얻은 내용도 지속되는 적용 범위와 근거가 확인되면 Project 본문에 반영할 수 있다. 사용자가 한정한 주제의 Owner 이동을 관련 없는 제품 문서 전체 개편으로 넓히지 않는다.
 

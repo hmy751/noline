@@ -9,7 +9,7 @@
 - `apps/server/CLAUDE.md`가 서버 workspace guide의 원천이다.
 - `apps/server/AGENTS.md`는 이 파일을 가리키는 Codex bridge symlink다. 별도 정책 원천처럼 수정하지 않는다.
 - 작업에 필요한 기준은 아래 Start Here와 [Runbooks](../../.claude/runbooks/README.md)에서 직접 찾는다.
-- client/schema와 함께 지켜야 하는 정책은 이 파일에 복사하지 않고 `rules/`, `guards/`, `runbooks/`, `context/` 중 가장 작은 owner로 보낸다.
+- client/schema와 함께 지켜야 하는 정책은 이 파일에 복사하지 않고 `rules/`, `guards/`, `runbooks/`, `context/project/` 중 가장 작은 owner로 보낸다.
 
 ## Start Here
 
@@ -70,4 +70,4 @@ pnpm harness:check
 
 ## Update Rule
 
-이 파일에는 server 작업자가 시작 전에 알아야 할 경계만 남긴다. 상세 route 예시, 배포 후보, 긴 운영 블루프린트는 코드 확인 뒤 `context/`나 `_archive/`로 분리한다.
+이 파일에는 server 작업자가 시작 전에 알아야 할 경계만 남긴다. 상세 route 예시, 배포 후보, 긴 운영 블루프린트는 코드 확인 뒤 `context/project/`나 `_archive/`로 분리한다.

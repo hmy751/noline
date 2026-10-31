@@ -13,22 +13,22 @@
 3. 코드 작업이면 [rules/README.md](rules/README.md)에서 관련 compact rule을 고른다.
 4. 비용이 큰 실수는 [guards/README.md](guards/README.md)에서 전후로 점검한다.
 5. 반복 작업은 [runbooks/README.md](runbooks/README.md)에서 시작 순서와 관련 문서를 찾는다.
-6. 관련 작업의 의미·계약·현재 차이를 이해할 때 [Project 주제별 진입](../context/project/README.md)에서 본문을 선택한다. 아직 이동하지 않은 상세는 [context/README.md](context/README.md)에서 찾고, 선택 이유나 과거 근거가 필요할 때 decision·history로 내려간다. 본문 선택·근거 대조·재사용은 [USAGE](../context/USAGE.md)를 따른다.
+6. 관련 작업의 의미·계약·현재 차이를 이해할 때 [Project 주제별 진입](../context/project/README.md)에서 본문을 선택한다. 제품 선택 이유는 해당 Project 형성 자료에서 읽고, 하네스 변경 이유는 decisions에서 찾는다. 옛 제품 원본은 역사 조사에만 사용한다. 본문 선택·근거 대조·재사용은 [USAGE](../context/USAGE.md)를 따른다.
 
 ## 역할 구분
 
 | 위치 | 역할 | 읽는 방식 |
 | --- | --- | --- |
 | [harness/](harness/) | Claude/Codex bridge, 문서 owner, 하네스 변경 규칙 | AI/developer 운영 구조를 바꿀 때 먼저 읽는다. |
-| [../context/](../context/) | Personal 판단 기준·경험, 승인된 주제의 Project-wide 의미·current canonical, Workspace current/source/output/records, Recover·Maintain·Verify | 지속 작업을 복구하거나 새 Context Workspace를 만들 때 읽는다. 주제별 Owner 이동과 미이동 범위는 [Project context](../context/project/README.md)에서 확인한다. |
+| [../context/](../context/) | Personal 판단 기준·경험, 승인된 주제의 Project-wide 의미·current canonical, Workspace current/source/output/records, Recover·Maintain·Verify | 지속 작업을 복구하거나 새 Context Workspace를 만들 때 읽는다. 주제별 Owner는 [Project context](../context/project/README.md)에서 확인한다. |
 | [skills/](skills/README.md) | 로컬 운영 스킬과 deprecated 스킬 이력 | 각 스킬의 호출 조건을 따른다. `noline-work`는 deprecated이며 호출하지 않는다. |
 | [agents/](agents/) | Claude report-only 실행자 | context 수집, policy drift 점검, harness observer가 필요할 때만 사용한다. |
 | [rules/](rules/) | 짧고 검증 가능한 task/path 규칙 | 관련 코드 수정 중 scoped rule로 읽는다. |
 | [guards/](guards/) | 데이터 손실, sync 누락, auth 누락처럼 비용이 큰 실수 방지 지도 | 코드 변경 전후 체크용으로 읽는다. |
 | [runbooks/](runbooks/) | 반복 작업별 시작 순서 | 작업 시작 1-5분 안에 무엇을 확인할지 정한다. |
-| [context/](context/) | Owner가 이동하지 않은 깊은 아키텍처·기능 설명과 이동 뒤 남은 구현 배경·호환 routing | rule/runbook만으로 부족할 때 열고, 주제별 현재 canonical과 코드를 대조한다. |
+| [Project](../context/project/README.md) | 제품 의미·현재 구조·개발 기준과 선택 이유 | 주제별 본문과 형성 자료에서 이해하고 코드와 대조한다. |
 | [commands/](commands/) | Claude command reference와 문서 관리 workflow | Claude 전용 command 자료다. Codex command로 자동 이식하지 않는다. 먼저 [commands/README.md](commands/README.md)를 확인한다. |
-| [decisions/](decisions/) | 정책, 용어, 구조 변경의 이유 | 현재 정책의 근거로 읽되, source 문서가 더 최신이면 source를 우선한다. |
+| [decisions/](decisions/) | 하네스 구조·운영 변경의 이유 | 당시 결정과 후속 변경을 구별한다. 현재 책임 배치는 harness와 Project가 소유한다. |
 | [sessions/](sessions/) | 설계/구현 세션 기록 | 왜 그런 선택을 했는지 확인하는 기록이다. active policy로 바로 사용하지 않는다. |
 | [_archive/](_archive/) | 과거 구현 가이드와 deprecated 맥락 | 역사 자료다. 명시 요청 없이 현재 구현 기준으로 끌어올리지 않는다. |
 | [audits/](audits/) | 문서 품질 검증, 하네스 점검, 리팩터링 테스트 | active guide가 아니다. 현재 정책과 충돌하면 active source를 우선한다. |
@@ -59,14 +59,14 @@ Codex bridge:
 | 운영 스킬과 호출 조건 | [skills/README.md](skills/README.md) |
 | Project 본문 선택과 적용 | [Project 읽기 경로](../context/project/README.md), [USAGE](../context/USAGE.md) |
 | Context Workspace 생성·전환 | [../context/work/workspaces/CREATE-AND-TRANSITION.md](../context/work/workspaces/CREATE-AND-TRANSITION.md), [create-context-workspace](skills/create-context-workspace/SKILL.md) |
-| Deep architecture/feature context | [context/README.md](context/README.md) |
+| Deep architecture/feature context | [Project](../context/project/README.md) |
 
 ## 보존 규칙
 
 - 기존 `.claude` 문서를 생각 없이 삭제하지 않는다.
-- 오래된 가이드가 유용하지만 현재 기준으로 위험하면 `_archive/`로 이동하고, 현재 깊은 맥락은 `context/`에서 다시 연결한다.
+- 오래된 가이드가 유용하지만 현재 기준으로 위험하면 `_archive/`로 이동하고, 현재 깊은 제품 맥락과 필요한 이유는 `../context/project/`에서 설명한다.
 - 오래된 용어가 history, session, implementation, reference, archive에 남아 있어도 현재 정책처럼 고치지 않는다.
 - active guide에서 현재 코드와 충돌하는 표현은 코드 확인 후 수정한다.
 - 문서를 이동하기 전에 먼저 이 지도나 [corpus inventory](audits/2026-05-06-doc-corpus-inventory.md)에서 현재 역할과 목표 역할을 분명히 한다.
 - 하네스 구조나 작업 방식이 바뀌면 [decisions/](decisions/)에 결정 기록을 남긴다.
-- workspace guide가 길어지면 상세 설명을 owning `context/`, `runbooks/`, `rules/`, `sessions/`, `_archive/`로 분리한다.
+- workspace guide가 길어지면 상세 설명을 owning Project 본문, `runbooks/`, `rules/`, `sessions/`, `_archive/`로 분리한다.
