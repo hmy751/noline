@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-31",
+  "authorization": "외부 서비스 전송과 계정 사용량을 안내한 뒤 사용자가 “그래 된건가? 테스트 해봐”라고 시험 진행을 요청했다. 이후 자동 승인 검토를 통과해 실행했다. 이전 거절 때는 실행하지 않았다.",
+  "scope": "격리 Git 프로젝트. 현재 explain 원본과 동일한 본문, .agents/skills actual source와 .claude/skills 상대 연결. 읽기 전용으로 이름과 H1만 반환. Noline binding·제품 파일 변경 없음.",
+  "source": {
+    "path": ".agents/skills/explain/SKILL.md",
+    "sha256": "4f9cdbc3528a37fc4ddb312e90305e7b3e7956a366885cad7f2000764107bb6c",
+    "expected_heading": "# Explain — 실제 대상을 이해하고 판단할 수 있게 설명한다"
+  },
+  "codex": {
+    "invocation": "$explain",
+    "exit_code": 0,
+    "response": "name: explain | # Explain — 실제 대상을 이해하고 판단할 수 있게 설명한다",
+    "model": "gpt-6.1-sol",
+    "mode": "ephemeral/read-only",
+    "observed_items": [
+      "agent_message"
+    ],
+    "turn_completed": true
+  },
+  "claude": {
+    "invocation": "/explain",
+    "exit_code": 0,
+    "is_error": false,
+    "response": "`name: explain` | `# Explain — 실제 대상을 이해하고 판단할 수 있게 설명한다`",
+    "model": [
+      "claude-sonnet-4-6"
+    ],
+    "mode": "no-session-persistence/project settings/Read only"
+  },
+  "limits": [
+    "대표 explain의 명시호출·본문 접근 확인이며 8개 스킬 전체 판단 효과를 시험한 것은 아니다.",
+    "실제 Noline의 Maintain 자동 수행이나 host trust·cache 전체 검증으로 확대하지 않는다."
+  ]
+}

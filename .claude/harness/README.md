@@ -15,7 +15,7 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
 | Workspace guides | `apps/*/CLAUDE.md`, `packages/*/CLAUDE.md` | app/package별 구현 규칙과 명령 | 경로에 따라 읽음 |
 | Document map | [../README.md](../README.md) | `.claude` corpus의 역할과 읽는 순서 | 문서 작업 시 시작점 |
 | Project context | [../../context/project/](../../context/project/) | 제품·아키텍처·개발 기준·실패 위험·확인 조건과 선택 이유 | 주제별 Owner에서 함께 읽고 실제 구현과 대조 |
-| Skill | [../skills/README.md](../skills/README.md) | 로컬 운영 스킬 | 각 스킬의 호출 조건에 따라 읽음 |
+| Skill | [../../.agents/skills/README.md](../../.agents/skills/README.md) | 로컬 운영 스킬 | 각 스킬의 호출 조건에 따라 읽음 |
 | Archive | [../_archive/](../_archive/) | 과거 맥락, 오래된 reference, deprecated guidance | history |
 
 제품 본문은 [Project](../../context/project/README.md)에 통합했다. 옛 `core/`·`features/`·`.claude/context/`와 제품 결정은 현재 읽기 경로로 사용하지 않는다. `.claude`의 실행 지침·도구 연결과 하네스 결정 이력은 유지한다.
@@ -33,7 +33,7 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
   - `packages/schema/`
   - `packages/ui/`
 - 제품 기준과 위험 점검은 `context/project/`의 주제별 본문을 공통으로 읽는다. 도구별 자동 rule loader에 기대지 않는다.
-- `.claude/skills/create-context-workspace`는 설치된 Context Harness에서 새 Workspace를 구성하는 Claude skill 원천이고 `.agents/skills/create-context-workspace`는 Codex bridge다.
+- `.agents/skills/`는 공통 스킬 원본과 Codex 발견 경로다. `.claude/skills -> ../.agents/skills`로 Claude가 같은 스킬 단위를 읽는다.
 - `.claude/settings.json`은 Claude Code lifecycle hook을 `.claude/hooks/maintain.py`에 연결한다. `.codex/hooks.json`은 Codex lifecycle을 `.codex/hooks/maintain.py`에 연결한다. 둘 다 새 session을 자동 binding하지 않으며, Claude payload의 `agent_id`가 있는 subagent event는 Main binding과 분리하기 위해 adapter가 조용히 무시한다.
 
 ## 브릿지 규칙
@@ -103,10 +103,9 @@ pnpm harness:check
 
 ## 실행층
 
-현재 active 실행층:
+현재 스킬의 역할·호출 조건은 [공통 스킬 색인](../../.agents/skills/README.md)에서 찾는다. 이름 목록을 이 문서에 별도로 관리하지 않는다.
 
-- `create-context-workspace`: 설치 뒤 새 독립 또는 후속 Context Workspace를 구성·bounded 재진입 검토하는 skill이다. 최초 이식이나 기존 Workspace 단순 수정에는 사용하지 않는다.
-- `start-app`: 직접 실행 요청 또는 실제 앱 검증이 필수인 작업에서 개발 DB·서버·클라이언트를 실행하고 연결을 확인한다.
+공통 Maintain의 binding·generation·semantic 판단·guarded apply는 [Work Maintain](../../context/work/harness/maintain/README.md)이 소유한다. `.claude/settings.json`과 `.codex/hooks.json`은 host 이벤트를 각 wrapper에 연결하며, wrapper는 host별 인자를 공통 구현에 맞춘다. 선택적 개인 `evidence-collector`가 있으면 wrapper가 해당 dispatcher를 거치고, 없으면 기존 Maintain으로 직접 연결한다. 개인 설치가 없는 checkout의 tool-event·interrupt는 정상 no-op이다. 같은19줄 정도의 진입을 합치려고 새 실행층을 만들지 않는다.
 
 `noline-work`는 2026-09-10 사용자 요청으로 deprecated 처리했다. 작업별 기준은 root·workspace guide와 Project 주제별 기준에서 직접 찾는다. 2026-10-31에 원본과 bridge를 현재 경로에서 제거했고 원본은 Ticket 10 archive에 보존했다.
 
@@ -116,7 +115,7 @@ agent/skill 파일은 discoverable 역할 정의일 뿐, 자동 team runner가 �
 
 ## Context Harness 보완
 
-[Project layer](../../context/project/README.md)와 [Spec·Ticket](../../context/work/workspaces/spec-and-tickets/README.md)이 지속 내용과 유지 책임을 소유한다. [운영 skill 색인](../skills/README.md)은 생성·Personal/Project 한정 갱신·논의·재판단·설명을 연결한다. `.claude/skills/` 원본과 `.agents/skills/` 상대 bridge를 유지하며 각 host adapter를 대체하지 않는다. Project 구성과 읽기·검증의 선택 이유는 [Project 구성 결정](../../context/project/decisions/0003-context-structure-and-verification.md)에 있다.
+[Project layer](../../context/project/README.md)와 [Spec·Ticket](../../context/work/workspaces/spec-and-tickets/README.md)이 지속 내용과 유지 책임을 소유한다. [운영 skill 색인](../skills/README.md)은 생성·Personal/Project 한정 갱신·논의·재판단·설명을 연결한다. `.agents/skills/` 원본과 `.claude/skills` host 연결은 수행 내용을 공유하며 각 host adapter를 대체하지 않는다. Project 구성과 읽기·검증의 선택 이유는 [Project 구성 결정](../../context/project/decisions/0003-context-structure-and-verification.md)에 있다.
 
 공통 읽기는 [USAGE](../../context/USAGE.md)로 연결한다. 최신 Personal·설명·한정 갱신의 부분 반영과 기존 경로 호환 이유는 [부분 반영 기록](../../context/_background/records/2026-10-30-noline-partial-reapplication.md)에 있다. Maintain·Work 전환 계약과 각 host 연결은 이번 보완에서 유지했다.
 

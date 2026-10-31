@@ -19,18 +19,19 @@
 | --- | --- | --- |
 | [harness/](harness/) | Claude/Codex bridge, 문서 owner, 하네스 변경 규칙 | AI/developer 운영 구조를 바꿀 때 먼저 읽는다. |
 | [../context/](../context/) | Personal 판단 기준·경험, 승인된 주제의 Project-wide 의미·current canonical, Workspace current/source/output/records, Recover·Maintain·Verify | 지속 작업을 복구하거나 새 Context Workspace를 만들 때 읽는다. 주제별 Owner는 [Project context](../context/project/README.md)에서 확인한다. |
-| [skills/](skills/README.md) | 로컬 운영 스킬 | 각 스킬의 호출 조건을 따른다. |
+| [skills/](skills/README.md) | Claude가 공통 스킬을 읽는 연결 | 원본은 [공통 스킬](../.agents/skills/README.md)에 있다. 각 호출 조건을 따른다. |
 | [Project](../context/project/README.md) | 제품 의미·현재 구조·개발 기준·실패 위험과 선택 이유 | 같은 주제 본문에서 적용 조건과 확인 방법을 읽고 실제 코드와 대조한다. |
 | [_archive/](_archive/) | 과거 구현 가이드와 deprecated 맥락 | 역사 자료다. 명시 요청 없이 현재 구현 기준으로 끌어올리지 않는다. |
 | [CHANGELOG.md](CHANGELOG.md) | 정책/기능 변화의 긴 이력 | 큰 흐름을 볼 때 사용한다. 세부 구현은 코드와 active guide를 확인한다. |
 | [settings.json](settings.json) | 공유 Claude Code lifecycle hook 설정 | `SessionStart`·prompt·response-end·session-end를 explicit-unbound Maintain adapter에 연결한다. 개인 권한은 여기 넣지 않는다. |
 | [settings.local.json](settings.local.json) | Claude 로컬 설정 | 개인 권한과 machine-specific 선택만 둔다. 공유 hook을 덮어쓰거나 하네스 개편 이유만으로 수정하지 않는다. |
 
-Codex bridge:
+공통 스킬과 host 진입:
 
-- `.agents/skills/create-context-workspace`는 `.claude/skills/create-context-workspace`를 가리키는 symlink다. 최초 Context Harness 이식에는 쓰지 않고, 설치 후 새 독립 또는 후속 Workspace를 만들 때만 쓴다.
-- `.agents/skills/start-app`은 `.claude/skills/start-app`을 가리키는 symlink다. 직접 요청되거나 실제 앱 실행이 필수일 때만 사용한다.
-- bridge parity는 `pnpm harness:check`가 확인한다.
+- `.agents/skills/`의 실제 파일이 공통 수행·조건부 상세·형성 자료를 함께 소유한다. Codex는 이 위치에서 직접 발견한다.
+- `.claude/skills`는 `../.agents/skills`를 가리키는 상대 symlink다. Claude도 같은 파일을 읽는다.
+- 두 host의 설정·hook wrapper는 각 host 경로에 두며, 공통 Maintain 의미와 구현은 Work가 소유한다.
+- 구조·연결 검사는 `pnpm harness:check`, 실제 발견·호출 근거는 해당 변경의 Work 결과에서 확인한다.
 
 ## Active Task Index
 

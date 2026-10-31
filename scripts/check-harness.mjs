@@ -99,7 +99,7 @@ function checkMarkdownLinks() {
     'START_GUIDE.md',
     '.claude/README.md',
     '.claude/harness',
-    '.claude/skills',
+    '.agents/skills',
     '.claude/context',
     'context',
     'apps/client/CLAUDE.md',
@@ -182,15 +182,18 @@ function checkOnlyEntries(target, required, allowed = required) {
 }
 
 function checkExecutionSurfaces() {
-  checkOnlyEntries('.claude/skills', [
+  checkSymlink('.claude/skills', '../.agents/skills');
+  checkOnlyEntries('.agents', ['skills']);
+  checkOnlyEntries('.agents/skills', [
     ...expectedSkills,
     'README.md',
     'shared',
     'SKILLS-CONTENT-POLICY.md',
     '_background',
   ]);
-  checkOnlyEntries('.agents', ['skills']);
-  checkOnlyEntries('.agents/skills', [...expectedSkills, 'README.md']);
+  if (exists('.agents/skills') && !fs.lstatSync(path.join(root, '.agents/skills')).isDirectory()) {
+    failures.push('.agents/skills must be the canonical directory');
+  }
   checkOnlyEntries(
     '.codex',
     ['config.toml', 'hooks', 'hooks.json', 'maintain.json'],
@@ -198,9 +201,13 @@ function checkExecutionSurfaces() {
   );
 
   for (const name of expectedSkills) {
-    checkSymlink(`.agents/skills/${name}`, `../../.claude/skills/${name}`);
-    if (!exists(`.claude/skills/${name}/SKILL.md`)) {
-      failures.push(`.claude/skills/${name}/SKILL.md is missing`);
+    const directory = `.agents/skills/${name}`;
+    const skill = `${directory}/SKILL.md`;
+    if (!exists(directory) || !fs.lstatSync(path.join(root, directory)).isDirectory()) {
+      failures.push(`${directory} must be a canonical directory`);
+    }
+    if (!exists(skill) || !fs.lstatSync(path.join(root, skill)).isFile()) {
+      failures.push(`${skill} must be a regular file`);
     }
   }
 
@@ -253,6 +260,57 @@ function checkContextHarnessSurface() {
       }
     } catch {
       failures.push('.codex/maintain.json must be valid JSON');
+    }
+  }
+
+  const codexConfig = path.join(root, '.codex/config.toml');
+  if (fs.existsSync(codexConfig)) {
+    try {
+      // Maintain already requires Python 3.11+; use its TOML parser rather than
+      // duplicating TOML syntax or adding a second parser dependency.
+      const parsed = JSON.parse(execFileSync('python3', [
+        '-c', 'import json, sys, tomllib; print(json.dumps(tomllib.loads(sys.stdin.read())))',
+      ], { input: fs.readFileSync(codexConfig, 'utf8'), encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }));
+      if (parsed.features?.hooks !== true) {
+        failures.push('.codex/config.toml must enable features.hooks');
+      }
+      const rolePath = parsed.agents?.workspace_context_maintainer?.config_file;
+      const expectedRole = path.join(root, 'context/work/harness/maintain/workspace-context-maintainer.toml');
+      if (typeof rolePath !== 'string'
+        || path.resolve(path.dirname(codexConfig), rolePath) !== expectedRole
+        || !fs.existsSync(expectedRole)
+        || !fs.lstatSync(expectedRole).isFile()) {
+        failures.push('.codex/config.toml must discover the shared Maintain role file');
+      }
+    } catch {
+      failures.push('.codex/config.toml must be valid TOML readable with Python 3.11+');
+    }
+  }
+
+  const codexHooks = path.join(root, '.codex/hooks.json');
+  if (fs.existsSync(codexHooks)) {
+    try {
+      const parsed = JSON.parse(fs.readFileSync(codexHooks, 'utf8'));
+      for (const [eventName, command] of Object.entries({
+        SessionStart: 'session-start',
+        UserPromptSubmit: 'user-prompt',
+        Stop: 'response-end',
+        SessionEnd: 'session-end',
+        PreToolUse: 'tool-event',
+        PostToolUse: 'tool-event',
+        Interrupt: 'interrupt',
+      })) {
+        const handlers = parsed.hooks?.[eventName];
+        const expectedCommand = `python3 "$(git rev-parse --show-toplevel)/.codex/hooks/maintain.py" ${command}`;
+        const maintainHandler = handlers?.flatMap((group) => group.hooks ?? []).find(
+          (handler) => handler.type === 'command' && handler.command === expectedCommand,
+        );
+        if (!maintainHandler) {
+          failures.push(`.codex/hooks.json must route ${eventName} through the Codex project wrapper`);
+        }
+      }
+    } catch {
+      failures.push('.codex/hooks.json must be valid JSON');
     }
   }
 

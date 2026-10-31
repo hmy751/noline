@@ -4,7 +4,7 @@
 
 사용자는 generate-pr의 유용성을 다시 보자고 한 뒤 “그래 따로 문서를 두자  만약 PR 하는 경우 레퍼런스 따르게 정도로”라고 선택했다. 직전 제안은 새 PR 스킬 없이 development의 조건부 상세를 두고 Claude command가 같은 상세를 가리키는 것이었다. 앞서 work-discussion은 그대로 두기로 했으며 이번 변경에도 포함하지 않았다.
 
-기존 command의 [보존 원본](../../../../_archive/2026-10-31-project-context-reconstruction/ticket-10/commands/generate-pr.md.txt)에서 비교 대상 확인, 커밋·최종 diff 분석과 PR 제목·본문 작성을 가져왔다. 대상 감지 뒤 main으로 고정 비교하던 예제, 커밋·줄 수별 템플릿, 통계·완료율 필수 목차와 키워드 기반 migration 강제는 제외했다. 실제 비교 기준과 검증 근거, 최종 변경의 목적·결과에 따라 작성하도록 재구성했다.
+기존 command의 [보존 원본](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/commands/generate-pr.md.txt)에서 비교 대상 확인, 커밋·최종 diff 분석과 PR 제목·본문 작성을 가져왔다. 대상 감지 뒤 main으로 고정 비교하던 예제, 커밋·줄 수별 템플릿, 통계·완료율 필수 목차와 키워드 기반 migration 강제는 제외했다. 실제 비교 기준과 검증 근거, 최종 변경의 목적·결과에 따라 작성하도록 재구성했다.
 
 [스킬 관리 정책](../../../SKILLS-CONTENT-POLICY.md)의 조건별 실행 상세와 형성 자료 구분을 적용했다. 현재 행동은 reference에 두고 이 기록에는 선택 이유와 최소 원문을 남긴다. PR 작성은 일반 개발의 새 필수 단계가 아니며, 작성만 요청한 일을 commit·push·원격 PR 생성으로 확장하지 않는다.
 

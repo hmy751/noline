@@ -1,29 +1,30 @@
 # 현재 상태와 다음 행동
 
-**Ticket 10은 commit `1648540`으로 마감됐다. 이후 승인된 audits·decisions·sessions 원문 28개의 현재 의미 통합·원문 보존·읽기 전환이 적용됐고 기존 세 폴더는 제거됐지만, 이 변경은 아직 커밋하지 않았다.** Ticket 11의 실제 변경과 host 검증은 아직 시작되지 않았으며, 역사 링크 전반의 정비·Ticket 13·006 전체 사용자 수락도 남아 있다.
+**Ticket 11의 공통 스킬 원본·Claude 연결 전환과 실제 host 검증이 완료됐다. `.agents/skills`를 공통 원본으로 두고 `.claude/skills`를 Claude용 연결로 바꿨으며, Claude와 Codex가 각각 `explain` 본문을 실제로 로드했다.** 회귀 검사 45개와 독립 재검증도 끝났지만 변경은 아직 커밋하지 않았다.
 
-## Ticket 10의 현재 결과
+## Ticket 11의 현재 결과
 
-[Ticket 10](../memory/tickets/10-development-and-document-workflows.md)은 제품 runbook·workflow, 옛 commands, `generate-pr`, deprecated `noline-work`와 옛 Noline agent 정의를 현재 Owner에 대조해 정리했다. 관련 결과와 기록은 Main 보고에 따르면 commit `1648540`에 포함됐다.
+[Ticket 11](../memory/tickets/11-shared-execution-and-host-connections.md)은 Claude와 Codex가 공유하는 스킬의 실제 원본과 host별 발견 경로를 정리했다.
 
-## 역사 자료 통합 적용 결과
+- `.agents/skills`는 바로가기 대신 공통 스킬의 실제 원본 폴더가 됐다.
+- 기존 `.claude/skills`의 파일은 공통 원본으로 이동했고, `.claude/skills`는 Claude가 같은 원본을 읽는 연결이 됐다.
+- Claude와 Codex 양쪽에서 대상 스킬 8개가 발견됐다.
+- 사용자의 명시적 시험 요청 뒤 격리된 시험 프로젝트에서 두 host가 `explain`을 각각 실제 호출해 본문을 읽었다.
+- 관련 회귀 검사 45개가 통과했고 독립 재검증도 완료됐다.
+- 전체 Harness의 기존 역사 링크 실패 63건은 그대로이며 새 오류는 보고되지 않았다.
 
-Main은 사용자가 승인한 [역사 자료 28개 통합안](../../output/history-integration-proposal.md)을 적용했다고 보고했다. 구체적인 적용·보존·검증 범위는 [통합 결과](../../output/history-integration-result.md)에 정리됐다.
+Git 화면의 `D`와 미등록 항목은 경로 전환이 커밋되기 전에 기존 항목의 삭제와 새 항목의 추가가 함께 보이는 상태다. Main은 결과를 기록했다고 보고했지만 정확한 결과 문서 경로는 이번 입력에 연결하지 않았다.
 
-- Selective Local-First Decision에 활성화 대안과 온라인 의존 비용을 보완했다.
-- 주제별 Owner 통합과 Project 구성·검증의 형성 이유를 설명하는 Decision 2개를 추가했다.
-- audits 6개와 sessions 3개를 포함한 원문 28개를 원래 경로·기준 commit·SHA-256과 함께 `.claude/_archive/2026-10-31-project-context-reconstruction/history-integration/`에 보존했다.
-- Main은 원문과 보존본의 바이트·해시 일치를 확인한 뒤 기존 `.claude/audits`·`.claude/decisions`·`.claude/sessions` 폴더를 제거했다고 보고했다.
-- 루트·Document Map·harness·스킬 색인·Project/REFERENCE와 현재 Recover/Verify 소비자를 현재 Owner에 맞췄다. durable Verify receipt는 새로 만들지 않았다.
+## 완료된 선행 결과
 
-독립 검토에서는 내용상 추가 결함을 찾지 못했고, 별도 검증자는 원문 보존과 새 Decision의 이유·비용·대체·재검토 조건을 확인했다고 기록됐다. 전체 Harness 검사는 기존 55건과 역사 Workspace 문서의 옛 링크 8건을 합쳐 63건 실패를 재현했다. 추가 8건은 현재 일반 읽기의 소비자가 아니지만 해결된 것은 아니며, 보존 묶음에서 재접근할 수 있다.
+Ticket 10의 제품 runbook·workflow와 옛 commands·dispatcher·agent 정리는 commit `1648540`에 포함됐다. audits·decisions·sessions 원문 28개의 현재 의미 통합·원문 보존·읽기 전환과 기존 세 폴더 제거는 commit `b3e29bd`에 포함됐다. 완료한 역사 원문 28개는 Ticket 11에서 다시 처리하지 않았다.
 
 ## 다음 판단과 행동
 
-1. 이번 적용분은 아직 커밋하지 않았으므로 이후 인계와 판단에서 적용 완료와 commit 완료를 구별한다.
-2. [Ticket 11](../memory/tickets/11-shared-execution-and-host-connections.md)의 남은 skill·공유 기준·hook·settings·bridge 책임과 실제 host 연결 작업을 이어 간다.
-3. [Ticket 12](../memory/tickets/12-historical-reasons-and-reading-separation.md)의 승인된 28개 자료 범위 밖에 남은 역사 링크 전반의 정비 여부를 구별하고, [Ticket 13](../memory/tickets/13-integrated-verification-and-acceptance.md)에서 전체 검증과 종료 판단을 수행한다.
+1. Ticket 11의 변경과 연결된 완료 기록을 확인해 커밋한다.
+2. 전체 Harness에 남은 역사 링크 실패 63건의 현재 소비 영향과 정리 범위를 구별한다.
+3. [Ticket 13](../memory/tickets/13-integrated-verification-and-acceptance.md)에서 전체 검증과 006 종료 여부를 판단한다.
 
 ## 계속 유효한 확인 상한
 
-전체 Harness 검사는 63건 실패 상태다. 이번 결과는 28개 자료의 현재 의미 통합·원문 보존·현재 읽기 전환을 확인한 범위이며, 제품 실행, 역사적 성능 재현, 이미 로드된 host cache 갱신, 실제 host 동작, durable Verify receipt나 사용자 acceptance를 입증하지 않는다. 제품 구현 공백도 문서 통합만으로 해소되지 않는다.
+실제 host 검증은 격리된 시험 프로젝트에서 두 host가 `explain`을 한 번씩 로드한 범위다. 다른 host 동작 전반, 제품 실행, durable Verify receipt와 006 전체 사용자 acceptance는 확인하지 않았다. 기존 역사 링크 실패 63건도 해결되지 않았다.

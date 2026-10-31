@@ -4,7 +4,7 @@
 
 ## 언제 무엇을 반영하나
 
-여러 작업의 이해·판단·행동에 계속 영향을 줄 변화가 명확해지거나, 사용자가 기존 Project 맥락의 복원·재구성·승인된 Owner 이동을 요청하면 [context-update의 Project 범위](../../.claude/skills/context-update/SKILL.md)를 사용한다. 명확해진 경계에서 수행하며 Workspace 종료를 기다리지 않는다. 작업 완료 자체는 새 Project 문서를 만들 근거가 아니다.
+여러 작업의 이해·판단·행동에 계속 영향을 줄 변화가 명확해지거나, 사용자가 기존 Project 맥락의 복원·재구성·승인된 Owner 이동을 요청하면 [context-update의 Project 범위](../../.agents/skills/context-update/SKILL.md)를 사용한다. 명확해진 경계에서 수행하며 Workspace 종료를 기다리지 않는다. 작업 완료 자체는 새 Project 문서를 만들 근거가 아니다.
 
 현재 Workspace와 요청에 필요한 source·record·output, 관련 제품 문서와 코드·테스트만 대조한다. 일시적인 방법·후보 전체·실행 이력은 Work에 남기고, 계속 필요한 의미는 기존 주제의 본문에 통합한다. 코드에 있다는 이유로 의미를 제외하거나 모든 구현 사실을 문서에 복제하지 않는 판단은 구성 기준을 따른다.
 
@@ -66,10 +66,10 @@ Local link·diff·설치 검사는 경로와 형식을 확인할 뿐 의미 충�
 
 ## 실행 장치와 보고 경계
 
-[context-update의 Project 범위](../../.claude/skills/context-update/SKILL.md)는 위 계약을 실행한다. Workspace Maintain의 쓰기 범위는 Project로 넓히지 않는다. Project path·책임·권위 변경으로 live consumer가 영향받으면 Main은 Work 계약에 따라 reconciliation을 전체 작업 안에서 이어 간다. Skill 자체가 제품 코드·테스트나 Workspace의 machine 상태를 수정할 권한을 얻는 것은 아니다.
+[context-update의 Project 범위](../../.agents/skills/context-update/SKILL.md)는 위 계약을 실행한다. Workspace Maintain의 쓰기 범위는 Project로 넓히지 않는다. Project path·책임·권위 변경으로 live consumer가 영향받으면 Main은 Work 계약에 따라 reconciliation을 전체 작업 안에서 이어 간다. Skill 자체가 제품 코드·테스트나 Workspace의 machine 상태를 수정할 권한을 얻는 것은 아니다.
 
 반영한 의미와 위치·근거, 통합·분리와 영향 범위의 중요한 이유, 남은 판단과 확인 한계를 보고한다. 근거가 있어도 반영하지 못한 내용은 이유를 밝힌다. 읽거나 수정한 모든 파일과 조사 항목을 보고 목차로 옮기지는 않는다.
 
-Skill을 교체하거나 제거해도 사람이 이 계약과 각 내용 Owner를 따라 같은 갱신 책임을 수행할 수 있어야 한다. 호출 경로는 root [AGENTS.md](../../AGENTS.md)와 [운영 skill 색인](../../.claude/skills/README.md)이 연결한다. 설치·호출만으로 실제 반영이나 의미 판단의 충분성을 주장하지 않는다.
+Skill을 교체하거나 제거해도 사람이 이 계약과 각 내용 Owner를 따라 같은 갱신 책임을 수행할 수 있어야 한다. 호출 경로는 root [AGENTS.md](../../AGENTS.md)와 [운영 skill 색인](../../.agents/skills/README.md)이 연결한다. 설치·호출만으로 실제 반영이나 의미 판단의 충분성을 주장하지 않는다.
 
 작성과 책임 배치에 `ai-system_instruction-clarity.md: 적용`, `ai-system_context-ownership-boundary.md: 적용`, `ai-system_responsibility-cohesion.md: 적용`, `ai-system_human-readable-structure.md: 적용`, `ai-system_behavior-responsibility-allocation.md: 적용`, `ai-system_harness-rippability.md: 적용`.

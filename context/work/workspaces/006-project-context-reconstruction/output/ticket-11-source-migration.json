@@ -1,0 +1,681 @@
+{
+  "baseline_commit": "b3e29bd",
+  "files": [
+    {
+      "old": ".claude/skills/README.md",
+      "current": ".agents/skills/README.md",
+      "before_sha256": "782f31934e64b842190bc674c9425897c11cc9b62f17e5b79b7f1616aa20357d",
+      "current_sha256": "a77bb571a08aec90d2e432e1286e25a9f3c580249e5b837cc6e98974bbfb4227",
+      "same_bytes": false
+    },
+    {
+      "old": ".claude/skills/SKILLS-CONTENT-POLICY.md",
+      "current": ".agents/skills/SKILLS-CONTENT-POLICY.md",
+      "before_sha256": "333839f6fee65c98a1dd0624bf570212281a3e7be1a4ad87bce31643caa295b7",
+      "current_sha256": "450ab0fd5cf892031ba72b6a337e2271a16c8fe25e1e6810cce6b937decac9ba",
+      "same_bytes": false
+    },
+    {
+      "old": ".claude/skills/reconsider-work/SKILL.md",
+      "current": ".agents/skills/reconsider-work/SKILL.md",
+      "before_sha256": "d9334a21831dbd311b69f1eb4ac5f1a576bec7e6cd185f695cc0eea569077404",
+      "current_sha256": "d9334a21831dbd311b69f1eb4ac5f1a576bec7e6cd185f695cc0eea569077404",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/SKILL.md",
+      "current": ".agents/skills/explain/SKILL.md",
+      "before_sha256": "4f9cdbc3528a37fc4ddb312e90305e7b3e7956a366885cad7f2000764107bb6c",
+      "current_sha256": "4f9cdbc3528a37fc4ddb312e90305e7b3e7956a366885cad7f2000764107bb6c",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/create-context-workspace/SKILL.md",
+      "current": ".agents/skills/create-context-workspace/SKILL.md",
+      "before_sha256": "e63daabe7cb64646066cd4a4146bc5bf319d21eb5901b39fe321a4e56a821343",
+      "current_sha256": "e63daabe7cb64646066cd4a4146bc5bf319d21eb5901b39fe321a4e56a821343",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/context-update/SKILL.md",
+      "current": ".agents/skills/context-update/SKILL.md",
+      "before_sha256": "c9de5bf2b2f58ffd4fe138550dd4586b9852da40802582e610424fdbec76e0c5",
+      "current_sha256": "c9de5bf2b2f58ffd4fe138550dd4586b9852da40802582e610424fdbec76e0c5",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/development/SKILL.md",
+      "current": ".agents/skills/development/SKILL.md",
+      "before_sha256": "8fd9c8c8308fa6ce9d6143325f7f717137d1cce12da687896a9e3e800103281b",
+      "current_sha256": "8fd9c8c8308fa6ce9d6143325f7f717137d1cce12da687896a9e3e800103281b",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/start-app/SKILL.md",
+      "current": ".agents/skills/start-app/SKILL.md",
+      "before_sha256": "21b7589b464ef6c50f7b17f4cf57f8bac74a75db0d490d99664a0d9aa2e63d30",
+      "current_sha256": "21b7589b464ef6c50f7b17f4cf57f8bac74a75db0d490d99664a0d9aa2e63d30",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/shared/explanation-and-evidence-criteria.md",
+      "current": ".agents/skills/shared/explanation-and-evidence-criteria.md",
+      "before_sha256": "4a1bcbb6766c703b274d920d470e2e96821c7feaea81f8a4c4fa56c4374cbb1a",
+      "current_sha256": "4a1bcbb6766c703b274d920d470e2e96821c7feaea81f8a4c4fa56c4374cbb1a",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/work-discussion/SKILL.md",
+      "current": ".agents/skills/work-discussion/SKILL.md",
+      "before_sha256": "7b54b68cf5394062b71bda9c2b77794b9f7616b949d5ca231930098304de60a6",
+      "current_sha256": "7b54b68cf5394062b71bda9c2b77794b9f7616b949d5ca231930098304de60a6",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/improvement-loop/SKILL.md",
+      "current": ".agents/skills/improvement-loop/SKILL.md",
+      "before_sha256": "ad40ba305c89778d2d3a1d7eab9a63559d448101f549f5e9a6ddb7ab2d4286b6",
+      "current_sha256": "ad40ba305c89778d2d3a1d7eab9a63559d448101f549f5e9a6ddb7ab2d4286b6",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/improvement-loop/_background/context.md",
+      "current": ".agents/skills/improvement-loop/_background/context.md",
+      "before_sha256": "39c5421c39f91d262be83b032132f3d99318320ce60892bf0984f8d431898061",
+      "current_sha256": "39c5421c39f91d262be83b032132f3d99318320ce60892bf0984f8d431898061",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/improvement-loop/_background/evidence.md",
+      "current": ".agents/skills/improvement-loop/_background/evidence.md",
+      "before_sha256": "934d57c1d147792832003c3688d6c41fa65cf98991e0d39012de8ac915af460d",
+      "current_sha256": "934d57c1d147792832003c3688d6c41fa65cf98991e0d39012de8ac915af460d",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/improvement-loop/_background/README.md",
+      "current": ".agents/skills/improvement-loop/_background/README.md",
+      "before_sha256": "14227ddb6769ba46d885db58a5f2f51e035469924022698563e63ff5972efec0",
+      "current_sha256": "14227ddb6769ba46d885db58a5f2f51e035469924022698563e63ff5972efec0",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/improvement-loop/references/application.md",
+      "current": ".agents/skills/improvement-loop/references/application.md",
+      "before_sha256": "2d912563a82f4422b3f0b3e18b58ad038bfe581f5c2a77ad5e7c79d657c6c3e1",
+      "current_sha256": "2d912563a82f4422b3f0b3e18b58ad038bfe581f5c2a77ad5e7c79d657c6c3e1",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/improvement-loop/references/effects.md",
+      "current": ".agents/skills/improvement-loop/references/effects.md",
+      "before_sha256": "6471d63309f72252185089c3ef4e727463f32d03be9948f1dc354bd65b695805",
+      "current_sha256": "6471d63309f72252185089c3ef4e727463f32d03be9948f1dc354bd65b695805",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/improvement-loop/references/conversation.md",
+      "current": ".agents/skills/improvement-loop/references/conversation.md",
+      "before_sha256": "d07c5ebc6064115a1dcf62f318ee82793860a460699b7d4eee6071fa02b70fd2",
+      "current_sha256": "d07c5ebc6064115a1dcf62f318ee82793860a460699b7d4eee6071fa02b70fd2",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/improvement-loop/agents/openai.yaml",
+      "current": ".agents/skills/improvement-loop/agents/openai.yaml",
+      "before_sha256": "ed4144b1a68137ce45430838db16fa897dcf71ba07f9ccf0ec4b5b3b73bce172",
+      "current_sha256": "ed4144b1a68137ce45430838db16fa897dcf71ba07f9ccf0ec4b5b3b73bce172",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/improvement-loop/_background/records/2026-10-28-structure.md",
+      "current": ".agents/skills/improvement-loop/_background/records/2026-10-28-structure.md",
+      "before_sha256": "88f0827b83a812341d4ae7ba4cea90fc3270868a8e50e3ee6766886b3594a61a",
+      "current_sha256": "88f0827b83a812341d4ae7ba4cea90fc3270868a8e50e3ee6766886b3594a61a",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/improvement-loop/_background/records/2026-10-29-limited-trial.md",
+      "current": ".agents/skills/improvement-loop/_background/records/2026-10-29-limited-trial.md",
+      "before_sha256": "f6dd96303ac963907a3d2f42ec7ed0550081a2aaf51cbe83d748ed73618de8d3",
+      "current_sha256": "f6dd96303ac963907a3d2f42ec7ed0550081a2aaf51cbe83d748ed73618de8d3",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/improvement-loop/_background/records/2026-10-30-existing-work-contract-adaptation.md",
+      "current": ".agents/skills/improvement-loop/_background/records/2026-10-30-existing-work-contract-adaptation.md",
+      "before_sha256": "2fd515a562f5052c863f1c253cafddd7ebe156060474458a4db255773f84d13c",
+      "current_sha256": "2fd515a562f5052c863f1c253cafddd7ebe156060474458a4db255773f84d13c",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/improvement-loop/_background/records/2026-10-29-means-comparison.md",
+      "current": ".agents/skills/improvement-loop/_background/records/2026-10-29-means-comparison.md",
+      "before_sha256": "f4416ec77ae971cd3b25dd8b1736726a875c8f2ec354aeff8e32a3e2cc5f55ca",
+      "current_sha256": "f4416ec77ae971cd3b25dd8b1736726a875c8f2ec354aeff8e32a3e2cc5f55ca",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/improvement-loop/_background/records/2026-10-28-naming.md",
+      "current": ".agents/skills/improvement-loop/_background/records/2026-10-28-naming.md",
+      "before_sha256": "84c22d1739e384eb8332898b1bc6d2e2b01cdc9c9ade62a63d68472c5e353fb7",
+      "current_sha256": "84c22d1739e384eb8332898b1bc6d2e2b01cdc9c9ade62a63d68472c5e353fb7",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/improvement-loop/_background/records/2026-10-28-prototype.md",
+      "current": ".agents/skills/improvement-loop/_background/records/2026-10-28-prototype.md",
+      "before_sha256": "ae57e44b59884745c2a329c2858fa5fb4f2eb19b34036ac2eb76cd34b5c9467f",
+      "current_sha256": "ae57e44b59884745c2a329c2858fa5fb4f2eb19b34036ac2eb76cd34b5c9467f",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/improvement-loop/_background/records/2026-10-29-integration.md",
+      "current": ".agents/skills/improvement-loop/_background/records/2026-10-29-integration.md",
+      "before_sha256": "7e58c736ecc66275d9a0da2da1d7be6826edfb73a58df8404f93bd489e7b7ab6",
+      "current_sha256": "7e58c736ecc66275d9a0da2da1d7be6826edfb73a58df8404f93bd489e7b7ab6",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/work-discussion/_background/context.md",
+      "current": ".agents/skills/work-discussion/_background/context.md",
+      "before_sha256": "1a50c58b4db69494df8e1055a796b05f38fdf7e262eef710f9222ee99573821b",
+      "current_sha256": "1a50c58b4db69494df8e1055a796b05f38fdf7e262eef710f9222ee99573821b",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/work-discussion/_background/evidence.md",
+      "current": ".agents/skills/work-discussion/_background/evidence.md",
+      "before_sha256": "e16a0a668e2eb7da76beb407bbeafc0e2fc10c1bb913fe7ffedfd36546da442f",
+      "current_sha256": "e16a0a668e2eb7da76beb407bbeafc0e2fc10c1bb913fe7ffedfd36546da442f",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/work-discussion/_background/README.md",
+      "current": ".agents/skills/work-discussion/_background/README.md",
+      "before_sha256": "e90da3aa342f42545ff0e2510244d486c8ae126e13830e64d5058f853d0ed235",
+      "current_sha256": "e90da3aa342f42545ff0e2510244d486c8ae126e13830e64d5058f853d0ed235",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/work-discussion/agents/openai.yaml",
+      "current": ".agents/skills/work-discussion/agents/openai.yaml",
+      "before_sha256": "eb96e6e8a257d6351d831abac1a15bfdceb6e991acdeb17929ab539edfa38035",
+      "current_sha256": "eb96e6e8a257d6351d831abac1a15bfdceb6e991acdeb17929ab539edfa38035",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/work-discussion/_background/records/2026-10-30-existing-work-contract-adaptation.md",
+      "current": ".agents/skills/work-discussion/_background/records/2026-10-30-existing-work-contract-adaptation.md",
+      "before_sha256": "10483925125f49ee707e39770e2a15c5d35ab5bd22e1340c5090d8e20a7ea928",
+      "current_sha256": "10483925125f49ee707e39770e2a15c5d35ab5bd22e1340c5090d8e20a7ea928",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/work-discussion/_background/records/2026-10-21-selection-and-policy-application.md",
+      "current": ".agents/skills/work-discussion/_background/records/2026-10-21-selection-and-policy-application.md",
+      "before_sha256": "d0302cdaa039442eaad33d17048507e3b5fd22a9dfd325351207ee4a69c27512",
+      "current_sha256": "d0302cdaa039442eaad33d17048507e3b5fd22a9dfd325351207ee4a69c27512",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/start-app/agents/openai.yaml",
+      "current": ".agents/skills/start-app/agents/openai.yaml",
+      "before_sha256": "8f7a136472411053fa393e2fab7bd5f776ebad2e20a96be891bf430b9595e0ec",
+      "current_sha256": "8f7a136472411053fa393e2fab7bd5f776ebad2e20a96be891bf430b9595e0ec",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/development/_background/context.md",
+      "current": ".agents/skills/development/_background/context.md",
+      "before_sha256": "2cfec441a35391212248646ced30d554f6be75e13921904620a5e6776886658d",
+      "current_sha256": "2cfec441a35391212248646ced30d554f6be75e13921904620a5e6776886658d",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/development/_background/evidence.md",
+      "current": ".agents/skills/development/_background/evidence.md",
+      "before_sha256": "c0056d9c4b26fe3c235d82fc1242bf38db13f1fcee8b8ff75bef5639f777dd9b",
+      "current_sha256": "c0056d9c4b26fe3c235d82fc1242bf38db13f1fcee8b8ff75bef5639f777dd9b",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/development/_background/README.md",
+      "current": ".agents/skills/development/_background/README.md",
+      "before_sha256": "babc683ece648e39920b5e3f35270e71e389302a170a3a2df56ed3c88675bc80",
+      "current_sha256": "babc683ece648e39920b5e3f35270e71e389302a170a3a2df56ed3c88675bc80",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/development/references/implementation.md",
+      "current": ".agents/skills/development/references/implementation.md",
+      "before_sha256": "5336c79503482c57131c8a918d3b6ac35bd26434b488246a5407ddcac36e8872",
+      "current_sha256": "5336c79503482c57131c8a918d3b6ac35bd26434b488246a5407ddcac36e8872",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/development/references/execution.md",
+      "current": ".agents/skills/development/references/execution.md",
+      "before_sha256": "dae321105a1bbf93621485bec2f6cbc6ec177d2d214f45cff6d424e7774307ee",
+      "current_sha256": "dae321105a1bbf93621485bec2f6cbc6ec177d2d214f45cff6d424e7774307ee",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/development/references/pull-request.md",
+      "current": ".agents/skills/development/references/pull-request.md",
+      "before_sha256": "aec71f61401914be7f9a8abe26052a6a0f2d1883e8c7f79edd92a09dff4cf1e2",
+      "current_sha256": "aec71f61401914be7f9a8abe26052a6a0f2d1883e8c7f79edd92a09dff4cf1e2",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/development/references/review.md",
+      "current": ".agents/skills/development/references/review.md",
+      "before_sha256": "c593d4d457984c46d349b388408921630dc7eacb53192fb866d9a117c685d24b",
+      "current_sha256": "c593d4d457984c46d349b388408921630dc7eacb53192fb866d9a117c685d24b",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/development/agents/openai.yaml",
+      "current": ".agents/skills/development/agents/openai.yaml",
+      "before_sha256": "ae4c2e3719a92736390a5a2e7dd7a12b9467c3a2a608d5ccdb10b4cebf181a6c",
+      "current_sha256": "ae4c2e3719a92736390a5a2e7dd7a12b9467c3a2a608d5ccdb10b4cebf181a6c",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/development/references/verification/evidence.md",
+      "current": ".agents/skills/development/references/verification/evidence.md",
+      "before_sha256": "0a941c3b51bf2ac84eb746d55cd59b3a9a13c0864781ebf6e3ed0c8a9c262559",
+      "current_sha256": "0a941c3b51bf2ac84eb746d55cd59b3a9a13c0864781ebf6e3ed0c8a9c262559",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/development/references/verification/INDEX.md",
+      "current": ".agents/skills/development/references/verification/INDEX.md",
+      "before_sha256": "a28066591e512e75f1674fc180933329267a9a7ea0015de70e0281615a50abe7",
+      "current_sha256": "a28066591e512e75f1674fc180933329267a9a7ea0015de70e0281615a50abe7",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/development/_background/records/2026-10-26-detail-expansion.md",
+      "current": ".agents/skills/development/_background/records/2026-10-26-detail-expansion.md",
+      "before_sha256": "a3f12b3db169a4d794592e15c362a8b9a6888e30b492f3f3cbb45199b2f72c84",
+      "current_sha256": "a3f12b3db169a4d794592e15c362a8b9a6888e30b492f3f3cbb45199b2f72c84",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/development/_background/records/2026-10-23-development-skill.md",
+      "current": ".agents/skills/development/_background/records/2026-10-23-development-skill.md",
+      "before_sha256": "be381a23732a694d16f35af55cc20a7eaf308633a2f259081067559bf9f7a9b8",
+      "current_sha256": "be381a23732a694d16f35af55cc20a7eaf308633a2f259081067559bf9f7a9b8",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/development/_background/records/2026-10-30-existing-work-contract-adaptation.md",
+      "current": ".agents/skills/development/_background/records/2026-10-30-existing-work-contract-adaptation.md",
+      "before_sha256": "f5150e30f75b32f02501088cb9a6db44442fda30b8b065fce51995eedd9f940c",
+      "current_sha256": "f5150e30f75b32f02501088cb9a6db44442fda30b8b065fce51995eedd9f940c",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/development/_background/records/2026-10-31-pull-request-reference.md",
+      "current": ".agents/skills/development/_background/records/2026-10-31-pull-request-reference.md",
+      "before_sha256": "6e6fed1a866190d75fa4805b362bbd264045b08a33cae1b901538a1bfe13140d",
+      "current_sha256": "d49b3c611d9a96143387688743bf00e19173408a01dc3fc408f71a8b2d761b3b",
+      "same_bytes": false
+    },
+    {
+      "old": ".claude/skills/development/_background/records/2026-10-26-context-integration.md",
+      "current": ".agents/skills/development/_background/records/2026-10-26-context-integration.md",
+      "before_sha256": "e542079568ee80ce13f1ada920db0ae5d71c7221f93ed743da35a29ebcbc40cf",
+      "current_sha256": "e542079568ee80ce13f1ada920db0ae5d71c7221f93ed743da35a29ebcbc40cf",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/development/_background/records/2026-10-24-verification-integration.md",
+      "current": ".agents/skills/development/_background/records/2026-10-24-verification-integration.md",
+      "before_sha256": "21d8f0fabacef107c7bef065f98c45983faf74bbd7597472f34b657554cae0d4",
+      "current_sha256": "21d8f0fabacef107c7bef065f98c45983faf74bbd7597472f34b657554cae0d4",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/development/_background/records/2026-10-23-execution-integration.md",
+      "current": ".agents/skills/development/_background/records/2026-10-23-execution-integration.md",
+      "before_sha256": "122188a215f1be33fd39c17955d761f2a9ef7421c021ba9786ab0dc0558531b8",
+      "current_sha256": "122188a215f1be33fd39c17955d761f2a9ef7421c021ba9786ab0dc0558531b8",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/development/_background/records/2026-10-26-investigation-evidence-adoption.md",
+      "current": ".agents/skills/development/_background/records/2026-10-26-investigation-evidence-adoption.md",
+      "before_sha256": "605e361bb8b3673a867b3b882244b88bd2d279979b8283911711cda0df980042",
+      "current_sha256": "605e361bb8b3673a867b3b882244b88bd2d279979b8283911711cda0df980042",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/development/_background/evidence/development-before-skill.txt",
+      "current": ".agents/skills/development/_background/evidence/development-before-skill.txt",
+      "before_sha256": "1a3138d4eff356d801e46da0040649d06b3460be8241e14971b2f252c4c6254f",
+      "current_sha256": "1a3138d4eff356d801e46da0040649d06b3460be8241e14971b2f252c4c6254f",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/context-update/_background/context.md",
+      "current": ".agents/skills/context-update/_background/context.md",
+      "before_sha256": "20a4e80df40d297371148da70f0f9aed8719331bbcfcd0c595dfb0bb9c2e657d",
+      "current_sha256": "20a4e80df40d297371148da70f0f9aed8719331bbcfcd0c595dfb0bb9c2e657d",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/context-update/_background/evidence.md",
+      "current": ".agents/skills/context-update/_background/evidence.md",
+      "before_sha256": "b3f56e446e5ff887efb54639cea3e3a81c46781291b860fc16d3d685d0c47ca7",
+      "current_sha256": "b3f56e446e5ff887efb54639cea3e3a81c46781291b860fc16d3d685d0c47ca7",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/context-update/_background/README.md",
+      "current": ".agents/skills/context-update/_background/README.md",
+      "before_sha256": "af653c42403e8a3fdabe54cab78fb3af7e03a0be690f3d1bac692c66bca4a23f",
+      "current_sha256": "af653c42403e8a3fdabe54cab78fb3af7e03a0be690f3d1bac692c66bca4a23f",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/context-update/agents/openai.yaml",
+      "current": ".agents/skills/context-update/agents/openai.yaml",
+      "before_sha256": "cd84b54416890264a44b52c7f657a87e0e5fd660ffb3e0754db09ed150cfef0c",
+      "current_sha256": "cd84b54416890264a44b52c7f657a87e0e5fd660ffb3e0754db09ed150cfef0c",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/context-update/_background/records/2026-10-26-bounded-context-update.md",
+      "current": ".agents/skills/context-update/_background/records/2026-10-26-bounded-context-update.md",
+      "before_sha256": "a36f730d5801d74e32bb6894d5ad80bf888f977e44322274b7036c3a5d46ce9e",
+      "current_sha256": "a36f730d5801d74e32bb6894d5ad80bf888f977e44322274b7036c3a5d46ce9e",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/create-context-workspace/_background/context.md",
+      "current": ".agents/skills/create-context-workspace/_background/context.md",
+      "before_sha256": "5636a3093b9babdf4b316423d09d2a3ea16af7611099f91ad391eabafedd34ca",
+      "current_sha256": "5636a3093b9babdf4b316423d09d2a3ea16af7611099f91ad391eabafedd34ca",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/create-context-workspace/_background/evidence.md",
+      "current": ".agents/skills/create-context-workspace/_background/evidence.md",
+      "before_sha256": "16b2cfc091a50e731361adb7fe20be710da5be15c4c70d8f87a24a7a830ffcef",
+      "current_sha256": "16b2cfc091a50e731361adb7fe20be710da5be15c4c70d8f87a24a7a830ffcef",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/create-context-workspace/_background/README.md",
+      "current": ".agents/skills/create-context-workspace/_background/README.md",
+      "before_sha256": "5dd8b8271e38f9f2c0f947522cf44c2a40b4f0af171d51489053fa6bf49323a7",
+      "current_sha256": "5dd8b8271e38f9f2c0f947522cf44c2a40b4f0af171d51489053fa6bf49323a7",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/create-context-workspace/agents/openai.yaml",
+      "current": ".agents/skills/create-context-workspace/agents/openai.yaml",
+      "before_sha256": "d19244825c7bd72a786a17b143fd423f1f09fc3bc3a33528fe1fba6271273e4a",
+      "current_sha256": "d19244825c7bd72a786a17b143fd423f1f09fc3bc3a33528fe1fba6271273e4a",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/create-context-workspace/_background/records/2026-10-30-existing-work-contract-adaptation.md",
+      "current": ".agents/skills/create-context-workspace/_background/records/2026-10-30-existing-work-contract-adaptation.md",
+      "before_sha256": "fc02672f8d9e03dac8d64525a848d320c981cf79928e9952ab26087f98907659",
+      "current_sha256": "fc02672f8d9e03dac8d64525a848d320c981cf79928e9952ab26087f98907659",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/create-context-workspace/_background/records/2026-10-26-prototype-integration.md",
+      "current": ".agents/skills/create-context-workspace/_background/records/2026-10-26-prototype-integration.md",
+      "before_sha256": "42ac7b4fef1ec8256a87c8db6b5070cf5225a41a6f0f162ced10168716dac274",
+      "current_sha256": "42ac7b4fef1ec8256a87c8db6b5070cf5225a41a6f0f162ced10168716dac274",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/_background/context.md",
+      "current": ".agents/skills/explain/_background/context.md",
+      "before_sha256": "5e3a280defef16bdf68fcdd12b77a0b8c9bbf7e8370de0c507e7fecbd9d50284",
+      "current_sha256": "5e3a280defef16bdf68fcdd12b77a0b8c9bbf7e8370de0c507e7fecbd9d50284",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/_background/evidence.md",
+      "current": ".agents/skills/explain/_background/evidence.md",
+      "before_sha256": "7555b9beb733f9184cad16c0220bb2097f1745341e833971b62f2d12fa4ac7af",
+      "current_sha256": "7555b9beb733f9184cad16c0220bb2097f1745341e833971b62f2d12fa4ac7af",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/_background/README.md",
+      "current": ".agents/skills/explain/_background/README.md",
+      "before_sha256": "fd1e0a3dd1232e0ca545a9ba5227afa5fd669b98972ab3e3777235b645a06d95",
+      "current_sha256": "fd1e0a3dd1232e0ca545a9ba5227afa5fd669b98972ab3e3777235b645a06d95",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/references/prior-explanation.md",
+      "current": ".agents/skills/explain/references/prior-explanation.md",
+      "before_sha256": "8e77040d95e1df0c6e4f049f08b1f8a6c39d65bde6263d1b9ee3f81dd863e889",
+      "current_sha256": "8e77040d95e1df0c6e4f049f08b1f8a6c39d65bde6263d1b9ee3f81dd863e889",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/references/constructing-explanations.md",
+      "current": ".agents/skills/explain/references/constructing-explanations.md",
+      "before_sha256": "ba4a93dfbb3dc34ed73fa3036a0c47f2a110c2647d414f356c178884bac66cc5",
+      "current_sha256": "ba4a93dfbb3dc34ed73fa3036a0c47f2a110c2647d414f356c178884bac66cc5",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/agents/openai.yaml",
+      "current": ".agents/skills/explain/agents/openai.yaml",
+      "before_sha256": "7bd75c67fd51de9c1f4b7b6d3a57e2bb70e1ec37a295aabfa1081097808dbfd6",
+      "current_sha256": "7bd75c67fd51de9c1f4b7b6d3a57e2bb70e1ec37a295aabfa1081097808dbfd6",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/references/examples/auth-flow.md",
+      "current": ".agents/skills/explain/references/examples/auth-flow.md",
+      "before_sha256": "88bb3aa1bfcb1c0459e461175ab37f23f2e033ae60f3f8b06d7085c90dff7243",
+      "current_sha256": "88bb3aa1bfcb1c0459e461175ab37f23f2e033ae60f3f8b06d7085c90dff7243",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/_background/records/2026-10-24-selective-improvement-adoption.md",
+      "current": ".agents/skills/explain/_background/records/2026-10-24-selective-improvement-adoption.md",
+      "before_sha256": "90e65e7a65b9c63b036785f577db733e3d73786e2c4c3bb5dd7598a0fb30cef2",
+      "current_sha256": "90e65e7a65b9c63b036785f577db733e3d73786e2c4c3bb5dd7598a0fb30cef2",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/_background/records/2026-10-25-body-organization.md",
+      "current": ".agents/skills/explain/_background/records/2026-10-25-body-organization.md",
+      "before_sha256": "c2dfcc2a7042b98ce91a99dd32e72e0b5c917839fdce4c37a1bcf424cb84827f",
+      "current_sha256": "c2dfcc2a7042b98ce91a99dd32e72e0b5c917839fdce4c37a1bcf424cb84827f",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/_background/records/2026-10-23-unification.md",
+      "current": ".agents/skills/explain/_background/records/2026-10-23-unification.md",
+      "before_sha256": "df499f785b9a86c04ad471dcc27beaf7fe86b591fccf6e880dbd2ff05fcb9252",
+      "current_sha256": "df499f785b9a86c04ad471dcc27beaf7fe86b591fccf6e880dbd2ff05fcb9252",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/_background/records/2026-10-26-choice-judgment-adoption.md",
+      "current": ".agents/skills/explain/_background/records/2026-10-26-choice-judgment-adoption.md",
+      "before_sha256": "25ec74b126b74eb6834d8c6f9dd1c8fa46fe638df307ed48359bcc6149f3144d",
+      "current_sha256": "25ec74b126b74eb6834d8c6f9dd1c8fa46fe638df307ed48359bcc6149f3144d",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/_background/records/2026-10-25-flow-readability-adoption.md",
+      "current": ".agents/skills/explain/_background/records/2026-10-25-flow-readability-adoption.md",
+      "before_sha256": "8ebc5520d7a1ed84fc35477f644023f808ed03c264fc1a96bb1fc5dfdecdfef1",
+      "current_sha256": "8ebc5520d7a1ed84fc35477f644023f808ed03c264fc1a96bb1fc5dfdecdfef1",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/_background/records/2026-10-23-skills-index-before-explain.txt",
+      "current": ".agents/skills/explain/_background/records/2026-10-23-skills-index-before-explain.txt",
+      "before_sha256": "c1639e2a72e5cbb687e2b0169ec0b077e982ef78e0c33078e8645d356f39f1ae",
+      "current_sha256": "c1639e2a72e5cbb687e2b0169ec0b077e982ef78e0c33078e8645d356f39f1ae",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/_background/records/2026-10-25-composition-adoption.md",
+      "current": ".agents/skills/explain/_background/records/2026-10-25-composition-adoption.md",
+      "before_sha256": "354a41f837a15b1b4be74e548e840c7984f2462eb82fa5f8816d7780c402f959",
+      "current_sha256": "354a41f837a15b1b4be74e548e840c7984f2462eb82fa5f8816d7780c402f959",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/_background/records/2026-10-24-explanation-revision.md",
+      "current": ".agents/skills/explain/_background/records/2026-10-24-explanation-revision.md",
+      "before_sha256": "ae0e0a632662cb6313530437b9599a96cf11ed8b37e423b0eebd947f2de587a7",
+      "current_sha256": "ae0e0a632662cb6313530437b9599a96cf11ed8b37e423b0eebd947f2de587a7",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/_background/records/2026-10-25-code-presentation-adoption.md",
+      "current": ".agents/skills/explain/_background/records/2026-10-25-code-presentation-adoption.md",
+      "before_sha256": "a7210e740e5c2c9c8e378a275a4ae0cd311d839ec0a9949521b01e913a411ed6",
+      "current_sha256": "a7210e740e5c2c9c8e378a275a4ae0cd311d839ec0a9949521b01e913a411ed6",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/_background/legacy/work-artifact-briefing/context.md",
+      "current": ".agents/skills/explain/_background/legacy/work-artifact-briefing/context.md",
+      "before_sha256": "48a56a814c9c148c729c164721a9ee27a571602fdbfa2743cebad278428e03de",
+      "current_sha256": "48a56a814c9c148c729c164721a9ee27a571602fdbfa2743cebad278428e03de",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/_background/legacy/work-artifact-briefing/evidence.md",
+      "current": ".agents/skills/explain/_background/legacy/work-artifact-briefing/evidence.md",
+      "before_sha256": "6cc995c9cb83fd6e47769acab18d5faf2304955dd579c0967169b33d8bbec98f",
+      "current_sha256": "6cc995c9cb83fd6e47769acab18d5faf2304955dd579c0967169b33d8bbec98f",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/_background/legacy/work-artifact-briefing/README.md",
+      "current": ".agents/skills/explain/_background/legacy/work-artifact-briefing/README.md",
+      "before_sha256": "46310623fd1fdd32918810df6816bff50350a3e3d91f649814ab56c3d8437fb2",
+      "current_sha256": "46310623fd1fdd32918810df6816bff50350a3e3d91f649814ab56c3d8437fb2",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/_background/legacy/explanation-recovery/context.md",
+      "current": ".agents/skills/explain/_background/legacy/explanation-recovery/context.md",
+      "before_sha256": "3bba0c7a2e945e480fd1ba26fbcc2eafbcd8d7b1a8db5ca2a25b1b6cc3a942fd",
+      "current_sha256": "3bba0c7a2e945e480fd1ba26fbcc2eafbcd8d7b1a8db5ca2a25b1b6cc3a942fd",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/_background/legacy/explanation-recovery/evidence.md",
+      "current": ".agents/skills/explain/_background/legacy/explanation-recovery/evidence.md",
+      "before_sha256": "4dbed738da768a07f6af15df252f2670e301f41e835e40b667bffbb56ecbc701",
+      "current_sha256": "4dbed738da768a07f6af15df252f2670e301f41e835e40b667bffbb56ecbc701",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/_background/legacy/explanation-recovery/README.md",
+      "current": ".agents/skills/explain/_background/legacy/explanation-recovery/README.md",
+      "before_sha256": "f503cd470726071de75f8c38d22a0c3b55c3e5dd4fdb348cde16d753d5f842e3",
+      "current_sha256": "f503cd470726071de75f8c38d22a0c3b55c3e5dd4fdb348cde16d753d5f842e3",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/_background/legacy/explanation-recovery/records/2026-10-21-original-formation.md",
+      "current": ".agents/skills/explain/_background/legacy/explanation-recovery/records/2026-10-21-original-formation.md",
+      "before_sha256": "550d374277608ee4c73eb0a88880049a9debd5db844eb349bedf786b2b50cdc7",
+      "current_sha256": "550d374277608ee4c73eb0a88880049a9debd5db844eb349bedf786b2b50cdc7",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/_background/legacy/explanation-recovery/records/2026-10-23-before-explain.txt",
+      "current": ".agents/skills/explain/_background/legacy/explanation-recovery/records/2026-10-23-before-explain.txt",
+      "before_sha256": "3cce16d31b4548907fb5c7f9a4b1846b372cf72113345f06bb0a313ba05c24ae",
+      "current_sha256": "3cce16d31b4548907fb5c7f9a4b1846b372cf72113345f06bb0a313ba05c24ae",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/_background/legacy/work-artifact-briefing/records/2026-10-22-code-depth-adoption.md",
+      "current": ".agents/skills/explain/_background/legacy/work-artifact-briefing/records/2026-10-22-code-depth-adoption.md",
+      "before_sha256": "781fb24926b510de39fd4fd37e46c05ac817f026da875bc1ca249acb25b55201",
+      "current_sha256": "781fb24926b510de39fd4fd37e46c05ac817f026da875bc1ca249acb25b55201",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/_background/legacy/work-artifact-briefing/records/2026-10-21-original-formation.md",
+      "current": ".agents/skills/explain/_background/legacy/work-artifact-briefing/records/2026-10-21-original-formation.md",
+      "before_sha256": "977315c7b25a053790542cab8d55b05e59119f408355d75b3a17910d06daba88",
+      "current_sha256": "977315c7b25a053790542cab8d55b05e59119f408355d75b3a17910d06daba88",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/_background/legacy/work-artifact-briefing/records/2026-10-23-responsibility-explanation-integration.md",
+      "current": ".agents/skills/explain/_background/legacy/work-artifact-briefing/records/2026-10-23-responsibility-explanation-integration.md",
+      "before_sha256": "be2843dbfd4c99ee26535aca00929a2695652e58accda74e272b97f13075a2d1",
+      "current_sha256": "be2843dbfd4c99ee26535aca00929a2695652e58accda74e272b97f13075a2d1",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/explain/_background/legacy/work-artifact-briefing/records/2026-10-23-before-explain.txt",
+      "current": ".agents/skills/explain/_background/legacy/work-artifact-briefing/records/2026-10-23-before-explain.txt",
+      "before_sha256": "e269db374b2d3565fecc6d7dc419699f27f0fa74b17f7bc7fd53f0c8eb93f675",
+      "current_sha256": "e269db374b2d3565fecc6d7dc419699f27f0fa74b17f7bc7fd53f0c8eb93f675",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/reconsider-work/agents/openai.yaml",
+      "current": ".agents/skills/reconsider-work/agents/openai.yaml",
+      "before_sha256": "5b41c363ce1dca4739f48f1c5c5b52c412e64f83aa87524ee1b5faf997c80f88",
+      "current_sha256": "5b41c363ce1dca4739f48f1c5c5b52c412e64f83aa87524ee1b5faf997c80f88",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/_background/skills-content-policy/context.md",
+      "current": ".agents/skills/_background/skills-content-policy/context.md",
+      "before_sha256": "c7074fb519a2f1d7e8da0bb4281e34e1fe8598dd9a1aa6af89c3def37b4cd5d2",
+      "current_sha256": "c7074fb519a2f1d7e8da0bb4281e34e1fe8598dd9a1aa6af89c3def37b4cd5d2",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/_background/skills-content-policy/evidence.md",
+      "current": ".agents/skills/_background/skills-content-policy/evidence.md",
+      "before_sha256": "cb4e1525d82542bc6b5a73b8521ed7665fdeb91a348fc150cb9d65f42453159a",
+      "current_sha256": "cb4e1525d82542bc6b5a73b8521ed7665fdeb91a348fc150cb9d65f42453159a",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/_background/skills-content-policy/README.md",
+      "current": ".agents/skills/_background/skills-content-policy/README.md",
+      "before_sha256": "929028b9e4e03a6698c183fc295da14ae8512764b7f551221f7c85b64b0b41f0",
+      "current_sha256": "929028b9e4e03a6698c183fc295da14ae8512764b7f551221f7c85b64b0b41f0",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/_background/skills-content-policy/records/2026-10-22-revision-lifecycle.md",
+      "current": ".agents/skills/_background/skills-content-policy/records/2026-10-22-revision-lifecycle.md",
+      "before_sha256": "ec60706428b86467433f00a50dcb30456b909d8f42fca926862ec3c1e5182608",
+      "current_sha256": "ec60706428b86467433f00a50dcb30456b909d8f42fca926862ec3c1e5182608",
+      "same_bytes": true
+    },
+    {
+      "old": ".claude/skills/_background/skills-content-policy/records/2026-10-21-initial-policy.md",
+      "current": ".agents/skills/_background/skills-content-policy/records/2026-10-21-initial-policy.md",
+      "before_sha256": "09acf1a5f52f2f971d962fc0e6d513e5e1c154f8d6cfca7c1240df267f5423ce",
+      "current_sha256": "09acf1a5f52f2f971d962fc0e6d513e5e1c154f8d6cfca7c1240df267f5423ce",
+      "same_bytes": true
+    }
+  ],
+  "claude_bridge": {
+    "path": ".claude/skills",
+    "target": "../.agents/skills"
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "versions": {
+    "codex": "0.166.0-alpha.5.1",
+    "claude": "2.1.163"
+  },
+  "condition": "격리 Git 프로젝트에 같은 8개 스킬과 .claude/skills→../.agents/skills 배치를 설치. 모델 호출 없이 실제 CLI 제어 응답 확인. 사용자 계정·전체 전역 스킬 metadata는 이 발췌에서 제외.",
+  "codex": {
+    "method": "skills/list",
+    "request": {
+      "forceReload": true
+    },
+    "skills": [
+      {
+        "name": "context-update",
+        "path": "/private/tmp/noline-ticket11-discovery/project/.agents/skills/context-update/SKILL.md"
+      },
+      {
+        "name": "create-context-workspace",
+        "path": "/private/tmp/noline-ticket11-discovery/project/.agents/skills/create-context-workspace/SKILL.md"
+      },
+      {
+        "name": "development",
+        "path": "/private/tmp/noline-ticket11-discovery/project/.agents/skills/development/SKILL.md"
+      },
+      {
+        "name": "explain",
+        "path": "/private/tmp/noline-ticket11-discovery/project/.agents/skills/explain/SKILL.md"
+      },
+      {
+        "name": "improvement-loop",
+        "path": "/private/tmp/noline-ticket11-discovery/project/.agents/skills/improvement-loop/SKILL.md"
+      },
+      {
+        "name": "reconsider-work",
+        "path": "/private/tmp/noline-ticket11-discovery/project/.agents/skills/reconsider-work/SKILL.md"
+      },
+      {
+        "name": "start-app",
+        "path": "/private/tmp/noline-ticket11-discovery/project/.agents/skills/start-app/SKILL.md"
+      },
+      {
+        "name": "work-discussion",
+        "path": "/private/tmp/noline-ticket11-discovery/project/.agents/skills/work-discussion/SKILL.md"
+      }
+    ]
+  },
+  "claude": {
+    "method": "SDK initialize",
+    "commands": [
+      "context-update",
+      "create-context-workspace",
+      "development",
+      "explain",
+      "improvement-loop",
+      "reconsider-work",
+      "start-app",
+      "work-discussion"
+    ]
+  },
+  "claude_hook_fixture": {
+    "settings_source": "현재 .claude/settings.json 형식, wrapper 대신 local stub",
+    "observed": [
+      {
+        "args": [
+          "session-start"
+        ]
+      },
+      {
+        "args": [
+          "session-end"
+        ]
+      }
+    ]
+  },
+  "not_proven": [
+    "실제 모델 명시호출 및 본문 로드",
+    "전체 Maintain 실제 host acceptance",
+    "현재 대화의 발견 cache 갱신"
+  ]
+}

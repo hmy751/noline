@@ -20,6 +20,6 @@ Harness를 제거하거나 다른 실행 장치로 바꾸더라도 Project commo
 
 ## 본문을 관리할 때
 
-Personal·Project 본문과 형성 자료를 만들거나 의미·구성을 바꿀 때 [CONTENT-POLICY](CONTENT-POLICY.md), 본문을 작성·수정할 때 [WRITING-FORMAT](WRITING-FORMAT.md)의 역할별 적용 범위를 따른다. 체계 지침의 진입·분할·이름은 [SYSTEM-GUIDANCE](SYSTEM-GUIDANCE.md)를 읽는다. 허용된 갱신·누락 복원은 [context-update](../.claude/skills/context-update/SKILL.md)와 각 영역의 관리 계약으로 수행한다.
+Personal·Project 본문과 형성 자료를 만들거나 의미·구성을 바꿀 때 [CONTENT-POLICY](CONTENT-POLICY.md), 본문을 작성·수정할 때 [WRITING-FORMAT](WRITING-FORMAT.md)의 역할별 적용 범위를 따른다. 체계 지침의 진입·분할·이름은 [SYSTEM-GUIDANCE](SYSTEM-GUIDANCE.md)를 읽는다. 허용된 갱신·누락 복원은 [context-update](../.agents/skills/context-update/SKILL.md)와 각 영역의 관리 계약으로 수행한다.
 
 Work에는 기존의 Spec·Ticket·current·source·output·records와 Main·Maintain 책임을 유지한다. 위 관리·형식 정책을 Work에 자동 확장하지 않는다. 형성 의도와 선택 경위는 [_background](_background/README.md), 이번 Noline 적용 범위는 [적용 안내](_background/records/2026-10-30-noline-partial-reapplication.md)에서 찾는다.
