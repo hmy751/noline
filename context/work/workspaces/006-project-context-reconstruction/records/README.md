@@ -35,3 +35,7 @@
 ## Ticket 12·13 중간 커밋과 배치 재검토
 
 - [2026-10-31 — Ticket 12·13 중간 커밋과 배치 재검토](2026-10-31-10-ticket-12-13-checkpoint-and-layout-reconsideration.md): CHANGELOG·역사 링크·live consumer 검증 결과, 필요한 역할과 기존 `.claude` 배치의 구별, archive·로컬 지침의 후속 순서와 전역 개편의 별도 범위.
+
+## 로컬 CLAUDE와 개발 수행 책임
+
+- [2026-10-31 — CLAUDE 범위와 development 책임 재검토](2026-10-31-11-claude-guide-scope-and-development-boundary.md): 초기 루트 구성안의 수행 중복, 사용자 정정 원문, 현재 적용 계획과 Ticket 14 분리 이유.
