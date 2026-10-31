@@ -17,6 +17,10 @@
 | [Ticket 09 제품 기준·위험 점검 통합 결과](ticket-09-result.md) | rules·guards의 Project Owner 통합, 제품 라우팅과 개발 수행의 구분, 원본·소비자 전환과 독립 검토·확인 한계를 확인할 때 |
 | [Ticket 10의 1번 제품 runbook·workflow 통합 결과](ticket-10-part-01-result.md) | 제품별 유효 내용과 탐색 연결의 Project 통합, 옛 runbook·workflow 제거, 소비자 전환과 독립 검토·검증 한계를 확인할 때 |
 
+| [Ticket 10의 2번 옛 문서 관리 명령 제거](ticket-10-part-02-result.md) | 옛 commands의 유효 기능이 기존 Owner에 있는지, 제거한 경로·보존본·독립 검토와 검사 한계를 확인할 때 |
+| [Ticket 10의 3번 PR 작성 상세 통합](ticket-10-part-03-result.md) | PR 작성법의 조건부 reference, generate-pr 삭제, 비교 범위·검증·권한 경계와 독립 검증을 확인할 때 |
+| [Ticket 10의 4번 옛 dispatcher·agent 제거](ticket-10-part-04-result.md) | noline-work와 양 host의 옛 Noline agent 정의 제거, 보존·대체 Owner·검사와 남은 host 범위를 확인할 때 |
+
 현재 제품 설명은 [제품 기준](../../../../project/common/product.md), [여행 접근](../../../../project/guidance/travel-access/INDEX.md), [선택 이유](../../../../project/decisions/0001-selective-local-first.md), [저장·동기화·정리](../../../../project/guidance/data-lifecycle/INDEX.md), [지도·경로](../../../../project/guidance/offline-maps-and-routes/INDEX.md), [구조·UI·schema](../../../../project/guidance/development-boundaries/INDEX.md), [작성·입력](../../../../project/guidance/writing-and-input/INDEX.md), [날짜와 시각](../../../../project/common/date-and-time.md)과 [통화](../../../../project/common/currency.md)·[API](../../../../project/guidance/api-contracts.md)·[오류](../../../../project/guidance/error-handling.md), 가까운 형성 자료가 소유한다. 이 폴더는 그 본문을 복제하지 않고 조사·검토 결과를 남긴다.
 
 최신 실행 상태와 다음 행동은 [state](../current/state/index.md)를 따른다. 문서 이관·통합 결과를 제품 구현 차이의 해소나 006 전체 완료로 해석하지 않는다.

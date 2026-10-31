@@ -1,6 +1,6 @@
 # Noline 로컬 운영 skills
 
-이 디렉터리는 Noline의 로컬 운영 스킬 원본과 deprecated 스킬의 이력을 소유한다. 각 `SKILL.md`가 해당 스킬의 호출 조건·실행 방법을, `agents/openai.yaml`이 Codex 호출 설정을 소유한다. Project·Workspace의 지속 의미와 문서 관리 계약은 해당 context Owner에 남는다.
+이 디렉터리는 Noline의 로컬 운영 스킬 원본을 소유한다. 각 `SKILL.md`가 해당 스킬의 호출 조건·실행 방법을, `agents/openai.yaml`이 Codex 호출 설정을 소유한다. Project·Workspace의 지속 의미와 문서 관리 계약은 해당 context Owner에 남는다.
 
 스킬을 작성하거나 의미·구성을 바꿀 때는 [스킬 관리 정책](SKILLS-CONTENT-POLICY.md)을 읽는다.
 
@@ -22,10 +22,6 @@
 ## 교체한 실행 경로
 
 읽기는 [USAGE](../../context/USAGE.md), 한정 갱신은 context-update, 작업물·앞선 말의 설명은 explain을 사용한다. 옛 read-project-context·update-project-context·work-artifact-briefing·explanation-recovery 실행 폴더와 bridge는 제거했다. [전환 결정](../decisions/2026-10-30-development-skill-transition.md)에서 현재 검사·참조의 이동과 [당시 본문 보존](../_archive/skill-transition-2026-10-30/README.md)을 찾는다.
-
-## Deprecated
-
-- [noline-work](noline-work/SKILL.md): 2026-09-10 사용자 요청으로 사용 중단. 호출하지 않으며 기존 본문과 bridge는 이력으로 보존한다. 작업별 기준은 root·workspace guide와 Project 주제별 기준에서 직접 찾는다.
 
 ## Context와 문서 갱신
 

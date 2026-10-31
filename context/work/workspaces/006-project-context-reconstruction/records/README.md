@@ -27,3 +27,7 @@
 - [2026-10-31 — 복구 반영과 추가 정리 조사](2026-10-31-06-record-repair-and-cleanup-investigation.md): guarded apply 성공·작업 커밋, 놓친 간접 경로 교정과 남은 실행층 정리 후보.
 - [2026-10-31 — 현 위치 유지 전제 교정과 09–13 재구성](2026-10-31-07-continuity-and-ticket-recomposition.md): 사용자 정정 원문, 역할과 배치의 구별, 결과별 Ticket 구성 이유와 다른 세션의 재진입 범위.
 - [2026-10-31 — 기록 정리 뒤 독립 재진입 확인](2026-10-31-08-reentry-verification.md): 대화 상속 없는 문서 재진입 결과와 Recover·변경 링크 검사 범위.
+
+## Ticket 10 실행 경로 정리
+
+- [2026-10-31 — commands·PR·dispatcher·agent 정리](2026-10-31-09-ticket-10-workflow-and-execution-surface-cleanup.md): 옛 문서 명령 제거, PR reference 선택과 generate-pr 삭제, noline-work·양 host agent 정의 제거의 사용자 정정·선택 이유·검증 한계와 Maintain 수동 fallback.

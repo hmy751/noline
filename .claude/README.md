@@ -19,10 +19,8 @@
 | --- | --- | --- |
 | [harness/](harness/) | Claude/Codex bridge, 문서 owner, 하네스 변경 규칙 | AI/developer 운영 구조를 바꿀 때 먼저 읽는다. |
 | [../context/](../context/) | Personal 판단 기준·경험, 승인된 주제의 Project-wide 의미·current canonical, Workspace current/source/output/records, Recover·Maintain·Verify | 지속 작업을 복구하거나 새 Context Workspace를 만들 때 읽는다. 주제별 Owner는 [Project context](../context/project/README.md)에서 확인한다. |
-| [skills/](skills/README.md) | 로컬 운영 스킬과 deprecated 스킬 이력 | 각 스킬의 호출 조건을 따른다. `noline-work`는 deprecated이며 호출하지 않는다. |
-| [agents/](agents/) | Claude report-only 실행자 | context 수집, policy drift 점검, harness observer가 필요할 때만 사용한다. |
+| [skills/](skills/README.md) | 로컬 운영 스킬 | 각 스킬의 호출 조건을 따른다. |
 | [Project](../context/project/README.md) | 제품 의미·현재 구조·개발 기준·실패 위험과 선택 이유 | 같은 주제 본문에서 적용 조건과 확인 방법을 읽고 실제 코드와 대조한다. |
-| [commands/](commands/) | Claude command reference와 문서 관리 workflow | Claude 전용 command 자료다. Codex command로 자동 이식하지 않는다. 먼저 [commands/README.md](commands/README.md)를 확인한다. |
 | [decisions/](decisions/) | 하네스 구조·운영 변경의 이유 | 당시 결정과 후속 변경을 구별한다. 현재 책임 배치는 harness와 Project가 소유한다. |
 | [sessions/](sessions/) | 설계/구현 세션 기록 | 왜 그런 선택을 했는지 확인하는 기록이다. active policy로 바로 사용하지 않는다. |
 | [_archive/](_archive/) | 과거 구현 가이드와 deprecated 맥락 | 역사 자료다. 명시 요청 없이 현재 구현 기준으로 끌어올리지 않는다. |
@@ -33,10 +31,8 @@
 
 Codex bridge:
 
-- `.agents/skills/noline-work`는 deprecated 원본 `.claude/skills/noline-work`를 가리키는 보존용 symlink다.
 - `.agents/skills/create-context-workspace`는 `.claude/skills/create-context-workspace`를 가리키는 symlink다. 최초 Context Harness 이식에는 쓰지 않고, 설치 후 새 독립 또는 후속 Workspace를 만들 때만 쓴다.
 - `.agents/skills/start-app`은 `.claude/skills/start-app`을 가리키는 symlink다. 직접 요청되거나 실제 앱 실행이 필수일 때만 사용한다.
-- `.codex/agents/`는 `.claude/agents/`와 같은 의미의 report-only agent 정의를 Codex 형식으로 둔다.
 - bridge parity는 `pnpm harness:check`가 확인한다.
 
 ## Active Task Index

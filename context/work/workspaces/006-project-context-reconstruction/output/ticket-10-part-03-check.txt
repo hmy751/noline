@@ -1,0 +1,66 @@
+Ticket 10 part 03 — 최종 generate-pr 삭제 반영, 2026-10-31
+node scripts/check-harness.mjs --no-git-diff: exit 1, 기존과 동일한 55건(중복 포함), 새 실패 없음.
+node --check scripts/check-harness.mjs: exit 0
+git diff --check: exit 0
+.claude/commands: 현재 경로 없음, active 안내에서 generate-pr 경로 제거 확인
+work-discussion: 직전 전체 파일 SHA-256과 일치
+001 verify.json: JSON parse, evidence 경로 존재
+Codex .agents bridge: 동일 PR reference로 resolve
+
+보존 원문으로 대조한 과거 스킬 참조: 2건 (옛 URL은 현재 실행 경로가 아님)
+Harness check failed with 55 issue(s):
+- context/work/workspaces/002-code-readability-refactoring/records/2026-09-18-02-app-initialization-and-style.md links to missing ../../../../../.claude/decisions/2026-09-18-app-startup-failure-recovery.md
+- context/work/workspaces/002-code-readability-refactoring/records/2026-09-18-05-auth-session-implementation.md links to missing ../../../../../apps/client/src/shared/services/auth/session-restoration.ts
+- context/work/workspaces/002-code-readability-refactoring/records/2026-09-19-01-auth-complexity-review-and-decisions.md links to missing ../../../../../.claude/decisions/2026-09-18-device-session-and-local-access.md
+- context/work/workspaces/002-code-readability-refactoring/records/2026-09-29-07-read-query-composition-trial.md links to missing ../../../../../apps/client/src/screens/read-query.ts
+- context/work/workspaces/002-code-readability-refactoring/records/2026-10-01-01-schedule-create-provisional-review.md links to missing ../../../../../apps/client/src/features/schedule/create-schedule/useLocationSearch.ts
+- context/work/workspaces/002-code-readability-refactoring/records/2026-10-02-03-expense-time-decisions-and-verification.md links to missing ../../../../../.claude/context/policy-architecture.md
+- context/work/workspaces/002-code-readability-refactoring/records/2026-10-02-03-expense-time-decisions-and-verification.md links to missing ../../../../../.claude/decisions/2026-10-02-expense-draft-and-schedule-association.md
+- context/work/workspaces/002-code-readability-refactoring/records/2026-10-02-03-expense-time-decisions-and-verification.md links to missing ../../../../../.claude/decisions/2026-10-02-expense-date-boundaries.md
+- context/work/workspaces/002-code-readability-refactoring/records/2026-10-06-01-city-time-zone-commits-and-original-bug-continuity.md links to missing ../../../../../.claude/decisions/2026-10-06-trip-city-time-zone.md
+- context/work/workspaces/002-code-readability-refactoring/source/codebase-analysis/components.md links to missing ../../../../../../apps/client/src/features/trip/create-trip/useCreateTripForm.ts
+- context/work/workspaces/003-bug-investigation-and-fixes/current/memory/project-context.md links to missing ../../../../../../.claude/rules/activation-router.md
+- context/work/workspaces/003-bug-investigation-and-fixes/current/memory/project-context.md links to missing ../../../../../../.claude/rules/transaction-sync-queue.md
+- context/work/workspaces/003-bug-investigation-and-fixes/current/memory/project-context.md links to missing ../../../../../../.claude/rules/schema-first.md
+- context/work/workspaces/003-bug-investigation-and-fixes/current/memory/project-context.md links to missing ../../../../../../.claude/rules/auth-user-scope.md
+- context/work/workspaces/003-bug-investigation-and-fixes/current/memory/project-context.md links to missing ../../../../../../.claude/guards/README.md
+- context/work/workspaces/003-bug-investigation-and-fixes/current/memory/project-context.md links to missing ../../../../../../.claude/runbooks/README.md
+- context/work/workspaces/003-bug-investigation-and-fixes/current/memory/tickets/09-map-search-route-behavior.md links to missing ../../../../../../../apps/client/src/features/schedule/create-schedule/useLocationSearch.ts
+- context/work/workspaces/003-bug-investigation-and-fixes/records/2026-09-13-02-major-feature-category-investigation.md links to missing ../../../../../apps/client/src/features/schedule/create-schedule/useLocationSearch.ts
+- context/work/workspaces/003-bug-investigation-and-fixes/records/2026-09-13-02-major-feature-category-investigation.md links to missing ../../../../../apps/client/src/features/trip/create-trip/useCreateTripForm.ts
+- context/work/workspaces/003-bug-investigation-and-fixes/source/codebase-analysis/components.md links to missing ../../../../../../apps/client/src/features/trip/create-trip/useCreateTripForm.ts
+- context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md links to missing ../../../../../../.claude/context/currency.md
+- context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md links to missing ../../../../../../.claude/context/time.md
+- context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md links to missing ../../../../../../.claude/context/api-data.md
+- context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md links to missing ../../../../../../.claude/runbooks/README.md
+- context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/tickets/01-product-contract-agreements.md links to missing ../../../../../../../.claude/context/error-handling.md
+- context/work/workspaces/004-project-context-contracts-and-guidance/output/index.md links to missing ../../../../../.claude/runbooks/README.md
+- context/work/workspaces/005-context-based-code-improvement/current/memory/project-context.md links to missing ../../../../../../.claude/context/policy-architecture.md
+- context/work/workspaces/005-context-based-code-improvement/current/memory/project-context.md links to missing ../../../../../../.claude/context/error-handling.md
+- context/work/workspaces/005-context-based-code-improvement/current/memory/project-context.md links to missing ../../../../../../.claude/context/selective-activation-architecture.md
+- context/work/workspaces/005-context-based-code-improvement/current/memory/project-context.md links to missing ../../../../../../.claude/context/form.md
+- context/work/workspaces/005-context-based-code-improvement/current/memory/project-context.md links to missing ../../../../../../.claude/context/README.md
+- context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/02-policy-query-composition.md links to missing ../../../../../../../.claude/context/policy-architecture.md
+- context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/05-network-read-context.md links to missing ../../../../../../../.claude/context/policy-architecture.md
+- context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/05-network-read-context.md links to missing ../../../../../../../.claude/context/selective-activation-architecture.md
+- context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/05-network-read-context.md links to missing ../../../../../../../.claude/context/policy-architecture.md
+- context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/05-network-read-context.md links to missing ../../../../../../../.claude/context/error-handling.md
+- context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/06-draft-input-context.md links to missing ../../../../../../../.claude/context/form.md
+- context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/06-draft-input-context.md links to missing ../../../../../../../.claude/context/form.md
+- context/work/workspaces/005-context-based-code-improvement/output/index.md links to missing ../../../../../.claude/context/policy-architecture.md
+- context/work/workspaces/005-context-based-code-improvement/output/index.md links to missing ../../../../../.claude/context/error-handling.md
+- context/work/workspaces/005-context-based-code-improvement/output/index.md links to missing ../../../../../.claude/context/selective-activation-architecture.md
+- context/work/workspaces/005-context-based-code-improvement/output/index.md links to missing ../../../../../.claude/context/form.md
+- context/work/workspaces/005-context-based-code-improvement/output/index.md links to missing ../../../../../.claude/context/components.md
+- context/work/workspaces/005-context-based-code-improvement/output/index.md links to missing ../../../../../.claude/context/manual-input.md
+- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-07-impact-and-context-reassessment.md links to missing ../../../../../.claude/decisions/2026-09-18-device-session-and-local-access.md
+- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-07-impact-and-context-reassessment.md links to missing ../../../../../.claude/context/policy-architecture.md
+- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-07-impact-and-context-reassessment.md links to missing ../../../../../.claude/context/selective-activation-architecture.md
+- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-13-network-read-context.md links to missing ../../../../../.claude/context/policy-architecture.md
+- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-13-network-read-context.md links to missing ../../../../../.claude/context/error-handling.md
+- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-13-network-read-context.md links to missing ../../../../../.claude/context/selective-activation-architecture.md
+- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-14-save05-and-review06.md links to missing ../../../../../.claude/context/form.md
+- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-14-save05-and-review06.md links to missing ../../../../../.claude/context/components.md
+- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-15-draft-input-context.md links to missing ../../../../../.claude/context/form.md
+- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-15-draft-input-context.md links to missing ../../../../../.claude/context/components.md
+- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-15-draft-input-context.md links to missing ../../../../../.claude/context/manual-input.md

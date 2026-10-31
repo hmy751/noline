@@ -2,29 +2,29 @@
 
 ## 맡은 결과와 범위
 
-Claude와 Codex가 공유할 실행 내용과 각 host가 요구하는 진입·설정의 책임을 분명히 한다. 필요한 의미를 `.claude`의 기존 배치에 묶어 두는 중복과 제약을 해소하고, 실제 도구 연결을 유지하면서 불필요한 원본·사본·우회 경로를 줄인다.
+Claude와 Codex가 공유할 실행 내용과 각 host가 요구하는 진입·설정의 책임을 분명히 한다. 필요한 의미를 특정 도구 폴더에 묶어 두는 중복과 제약을 해소하고, 실제 도구 연결을 유지하면서 불필요한 원본·사본·우회 경로를 줄인다.
 
-Ticket 10 이후 남은 skills·공유 기준·agents·hooks·settings·harness 안내, `.agents`·`.codex` bridge와 관련 검사 코드를 함께 다룬다. skills·공유 기준과 함께 관리되는 형성 자료도 본문의 의미·출처·현재 읽기 관계와 함께 판단한다. 무관한 전역 Harness, 개인 설정의 비밀값, 새 범용 framework나 새로운 자동 실행 도입은 범위 밖이다.
+Ticket 10 뒤 남은 skills·공유 기준·hooks·settings·harness 안내, `.agents/skills` bridge와 `.codex` 설정·hook 및 관련 검사를 다룬다. skills·공유 기준의 형성 자료도 본문의 의미·출처·현재 읽기 관계와 함께 판단한다. 무관한 전역 Harness, 개인 설정의 비밀값, 새 범용 framework나 새로운 자동 실행 도입은 범위 밖이다.
 
 ## 실행 맥락과 접근
 
 [09–13 구성](../../../output/ticket-recomposition-09-13.md)과 [Spec의 내용 판단 기준](../spec/04-quality-and-completion.md#후속-ticket의-내용-판단과-리뷰)을 적용한다. 공통 본문의 적절한 Owner와 host별 필수 경로를 실제 소비 방식으로 판단하며, 공통 원본의 이동이나 현 위치 유지를 미리 정답으로 삼지 않는다.
 
-남기는 항목에는 구체적인 책임, 필요한 연결과 대체 비용을 설명한다. 현재 사용처는 대체할 연결을 확인할 근거이지 현 구조 유지의 충분한 이유가 아니다. Ticket 10에서 바꾸는 skill의 관련 형성 자료는 10이 함께 맞추고, 본문만 먼저 완료한 뒤 이 Ticket이나 12로 넘기지 않는다.
+사용자는 Ticket 10에서 옛 `noline-work`와 Noline agent의 Claude·Codex 정의를 제거했다. 이 Ticket은 삭제한 정의나 dispatcher 기준을 다시 만들지 않는다. 제품 기준·위험 점검은 Project guidance, 구현·검토·검증 배정은 development가 맡는 현재 책임에서 시작해 남은 skill·공유 기준·host 연결만 판단한다.
 
-observer의 모든 skill을 dispatcher로 보는 기준은 현재 skill의 판단·수행 계약과 제품 의미 소유를 구별하도록 재검토하고 양 host의 정의를 함께 맞춘다. hooks는 설정에서 wrapper와 공통 구현까지 따라 중복과 실제 결합을 확인한다. 기존 Maintain의 binding·권한·guarded apply 의미는 이번 위치 정리로 새로 설계하지 않는다.
+남기는 항목에는 구체적인 책임, 필요한 연결과 대체 비용을 설명한다. 현재 사용처는 대체할 연결을 확인할 근거이지 현 구조 유지의 충분한 이유가 아니다. hooks는 설정에서 wrapper와 공통 구현까지 따라 중복과 실제 결합을 확인한다. 기존 Maintain의 binding·권한·guarded apply 의미는 이번 위치 정리로 새로 설계하지 않는다.
 
 ## 완료 조건과 확인 방법
 
 - 공통 실행 기준의 실제 원천과 Claude·Codex의 읽기·발견·호출 경로를 각각 설명하고 확인할 수 있다.
-- 필요한 연결을 대체한 뒤 옛 연결을 정리하고 parity·discovery와 관련 회귀 검사를 수행한다.
-- 실제 host 동작이 바뀌는 범위는 제한된 실행으로 확인하며, 핵심 호출 확인이 막히면 완료로 닫지 않는다. 변경한 연결과 영향받는 대표 호출을 대상으로 하며, 무관한 모든 skill·host lifecycle 실행을 새 완료 조건으로 추가하지 않는다.
+- 필요한 연결을 대체한 뒤 옛 연결을 정리하고 discovery와 관련 회귀 검사를 수행한다.
+- 실제 host 동작이 바뀌는 범위는 제한된 실행으로 확인하며, 핵심 호출 확인이 막히면 완료로 닫지 않는다.
 - 정적 bridge·링크·expected surface 검사와 실제 host 동작을 구별한다.
 - 이미 충분히 판단한 Owner를 위치 통일만을 위해 다시 옮기지 않는다. 재변경에는 실제 중복·책임 충돌·도구 제약의 근거가 있어야 한다.
 - 제품 앱이나 외부 서비스 실행을 도구 연결 증거로 대신하지 않는다.
 
 ## 현재 상태와 실제 결과
 
-Ticket 09–10의 내용·호출 정리를 바탕으로 실행한다. 앞선 Ticket에서 이미 전환한 연결은 재사용하고 남은 배치와 host 연결만 판단한다.
+Ticket 09–10에서 제품 기준·호출 경로와 옛 dispatcher·agent 정의를 정리한 결과를 재사용한다. Ticket 10에서 옛 commands·dispatcher·agent 정의의 정리와 요구 검증을 마쳤다. 삭제한 정의를 복원하지 않고 남은 skill·공유 기준·hook·설정·bridge의 책임과 host 동작부터 확인한다.
 
-실제 skill·agent·hook·bridge 변경과 host 동작 검증은 아직 시작하지 않았다. Ticket 구성의 독립 검토는 실제 연결 동작을 확인한 결과가 아니다.
+Ticket 11의 실제 변경과 host 동작 검증은 아직 시작하지 않았다.

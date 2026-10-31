@@ -15,9 +15,7 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
 | Workspace guides | `apps/*/CLAUDE.md`, `packages/*/CLAUDE.md` | app/package별 구현 규칙과 명령 | 경로에 따라 읽음 |
 | Document map | [../README.md](../README.md) | `.claude` corpus의 역할과 읽는 순서 | 문서 작업 시 시작점 |
 | Project context | [../../context/project/](../../context/project/) | 제품·아키텍처·개발 기준·실패 위험·확인 조건과 선택 이유 | 주제별 Owner에서 함께 읽고 실제 구현과 대조 |
-| Skill | [../skills/README.md](../skills/README.md) | 로컬 운영 스킬과 deprecated 스킬 이력 | 각 스킬의 호출 조건에 따라 읽음 |
-| Agents | [../agents/](../agents/) + [../../.codex/agents/](../../.codex/agents/) | context 수집, policy drift 점검, harness observer | 필요할 때만 report-only |
-| Commands | [../commands/](../commands/) | Claude command reference와 문서 관리 workflow | Claude 참고 자료 |
+| Skill | [../skills/README.md](../skills/README.md) | 로컬 운영 스킬 | 각 스킬의 호출 조건에 따라 읽음 |
 | Decisions | [../decisions/](../decisions/) | 하네스 구조·운영이 왜 바뀌었는지 | 근거 기록 |
 | Audits | [../audits/](../audits/) | 문서 품질 검증과 하네스 점검 evidence | 근거 기록, policy 아님 |
 | Sessions | [../sessions/](../sessions/) | 작업 이력과 증거 | history |
@@ -37,11 +35,8 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
   - `apps/server/`
   - `packages/schema/`
   - `packages/ui/`
-- `.claude/commands/`는 Claude command reference다. Codex command나 rule로 자동 포팅하지 않는다.
 - 제품 기준과 위험 점검은 `context/project/`의 주제별 본문을 공통으로 읽는다. 도구별 자동 rule loader에 기대지 않는다.
-- `.claude/skills/noline-work`와 `.agents/skills/noline-work`는 deprecated 원본과 Codex bridge로 보존한다. 현재 작업에서 호출하지 않는다.
 - `.claude/skills/create-context-workspace`는 설치된 Context Harness에서 새 Workspace를 구성하는 Claude skill 원천이고 `.agents/skills/create-context-workspace`는 Codex bridge다.
-- `.claude/agents/*.md`는 Claude report-only agent 정의이고 `.codex/agents/*.toml`은 같은 의미의 Codex agent 정의다.
 - `.claude/settings.json`은 Claude Code lifecycle hook을 `.claude/hooks/maintain.py`에 연결한다. `.codex/hooks.json`은 Codex lifecycle을 `.codex/hooks/maintain.py`에 연결한다. 둘 다 새 session을 자동 binding하지 않으며, Claude payload의 `agent_id`가 있는 subagent event는 Main binding과 분리하기 위해 adapter가 조용히 무시한다.
 
 ## 브릿지 규칙
@@ -107,7 +102,7 @@ pnpm harness:check
 ```
 
 이 검증은 `AGENTS.md -> CLAUDE.md` bridge, legacy 하네스 경로 부활 여부, active Markdown 링크, root 임시 계획 파일, whitespace diff를 확인한다.
-실행층이 추가된 뒤에는 `.claude/skills`, `.agents/skills`, `.claude/agents`, `.codex/agents`의 예상 파일과 report-only/parity도 함께 확인한다.
+실행층이 추가된 뒤에는 `.claude/skills`와 `.agents/skills`의 예상 파일과 bridge도 함께 확인한다.
 
 ## 최근 정리 결과
 
@@ -131,11 +126,8 @@ pnpm harness:check
 
 - `create-context-workspace`: 설치 뒤 새 독립 또는 후속 Context Workspace를 구성·bounded 재진입 검토하는 skill이다. 최초 이식이나 기존 Workspace 단순 수정에는 사용하지 않는다.
 - `start-app`: 직접 실행 요청 또는 실제 앱 검증이 필수인 작업에서 개발 DB·서버·클라이언트를 실행하고 연결을 확인한다.
-- `noline-context-collector`: feature/bug 단위로 관련 코드, 문서, decision, 최근 커밋을 모아 compact card를 반환하는 report-only collector.
-- `noline-policy-checker`: Router, `withTransaction`, `generateId`, schema-first, ISO time, auth ownership, soft delete 정책 drift를 보는 report-only checker.
-- `noline-harness-observer`: 하네스/bridge 변경 뒤 구조 drift와 Claude/Codex parity를 보는 report-only observer.
 
-`noline-work`는 2026-09-10 사용자 요청으로 deprecated 처리했다. 작업별 기준은 root·workspace guide와 Project 주제별 기준에서 직접 찾는다. 기존 스킬 본문과 bridge는 이력으로 남기며 현재 workflow로 실행하지 않는다. [결정 기록](../decisions/2026-09-10-deprecate-noline-work.md)
+`noline-work`는 2026-09-10 사용자 요청으로 deprecated 처리했다. 작업별 기준은 root·workspace guide와 Project 주제별 기준에서 직접 찾는다. 2026-10-31에 원본과 bridge를 현재 경로에서 제거했고 원본은 Ticket 10 archive에 보존했다. [결정 기록](../decisions/2026-09-10-deprecate-noline-work.md)
 
 agent/skill 파일은 discoverable 역할 정의일 뿐, 자동 team runner가 아니다. 여러 agent를 팀처럼 쓸 때의 호출 순서, 병렬화, 결과 통합은 메인 작업자가 정한다.
 
@@ -143,8 +135,10 @@ agent/skill 파일은 discoverable 역할 정의일 뿐, 자동 team runner가 �
 
 ## Context Harness 보완
 
-[Project layer](../../context/project/README.md)와 [Spec·Ticket](../../context/work/workspaces/spec-and-tickets/README.md)이 지속 내용과 유지 책임을 소유한다. [운영 skill 색인](../skills/README.md)은 생성·Personal/Project 한정 갱신·논의·재판단·설명을 연결한다. `.claude/skills/` 원본과 `.agents/skills/` 상대 bridge를 유지하며 report-only agents와 각 host adapter를 대체하지 않는다. 최초 적용은 [2026-09-09 Decision](../decisions/2026-09-09-context-harness-upgrade.md), Project 본문의 구성·읽기·갱신 책임 보완은 [2026-09-14 Decision](../decisions/2026-09-14-project-context-authoring-and-reading.md)에 있다.
+[Project layer](../../context/project/README.md)와 [Spec·Ticket](../../context/work/workspaces/spec-and-tickets/README.md)이 지속 내용과 유지 책임을 소유한다. [운영 skill 색인](../skills/README.md)은 생성·Personal/Project 한정 갱신·논의·재판단·설명을 연결한다. `.claude/skills/` 원본과 `.agents/skills/` 상대 bridge를 유지하며 각 host adapter를 대체하지 않는다. 최초 적용은 [2026-09-09 Decision](../decisions/2026-09-09-context-harness-upgrade.md), Project 본문의 구성·읽기·갱신 책임 보완은 [2026-09-14 Decision](../decisions/2026-09-14-project-context-authoring-and-reading.md)에 있다.
 
 공통 읽기는 [USAGE](../../context/USAGE.md)로 연결한다. 최신 Personal·설명·한정 갱신의 부분 반영과 기존 경로 호환 이유는 [2026-10-30 Decision](../decisions/2026-10-30-context-and-explanation-refresh.md)에 있다. Maintain·Work 전환 계약과 각 host 연결은 이번 보완에서 유지했다.
 
-개발 수행·요청된 경험 개선의 추가와 옛4개 실행 경로 제거는 [개발 스킬 전환 결정](../decisions/2026-10-30-development-skill-transition.md)을 따른다. 위 이전 부분 반영의 호환 유지 판단에서 현재 consumer 전환을 마친 범위만 이어 변경했다. 기존 agent의 report-only 경계와 Maintain 운영 계약은 유지한다.
+개발 수행·요청된 경험 개선의 추가와 옛4개 실행 경로 제거는 [개발 스킬 전환 결정](../decisions/2026-10-30-development-skill-transition.md)을 따른다. 위 이전 부분 반영의 호환 유지 판단에서 현재 consumer 전환을 마친 범위만 이어 변경했다. Maintain 운영 계약은 유지한다.
+
+2026-10-31 사용자 요청으로 옛 Noline agent 3종의 Claude·Codex 정의를 현재 경로에서 제거했다. 역할별 검토·검증은 development의 배정과 관련 Project 기준을 따르며, Maintain role과 lifecycle은 별도 Work 계약을 유지한다.

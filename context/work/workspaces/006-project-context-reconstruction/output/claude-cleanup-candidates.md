@@ -20,11 +20,11 @@
 
 ## 무엇이 현재 기준과 충돌하는가
 
-[doc-refactor](../../../../../.claude/commands/doc-refactor.md)는 `CURRENT_POLICIES`와 `POLICY_HISTORY`를 command 안에서 수정하도록 지시한다. 제품 정책의 별도 정본이 생기는 구조다. ‘Router를 통한 모든 데이터 접근’은 외부 Service와 datasource 책임까지 구별하지 않고, `.claude/**/*.md` 전체의 자동 치환 예시는 archive·역사 근거를 현재 지침처럼 바꿀 위험이 있다.
+[doc-refactor](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/commands/doc-refactor.md.txt)는 `CURRENT_POLICIES`와 `POLICY_HISTORY`를 command 안에서 수정하도록 지시한다. 제품 정책의 별도 정본이 생기는 구조다. ‘Router를 통한 모든 데이터 접근’은 외부 Service와 datasource 책임까지 구별하지 않고, `.claude/**/*.md` 전체의 자동 치환 예시는 archive·역사 근거를 현재 지침처럼 바꿀 위험이 있다.
 
-[check-docs](../../../../../.claude/commands/check-docs.md)는 모든 정책을 먼저 읽도록 하며 모든 시간 데이터를 ISO 8601로 설명한다. 현재는 질문에 맞는 본문을 선택하고 경비의 달력 날짜와 시점을 구별한다. [doc-save](../../../../../.claude/commands/doc-save.md)는 ‘모든 문서화는 Git commit부터’를 강제하며 제품 결정까지 `.claude/decisions/`에 저장하도록 한다. [doc-discuss](../../../../../.claude/commands/doc-discuss.md)는 논의를 `.claude/sessions/`로 저장하는 독자 흐름을 제시한다. 단순 링크 교체보다 실행 역할을 계속 유지할지 판단하는 일이 먼저다.
+[check-docs](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/commands/check-docs.md.txt)는 모든 정책을 먼저 읽도록 하며 모든 시간 데이터를 ISO 8601로 설명한다. 현재는 질문에 맞는 본문을 선택하고 경비의 달력 날짜와 시점을 구별한다. [doc-save](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/commands/doc-save.md.txt)는 ‘모든 문서화는 Git commit부터’를 강제하며 제품 결정까지 `.claude/decisions/`에 저장하도록 한다. [doc-discuss](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/commands/doc-discuss.md.txt)는 논의를 `.claude/sessions/`로 저장하는 독자 흐름을 제시한다. 단순 링크 교체보다 실행 역할을 계속 유지할지 판단하는 일이 먼저다.
 
-[observer](../../../../../.claude/agents/noline-harness-observer.md)의 dispatcher 기준은 [현재 스킬 관리 정책](../../../../../.claude/skills/SKILLS-CONTENT-POLICY.md)과 [development](../../../../../.claude/skills/development/SKILL.md)의 독립 실행 본문 역할을 충분히 반영하지 못한다. ‘실행 기준을 스킬에 둔다’와 ‘제품 정책을 스킬에 복제한다’를 구별하는 쪽이 적절하다. 이는 이번 조사자의 제안이며 아직 agent 기준을 수정하지 않았다.
+[observer](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/retired-agents/claude/agents/noline-harness-observer.md.txt)의 dispatcher 기준은 [현재 스킬 관리 정책](../../../../../.claude/skills/SKILLS-CONTENT-POLICY.md)과 [development](../../../../../.claude/skills/development/SKILL.md)의 독립 실행 본문 역할을 충분히 반영하지 못한다. ‘실행 기준을 스킬에 둔다’와 ‘제품 정책을 스킬에 복제한다’를 구별하는 쪽이 적절하다. 이는 이번 조사자의 제안이며 아직 agent 기준을 수정하지 않았다.
 
 ## 08의 누락으로 바로잡은 경로
 

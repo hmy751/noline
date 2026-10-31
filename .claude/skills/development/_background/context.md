@@ -65,3 +65,9 @@ explain 재구체화에서 첫 결과를 구성할 때 목표·실제 변경·�
 완료 시점에는 실제 결과와 Work의 현재 의미를 맞추고 다음 대화가 남은 판단에서 이어가게 했다. 같은 목표의 재개와 요청된 새 Work 생성, 생성과 전환의 결과를 구별한다. 사용자 요청의 [improvement-loop](../../improvement-loop/SKILL.md)는 이 제안·선택·결과를 재사용하며 현재 Main이 이어 수행한다. 일상 유지의 선행 단계나 별도 Work 등록을 요구하지 않는다. [사용자 발화와 통합 이유](records/2026-10-26-context-integration.md)에 후속 선택·유보·적용 범위를 보존했다.
 
 이 책임 배치와 Personal 경험의 연결 이유는 [루프 형성 맥락](../../improvement-loop/_background/context.md), 형식·소유 경계를 다시 대조한 경과는 [구조 정정 기록](../../improvement-loop/_background/records/2026-10-29-integration.md)에서 찾는다.
+
+## PR 작성 요청에서만 사용하는 상세 — 2026-10-31
+
+기존 generate-pr에는 PR 단위로 비교 범위를 정하고 최종 변경을 리뷰어에게 설명하는 유효한 수행이 있었다. 일반 결과 설명만으로 이 비교 절차를 대신하지 않되, PR을 모든 개발의 필수 단계로 추가하지 않도록 [PR 작성 상세](../references/pull-request.md)에 두고 본체에는 해당 요청에서만 따르는 연결을 넣었다. 사용자의 후속 삭제 요청에 따라 generate-pr 호출과 더 이상 명령이 없는 commands 안내를 제거했다. Claude와 Codex 모두 development에서 같은 상세를 선택한다.
+
+커밋 수·변경 줄 수별 분량과 고정 목차, 키워드만으로 migration을 요구하는 방식은 실제 검토 필요에 맞지 않아 가져오지 않았다. 개발·검증·완료·Work 갱신 책임은 기존 Owner가 유지한다. 사용자 선택과 원본 위치는 [전환 기록](records/2026-10-31-pull-request-reference.md)에서 확인한다.

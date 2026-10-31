@@ -1,0 +1,35 @@
+{
+  "reason": "사용자의 .claude/agents 삭제 요청에 따라 대응 Codex 역할도 함께 제거",
+  "files": [
+    {
+      "original": ".claude/agents/noline-context-collector.md",
+      "snapshot": "retired-agents/claude/agents/noline-context-collector.md.txt",
+      "sha256": "d7291c1e673d851e870ac8f8d5a38a650e8110289e9fab017ee59e8906c83b0f"
+    },
+    {
+      "original": ".claude/agents/noline-harness-observer.md",
+      "snapshot": "retired-agents/claude/agents/noline-harness-observer.md.txt",
+      "sha256": "b3c6746b82b3b6e78d5057ed8c88395d7cc67c8330fa6b0c641a56fd6d4f2a44"
+    },
+    {
+      "original": ".claude/agents/noline-policy-checker.md",
+      "snapshot": "retired-agents/claude/agents/noline-policy-checker.md.txt",
+      "sha256": "8b226db83224f2a1d4a25e1a3011e2d802723f3d555160673d2f2e81b6bed0d8"
+    },
+    {
+      "original": ".codex/agents/noline-context-collector.toml",
+      "snapshot": "retired-agents/codex/agents/noline-context-collector.toml.txt",
+      "sha256": "c302fdeda1e9372d6fe3a5114ab14dff8de52f819959b217418120d9a6b7fb56"
+    },
+    {
+      "original": ".codex/agents/noline-harness-observer.toml",
+      "snapshot": "retired-agents/codex/agents/noline-harness-observer.toml.txt",
+      "sha256": "ec5b728d9f9ff8da70ddcac52cdda18a7523ad3865e1d1429899d7a0389b428a"
+    },
+    {
+      "original": ".codex/agents/noline-policy-checker.toml",
+      "snapshot": "retired-agents/codex/agents/noline-policy-checker.toml.txt",
+      "sha256": "dba3030bbe8ab45855c9e48e529d9497ab24a8767079798776c280bc55a0291e"
+    }
+  ]
+}

@@ -15,7 +15,7 @@
   - [packages/ui/CLAUDE.md](./packages/ui/CLAUDE.md)
 - 하네스 구조와 tool bridge 규칙은 [Noline AI Harness](./.claude/harness/README.md)를 따른다.
 - 작업의 지속 상태와 선택된 Project context는 root [Context Harness](./context/README.md)를 따른다. 제품 의미·현재 구조·개발 기준과 필요한 선택 이유는 [`context/project/`](./context/project/README.md)의 대응 문서가 소유한다. 옛 제품 원본은 일반 읽기에서 제외했다.
-- 실행층은 [운영 skill 색인](./.claude/skills/README.md)과 `.claude/agents/`, `.codex/agents/`에서 찾는다. `noline-work`는 deprecated이며 호출하지 않는다. `.claude/settings.json`과 `.codex/hooks.json`은 각각의 host lifecycle을 explicit-unbound Maintain adapter에 연결한다. 제품 기준 본문은 Project의 주제별 Owner가 소유하며, 실행층은 필요한 본문을 직접 선택한다.
+- 실행층은 [운영 skill 색인](./.claude/skills/README.md)에서 찾는다. `.claude/settings.json`과 `.codex/hooks.json`은 각각의 host lifecycle을 explicit-unbound Maintain adapter에 연결한다. 제품 기준 본문은 Project의 주제별 Owner가 소유하며, 실행층은 필요한 본문을 직접 선택한다.
 
 ## Start Here
 
@@ -96,14 +96,12 @@ noline/
 ├── .claude/
 │   ├── harness/         # AI/developer harness and bridge model
 │   ├── skills/          # 호출 조건·수행 방법과 공유 기준
-│   ├── agents/          # Claude report-only execution agents
-│   ├── commands/        # Claude command references
 │   ├── decisions/       # Harness decision records
 │   ├── sessions/        # Session records
 │   ├── audits/          # Document audit/test evidence
 │   └── _archive/        # Deprecated historical material
 ├── .agents/             # Codex skill bridge
-├── .codex/              # Codex report-only agent definitions
+├── .codex/              # Codex 설정과 lifecycle hook
 └── CLAUDE.md            # This navigation hub
 ```
 
@@ -147,12 +145,7 @@ pnpm harness:check
 - 기존 history, session, reference, archive 문서를 삭제하거나 현재 정책처럼 고치기 전에 [Document Map](./.claude/README.md)에서 역할을 확인한다.
 - active guide와 코드가 충돌하면 코드를 확인하고 active guide만 최소 수정한다.
 - 제품 선택의 이유는 Project의 대응 본문·형성 자료나 `context/project/decisions/`에, 하네스 구조 변경은 [.claude/decisions/](./.claude/decisions/)에 남긴다.
-- `.claude/commands/`는 Claude command reference다. Codex로 자동 이식하지 않는다.
 - skill은 호출 조건·판단·수행 방법을 소유하고, 제품 정책과 지속 context의 관리 계약은 owning docs에 남긴다. agent는 report-only 실행자로 유지한다.
-
-## Claude Commands
-
-문서 관리 command 자료는 [commands/](./.claude/commands/)에 있다. Codex 작업에서는 참고 자료로만 읽고, Claude 전용 실행 전제를 그대로 재현하지 않는다.
 
 ## Context Harness 운영 진입
 

@@ -12,13 +12,7 @@ const preservedHistoricalReferences = [];
 
 const rel = (target) => path.relative(root, target) || '.';
 const exists = (target) => fs.existsSync(path.join(root, target));
-const expectedExecutionAgents = [
-  'noline-context-collector',
-  'noline-harness-observer',
-  'noline-policy-checker',
-];
 const expectedSkills = [
-  'noline-work',
   'create-context-workspace',
   'work-discussion',
   'reconsider-work',
@@ -107,8 +101,6 @@ function checkMarkdownLinks() {
     '.claude/harness',
     '.claude/audits/2026-05-06-harness-execution-plan.md',
     '.claude/skills',
-    '.claude/agents',
-    '.claude/commands/README.md',
     '.claude/audits/README.md',
     '.claude/context',
     '.claude/decisions',
@@ -151,6 +143,15 @@ function checkNoLegacySurfaces() {
     '.claude/guards',
     '.claude/runbooks',
     '.claude/workflows',
+    '.claude/commands',
+    '.claude/agents',
+    '.codex/agents',
+    '.claude/skills/noline-work',
+    '.agents/skills/noline-work',
+    '.claude/commands/check-docs.md',
+    '.claude/commands/doc-save.md',
+    '.claude/commands/doc-discuss.md',
+    '.claude/commands/doc-refactor.md',
   ];
 
   for (const target of forbidden) {
@@ -190,13 +191,11 @@ function checkExecutionSurfaces() {
   ]);
   checkOnlyEntries('.agents', ['skills']);
   checkOnlyEntries('.agents/skills', [...expectedSkills, 'README.md']);
-  checkOnlyEntries('.claude/agents', expectedExecutionAgents.map((agent) => `${agent}.md`));
   checkOnlyEntries(
     '.codex',
-    ['agents', 'config.toml', 'hooks', 'hooks.json', 'maintain.json'],
-    ['agents', 'config.toml', 'hooks', 'hooks.json', 'maintain.json', 'maintain-runtime'],
+    ['config.toml', 'hooks', 'hooks.json', 'maintain.json'],
+    ['config.toml', 'hooks', 'hooks.json', 'maintain.json', 'maintain-runtime'],
   );
-  checkOnlyEntries('.codex/agents', expectedExecutionAgents.map((agent) => `${agent}.toml`));
 
   for (const name of expectedSkills) {
     checkSymlink(`.agents/skills/${name}`, `../../.claude/skills/${name}`);
@@ -205,25 +204,6 @@ function checkExecutionSurfaces() {
     }
   }
 
-  for (const agent of expectedExecutionAgents) {
-    const claudePath = path.join(root, '.claude/agents', `${agent}.md`);
-    const codexPath = path.join(root, '.codex/agents', `${agent}.toml`);
-    if (!fs.existsSync(claudePath) || !fs.existsSync(codexPath)) continue;
-
-    const codexName = agent.replaceAll('-', '_');
-    const claudeText = fs.readFileSync(claudePath, 'utf8');
-    const codexText = fs.readFileSync(codexPath, 'utf8');
-
-    if (!claudeText.includes('report-only')) {
-      failures.push(`.claude/agents/${agent}.md must state report-only`);
-    }
-    if (!codexText.includes(`name = "${codexName}"`)) {
-      failures.push(`.codex/agents/${agent}.toml must use name "${codexName}"`);
-    }
-    if (!codexText.includes('Inspect only. Do not edit files.')) {
-      failures.push(`.codex/agents/${agent}.toml must be read-only/report-only`);
-    }
-  }
 }
 
 function checkContextHarnessSurface() {
