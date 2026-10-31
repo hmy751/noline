@@ -18,15 +18,15 @@
 
 | 보존한 원문 | 현재 의미와 이유를 읽는 곳 |
 | --- | --- |
-| [Data/Service 결정](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2025-11-20-data-service-separation.md) | Project의 제품·여행 접근·선택 근거. Router 대안의 미전송 위험, 사용자 모드 전환 부담과 채택 비용 유지 |
-| [Policy 책임 결정](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2025-11-20-policy-layer-separation.md) | 여행 접근 본문·형성 근거. hook 안 UI 가용성 결합의 비용, useAppPolicy·작업별 정책, 후속 초안 보존 조건 유지 |
-| [용어 결정](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2026-03-21-terminology-unification.md) | Project 결정 0001. Selective Local-First·Activation Router·Client-Side ID·오프라인 보험의 이유와 역사 용어 보존 |
-| [새 여행·목록 결정](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2026-10-04-inactive-trip-creation.md) | 여행 접근 본문·형성 근거. 서버 생성·조회 반영·미전송 부모 보존·출처별 선택·단일 캐시·실패 분기 |
-| [기기 세션 결정](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2026-09-18-device-session-and-local-access.md) | app-runtime 본문·형성 맥락. 초안 당시 자동 계정전환과 후속 같은 계정 복구를 구별 |
-| [앱 시작 실패 결정](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2026-09-18-app-startup-failure-recovery.md) | app-runtime. DB 진입조건·인증 실패 구별·sync 종료 조율·명시 제외를 후속 코드와 대조 |
-| [옛 context 색인](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-08/context/README.md) | [Project 입구](../../../../project/README.md). 더 이상 `.claude/context` 경유 불필요 |
-| [기존 루트 소개](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/development-start/README.md) · [시작 안내](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/development-start/START_GUIDE.md) | 현재 루트 README·START_GUIDE, 제품 의미는 Project |
-| [기존 서버 안내](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/development-start/apps/server/README.md) · [SQL 안내](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/development-start/apps/server/scripts/README.md) | 현재 서버·scripts README. 과거 SQL은 실행 대상이 아니라 전제 확인 대상임을 설명 |
+| [Data/Service 결정](../../../../../_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2025-11-20-data-service-separation.md) | Project의 제품·여행 접근·선택 근거. Router 대안의 미전송 위험, 사용자 모드 전환 부담과 채택 비용 유지 |
+| [Policy 책임 결정](../../../../../_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2025-11-20-policy-layer-separation.md) | 여행 접근 본문·형성 근거. hook 안 UI 가용성 결합의 비용, useAppPolicy·작업별 정책, 후속 초안 보존 조건 유지 |
+| [용어 결정](../../../../../_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2026-03-21-terminology-unification.md) | Project 결정 0001. Selective Local-First·Activation Router·Client-Side ID·오프라인 보험의 이유와 역사 용어 보존 |
+| [새 여행·목록 결정](../../../../../_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2026-10-04-inactive-trip-creation.md) | 여행 접근 본문·형성 근거. 서버 생성·조회 반영·미전송 부모 보존·출처별 선택·단일 캐시·실패 분기 |
+| [기기 세션 결정](../../../../../_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2026-09-18-device-session-and-local-access.md) | app-runtime 본문·형성 맥락. 초안 당시 자동 계정전환과 후속 같은 계정 복구를 구별 |
+| [앱 시작 실패 결정](../../../../../_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2026-09-18-app-startup-failure-recovery.md) | app-runtime. DB 진입조건·인증 실패 구별·sync 종료 조율·명시 제외를 후속 코드와 대조 |
+| [옛 context 색인](../../../../../_archive/2026-10-31-project-context-reconstruction/ticket-08/context/README.md) | [Project 입구](../../../../project/README.md). 더 이상 `.claude/context` 경유 불필요 |
+| [기존 루트 소개](../../../../../_archive/2026-10-31-project-context-reconstruction/development-start/README.md) · [시작 안내](../../../../../_archive/2026-10-31-project-context-reconstruction/development-start/START_GUIDE.md) | 현재 루트 README·START_GUIDE, 제품 의미는 Project |
+| [기존 서버 안내](../../../../../_archive/2026-10-31-project-context-reconstruction/development-start/apps/server/README.md) · [SQL 안내](../../../../../_archive/2026-10-31-project-context-reconstruction/development-start/apps/server/scripts/README.md) | 현재 서버·scripts README. 과거 SQL은 실행 대상이 아니라 전제 확인 대상임을 설명 |
 
 앞선 Ticket 02–07의 원본·현재 Owner 대응은 [산출물 색인](index.md)의 각 결과에 보존했다. 옛 제품 결정 원문이 사라진 것이 아니라 일반 제품 읽기와 역사 조사를 분리한 것이다.
 
@@ -48,7 +48,7 @@
 
 ## 읽기 경로와 검증 선언
 
-Root·Project·Document Map·Harness·rules·guards·runbooks·Claude/Codex agent의 현재 진입을 바꿨다. 세 agent는 report-only 역할을 유지하며 자료 선택만 Project로 맞췄다. 하네스 책임 전환은 [결정 기록](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-10-31-project-product-context-ownership.md.txt)에 남겼다.
+Root·Project·Document Map·Harness·rules·guards·runbooks·Claude/Codex agent의 현재 진입을 바꿨다. 세 agent는 report-only 역할을 유지하며 자료 선택만 Project로 맞췄다. 하네스 책임 전환은 [결정 기록](../../../../../_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-10-31-project-product-context-ownership.md.txt)에 남겼다.
 
 Default 001과 current-generation metadata로 확인한 explicit-bound 002·006을 live consumer로 확인했다. 002 output의 당시 결정을 현재 선별 설명인 것처럼 이름 붙이지 않도록 구별하고 현재 읽기는 Project로 전환했다. 과거 기록의 원문은 수정하지 않았다. 001 Verify evidence에서 기존 누락 8개와 이번 이동으로 사라진 입력 4개를 제거하고 실제 여행 접근·데이터 수명·지도·app-runtime Owner와 개발 안내를 선언했다. claim·고정 명령·receipt·status는 바꾸지 않았다.
 

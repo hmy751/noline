@@ -34,6 +34,10 @@
 | [두 README 원문 식별자](ticket-13-readme-originals.json) | 삭제 직전 원문의 commit·경로·Git blob·SHA-256을 대조할 때 |
 | [README 전환 검사 원문](ticket-13-readme-check.txt) | strict 검사 64건 실패의 원문을 확인할 때 |
 | [README 전환 검증 결과](ticket-13-readme-verification.json) | 실제 001 Verify 실패 receipt와 세 Workspace Recover 성공 범위를 확인할 때 |
+| [Archive 루트 이동 결과](ticket-13-archive-result.md) | host와 무관한 보존 위치·현재 참조 전환·원문 보존과 한계를 확인할 때 |
+| [Archive 이동 경로표와 해시](ticket-13-archive-move-manifest.json) | 124개 파일의 old_path·new_path·SHA와 기준 commit을 대조할 때 |
+| [Archive 이동 검사 원문](ticket-13-archive-check.txt) | strict 검사 65건 실패와 새 역사 링크 1건을 확인할 때 |
+| [Archive 이동 Verify·Recover](ticket-13-archive-verification.json) | 001 실제 실패 receipt와 live 소비자 재진입 결과를 확인할 때 |
 
 현재 제품 설명은 [제품 기준](../../../../project/common/product.md), [여행 접근](../../../../project/guidance/travel-access/INDEX.md), [선택 이유](../../../../project/decisions/0001-selective-local-first.md), [저장·동기화·정리](../../../../project/guidance/data-lifecycle/INDEX.md), [지도·경로](../../../../project/guidance/offline-maps-and-routes/INDEX.md), [구조·UI·schema](../../../../project/guidance/development-boundaries/INDEX.md), [작성·입력](../../../../project/guidance/writing-and-input/INDEX.md), [날짜와 시각](../../../../project/common/date-and-time.md)과 [통화](../../../../project/common/currency.md)·[API](../../../../project/guidance/api-contracts.md)·[오류](../../../../project/guidance/error-handling.md), 가까운 형성 자료가 소유한다. 이 폴더는 그 본문을 복제하지 않고 조사·검토 결과를 남긴다.
 

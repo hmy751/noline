@@ -30,10 +30,10 @@ Ticket 06의 작업 변경은 `57dd61d`, Workspace 기록은 `6d95e18`로 나눠
 
 다음 네 원본은 안내문을 붙인 역사 보존판으로 옮기고 옛 경로를 제거했다. 연결 stub은 남기지 않았다.
 
-- currency.md → [currency 보존판](../../../../../.claude/_archive/currency-pre-project-2026-10-31.md)
-- api-data.md → [API/Data 보존판](../../../../../.claude/_archive/api-data-pre-project-2026-10-31.md)
-- error-handling.md → [오류 가이드 보존판](../../../../../.claude/_archive/error-handling-pre-project-2026-10-31.md)
-- 2025-12-23-auth-axios-factory.md → [인증 전송 결정 보존판](../../../../../.claude/_archive/auth-axios-factory-pre-project-2026-10-31.md)
+- currency.md → [currency 보존판](../../../../../_archive/currency-pre-project-2026-10-31.md)
+- api-data.md → [API/Data 보존판](../../../../../_archive/api-data-pre-project-2026-10-31.md)
+- error-handling.md → [오류 가이드 보존판](../../../../../_archive/error-handling-pre-project-2026-10-31.md)
+- 2025-12-23-auth-axios-factory.md → [인증 전송 결정 보존판](../../../../../_archive/auth-axios-factory-pre-project-2026-10-31.md)
 
 이 링크들은 006의 역사 대조 접근점이며 제품 기준의 일반 읽기 경로가 아니다. Project·client/server/schema guide·context map·runbook·auth-user-scope rule·문서 command reference는 새 Owner로 연결했다. 대표 통화를 무조건 getPrimaryCurrency로 고르라는 runbook은 그 helper의 실제 의미와 선택 조건을 설명하도록 고쳤다.
 

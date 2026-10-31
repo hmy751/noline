@@ -27,35 +27,35 @@ live 002의 `output/index.md`에 있던 “프로젝트 결정 연결” 행은 
 
 | ID · 원래 target | 역사 재접근 위치 | 원판 Git 객체 |
 | --- | --- | --- |
-| T01 · `.claude/decisions/2026-09-11-workspace-writing-contract.md` | [보존판](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-11-workspace-writing-contract.md.txt) | `1648540783d1` · 상세 지도에 full commit/path/blob |
-| T02 · `.claude/decisions/2026-10-30-development-skill-transition.md` | [보존판](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-10-30-development-skill-transition.md.txt) | `1648540783d1` · 상세 지도에 full commit/path/blob |
-| T03 · `.claude/decisions/2026-09-12-spec-ticket-execution-criteria.md` | [보존판](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-12-spec-ticket-execution-criteria.md.txt) | `1648540783d1` · 상세 지도에 full commit/path/blob |
-| T04 · `.claude/decisions/2026-09-18-app-startup-failure-recovery.md` | [보존판](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2026-09-18-app-startup-failure-recovery.md) | `f466a32ac22b` · 상세 지도에 full commit/path/blob |
+| T01 · `.claude/decisions/2026-09-11-workspace-writing-contract.md` | [보존판](../../../../../_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-11-workspace-writing-contract.md.txt) | `1648540783d1` · 상세 지도에 full commit/path/blob |
+| T02 · `.claude/decisions/2026-10-30-development-skill-transition.md` | [보존판](../../../../../_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-10-30-development-skill-transition.md.txt) | `1648540783d1` · 상세 지도에 full commit/path/blob |
+| T03 · `.claude/decisions/2026-09-12-spec-ticket-execution-criteria.md` | [보존판](../../../../../_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-12-spec-ticket-execution-criteria.md.txt) | `1648540783d1` · 상세 지도에 full commit/path/blob |
+| T04 · `.claude/decisions/2026-09-18-app-startup-failure-recovery.md` | [보존판](../../../../../_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2026-09-18-app-startup-failure-recovery.md) | `f466a32ac22b` · 상세 지도에 full commit/path/blob |
 | T05 · `apps/client/src/shared/services/auth/session-restoration.ts` | 별도 archive 없음 | **확인 불가** |
-| T06 · `.claude/decisions/2026-09-18-device-session-and-local-access.md` | [보존판](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2026-09-18-device-session-and-local-access.md) | `f466a32ac22b` · 상세 지도에 full commit/path/blob |
+| T06 · `.claude/decisions/2026-09-18-device-session-and-local-access.md` | [보존판](../../../../../_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2026-09-18-device-session-and-local-access.md) | `f466a32ac22b` · 상세 지도에 full commit/path/blob |
 | T07 · `apps/client/src/screens/read-query.ts` | 별도 archive 없음 | **확인 불가** |
 | T08 · `apps/client/src/features/schedule/create-schedule/useLocationSearch.ts` | 별도 archive 없음 | `ee1c00521946` · 상세 지도에 full commit/path/blob |
-| T09 · `.claude/context/policy-architecture.md` | [보존판](../../../../../.claude/_archive/policy-architecture-pre-project-2026-10-30.md) | `c9eb33cac631` · 상세 지도에 full commit/path/blob |
-| T10 · `.claude/decisions/2026-10-02-expense-draft-and-schedule-association.md` | [보존판](../../../../../.claude/_archive/expense-association-decision-pre-project-2026-10-31.md) | `cde5f979f002` · 상세 지도에 full commit/path/blob |
-| T11 · `.claude/decisions/2026-10-02-expense-date-boundaries.md` | [보존판](../../../../../.claude/_archive/expense-date-decision-pre-project-2026-10-31.md) | `cde5f979f002` · 상세 지도에 full commit/path/blob |
-| T12 · `.claude/decisions/2026-10-06-trip-city-time-zone.md` | [보존판](../../../../../.claude/_archive/trip-time-zone-decision-pre-project-2026-10-31.md) | `cde5f979f002` · 상세 지도에 full commit/path/blob |
+| T09 · `.claude/context/policy-architecture.md` | [보존판](../../../../../_archive/policy-architecture-pre-project-2026-10-30.md) | `c9eb33cac631` · 상세 지도에 full commit/path/blob |
+| T10 · `.claude/decisions/2026-10-02-expense-draft-and-schedule-association.md` | [보존판](../../../../../_archive/expense-association-decision-pre-project-2026-10-31.md) | `cde5f979f002` · 상세 지도에 full commit/path/blob |
+| T11 · `.claude/decisions/2026-10-02-expense-date-boundaries.md` | [보존판](../../../../../_archive/expense-date-decision-pre-project-2026-10-31.md) | `cde5f979f002` · 상세 지도에 full commit/path/blob |
+| T12 · `.claude/decisions/2026-10-06-trip-city-time-zone.md` | [보존판](../../../../../_archive/trip-time-zone-decision-pre-project-2026-10-31.md) | `cde5f979f002` · 상세 지도에 full commit/path/blob |
 | T13 · `apps/client/src/features/trip/create-trip/useCreateTripForm.ts` | 별도 archive 없음 | `b4ed41f6e4bb` · 상세 지도에 full commit/path/blob |
-| T14 · `.claude/rules/activation-router.md` | [보존판](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/activation-router.md) | `55dbe0a281a8` · 상세 지도에 full commit/path/blob |
-| T15 · `.claude/rules/transaction-sync-queue.md` | [보존판](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/transaction-sync-queue.md) | `55dbe0a281a8` · 상세 지도에 full commit/path/blob |
-| T16 · `.claude/rules/schema-first.md` | [보존판](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/schema-first.md) | `55dbe0a281a8` · 상세 지도에 full commit/path/blob |
-| T17 · `.claude/rules/auth-user-scope.md` | [보존판](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/auth-user-scope.md) | `55dbe0a281a8` · 상세 지도에 full commit/path/blob |
-| T18 · `.claude/guards/README.md` | [보존판](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/guards/README.md) | `55dbe0a281a8` · 상세 지도에 full commit/path/blob |
-| T19 · `.claude/runbooks/README.md` | [보존판](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/runbooks/README.md.txt) | `c6bc416e8c5b` · 상세 지도에 full commit/path/blob |
-| T20 · `.claude/context/currency.md` | [보존판](../../../../../.claude/_archive/currency-pre-project-2026-10-31.md) | `6d95e189e6e3` · 상세 지도에 full commit/path/blob |
-| T21 · `.claude/context/time.md` | [보존판](../../../../../.claude/_archive/time-pre-project-2026-10-31.md) | `cde5f979f002` · 상세 지도에 full commit/path/blob |
-| T22 · `.claude/context/api-data.md` | [보존판](../../../../../.claude/_archive/api-data-pre-project-2026-10-31.md) | `6d95e189e6e3` · 상세 지도에 full commit/path/blob |
-| T23 · `.claude/context/error-handling.md` | [보존판](../../../../../.claude/_archive/error-handling-pre-project-2026-10-31.md) | `6d95e189e6e3` · 상세 지도에 full commit/path/blob |
-| T24 · `.claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md` | [보존판](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-14-project-context-semantic-and-routing-verification.md.txt) | `1648540783d1` · 상세 지도에 full commit/path/blob |
-| T25 · `.claude/context/selective-activation-architecture.md` | [보존판](../../../../../.claude/_archive/selective-activation-pre-project-2026-10-31.md) | `725e6d583916` · 상세 지도에 full commit/path/blob |
-| T26 · `.claude/context/form.md` | [보존판](../../../../../.claude/_archive/form-pre-project-2026-10-31.md) | `cde5f979f002` · 상세 지도에 full commit/path/blob |
-| T27 · `.claude/context/README.md` | [보존판](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-08/context/README.md) | `f466a32ac22b` · 상세 지도에 full commit/path/blob |
-| T28 · `.claude/context/components.md` | [보존판](../../../../../.claude/_archive/components-pre-project-2026-10-31.md) | `efb59516d84c` · 상세 지도에 full commit/path/blob |
-| T29 · `.claude/context/manual-input.md` | [보존판](../../../../../.claude/_archive/manual-input-pre-project-2026-10-31.md) | `cde5f979f002` · 상세 지도에 full commit/path/blob |
+| T14 · `.claude/rules/activation-router.md` | [보존판](../../../../../_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/activation-router.md) | `55dbe0a281a8` · 상세 지도에 full commit/path/blob |
+| T15 · `.claude/rules/transaction-sync-queue.md` | [보존판](../../../../../_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/transaction-sync-queue.md) | `55dbe0a281a8` · 상세 지도에 full commit/path/blob |
+| T16 · `.claude/rules/schema-first.md` | [보존판](../../../../../_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/schema-first.md) | `55dbe0a281a8` · 상세 지도에 full commit/path/blob |
+| T17 · `.claude/rules/auth-user-scope.md` | [보존판](../../../../../_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/auth-user-scope.md) | `55dbe0a281a8` · 상세 지도에 full commit/path/blob |
+| T18 · `.claude/guards/README.md` | [보존판](../../../../../_archive/2026-10-31-project-context-reconstruction/ticket-09/guards/README.md) | `55dbe0a281a8` · 상세 지도에 full commit/path/blob |
+| T19 · `.claude/runbooks/README.md` | [보존판](../../../../../_archive/2026-10-31-project-context-reconstruction/ticket-10/runbooks/README.md.txt) | `c6bc416e8c5b` · 상세 지도에 full commit/path/blob |
+| T20 · `.claude/context/currency.md` | [보존판](../../../../../_archive/currency-pre-project-2026-10-31.md) | `6d95e189e6e3` · 상세 지도에 full commit/path/blob |
+| T21 · `.claude/context/time.md` | [보존판](../../../../../_archive/time-pre-project-2026-10-31.md) | `cde5f979f002` · 상세 지도에 full commit/path/blob |
+| T22 · `.claude/context/api-data.md` | [보존판](../../../../../_archive/api-data-pre-project-2026-10-31.md) | `6d95e189e6e3` · 상세 지도에 full commit/path/blob |
+| T23 · `.claude/context/error-handling.md` | [보존판](../../../../../_archive/error-handling-pre-project-2026-10-31.md) | `6d95e189e6e3` · 상세 지도에 full commit/path/blob |
+| T24 · `.claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md` | [보존판](../../../../../_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-14-project-context-semantic-and-routing-verification.md.txt) | `1648540783d1` · 상세 지도에 full commit/path/blob |
+| T25 · `.claude/context/selective-activation-architecture.md` | [보존판](../../../../../_archive/selective-activation-pre-project-2026-10-31.md) | `725e6d583916` · 상세 지도에 full commit/path/blob |
+| T26 · `.claude/context/form.md` | [보존판](../../../../../_archive/form-pre-project-2026-10-31.md) | `cde5f979f002` · 상세 지도에 full commit/path/blob |
+| T27 · `.claude/context/README.md` | [보존판](../../../../../_archive/2026-10-31-project-context-reconstruction/ticket-08/context/README.md) | `f466a32ac22b` · 상세 지도에 full commit/path/blob |
+| T28 · `.claude/context/components.md` | [보존판](../../../../../_archive/components-pre-project-2026-10-31.md) | `efb59516d84c` · 상세 지도에 full commit/path/blob |
+| T29 · `.claude/context/manual-input.md` | [보존판](../../../../../_archive/manual-input-pre-project-2026-10-31.md) | `cde5f979f002` · 상세 지도에 full commit/path/blob |
 
 ## 정확한 원판이 확인되지 않은 두 경로
 

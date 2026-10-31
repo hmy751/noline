@@ -8,7 +8,7 @@
 
 원문별 목적지·유지·보강·제외 이유와 코드 대조는 [내용 대응](ticket-09-content-map.md)에, guide·agent·checker·live Workspace 전환은 [소비자 결과](ticket-09-consumer-result.md)에 있다. 별도 compact 정책 사본을 남기지 않는 대신 주제 본문을 읽는 비용을 받아들였다. 생성 ID처럼 좁은 질문은 해당 절로 직접 연결한다.
 
-원본 9개는 `.claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/`의 manifest와 함께 보존했다. Main은 원문과 복사본의 바이트 일치 후 현재 원본을 제거했고 이후 SHA-256을 다시 대조했다. 현재 개발 읽기의 필수 경로로 archive를 사용하지 않는다. 책임 전환의 지속 이유는 [통합 결정](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-10-31-product-rules-owner-integration.md.txt)에 있다.
+원본 9개는 `.claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/`의 manifest와 함께 보존했다. Main은 원문과 복사본의 바이트 일치 후 현재 원본을 제거했고 이후 SHA-256을 다시 대조했다. 현재 개발 읽기의 필수 경로로 archive를 사용하지 않는다. 책임 전환의 지속 이유는 [통합 결정](../../../../../_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-10-31-product-rules-owner-integration.md.txt)에 있다.
 
 ## 제품 라우팅과 개발 수행의 구분
 

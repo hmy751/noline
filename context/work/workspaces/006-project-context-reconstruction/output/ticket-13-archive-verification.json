@@ -1,0 +1,39 @@
+{
+  "verify001": {
+    "workspace_id": "001-noline-context-harness-application",
+    "claim": "Noline의 현재 지침·Context Harness regular input과 실행 시 관찰한 bridge·경로 구조가 정해진 구조 검사를 통과한다. 선언 파일 freshness는 이후 directory·symlink topology, Git index 또는 제품 동작을 증명하지 않는다.",
+    "result": "fail",
+    "exit_code": 1,
+    "receipt": "workspaces/001-noline-context-harness-application/records/receipts/verify/verify-20261031T064255903200Z-64776b1295624d10b0ed6a163a3112bb.json",
+    "status": "verification_failed",
+    "timed_out": false
+  },
+  "recover": {
+    "001-noline-context-harness-application": {
+      "exit_code": 0,
+      "packet_sha256": "7a640c29c4db807c90b3d6136df4629b3730709fb12590cf443b84139b370316"
+    },
+    "002-code-readability-refactoring": {
+      "exit_code": 0,
+      "packet_sha256": "c4c52f7e8e2d4f0654861e778d41d43fc67ae1ee2d3affa98168510b3a37dc57"
+    },
+    "006-project-context-reconstruction": {
+      "exit_code": 0,
+      "packet_sha256": "19dd4fbc375f74f6af1dada85bf54080963a41e890b4f8349550d83f3570e437",
+      "observed_after_current_update": true
+    }
+  },
+  "review": {
+    "finding": "archive internal relative-link depth changed; preservation cost documented",
+    "scope": "relative links inside preserved archive may newly fail after depth change; exact occurrence count depends on Markdown extraction method and is not asserted"
+  },
+  "packet_hash_encoding": "SHA-256 of UTF-8 json.dumps(parsed_packet, ensure_ascii=False, sort_keys=True), not raw output bytes",
+  "independent_verification": {
+    "moved_files_byte_size_sha_match": 124,
+    "manifest_and_provenance_preserved": true,
+    "checker_historical_failures": 65,
+    "verify001_inputs_match_receipt": true,
+    "recover_packet_hashes_match": true,
+    "internal_link_count": "not asserted; extraction criteria differ; byte preservation and old-path reconstruction limitations documented"
+  }
+}

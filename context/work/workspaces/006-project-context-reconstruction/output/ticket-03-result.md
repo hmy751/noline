@@ -26,9 +26,9 @@
 
 | 이전 원본 | 현재 의미와 역사 보존판 |
 | --- | --- |
-| `.claude/context/selective-activation-architecture.md` | Entity 책임·Local transaction·queue·Service 경계를 새 본문으로 통합. [이관 전 원문](../../../../../.claude/_archive/selective-activation-pre-project-2026-10-31.md) |
-| `.claude/context/activation-system.md` | 활성화 입수·metadata·해제와 정리 조건을 코드에 대조해 통합. [이관 전 원문](../../../../../.claude/_archive/activation-system-pre-project-2026-10-31.md) |
-| `.claude/decisions/2025-11-20-deactivation-sync-queue-safety.md` | 단계별 삭제의 이유·대안·비용을 형성 자료로 선별. 과거 안전 보장은 현재 차이와 구별. [원문 보존판](../../../../../.claude/_archive/deactivation-sync-queue-safety-pre-project-2026-10-31.md) |
+| `.claude/context/selective-activation-architecture.md` | Entity 책임·Local transaction·queue·Service 경계를 새 본문으로 통합. [이관 전 원문](../../../../../_archive/selective-activation-pre-project-2026-10-31.md) |
+| `.claude/context/activation-system.md` | 활성화 입수·metadata·해제와 정리 조건을 코드에 대조해 통합. [이관 전 원문](../../../../../_archive/activation-system-pre-project-2026-10-31.md) |
+| `.claude/decisions/2025-11-20-deactivation-sync-queue-safety.md` | 단계별 삭제의 이유·대안·비용을 형성 자료로 선별. 과거 안전 보장은 현재 차이와 구별. [원문 보존판](../../../../../_archive/deactivation-sync-queue-safety-pre-project-2026-10-31.md) |
 
 세 보존판은 역사 안내만 앞에 추가하고 본문을 유지했다. 옛 위치에는 연결 파일을 남기지 않았다. Project 진입·guidance·제품·구조·app-runtime, client guide, context 색인, transaction rule·guard·sync runbook, command reference와 지도·경로 가이드의 현재 링크를 전환했다. command 예시의 중복 경로와 낡은 줄 번호도 함께 정리했다.
 

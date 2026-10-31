@@ -29,12 +29,12 @@ Main은 원문 여섯 개와 002의 일정 생성·경비 날짜·picker 형성 
 
 | 옛 원본 | 현재 의미·이유와 역사 보존 |
 | --- | --- |
-| `.claude/context/form.md` | 작성·입력 묶음. [이관 전 form](../../../../../.claude/_archive/form-pre-project-2026-10-31.md) |
-| `.claude/context/manual-input.md` | 같은 폼·같은 저장 경로와 수동 기록을 작성 기준·장소 본문에 통합. [보존판](../../../../../.claude/_archive/manual-input-pre-project-2026-10-31.md) |
-| `.claude/context/time.md` | 기존 날짜 Owner에 구현 경로도 연결해 호환 stub 제거. [보존판](../../../../../.claude/_archive/time-pre-project-2026-10-31.md) |
-| 경비 초안·일정 연결 결정 | 제품 의미는 기존 여행 접근·제품 기준, 이유·발췌는 기존 Project 근거 유지. [보존판](../../../../../.claude/_archive/expense-association-decision-pre-project-2026-10-31.md) |
-| 경비 날짜 경계 결정 | 날짜 본문과 가까운 형성 맥락·근거. [보존판](../../../../../.claude/_archive/expense-date-decision-pre-project-2026-10-31.md) |
-| 여행 도시 시간대 결정 | 날짜 본문과 가까운 형성 맥락·근거. [보존판](../../../../../.claude/_archive/trip-time-zone-decision-pre-project-2026-10-31.md) |
+| `.claude/context/form.md` | 작성·입력 묶음. [이관 전 form](../../../../../_archive/form-pre-project-2026-10-31.md) |
+| `.claude/context/manual-input.md` | 같은 폼·같은 저장 경로와 수동 기록을 작성 기준·장소 본문에 통합. [보존판](../../../../../_archive/manual-input-pre-project-2026-10-31.md) |
+| `.claude/context/time.md` | 기존 날짜 Owner에 구현 경로도 연결해 호환 stub 제거. [보존판](../../../../../_archive/time-pre-project-2026-10-31.md) |
+| 경비 초안·일정 연결 결정 | 제품 의미는 기존 여행 접근·제품 기준, 이유·발췌는 기존 Project 근거 유지. [보존판](../../../../../_archive/expense-association-decision-pre-project-2026-10-31.md) |
+| 경비 날짜 경계 결정 | 날짜 본문과 가까운 형성 맥락·근거. [보존판](../../../../../_archive/expense-date-decision-pre-project-2026-10-31.md) |
+| 여행 도시 시간대 결정 | 날짜 본문과 가까운 형성 맥락·근거. [보존판](../../../../../_archive/trip-time-zone-decision-pre-project-2026-10-31.md) |
 
 여섯 옛 경로는 제거하고 notice 뒤에 당시 원문을 보존했다. 현재 Project 본문·형성 자료에서 옛 제품 문서나 archive를 읽어야 의미를 복원하는 연결은 남기지 않았다. 이 output의 보존 링크는 역사 조사 접근점이다.
 

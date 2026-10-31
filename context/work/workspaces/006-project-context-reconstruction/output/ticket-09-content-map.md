@@ -10,7 +10,7 @@
 
 ## Rule별 원문과 현재 Owner
 
-아래 원문은 `.claude/rules/`의 편입 전 판본이며 현재는 [원본 snapshot](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/)에 보존된다. 일반 개발 읽기는 아래 Project 목적지에서 끝나며 snapshot은 내용 대조의 근거다.
+아래 원문은 `.claude/rules/`의 편입 전 판본이며 현재는 [원본 snapshot](../../../../../_archive/2026-10-31-project-context-reconstruction/ticket-09/)에 보존된다. 일반 개발 읽기는 아래 Project 목적지에서 끝나며 snapshot은 내용 대조의 근거다.
 
 | 원문 | 현재 설명 위치 | 보존·보강·제외 판단 |
 | --- | --- | --- |

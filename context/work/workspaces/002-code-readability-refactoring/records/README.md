@@ -1,6 +1,6 @@
 # 작업 기록
 
-2026-10-30 스킬 교체로 아래 과거 기록의 `update-project-context` 실행 경로는 제거됐다. 당시 원문 링크는 보존하고, [교체 직전 본문·판본 안내](../../../../../.claude/_archive/skill-transition-2026-10-30/README.md)와 [전환 결과](../../001-noline-context-harness-application/records/2026-10-30-02-development-skill-transition.md)에서 재접근한다. 과거 기록의 선택·결과를 최신 내용으로 바꾸지 않았다.
+2026-10-30 스킬 교체로 아래 과거 기록의 `update-project-context` 실행 경로는 제거됐다. 당시 원문 링크는 보존하고, [교체 직전 본문·판본 안내](../../../../../_archive/skill-transition-2026-10-30/README.md)와 [전환 결과](../../001-noline-context-harness-application/records/2026-10-30-02-development-skill-transition.md)에서 재접근한다. 과거 기록의 선택·결과를 최신 내용으로 바꾸지 않았다.
 
 - [초기 구성과 분석 항목 배치](2026-09-10-01-workspace-setup.md): 원자료를 선택한 이유, 이전 분석과의 대응, 현재 검증 기준의 한계.
 - [구성 검토 결과](2026-09-10-02-creation-validation.md): 명시적 Recover, 계약·링크·원본 보존 확인과 독립 재진입 검토의 범위.

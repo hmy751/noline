@@ -1,0 +1,752 @@
+{
+  "source_commit": "db1a4bbf4fbfe6c9d7a3062d02dc1f52636e508e",
+  "old_root": ".claude/_archive",
+  "new_root": "_archive",
+  "preservation": "all moved bytes including existing manifests and original provenance are unchanged",
+  "files": [
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/development-start/README.md",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/development-start/README.md",
+      "sha256": "62dc9778e7123b9e6e7c887a51742ec7252c01ca326d5f5f400abee0e100ac37",
+      "size": 31729
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/development-start/START_GUIDE.md",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/development-start/START_GUIDE.md",
+      "sha256": "0c0f4f67659538813536d4b1cddb7af9b417bb7575bf6a6693e1bd86c805f92d",
+      "size": 10417
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/development-start/apps/server/README.md",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/development-start/apps/server/README.md",
+      "sha256": "27789ddc23fbe2940a02c61a5987fe6e255472ef9c96ef7fe3d637f579534995",
+      "size": 6085
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/development-start/apps/server/scripts/README.md",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/development-start/apps/server/scripts/README.md",
+      "sha256": "2933fbe794415d68e4efe308e093acbf7990ef609eaabe2498431c68fa4c4e0a",
+      "size": 1366
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/README.md",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/README.md",
+      "sha256": "bb8c2172977f4cf0c6b27a41d7a8c3d3ae0ed412766239ebcfe7aed4aaf85074",
+      "size": 6527
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/audits/2026-05-06-doc-corpus-inventory.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/audits/2026-05-06-doc-corpus-inventory.md.txt",
+      "sha256": "d17681960780d240ac04b1e44ae3e2fd4646968aaf6c43f9c0902c4030e1ecb6",
+      "size": 6337
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/audits/2026-05-06-harness-execution-plan.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/audits/2026-05-06-harness-execution-plan.md.txt",
+      "sha256": "7bf57bec6eb49e20e4e7d7a2dac4c8b928e77276e3f2252c31d937a728db3ee7",
+      "size": 6668
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/audits/2026-05-06-harness-layer-followup-handoff.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/audits/2026-05-06-harness-layer-followup-handoff.md.txt",
+      "sha256": "9295a045955d11783b019e7c300ee451c68621ba8960311b65ef7331bf15ea0a",
+      "size": 3990
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/audits/2026-05-06-harness-restructure-handoff.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/audits/2026-05-06-harness-restructure-handoff.md.txt",
+      "sha256": "7bea19123682e49973d8bef3a76439624ae1173a167cf51b250c01ebf7eb8c3b",
+      "size": 8178
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/audits/README.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/audits/README.md.txt",
+      "sha256": "cdc518ec36342b8e6324db56ba974cab6c1aa4c149096429c39b154f3ef66700",
+      "size": 941
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/audits/doc-refactor-test.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/audits/doc-refactor-test.md.txt",
+      "sha256": "ffa3c2f0f7fd634de423d4790f28064ed7666dfa7239a0f42f2b9eb366bf47cc",
+      "size": 16742
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-05-06-ai-harness-restructure.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-05-06-ai-harness-restructure.md.txt",
+      "sha256": "7834c8c7a022a73a340852e631578d159df382924e7c2bb37a76a295e7d7b480",
+      "size": 3871
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-05-06-commit-message-convention.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-05-06-commit-message-convention.md.txt",
+      "sha256": "6f32ace73f72867f67db867cab5b5a29dfe3055a4b09ff0ed7d0da78be74f22d",
+      "size": 1633
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-05-06-harness-execution-cleanup.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-05-06-harness-execution-cleanup.md.txt",
+      "sha256": "58f2309d05ef548988e053c99a1445f64ce7b04448ae69603333e1517487f537",
+      "size": 2210
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-05-06-harness-execution-layer.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-05-06-harness-execution-layer.md.txt",
+      "sha256": "5dd0d309ec80121f0a47416ea23db79e97f246ac0af2aaece6196a696d7aa7b2",
+      "size": 3268
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-05-06-harness-layer-model.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-05-06-harness-layer-model.md.txt",
+      "sha256": "6aed932c874afd1336465db7abffd1b4134d983b0191ebe51aa1be10dea1f538",
+      "size": 3622
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-05-06-workspace-guide-harness-contract.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-05-06-workspace-guide-harness-contract.md.txt",
+      "sha256": "2362c7164d4dd6da69f50d929be3ba49e607be6414e88dd1221122ede2189afa",
+      "size": 1926
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-04-context-harness-application.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-04-context-harness-application.md.txt",
+      "sha256": "ab8de46e69d8d1ff1b3fdc15d82d671e41f1bd06607107f936c49b36a355f0ad",
+      "size": 2190
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-09-context-harness-upgrade.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-09-context-harness-upgrade.md.txt",
+      "sha256": "5024683394c52a9a519f44b1703ab41bed8983d428e35ff98cfe22675cd86a08",
+      "size": 2983
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-10-deprecate-noline-work.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-10-deprecate-noline-work.md.txt",
+      "sha256": "936fe511a404d6a2e5301cba40ebba26b3171850effe4979a04f43bb48ea76ba",
+      "size": 1569
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-10-evidence-collector-installation.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-10-evidence-collector-installation.md.txt",
+      "sha256": "8a649983caa6d14e7078f89600252f80ef8c9f25bf85dfa9c583f0c2d4e7c138",
+      "size": 6958
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-11-workspace-writing-contract.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-11-workspace-writing-contract.md.txt",
+      "sha256": "7a41870ddff9a736cd36d53629f1ef2999fe70a0acd11c9701b2bd3d2312e3f9",
+      "size": 1415
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-12-spec-ticket-execution-criteria.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-12-spec-ticket-execution-criteria.md.txt",
+      "sha256": "8aa1d8fc6822cfe96ad7d8a5d7c11af17a2de6080ca9df826dff490092324e4e",
+      "size": 977
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-14-project-context-authoring-and-reading.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-14-project-context-authoring-and-reading.md.txt",
+      "sha256": "2824d6c1d767379b2790ece8636d211de8c518174b7ae6cef640d75360a0ba3e",
+      "size": 6545
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-14-project-context-semantic-and-routing-verification.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-14-project-context-semantic-and-routing-verification.md.txt",
+      "sha256": "0737935af0d8a4e49d2347f13e9293c26d7635df1bd082b5fb5092e22a806f4c",
+      "size": 4985
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-10-01-start-app-skill.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-10-01-start-app-skill.md.txt",
+      "sha256": "bbfd32f77c50f98f5ee93deab338b882d76bb51c018511f5a4f939925daf2434",
+      "size": 2477
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-10-30-context-and-explanation-refresh.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-10-30-context-and-explanation-refresh.md.txt",
+      "sha256": "0b81f75f6c070c7b6387987eff9c9a3b53080a48cad41c6785916fbb41aaa9a7",
+      "size": 1440
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-10-30-development-skill-transition.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-10-30-development-skill-transition.md.txt",
+      "sha256": "0a5fe166e552b1134bb9f414e28b10456afd3e33626ca180a206b9c2a1665746",
+      "size": 2909
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-10-31-product-rules-owner-integration.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-10-31-product-rules-owner-integration.md.txt",
+      "sha256": "b9b50df10e45eff19dccd5e0d449b5dcc2cf72883b489cf90cfbfb0a068fa4a8",
+      "size": 2482
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-10-31-project-product-context-ownership.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-10-31-project-product-context-ownership.md.txt",
+      "sha256": "16cdb4ae168b0894c26c0b56944fceda7c2b93b18cae569538e01ffde159c409",
+      "size": 2312
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/historical-links.json",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/historical-links.json",
+      "sha256": "ae81acdf7d811ba0c056dc8850cdbfb8594462917c19918b0454db7871e1b5e5",
+      "size": 5272
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/manifest.json",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/manifest.json",
+      "sha256": "9f929fbcc5a25cd2029ce9f3dbfa18c5878e4332290cd50abe2993ab2995f4f2",
+      "size": 7069
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/sessions/2025-11-06-activation-architecture-design.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/sessions/2025-11-06-activation-architecture-design.md.txt",
+      "sha256": "be0cb0170f55d0e101fa0a63755d64588035ef69511b920a12f0f27081adbb73",
+      "size": 24369
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/sessions/2025-11-07-offline-map-implementation.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/sessions/2025-11-07-offline-map-implementation.md.txt",
+      "sha256": "9e2605ca29a1b4f291332442fee5d6160636568c640d6bf51210e0e3ce3b163c",
+      "size": 8303
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/sessions/2025-11-08-offline-routing-implementation.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/history-integration/sessions/2025-11-08-offline-routing-implementation.md.txt",
+      "sha256": "da5cbe92e596406ccc46d89dde8eb5b06f45af158880cff2db42c111334ec23b",
+      "size": 20031
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-08/README.md",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-08/README.md",
+      "sha256": "da0037e0819930d47104529bdadce00b4b1127d99e82b9aaa20792f41716cb0a",
+      "size": 629
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-08/context/README.md",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-08/context/README.md",
+      "sha256": "0ac32bec016ac6d2b3596b073663932285dd682f47ac313ec7d4f92c5327c261",
+      "size": 4215
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2025-11-20-data-service-separation.md",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2025-11-20-data-service-separation.md",
+      "sha256": "6e11418e9204d774affa9b01c04f36d25d3af1398c9952278065765268ecac20",
+      "size": 7106
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2025-11-20-policy-layer-separation.md",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2025-11-20-policy-layer-separation.md",
+      "sha256": "78238686fc2a9d2bec567594210714bb0da603789d2786a1fb749e4a9a709bbe",
+      "size": 7021
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2026-03-21-terminology-unification.md",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2026-03-21-terminology-unification.md",
+      "sha256": "c19cd9551b8704e35b5d9bfa4f86df6b969598a29d95bf4597dff2f5304ab88b",
+      "size": 5227
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2026-09-18-app-startup-failure-recovery.md",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2026-09-18-app-startup-failure-recovery.md",
+      "sha256": "3b35e08fef42b01442b9c55d5ae34b80d70c83401ece2e9a292bab7c277089f7",
+      "size": 18006
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2026-09-18-device-session-and-local-access.md",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2026-09-18-device-session-and-local-access.md",
+      "sha256": "e0d41a50daa9642544ab606146e079e2ebe23e43e5b31bbd5cb83fc6fd034164",
+      "size": 2939
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2026-10-04-inactive-trip-creation.md",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2026-10-04-inactive-trip-creation.md",
+      "sha256": "6c063ea164eba597fac4c5cf836d5eea288dae01e95428eaed84b7155183f510",
+      "size": 6535
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/guards/README.md",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-09/guards/README.md",
+      "sha256": "f08d451dfbda1b165180c0b7a2f38f52d36db750fcf34e70bd118a4d4cec5cb2",
+      "size": 5118
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/manifest.json",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-09/manifest.json",
+      "sha256": "b1106017a24c02d3bc842dc86984906decb350f77d1ee41e2224cf8bc93c75cc",
+      "size": 2104
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/README.md",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/README.md",
+      "sha256": "8ceeb4b46bfefc474bf6cf84efbe1ee7563a1cfaf38475be76d87ebdf335184b",
+      "size": 2645
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/activation-router.md",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/activation-router.md",
+      "sha256": "71ff36908ddcd6f0a8c8b2b8964e6ac044363b42aa052bef04fe3b7dcc17d5d2",
+      "size": 1119
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/auth-user-scope.md",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/auth-user-scope.md",
+      "sha256": "1924ea8079c15060aea63a68c39fa8d95106432d9c18851efd53fcfe2c5eb08b",
+      "size": 997
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/client-side-id.md",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/client-side-id.md",
+      "sha256": "4bf2a60e9111ae5df5ae79ad777efcc682e58fe4d90527205e88eab940e25e76",
+      "size": 888
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/iso-time.md",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/iso-time.md",
+      "sha256": "5dfc1365360e6f38376ddbcf7d7561bf9d770128bbb308f6898c4c274215c4ce",
+      "size": 1495
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/policy-ui.md",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/policy-ui.md",
+      "sha256": "18ef254eb88992e797050cd04ed572061f29f2354e459a8b01e040113a5ca5b8",
+      "size": 1291
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/schema-first.md",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/schema-first.md",
+      "sha256": "63028f7ea09f4c4abbf0d2eaa4046c74f7f5b04e0da7d8b1ce5d7ed468b3804b",
+      "size": 889
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/transaction-sync-queue.md",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/transaction-sync-queue.md",
+      "sha256": "76380c6f2e075989757cfd539c9214846203ee3c6c7ba07129b36885f9be1983",
+      "size": 1251
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/README.md",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-10/README.md",
+      "sha256": "1c0269a344c5dc7569a8b5cbbd45e9d1e6cd6b8716583d957bbe1695234222c6",
+      "size": 2003
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/commands/README.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-10/commands/README.md.txt",
+      "sha256": "0500e31a6fb6ea95aeb66037cb5e5cd479943c9c7d9a54dc3bf094bf3f0b2cf7",
+      "size": 449
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/commands/check-docs.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-10/commands/check-docs.md.txt",
+      "sha256": "a86f5e0e6831d64a3168554d9eab36244c37260f759891bd3af393401a005ed2",
+      "size": 10899
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/commands/doc-discuss.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-10/commands/doc-discuss.md.txt",
+      "sha256": "df10ac12ea0e9a7b091f99bbaad6c85cd739e2c9938bb77e3b78dad2b34089f7",
+      "size": 4637
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/commands/doc-refactor.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-10/commands/doc-refactor.md.txt",
+      "sha256": "a12e4a76872aeb293eb2b7a92e8845355e5ecd680b6689494f622df4880b3c8d",
+      "size": 7041
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/commands/doc-save.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-10/commands/doc-save.md.txt",
+      "sha256": "94827f77a84aa682dd6984599f655eb95836fa552ea44fe3db0ac37d863942d1",
+      "size": 11968
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/commands/generate-pr.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-10/commands/generate-pr.md.txt",
+      "sha256": "ffa6cda22ed722df0ce9d1cb5f0a9a4b1485422a247a56407f3e971b4c71b192",
+      "size": 8433
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/manifest.json",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-10/manifest.json",
+      "sha256": "c1212da96805fc8dc0a4e18bb8188dc1d404540b8fdbe4dc6d3b7170b694077b",
+      "size": 2161
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/retired-agents/claude/agents/noline-context-collector.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-10/retired-agents/claude/agents/noline-context-collector.md.txt",
+      "sha256": "d7291c1e673d851e870ac8f8d5a38a650e8110289e9fab017ee59e8906c83b0f",
+      "size": 1835
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/retired-agents/claude/agents/noline-harness-observer.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-10/retired-agents/claude/agents/noline-harness-observer.md.txt",
+      "sha256": "b3c6746b82b3b6e78d5057ed8c88395d7cc67c8330fa6b0c641a56fd6d4f2a44",
+      "size": 2265
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/retired-agents/claude/agents/noline-policy-checker.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-10/retired-agents/claude/agents/noline-policy-checker.md.txt",
+      "sha256": "8b226db83224f2a1d4a25e1a3011e2d802723f3d555160673d2f2e81b6bed0d8",
+      "size": 2314
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/retired-agents/codex/agents/noline-context-collector.toml.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-10/retired-agents/codex/agents/noline-context-collector.toml.txt",
+      "sha256": "c302fdeda1e9372d6fe3a5114ab14dff8de52f819959b217418120d9a6b7fb56",
+      "size": 1319
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/retired-agents/codex/agents/noline-harness-observer.toml.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-10/retired-agents/codex/agents/noline-harness-observer.toml.txt",
+      "sha256": "ec5b728d9f9ff8da70ddcac52cdda18a7523ad3865e1d1429899d7a0389b428a",
+      "size": 1833
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/retired-agents/codex/agents/noline-policy-checker.toml.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-10/retired-agents/codex/agents/noline-policy-checker.toml.txt",
+      "sha256": "dba3030bbe8ab45855c9e48e529d9497ab24a8767079798776c280bc55a0291e",
+      "size": 1616
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/retired-agents/manifest.json",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-10/retired-agents/manifest.json",
+      "sha256": "7dbb9afe2e43bc95d3cdd0c56070228304d82e590247c678c49064cd84ba9c81",
+      "size": 1566
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/runbooks/README.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-10/runbooks/README.md.txt",
+      "sha256": "969baef56379ebd2605abb0975c03815247478cfa4b539015a5909f07227e142",
+      "size": 7854
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/skills/noline-work/SKILL.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-10/skills/noline-work/SKILL.md.txt",
+      "sha256": "d51554cf1abc40320ae1f01b287766537e12df03bba86467fea2cda64e75729a",
+      "size": 6009
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/skills/noline-work/agents/openai.yaml.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-10/skills/noline-work/agents/openai.yaml.txt",
+      "sha256": "a1499d95abd8447558c535fe5554adcc3c9b988a0a39264a6283d430effe1e94",
+      "size": 43
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/unadopted-drafts/document-maintenance.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-10/unadopted-drafts/document-maintenance.md.txt",
+      "sha256": "8d029922849e780dd90acb3245e81352510d3518557dcbb13d16dff281c32788",
+      "size": 6296
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/unadopted-drafts/manifest.json",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-10/unadopted-drafts/manifest.json",
+      "sha256": "f3f74cc21ee13c79a0ef755ca06dba9cc69b5da0112446ba5d096b91e0640683",
+      "size": 463
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/unadopted-drafts/pull-request.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-10/unadopted-drafts/pull-request.md.txt",
+      "sha256": "40ffa746664b2b3bdf991c82ed44d0185ee04d33e902dde3d1660d204828431f",
+      "size": 4126
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/workflows/README.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-10/workflows/README.md.txt",
+      "sha256": "c042f763d381985d48c6b8c605fe4eca7e6406147e5bce6d0354cb35f581d924",
+      "size": 2489
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-12/CHANGELOG.md.txt",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-12/CHANGELOG.md.txt",
+      "sha256": "641cf782fcb6fa364e9d112323bfbe173539f0b07ef40239651cdd099a7a1f99",
+      "size": 20833
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-12/README.md",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-12/README.md",
+      "sha256": "b52d986123ca3596c2bd1b36b2fbb102954d16a253f3529cf9e7a24afa3a1478",
+      "size": 634
+    },
+    {
+      "old_path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-12/manifest.json",
+      "new_path": "_archive/2026-10-31-project-context-reconstruction/ticket-12/manifest.json",
+      "sha256": "aa51a1fe4067462fca72008035ab522ce25b9876c75e62e3963f89407a10fffe",
+      "size": 259
+    },
+    {
+      "old_path": ".claude/_archive/README.md",
+      "new_path": "_archive/README.md",
+      "sha256": "8ec0b940e63e3479f828418092ebada1d1a398f58b1230cbb8ad87d29d2b14b5",
+      "size": 847
+    },
+    {
+      "old_path": ".claude/_archive/activation-system-pre-project-2026-10-31.md",
+      "new_path": "_archive/activation-system-pre-project-2026-10-31.md",
+      "sha256": "3386f75b86c4c18d926a5769d466b792af8b477d5bb1f1bd98c673c209d5b5ef",
+      "size": 6442
+    },
+    {
+      "old_path": ".claude/_archive/activation-system-rollout-history.md",
+      "new_path": "_archive/activation-system-rollout-history.md",
+      "sha256": "21e11754b1f6616519539454ff772d4bf11340ffc1d8eb52560178d4a6dd1be9",
+      "size": 51774
+    },
+    {
+      "old_path": ".claude/_archive/api-data-legacy-patterns.md",
+      "new_path": "_archive/api-data-legacy-patterns.md",
+      "sha256": "d967383d7502493e34c4aa660c18e6fe2066af53120fd784a5f355464bac31a4",
+      "size": 18338
+    },
+    {
+      "old_path": ".claude/_archive/api-data-pre-project-2026-10-31.md",
+      "new_path": "_archive/api-data-pre-project-2026-10-31.md",
+      "sha256": "e49f3d195976c2c1a007db29f9c0c8718beedd3b4a1aeb35ec7f29cf45f0ef8e",
+      "size": 3295
+    },
+    {
+      "old_path": ".claude/_archive/architecture-pre-project-2026-10-31.md",
+      "new_path": "_archive/architecture-pre-project-2026-10-31.md",
+      "sha256": "a897d062616276a01f94d40cba3ed1909c2c8c23d51c1f9f51f7c4294d970272",
+      "size": 13522
+    },
+    {
+      "old_path": ".claude/_archive/auth-axios-factory-pre-project-2026-10-31.md",
+      "new_path": "_archive/auth-axios-factory-pre-project-2026-10-31.md",
+      "sha256": "2a28bbb861ef046283ddd446be5e9faf826caf54ac76d4b6fe03ddd6cd96ff20",
+      "size": 3725
+    },
+    {
+      "old_path": ".claude/_archive/client-error-infra-blueprint.md",
+      "new_path": "_archive/client-error-infra-blueprint.md",
+      "sha256": "9a318ca2f9a47a37393606063ea82d1d6cccd4632a4cf9795cc5f746456eaee4",
+      "size": 21346
+    },
+    {
+      "old_path": ".claude/_archive/components-legacy-web-patterns.md",
+      "new_path": "_archive/components-legacy-web-patterns.md",
+      "sha256": "15ca03e0b2756054d546084cfbead799b63afa84793be01c0a483a7372c85786",
+      "size": 28109
+    },
+    {
+      "old_path": ".claude/_archive/components-pre-project-2026-10-31.md",
+      "new_path": "_archive/components-pre-project-2026-10-31.md",
+      "sha256": "406c774e4ce6c91908c302d552a4ae0cc56536c8ca5956c3fc9bf524c0b2c915",
+      "size": 3619
+    },
+    {
+      "old_path": ".claude/_archive/currency-policy-legacy-examples.md",
+      "new_path": "_archive/currency-policy-legacy-examples.md",
+      "sha256": "853cab9161bb27b740b706f264fddf5e1ef5e929d8f75210a033967d6d97caa8",
+      "size": 8249
+    },
+    {
+      "old_path": ".claude/_archive/currency-pre-project-2026-10-31.md",
+      "new_path": "_archive/currency-pre-project-2026-10-31.md",
+      "sha256": "cf550e047ff097c8c2b902c1f49c4737f7c3fa14cc49ba98bedd756001a96db5",
+      "size": 1463
+    },
+    {
+      "old_path": ".claude/_archive/deactivation-sync-queue-safety-pre-project-2026-10-31.md",
+      "new_path": "_archive/deactivation-sync-queue-safety-pre-project-2026-10-31.md",
+      "sha256": "2a22c38d9341b97b45b9cf3ca95f2eef7e5e4e1fb2e8d562194c40f3956e6c52",
+      "size": 16386
+    },
+    {
+      "old_path": ".claude/_archive/error-handling-pre-project-2026-10-31.md",
+      "new_path": "_archive/error-handling-pre-project-2026-10-31.md",
+      "sha256": "4a606723ef35e8150ad4d51ee82327056c2e3233b9448fa1c107ba2a7668b2d8",
+      "size": 4026
+    },
+    {
+      "old_path": ".claude/_archive/expense-association-decision-pre-project-2026-10-31.md",
+      "new_path": "_archive/expense-association-decision-pre-project-2026-10-31.md",
+      "sha256": "fa3cab2c89cbcd64661484227417712fb08a6529a5cb0609c0ab49ebce55bf7f",
+      "size": 4005
+    },
+    {
+      "old_path": ".claude/_archive/expense-date-decision-pre-project-2026-10-31.md",
+      "new_path": "_archive/expense-date-decision-pre-project-2026-10-31.md",
+      "sha256": "48fe26d0816aa1c11f74c04772fa18d28138ec37252935859edbe89a4a16fc6b",
+      "size": 2539
+    },
+    {
+      "old_path": ".claude/_archive/form-guide-legacy-web-patterns.md",
+      "new_path": "_archive/form-guide-legacy-web-patterns.md",
+      "sha256": "cc01e7369812a4d11e9a0fd39e9ec8bcc7d56a38d7c9e775f9350fb88bfe2f01",
+      "size": 7395
+    },
+    {
+      "old_path": ".claude/_archive/form-pre-project-2026-10-31.md",
+      "new_path": "_archive/form-pre-project-2026-10-31.md",
+      "sha256": "317c0f0821bbbc4d7e6aa83534c31946e0aa3bf8fa61c88d93dbe52b58b8ad9c",
+      "size": 22150
+    },
+    {
+      "old_path": ".claude/_archive/implementation/v3.0-test-scenarios.md",
+      "new_path": "_archive/implementation/v3.0-test-scenarios.md",
+      "sha256": "04caf626172f4d5d47b929a5eebaf8438775217074f894e30a95a618158cddcf",
+      "size": 7427
+    },
+    {
+      "old_path": ".claude/_archive/implementation/v3.0-tracker.md",
+      "new_path": "_archive/implementation/v3.0-tracker.md",
+      "sha256": "995aad672b3ca67053aaade2bd6bf339c17d2fbeae51a7713bf17ddc0778120d",
+      "size": 18125
+    },
+    {
+      "old_path": ".claude/_archive/local-first-impl-v1.md",
+      "new_path": "_archive/local-first-impl-v1.md",
+      "sha256": "cc877806b3199478388ac525b701c0f6ba4da3e8cb0d26568e41a1e5bc8d214d",
+      "size": 40422
+    },
+    {
+      "old_path": ".claude/_archive/manual-input-pre-project-2026-10-31.md",
+      "new_path": "_archive/manual-input-pre-project-2026-10-31.md",
+      "sha256": "d4e2e3645c633743c15afe782a25a827226ee9e6683d578fafd20f0609348b88",
+      "size": 4893
+    },
+    {
+      "old_path": ".claude/_archive/manual-input-v3-rollout.md",
+      "new_path": "_archive/manual-input-v3-rollout.md",
+      "sha256": "97ddcb9ce4dc59d3725bec07e722baf6616f3ce9c52684a493535169ee7ce8b0",
+      "size": 15995
+    },
+    {
+      "old_path": ".claude/_archive/offline-map-decision-pre-project-2026-10-31.md",
+      "new_path": "_archive/offline-map-decision-pre-project-2026-10-31.md",
+      "sha256": "bbef5f059ef3a9916a3516bd98c56cee6580d2d562912ab273c4786d02baf6b1",
+      "size": 11619
+    },
+    {
+      "old_path": ".claude/_archive/offline-map-pre-project-2026-10-31.md",
+      "new_path": "_archive/offline-map-pre-project-2026-10-31.md",
+      "sha256": "f9aeb043f4c5afa18bdb579902ff7df1df5c4bd19f21f37ef7664ec16b4371b1",
+      "size": 10838
+    },
+    {
+      "old_path": ".claude/_archive/offline-routing-decision-pre-project-2026-10-31.md",
+      "new_path": "_archive/offline-routing-decision-pre-project-2026-10-31.md",
+      "sha256": "085e069d27b6447b654bfbdd5c37f086441199c1f26ff23f6313d7a4e04483fd",
+      "size": 14042
+    },
+    {
+      "old_path": ".claude/_archive/offline-routing-pre-project-2026-10-31.md",
+      "new_path": "_archive/offline-routing-pre-project-2026-10-31.md",
+      "sha256": "e5e5b44a8f8974bc5da195345f6c32b7ac00fbeccf702248f9ab988b97de17e3",
+      "size": 32968
+    },
+    {
+      "old_path": ".claude/_archive/policy-architecture-pre-project-2026-10-30.md",
+      "new_path": "_archive/policy-architecture-pre-project-2026-10-30.md",
+      "sha256": "1c482ef13acf7ef5207a432828877e451c69c0d3ea49c709f263a8bede398dff",
+      "size": 24628
+    },
+    {
+      "old_path": ".claude/_archive/policy-architecture-v3-rollout.md",
+      "new_path": "_archive/policy-architecture-v3-rollout.md",
+      "sha256": "7d0c68dafee9ed15864c237daf05ccb2f148e2e0e8db08076ec2cf0a1e971262",
+      "size": 20932
+    },
+    {
+      "old_path": ".claude/_archive/references/README.md",
+      "new_path": "_archive/references/README.md",
+      "sha256": "8882b071db39b0b1f9872f060cc292b874c77a7ed4ce9f60965f7e39cc3f7962",
+      "size": 1281
+    },
+    {
+      "old_path": ".claude/_archive/references/prd.md",
+      "new_path": "_archive/references/prd.md",
+      "sha256": "2654c7f1d6a4ddfc56ccdd9a810f03a0f454d51452880733329e55accb94f27f",
+      "size": 20332
+    },
+    {
+      "old_path": ".claude/_archive/references/react-native-image-guide.md",
+      "new_path": "_archive/references/react-native-image-guide.md",
+      "sha256": "6fdb56aba3b41476992283f3c9316e5b6f934fb33d15288b99cf3c31d88ce817",
+      "size": 11125
+    },
+    {
+      "old_path": ".claude/_archive/references/wireframe.md",
+      "new_path": "_archive/references/wireframe.md",
+      "sha256": "6d7c359d07f41ebb9b7e9811593090c23f0e6837b438f07fc8078fa92ea6f319",
+      "size": 26530
+    },
+    {
+      "old_path": ".claude/_archive/selective-activation-architecture-v2-guide.md",
+      "new_path": "_archive/selective-activation-architecture-v2-guide.md",
+      "sha256": "80eb4fb543bf0110c64db8edd9408c56bcd7c5f2aea71a0317920d9c7f6e30a6",
+      "size": 77412
+    },
+    {
+      "old_path": ".claude/_archive/selective-activation-pre-project-2026-10-31.md",
+      "new_path": "_archive/selective-activation-pre-project-2026-10-31.md",
+      "sha256": "50b22117d08512a5590ba5df6f1edb8443b3dbb59e922330f61d2d695b825d5c",
+      "size": 4684
+    },
+    {
+      "old_path": ".claude/_archive/skill-transition-2026-10-30/README.md",
+      "new_path": "_archive/skill-transition-2026-10-30/README.md",
+      "sha256": "97f380af38a83daf66327f9b9c07569964cedbd763879e96b0d549b4c36fbf06",
+      "size": 2206
+    },
+    {
+      "old_path": ".claude/_archive/skill-transition-2026-10-30/explanation-recovery.txt",
+      "new_path": "_archive/skill-transition-2026-10-30/explanation-recovery.txt",
+      "sha256": "9f3981002424b9e967e98cf8b13c05671f50271fb430e492a8acec749e6668ec",
+      "size": 7028
+    },
+    {
+      "old_path": ".claude/_archive/skill-transition-2026-10-30/read-project-context.txt",
+      "new_path": "_archive/skill-transition-2026-10-30/read-project-context.txt",
+      "sha256": "ecbbd74e091c1387fc092fc906c97fbf624f82ea5812d7bc18e98042565547fc",
+      "size": 3959
+    },
+    {
+      "old_path": ".claude/_archive/skill-transition-2026-10-30/update-project-context.txt",
+      "new_path": "_archive/skill-transition-2026-10-30/update-project-context.txt",
+      "sha256": "90fe055b2c01d1c62c9570851384eeeade613fd856b3bf79fb478cabba2d30f6",
+      "size": 5666
+    },
+    {
+      "old_path": ".claude/_archive/skill-transition-2026-10-30/work-artifact-briefing.txt",
+      "new_path": "_archive/skill-transition-2026-10-30/work-artifact-briefing.txt",
+      "sha256": "5ccf61c506591e4f34df09c997738aa60b3bb3cb6c937100606b600c72b3a5fb",
+      "size": 11071
+    },
+    {
+      "old_path": ".claude/_archive/store-layer-decision-pre-project-2026-10-31.md",
+      "new_path": "_archive/store-layer-decision-pre-project-2026-10-31.md",
+      "sha256": "b56c0cef8f4070a488a375e050709d5109222bc55664270f33f1c157f6af08ac",
+      "size": 8213
+    },
+    {
+      "old_path": ".claude/_archive/time-data-complete-guide.md",
+      "new_path": "_archive/time-data-complete-guide.md",
+      "sha256": "85e57a0d7d744c88531fe699e92e83f7567d59dbc98773ea620a6137981ccb26",
+      "size": 27600
+    },
+    {
+      "old_path": ".claude/_archive/time-pre-project-2026-10-31.md",
+      "new_path": "_archive/time-pre-project-2026-10-31.md",
+      "sha256": "d404980367fb86b5ce28ee03b8ef51a9dfb0cf8c5c7b1f75ef33a85788cbec51",
+      "size": 1926
+    },
+    {
+      "old_path": ".claude/_archive/travel-access-owner-intermediate-2026-10-30.md",
+      "new_path": "_archive/travel-access-owner-intermediate-2026-10-30.md",
+      "sha256": "830ee8846483039162e4144eb525fdc513c21a4de109ea4ba3344a2788497dd7",
+      "size": 2335
+    },
+    {
+      "old_path": ".claude/_archive/trip-time-zone-decision-pre-project-2026-10-31.md",
+      "new_path": "_archive/trip-time-zone-decision-pre-project-2026-10-31.md",
+      "sha256": "17ca369c59a75deadcebafbc00fbd838c5b2335bf7367a7e0111a907059e2023",
+      "size": 4058
+    },
+    {
+      "old_path": ".claude/_archive/typescript-pre-project-2026-10-31.md",
+      "new_path": "_archive/typescript-pre-project-2026-10-31.md",
+      "sha256": "408990c307c0bf22a94fabfe2b1fe8d5b5c2a0343c7708869670c6a3a69174ce",
+      "size": 11454
+    }
+  ]
+}

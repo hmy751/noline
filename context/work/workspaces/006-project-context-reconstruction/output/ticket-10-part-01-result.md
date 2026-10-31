@@ -32,7 +32,7 @@
 
 기본 Workspace 001의 Verify evidence에서 제거한 두 경로를 뺐다. 기존 Project guidance·본문은 이미 evidence에 포함돼 있다. 운영 metadata에서 current generation에 002·006 binding이 남아 있음을 확인하고, 002의 현재 Form/UI 안내도 직접 guidance로 전환했다. session-end가 있는 binding을 새로운 실행 중 세션이라고 주장하지 않으며, binding control이나 다른 session의 원문은 읽거나 변경하지 않았다. 006의 Ticket·state는 기존 Maintain이 이 결과를 반영할 대상이다.
 
-원본은 [Ticket 10 보존 안내](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/README.md)에서 찾는다. manifest의 원본 10개는 commit `c6bc416`의 바이트 및 SHA-256과 일치한다. 보존한 원본 전체가 이번에 이관·제거된 것은 아니며, 이번 제거는 제품 runbook과 workflows 호환 지도다. 현재 제품 본문은 이 원본을 필수 읽기로 연결하지 않는다.
+원본은 [Ticket 10 보존 안내](../../../../../_archive/2026-10-31-project-context-reconstruction/ticket-10/README.md)에서 찾는다. manifest의 원본 10개는 commit `c6bc416`의 바이트 및 SHA-256과 일치한다. 보존한 원본 전체가 이번에 이관·제거된 것은 아니며, 이번 제거는 제품 runbook과 workflows 호환 지도다. 현재 제품 본문은 이 원본을 필수 읽기로 연결하지 않는다.
 
 앞서 Main이 승인 전에 만든 문서 관리·PR runbook 두 초안은 같은 보존 영역의 `unadopted-drafts/`로 격리했다. 이를 현재 기준으로 안내하거나 아직 남은 command·noline-work를 제거 완료로 적은 선행 변경, 관련 검사·001 evidence의 선행 기대도 실제 상태로 정정했다. 이는 후속 기능을 구현한 것이 아니라 미채택 초안의 현재 적용을 철회한 것이다. 기존 문서 command·generate-pr·noline-work 원본과 bridge는 유지하며, deprecated 안내의 현재 대체 진입만 바로잡았다. 과거 실행 본문은 현재 기준으로 고쳐 쓰지 않았다.
 

@@ -10,7 +10,7 @@ audits 6개는 당시 조사·검증·실행·재진입 기록으로 보존했�
 
 sessions 3개 중 활성화 선택 이유만 0001에 보완했다. 지도·경로 의미와 구현 차이는 현행 본문·형성 자료에 이미 충분해 중복 추가하지 않았다. 당시 전체완료·성능·rollback 보장은 현재 지원 약속으로 가져오지 않았다.
 
-원문 28개를 [보존 묶음](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/history-integration/README.md)의 txt와 manifest에 원래 경로·기준commit·SHA-256으로 남겼다. 삭제 전 원바이트와 해시를 대조했고 .claude/audits·decisions·sessions 현재 폴더는 제거했다. 원문 내부 링크·표현은 고치지 않았다.
+원문 28개를 [보존 묶음](../../../../../_archive/2026-10-31-project-context-reconstruction/history-integration/README.md)의 txt와 manifest에 원래 경로·기준commit·SHA-256으로 남겼다. 삭제 전 원바이트와 해시를 대조했고 .claude/audits·decisions·sessions 현재 폴더는 제거했다. 원문 내부 링크·표현은 고치지 않았다.
 
 루트·Document Map·harness·스킬 색인·Project/REFERENCE 입구는 현재 Owner 또는 기존의 가까운 형성 자료를 가리킨다. 커밋 기준에는 domain scope 예외와 추적을 위한 선택 이유를 보완했다. 새로 생기는 지속 결정은 Project decisions 또는 해당 실행·관리 Owner의 형성 자료, 이번 작업 진행·검증은 Work 기록에 연결한다.
 

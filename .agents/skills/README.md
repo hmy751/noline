@@ -21,7 +21,7 @@
 
 ## 교체한 실행 경로
 
-읽기는 [USAGE](../../context/USAGE.md), 한정 갱신은 context-update, 작업물·앞선 말의 설명은 explain을 사용한다. 옛 read-project-context·update-project-context·work-artifact-briefing·explanation-recovery 실행 폴더와 bridge는 제거했다. [Noline 적응 기록](development/_background/records/2026-10-30-existing-work-contract-adaptation.md)에서 현재 검사·참조의 이동과 [당시 본문 보존](../../.claude/_archive/skill-transition-2026-10-30/README.md)을 찾는다.
+읽기는 [USAGE](../../context/USAGE.md), 한정 갱신은 context-update, 작업물·앞선 말의 설명은 explain을 사용한다. 옛 read-project-context·update-project-context·work-artifact-briefing·explanation-recovery 실행 폴더와 bridge는 제거했다. [Noline 적응 기록](development/_background/records/2026-10-30-existing-work-contract-adaptation.md)에서 현재 검사·참조의 이동과 [당시 본문 보존](../../_archive/skill-transition-2026-10-30/README.md)을 찾는다.
 
 ## Context와 문서 갱신
 

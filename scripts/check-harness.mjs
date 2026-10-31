@@ -86,7 +86,7 @@ function hasPreservedHistoricalTarget(file, target) {
   const expectedRecordHash = historicalSkillRecords.get(rel(file));
   if (!expectedRecordHash || rel(target) !== '.claude/skills/update-project-context/SKILL.md') return false;
   const sha256 = (filePath) => createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
-  const snapshot = path.join(root, '.claude/_archive/skill-transition-2026-10-30/update-project-context.txt');
+  const snapshot = path.join(root, '_archive/skill-transition-2026-10-30/update-project-context.txt');
   return fs.existsSync(snapshot)
     && sha256(file) === expectedRecordHash
     && sha256(snapshot) === '90fe055b2c01d1c62c9570851384eeeade613fd856b3bf79fb478cabba2d30f6';
@@ -143,6 +143,7 @@ function checkNoLegacySurfaces() {
     '.claude/decisions',
     '.claude/sessions',
     '.claude/CHANGELOG.md',
+    '.claude/_archive',
     '.claude/README.md',
     '.claude/harness',
     '.claude/agents',

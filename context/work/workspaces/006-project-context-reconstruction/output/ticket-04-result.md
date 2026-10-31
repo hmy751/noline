@@ -39,10 +39,10 @@ Ticket 03의 데이터 수명 설명에 이어 지도·경로의 준비·재사�
 
 | 원본 | 역사 보존판 |
 | --- | --- |
-| `.claude/context/offline-map.md` | [지도 가이드 원문](../../../../../.claude/_archive/offline-map-pre-project-2026-10-31.md) |
-| `.claude/context/offline-routing.md` | [경로 가이드 원문](../../../../../.claude/_archive/offline-routing-pre-project-2026-10-31.md) |
-| `.claude/decisions/002-offline-map-integration.md` | [지도 결정 원문](../../../../../.claude/_archive/offline-map-decision-pre-project-2026-10-31.md) |
-| `.claude/decisions/003-offline-routing-integration.md` | [경로 결정 원문](../../../../../.claude/_archive/offline-routing-decision-pre-project-2026-10-31.md) |
+| `.claude/context/offline-map.md` | [지도 가이드 원문](../../../../../_archive/offline-map-pre-project-2026-10-31.md) |
+| `.claude/context/offline-routing.md` | [경로 가이드 원문](../../../../../_archive/offline-routing-pre-project-2026-10-31.md) |
+| `.claude/decisions/002-offline-map-integration.md` | [지도 결정 원문](../../../../../_archive/offline-map-decision-pre-project-2026-10-31.md) |
+| `.claude/decisions/003-offline-routing-integration.md` | [경로 결정 원문](../../../../../_archive/offline-routing-decision-pre-project-2026-10-31.md) |
 
 역사 안내만 앞에 추가하고 원문은 유지했다. 옛 위치에는 호환 파일을 남기지 않았다. Project 진입·guidance·제품·여행 접근·데이터 수명·용량, client guide·기존 context 색인·check-docs command 예시를 현재 Owner로 연결했다. 조사 source-map은 당시 내용을 유지하며 원문 재접근 링크만 보존판으로 바꿨다.
 

@@ -15,7 +15,7 @@
 
 ## 실제 변경과 보존
 
-`.claude/commands/check-docs.md`, `doc-save.md`, `doc-discuss.md`, `doc-refactor.md`를 현재 호출 위치에서 제거했다. 1번 커밋에 이미 보존한 원본 네 개의 바이트·SHA-256이 삭제 전 파일과 일치함을 확인해 재복제하지 않았다. 보존 위치는 [Ticket 10 archive](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/README.md)다.
+`.claude/commands/check-docs.md`, `doc-save.md`, `doc-discuss.md`, `doc-refactor.md`를 현재 호출 위치에서 제거했다. 1번 커밋에 이미 보존한 원본 네 개의 바이트·SHA-256이 삭제 전 파일과 일치함을 확인해 재복제하지 않았다. 보존 위치는 [Ticket 10 archive](../../../../../_archive/2026-10-31-project-context-reconstruction/ticket-10/README.md)다.
 
 루트·Document Map·harness와 commands README는 실제로 남은 `generate-pr`와 기존 문서 갱신 진입을 안내한다. 기존 스킬 색인은 이미 충분하므로 변경하지 않았다. `generate-pr`에서는 제거한 두 명령의 관련 명령 안내만 없앴고 PR 작성 본문은 개편하지 않았다. 검사에는 네 옛 호출 파일의 재등장을 확인하도록 추가했다.
 

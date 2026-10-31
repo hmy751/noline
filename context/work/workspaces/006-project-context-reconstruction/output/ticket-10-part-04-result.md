@@ -8,7 +8,7 @@ noline-work는 이미 deprecated였고 기능은 development·Project 기준과 
 
 `.claude/agents`의 context-collector·policy-checker·harness-observer 세 정의와 같은 역할의 `.codex/agents` 세 정의를 제거했다. 현재 설정은 이 3종을 등록하지 않고 Work의 workspace_context_maintainer만 등록하므로 해당 설정과 Maintain lifecycle은 유지했다. 현재 스킬 8종의 `.agents/skills` 연결도 유지했다.
 
-제품 기준·위험 점검은 Project guidance, 맥락 선택과 구현·검토·검증 배정은 development가 맡는다. 옛 agent를 고정 실행자로 요구하는 안내를 제거하고 일반 역할의 권한 확인 책임은 보존했다. agent 정의는 [보존 manifest](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/retired-agents/manifest.json)와 6개 txt에 보존했으며 현재 읽기의 필수 경로로 연결하지 않는다. 006 조사 자료의 옛 observer 원문 링크만 보존본으로 교체했다.
+제품 기준·위험 점검은 Project guidance, 맥락 선택과 구현·검토·검증 배정은 development가 맡는다. 옛 agent를 고정 실행자로 요구하는 안내를 제거하고 일반 역할의 권한 확인 책임은 보존했다. agent 정의는 [보존 manifest](../../../../../_archive/2026-10-31-project-context-reconstruction/ticket-10/retired-agents/manifest.json)와 6개 txt에 보존했으며 현재 읽기의 필수 경로로 연결하지 않는다. 006 조사 자료의 옛 observer 원문 링크만 보존본으로 교체했다.
 
 ## 확인과 다음 범위
 

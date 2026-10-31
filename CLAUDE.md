@@ -93,8 +93,10 @@ noline/
 │   ├── eslint-config/   # Shared lint config
 │   └── typescript-config/ # Shared TypeScript config
 ├── .claude/
-│   ├── skills -> ../.agents/skills/ # Claude skill 연결
-│   └── _archive/        # Deprecated historical material
+│   ├── settings.json    # Claude lifecycle 설정
+│   ├── hooks/           # Claude host wrapper
+│   └── skills -> ../.agents/skills/ # Claude skill 연결
+├── _archive/           # 과거 원문·복구 근거, 현재 정책과 구별
 ├── .agents/skills/      # 공통 스킬 원본과 Codex 발견 경로
 ├── .codex/              # Codex 설정과 lifecycle hook
 └── CLAUDE.md            # This navigation hub

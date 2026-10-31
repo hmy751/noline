@@ -18,8 +18,8 @@ Project 색인·Decision 색인, client/UI guide, 관련 rule·guard·현재 맥
 
 | 이전 자료 | 실제 처리 |
 | --- | --- |
-| `.claude/context/policy-architecture.md` | 호환 파일 제거. 이전 전체 본문은 [Policy 이관 전 보존본](../../../../../.claude/_archive/policy-architecture-pre-project-2026-10-30.md)에 이미 보존돼 있다. |
-| `.claude/decisions/2026-10-30-travel-access-context-owner.md` | 현재 decision 경로에서 제거하고 [중간 이관 판단 보존본](../../../../../.claude/_archive/travel-access-owner-intermediate-2026-10-30.md)으로 이동. 호환 유지라는 당시 잘못된 판단을 현재 결정처럼 고치지 않고 역사로 구별했다. |
+| `.claude/context/policy-architecture.md` | 호환 파일 제거. 이전 전체 본문은 [Policy 이관 전 보존본](../../../../../_archive/policy-architecture-pre-project-2026-10-30.md)에 이미 보존돼 있다. |
+| `.claude/decisions/2026-10-30-travel-access-context-owner.md` | 현재 decision 경로에서 제거하고 [중간 이관 판단 보존본](../../../../../_archive/travel-access-owner-intermediate-2026-10-30.md)으로 이동. 호환 유지라는 당시 잘못된 판단을 현재 결정처럼 고치지 않고 역사로 구별했다. |
 | Data/Service·Policy·경비 초안·여행 생성 등의 기존 결정 | 02에 필요한 이유·발췌를 Project로 선별. 본문·형성 자료와 관련 현재 진입에서 옛 결정을 읽는 의존을 없앴다. 다른 주제가 함께 쓰는 원본 전체의 정리는 후속 범위다. |
 | Selective Activation·오류 가이드 | 02로 옮긴 Router·목록·화면 설명의 중복 Owner를 정리. Local mutation·sync·서버 오류 등 미이관 범위는 남겼다. |
 

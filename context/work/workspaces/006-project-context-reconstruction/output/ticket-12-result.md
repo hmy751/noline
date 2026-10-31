@@ -6,7 +6,7 @@
 
 614줄 전체의 용어·계정·Policy·지도·경로·Entity·타입·인증·Store/Service·삭제·하네스 전환을 현재 Owner와 대조했다. 필요한 의미·대안·비용은 Project decisions·guidance·형성 자료에 이미 있어 새 본문은 추가하지 않았다. 당시 버전·통계·성능·완료·고정 폴더 예시는 현재 보장으로 재도입하지 않았다.
 
-[보존 manifest](../../../../../.claude/_archive/2026-10-31-project-context-reconstruction/ticket-12/manifest.json)에 원래 경로·기준 commit·SHA-256을 남기고 원문을 같은 바이트로 보존했다. 현재 `.claude/CHANGELOG.md`와 Document Map의 일반 읽기 행은 제거했다. 새 CHANGELOG나 일반 읽기용 호환 stub은 만들지 않았다.
+[보존 manifest](../../../../../_archive/2026-10-31-project-context-reconstruction/ticket-12/manifest.json)에 원래 경로·기준 commit·SHA-256을 남기고 원문을 같은 바이트로 보존했다. 현재 `.claude/CHANGELOG.md`와 Document Map의 일반 읽기 행은 제거했다. 새 CHANGELOG나 일반 읽기용 호환 stub은 만들지 않았다.
 
 ## 63개 링크를 모두 현재 결함으로 다루지 않았다
 

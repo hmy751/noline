@@ -19,10 +19,10 @@
 
 | 원본과 보존판 | 현재 반영과 판단 |
 | --- | --- |
-| `.claude/context/architecture.md` → [보존판](../../../../../.claude/_archive/architecture-pre-project-2026-10-31.md) | 계층 책임·feature/widget 통합·routing·재사용·workspace 의존성 기준 유지. 없는 packages/db·Prisma와 빠진 application 정정. shared 순수성·모든 route가 단순 렌더라는 과장 정정. |
-| `.claude/context/components.md` → [보존판](../../../../../.claude/_archive/components-pre-project-2026-10-31.md) | primitive·domain·workflow, 외부 margin, RHF adapter·picker 책임 유지. Button 대신 실제 Pressable export로 정정. 폼 전체 수명은 06의 별도 책임으로 유지. |
-| `.claude/context/typescript.md` → [보존판](../../../../../.claude/_archive/typescript-pre-project-2026-10-31.md) | type 기본·import·명명·함수·주석·중괄호·진단 기준 유지. z.infer의 검증 보장·type export 불가·존재하지 않는 import·불완전한 타입 guard와 catch/null 예제 정정. |
-| Store 계층 결정 → [보존판](../../../../../.claude/_archive/store-layer-decision-pre-project-2026-10-31.md) | Zustand 기준과 상태/실행/규칙의 분리 이유·대안·이동 비용 보존. 모든 관련 hook의 발견 가능성과 소유 일관성을 유지하되 과거 4개→1개를 영구 물리 파일 수 규칙으로 일반화하지 않음. 당시 성능 개선을 현재 실측 보장으로 가져오지 않음. |
+| `.claude/context/architecture.md` → [보존판](../../../../../_archive/architecture-pre-project-2026-10-31.md) | 계층 책임·feature/widget 통합·routing·재사용·workspace 의존성 기준 유지. 없는 packages/db·Prisma와 빠진 application 정정. shared 순수성·모든 route가 단순 렌더라는 과장 정정. |
+| `.claude/context/components.md` → [보존판](../../../../../_archive/components-pre-project-2026-10-31.md) | primitive·domain·workflow, 외부 margin, RHF adapter·picker 책임 유지. Button 대신 실제 Pressable export로 정정. 폼 전체 수명은 06의 별도 책임으로 유지. |
+| `.claude/context/typescript.md` → [보존판](../../../../../_archive/typescript-pre-project-2026-10-31.md) | type 기본·import·명명·함수·주석·중괄호·진단 기준 유지. z.infer의 검증 보장·type export 불가·존재하지 않는 import·불완전한 타입 guard와 catch/null 예제 정정. |
+| Store 계층 결정 → [보존판](../../../../../_archive/store-layer-decision-pre-project-2026-10-31.md) | Zustand 기준과 상태/실행/규칙의 분리 이유·대안·이동 비용 보존. 모든 관련 hook의 발견 가능성과 소유 일관성을 유지하되 과거 4개→1개를 영구 물리 파일 수 규칙으로 일반화하지 않음. 당시 성능 개선을 현재 실측 보장으로 가져오지 않음. |
 
 네 옛 경로는 제거했고 compatibility stub을 만들지 않았다. 보존판은 역사 안내를 앞에 붙이고 원문을 유지한다. 새 Project 본문·형성 자료는 보존판이나 옛 제품 본문에 읽기를 의존하지 않는다. 이 output의 보존 링크는 역사 조사 접근점이다.
 
