@@ -8,17 +8,17 @@
 
 - `apps/server/CLAUDE.md`가 서버 workspace guide의 원천이다.
 - `apps/server/AGENTS.md`는 이 파일을 가리키는 Codex bridge symlink다. 별도 정책 원천처럼 수정하지 않는다.
-- 작업에 필요한 기준은 아래 Start Here와 [Runbooks](../../.claude/runbooks/README.md)에서 직접 찾는다.
-- client/schema와 함께 지켜야 하는 정책은 이 파일에 복사하지 않고 `context/project/`의 주제별 Owner 또는 실행 순서를 맡는 `runbooks/`로 보낸다.
+- 작업에 필요한 본문은 아래 Start Here에서 직접 선택한다. 본문별 적용 조건에 따라 필요한 내용만 추가로 읽는다.
+- client/schema와 함께 지켜야 하는 정책은 이 파일에 복사하지 않고 `context/project/`의 주제별 Owner에서 계약·적용·검증 방법과 함께 관리한다.
 
 ## Start Here
 
 | 작업 | 먼저 볼 문서 |
 | --- | --- |
-| API endpoint 추가/수정 | [API 계약과 변경 가이드](../../context/project/guidance/api-contracts.md), [API endpoint runbook](../../.claude/runbooks/README.md#api-endpoint), [Schema First 기준](../../context/project/guidance/development-boundaries/schema-and-types.md) |
+| API endpoint 추가/수정 | [API 계약과 변경 가이드](../../context/project/guidance/api-contracts.md), [Schema First 기준](../../context/project/guidance/development-boundaries/schema-and-types.md) |
 | auth/user ownership | [Auth/User Scope 기준](../../context/project/guidance/api-contracts.md), [제품 기준·위험 점검](../../context/project/guidance/README.md) |
 | client-created ID create flow | [Client-Side ID 기준](../../context/project/guidance/data-lifecycle/INDEX.md#생성-id는-localqueue서버에서-같은-값을-유지한다) |
-| sync endpoint | [Transaction + Sync Queue 기준](../../context/project/guidance/data-lifecycle/INDEX.md), [Sync debug runbook](../../.claude/runbooks/README.md#sync-debug) |
+| sync endpoint | [Transaction + Sync Queue 기준](../../context/project/guidance/data-lifecycle/INDEX.md) |
 | time fields | [날짜·시점 기준](../../context/project/common/date-and-time.md) |
 | error handling | [오류 전달·공개 응답](../../context/project/guidance/error-handling.md) |
 

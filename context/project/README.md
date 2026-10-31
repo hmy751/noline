@@ -23,7 +23,7 @@
 - 기존 동작을 유지하는 코드 가독성 리팩터링을 계획·구현·검증할 때: [동작을 보존하는 코드 리팩터링](guidance/behavior-preserving-refactoring.md)
 - 설명·논의에서 주장과 실제 근거의 관계를 다룰 때: [공통 설명과 근거 기준](../../.claude/skills/shared/explanation-and-evidence-criteria.md)의 적용 조건
 - Selective Local-First를 선택한 이유가 필요할 때: [선택 근거](decisions/0001-selective-local-first.md)
-- 로컬 개발 환경을 준비하고 실행할 때: [개발 시작](../../START_GUIDE.md). 서버 환경·DB 도구는 [서버 안내](../../apps/server/README.md), 반복 개발 작업은 [Runbooks](../../.claude/runbooks/README.md)에서 찾는다.
+- 로컬 개발 환경을 준비하고 실행할 때: [개발 시작](../../START_GUIDE.md). 서버 환경·DB 도구는 [서버 안내](../../apps/server/README.md)에서 찾는다.
 
 본문이 추가되거나 책임이 이동하면 이 주제별 경로도 실제 Owner에 맞춘다. 없는 가이드를 이미 구성된 것처럼 연결하지 않는다. 각 층의 전체 목록은 [common](common/README.md), [current](current/README.md), [guidance](guidance/README.md), [decisions](decisions/README.md)에서 찾는다.
 
@@ -72,7 +72,7 @@ Project 수준에서 현재 구현·지원·적용되는 범위와 연결 관계
 
 각 내용 문서는 자신이 맡은 의미 범위와 현재 권위를 밝힌다. 제품·아키텍처·기능의 현재 의미와 필요한 선택 이유는 Project 본문과 가까운 형성 자료가 소유한다. 옛 제품 문서는 일반 읽기에서 제외했다. 원자료의 역사 조사와 현재 제품 판단을 구별하며 archive를 우회 Owner로 쓰지 않는다.
 
-현재 제품 본문은 위 읽기 경로에 연결된 범위다. 제품 개발 계약·위험과 변경 시 확인 조건은 해당 주제의 Project 본문이 함께 소유한다. 탐색·실행 진입은 root [CLAUDE.md](../../CLAUDE.md)와 [runbooks](../../.claude/runbooks/README.md)가 소유한다. 환경 준비 절차는 개발 시작·서버 안내가 소유하며 같은 내용을 Project에 복제하지 않는다. 구현 사실은 [apps](../../apps/)·[packages](../../packages/)의 코드와 테스트에서 확인한다. 현재 코드나 최근 문서라는 이유만으로 제품 결정을 자동 대체하지 않는다.
+현재 제품 본문은 위 읽기 경로에 연결된 범위다. 제품 개발 계약·위험과 변경 시 확인 조건은 해당 주제의 Project 본문이 함께 소유한다. root [CLAUDE.md](../../CLAUDE.md)와 경로별 guide는 필요한 본문·명령으로 안내한다. 제품별 적용·검증 방법은 위 주제 본문이 소유하고, 필요한 기준은 [guidance](guidance/README.md)에서 선택한다. 환경 준비 절차는 개발 시작·서버 안내가 소유하며 같은 내용을 Project에 복제하지 않는다. 구현 사실은 [apps](../../apps/)·[packages](../../packages/)의 코드와 테스트에서 확인한다. 현재 코드나 최근 문서라는 이유만으로 제품 결정을 자동 대체하지 않는다.
 
 한 Workspace의 목표·진행·후보·시행착오·검증 이력은 Work에 남긴다. 첫 Workspace에서 얻은 내용도 지속되는 적용 범위와 근거가 확인되면 Project 본문에 반영할 수 있다. 사용자가 한정한 주제의 Owner 이동을 관련 없는 제품 문서 전체 개편으로 넓히지 않는다.
 

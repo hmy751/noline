@@ -6,13 +6,17 @@
 
 ## 현재 지침과 소비자
 
+필요한 본문은 바꾸는 책임에 따라 선택한다. 아래 나열은 구현 순서가 아니며, 경로별 guide에서 이미 찾은 본문을 다시 고를 필요는 없다.
+
 [작성·입력](writing-and-input/INDEX.md)은 초안·검색 후보·picker 임시값·저장 요청의 수명을 구별한다. 생성/수정과 부모의 닫기·재열기를 함께 보며 정책 제한·실패·복구에서 보존할 입력과 현재 차이를 설명한다.
 
 [구조·UI·schema 개발 기준](development-boundaries/INDEX.md)은 계층 배치, 제한적 조회 재사용, UI 상태·간격·부작용과 공유 타입·런타임 검증을 구별한다. 현재 예외를 새 기본 규칙으로 넓히지 않으면서 관련 코드를 바꿀 때 읽는다.
 
+Entity를 추가하거나 바꾸면 [schema 기준](development-boundaries/schema-and-types.md)에서 공유 필드·타입을, [계층의 저장·조회 경계](development-boundaries/layers.md#entity를-바꾸면-저장조회-경계를-따라간다)와 [API 가이드](api-contracts.md)에서 실제 소비 경계를 찾는다. 생성 ID·Local 저장·동기화·삭제가 관련되면 [데이터 수명](data-lifecycle/INDEX.md)을 함께 적용한다.
+
 [여행 접근과 화면 복구](travel-access/INDEX.md)는 네트워크 관측·Policy·조회 실행·캐시 표시·작성 중 입력 보존을 연결한다. 화면이나 조회를 바꿀 때 실제 조건·사용자 장면·실패 후 남는 값을 확인한다.
 
-[데이터 저장·동기화·정리](data-lifecycle/INDEX.md)는 Local mutation·queue·push/pull·활성화·cleanup을 바꿀 때 읽는다. 보존 계약과 실제 상태 판정·완료 범위의 차이, 계정 종료와의 관계를 설명한다.
+[데이터 저장·동기화·정리](data-lifecycle/INDEX.md)는 Local mutation·queue·push/pull·활성화·cleanup을 바꿀 때 읽는다. 보존 계약과 실제 상태 판정·완료 범위의 차이, 계정 종료와의 관계를 설명한다. 동기화 불일치를 조사하면 본문의 [조사 출발점](data-lifecycle/INDEX.md#불일치를-조사할-때-같은-대상과-변경을-대조한다)에서 같은 계정·Entity·변경을 기준으로 증상에 해당하는 경계를 대조한다.
 
 [오프라인 지도·경로](offline-maps-and-routes/INDEX.md)는 준비 결과·native pack과 metadata·일정 변경 뒤 경로의 관계를 설명한다. 다운로드·재사용·정리·표시를 바꿀 때 실제 자원과 완료 근거를 확인한다.
 
@@ -21,6 +25,8 @@
 [API 계약과 변경 가이드](api-contracts.md)는 client API, server route, 공유 schema, serializer와 user scope를 추가·수정·리팩터링할 때 읽는다. Schedule·Expense·Trip의 실제 적용 차이, repository·query 경계와 인증 전송, 일반 조회와 sync의 soft-delete 차이를 설명한다.
 
 [오류 전달과 공개 응답](error-handling.md)은 서버 처리·client 변환·React Query·Policy UI의 책임, 민감정보 미공개 기준과 현재 공백을 설명한다. 공개 형식·중앙화 선택을 바꿀 때 API 가이드와 함께 읽는다.
+
+날짜·시각이나 통화·금액을 다루면 common의 [날짜와 시각](../common/date-and-time.md), [통화와 금액](../common/currency.md)을 선택한다. 필드의 의미와 저장·전송·표시 계약, 공용 helper와 현재 소비자의 차이는 그 본문이 함께 소유한다.
 
 [공통 설명과 근거 기준](../../../.claude/skills/shared/explanation-and-evidence-criteria.md)은 사용자가 의미와 실제 근거의 관계를 이해하고 다음 판단을 만들 수 있게 하는 조건부 기준이다. 제품 의미·현재 구현·완료 판단의 정본을 대체하지 않는다. 적용 범위·재검토 신호·제거 조건은 그 본문이 소유한다.
 
@@ -34,7 +40,3 @@
 관련 작업에 계속 필요한 계약·판단·적용이 생기거나 유효한 기존 기준을 복원할 때 [구성 기준](../REFERENCE/composition.md)과 [관리 계약](../MAINTENANCE.md)을 따른다. 기존 본문에 통합할지 별도 가이드로 둘지는 읽는 상황과 갱신 책임으로 판단한다. 주제를 잘게 나누거나 같은 계약을 독립적으로 복제하지 않는다.
 
 적용 조건이 사라지거나 다른 canonical이 그 책임을 맡게 되면 현재 소비 경로를 맞추며 통합·이동·제거한다. 중요한 선택 이유만 남길 필요가 있으면 결정 기록과 연결한다. 모든 가이드에 같은 제거 조건 목차를 요구하지 않는다.
-
-## 기존 Noline 실행 기준
-
-제품 개발 계약·실패 위험·변경 시 확인 조건은 위 주제별 본문에서 함께 관리한다. Local 변경·ID·삭제는 데이터 수명, Router·Policy는 여행 접근, 공유 schema는 개발 기준, 날짜는 날짜와 시각, 인증·ownership은 API 계약에서 찾는다. [Runbooks](../../../.claude/runbooks/README.md)는 관련 본문을 선택하는 반복 작업 진입을 소유한다. 규칙과 위험 지도의 별도 제품 정본은 유지하지 않는다.

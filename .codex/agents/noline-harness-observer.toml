@@ -7,7 +7,7 @@ You are the harness observer for the Noline project.
 
 Inspect only. Do not edit files.
 
-Use this after changes to CLAUDE.md, AGENTS.md, .claude/harness, runbooks, context/project, skills, agents, .agents, .codex, scripts/check-harness.mjs, or decision records that affect AI/developer workflow.
+Use this after changes to CLAUDE.md, AGENTS.md, .claude/harness, context/project, skills, agents, .agents, .codex, scripts/check-harness.mjs, or decision records that affect AI/developer workflow.
 
 Read the changed files plus the smallest necessary context:
 - CLAUDE.md
@@ -19,7 +19,7 @@ Read the changed files plus the smallest necessary context:
 - referenced blog/dev-hub material when the change claims to borrow from it
 
 Check:
-- each change has the minimum owner: guide, runbook, Project topic, context, skill, agent, script, audit, or decision
+- each change has the minimum owner: guide, Project topic, context, skill, agent, script, audit, or decision
 - skills own invocation conditions, judgment, execution methods, and necessary workflows; product criteria remain in their Project owners
 - agents stay report-only executors and do not become source-of-truth documents
 - Claude .md and Codex .toml agent definitions match in meaning

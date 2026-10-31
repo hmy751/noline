@@ -14,7 +14,6 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
 | Context Harness | [../../context/README.md](../../context/README.md) | Project context, 지속 Workspace와 Recover·Maintain·Verify 운영 | 주제별 제품 본문과 작업 운영을 구분 |
 | Workspace guides | `apps/*/CLAUDE.md`, `packages/*/CLAUDE.md` | app/package별 구현 규칙과 명령 | 경로에 따라 읽음 |
 | Document map | [../README.md](../README.md) | `.claude` corpus의 역할과 읽는 순서 | 문서 작업 시 시작점 |
-| Runbooks | [../runbooks/](../runbooks/) | 반복 작업의 시작 순서 | 작업 진입점 |
 | Project context | [../../context/project/](../../context/project/) | 제품·아키텍처·개발 기준·실패 위험·확인 조건과 선택 이유 | 주제별 Owner에서 함께 읽고 실제 구현과 대조 |
 | Skill | [../skills/README.md](../skills/README.md) | 로컬 운영 스킬과 deprecated 스킬 이력 | 각 스킬의 호출 조건에 따라 읽음 |
 | Agents | [../agents/](../agents/) + [../../.codex/agents/](../../.codex/agents/) | context 수집, policy drift 점검, harness observer | 필요할 때만 report-only |
@@ -59,8 +58,8 @@ Noline에는 Selective Local-First, Policy Layer, sync, time, schema, UI 패턴�
 
 - 이 workspace가 소유하는 구현 책임은 무엇인가.
 - 같은 폴더의 `AGENTS.md`가 bridge symlink인지, 별도 정책 원천인지.
-- 작업자가 루트 guide에서 들어온 뒤 어떤 Project 주제 본문과 runbook을 먼저 확인해야 하는가.
-- 어떤 내용은 이 파일에 쌓지 않고 Project 주제 본문, `runbooks/`, `sessions/`, `_archive/`로 보내야 하는가.
+- 작업자가 루트 guide에서 들어온 뒤 변경할 책임에 맞는 어떤 Project 본문을 선택할 수 있는가.
+- 어떤 내용은 이 파일에 쌓지 않고 Project의 주제별 설명·적용 가이드나 해당 기록 Owner에 두어야 하는가.
 
 workspace guide는 짧게 유지한다. 긴 feature 설명, 교육용 예시, 디버깅 사례, 배포 후보가 필요하면 owning context나 archive로 분리한다. `pnpm harness:check`는 각 workspace guide가 `Harness Role`, local `AGENTS.md` bridge를 갖고 있고 과도하게 길어지지 않는지 확인한다.
 
@@ -81,7 +80,7 @@ workspace guide는 짧게 유지한다. 긴 feature 설명, 교육용 예시, �
 2. 루트 `CLAUDE.md`는 탐색용으로 유지한다. 모든 상세 패턴을 루트로 끌어올리지 않는다.
 3. 한 번의 디버깅 세션에서 생긴 불편을 바로 일반 규칙으로 승격하지 않는다. 반복되거나 비용이 큰 실패일 때만 하네스화한다.
 4. reference project에서 영향을 받았다면 표면 형식을 복사하지 말고 Noline의 역할 모델로 번역한다.
-5. `context/project/`의 주제별 Owner에서 계약·위험·확인 조건과 필요한 이유를 함께 관리한다. `runbooks/`는 그 본문을 선택하는 실행 순서를 맡는다.
+5. `context/project/`의 주제별 Owner에서 계약·위험·이유와 제품별 적용·검증 방법을 함께 관리한다. 필요한 본문 선택은 기존 Project 색인과 경로별 guide가 안내한다. 개발 수행의 조율은 해당 스킬이 맡는다.
 6. 이후 작업 방식에 영향을 주는 하네스 변경은 [decisions/](../decisions/)에 기록한다.
 7. 제품 설명은 Project 관리 계약에 따라 현재 의미·필요한 선택 이유·authority를 함께 관리한다. 옛 원본을 현재 본문의 필수 읽기 경로로 연결하지 않는다.
 
@@ -94,7 +93,7 @@ type(scope): summary
 ```
 
 - runtime code는 `client`, `server`, `schema`, `ui` 같은 workspace scope를 우선한다.
-- documentation/harness 변경은 `harness`, `runbooks`, `context`, `readme`, `archive`처럼 가장 작은 문서 owner를 scope로 쓴다.
+- documentation/harness 변경은 `harness`, `context`, `readme`, `archive`처럼 가장 작은 문서 owner를 scope로 쓴다.
 - scope는 변경이 진짜 repo-wide이거나 유용한 owner가 없을 때만 생략한다.
 
 결정 기록: [Commit Message Convention](../decisions/2026-05-06-commit-message-convention.md)
@@ -136,7 +135,7 @@ pnpm harness:check
 - `noline-policy-checker`: Router, `withTransaction`, `generateId`, schema-first, ISO time, auth ownership, soft delete 정책 drift를 보는 report-only checker.
 - `noline-harness-observer`: 하네스/bridge 변경 뒤 구조 drift와 Claude/Codex parity를 보는 report-only observer.
 
-`noline-work`는 2026-09-10 사용자 요청으로 deprecated 처리했다. 작업별 기준은 root·workspace guide와 Project 주제별 기준·runbooks에서 직접 찾는다. 기존 스킬 본문과 bridge는 이력으로 남기며 현재 workflow로 실행하지 않는다. [결정 기록](../decisions/2026-09-10-deprecate-noline-work.md)
+`noline-work`는 2026-09-10 사용자 요청으로 deprecated 처리했다. 작업별 기준은 root·workspace guide와 Project 주제별 기준에서 직접 찾는다. 기존 스킬 본문과 bridge는 이력으로 남기며 현재 workflow로 실행하지 않는다. [결정 기록](../decisions/2026-09-10-deprecate-noline-work.md)
 
 agent/skill 파일은 discoverable 역할 정의일 뿐, 자동 team runner가 아니다. 여러 agent를 팀처럼 쓸 때의 호출 순서, 병렬화, 결과 통합은 메인 작업자가 정한다.
 

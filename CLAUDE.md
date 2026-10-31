@@ -2,7 +2,7 @@
 
 > Noline: 네트워크가 없어도 여행은 계속된다. Selective Local-First 여행 관리 앱.
 
-이 파일은 루트 탐색 허브다. 제품 계약·위험 점검·개발 기준은 [Project context](./context/project/README.md)의 주제별 본문이, 경로별 진입과 명령은 workspace guide가, 반복 작업의 순서는 [runbooks](./.claude/runbooks/README.md)가 소유한다.
+이 파일은 루트 탐색 허브다. 제품 계약·위험 점검·개발 기준은 [Project context](./context/project/README.md)의 주제별 본문이, 경로별 진입과 명령은 workspace guide가 소유한다.
 
 ## Claude/Codex Bridge
 
@@ -24,24 +24,10 @@
 | `.claude` 자료 역할 파악 | [Document Map](./.claude/README.md) |
 | 하네스/bridge 작업 | [Noline AI Harness](./.claude/harness/README.md) |
 | 현재 작업 복구·새 Context Workspace | [Context Harness](./context/README.md) |
-| 작업별 시작 경로 | [Noline Runbooks](./.claude/runbooks/README.md) |
 | 코드 수정에 적용할 제품 기준 | [제품 개발 기준](context/project/guidance/README.md) |
-| 반복 작업 시작 순서 | [Noline Runbooks](./.claude/runbooks/README.md) |
 | 깊은 아키텍처/기능 맥락 | [Noline Project context](./context/project/README.md) |
 | 하네스 레이어 개편 이유 | [Decision: Harness Layer Model](./.claude/decisions/2026-05-06-harness-layer-model.md) |
 | 최근 하네스 실행 기록 | [Harness Execution Record](./.claude/audits/2026-05-06-harness-execution-plan.md) |
-
-## Common Runbooks
-
-| 작업 | 시작점 |
-| --- | --- |
-| 동기화 버그 수정 | [Debug Sync Issues](./.claude/runbooks/README.md#sync-debug) |
-| 새 Entity 추가 | [Add New Entity](./.claude/runbooks/README.md#add-entity) |
-| API 추가 | [Add API Endpoint](./.claude/runbooks/README.md#api-endpoint) |
-| Form 구현 | [Implement Forms](./.claude/runbooks/README.md#form-pattern) |
-| 날짜/시간 처리 | [Work With Dates/Times](./.claude/runbooks/README.md#datetime-utils) |
-| 통화 표시 | [Display Currency/Amounts](./.claude/runbooks/README.md#currency-utils) |
-| UI 컴포넌트 | [Build UI Components](./.claude/runbooks/README.md#component-guide) |
 
 ## Project Identity
 
@@ -108,7 +94,6 @@ noline/
 │   ├── eslint-config/   # Shared lint config
 │   └── typescript-config/ # Shared TypeScript config
 ├── .claude/
-│   ├── runbooks/        # Repeated task entry points
 │   ├── harness/         # AI/developer harness and bridge model
 │   ├── skills/          # 호출 조건·수행 방법과 공유 기준
 │   ├── agents/          # Claude report-only execution agents
@@ -156,7 +141,7 @@ pnpm harness:check
 
 - 루트는 탐색과 핵심 불변식만 소유한다.
 - 상세 정책은 가장 작은 owner 문서에 둔다.
-- 제품 계약·개발 기준·실패 위험과 확인 조건은 `context/project/`의 같은 주제 본문에서 관리하며, 반복 작업의 실행 순서는 `.claude/runbooks/`에서 시작한다.
+- 제품 계약·개발 기준·실패 위험과 적용·검증 방법은 `context/project/`의 같은 주제 본문에서 관리한다.
 - 깊은 아키텍처·기능·선택 이유는 `context/project/`의 대응 본문과 형성 자료가 소유한다. 옛 `.claude/context/`·제품 결정·그 archive를 현재 읽기의 필수 경로로 되살리지 않는다.
 - root `context/`는 Project context와 Workspace 운영 상태의 별도 층이다. 기본적으로 기존 제품 설명을 복제하지 않으며, 승인된 주제별 Owner 이동은 [Project 관리 계약](./context/project/MAINTENANCE.md)에 따라 유효한 의미와 authority를 함께 전환한다.
 - 기존 history, session, reference, archive 문서를 삭제하거나 현재 정책처럼 고치기 전에 [Document Map](./.claude/README.md)에서 역할을 확인한다.

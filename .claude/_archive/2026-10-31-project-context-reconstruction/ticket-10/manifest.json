@@ -1,0 +1,61 @@
+{
+  "baseline_commit": "c6bc416",
+  "files": [
+    {
+      "original": ".claude/commands/README.md",
+      "snapshot": "commands/README.md.txt",
+      "sha256": "0500e31a6fb6ea95aeb66037cb5e5cd479943c9c7d9a54dc3bf094bf3f0b2cf7"
+    },
+    {
+      "original": ".claude/commands/check-docs.md",
+      "snapshot": "commands/check-docs.md.txt",
+      "sha256": "a86f5e0e6831d64a3168554d9eab36244c37260f759891bd3af393401a005ed2"
+    },
+    {
+      "original": ".claude/commands/doc-discuss.md",
+      "snapshot": "commands/doc-discuss.md.txt",
+      "sha256": "df10ac12ea0e9a7b091f99bbaad6c85cd739e2c9938bb77e3b78dad2b34089f7"
+    },
+    {
+      "original": ".claude/commands/doc-refactor.md",
+      "snapshot": "commands/doc-refactor.md.txt",
+      "sha256": "a12e4a76872aeb293eb2b7a92e8845355e5ecd680b6689494f622df4880b3c8d"
+    },
+    {
+      "original": ".claude/commands/doc-save.md",
+      "snapshot": "commands/doc-save.md.txt",
+      "sha256": "94827f77a84aa682dd6984599f655eb95836fa552ea44fe3db0ac37d863942d1"
+    },
+    {
+      "original": ".claude/commands/generate-pr.md",
+      "snapshot": "commands/generate-pr.md.txt",
+      "sha256": "ffa6cda22ed722df0ce9d1cb5f0a9a4b1485422a247a56407f3e971b4c71b192"
+    },
+    {
+      "original": ".claude/runbooks/README.md",
+      "snapshot": "runbooks/README.md.txt",
+      "sha256": "969baef56379ebd2605abb0975c03815247478cfa4b539015a5909f07227e142"
+    },
+    {
+      "original": ".claude/workflows/README.md",
+      "snapshot": "workflows/README.md.txt",
+      "sha256": "c042f763d381985d48c6b8c605fe4eca7e6406147e5bce6d0354cb35f581d924"
+    },
+    {
+      "original": ".claude/skills/noline-work/SKILL.md",
+      "snapshot": "skills/noline-work/SKILL.md.txt",
+      "sha256": "d51554cf1abc40320ae1f01b287766537e12df03bba86467fea2cda64e75729a"
+    },
+    {
+      "original": ".claude/skills/noline-work/agents/openai.yaml",
+      "snapshot": "skills/noline-work/agents/openai.yaml.txt",
+      "sha256": "a1499d95abd8447558c535fe5554adcc3c9b988a0a39264a6283d430effe1e94"
+    }
+  ],
+  "bridges": [
+    {
+      "path": ".agents/skills/noline-work",
+      "target": "../../.claude/skills/noline-work"
+    }
+  ]
+}

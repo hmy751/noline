@@ -8,18 +8,18 @@
 
 - `apps/client/CLAUDE.md`가 클라이언트 workspace guide의 원천이다.
 - `apps/client/AGENTS.md`는 이 파일을 가리키는 Codex bridge symlink다. 별도 정책 원천처럼 수정하지 않는다.
-- 작업에 필요한 기준은 아래 Start Here와 [Runbooks](../../.claude/runbooks/README.md)에서 직접 찾는다.
-- 공통 정책은 이 파일에 복사하지 않고 `context/project/`의 주제별 Owner 또는 실행 순서를 맡는 `runbooks/`로 보낸다.
+- 작업에 필요한 본문은 아래 Start Here에서 직접 선택한다. 본문별 적용 조건에 따라 필요한 내용만 추가로 읽는다.
+- 공통 정책은 이 파일에 복사하지 않고 `context/project/`의 주제별 Owner에서 계약·적용·검증 방법과 함께 관리한다.
 
 ## Start Here
 
 | 작업 | 먼저 볼 문서 |
 | --- | --- |
-| client 기능/버그 공통 | [Runbooks](../../.claude/runbooks/README.md), [제품 기준·위험 점검](../../context/project/guidance/README.md) |
+| client 기능/버그 공통 | [제품 기준·적용 가이드](../../context/project/guidance/README.md) |
 | 앱 준비, 재로그인, 로그아웃·탈퇴, 세션 변경과 저장 조율 | [앱 실행·세션·데이터 보존](../../context/project/current/app-runtime/INDEX.md) |
 | Data Entity, repository, React Query | [API·repository·query 계약](../../context/project/guidance/api-contracts.md), [Activation Router 기준](../../context/project/guidance/travel-access/INDEX.md) |
 | local write, sync queue, soft delete | [저장·동기화·정리 기준](../../context/project/guidance/data-lifecycle/INDEX.md) |
-| 작성 초안, 장소 선택, 날짜·시간 picker와 manual input | [작성·입력 Context](../../context/project/guidance/writing-and-input/INDEX.md), [Form runbook](../../.claude/runbooks/README.md#form-pattern) |
+| 작성 초안, 장소 선택, 날짜·시간 picker와 manual input | [작성·입력 Context](../../context/project/guidance/writing-and-input/INDEX.md) |
 | 네트워크 감지, 조회·캐시 표시, 홈 요약과 복구 | [네트워크·조회·화면 복구](../../context/project/guidance/travel-access/INDEX.md), [오류 전달·공개 응답](../../context/project/guidance/error-handling.md) |
 | policy 제한 UI | [여행 접근·Policy 기준](../../context/project/guidance/travel-access/INDEX.md) |
 | offline map/routing | [지도 준비·공유·경로 표시](../../context/project/guidance/offline-maps-and-routes/INDEX.md) |
@@ -36,7 +36,7 @@
 | `entities/*/lib` | SQLite datasource와 local mutation | 공통 transaction 정책은 rule |
 | `entities/*/repository` | Activation Router 경계 | Router 정책 본문은 rule/context |
 | `entities/*/data` | React Query keys/hooks | query key 원칙은 context |
-| `features/*` | 사용자 workflow와 form submit 조합 | 공통 form 원칙은 runbook/context |
+| `features/*` | 사용자 workflow와 form submit 조합 | 초안·제출·실패 처리는 Project 작성·입력 가이드 |
 | `shared/components` | 앱 공용 composition | 순수 primitive는 `packages/ui` |
 | `shared/services/*` | client-side policy/service integration | Data/Service 분리 정책은 guard/context |
 

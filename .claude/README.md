@@ -11,8 +11,7 @@
    - [packages/schema/CLAUDE.md](../packages/schema/CLAUDE.md)
    - [packages/ui/CLAUDE.md](../packages/ui/CLAUDE.md)
 3. 코드 작업이면 [제품 개발 기준](../context/project/guidance/README.md)에서 주제를 골라 계약·실패 위험·변경 시 확인할 조건을 함께 읽는다.
-4. 반복 작업은 [runbooks/README.md](runbooks/README.md)에서 시작 순서와 관련 문서를 찾는다.
-5. 관련 작업의 의미·계약·현재 차이를 이해할 때 [Project 주제별 진입](../context/project/README.md)에서 본문을 선택한다. 제품 선택 이유는 해당 Project 형성 자료에서 읽고, 하네스 변경 이유는 decisions에서 찾는다. 옛 제품 원본은 역사 조사에만 사용한다. 본문 선택·근거 대조·재사용은 [USAGE](../context/USAGE.md)를 따른다.
+4. 관련 작업의 의미·계약·현재 차이를 이해할 때 [Project 주제별 진입](../context/project/README.md)에서 본문을 선택한다. 제품 선택 이유는 해당 Project 형성 자료에서 읽고, 하네스 변경 이유는 decisions에서 찾는다. 옛 제품 원본은 역사 조사에만 사용한다. 본문 선택·근거 대조·재사용은 [USAGE](../context/USAGE.md)를 따른다.
 
 ## 역할 구분
 
@@ -22,7 +21,6 @@
 | [../context/](../context/) | Personal 판단 기준·경험, 승인된 주제의 Project-wide 의미·current canonical, Workspace current/source/output/records, Recover·Maintain·Verify | 지속 작업을 복구하거나 새 Context Workspace를 만들 때 읽는다. 주제별 Owner는 [Project context](../context/project/README.md)에서 확인한다. |
 | [skills/](skills/README.md) | 로컬 운영 스킬과 deprecated 스킬 이력 | 각 스킬의 호출 조건을 따른다. `noline-work`는 deprecated이며 호출하지 않는다. |
 | [agents/](agents/) | Claude report-only 실행자 | context 수집, policy drift 점검, harness observer가 필요할 때만 사용한다. |
-| [runbooks/](runbooks/) | 반복 작업별 시작 순서 | 작업 시작 1-5분 안에 무엇을 확인할지 정한다. |
 | [Project](../context/project/README.md) | 제품 의미·현재 구조·개발 기준·실패 위험과 선택 이유 | 같은 주제 본문에서 적용 조건과 확인 방법을 읽고 실제 코드와 대조한다. |
 | [commands/](commands/) | Claude command reference와 문서 관리 workflow | Claude 전용 command 자료다. Codex command로 자동 이식하지 않는다. 먼저 [commands/README.md](commands/README.md)를 확인한다. |
 | [decisions/](decisions/) | 하네스 구조·운영 변경의 이유 | 당시 결정과 후속 변경을 구별한다. 현재 책임 배치는 harness와 Project가 소유한다. |
@@ -52,7 +50,7 @@ Codex bridge:
 | Date/time handling | [날짜·시점](../context/project/common/date-and-time.md) |
 | Auth/user ownership | [API·인증·사용자 범위](../context/project/guidance/api-contracts.md) |
 | Policy-driven UI | [여행 접근·Policy UI](../context/project/guidance/travel-access/INDEX.md) |
-| Repeated task flow | [runbooks/README.md](runbooks/README.md) |
+| 개발 작업에 적용할 기준 | [Project guidance](../context/project/guidance/README.md) |
 | 운영 스킬과 호출 조건 | [skills/README.md](skills/README.md) |
 | Project 본문 선택과 적용 | [Project 읽기 경로](../context/project/README.md), [USAGE](../context/USAGE.md) |
 | Context Workspace 생성·전환 | [../context/work/workspaces/CREATE-AND-TRANSITION.md](../context/work/workspaces/CREATE-AND-TRANSITION.md), [create-context-workspace](skills/create-context-workspace/SKILL.md) |
@@ -66,4 +64,4 @@ Codex bridge:
 - active guide에서 현재 코드와 충돌하는 표현은 코드 확인 후 수정한다.
 - 문서를 이동하기 전에 먼저 이 지도나 [corpus inventory](audits/2026-05-06-doc-corpus-inventory.md)에서 현재 역할과 목표 역할을 분명히 한다.
 - 하네스 구조나 작업 방식이 바뀌면 [decisions/](decisions/)에 결정 기록을 남긴다.
-- workspace guide가 길어지면 상세 설명을 owning Project 본문, 실행 순서를 맡는 `runbooks/`, 당시 기록인 `sessions/`·`_archive/`로 분리한다.
+- workspace guide가 길어지면 제품의 상세 설명·적용 방법은 owning Project 본문에 두고, 필요한 본문 선택은 기존 Project 색인과 경로별 guide에서 안내한다. 당시 기록은 기록 Owner에 보존한다.

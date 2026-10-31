@@ -1,6 +1,6 @@
 # Noline Work context
 
-이 디렉터리는 Noline에서 진행 중인 작업을 지속 가능한 Workspace로 운영하는 상위 경계다. Product common context는 [`../project/`](../project/)가, 제품 코드와 상세 rules·runbooks는 기존 Owner가 계속 소유한다.
+이 디렉터리는 Noline에서 진행 중인 작업을 지속 가능한 Workspace로 운영하는 상위 경계다. 제품 의미·개발 계약과 적용·검증 방법은 [`../project/`](../project/)의 주제별 본문이, 제품 구현은 해당 코드가 소유한다.
 
 - [`workspaces/`](workspaces/): 작업 identity, 현재 context, 선택한 source, goal output, records와 machine 계약
 - [`harness/`](harness/): Workspace를 Recover·Maintain·Verify하고 Harness 자체를 검증하는 제거 가능한 실행 경계

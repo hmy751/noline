@@ -32,3 +32,5 @@ Main은 제품 규칙과 위험 점검을 Project의 주제별 Owner에 통합�
 여기서 Activation Router는 여행 활성 상태에 따라 Local SQLite와 Server API를 선택하는 제품 책임이다. 개발 작업을 어떤 스킬·절차로 진행할지 정하는 수행 흐름과는 다르다. 관련 스킬은 단순 분배기가 아니라 호출 조건·판단·수행 방법과 필요한 워크플로를 소유할 수 있으며, 그 워크플로와 연결 지침의 대조는 Ticket 10·11의 남은 범위다.
 
 제품 코드는 바꾸지 않았고 실제 앱·JWT·PostgreSQL·native SQLite 실행은 이번 확인 범위가 아니다. 전체 harness 검사는 역사 링크 52건 때문에 실패했으며, 그중 비활성 003의 옛 rule/guard 링크 5건이 이번 정리 뒤 드러났다. 002 선언에는 이번 변경과 무관한 파일 누락 6건이 남아 있다. 이를 Ticket 09의 현재 문서 통합 결과나 Workspace 전체 완료로 확대하지 않는다.
+
+Main은 Ticket 09의 제품 기준 통합과 006 후속 작업 기록을 commit `c6bc416`(`docs(context): 제품 기준 통합과 006 후속 작업 기록`)으로 커밋했다고 보고했다. 로컬 commit 내용을 확인한 결과 Ticket 09 산출물과 current 갱신이 포함됐고, 개인 문서와 `.pnpm-store/`는 포함되지 않았다.

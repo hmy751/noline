@@ -14,6 +14,8 @@
 
 재사용 컴포넌트의 외부 margin·화면 위치는 부모가 정하고 내부 padding·배치는 컴포넌트가 소유할 수 있다. 같은 primitive의 className·props를 확장할 때도 호출자의 위치 결정권을 보존한다. [UI 공개 export](../../../../packages/ui/src/index.tsx)와 [Pressable](../../../../packages/ui/src/components/Pressable.tsx)에서 실제 props·disabled·children 처리 범위를 확인한다. 현재 UI props에 interface가 있다는 사실과 [타입 작성 기본 기준](schema-and-types.md)은 구별한다.
 
+날짜·금액을 표시하는 UI에서는 [날짜와 시각](../../common/date-and-time.md)과 [통화와 금액](../../common/currency.md)의 공용 helper·표시 계약을 따른다. 표시 형식과 저장값의 의미를 구별하고, 기존 화면의 차이를 새 formatter를 만드는 기본 근거로 삼지 않는다.
+
 ## UI가 소유할 상태는 그 interaction과 함께 둔다
 
 일반 React Native input은 기존 React Hook Form의 `Controller` 연결을 사용하고 label·설명·오류는 `Field` 조합을 우선한다. 시간 입력은 [TimeField](../../../../apps/client/src/shared/components/Form/TimeField.tsx)가 RHF 값·오류와 선택창 열기·확인 반영을 연결한다. `TimePicker`는 RHF를 모르는 임시 선택, `DatePicker`는 달력 표시와 날짜 선택을 맡는다. 모든 picker 상태를 feature hook으로 옮기지 않는다.

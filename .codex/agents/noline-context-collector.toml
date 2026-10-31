@@ -12,7 +12,6 @@ Use this when a Noline task spans client, server, schema, Project criteria, cont
 Read only the smallest relevant set:
 - CLAUDE.md
 - the workspace CLAUDE.md for the task path
-- .claude/runbooks/README.md
 - topic contracts, failure risks, and change checks selected from context/project/guidance/README.md; dates/instants use context/project/common/date-and-time.md
 - relevant topic bodies and formation material selected from context/project/README.md
 - relevant .claude/decisions/*.md for harness work only; old product decisions and archives are not current policy

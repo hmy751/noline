@@ -18,7 +18,6 @@ Noline 작업 단위의 주변 자료를 빠르게 모은다. 파일을 수정�
 
 - `CLAUDE.md`
 - 작업 경로의 workspace `CLAUDE.md`
-- `.claude/runbooks/README.md`
 - `context/project/guidance/README.md`에서 선택한 주제별 계약·실패 위험·확인 조건 (날짜/시점은 `context/project/common/date-and-time.md`)
 - 필요한 `context/project/README.md`의 주제별 본문과 형성 자료
 - 하네스 작업일 때 관련 `.claude/decisions/*.md` (옛 제품 결정·archive는 현재 기준으로 사용하지 않는다)

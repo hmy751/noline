@@ -108,8 +108,6 @@ function checkMarkdownLinks() {
     '.claude/audits/2026-05-06-harness-execution-plan.md',
     '.claude/skills',
     '.claude/agents',
-    '.claude/runbooks',
-    '.claude/workflows',
     '.claude/commands/README.md',
     '.claude/audits/README.md',
     '.claude/context',
@@ -151,6 +149,8 @@ function checkNoLegacySurfaces() {
     '.claude/references',
     '.claude/rules',
     '.claude/guards',
+    '.claude/runbooks',
+    '.claude/workflows',
   ];
 
   for (const target of forbidden) {

@@ -12,15 +12,15 @@
 
 - `packages/schema/CLAUDE.md`가 schema package guide의 원천이다.
 - `packages/schema/AGENTS.md`는 이 파일을 가리키는 Codex bridge symlink다. 별도 정책 원천처럼 수정하지 않는다.
-- 작업에 필요한 기준은 아래 Start Here와 [Runbooks](../../.claude/runbooks/README.md)에서 직접 찾는다.
-- schema 변경은 client/server 양쪽에 영향을 주므로 rule, guard, runbook을 함께 확인한다.
+- 작업에 필요한 본문은 아래 Start Here에서 직접 선택한다. 본문별 적용 조건에 따라 필요한 내용만 추가로 읽는다.
+- schema 변경은 client/server 양쪽에 영향을 준다. 아래의 공유 계약과 실제 요청·응답·저장 소비자를 변경 범위에 맞춰 대조한다.
 
 ## Start Here
 
 | 작업 | 먼저 볼 문서 |
 | --- | --- |
 | schema contract 공통 | [공유 schema·타입 기준](../../context/project/guidance/development-boundaries/schema-and-types.md) |
-| 새 Entity 추가 | [Add Entity runbook](../../.claude/runbooks/README.md#add-entity) |
+| 새 Entity 추가 | [schema·공개 export·검증 기준](../../context/project/guidance/development-boundaries/schema-and-types.md), [Entity 저장·조회 경계](../../context/project/guidance/development-boundaries/layers.md#entity를-바꾸면-저장조회-경계를-따라간다). 생성·동기화·삭제가 관련되면 [데이터 수명](../../context/project/guidance/data-lifecycle/INDEX.md)을 함께 선택한다. |
 | create request ID 전략 | [Client-Side ID 기준](../../context/project/guidance/data-lifecycle/INDEX.md#생성-id는-localqueue서버에서-같은-값을-유지한다) |
 | datetime field | [날짜·시점 기준](../../context/project/common/date-and-time.md) |
 | API/data usage | [API 계약과 변경](../../context/project/guidance/api-contracts.md) |

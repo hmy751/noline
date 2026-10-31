@@ -8,6 +8,8 @@
 
 금액을 표시할 때 currency code 또는 symbol을 함께 보여 단위를 구별한다. 환산 합계를 도입하려면 환율 출처·기준 시각·오프라인 동작·실패 시 표시를 먼저 결정한다. 현재 통화 분리는 환산 총액이나 통화 간 구매력 비교를 제공하지 않는 비용을 받아들인 선택이다. 기록·조회 가능 여부는 별도의 [여행 접근 정책](../guidance/travel-access/INDEX.md)을 따른다. 환율 의존이 없다는 사실이 비활성 여행의 모든 오프라인 기능 허용을 뜻하지 않는다.
 
+새 통화 표시는 공용 `formatCurrencyDisplay`, 경비의 통화별 묶음은 `groupExpensesByCurrency`를 사용한다. 두 함수는 [통화 helper](../../../apps/client/src/shared/lib/currency.ts)에 있다. 아래의 기존 화면 차이는 이 재사용 기준을 없애거나 저장·계산 정밀도를 확정하는 근거가 아니다.
+
 ## 기본 통화와 대표 표시를 구별한다
 
 Trip의 `baseCurrency`는 새 경비의 기본 통화를 제안하고 합계 정렬에 우선순위를 준다. [여행 생성](../../../apps/client/src/features/trip/create-trip/TripDateForm.tsx)은 선택 도시의 국가 코드로 기본 통화를 정하며 [국가 매핑](../../../apps/client/src/shared/lib/country-currency.ts)에 없으면 USD를 사용한다. 기본 통화가 모든 경비의 통화를 강제하거나 다른 통화의 금액을 환산하지는 않는다.

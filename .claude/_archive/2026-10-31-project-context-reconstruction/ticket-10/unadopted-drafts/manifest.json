@@ -1,0 +1,14 @@
+[
+  {
+    "original": ".claude/runbooks/document-maintenance.md",
+    "snapshot": "document-maintenance.md.txt",
+    "sha256": "8d029922849e780dd90acb3245e81352510d3518557dcbb13d16dff281c32788",
+    "status": "Main draft; not adopted"
+  },
+  {
+    "original": ".claude/runbooks/pull-request.md",
+    "snapshot": "pull-request.md.txt",
+    "sha256": "40ffa746664b2b3bdf991c82ed44d0185ee04d33e902dde3d1660d204828431f",
+    "status": "Main draft; not adopted"
+  }
+]

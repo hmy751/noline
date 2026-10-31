@@ -12,14 +12,14 @@
 
 - `packages/ui/CLAUDE.md`가 UI package guide의 원천이다.
 - `packages/ui/AGENTS.md`는 이 파일을 가리키는 Codex bridge symlink다. 별도 정책 원천처럼 수정하지 않는다.
-- 작업에 필요한 기준은 아래 Start Here와 [Runbooks](../../.claude/runbooks/README.md)에서 직접 찾는다.
+- 작업에 필요한 본문은 아래 Start Here에서 직접 선택한다. 본문별 적용 조건에 따라 필요한 내용만 추가로 읽는다.
 - policy UI, form composition, domain UI는 이 파일에 누적하지 않고 client/context owner로 보낸다.
 
 ## Start Here
 
 | 작업 | 먼저 볼 문서 |
 | --- | --- |
-| primitive 추가/수정 | [Component runbook](../../.claude/runbooks/README.md#component-guide), [Component context](../../context/project/guidance/development-boundaries/ui.md) |
+| primitive 추가/수정 | [UI의 표현·상태·작업 책임](../../context/project/guidance/development-boundaries/ui.md) |
 | policy 제한 UI | [여행 접근·Policy 기준](../../context/project/guidance/travel-access/INDEX.md) |
 | app composition | [Client guide](../../apps/client/CLAUDE.md), [Form context](../../context/project/guidance/writing-and-input/INDEX.md) |
 | TypeScript props style | [TypeScript/Zod context](../../context/project/guidance/development-boundaries/schema-and-types.md) |
