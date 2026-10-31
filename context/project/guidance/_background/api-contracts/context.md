@@ -1,0 +1,25 @@
+# 전송 경계를 나누고 오류 통일을 별도 선택으로 남긴 이유
+
+[API 계약](../../api-contracts.md)과 [오류 처리](../../error-handling.md)의 선택을 설명한다.
+
+## 표현 변환·검증·접근은 다른 실패를 막는다
+
+DB Date를 JSON의 ISO 문자열로 바꾸는 일과 그 값이 계약을 충족하는지 검사하는 일은 다르다. Serializer를 순수 변환에 한정하면 일반 목록·단건·Trip 하위 목록·activation·sync가 같은 표현을 쓰면서도 각자의 status·envelope·조회 조건을 유지할 수 있다. 반면 공유 serializer의 존재만으로 모든 response나 ownership이 검사됐다고 오해하기 쉬워 실제 소비 경로를 함께 설명한다.
+
+일반 조회는 삭제된 row를 숨기지만 sync는 삭제 사실도 다른 기기로 보내야 한다. 하나의 query 조건을 모든 endpoint에 재사용하는 단순화는 이 의미를 깨뜨릴 수 있다. 클라이언트의 request 검사와 서버 검사, 입수 데이터의 Local 쓰기 전 검사도 서로 다른 신뢰 경계다. 타입 선언·한쪽 parse만으로 나머지 보호를 대신하지 않는 이유다.
+
+경비 API의 가독성 작업은 로그를 남기고 같은 오류를 다시 던지는 catch를 덜어 요청·전송·응답의 흐름을 드러냈다. mutation hook의 기록과 화면 표시, React Query 오류 상태는 유지했지만 조회 API console은 사라졌다. 이 비용과 변화는 오류 객체·사용자 fallback 보존과 구별했다. 다른 API의 catch나 공통 오류 변환까지 일괄 삭제한 선택이 아니다.
+
+## 인증 갱신은 일반 요청을 재귀 호출하지 않는 전송 경계를 둔다
+
+2025-12의 결정은 `fetcher → auth-interceptor → auth-api → fetcher` 순환으로 런타임 오류가 났다는 기록에서 시작했다. interceptor 없는 authAxios와 일반 apiAxios를 따로 만드는 방식을 택해 기존 구조를 크게 바꾸지 않고 갱신 전송을 분리했다. 대안인 dynamic import는 지연·비동기 의존 추적을 추가하고, 전역 Axios는 interceptor와 설정의 분리를 어렵게 하며, 당시 제안된 dependency injection은 호출부 전달과 추상화 비용이 컸다는 판단이었다. 이는 그 대안이 모든 상황에서 열등하다는 규칙이 아니다. 두 instance의 설정 관리 비용을 받아들이며 순환을 피한 선택이다.
+
+이후 refresh 전송은 auth-transport로 분리되었고 auth-api는 일반 apiClient도 사용한다. 현재 책임을 옛 파일 그림에 맞추지 않는다. 2026-09의 session 결정은 일반 API와 sync가 같은 갱신·거부 기준을 쓰도록 바꾸었다. Sync의 별도 instance·timeout·5xx retry는 유지하지만 옛 결정의 “401에서 갱신하지 않음”은 대체됐다. 갱신 실패의 5xx·통신 장애를 자격 증명 거부로 확정하지 않는 이유는 일시 장애 때문에 유효한 로컬 세션과 기록 접근을 잃지 않기 위해서다.
+
+## 기존 오류 기준을 보존하면서 실제 예외를 드러낸다
+
+옛 오류 가이드는 AppError/errorHandler, React Query 오류, Policy UI와 민감정보 미공개를 기본으로 삼았다. 동시에 API 문서는 Data route의 sendInternalError와 통일 방향의 미정을 명시했다. 현재 코드에서는 중앙 handler가 설치됐어도 AppError 생성 소비자가 없고 Data route가 자체 응답을 만든다. 문서가 서로 다른 현재 사실을 주장하던 부분을 바로잡되, 현재 예외가 많다는 이유로 AppError 기본 기준이나 공개 안전성을 폐기하지 않았다.
+
+오류 가이드는 status와 envelope, 최상위·nested message/code를 APIError가 어떻게 받는지 설명한다. 원본 error.message를 공개하는 경로는 보호 공백으로 남긴다. 중앙 handler로 통일할지와 공개 schema/code는 새 선택이 필요하지만, 민감정보 미공개 자체는 이미 있던 기준이다. 표준화와 보호 공백 보완을 같은 대규모 변경으로 묶어야 한다는 뜻은 아니다.
+
+서버 비동기 throw 예시와 존재하지 않는 tripService는 현재 전달·접근 경로를 오해하게 해 본문에서 제외했다. 책임 비교 표는 유지하되 실제 조건·차이를 넣었다. 오류 문서의 끝 체크리스트는 각 처리·변경 조건 가까이에 통합했다. API 계약을 오류까지 한 긴 문서로 확장하는 대신 실패 매핑을 바꿀 때 선택해서 읽는 본문을 분리했고, 인증·API 형성 이유는 한 묶음에서 관리한다. 통합은 링크 이동을 줄이는 장점이 있지만 정상 경계만 바꾸는 독자에게 모든 오류 분기를 읽히는 비용이 있다.

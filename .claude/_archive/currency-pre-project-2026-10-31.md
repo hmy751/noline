@@ -1,3 +1,5 @@
+> 역사 보존판: 2026-10-31 Project 이관 전 원문이다. 현재 작업 기준이나 일반 읽기 경로로 사용하지 않는다.
+
 # Currency 구현 경로와 호환 진입
 
 > 현재 통화·금액의 제품 의미와 열린 정밀도 판단은 [Project 통화와 금액](../../context/project/common/currency.md)이 소유한다.

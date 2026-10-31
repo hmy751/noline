@@ -18,7 +18,9 @@
 
 [동작을 보존하는 코드 리팩터링](behavior-preserving-refactoring.md)은 기존 동작을 유지하며 표현·흐름·책임과 여러 소비 지점의 수정 부담을 줄일 때 읽는다. 변경 전후의 동작 보존과 개선 효과를 따로 판단하고, mock·native·DB 등 검증 경계의 상한을 구별한다.
 
-[API 계약과 변경 가이드](api-contracts.md)는 client API, server route, 공유 schema, serializer와 user scope를 추가·수정·리팩터링할 때 읽는다. Schedule과 Expense의 구체적인 적용, 일반 조회와 sync의 soft-delete 차이, 현재 오류 정책의 열린 충돌을 함께 설명한다.
+[API 계약과 변경 가이드](api-contracts.md)는 client API, server route, 공유 schema, serializer와 user scope를 추가·수정·리팩터링할 때 읽는다. Schedule·Expense·Trip의 실제 적용 차이, repository·query 경계와 인증 전송, 일반 조회와 sync의 soft-delete 차이를 설명한다.
+
+[오류 전달과 공개 응답](error-handling.md)은 서버 처리·client 변환·React Query·Policy UI의 책임, 민감정보 미공개 기준과 현재 공백을 설명한다. 공개 형식·중앙화 선택을 바꿀 때 API 가이드와 함께 읽는다.
 
 [공통 설명과 근거 기준](../../../.claude/skills/shared/explanation-and-evidence-criteria.md)은 사용자가 의미와 실제 근거의 관계를 이해하고 다음 판단을 만들 수 있게 하는 조건부 기준이다. 제품 의미·현재 구현·완료 판단의 정본을 대체하지 않는다. 적용 범위·재검토 신호·제거 조건은 그 본문이 소유한다.
 

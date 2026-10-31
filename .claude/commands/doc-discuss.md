@@ -33,7 +33,7 @@
 const documentMap = {
   Entity: ['packages/schema/CLAUDE.md', 'context/project/guidance/data-lifecycle/INDEX.md'],
   Component: ['packages/ui/CLAUDE.md', 'context/project/guidance/development-boundaries/ui.md'],
-  API: ['apps/server/CLAUDE.md', '.claude/context/api-data.md'],
+  API: ['apps/server/CLAUDE.md', 'context/project/guidance/api-contracts.md'],
   Sync: ['context/project/guidance/data-lifecycle/INDEX.md'],
   Time: ['context/project/common/date-and-time.md'],
   Form: ['context/project/guidance/writing-and-input/INDEX.md'],

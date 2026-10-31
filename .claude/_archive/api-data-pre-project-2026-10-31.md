@@ -1,3 +1,5 @@
+> 역사 보존판: 2026-10-31 Project 이관 전 원문이다. 현재 작업 기준이나 일반 읽기 경로로 사용하지 않는다.
+
 ---
 description: API/Data legacy entrypoint for current repository and React Query implementation paths.
 alwaysApply: true

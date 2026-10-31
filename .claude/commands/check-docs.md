@@ -38,12 +38,12 @@ const policyDocuments = [
   'context/project/guidance/data-lifecycle/INDEX.md',
   'context/project/guidance/travel-access/INDEX.md',        // v3.0 Policy Layer
   'context/project/common/date-and-time.md',
-  '.claude/context/api-data.md',
+  'context/project/guidance/api-contracts.md',
   'context/project/guidance/development-boundaries/ui.md',
-  '.claude/context/error-handling.md',
+  'context/project/guidance/error-handling.md',
 
   // 기능별 가이드
-  '.claude/context/currency.md',
+  'context/project/common/currency.md',
   'context/project/guidance/writing-and-input/INDEX.md',
   'context/project/guidance/writing-and-input/places.md',
   'context/project/guidance/offline-maps-and-routes/INDEX.md', // 준비·표시 관계
@@ -115,7 +115,7 @@ const policies: PolicyRule[] = [
     filePatterns: ['apps/client/src/**/*.ts'],
     keywords: ['useQuery', 'useMutation', 'queryKey'],
     severity: 'high',
-    source: '.claude/context/api-data.md:178-234',
+    source: 'context/project/guidance/api-contracts.md',
   },
   {
     name: 'Component 외부 margin 금지',

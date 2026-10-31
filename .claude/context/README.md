@@ -18,15 +18,15 @@
 | Architecture and FSD | [Project 계층·재사용](../../context/project/guidance/development-boundaries/layers.md) | [Runbooks](../runbooks/README.md) |
 | 앱 준비·세션·데이터 보존 | [Project 앱 실행 구조](../../context/project/current/app-runtime/INDEX.md) | [Client guide](../../apps/client/CLAUDE.md), [Transaction + Sync Queue](../rules/transaction-sync-queue.md) |
 | <a id="selective-activation-and-router"></a>Selective Activation and Router | [Project Router·여행 목록](../../context/project/guidance/travel-access/INDEX.md#router와-계정-전체-여행-목록의-계약), [저장·sync·준비·정리](../../context/project/guidance/data-lifecycle/INDEX.md) | [Activation Router rule](../rules/activation-router.md) |
-| API 계약과 변경 | [Project API guidance](../../context/project/guidance/api-contracts.md), [repository/query 구현 경로](api-data.md) | [Add API Endpoint](../runbooks/README.md#api-endpoint) |
+| API 계약과 변경 | [Project API·repository·query 계약](../../context/project/guidance/api-contracts.md) | [Add API Endpoint](../runbooks/README.md#api-endpoint) |
 | <a id="policy-layer"></a>Policy Layer · 네트워크 관측·조회·화면 복구 | [Project 여행 접근·Policy](../../context/project/guidance/travel-access/INDEX.md) | [Policy UI rule](../rules/policy-ui.md) |
 | <a id="time-and-date"></a>Time and date | [Project 날짜와 시각](../../context/project/common/date-and-time.md) | [ISO Time rule](../rules/iso-time.md) |
 | TypeScript and Zod | [Project TypeScript·schema](../../context/project/guidance/development-boundaries/schema-and-types.md) | [Schema First rule](../rules/schema-first.md) |
 | <a id="components"></a>Components | [Project UI 책임](../../context/project/guidance/development-boundaries/ui.md) | [Build UI Components](../runbooks/README.md#component-guide) |
-| Error handling | [error-handling.md](error-handling.md) | code owner의 workspace guide |
+| Error handling | [Project 오류 전달·공개 응답](../../context/project/guidance/error-handling.md) | code owner의 workspace guide |
 | <a id="offline-map"></a>Offline map | [Project 지도 준비·정리](../../context/project/guidance/offline-maps-and-routes/map-packs.md) | client workspace guide |
 | <a id="offline-routing"></a>Offline routing | [Project 저장 경로·일정 변경](../../context/project/guidance/offline-maps-and-routes/routes.md) | sync-owned data가 관련되면 [Debug Sync Issues](../runbooks/README.md#sync-debug) |
-| <a id="currency"></a>Currency | [Project 통화와 금액](../../context/project/common/currency.md), [구현 helper 경로](currency.md) | [Display Currency/Amounts](../runbooks/README.md#currency-utils) |
+| <a id="currency"></a>Currency | [Project 통화와 금액](../../context/project/common/currency.md) | [Display Currency/Amounts](../runbooks/README.md#currency-utils) |
 | <a id="forms-and-manual-input"></a>작성 초안·장소·날짜 입력 / Manual Input | [Project 작성·입력](../../context/project/guidance/writing-and-input/INDEX.md) | [Implement Forms](../runbooks/README.md#form-pattern) |
 
 ## 아카이브 경계

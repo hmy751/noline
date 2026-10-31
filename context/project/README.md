@@ -18,11 +18,12 @@
 - 일정·경비의 초안, 장소 채택, 선택창과 저장 요청을 바꿀 때: [작성 초안·장소·날짜 입력](guidance/writing-and-input/INDEX.md). 날짜·통화·API 계약은 각 본문과 연결한다.
 - 여행 생성의 GeoNames 요청·도시 선별·실패 반환을 바꿀 때: [도시 검색의 현재 경계](current/city-search.md)
 - 프로필의 SQLite·Mapbox 저장 용량 집계와 refresh를 바꿀 때: [저장 용량 집계의 현재 경계](current/storage-statistics.md)
-- request·response schema, serializer, Schedule·Expense API와 접근 경계를 변경할 때: [API 계약과 변경 가이드](guidance/api-contracts.md)
+- request·response schema, serializer, repository·query·인증 전송과 접근 경계를 변경할 때: [API 계약과 변경 가이드](guidance/api-contracts.md)
+- server 오류 응답·client 변환·표시·재시도를 바꿀 때: [오류 전달과 공개 응답](guidance/error-handling.md). 기존 기준과 현재 미충족을 구별한다.
 - 기존 동작을 유지하는 코드 가독성 리팩터링을 계획·구현·검증할 때: [동작을 보존하는 코드 리팩터링](guidance/behavior-preserving-refactoring.md)
 - 설명·논의에서 주장과 실제 근거의 관계를 다룰 때: [공통 설명과 근거 기준](../../.claude/skills/shared/explanation-and-evidence-criteria.md)의 적용 조건
 - Selective Local-First를 선택한 이유가 필요할 때: [선택 근거](decisions/0001-selective-local-first.md)
-- API 구현·오류 등 아직 Project로 옮기지 않은 상세 주제: [기존 Noline 작업 진입점](../../.claude/runbooks/README.md)과 [상세 맥락 색인](../../.claude/context/README.md)
+- 아직 이관하지 않은 개발 시작·운영 상세 주제: [기존 Noline 작업 진입점](../../.claude/runbooks/README.md)과 [상세 맥락 색인](../../.claude/context/README.md)
 
 본문이 추가되거나 책임이 이동하면 이 주제별 경로도 실제 Owner에 맞춘다. 없는 가이드를 이미 구성된 것처럼 연결하지 않는다. 각 층의 전체 목록은 [common](common/README.md), [current](current/README.md), [guidance](guidance/README.md), [decisions](decisions/README.md)에서 찾는다.
 

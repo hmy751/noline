@@ -48,7 +48,7 @@ local/remote state, pending sync, activation, deletion path가 어긋날 때 사
 
 server route와 client-facing API contract를 바꿀 때 사용한다.
 
-1. [API 계약과 변경 가이드](../../context/project/guidance/api-contracts.md)에서 request·response·serializer·접근 경계를 확인한다.
+1. [API 계약과 변경 가이드](../../context/project/guidance/api-contracts.md)에서 request·response·serializer·접근 경계를 확인한다. 오류 응답을 바꾸면 [오류 처리](../../context/project/guidance/error-handling.md)의 전달·공개 범위와 현재 차이도 대조한다.
 2. `packages/schema` request/response schema에서 시작한다.
 3. route boundary에서 Zod로 request를 parse한다.
 4. row를 읽거나 쓰기 전에 auth와 user ownership을 확인한다.
@@ -79,7 +79,7 @@ client form과 manual input flow에 사용한다. 먼저 [작성·입력 Context
 1. [통화와 금액의 제품 의미](../../context/project/common/currency.md)에서 통화 분리, 대표 표시와 정밀도 경계를 확인한다.
 2. 표시는 `formatCurrencyDisplay`를 사용한다.
 3. 통화별 묶음은 `groupExpensesByCurrency`를 사용한다.
-4. 대표 통화가 필요할 때만 `getPrimaryCurrency`를 사용한다.
+4. 대표 금액의 의미를 먼저 정한다. `getPrimaryCurrency`는 baseCurrency 없이 숫자 합계가 가장 큰 그룹을 고르므로 기본 통화나 사용 빈도와 혼동하지 않는다.
 5. 새 제품 정책 없이 exchange-rate conversion을 추가하지 않는다.
 
 ## <a id="component-guide"></a>UI 컴포넌트 작성

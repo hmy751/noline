@@ -18,4 +18,4 @@
 ## 마무리 확인
 
 - [Guard Map](../guards/README.md)의 Auth/user scope를 확인한다.
-- auth transport를 건드렸다면 [Auth Axios Factory decision](../decisions/2025-12-23-auth-axios-factory.md)을 읽는다.
+- auth transport를 건드렸다면 [인증 전송의 현재 경계와 선택 이유](../../context/project/guidance/api-contracts.md#인증-전송을-바꾸면-갱신-호출의-독립성과-세션-수명을-유지한다)을 읽는다.

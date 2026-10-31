@@ -20,7 +20,7 @@
 | client-created ID create flow | [Client-Side ID rule](../../.claude/rules/client-side-id.md) |
 | sync endpoint | [Transaction + Sync Queue rule](../../.claude/rules/transaction-sync-queue.md), [Sync debug runbook](../../.claude/runbooks/README.md#sync-debug) |
 | time fields | [ISO Time rule](../../.claude/rules/iso-time.md), [Time context](../../context/project/common/date-and-time.md) |
-| error handling | [Error handling context](../../.claude/context/error-handling.md) |
+| error handling | [오류 전달·공개 응답](../../context/project/guidance/error-handling.md) |
 
 ## Ownership
 

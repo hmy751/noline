@@ -1,3 +1,5 @@
+> 역사 보존판: 2026-10-31 Project 이관 전 원문이다. 현재 작업 기준이나 일반 읽기 경로로 사용하지 않는다.
+
 ---
 description: 에러 처리 현재 가이드 - 서버 AppError/errorHandler, 클라이언트 React Query error state, PolicyErrorDisplay 기준을 정리합니다.
 alwaysApply: false
