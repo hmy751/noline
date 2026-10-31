@@ -2,7 +2,7 @@
 
 2026-10-31 Ticket 08에서 `node scripts/check-harness.mjs`를 실행한 결과다. 현재 제품 진입점의 누락은 수정했고, 아래 **47건**은 과거 Work records/source 또는 현재 default·explicit-bound consumer가 아닌 003·004·005의 문서에서 발생한다. 002가 live여도 그 records/source는 당시 근거다. 이 결과를 검사 통과나 제품 이관 미완료 전체와 혼동하지 않는다.
 
-검사기는 변경하지 않았다. 기록의 원문·당시 판단을 현재 답으로 바꾸거나 옛 정본을 복원하지 않았다. 따라서 전체 Harness와 그것을 사용하는 001 Verify는 여전히 통과를 주장할 수 없다. 001 evidence의 존재 누락을 고친 것과 명령 자체의 실패는 별개다. 옛 코드 경로는 기록 시점의 Git 판본으로, 옛 문서는 주제별 이관 결과의 보존판으로 역사 조사한다. 이 표의 문자열은 현재 제품 읽기 링크가 아니다.
+검사기는 변경하지 않았다. 기록의 원문·당시 판단을 현재 답으로 바꾸거나 옛 정본을 복원하지 않았다. 따라서 전체 Harness와 그것을 사용하는 001 Verify는 여전히 통과를 주장할 수 없다. 001 evidence의 존재 누락을 고친 것과 명령 자체의 실패는 별개다. 옛 코드 경로 중 Git 원판이 존재하는 것은 해당 immutable 객체로, 옛 문서는 주제별 보존판으로 역사 조사한다. 다만 session-restoration.ts와 screens/read-query.ts는 당시 미커밋 시도로 기록됐고 exact path의 Git 원판이 확인되지 않는다. 후속 구현을 그 원판이라고 대체하지 않는다. Ticket 12의 [재접근 지도](ticket-12-historical-access.md)가 최신 범위와 확인 한계를 설명한다. 이 표의 문자열은 현재 제품 읽기 링크가 아니다.
 
 현재 default는 001, current-generation binding metadata에서 확인한 Workspace는 002·006이다. 향후 003·004·005를 재개하면 Recover 선택 본문과 current/output의 읽기 경로를 먼저 대조해야 한다. 이 목록은 그 재개의 처리 입력이며 해당 Workspace를 지금 활성화하거나 동기화하지 않았다.
 

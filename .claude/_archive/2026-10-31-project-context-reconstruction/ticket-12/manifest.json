@@ -1,0 +1,10 @@
+{
+  "source_commit": "632dc059491cb7add4861f9eaf3e404c07657fe7",
+  "files": [
+    {
+      "original": ".claude/CHANGELOG.md",
+      "snapshot": "CHANGELOG.md.txt",
+      "sha256": "641cf782fcb6fa364e9d112323bfbe173539f0b07ef40239651cdd099a7a1f99"
+    }
+  ]
+}

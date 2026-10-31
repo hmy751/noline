@@ -22,7 +22,6 @@
 | [skills/](skills/README.md) | Claude가 공통 스킬을 읽는 연결 | 원본은 [공통 스킬](../.agents/skills/README.md)에 있다. 각 호출 조건을 따른다. |
 | [Project](../context/project/README.md) | 제품 의미·현재 구조·개발 기준·실패 위험과 선택 이유 | 같은 주제 본문에서 적용 조건과 확인 방법을 읽고 실제 코드와 대조한다. |
 | [_archive/](_archive/) | 과거 구현 가이드와 deprecated 맥락 | 역사 자료다. 명시 요청 없이 현재 구현 기준으로 끌어올리지 않는다. |
-| [CHANGELOG.md](CHANGELOG.md) | 정책/기능 변화의 긴 이력 | 큰 흐름을 볼 때 사용한다. 세부 구현은 코드와 active guide를 확인한다. |
 | [settings.json](settings.json) | 공유 Claude Code lifecycle hook 설정 | `SessionStart`·prompt·response-end·session-end를 explicit-unbound Maintain adapter에 연결한다. 개인 권한은 여기 넣지 않는다. |
 | [settings.local.json](settings.local.json) | Claude 로컬 설정 | 개인 권한과 machine-specific 선택만 둔다. 공유 hook을 덮어쓰거나 하네스 개편 이유만으로 수정하지 않는다. |
 

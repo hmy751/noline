@@ -44,10 +44,6 @@ Project는 다음 관련 작업이 제품 의미와 계약·현재 현실을 다
 
 다음 독립 갱신에서도 의미 누락, 미확인 경계의 일반화, README 밖 소비 경로 누락, 판단 효용 없는 실행 이력이 반복되면 문구만 더하지 않고 실행 단계의 검증 배치와 독립성 필요를 다시 판단한다. current의 추가 이해가 유지비용을 정당화하지 못하거나 주제 분리가 계약·이유·적용을 다시 조립하게 만들면 해당 본문 구성을 재검토한다. 문서 수나 검사 통과 수만으로 이 선택의 성공을 판정하지 않는다.
 
-## 당시 원문
+## 형성 근거
 
-선택을 바꿀 때 당시 조건·발췌·재시험 범위를 추가 확인하는 경로다. 일반 제품 작업은 현행 기준과 관련 주제 본문에서 시작한다.
-
-- [2026-09-09 세 층 도입과 09-10 후속 전환](../../../.claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-09-context-harness-upgrade.md.txt)
-- [2026-09-14 주제 구성·읽기·갱신 선택](../../../.claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-14-project-context-authoring-and-reading.md.txt)
-- [2026-09-14 실패와 의미·사실·진입 경로 검증 재시험](../../../.claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-14-project-context-semantic-and-routing-verification.md.txt)
+2026-09-09의 세 층 도입·09-10 후속 전환, 2026-09-14의 주제 구성·읽기·갱신 결정과 의미·사실·진입 경로 검증 재시험이 형성 근거다. 선택을 바꾼 당시 조건·최소 발췌·비교와 재시험의 한계는 위 본문에 직접 보존했다. 원래 기록은 Workspace 006의 역사 보존물이며 현재 판단의 정본은 이 문서와 앞서 연결한 관리·구성·읽기 본문이다.

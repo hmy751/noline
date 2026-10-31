@@ -31,3 +31,7 @@
 ## Ticket 10 실행 경로 정리
 
 - [2026-10-31 — commands·PR·dispatcher·agent 정리](2026-10-31-09-ticket-10-workflow-and-execution-surface-cleanup.md): 옛 문서 명령 제거, PR reference 선택과 generate-pr 삭제, noline-work·양 host agent 정의 제거의 사용자 정정·선택 이유·검증 한계와 Maintain 수동 fallback.
+
+## Ticket 12·13 중간 커밋과 배치 재검토
+
+- [2026-10-31 — Ticket 12·13 중간 커밋과 배치 재검토](2026-10-31-10-ticket-12-13-checkpoint-and-layout-reconsideration.md): CHANGELOG·역사 링크·live consumer 검증 결과, 필요한 역할과 기존 `.claude` 배치의 구별, archive·로컬 지침의 후속 순서와 전역 개편의 별도 범위.

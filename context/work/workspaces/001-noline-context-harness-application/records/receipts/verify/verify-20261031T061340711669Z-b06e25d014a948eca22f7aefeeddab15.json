@@ -1,0 +1,1028 @@
+{
+  "argv": [
+    "node",
+    "scripts/check-harness.mjs",
+    "--no-git-diff"
+  ],
+  "canonical_basis_capture": "before_verification",
+  "canonical_basis_collected_at": "2026-10-31T06:13:40.492Z",
+  "canonical_basis_files": [
+    {
+      "path": ".claude/harness/README.md",
+      "sha256": "15e6adf86050d5c51f6073a348795addd816dd4d0a4dc14eeced2b57969662ad",
+      "size": 11606
+    },
+    {
+      "path": "context/README.md",
+      "sha256": "19075fef5642b15fb90b02972262ca2ef8d067b962d0e758e8592a62d2cdf0f9",
+      "size": 3144
+    },
+    {
+      "path": "context/project/README.md",
+      "sha256": "f27a5b8a6ea863e444e2f7dc3b013ebb74701ff70e09dad80d6f003bf60f3830",
+      "size": 11220
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/spec/04-quality-and-completion.md",
+      "sha256": "dfb40520de37403ba11e8c758321b72715e8563401c0c4d5f2fd52b158ccdc79",
+      "size": 1826
+    }
+  ],
+  "claim": "Noline의 현재 지침·Context Harness regular input과 실행 시 관찰한 bridge·경로 구조가 정해진 구조 검사를 통과한다. 선언 파일 freshness는 이후 directory·symlink topology, Git index 또는 제품 동작을 증명하지 않는다.",
+  "evidence_capture": "before_verification",
+  "evidence_collected_at": "2026-10-31T06:13:40.492Z",
+  "evidence_files": [
+    {
+      "path": ".claude/README.md",
+      "sha256": "9f9f36fb5a0c18cfa79c72e538021e7f4ac2d1811be1b23ea3a7d367bb943f1f",
+      "size": 6132
+    },
+    {
+      "path": "context/project/guidance/development-boundaries/INDEX.md",
+      "sha256": "39de5b49b9f1f18b95f76652c22ec718255e01b2596a5f053eebc32d0064b61c",
+      "size": 2945
+    },
+    {
+      "path": "context/project/guidance/development-boundaries/README.md",
+      "sha256": "c1878f900bf194f37546a3cf690a4c9e67c527388d538fbaf2aaccb49946e4d6",
+      "size": 708
+    },
+    {
+      "path": "context/project/guidance/development-boundaries/_background/README.md",
+      "sha256": "92137c8e5f199e126c0e1ec1bd294f90e9442f25b6afc52968c67970d55bd2d4",
+      "size": 538
+    },
+    {
+      "path": "context/project/guidance/development-boundaries/_background/context.md",
+      "sha256": "e7e2e7a213e318edef3306e297cee290061275dbad5568039adf8214eb55ab4b",
+      "size": 5491
+    },
+    {
+      "path": "context/project/guidance/development-boundaries/layers.md",
+      "sha256": "f85555c73e1606d3ac151c33bed51478c852b18700bf42f89d1d1e013ebab558",
+      "size": 7203
+    },
+    {
+      "path": "context/project/guidance/development-boundaries/schema-and-types.md",
+      "sha256": "cb548aa7ec36a5d4c518d4b2ca3d7d55ec58d134c6e2d3222f5ff14b3251b4c2",
+      "size": 8096
+    },
+    {
+      "path": "context/project/guidance/development-boundaries/ui.md",
+      "sha256": "fc4dd5bbf3de03a9be41121df9afe998b9ab6e2c6759ed53150604c0de3b362f",
+      "size": 4049
+    },
+    {
+      "path": "context/project/guidance/README.md",
+      "sha256": "67e812801d1293590373ad5b3975bfb1cb35db48c4a3801392d3d2574186f903",
+      "size": 6091
+    },
+    {
+      "path": ".claude/hooks/maintain.py",
+      "sha256": "402f1e53722ae0a5b3b69ea0db4a6d3c1f6468dc1d7ba0e55a756fc610bda827",
+      "size": 690
+    },
+    {
+      "path": "context/project/guidance/travel-access/INDEX.md",
+      "sha256": "3d1243085e1e8a6b9c061d7db1a607a3802e129b29059379ac9c9e9ae13816f1",
+      "size": 34514
+    },
+    {
+      "path": "context/project/guidance/api-contracts.md",
+      "sha256": "185b401084d0e6e0d701db7f1ec2e03dcb4df5e0f7cb8f199adff38ad9bf71f5",
+      "size": 15552
+    },
+    {
+      "path": "context/project/guidance/data-lifecycle/INDEX.md",
+      "sha256": "ce0df3f5587bba05d65a3e4d4533acf3e9ce9338ba7c858f6e5133e010d98bac",
+      "size": 23297
+    },
+    {
+      "path": "context/project/common/date-and-time.md",
+      "sha256": "7a5722147058a389a3c5b22ec36089a2729175d61e9cdeb46c547182d8ce507b",
+      "size": 18534
+    },
+    {
+      "path": ".claude/settings.json",
+      "sha256": "8ebec71ff577278fe957c7b0365e4457012bbf558e741539eee3f9cc098b7575",
+      "size": 2633
+    },
+    {
+      "path": ".agents/skills/README.md",
+      "sha256": "a77bb571a08aec90d2e432e1286e25a9f3c580249e5b837cc6e98974bbfb4227",
+      "size": 5160
+    },
+    {
+      "path": ".agents/skills/create-context-workspace/SKILL.md",
+      "sha256": "e63daabe7cb64646066cd4a4146bc5bf319d21eb5901b39fe321a4e56a821343",
+      "size": 8282
+    },
+    {
+      "path": ".agents/skills/create-context-workspace/agents/openai.yaml",
+      "sha256": "d19244825c7bd72a786a17b143fd423f1f09fc3bc3a33528fe1fba6271273e4a",
+      "size": 391
+    },
+    {
+      "path": ".agents/skills/reconsider-work/SKILL.md",
+      "sha256": "d9334a21831dbd311b69f1eb4ac5f1a576bec7e6cd185f695cc0eea569077404",
+      "size": 12530
+    },
+    {
+      "path": ".agents/skills/reconsider-work/agents/openai.yaml",
+      "sha256": "5b41c363ce1dca4739f48f1c5c5b52c412e64f83aa87524ee1b5faf997c80f88",
+      "size": 325
+    },
+    {
+      "path": ".agents/skills/work-discussion/SKILL.md",
+      "sha256": "7b54b68cf5394062b71bda9c2b77794b9f7616b949d5ca231930098304de60a6",
+      "size": 12891
+    },
+    {
+      "path": ".agents/skills/work-discussion/agents/openai.yaml",
+      "sha256": "eb96e6e8a257d6351d831abac1a15bfdceb6e991acdeb17929ab539edfa38035",
+      "size": 295
+    },
+    {
+      "path": ".codex/config.toml",
+      "sha256": "77a1ca29f904473df0073bfdcb7e46856ffecd97c775ae3bdeab338193a48114",
+      "size": 342
+    },
+    {
+      "path": ".codex/hooks.json",
+      "sha256": "188bc76b5c62943d4e1469eb0dd873ec393a68c2c22479ce5516232366131b32",
+      "size": 2081
+    },
+    {
+      "path": ".codex/hooks/maintain.py",
+      "sha256": "c448074cdb8186691832d7eaee6f646d21779649ff3e483b5fea1ba81e69797d",
+      "size": 717
+    },
+    {
+      "path": ".codex/maintain.json",
+      "sha256": "d90cb30f290c4eeb5a27ca3d96cb0864553e054acd194e1c71e57099f23b720d",
+      "size": 48
+    },
+    {
+      "path": "CLAUDE.md",
+      "sha256": "819c9de5c9886dd10820cfaeddff0edfd2d99b3ba7b7278fc0ec4a20fde30958",
+      "size": 11832
+    },
+    {
+      "path": "README.md",
+      "sha256": "c24ce526b4e35b6f3bacac17570496ceae0cf113c7519f324a0b1d9b200a486a",
+      "size": 13100
+    },
+    {
+      "path": "START_GUIDE.md",
+      "sha256": "c388bd3a26b97e4fb8a966d4c20a32d3e566e595e70c6a71e54774faa5c2ecb8",
+      "size": 12595
+    },
+    {
+      "path": "apps/client/CLAUDE.md",
+      "sha256": "295149518471eeafca8561f6e72b1c6f7b419db1754b152051a7d14af9a3034a",
+      "size": 5915
+    },
+    {
+      "path": "apps/server/CLAUDE.md",
+      "sha256": "b0bbd6aa1b490d9ce9ffd27e88bc5db8d0a6e981aecaa74a877844855e024cee",
+      "size": 3869
+    },
+    {
+      "path": "context/README.md",
+      "sha256": "19075fef5642b15fb90b02972262ca2ef8d067b962d0e758e8592a62d2cdf0f9",
+      "size": 3144
+    },
+    {
+      "path": "context/project/MAINTENANCE.md",
+      "sha256": "39f417049a1ff1cf4dedfb3afbfe4b56a4ff1fb2bf2df6a0f541bac1b49e57f1",
+      "size": 12115
+    },
+    {
+      "path": "context/project/README.md",
+      "sha256": "f27a5b8a6ea863e444e2f7dc3b013ebb74701ff70e09dad80d6f003bf60f3830",
+      "size": 11220
+    },
+    {
+      "path": "context/project/common/README.md",
+      "sha256": "ca75b0b1d9c663c0984293d2ee4b86f2cd25995175a67113ee605ae3fb551ce8",
+      "size": 1331
+    },
+    {
+      "path": "context/project/common/product.md",
+      "sha256": "39efc14aa308f7415b9e8d3949b87b8a826dda3a6f3559dc1e468fe7ff4622f9",
+      "size": 10260
+    },
+    {
+      "path": "context/project/current/README.md",
+      "sha256": "68ddd0a31e5aa5667faef87fe992e2e16f9f3d577f95e6e5bd8d3b3f485cc4da",
+      "size": 1786
+    },
+    {
+      "path": "context/project/current/architecture.md",
+      "sha256": "978d1f3443f69555329c87433e346ad49b9b101af1fb9d1f74f2701a22d0e6ba",
+      "size": 7457
+    },
+    {
+      "path": "context/project/decisions/0001-selective-local-first.md",
+      "sha256": "fa4ab7e85c72f375df7f1880fc5867526c59afd41b4070e7c1c2dd8929d72d47",
+      "size": 6871
+    },
+    {
+      "path": "context/project/decisions/README.md",
+      "sha256": "a3f4f761dfc876b1720f19d9718d027af616f3e3b5af21bd5a3553100e8853b6",
+      "size": 3003
+    },
+    {
+      "path": "context/project/guidance/explanation-and-evidence-criteria.md",
+      "sha256": "41da8259f6064a41a102abe5232539d592f02b04279a906cd1e5b7461b9108ed",
+      "size": 751
+    },
+    {
+      "path": "context/work/AGENTS.md",
+      "sha256": "904c729324df8ae6bd4dcefd7768635bb72dbbec5770e91c869848fd7fa85bd8",
+      "size": 13719
+    },
+    {
+      "path": "context/work/README.md",
+      "sha256": "08127894e7d729c164c56267e8819a9b3e95cae1eb6bbe89ad462a873e2de6e9",
+      "size": 2367
+    },
+    {
+      "path": "context/work/harness/README.md",
+      "sha256": "192ee2a982e29a306f1646356829ce309f3992c98e1641041c3b438c9fa8ed1a",
+      "size": 5964
+    },
+    {
+      "path": "context/work/harness/maintain/README.md",
+      "sha256": "eeea88721186863be1b515a383c0504ef301e7df09feb43527d9bc88c48c1409",
+      "size": 20791
+    },
+    {
+      "path": "context/work/harness/maintain/SESSION-BINDING-AND-LIFECYCLE.md",
+      "sha256": "01561f3b2eac64b2e16cf80e346b0b711461e785d0925edddfe8ceba22c67eca",
+      "size": 16537
+    },
+    {
+      "path": "context/work/harness/recover/README.md",
+      "sha256": "5dbff3364dae55db4f1042efa2ce56eee0bda5d9b2a4399cddab3e0cb43feabe",
+      "size": 5501
+    },
+    {
+      "path": "context/work/harness/validation/README.md",
+      "sha256": "3f347bee28033f414b3ddd66d4d67d71e8e6ccd9fc90ee1e25ff5b918482847e",
+      "size": 1535
+    },
+    {
+      "path": "context/work/harness/verify/README.md",
+      "sha256": "1eb15e8be5c8d75cae0bddd536b4079ba034bc6dfdf7e753dbdfae1680cadf6b",
+      "size": 4392
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/README.md",
+      "sha256": "632bd973711327480c3652386bb4c07ac924de425c7403952fc5d2ca597a443f",
+      "size": 1201
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/index.md",
+      "sha256": "70497b1fc7735260ed16eac7dbca259bb3256cfa51543d565d38ab75d7cfed02",
+      "size": 1465
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/project-context.md",
+      "sha256": "2840d3163cd6fc7521050a106a95df7fa911981745f1862fd5ab5ac9a2045471",
+      "size": 1087
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/spec/01-problem-goal-scope.md",
+      "sha256": "0961985384c705e71075aa7d544913901caccabc01ee35c80aee1041eafb94d5",
+      "size": 1040
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/spec/02-behavior-and-cases.md",
+      "sha256": "5ca4395831be093bcdcabcb659ed1744d0b3163c807167b5495d77907f619dbc",
+      "size": 1267
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/spec/03-concepts-and-contracts.md",
+      "sha256": "33d4f3a8fb522e21254a5cfbe3ba3a30b02518c07cd8a020b945c62124ae2c26",
+      "size": 1255
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/spec/05-constraints-design-assumptions.md",
+      "sha256": "b6a04b7b8311ffa7aa11820a64bd8a25a5dce928f3d8989f5e247b4394f7234c",
+      "size": 1670
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/tickets/001-upgrade.md",
+      "sha256": "9ee04accc90fc74573d65f64fc69ca480acf20e17f828811c4d6bdc167ca174d",
+      "size": 1933
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/tickets/002-document-transition.md",
+      "sha256": "4d3d6db29b32e4e61992a2fbc672e98489dfbc1a128af0a9de01be47ef868152",
+      "size": 1315
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/tickets/003-project-management-contract.md",
+      "sha256": "6bf530f1b580bc30f1aa8ebe2df97fd5cc63f634a73cd3c597dea66d91eb5c31",
+      "size": 1500
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/memory/tickets/index.md",
+      "sha256": "acd3aede546a9292fb629f892b9e726e8723d538a2d8fedb6eac8cdfab58256f",
+      "size": 625
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/current/state/index.md",
+      "sha256": "fc9c2c1773a0f222a02a02f96237858a5a306345fa83df7594813d7beea4374b",
+      "size": 5381
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/output/index.md",
+      "sha256": "1c4b08e2d5d5c79dcae5cefca7dc85a7b5a60619c4ed77f244561235b6dbfd3f",
+      "size": 3824
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/2026-09-04-01-initial-application.md",
+      "sha256": "0c15ce820a025cb3324f6abf87ae2af5f1fe3dcc7e756cb90a369df48d0e117c",
+      "size": 2353
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/2026-09-04-02-validation.md",
+      "sha256": "470dc2e82c45f79f5fb13aa9efafde89307bf57d4f80102eed6894a010920ea4",
+      "size": 4577
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/2026-09-09-01-reference-upgrade.md",
+      "sha256": "2b020373ff833fd430bf52a3c0570afa70cf634ad29ffff1fc2fd8c07beeb8a6",
+      "size": 6683
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/2026-09-10-01-document-transition.md",
+      "sha256": "3c79e4b43466b4733642eb434390cded43d61565d0c6d1dc53f453c1e0259384",
+      "size": 8525
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/2026-09-10-02-project-management-contract.md",
+      "sha256": "88d8448fe7c40ec1234afc1681a47c15a2794e769a12b5d7d8c29913d0481d1c",
+      "size": 8192
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/README.md",
+      "sha256": "24fc05dedf3b7e6d1dd7934329f1962c7db0667d2719dbc0dc1bc7bc262e1c98",
+      "size": 2045
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/README.md",
+      "sha256": "08b6ebb2bfde35e98afdc2327a786965bdaa3c9122492a9b0928da5f7e71ac3e",
+      "size": 504
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/receipts/harness-tests/README.md",
+      "sha256": "15045e95b2d20b7c93d9f5ac11619006fd8432f239d1868f5e523153c215dc45",
+      "size": 855
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/recover.json",
+      "sha256": "bdaf1c744339d6f38df104136b9b0ad7865084aea19eb8ea8305fb36b777c6cd",
+      "size": 772
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/source/index.md",
+      "sha256": "c53994c041abb3ad0ac0ce0f690813def453c2d62f77364bf6706d652f0b7406",
+      "size": 1832
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/verify.json",
+      "sha256": "cdc93116f3249cf663963fca548ff2e9d096d2dab79520c8df94a894fd76391c",
+      "size": 13854
+    },
+    {
+      "path": "context/work/workspaces/CREATE-AND-TRANSITION.md",
+      "sha256": "8426950eaee8e5bdd89f8573e5372457af31ad0b260782875f53ce531d194d1c",
+      "size": 12755
+    },
+    {
+      "path": "context/work/workspaces/README.md",
+      "sha256": "43c2fc7ea3b159f7addbf1c2b382495b7772f2e5be3563f653f9730730cd7b06",
+      "size": 9013
+    },
+    {
+      "path": "context/work/workspaces/SPEC-AND-TICKETS.md",
+      "sha256": "79daf9a60b5f5c5519baf5bf0899ebe8aab4d7c3a67dc469c7c631e5f30e89fa",
+      "size": 458
+    },
+    {
+      "path": "context/work/workspaces/spec-and-tickets/README.md",
+      "sha256": "1c863447c21a8a6aff076893ea0bd0e39ac568a91d5edc951aacb4aaa77bc308",
+      "size": 8458
+    },
+    {
+      "path": "context/work/workspaces/spec-and-tickets/EXECUTION-CRITERIA.md",
+      "sha256": "5a2026a96ad507456660dd9f012d5a5c02733d91888f9599292321d740dd507a",
+      "size": 9953
+    },
+    {
+      "path": "context/work/workspaces/spec-and-tickets/SPEC.md",
+      "sha256": "d22b77cb3723e197bd60d0f87fd36ef5617aca72b86144d9bd23a4d4d2f2823a",
+      "size": 4046
+    },
+    {
+      "path": "context/work/workspaces/spec-and-tickets/TICKET.md",
+      "sha256": "07fbe1aceea887f75720db16042775d94f660f70a168ead8ae1fdda60947a47e",
+      "size": 5171
+    },
+    {
+      "path": "context/work/workspaces/spec-and-tickets/MAINTENANCE.md",
+      "sha256": "db3d6d8aeea35f56e4b5626b2804870c8b740c9ae1e29cbd4b9d171a758fd727",
+      "size": 4698
+    },
+    {
+      "path": "context/work/workspaces/spec-and-tickets/HISTORY.md",
+      "sha256": "64ba428ebd5db4965e8c5bbd849126798f2d2624347c9fe9b4a73b4ae6b9303d",
+      "size": 20826
+    },
+    {
+      "path": "packages/schema/CLAUDE.md",
+      "sha256": "a88b63832dcf9d8bf5cddee016bb15cc7eadbc702536e35583eb012c5b255ec5",
+      "size": 4187
+    },
+    {
+      "path": "packages/ui/CLAUDE.md",
+      "sha256": "826feb442b2e5c30c5af6734d17d6684e06882d486caf70608282627f2068388",
+      "size": 3026
+    },
+    {
+      "path": "scripts/check-harness.mjs",
+      "sha256": "9bb476e5c1d93497adf6a80dd5536d7ac5359b0d5cac5b10209cebf75c278938",
+      "size": 15599
+    },
+    {
+      "path": ".agents/skills/create-context-workspace/_background/README.md",
+      "sha256": "5dd8b8271e38f9f2c0f947522cf44c2a40b4f0af171d51489053fa6bf49323a7",
+      "size": 1424
+    },
+    {
+      "path": ".agents/skills/create-context-workspace/_background/context.md",
+      "sha256": "5636a3093b9babdf4b316423d09d2a3ea16af7611099f91ad391eabafedd34ca",
+      "size": 3077
+    },
+    {
+      "path": ".agents/skills/create-context-workspace/_background/evidence.md",
+      "sha256": "16b2cfc091a50e731361adb7fe20be710da5be15c4c70d8f87a24a7a830ffcef",
+      "size": 3975
+    },
+    {
+      "path": ".agents/skills/create-context-workspace/_background/records/2026-10-26-prototype-integration.md",
+      "sha256": "42ac7b4fef1ec8256a87c8db6b5070cf5225a41a6f0f162ced10168716dac274",
+      "size": 1617
+    },
+    {
+      "path": ".agents/skills/create-context-workspace/_background/records/2026-10-30-existing-work-contract-adaptation.md",
+      "sha256": "fc02672f8d9e03dac8d64525a848d320c981cf79928e9952ab26087f98907659",
+      "size": 1628
+    },
+    {
+      "path": ".agents/skills/development/SKILL.md",
+      "sha256": "8fd9c8c8308fa6ce9d6143325f7f717137d1cce12da687896a9e3e800103281b",
+      "size": 26202
+    },
+    {
+      "path": ".agents/skills/development/_background/README.md",
+      "sha256": "babc683ece648e39920b5e3f35270e71e389302a170a3a2df56ed3c88675bc80",
+      "size": 2912
+    },
+    {
+      "path": ".agents/skills/development/_background/context.md",
+      "sha256": "2cfec441a35391212248646ced30d554f6be75e13921904620a5e6776886658d",
+      "size": 14944
+    },
+    {
+      "path": ".agents/skills/development/_background/evidence.md",
+      "sha256": "c0056d9c4b26fe3c235d82fc1242bf38db13f1fcee8b8ff75bef5639f777dd9b",
+      "size": 12939
+    },
+    {
+      "path": ".agents/skills/development/_background/records/2026-10-23-development-skill.md",
+      "sha256": "be381a23732a694d16f35af55cc20a7eaf308633a2f259081067559bf9f7a9b8",
+      "size": 2393
+    },
+    {
+      "path": ".agents/skills/development/_background/records/2026-10-23-execution-integration.md",
+      "sha256": "122188a215f1be33fd39c17955d761f2a9ef7421c021ba9786ab0dc0558531b8",
+      "size": 3416
+    },
+    {
+      "path": ".agents/skills/development/_background/records/2026-10-24-verification-integration.md",
+      "sha256": "21d8f0fabacef107c7bef065f98c45983faf74bbd7597472f34b657554cae0d4",
+      "size": 3293
+    },
+    {
+      "path": ".agents/skills/development/_background/records/2026-10-26-context-integration.md",
+      "sha256": "e542079568ee80ce13f1ada920db0ae5d71c7221f93ed743da35a29ebcbc40cf",
+      "size": 4843
+    },
+    {
+      "path": ".agents/skills/development/_background/records/2026-10-26-detail-expansion.md",
+      "sha256": "a3f12b3db169a4d794592e15c362a8b9a6888e30b492f3f3cbb45199b2f72c84",
+      "size": 3351
+    },
+    {
+      "path": ".agents/skills/development/_background/records/2026-10-26-investigation-evidence-adoption.md",
+      "sha256": "605e361bb8b3673a867b3b882244b88bd2d279979b8283911711cda0df980042",
+      "size": 2756
+    },
+    {
+      "path": ".agents/skills/development/_background/records/2026-10-30-existing-work-contract-adaptation.md",
+      "sha256": "f5150e30f75b32f02501088cb9a6db44442fda30b8b065fce51995eedd9f940c",
+      "size": 1615
+    },
+    {
+      "path": ".agents/skills/development/_background/records/2026-10-31-pull-request-reference.md",
+      "sha256": "d49b3c611d9a96143387688743bf00e19173408a01dc3fc408f71a8b2d761b3b",
+      "size": 2132
+    },
+    {
+      "path": ".agents/skills/development/agents/openai.yaml",
+      "sha256": "ae4c2e3719a92736390a5a2e7dd7a12b9467c3a2a608d5ccdb10b4cebf181a6c",
+      "size": 268
+    },
+    {
+      "path": ".agents/skills/development/references/execution.md",
+      "sha256": "dae321105a1bbf93621485bec2f6cbc6ec177d2d214f45cff6d424e7774307ee",
+      "size": 6287
+    },
+    {
+      "path": ".agents/skills/development/references/implementation.md",
+      "sha256": "5336c79503482c57131c8a918d3b6ac35bd26434b488246a5407ddcac36e8872",
+      "size": 10791
+    },
+    {
+      "path": ".agents/skills/development/references/pull-request.md",
+      "sha256": "aec71f61401914be7f9a8abe26052a6a0f2d1883e8c7f79edd92a09dff4cf1e2",
+      "size": 3798
+    },
+    {
+      "path": ".agents/skills/development/references/review.md",
+      "sha256": "c593d4d457984c46d349b388408921630dc7eacb53192fb866d9a117c685d24b",
+      "size": 12865
+    },
+    {
+      "path": ".agents/skills/development/references/verification/INDEX.md",
+      "sha256": "a28066591e512e75f1674fc180933329267a9a7ea0015de70e0281615a50abe7",
+      "size": 16812
+    },
+    {
+      "path": ".agents/skills/development/references/verification/evidence.md",
+      "sha256": "0a941c3b51bf2ac84eb746d55cd59b3a9a13c0864781ebf6e3ed0c8a9c262559",
+      "size": 8381
+    },
+    {
+      "path": ".agents/skills/improvement-loop/SKILL.md",
+      "sha256": "ad40ba305c89778d2d3a1d7eab9a63559d448101f549f5e9a6ddb7ab2d4286b6",
+      "size": 11981
+    },
+    {
+      "path": ".agents/skills/improvement-loop/_background/README.md",
+      "sha256": "14227ddb6769ba46d885db58a5f2f51e035469924022698563e63ff5972efec0",
+      "size": 2261
+    },
+    {
+      "path": ".agents/skills/improvement-loop/_background/context.md",
+      "sha256": "39c5421c39f91d262be83b032132f3d99318320ce60892bf0984f8d431898061",
+      "size": 4905
+    },
+    {
+      "path": ".agents/skills/improvement-loop/_background/evidence.md",
+      "sha256": "934d57c1d147792832003c3688d6c41fa65cf98991e0d39012de8ac915af460d",
+      "size": 6499
+    },
+    {
+      "path": ".agents/skills/improvement-loop/_background/records/2026-10-28-naming.md",
+      "sha256": "84c22d1739e384eb8332898b1bc6d2e2b01cdc9c9ade62a63d68472c5e353fb7",
+      "size": 1264
+    },
+    {
+      "path": ".agents/skills/improvement-loop/_background/records/2026-10-28-prototype.md",
+      "sha256": "ae57e44b59884745c2a329c2858fa5fb4f2eb19b34036ac2eb76cd34b5c9467f",
+      "size": 1665
+    },
+    {
+      "path": ".agents/skills/improvement-loop/_background/records/2026-10-28-structure.md",
+      "sha256": "88f0827b83a812341d4ae7ba4cea90fc3270868a8e50e3ee6766886b3594a61a",
+      "size": 3463
+    },
+    {
+      "path": ".agents/skills/improvement-loop/_background/records/2026-10-29-integration.md",
+      "sha256": "7e58c736ecc66275d9a0da2da1d7be6826edfb73a58df8404f93bd489e7b7ab6",
+      "size": 3710
+    },
+    {
+      "path": ".agents/skills/improvement-loop/_background/records/2026-10-29-limited-trial.md",
+      "sha256": "f6dd96303ac963907a3d2f42ec7ed0550081a2aaf51cbe83d748ed73618de8d3",
+      "size": 2207
+    },
+    {
+      "path": ".agents/skills/improvement-loop/_background/records/2026-10-29-means-comparison.md",
+      "sha256": "f4416ec77ae971cd3b25dd8b1736726a875c8f2ec354aeff8e32a3e2cc5f55ca",
+      "size": 1671
+    },
+    {
+      "path": ".agents/skills/improvement-loop/_background/records/2026-10-30-existing-work-contract-adaptation.md",
+      "sha256": "2fd515a562f5052c863f1c253cafddd7ebe156060474458a4db255773f84d13c",
+      "size": 1620
+    },
+    {
+      "path": ".agents/skills/improvement-loop/agents/openai.yaml",
+      "sha256": "ed4144b1a68137ce45430838db16fa897dcf71ba07f9ccf0ec4b5b3b73bce172",
+      "size": 286
+    },
+    {
+      "path": ".agents/skills/improvement-loop/references/application.md",
+      "sha256": "2d912563a82f4422b3f0b3e18b58ad038bfe581f5c2a77ad5e7c79d657c6c3e1",
+      "size": 9028
+    },
+    {
+      "path": ".agents/skills/improvement-loop/references/conversation.md",
+      "sha256": "d07c5ebc6064115a1dcf62f318ee82793860a460699b7d4eee6071fa02b70fd2",
+      "size": 4351
+    },
+    {
+      "path": ".agents/skills/improvement-loop/references/effects.md",
+      "sha256": "6471d63309f72252185089c3ef4e727463f32d03be9948f1dc354bd65b695805",
+      "size": 2924
+    },
+    {
+      "path": ".agents/skills/work-discussion/_background/README.md",
+      "sha256": "e90da3aa342f42545ff0e2510244d486c8ae126e13830e64d5058f853d0ed235",
+      "size": 2189
+    },
+    {
+      "path": ".agents/skills/work-discussion/_background/context.md",
+      "sha256": "1a50c58b4db69494df8e1055a796b05f38fdf7e262eef710f9222ee99573821b",
+      "size": 7319
+    },
+    {
+      "path": ".agents/skills/work-discussion/_background/evidence.md",
+      "sha256": "e16a0a668e2eb7da76beb407bbeafc0e2fc10c1bb913fe7ffedfd36546da442f",
+      "size": 8757
+    },
+    {
+      "path": ".agents/skills/work-discussion/_background/records/2026-10-21-selection-and-policy-application.md",
+      "sha256": "d0302cdaa039442eaad33d17048507e3b5fd22a9dfd325351207ee4a69c27512",
+      "size": 2815
+    },
+    {
+      "path": ".agents/skills/work-discussion/_background/records/2026-10-30-existing-work-contract-adaptation.md",
+      "sha256": "10483925125f49ee707e39770e2a15c5d35ab5bd22e1340c5090d8e20a7ea928",
+      "size": 1619
+    },
+    {
+      "path": ".claude/harness/README.md",
+      "sha256": "15e6adf86050d5c51f6073a348795addd816dd4d0a4dc14eeced2b57969662ad",
+      "size": 11606
+    },
+    {
+      "path": "context/work/workspaces/002-code-readability-refactoring/records/2026-09-14-05-project-context-structure-reading-and-maintenance.md",
+      "sha256": "f5acb5611d35f1b39e2f75b20ef96e01ee4b7ba4605de1cd6ad60bbcf4bfc922",
+      "size": 21474
+    },
+    {
+      "path": "context/work/workspaces/002-code-readability-refactoring/records/2026-09-14-06-project-context-reference-insights-and-retest-direction.md",
+      "sha256": "7219239249f7c868ae3c69b866ea3639b5224bf11f65c6f550d5c10d5a91e593",
+      "size": 16003
+    },
+    {
+      "path": "context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md",
+      "sha256": "6adae4f85c1620a6ff5f58eb10fb9e23ed8d412938be7f7354609d402597b0ff",
+      "size": 2930
+    },
+    {
+      "path": "context/work/workspaces/004-project-context-contracts-and-guidance/output/index.md",
+      "sha256": "f7e1c79e245fa535f9721f9911b73362aa753e0eeb1764a63ef108e876353341",
+      "size": 2764
+    },
+    {
+      "path": ".agents/skills/explain/SKILL.md",
+      "sha256": "4f9cdbc3528a37fc4ddb312e90305e7b3e7956a366885cad7f2000764107bb6c",
+      "size": 15179
+    },
+    {
+      "path": ".agents/skills/explain/agents/openai.yaml",
+      "sha256": "7bd75c67fd51de9c1f4b7b6d3a57e2bb70e1ec37a295aabfa1081097808dbfd6",
+      "size": 312
+    },
+    {
+      "path": ".agents/skills/context-update/SKILL.md",
+      "sha256": "c9de5bf2b2f58ffd4fe138550dd4586b9852da40802582e610424fdbec76e0c5",
+      "size": 9536
+    },
+    {
+      "path": ".agents/skills/context-update/agents/openai.yaml",
+      "sha256": "cd84b54416890264a44b52c7f657a87e0e5fd660ffb3e0754db09ed150cfef0c",
+      "size": 348
+    },
+    {
+      "path": ".agents/skills/shared/explanation-and-evidence-criteria.md",
+      "sha256": "4a1bcbb6766c703b274d920d470e2e96821c7feaea81f8a4c4fa56c4374cbb1a",
+      "size": 6255
+    },
+    {
+      "path": "context/USAGE.md",
+      "sha256": "41e6fca90718da4c8d95fea02a7cd763adaaa1756b54890511fcfa5a5c916f35",
+      "size": 7140
+    },
+    {
+      "path": ".claude/_archive/skill-transition-2026-10-30/README.md",
+      "sha256": "97f380af38a83daf66327f9b9c07569964cedbd763879e96b0d549b4c36fbf06",
+      "size": 2206
+    },
+    {
+      "path": ".claude/_archive/skill-transition-2026-10-30/explanation-recovery.txt",
+      "sha256": "9f3981002424b9e967e98cf8b13c05671f50271fb430e492a8acec749e6668ec",
+      "size": 7028
+    },
+    {
+      "path": ".claude/_archive/skill-transition-2026-10-30/read-project-context.txt",
+      "sha256": "ecbbd74e091c1387fc092fc906c97fbf624f82ea5812d7bc18e98042565547fc",
+      "size": 3959
+    },
+    {
+      "path": ".claude/_archive/skill-transition-2026-10-30/update-project-context.txt",
+      "sha256": "90fe055b2c01d1c62c9570851384eeeade613fd856b3bf79fb478cabba2d30f6",
+      "size": 5666
+    },
+    {
+      "path": ".claude/_archive/skill-transition-2026-10-30/work-artifact-briefing.txt",
+      "sha256": "5ccf61c506591e4f34df09c997738aa60b3bb3cb6c937100606b600c72b3a5fb",
+      "size": 11071
+    },
+    {
+      "path": ".agents/skills/development/_background/evidence/development-before-skill.txt",
+      "sha256": "1a3138d4eff356d801e46da0040649d06b3460be8241e14971b2f252c4c6254f",
+      "size": 11858
+    },
+    {
+      "path": "context/work/workspaces/001-noline-context-harness-application/records/2026-10-30-02-development-skill-transition.md",
+      "sha256": "c818d9b3a556ddb095d6acbbd7e4530f6c5b1a8ae0fe358cbed453e07451dcd1",
+      "size": 6307
+    },
+    {
+      "path": "context/work/workspaces/002-code-readability-refactoring/records/README.md",
+      "sha256": "16535684c60dd3e9db6b8cf79bd92e6171a96d64a3dc8f982e964bb77fccf428",
+      "size": 17869
+    },
+    {
+      "path": "context/project/guidance/writing-and-input/drafts.md",
+      "sha256": "b47af3bbf57d1a6e7ae630bd0dca1eb6c0be4408ecbd356e8e9a235c8cf39f0a",
+      "size": 7058
+    },
+    {
+      "path": "context/project/guidance/writing-and-input/pickers.md",
+      "sha256": "1a0c6a997d7faab75c121532bf8deb44d8256e54df8050251f970417977ee772",
+      "size": 3233
+    },
+    {
+      "path": "context/project/guidance/writing-and-input/README.md",
+      "sha256": "5a14c037a7ed89ab9f203ac289d26167d29d4bfca9bea33ef9f059a8ed9656fa",
+      "size": 637
+    },
+    {
+      "path": "context/project/guidance/writing-and-input/INDEX.md",
+      "sha256": "7203ffefe6f64a624dd95d89312a299a6c0ec8b0f256d5dedbeb81e15eb71e51",
+      "size": 8854
+    },
+    {
+      "path": "context/project/guidance/writing-and-input/places.md",
+      "sha256": "a54ee03a27657ea389d5dd840ab8c5a865949addf67da57bc95d950756b54bb4",
+      "size": 4806
+    },
+    {
+      "path": "context/project/guidance/writing-and-input/_background/context.md",
+      "sha256": "fd2079398fdd5a030bb4c15decdf52c1403b20c69697f38f02b1b19c34bdda8b",
+      "size": 4871
+    },
+    {
+      "path": "context/project/guidance/writing-and-input/_background/evidence.md",
+      "sha256": "141a06b2d37482a9b03bdf018417a09a1b93a4dadd49446267aa2153a3b50b1e",
+      "size": 2955
+    },
+    {
+      "path": "context/project/guidance/writing-and-input/_background/README.md",
+      "sha256": "010aaa29cd2c1b6d03d4a26daffa39147c897de6fed8e863be1b6638d59f11cd",
+      "size": 604
+    },
+    {
+      "path": "context/project/common/_background/date-and-time/context.md",
+      "sha256": "1ff8d9715905f947c86adb6a7dfa8ed52e8974d804d19c0ed98c185cd0ef70f6",
+      "size": 4889
+    },
+    {
+      "path": "context/project/common/_background/date-and-time/evidence.md",
+      "sha256": "5a726eb71d5f935da1bb7905ed18bb48392a877fc50fd6483935d24b35f470f2",
+      "size": 2535
+    },
+    {
+      "path": "context/project/common/_background/date-and-time/README.md",
+      "sha256": "6157af07a7597f265dd7c4e7c8270dd16f1fb397288c232b32dd9f8bfdc0b236",
+      "size": 616
+    },
+    {
+      "path": "context/project/common/currency.md",
+      "sha256": "3a9a980ea47f42bcc20133f2350b7c4400c9185e1ebe18fc70dee1921d1f38e5",
+      "size": 7945
+    },
+    {
+      "path": "context/project/guidance/error-handling.md",
+      "sha256": "8dd2e7e30832fa35d63b8cc9c3451187eb3a51e7fc51de0b8e08d7cb489a8897",
+      "size": 7588
+    },
+    {
+      "path": "context/project/common/_background/currency/README.md",
+      "sha256": "4e7d3aa2f141a59a7f4c8ad3f07ffcfc9c2d84b334c45ad72d335ca7fd76a34f",
+      "size": 469
+    },
+    {
+      "path": "context/project/common/_background/currency/context.md",
+      "sha256": "521683f70a11593281441f14cbe0142bae4028f7ba85cda4919d2e3ecac6b9c6",
+      "size": 2453
+    },
+    {
+      "path": "context/project/common/_background/currency/evidence.md",
+      "sha256": "6aef087fb9245cf7f1f93c5fe0587f3aed8a80022e0a95035dfeabbfee82b06e",
+      "size": 2135
+    },
+    {
+      "path": "context/project/guidance/_background/api-contracts/README.md",
+      "sha256": "17fed4d491e54b7a9bba4e06991012b54e2c82c0ac5c267892bb939049aea87d",
+      "size": 483
+    },
+    {
+      "path": "context/project/guidance/_background/api-contracts/context.md",
+      "sha256": "eac5e73200192d4907e25377c633790d3753b3786565072aded67e7868cd602a",
+      "size": 5521
+    },
+    {
+      "path": "context/project/guidance/_background/api-contracts/evidence.md",
+      "sha256": "1752c85736089e335310d18d5367443243447c07f6567c603abed5e35ac223d6",
+      "size": 3597
+    },
+    {
+      "path": "context/project/guidance/travel-access/README.md",
+      "sha256": "8e39bb37a7c4bc1ae2a27f309d3c354f36f8204066f075b2aa0bc14bc4d7b0d0",
+      "size": 841
+    },
+    {
+      "path": "context/project/guidance/travel-access/_background/README.md",
+      "sha256": "17f1c0b6870cc4b4d9efe77ae6e6207a0315e3e8e4b3430bf68361bb951ba30c",
+      "size": 650
+    },
+    {
+      "path": "context/project/guidance/travel-access/_background/context.md",
+      "sha256": "100100b24c74e67e8076c27c7513076a61437e4c7cc6cef197cb2742f72ab20d",
+      "size": 8024
+    },
+    {
+      "path": "context/project/guidance/travel-access/_background/evidence.md",
+      "sha256": "50e0605e2d32954b45e53c7cda29d81a03742246ee52e8d41135b6b7b6113255",
+      "size": 7918
+    },
+    {
+      "path": "context/project/guidance/data-lifecycle/README.md",
+      "sha256": "4ded722fbe810d90aaa54b0bfafc8d0968909b0baef223d1bcd555472f9a8e44",
+      "size": 1171
+    },
+    {
+      "path": "context/project/guidance/data-lifecycle/_background/README.md",
+      "sha256": "75b192f0c42deb291679ca28844edd20824b4ed738e84c2f77508d5ef14f3fbf",
+      "size": 793
+    },
+    {
+      "path": "context/project/guidance/data-lifecycle/_background/context.md",
+      "sha256": "e7c1cc08935ff64e4e2208919c3099a6228fa4adf0f35466b07d2790d9a2d56a",
+      "size": 4613
+    },
+    {
+      "path": "context/project/guidance/data-lifecycle/_background/evidence.md",
+      "sha256": "bc9546956ede536d7acea24aa5bf94137f6eb2ec6e4c47b5e654e814ccef159e",
+      "size": 3633
+    },
+    {
+      "path": "context/project/guidance/offline-maps-and-routes/INDEX.md",
+      "sha256": "07105ef020bfb6dd0360f9b34ec97e13e6c8f502f66cd5094696ffc60d1a6d15",
+      "size": 6195
+    },
+    {
+      "path": "context/project/guidance/offline-maps-and-routes/README.md",
+      "sha256": "c83a10695bba40cff6da0c0b60b06936a93b6f337b16e01ce4d090a20ef9da3a",
+      "size": 1022
+    },
+    {
+      "path": "context/project/guidance/offline-maps-and-routes/_background/README.md",
+      "sha256": "9cabb1df279eeda749feb9751a53809c7ec131965d667fbf8ae3f80cbd6d246e",
+      "size": 642
+    },
+    {
+      "path": "context/project/guidance/offline-maps-and-routes/_background/context.md",
+      "sha256": "0f2fcf5e9681e69d00282c3d590c688596e90f1e9b7bc10a837b5dbfc525d661",
+      "size": 6395
+    },
+    {
+      "path": "context/project/guidance/offline-maps-and-routes/map-packs.md",
+      "sha256": "caa631df1f3291fa8464594c68192b41cbac94e6e6f6ec6fbfaee5f8f59bbcff",
+      "size": 6232
+    },
+    {
+      "path": "context/project/guidance/offline-maps-and-routes/routes.md",
+      "sha256": "2f13a5a63acbdc83abfa2a4f86b47394b767dcb43dd81ff47837885fd86faab5",
+      "size": 7453
+    },
+    {
+      "path": "context/project/current/app-runtime/INDEX.md",
+      "sha256": "d2d37a24016d4201f8e4e7034dd922605ffc581fb2fb3b2d815e93ff80799986",
+      "size": 17930
+    },
+    {
+      "path": "context/project/current/app-runtime/README.md",
+      "sha256": "381711cff15e2f8115e033797851b8d3ca0ac4bb712ce33b5a72f1a25d280a05",
+      "size": 1300
+    },
+    {
+      "path": "context/project/current/app-runtime/_background/README.md",
+      "sha256": "0c1c7a26ef7c9758e5084cb91ed6a62eea2de0d5ebf6b351fcf5992d4b15bf1e",
+      "size": 1352
+    },
+    {
+      "path": "context/project/current/app-runtime/_background/context.md",
+      "sha256": "8c0fbd03e0444f32a5f933e68df76ae4a03fc84a9fcd2131dc2b37e1a4b6e9a4",
+      "size": 11644
+    },
+    {
+      "path": "apps/server/README.md",
+      "sha256": "07003b7e4f956c8f63fa63d20c0892a47e4c066baeb2962e442ab747ef98c6bc",
+      "size": 8791
+    },
+    {
+      "path": "apps/server/scripts/README.md",
+      "sha256": "824b3f81a393083caaaca51dbac82f1e6cb5f1bd781292ab6c5b710376ef8bf3",
+      "size": 5253
+    },
+    {
+      "path": "context/project/decisions/0002-topic-ownership.md",
+      "sha256": "bc1b21026c299c3dc5b73abd3efa728d8e5728f51b881d2fcc8515da125fab10",
+      "size": 6858
+    },
+    {
+      "path": "context/project/decisions/0003-context-structure-and-verification.md",
+      "sha256": "616e10cb4e8bc9c9b4241bce2cc143aec753413a40c408d587550cd8b1ee068a",
+      "size": 8899
+    }
+  ],
+  "exit_code": 1,
+  "finished_at": "2026-10-31T06:13:40.711Z",
+  "normalization": {
+    "output_root_token": "<OUTPUT_ROOT>",
+    "stderr_replacements": 0,
+    "stdout_replacements": 0
+  },
+  "output_capture": {
+    "encoding": "utf-8",
+    "errors": "replace",
+    "limit_unit": "characters",
+    "max_chars_per_stream": 20000,
+    "stderr": {
+      "observed_chars": 11407,
+      "persisted_chars": 11407,
+      "read_error": null,
+      "truncated": false
+    },
+    "stdout": {
+      "observed_chars": 47,
+      "persisted_chars": 47,
+      "read_error": null,
+      "truncated": false
+    }
+  },
+  "process_returncode": 1,
+  "result": "fail",
+  "runtime_environment": {
+    "command_cwd": "<OUTPUT_ROOT>",
+    "os_name": "posix",
+    "platform_machine": "arm64",
+    "platform_system": "Darwin",
+    "python_implementation": "CPython",
+    "python_version": "3.14.3",
+    "verification_receipt_schema_version": 2,
+    "verify_contract_schema_version": 2
+  },
+  "schema_version": 2,
+  "snapshot_sha256": "89d76d11e969d8bcc0d71ae3d8cdf13c3df5aa025460d691ff3e360680db73fe",
+  "started_at": "2026-10-31T06:13:40.535Z",
+  "stderr": "Harness check failed with 62 issue(s):\n- context/work/workspaces/001-noline-context-harness-application/records/2026-09-11-03-workspace-writing-and-maintainer-settings.md links to missing ../../../../../.claude/decisions/2026-09-11-workspace-writing-contract.md\n- context/work/workspaces/001-noline-context-harness-application/records/2026-10-30-02-development-skill-transition.md links to missing ../../../../../.claude/decisions/2026-10-30-development-skill-transition.md\n- context/work/workspaces/002-code-readability-refactoring/records/2026-09-18-02-app-initialization-and-style.md links to missing ../../../../../.claude/decisions/2026-09-18-app-startup-failure-recovery.md\n- context/work/workspaces/002-code-readability-refactoring/records/2026-09-18-05-auth-session-implementation.md links to missing ../../../../../apps/client/src/shared/services/auth/session-restoration.ts\n- context/work/workspaces/002-code-readability-refactoring/records/2026-09-19-01-auth-complexity-review-and-decisions.md links to missing ../../../../../.claude/decisions/2026-09-18-device-session-and-local-access.md\n- context/work/workspaces/002-code-readability-refactoring/records/2026-09-29-07-read-query-composition-trial.md links to missing ../../../../../apps/client/src/screens/read-query.ts\n- context/work/workspaces/002-code-readability-refactoring/records/2026-10-01-01-schedule-create-provisional-review.md links to missing ../../../../../apps/client/src/features/schedule/create-schedule/useLocationSearch.ts\n- context/work/workspaces/002-code-readability-refactoring/records/2026-10-02-03-expense-time-decisions-and-verification.md links to missing ../../../../../.claude/context/policy-architecture.md\n- context/work/workspaces/002-code-readability-refactoring/records/2026-10-02-03-expense-time-decisions-and-verification.md links to missing ../../../../../.claude/decisions/2026-10-02-expense-draft-and-schedule-association.md\n- context/work/workspaces/002-code-readability-refactoring/records/2026-10-02-03-expense-time-decisions-and-verification.md links to missing ../../../../../.claude/decisions/2026-10-02-expense-date-boundaries.md\n- context/work/workspaces/002-code-readability-refactoring/records/2026-10-06-01-city-time-zone-commits-and-original-bug-continuity.md links to missing ../../../../../.claude/decisions/2026-10-06-trip-city-time-zone.md\n- context/work/workspaces/002-code-readability-refactoring/source/codebase-analysis/components.md links to missing ../../../../../../apps/client/src/features/trip/create-trip/useCreateTripForm.ts\n- context/work/workspaces/003-bug-investigation-and-fixes/current/memory/project-context.md links to missing ../../../../../../.claude/rules/activation-router.md\n- context/work/workspaces/003-bug-investigation-and-fixes/current/memory/project-context.md links to missing ../../../../../../.claude/rules/transaction-sync-queue.md\n- context/work/workspaces/003-bug-investigation-and-fixes/current/memory/project-context.md links to missing ../../../../../../.claude/rules/schema-first.md\n- context/work/workspaces/003-bug-investigation-and-fixes/current/memory/project-context.md links to missing ../../../../../../.claude/rules/auth-user-scope.md\n- context/work/workspaces/003-bug-investigation-and-fixes/current/memory/project-context.md links to missing ../../../../../../.claude/guards/README.md\n- context/work/workspaces/003-bug-investigation-and-fixes/current/memory/project-context.md links to missing ../../../../../../.claude/runbooks/README.md\n- context/work/workspaces/003-bug-investigation-and-fixes/current/memory/tickets/09-map-search-route-behavior.md links to missing ../../../../../../../apps/client/src/features/schedule/create-schedule/useLocationSearch.ts\n- context/work/workspaces/003-bug-investigation-and-fixes/records/2026-09-13-02-major-feature-category-investigation.md links to missing ../../../../../apps/client/src/features/schedule/create-schedule/useLocationSearch.ts\n- context/work/workspaces/003-bug-investigation-and-fixes/records/2026-09-13-02-major-feature-category-investigation.md links to missing ../../../../../apps/client/src/features/trip/create-trip/useCreateTripForm.ts\n- context/work/workspaces/003-bug-investigation-and-fixes/source/codebase-analysis/components.md links to missing ../../../../../../apps/client/src/features/trip/create-trip/useCreateTripForm.ts\n- context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md links to missing ../../../../../../.claude/context/currency.md\n- context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md links to missing ../../../../../../.claude/context/time.md\n- context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md links to missing ../../../../../../.claude/context/api-data.md\n- context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md links to missing ../../../../../../.claude/runbooks/README.md\n- context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md links to missing ../../../../../../.claude/decisions/2026-10-30-development-skill-transition.md\n- context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/tickets/01-product-contract-agreements.md links to missing ../../../../../../../.claude/context/error-handling.md\n- context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/tickets/02-guidance-failure-analysis-and-retest.md links to missing ../../../../../../../.claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md\n- context/work/workspaces/004-project-context-contracts-and-guidance/output/index.md links to missing ../../../../../.claude/runbooks/README.md\n- context/work/workspaces/004-project-context-contracts-and-guidance/output/index.md links to missing ../../../../../.claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md\n- context/work/workspaces/004-project-context-contracts-and-guidance/output/index.md links to missing ../../../../../.claude/decisions/2026-10-30-development-skill-transition.md\n- context/work/workspaces/004-project-context-contracts-and-guidance/records/2026-09-14-02-guidance-failure-analysis-and-retest.md links to missing ../../../../../.claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md\n- context/work/workspaces/005-context-based-code-improvement/current/memory/project-context.md links to missing ../../../../../../.claude/context/policy-architecture.md\n- context/work/workspaces/005-context-based-code-improvement/current/memory/project-context.md links to missing ../../../../../../.claude/context/error-handling.md\n- context/work/workspaces/005-context-based-code-improvement/current/memory/project-context.md links to missing ../../../../../../.claude/context/selective-activation-architecture.md\n- context/work/workspaces/005-context-based-code-improvement/current/memory/project-context.md links to missing ../../../../../../.claude/context/form.md\n- context/work/workspaces/005-context-based-code-improvement/current/memory/project-context.md links to missing ../../../../../../.claude/context/README.md\n- context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/02-policy-query-composition.md links to missing ../../../../../../../.claude/context/policy-architecture.md\n- context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/05-network-read-context.md links to missing ../../../../../../../.claude/context/policy-architecture.md\n- context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/05-network-read-context.md links to missing ../../../../../../../.claude/context/selective-activation-architecture.md\n- context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/05-network-read-context.md links to missing ../../../../../../../.claude/context/policy-architecture.md\n- context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/05-network-read-context.md links to missing ../../../../../../../.claude/context/error-handling.md\n- context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/06-draft-input-context.md links to missing ../../../../../../../.claude/context/form.md\n- context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/06-draft-input-context.md links to missing ../../../../../../../.claude/context/form.md\n- context/work/workspaces/005-context-based-code-improvement/output/index.md links to missing ../../../../../.claude/context/policy-architecture.md\n- context/work/workspaces/005-context-based-code-improvement/output/index.md links to missing ../../../../../.claude/context/error-handling.md\n- context/work/workspaces/005-context-based-code-improvement/output/index.md links to missing ../../../../../.claude/context/selective-activation-architecture.md\n- context/work/workspaces/005-context-based-code-improvement/output/index.md links to missing ../../../../../.claude/context/form.md\n- context/work/workspaces/005-context-based-code-improvement/output/index.md links to missing ../../../../../.claude/context/components.md\n- context/work/workspaces/005-context-based-code-improvement/output/index.md links to missing ../../../../../.claude/context/manual-input.md\n- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-07-impact-and-context-reassessment.md links to missing ../../../../../.claude/decisions/2026-09-18-device-session-and-local-access.md\n- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-07-impact-and-context-reassessment.md links to missing ../../../../../.claude/context/policy-architecture.md\n- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-07-impact-and-context-reassessment.md links to missing ../../../../../.claude/context/selective-activation-architecture.md\n- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-13-network-read-context.md links to missing ../../../../../.claude/context/policy-architecture.md\n- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-13-network-read-context.md links to missing ../../../../../.claude/context/error-handling.md\n- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-13-network-read-context.md links to missing ../../../../../.claude/context/selective-activation-architecture.md\n- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-14-save05-and-review06.md links to missing ../../../../../.claude/context/form.md\n- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-14-save05-and-review06.md links to missing ../../../../../.claude/context/components.md\n- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-15-draft-input-context.md links to missing ../../../../../.claude/context/form.md\n- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-15-draft-input-context.md links to missing ../../../../../.claude/context/components.md\n- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-15-draft-input-context.md links to missing ../../../../../.claude/context/manual-input.md\n",
+  "stdout": "보존 원문으로 대조한 과거 스킬 참조: 2건 (옛 URL은 현재 실행 경로가 아님)\n",
+  "timeout": {
+    "timed_out": false,
+    "timeout_seconds": 90.0
+  },
+  "workspace_id": "001-noline-context-harness-application"
+}

@@ -31,9 +31,8 @@
 
 새 독자가 필요한 적용 조건을 찾지 못하면 우선 주제 본문의 진입과 구성을 개선한다. 제품 상세가 다시 과거 폴더에 남아 둘을 조립해야 하거나, 같은 기준을 여러 곳에서 독립적으로 갱신하게 되거나, 주제 본문이 무관한 읽기를 늘리면 실제 읽는 작업과 책임 경계를 다시 대조한다. 과거 폴더나 compact 정책 사본을 자동으로 복원하지 않는다. 새 제품 영역·Owner 이동의 권한과 완료 판단은 현행 관리 계약을 따른다.
 
-## 당시 원문과 확인 범위
+## 형성 근거와 확인 범위
 
-위 본문은 원문에 있는 선택·전환을 통합했다. 과거 구조 검사의 통과나 당시 도구 조사 결과를 현재 host의 동작 보장으로 가져오지 않는다. 5월의 보존 우선 선택과 10월의 승인된 통합·원본 제외는 서로 다른 시점의 판단이며, 전자를 지우거나 현재 의무로 되살리지 않는다. 다음 보존판은 세부 근거를 확인할 때 읽으며 일반 개발의 필수 입력이 아니다.
+형성 근거는 2026-05-06의 작은 루트·레이어 모델·workspace guide·실행층 결정과 2026-10-31의 제품 context 및 규칙 Owner 전환 기록이다. 판단을 바꾼 이유와 필요한 최소 인용, 당시의 비용과 후속 대체 관계를 위 본문에 직접 보존했다.
 
-- 2026-05-06: [작은 루트와 현재·역사 구분](../../../.claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-05-06-ai-harness-restructure.md.txt), [레이어와 `.claude` 위치의 이유](../../../.claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-05-06-harness-layer-model.md.txt), [경로별 guide의 범위](../../../.claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-05-06-workspace-guide-harness-contract.md.txt), [실행층 후속 선택](../../../.claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-05-06-harness-execution-layer.md.txt)
-- 2026-10-31: [제품 context Owner 전환](../../../.claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-10-31-project-product-context-ownership.md.txt), [제품 규칙·위험의 주제 통합](../../../.claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-10-31-product-rules-owner-integration.md.txt)
+과거 구조 검사의 통과나 당시 도구 조사 결과를 현재 host의 동작 보장으로 가져오지 않는다. 5월의 보존 우선 선택과 10월의 승인된 통합·원본 제외는 서로 다른 시점의 판단이며, 전자를 지우거나 현재 의무로 되살리지 않는다. 정확한 당시 원본은 Workspace 006의 역사 보존물이고 이 문서의 현재 답을 완성하는 별도 기준이 아니다.

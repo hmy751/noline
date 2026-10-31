@@ -1,0 +1,1434 @@
+{
+  "argv": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--incremental",
+    "false",
+    "--composite",
+    "false",
+    "-p",
+    "apps/client/tsconfig.json"
+  ],
+  "canonical_basis_capture": "before_verification",
+  "canonical_basis_collected_at": "2026-10-31T06:18:54.386Z",
+  "canonical_basis_files": [
+    {
+      "path": "context/project/guidance/development-boundaries/schema-and-types.md",
+      "sha256": "cb548aa7ec36a5d4c518d4b2ca3d7d55ec58d134c6e2d3222f5ff14b3251b4c2",
+      "size": 8096
+    },
+    {
+      "path": "context/work/workspaces/002-code-readability-refactoring/current/memory/spec/04-quality-and-completion.md",
+      "sha256": "6f1f690ecd29fe3e38a5eb7ce5c3987194f8f48884a3b4f68d2e8f03d0bfb821",
+      "size": 6625
+    }
+  ],
+  "claim": "당시 설치된 TypeScript와 외부 의존성 및 선언된 로컬 입력을 사용한 client noEmit 타입 검사가 통과한다. server 검사, 실제 앱 동작, 리팩토링 효과, 버그 해결 또는 Work 전체 완료를 증명하지 않는다. 외부 node_modules와 이후 새로 포함된 파일은 기존 snapshot freshness의 보장 밖이다.",
+  "evidence_capture": "before_verification",
+  "evidence_collected_at": "2026-10-31T06:18:54.386Z",
+  "evidence_files": [
+    {
+      "path": ".npmrc",
+      "sha256": "905310f152d569e8559ccae379688d8ba6439874b3dca58cb000db6b0450d1a6",
+      "size": 45
+    },
+    {
+      "path": "apps/client/app/(auth)/_layout.tsx",
+      "sha256": "d4b310b705cf80d41a1ba9c333e7f68ceb4f9e4d5625f8143ea538fb3aa09a5d",
+      "size": 529
+    },
+    {
+      "path": "apps/client/app/(auth)/login.tsx",
+      "sha256": "572a8574450887c906d7ff2cf329f6e6068b42858efa9f60d55b3dbefcac2cab",
+      "size": 112
+    },
+    {
+      "path": "apps/client/app/(tabs)/_layout.tsx",
+      "sha256": "186a1b6c5b963e37cc7569c113ab4b4f9fecc5100ce22c1507b83b3bdc312a5e",
+      "size": 1762
+    },
+    {
+      "path": "apps/client/app/(tabs)/expenses.tsx",
+      "sha256": "5c17661c8c2caf9947744744e8f6fbb83badd61553f40b45c8f9feea01aa55f0",
+      "size": 124
+    },
+    {
+      "path": "apps/client/app/(tabs)/index.tsx",
+      "sha256": "7450d147becbf2b2f04007f001a3e9b1131bfa1357bf1861d0098e550d1454ce",
+      "size": 108
+    },
+    {
+      "path": "apps/client/app/(tabs)/profile.tsx",
+      "sha256": "5401c83ec61b9aa747857ad87553e6a7143f32c9fc2e808601d8b68abcf43fa4",
+      "size": 120
+    },
+    {
+      "path": "apps/client/app/(tabs)/schedules/[id].tsx",
+      "sha256": "f75e9373e05db01e4189728200cb74eaf570fb39fc06001dbdb2cf1f748f3521",
+      "size": 633
+    },
+    {
+      "path": "apps/client/app/(tabs)/schedules/_layout.tsx",
+      "sha256": "481982d4cc6adfa64c4e5b96d76bcf64b16afd27b342ab540d91caf298ca4fd6",
+      "size": 302
+    },
+    {
+      "path": "apps/client/app/(tabs)/schedules/index.tsx",
+      "sha256": "2ac48fbcee62a6d7f70648f64daffec0e6d3df9eeb13c08ea147939ad3642ae0",
+      "size": 129
+    },
+    {
+      "path": "apps/client/app/_layout.tsx",
+      "sha256": "4a9b106c3cc6582e80ba02a175d39f2cad61446d99c68c448df6c0267ff5b5b5",
+      "size": 3533
+    },
+    {
+      "path": "apps/client/app/create-expense.tsx",
+      "sha256": "910923b5fe6e416e1811376603c53b805ff083b0d02f155585f5f7574d920aa7",
+      "size": 149
+    },
+    {
+      "path": "apps/client/app/create-schedule.tsx",
+      "sha256": "42363c7879d29015ffb583b46baa390cf97d133f147429b85a362c3e7bad2a92",
+      "size": 148
+    },
+    {
+      "path": "apps/client/app/create-trip.tsx",
+      "sha256": "a5770f535db15b170eb876d628c41162dac4a468604fca1e40d40f08a400aa0e",
+      "size": 132
+    },
+    {
+      "path": "apps/client/app/debug.tsx",
+      "sha256": "205868de3b91e14e58babe7da3d81ad576acedf042d3cd2d4c14da7a74725082",
+      "size": 77
+    },
+    {
+      "path": "apps/client/app/expense-detail/[id].tsx",
+      "sha256": "69c7709b1b73bf90a785cedf2d545e2a9bb2c2a44dd6dc97aa4becf22c405358",
+      "size": 149
+    },
+    {
+      "path": "apps/client/nativewind-env.d.ts",
+      "sha256": "ba93dc3eac6e58df36919fd4905c4cf02cae566cbb7849c3e3de3451f8ac28ff",
+      "size": 43
+    },
+    {
+      "path": "apps/client/package.json",
+      "sha256": "642d6d8872eb68331758271cef8f047f8da5f51986d9ffb583eb7353b7d04f0f",
+      "size": 2692
+    },
+    {
+      "path": "apps/client/src/entities/expense/api/expenses.ts",
+      "sha256": "39daf5fe6aa5e30299ad9d666eaed5311e20cec1732a78c70cbf14727cf7ee12",
+      "size": 1543
+    },
+    {
+      "path": "apps/client/src/entities/expense/data/index.ts",
+      "sha256": "dbbe66ac7a473e585cf091014856a98d33b843f0b88d32e5c6688e66f505aef3",
+      "size": 391
+    },
+    {
+      "path": "apps/client/src/entities/expense/data/keys.ts",
+      "sha256": "ed5efc2f2985466c0265d8568373c433af4a9ae21f5091fea3742e5c7dfb3ab7",
+      "size": 477
+    },
+    {
+      "path": "apps/client/src/entities/expense/data/useCreateExpense.ts",
+      "sha256": "5638487843612334314e893d1e96fd21e97ce2ced39dfbbb35040968341c7fff",
+      "size": 1435
+    },
+    {
+      "path": "apps/client/src/entities/expense/data/useDeleteExpense.ts",
+      "sha256": "4f50843977f01679ed61e39a44685556a14c7ae63f851b0590ee5936afbafde7",
+      "size": 893
+    },
+    {
+      "path": "apps/client/src/entities/expense/data/useGetAllExpenses.ts",
+      "sha256": "27bb017d8d7448bb4983f2407e3ad6589c2b95b764e796268f267e769775e7e4",
+      "size": 746
+    },
+    {
+      "path": "apps/client/src/entities/expense/data/useGetScheduleExpenses.ts",
+      "sha256": "99c3b94ca0fb87d511b830ec62aa80f2695b17615fc06414f103a3469e51b9d0",
+      "size": 1096
+    },
+    {
+      "path": "apps/client/src/entities/expense/data/useGetTripExpenses.ts",
+      "sha256": "739829a340c5520e642892aaf6efda179395aaf0206b2df76191061935b41a91",
+      "size": 972
+    },
+    {
+      "path": "apps/client/src/entities/expense/data/useUpdateExpense.ts",
+      "sha256": "df0f5e857d3d5766c7300f41cc3e7a17279e626f89aec1b8658f209f9a1efc0c",
+      "size": 1074
+    },
+    {
+      "path": "apps/client/src/entities/expense/index.ts",
+      "sha256": "687101250caca2e7ba787e1149886a68d334fb0e6ca65334f15d5a345133c3b7",
+      "size": 595
+    },
+    {
+      "path": "apps/client/src/entities/expense/lib/expense-local.ts",
+      "sha256": "a415ec8e1969928e1eb148ec324591cbb82fb8e1463afa110f4654e0e0b5f54e",
+      "size": 6918
+    },
+    {
+      "path": "apps/client/src/entities/expense/model/index.ts",
+      "sha256": "8b7696ea88b064f1930d25ecc651d5b4ef16182173faac36d5a16929b54d2923",
+      "size": 334
+    },
+    {
+      "path": "apps/client/src/entities/expense/model/types.ts",
+      "sha256": "04434158e6a5d6c16fc0ae9ba3f58ef14b19c0e83f74e85d03a04f9fef8cace3",
+      "size": 2282
+    },
+    {
+      "path": "apps/client/src/entities/expense/repository/expense-repository.ts",
+      "sha256": "19ab58252265b7436a90c85da8dd8dbe2bfb1d5af0784286b032199a0352c9a9",
+      "size": 2834
+    },
+    {
+      "path": "apps/client/src/entities/expense/ui/ExpenseCard.tsx",
+      "sha256": "48fa3239e0ff9b31c09823723c130e0602606d20d15815cb685e4c702d7736a3",
+      "size": 2716
+    },
+    {
+      "path": "apps/client/src/entities/expense/ui/index.ts",
+      "sha256": "29b68465674bca610df25dd8d92eb8efbe58105e33e9460bc78aa58b570d76c1",
+      "size": 31
+    },
+    {
+      "path": "apps/client/src/entities/offline-city/data/index.ts",
+      "sha256": "bce514580efc083bca577c49a3e82e4834e3428f3ad01c6ba4dc642fe431637b",
+      "size": 327
+    },
+    {
+      "path": "apps/client/src/entities/offline-city/data/keys.ts",
+      "sha256": "dcd0a8045f0e84c1950a86ec7f70e431229fbd39b00c77d4088de43ce624dbfa",
+      "size": 295
+    },
+    {
+      "path": "apps/client/src/entities/offline-city/data/useDownloadOfflineMap.ts",
+      "sha256": "518f0be3a124269601ca2ae8ab359513c4f644e3c9562d25989f582681a947af",
+      "size": 1447
+    },
+    {
+      "path": "apps/client/src/entities/offline-city/data/useManageOfflineCityReference.ts",
+      "sha256": "12db876b59040a3e444db29f66475ac0efeb2b5996486993cf3ce78d39cb0960",
+      "size": 2826
+    },
+    {
+      "path": "apps/client/src/entities/offline-city/data/useOfflineCity.ts",
+      "sha256": "f40aeadcf9cbdeff1d99781a4a8f8598ad069ec349579958f264ccffabe992fb",
+      "size": 1236
+    },
+    {
+      "path": "apps/client/src/entities/offline-city/index.ts",
+      "sha256": "25be2f615785770d9f3556b21e378087df8077d8ad40c444f05f54d1baa012e6",
+      "size": 409
+    },
+    {
+      "path": "apps/client/src/entities/offline-city/ui/OfflineMapDownloadProgress.tsx",
+      "sha256": "08e2311cb904dd48a0fcb2338d58284f5aa57725fea92500fdd3547493a130f6",
+      "size": 1333
+    },
+    {
+      "path": "apps/client/src/entities/offline-city/ui/index.ts",
+      "sha256": "3f2615a42e87a4220812cf53f7afdbd6af056fc6aef544379c21150bb2616441",
+      "size": 164
+    },
+    {
+      "path": "apps/client/src/entities/route/data/keys.ts",
+      "sha256": "fc441bb0150186e7ff3ce4296531957b8cb63e71441c8e4df9931451af654882",
+      "size": 405
+    },
+    {
+      "path": "apps/client/src/entities/route/data/useAutoDownloadRoutes.ts",
+      "sha256": "9a34bde39c2165ce3589f4338fc5647b655931a4cbb1643d61d934b052d931d8",
+      "size": 4642
+    },
+    {
+      "path": "apps/client/src/entities/route/data/useGetRoutes.ts",
+      "sha256": "c07ffe5c7ee1504391dd67f89347120f399b2a5c63cbf99534b70eff5d695eda",
+      "size": 1440
+    },
+    {
+      "path": "apps/client/src/entities/route/data/useSaveRoute.ts",
+      "sha256": "c256385083aa02f46b3595f4abb9d36cf80f9277f412327265c53467438ae06b",
+      "size": 2170
+    },
+    {
+      "path": "apps/client/src/entities/route/index.ts",
+      "sha256": "337fd2863f164009353915b7382cf661b5a27f852a29cf46867e779f15226a63",
+      "size": 120
+    },
+    {
+      "path": "apps/client/src/entities/schedule/api/index.ts",
+      "sha256": "dd70641b0ec72eba3169a2d96024592c0fbd94fc5cbb48f26e438bf553ae81a3",
+      "size": 67
+    },
+    {
+      "path": "apps/client/src/entities/schedule/api/schedules.ts",
+      "sha256": "85456497305b7e314310597ac55faa5a5d4a751f8f9c096abd80a4221ef0e00b",
+      "size": 3219
+    },
+    {
+      "path": "apps/client/src/entities/schedule/data/index.ts",
+      "sha256": "b7c2cf323af5f0d1a41d4a3316a69e83fe117ae538871f1daa603a100e94333a",
+      "size": 388
+    },
+    {
+      "path": "apps/client/src/entities/schedule/data/keys.ts",
+      "sha256": "a6230ce83479a68d63bd9c74af29b79d7eb2e2dedd4193c9123db7fad653426d",
+      "size": 543
+    },
+    {
+      "path": "apps/client/src/entities/schedule/data/useCreateSchedule.ts",
+      "sha256": "6f3819a8fbf8413166dc4d03191ed78dcb2e075588a25235f5d3d2b94f3f1f1a",
+      "size": 1705
+    },
+    {
+      "path": "apps/client/src/entities/schedule/data/useDeleteSchedule.ts",
+      "sha256": "7ba26f1dad4a81f7b12ca7efc7f9f1a349f24221fe8265c7e9f345495129a7e9",
+      "size": 1304
+    },
+    {
+      "path": "apps/client/src/entities/schedule/data/useGetScheduleById.ts",
+      "sha256": "2fffca87bef08b1953ffe8807262839c6c9357905e516999ffe65e2a5e09e855",
+      "size": 923
+    },
+    {
+      "path": "apps/client/src/entities/schedule/data/useGetScheduleCount.ts",
+      "sha256": "9e4193ac5a00621e47faa6039f522c121d6dadc07520134547b7e985af820a05",
+      "size": 639
+    },
+    {
+      "path": "apps/client/src/entities/schedule/data/useGetSchedules.ts",
+      "sha256": "b6c33982cddaeea9065b71ca262fe2bf7642ea0680b16b9c1ec7507af627f8a0",
+      "size": 987
+    },
+    {
+      "path": "apps/client/src/entities/schedule/data/useUpdateSchedule.ts",
+      "sha256": "e6cbb2b8a8800b5a3803f7a77fab10868a7d6ae63268e3c0ee66d20b106c2586",
+      "size": 1290
+    },
+    {
+      "path": "apps/client/src/entities/schedule/index.ts",
+      "sha256": "edbbf0c68b9964492c79d7a933f8e10cc9e7611bbf93b1dcf0217347051ec9c6",
+      "size": 346
+    },
+    {
+      "path": "apps/client/src/entities/schedule/lib/schedule-local.ts",
+      "sha256": "359342e5adb7b1bab7bd1f58ca8ed14ccc02940e4ca3c44449c6f4a378fd12ae",
+      "size": 6196
+    },
+    {
+      "path": "apps/client/src/entities/schedule/model/index.ts",
+      "sha256": "63abdece03521e7e9598ead9bc35e854e0f5ee09e3df4661a7b0418684c03979",
+      "size": 235
+    },
+    {
+      "path": "apps/client/src/entities/schedule/model/types.ts",
+      "sha256": "d88d995c617aa123699e9d35fe687867673ad2b138e7d86bd1719ed783d06b23",
+      "size": 1636
+    },
+    {
+      "path": "apps/client/src/entities/schedule/repository/schedule-repository.ts",
+      "sha256": "dbbc0925d87adc906f06c8de094a42cfd6d31ebe352bd2e4c0556144988ff6d3",
+      "size": 2849
+    },
+    {
+      "path": "apps/client/src/entities/trip/api/index.ts",
+      "sha256": "290cfd6d6ef793e160a5e3042cdf224f696abb37c987a2bb6b1a089226ca49f2",
+      "size": 92
+    },
+    {
+      "path": "apps/client/src/entities/trip/api/trips.ts",
+      "sha256": "f010a509ac6f195fdb7f778227e989b1e666e0277b6f6a7b1a0ce608393272cd",
+      "size": 2451
+    },
+    {
+      "path": "apps/client/src/entities/trip/data/index.ts",
+      "sha256": "d91fa8366d81e96cfe2bed6d99b3963311bb87be5c151a50948951b3c276fad3",
+      "size": 423
+    },
+    {
+      "path": "apps/client/src/entities/trip/data/keys.ts",
+      "sha256": "3f6435776a1870d55fb08596caadd6c0ef7ae600ea21b3d8be37a870f72e80b8",
+      "size": 437
+    },
+    {
+      "path": "apps/client/src/entities/trip/data/useActivateTrip.ts",
+      "sha256": "410fef81608a1d996621929a40f012cf702cef5601e287a3d6f5d4beaeca424b",
+      "size": 8863
+    },
+    {
+      "path": "apps/client/src/entities/trip/data/useCreateTrip.ts",
+      "sha256": "6ae75eed8921338da5a77054775c76ebf8394a6af7c1fe9061f24382a9407a58",
+      "size": 1088
+    },
+    {
+      "path": "apps/client/src/entities/trip/data/useDeactivateTrip.ts",
+      "sha256": "bbb4069417c313cdcb89cc890fc92c6757b8cd157d2f34cb338c62fb5a0db5a9",
+      "size": 5984
+    },
+    {
+      "path": "apps/client/src/entities/trip/data/useDeleteTrip.ts",
+      "sha256": "3ae62363fda092af755162d9967b7265b070a91e09f7707fdb12d8462327576f",
+      "size": 865
+    },
+    {
+      "path": "apps/client/src/entities/trip/data/useGetTripActivation.ts",
+      "sha256": "f36a2e5359f4409267032d7b774a0c55ca3c9995a6edc199b3c6e086c12e80ef",
+      "size": 2359
+    },
+    {
+      "path": "apps/client/src/entities/trip/data/useGetTrips.ts",
+      "sha256": "efed4a9cd4287c9984d848f6c9777d6c688bc51c5fc2c97cb2199d38a642637e",
+      "size": 702
+    },
+    {
+      "path": "apps/client/src/entities/trip/data/useUpdateTrip.ts",
+      "sha256": "c648cf6d64e35c3afe616f1c6c46dc8abd680e95fda706d656091c9bdc6c2bce",
+      "size": 1041
+    },
+    {
+      "path": "apps/client/src/entities/trip/index.ts",
+      "sha256": "ab80c6905482990459f7f01e23217175b8935e152fbb8ab838244afb4d9ea3ae",
+      "size": 704
+    },
+    {
+      "path": "apps/client/src/entities/trip/lib/trip-local.ts",
+      "sha256": "cbffcb82c42b9537110a28b5c9bda7b95d4dfe31e605ca852953f5195b5084a3",
+      "size": 8634
+    },
+    {
+      "path": "apps/client/src/entities/trip/model/index.ts",
+      "sha256": "57464724c181ca37b7e51320d80861b2a61b54e8544642afc438e8bed0f58094",
+      "size": 199
+    },
+    {
+      "path": "apps/client/src/entities/trip/model/types.ts",
+      "sha256": "1d026c3c5cdf28dcdb87bd314dfe7d813cef549b2624c183d84d9aed0f8a26a0",
+      "size": 1633
+    },
+    {
+      "path": "apps/client/src/entities/trip/repository/trip-repository.ts",
+      "sha256": "29070c33c8c355a176b800fb6986083a9b4835356834abf02ba1a7d7bf12860f",
+      "size": 2435
+    },
+    {
+      "path": "apps/client/src/entities/trip/ui/ActivationBadge.tsx",
+      "sha256": "4650a951bacc95413bb80ca9a68e8c928c876bb945204e1e8379d253484cf79f",
+      "size": 1351
+    },
+    {
+      "path": "apps/client/src/entities/trip/ui/ActivationProgressDrawer.tsx",
+      "sha256": "4ee8ad992b8c36705f1607e707caad50954ea12f6b98a04bf5cd07576518c7c1",
+      "size": 4935
+    },
+    {
+      "path": "apps/client/src/entities/trip/ui/TripCard.tsx",
+      "sha256": "8978093cec871daaa821dc3467476c10de00862c3c40fdb9ad59a4eb8a30ce75",
+      "size": 3737
+    },
+    {
+      "path": "apps/client/src/entities/trip/ui/TripSelector.tsx",
+      "sha256": "4e9de7c6607fe915852847c9982e418b5b6aa511bb242e5f8fd46732b1197d6e",
+      "size": 6711
+    },
+    {
+      "path": "apps/client/src/entities/trip/ui/index.ts",
+      "sha256": "e130c59e71f240d48cdb470091d6ec585ae4b9bd3af9b2227e800a1c4fe1dd88",
+      "size": 333
+    },
+    {
+      "path": "apps/client/src/entities/trip/utils/index.ts",
+      "sha256": "9b479f768f2497c7ea22e3cf419aaf4a4979cf62dec8955b4fd5cda6406c5b27",
+      "size": 51
+    },
+    {
+      "path": "apps/client/src/entities/trip/utils/selectMainTrip.ts",
+      "sha256": "10aea504a726d220f60264596050328db71fafdbd888b65a850941aae57a0677",
+      "size": 2167
+    },
+    {
+      "path": "apps/client/src/features/debug/index.ts",
+      "sha256": "ef83b5d4a3106e2eb3acd3c8f177795408ca2d29dbcd31aa3549383305a06640",
+      "size": 258
+    },
+    {
+      "path": "apps/client/src/features/debug/ui/DashboardView.tsx",
+      "sha256": "19e3c9deb71894ab038dad7e03367030af018fd502d05ff9dda37f38b56bdf9e",
+      "size": 6241
+    },
+    {
+      "path": "apps/client/src/features/debug/ui/DataInspectorView.tsx",
+      "sha256": "5105697f718101f7f0109f225342301267833e6f413449d89efd6a637201f603",
+      "size": 12323
+    },
+    {
+      "path": "apps/client/src/features/debug/ui/DebugScreen.tsx",
+      "sha256": "29c2aeaa16059ddf8ab2d532f2605ee662d4140a26a716ed80ee3109b564b6c5",
+      "size": 14153
+    },
+    {
+      "path": "apps/client/src/features/debug/ui/ToolsView.tsx",
+      "sha256": "ef78048dba175cfdb07eca73c68298dce3094a0f5913dc192be52c2d8daa995a",
+      "size": 1847
+    },
+    {
+      "path": "apps/client/src/features/expense/create-expense/ExpenseForm.tsx",
+      "sha256": "2d81a73d996296ec054a79584844a01d000ea043661e930537ae1bb0b70b421b",
+      "size": 8988
+    },
+    {
+      "path": "apps/client/src/features/expense/create-expense/index.ts",
+      "sha256": "675c902b309a733b7e464166d8ce8b93fcbdad1869bfe62b44865f0773018e20",
+      "size": 188
+    },
+    {
+      "path": "apps/client/src/features/expense/create-expense/schema.ts",
+      "sha256": "ac0e62e5e36b4e746f096dfd2f80834f89ee8b618f2678a920a24fc7d425aa01",
+      "size": 556
+    },
+    {
+      "path": "apps/client/src/features/expense/create-expense/useCreateExpenseForm.ts",
+      "sha256": "704483e5e5c6d43315be042b8ff27f27cbc57787364e6c6664205ead6b152f85",
+      "size": 3795
+    },
+    {
+      "path": "apps/client/src/features/expense/expense-menu/ExpenseMenu.tsx",
+      "sha256": "2f5cf3f683eda324926b2ba14764af3911ce3394200f850857b37678bd8602cf",
+      "size": 1106
+    },
+    {
+      "path": "apps/client/src/features/expense/expense-menu/index.ts",
+      "sha256": "145a72c8598bd5686b4ba9d3f859f92e2641453ce69d9597fdd3540a55c30075",
+      "size": 100
+    },
+    {
+      "path": "apps/client/src/features/expense/update-expense/UpdateExpenseDrawer.tsx",
+      "sha256": "2a58aa10e8b95a5d7631d36580dfee12efcf6422b6a7c35bab6f3cfc520f8976",
+      "size": 13108
+    },
+    {
+      "path": "apps/client/src/features/expense/update-expense/index.ts",
+      "sha256": "b0584a7b32eb18bb142cdcad8a1620965727fc756b85aca8823420792a85ef22",
+      "size": 239
+    },
+    {
+      "path": "apps/client/src/features/expense/update-expense/schema.ts",
+      "sha256": "f871f086f118b44c7fcd85118d9b1ed8509ae803b7f5f84e6e4a9ba2c7d0a569",
+      "size": 530
+    },
+    {
+      "path": "apps/client/src/features/profile/hooks/useStorageStats.ts",
+      "sha256": "647ef06ab0c33fbd73a7095ace71c8fd4218e70f0ca5729bcdfa1454fdfedcda",
+      "size": 4276
+    },
+    {
+      "path": "apps/client/src/features/schedule/create-schedule/MapView.tsx",
+      "sha256": "afddd4032925ae8d6107577aa6e1475a4d7d9c2cba1fc6c82e7130ba0bf6d24a",
+      "size": 3678
+    },
+    {
+      "path": "apps/client/src/features/schedule/create-schedule/ScheduleForm.tsx",
+      "sha256": "37e3288a556e32fe578a73f48516999bdaf5fd3734673d6aaf2361b9b23104f1",
+      "size": 3094
+    },
+    {
+      "path": "apps/client/src/features/schedule/create-schedule/index.ts",
+      "sha256": "abb2940b6895f57c0c4563895589eb685c6a85caa277342ec8c25307cf5292ed",
+      "size": 272
+    },
+    {
+      "path": "apps/client/src/features/schedule/create-schedule/schema.ts",
+      "sha256": "202f359286b8d88e93a3fefe6db8592bfb4a7567d07230bf94fc9fda25edb136",
+      "size": 633
+    },
+    {
+      "path": "apps/client/src/features/schedule/create-schedule/types.ts",
+      "sha256": "63f1e031526048e4d1771393689c35e273ff225dd2214bb53b184a81a1bfb21a",
+      "size": 122
+    },
+    {
+      "path": "apps/client/src/features/schedule/create-schedule/useCreateScheduleForm.ts",
+      "sha256": "8c52288bcdead1cf7d1fe60ea989d57b624116fe63da74171e6e9bc2b87f253f",
+      "size": 1646
+    },
+    {
+      "path": "apps/client/src/features/schedule/schedule-expense-list/ScheduleExpenseList.tsx",
+      "sha256": "d3e0e4158b4fbe86dfc20285c594aa6fbee2dc7d7b3cdb77c5e8fcf4436a46e3",
+      "size": 1113
+    },
+    {
+      "path": "apps/client/src/features/schedule/schedule-expense-list/index.ts",
+      "sha256": "f805760e3d566262656895ccf3407534091fb658611a2a1ec8c259850f66593d",
+      "size": 39
+    },
+    {
+      "path": "apps/client/src/features/schedule/schedule-list-view/ScheduleListView.tsx",
+      "sha256": "b10bc4b36228020d295bbe85f98cd2a21f41bff899f6768385e0da349d20be9d",
+      "size": 4578
+    },
+    {
+      "path": "apps/client/src/features/schedule/schedule-list-view/index.ts",
+      "sha256": "0b669d3f9ac5b3feecf56e0e3c2615cfa6afaabf7e13675c5cb1633894b259be",
+      "size": 55
+    },
+    {
+      "path": "apps/client/src/features/schedule/schedule-map-view/ScheduleMapViewContainer.tsx",
+      "sha256": "a03e7adfcffef0329385b3d4b24154e109059f882963c88b029f4306cb9d9eeb",
+      "size": 5644
+    },
+    {
+      "path": "apps/client/src/features/schedule/schedule-map-view/index.ts",
+      "sha256": "337246ed4979ea0f53cbcf4d2dbfbc9a8bd431490345435f180b6caae371d49f",
+      "size": 71
+    },
+    {
+      "path": "apps/client/src/features/schedule/schedule-menu/ScheduleMenu.tsx",
+      "sha256": "99b77c2ee5862703f1ebd88a7dd65ab8e96b5d51c2713f774d16ad1c5491c6d6",
+      "size": 1109
+    },
+    {
+      "path": "apps/client/src/features/schedule/schedule-menu/index.ts",
+      "sha256": "5b3ce3597540c415e3c4043d0966a737bcbb5ce9e8ffb20236917f1dd8539ef8",
+      "size": 104
+    },
+    {
+      "path": "apps/client/src/features/schedule/update-schedule/LocationSearchModal.tsx",
+      "sha256": "62fd3d99cd74b08a7c2e2aa5f7766ac3f42c8fad806cebf15c75b35d366f6790",
+      "size": 3601
+    },
+    {
+      "path": "apps/client/src/features/schedule/update-schedule/UpdateScheduleDrawer.tsx",
+      "sha256": "ec8c2eacb3194e52891b74f0e218eaf17486f644403fc1305dd90ee234c07a8d",
+      "size": 13405
+    },
+    {
+      "path": "apps/client/src/features/schedule/update-schedule/index.ts",
+      "sha256": "e22bb49026bedfb700252d51a1a8f178aa341db7885919de9c9020444983f8ff",
+      "size": 306
+    },
+    {
+      "path": "apps/client/src/features/schedule/update-schedule/schema.ts",
+      "sha256": "e2939b2b7822014c89ce6531fbb0acc674d90bceab2388681b325e03d2dac9aa",
+      "size": 528
+    },
+    {
+      "path": "apps/client/src/features/trip/create-trip/CitySearchBar.tsx",
+      "sha256": "59a685ec548245c1e69fb88ef9574f81153edb44cb71e411201eca8f07cff57d",
+      "size": 837
+    },
+    {
+      "path": "apps/client/src/features/trip/create-trip/CitySearchResults.tsx",
+      "sha256": "10291c8529a1bbb5edec404f787e322b110f0a51db87ef0d7deb4af866f25bdd",
+      "size": 2844
+    },
+    {
+      "path": "apps/client/src/features/trip/create-trip/TripDateForm.tsx",
+      "sha256": "07bb4d6204a2a2059d3942503fb35426093ffca8da955079658cfbae5846dcd6",
+      "size": 8020
+    },
+    {
+      "path": "apps/client/src/features/trip/create-trip/geonames.api.ts",
+      "sha256": "75d74c8725adc137dc6fe0365471e14bd6d2d167003128498d92fc67eb02a678",
+      "size": 2758
+    },
+    {
+      "path": "apps/client/src/features/trip/create-trip/index.ts",
+      "sha256": "784f641f43add6fa9993c9b6a61e56fc617d9ea2f9ca0c0b64a4c9da8a9981fb",
+      "size": 331
+    },
+    {
+      "path": "apps/client/src/features/trip/create-trip/schema.ts",
+      "sha256": "c45dec19a3916b3793dfe6dc604a2dcec68c16bfb3e0661b616d4b6a6c34cb3d",
+      "size": 932
+    },
+    {
+      "path": "apps/client/src/features/trip/create-trip/useSearchCities.ts",
+      "sha256": "a48c46eae059c47ec44b992653b264690a4fdeba3e37ad347a30ad9dc0d6ade6",
+      "size": 599
+    },
+    {
+      "path": "apps/client/src/features/trip/update-trip/EditTripDrawer.tsx",
+      "sha256": "9b631349d255d93ba2b41681b41ef558dfed405b577661b4f317b8e3efdeb5c3",
+      "size": 13477
+    },
+    {
+      "path": "apps/client/src/features/trip/update-trip/TripMenu.tsx",
+      "sha256": "88e0b142c71ed5e0afe8bcd074a531be3f4292422bba8635e31923aa201318a4",
+      "size": 1945
+    },
+    {
+      "path": "apps/client/src/features/trip/update-trip/index.ts",
+      "sha256": "a926c935fcee23b673568eeb5848fb8ca6e68052c00ed2badb010be322e1ef96",
+      "size": 272
+    },
+    {
+      "path": "apps/client/src/features/trip/update-trip/schema.ts",
+      "sha256": "132141a14ad7812b5d47f72e44df21427a366beac4466ccd87bf030f74fdeb91",
+      "size": 928
+    },
+    {
+      "path": "apps/client/src/global.d.ts",
+      "sha256": "ffa3643fd7c870f4516b2ee00ce6d6075f906a0147b04054df3f816894787f31",
+      "size": 576
+    },
+    {
+      "path": "apps/client/src/screens/CreateExpenseScreen.tsx",
+      "sha256": "986604adc7b59c4d6b2f3f4abec0cdd4f116d3f46530947be20e968ec53b74f3",
+      "size": 1744
+    },
+    {
+      "path": "apps/client/src/screens/CreateScheduleScreen.tsx",
+      "sha256": "f49dd4b7e88cd00182feb306e2ebe6119f299ce57394f704f9e77be480237518",
+      "size": 4666
+    },
+    {
+      "path": "apps/client/src/screens/CreateTripScreen.tsx",
+      "sha256": "ee37ed8646fb451258e7e7fb8500f387f5178a2490da790047a133bd457b39af",
+      "size": 2377
+    },
+    {
+      "path": "apps/client/src/screens/DebugScreen.tsx",
+      "sha256": "d4ab13826f19ede5a0ad731576332aed5333d15a5c537a04a9e90c6d9f9e6c33",
+      "size": 163
+    },
+    {
+      "path": "apps/client/src/screens/ExpenseDetailScreen.tsx",
+      "sha256": "cd964b0fbbad088974ce14bccfd712c68cf3079a9fefd0e8a6058a088f3797c1",
+      "size": 8387
+    },
+    {
+      "path": "apps/client/src/screens/ExpensesScreen.tsx",
+      "sha256": "cf95999071721a8e00546eea33f5ea898e1391d1f81d885239af20f2a3499f9b",
+      "size": 14292
+    },
+    {
+      "path": "apps/client/src/screens/HomeScreen/MainTripSection.tsx",
+      "sha256": "dcfc441ed56339c4bc1f51eca84afbc34c346ec02d7c7b439bf9ad85935fca9d",
+      "size": 6411
+    },
+    {
+      "path": "apps/client/src/screens/HomeScreen/OtherTripsSection.tsx",
+      "sha256": "dec1ac73ee009ab51c77a2db1199bca88ad007fe90abf8188a432202820bdcd2",
+      "size": 3139
+    },
+    {
+      "path": "apps/client/src/screens/HomeScreen/TripsSection.tsx",
+      "sha256": "b9d8e2885dd91d826e3f7735dc804b6fd3cf6683537ee05ac677a321d1f7bdcb",
+      "size": 13740
+    },
+    {
+      "path": "apps/client/src/screens/HomeScreen/index.tsx",
+      "sha256": "de72007247d64a04d7c63fbc55d662e58a8139f60f3193b7deb3e43a7ae570bb",
+      "size": 2164
+    },
+    {
+      "path": "apps/client/src/screens/LoginScreen.tsx",
+      "sha256": "30e5b6d29ad643b48e27ed7511bb73731ab156f2f7b06e0dead17f8854812810",
+      "size": 8333
+    },
+    {
+      "path": "apps/client/src/screens/ProfileScreen.tsx",
+      "sha256": "78dbd41c93c72cdb1083a351a139c3da603e6c2bfe1abdb5d37c0e5c32fec3be",
+      "size": 9938
+    },
+    {
+      "path": "apps/client/src/screens/ScheduleDetailScreen.tsx",
+      "sha256": "48600f316f9f370e7942400b7a4f6ab6de9025f9565fc4694814357f9b19f281",
+      "size": 9709
+    },
+    {
+      "path": "apps/client/src/screens/ScheduleScreen.tsx",
+      "sha256": "8f895e498622f9fa5724e27bd4a64c13860fefc124f99b2d945e1ad80356544b",
+      "size": 12247
+    },
+    {
+      "path": "apps/client/src/shared/api/axios-instances.ts",
+      "sha256": "4971e3550941e54a7af4ab62573bd0c3181f569f5d9e6fcba4114dab95df0ebb",
+      "size": 909
+    },
+    {
+      "path": "apps/client/src/shared/api/fetcher.ts",
+      "sha256": "3dd0f545bc37a793f89cb96f4862d9c9a063e90292adf0430fd05d50915aaa41",
+      "size": 1952
+    },
+    {
+      "path": "apps/client/src/shared/components/Card/ExpenseCard.tsx",
+      "sha256": "f0df3877d3397fd938382354d228d4d5bca85c1b6e725983d95fde6aee24525e",
+      "size": 3220
+    },
+    {
+      "path": "apps/client/src/shared/components/Card/MapScheduleCard.tsx",
+      "sha256": "8318e2b42aa3d8a537dbd9439ae21a9fa48de69ae91b48d78324258cef6bd9b3",
+      "size": 4111
+    },
+    {
+      "path": "apps/client/src/shared/components/Card/ScheduleCard.tsx",
+      "sha256": "67576eedb634a5f111155b53014630bfa5f9b6208f977697af4857663e44ca12",
+      "size": 3242
+    },
+    {
+      "path": "apps/client/src/shared/components/Card/index.ts",
+      "sha256": "1548e1489d64186ac87efb467ee4c412627edf9b5b67f2643af8b649418e354c",
+      "size": 145
+    },
+    {
+      "path": "apps/client/src/shared/components/DatePicker/DatePicker.tsx",
+      "sha256": "a4f54d6cb81b6d1b85715dfd0fe95db85df7c3e4f08bc8bd38d359e8fe4fded5",
+      "size": 1199
+    },
+    {
+      "path": "apps/client/src/shared/components/DatePicker/index.ts",
+      "sha256": "ea13328edf9adeda3e8741cf13af07dcf5da95a8806fa020e2dbbbb6af2454db",
+      "size": 94
+    },
+    {
+      "path": "apps/client/src/shared/components/ErrorBoundary/PolicyErrorDisplay.tsx",
+      "sha256": "f8789de278573c35c5f813b5c6410638a3503e31828e61eb7f4cb99c528c97cb",
+      "size": 3763
+    },
+    {
+      "path": "apps/client/src/shared/components/ErrorBoundary/index.ts",
+      "sha256": "630952023d9b49cf302726085ecb979f5f82dae32516c7ae18456ad7ebe3d87a",
+      "size": 59
+    },
+    {
+      "path": "apps/client/src/shared/components/Form/Field.tsx",
+      "sha256": "e8f5207e2af8fca3d77f0ee5793350d42ea45e982febc96df9b690ae59f10e42",
+      "size": 1792
+    },
+    {
+      "path": "apps/client/src/shared/components/Form/FormField.tsx",
+      "sha256": "2378f515f15c189199e3419109837e2d4789ccba7d86fcbdd1cdf41377d1eaf0",
+      "size": 790
+    },
+    {
+      "path": "apps/client/src/shared/components/Form/index.ts",
+      "sha256": "5f71dd86d38bdc75b6698625556b9c0885c1e86ee5d9e8963b8876cdd784c6f0",
+      "size": 115
+    },
+    {
+      "path": "apps/client/src/shared/components/Map/GoogleScheduleMapView.tsx",
+      "sha256": "d5174bb029b7630056012a7ace00b27f846b4868681f6f898dfc038972fb1d7f",
+      "size": 6139
+    },
+    {
+      "path": "apps/client/src/shared/components/Map/MapUnavailableView.tsx",
+      "sha256": "27ee655263fa3992ca266a19a34410a5fc2962b2d6117a969dd2080e3e8c34e5",
+      "size": 1163
+    },
+    {
+      "path": "apps/client/src/shared/components/Map/MapboxScheduleMapView.tsx",
+      "sha256": "e2824c9d82ef7bf3591f465ab79224e7b3a086fc731883c1b8b7c30e8e8a09e6",
+      "size": 13350
+    },
+    {
+      "path": "apps/client/src/shared/components/Map/MyLocationButton.tsx",
+      "sha256": "bed72146991e563bfd5668d835b1525823a6a6a50a25be69db695f3176671346",
+      "size": 1782
+    },
+    {
+      "path": "apps/client/src/shared/components/Map/PolicyBasedScheduleMapView.tsx",
+      "sha256": "6b0401664ffc0574ab60e721d252ad72e30e0e2386dff3135d91252a9ea51690",
+      "size": 1783
+    },
+    {
+      "path": "apps/client/src/shared/components/Map/index.ts",
+      "sha256": "e5997dc0ae1209878ba7decd47ad1fa2558697252ad44bb2f5b24a5aa02fdfbf",
+      "size": 344
+    },
+    {
+      "path": "apps/client/src/shared/components/Map/types.ts",
+      "sha256": "f6a2a42acb4fb8072234799778a7c341cff0bfedc737bc19cee0c376b8cd58d7",
+      "size": 774
+    },
+    {
+      "path": "apps/client/src/shared/components/Navigation/MobileHeader.tsx",
+      "sha256": "072b80e443303d45b51cd113a541708c0be1b4eb01e5df3dba1d8d531010ee7c",
+      "size": 1595
+    },
+    {
+      "path": "apps/client/src/shared/components/Navigation/NetworkStatusIndicator.tsx",
+      "sha256": "b1face777bbfdcfe4a5815fdffe3ab536bc3e1c2704c6f22db30feea9656353b",
+      "size": 1381
+    },
+    {
+      "path": "apps/client/src/shared/components/Navigation/index.ts",
+      "sha256": "3ce3de9053a85332d5697152786a7c62c18ac9159402a08b9bad30a191729fdf",
+      "size": 114
+    },
+    {
+      "path": "apps/client/src/shared/components/PolicyBasedMapView/OfflineMapView.tsx",
+      "sha256": "e1e1fdebf18bbe8e3f789bfc566e141890b0eea63503d2614a043f5dacc419b1",
+      "size": 4758
+    },
+    {
+      "path": "apps/client/src/shared/components/PolicyBasedMapView/PolicyBasedMapView.tsx",
+      "sha256": "69ab208299ff3b1bc4163a39682766fe058ddeca8125a27f441dcae59177f495",
+      "size": 7687
+    },
+    {
+      "path": "apps/client/src/shared/components/PolicyBasedMapView/index.ts",
+      "sha256": "b8b171e28b9a0a3142a0dc635daa1be7addaad11b9ea2870052f77ba115ad1aa",
+      "size": 180
+    },
+    {
+      "path": "apps/client/src/shared/components/SessionExpiredBanner.tsx",
+      "sha256": "d007b9761cb8f0b28301029632f0449e7ba8a5017fb27c256147eabd5cd21d30",
+      "size": 1638
+    },
+    {
+      "path": "apps/client/src/shared/components/TimePicker/TimePicker.tsx",
+      "sha256": "3dfd31722dec52b726ac1d31c6245f28f4a3c3b8103b9dd390c9012032590976",
+      "size": 5389
+    },
+    {
+      "path": "apps/client/src/shared/components/TimePicker/index.ts",
+      "sha256": "c2b7969a510376c733cd9012c258eac1144bcd1fde71e9ac5624cdcc5f90b85d",
+      "size": 54
+    },
+    {
+      "path": "apps/client/src/shared/components/index.ts",
+      "sha256": "2143feacf64f120e056da12d76209dc2f1deacbd69bfc8f4564d1461100e46d5",
+      "size": 298
+    },
+    {
+      "path": "apps/client/src/shared/components/layout/Container.tsx",
+      "sha256": "4cd28dbda199b25ca25405c4ed96bd46bb012bb77f1297b8bf176f9ab2efec8d",
+      "size": 345
+    },
+    {
+      "path": "apps/client/src/shared/components/layout/Stack.tsx",
+      "sha256": "acbeb87c67e4e0cedd1ff4944ef292045cbd0177e05fc2ece067a62f809aceae",
+      "size": 796
+    },
+    {
+      "path": "apps/client/src/shared/components/layout/index.ts",
+      "sha256": "dabe89b3550f48bf391cc4c29136909194bf57a60d80522dc174e57b20b9b7dd",
+      "size": 74
+    },
+    {
+      "path": "apps/client/src/shared/db/index.ts",
+      "sha256": "a960133bb2ea586715b8b9fbea288f6cc2d76fdd2682da286cf55aa358858d94",
+      "size": 10937
+    },
+    {
+      "path": "apps/client/src/shared/db/schema.ts",
+      "sha256": "1ab0b6b8beac92d67f921038817d1c89853ab0dd0949f8410ebc38962603fbf3",
+      "size": 10956
+    },
+    {
+      "path": "apps/client/src/shared/db/utils.ts",
+      "sha256": "94291f3f1f573b96b0e38537ee7ec2470a3e676627d2d53a0886429b372578f2",
+      "size": 4619
+    },
+    {
+      "path": "apps/client/src/shared/hooks/map/useMyLocation.ts",
+      "sha256": "f88d8f63ae84bcb0f310c707addc45c5a0170f5b862b6e7983c0c2bacfaf2dae",
+      "size": 1477
+    },
+    {
+      "path": "apps/client/src/shared/hooks/useDebounce.ts",
+      "sha256": "56258cd9b4f7f25cc50b19321214fe1a29bd318e36232de0aabc08a7e334a418",
+      "size": 386
+    },
+    {
+      "path": "apps/client/src/shared/hooks/useStep.ts",
+      "sha256": "bc2ccb79d713c4f30154f1d17388c401c3abbf478e748fe607ddda75fb70533f",
+      "size": 1169
+    },
+    {
+      "path": "apps/client/src/shared/lib/country-currency.ts",
+      "sha256": "a81209dc8219e84097fbf8a7e6ee211245b300839a192c33f22c8fc5c63b7cec",
+      "size": 3387
+    },
+    {
+      "path": "apps/client/src/shared/lib/currency.ts",
+      "sha256": "b154ffa58a468005c8f5bb4569601f2c60d98dcea5ba985550d810905a5b58c8",
+      "size": 3636
+    },
+    {
+      "path": "apps/client/src/shared/lib/datetime.ts",
+      "sha256": "bd43813b50543e594c90b82f4cb00110e30cd3ba04226abaef9e06cbbff76801",
+      "size": 9289
+    },
+    {
+      "path": "apps/client/src/shared/lib/external-map.ts",
+      "sha256": "be417215d974f93e5db5532ed5fdd512ffd7ae6d43c04811f841279fd867e139",
+      "size": 1519
+    },
+    {
+      "path": "apps/client/src/shared/lib/lifecycle.ts",
+      "sha256": "e7a7b860626d78f96d09bd532b81d2ab2cd25dee04bae6d74d992e7027af0e2e",
+      "size": 1350
+    },
+    {
+      "path": "apps/client/src/shared/lib/mapbox.ts",
+      "sha256": "3dd7d0035fa87b9b05be6aa645b749c61a2d94e173b0fcfa4754b72f8ee19775",
+      "size": 1915
+    },
+    {
+      "path": "apps/client/src/shared/lib/queryClient.ts",
+      "sha256": "b5ee07e916191ebf1e1b89957240f02f95bc1b89d27879230cb0a249459594ae",
+      "size": 791
+    },
+    {
+      "path": "apps/client/src/shared/policy/constants.ts",
+      "sha256": "a6f2631ca2bd37b65b9e26d541ada8fb7226dd4b49dfd51b0f38ab8ad0570bbb",
+      "size": 4698
+    },
+    {
+      "path": "apps/client/src/shared/policy/errors.ts",
+      "sha256": "3b5ea625a81ba934669ab7146e2b756e0aff5c869144712be045f39c7c65d4ee",
+      "size": 1083
+    },
+    {
+      "path": "apps/client/src/shared/policy/index.ts",
+      "sha256": "ae367ce1eded33499eb28dda2a331cb7f5581568ee1ee62f6d6ade99fb79be5d",
+      "size": 577
+    },
+    {
+      "path": "apps/client/src/shared/policy/types.ts",
+      "sha256": "ab5f08f6aa7fc3012475ca152f5c715a99d30c6f10763520b07bfbdbe6103f49",
+      "size": 1110
+    },
+    {
+      "path": "apps/client/src/shared/policy/useAppPolicy.ts",
+      "sha256": "40cddde34a9a3438d280e7641a4cc31653dc2231462bf5f3d0a29bd3e0347499",
+      "size": 4545
+    },
+    {
+      "path": "apps/client/src/shared/services/auth/apple-auth.ts",
+      "sha256": "87a313c4c6ce50545d9f74f6dc860c3586cdaa1d04d8ff181096a355fbe7cb56",
+      "size": 3852
+    },
+    {
+      "path": "apps/client/src/shared/services/auth/auth-api.ts",
+      "sha256": "459c056e93c2e88bc361d190291b16b0d528ff0c0fae5552b6ee223e60ab7355",
+      "size": 3453
+    },
+    {
+      "path": "apps/client/src/shared/services/auth/auth-interceptor.ts",
+      "sha256": "94f3b067429c44aa4b7ab94a1d9d7d4fa713249de03b49528f9d926625509120",
+      "size": 3546
+    },
+    {
+      "path": "apps/client/src/shared/services/auth/google-auth.ts",
+      "sha256": "8c015d7492b52d261de3baf1723d47880d57eec2c188b0d9eb9f4cfa3a1c2148",
+      "size": 4552
+    },
+    {
+      "path": "apps/client/src/shared/services/auth/index.ts",
+      "sha256": "6b696a74fde90c7c4584d48993dd7b2c2b09fbc1e3729c970bd9adb92e944eb7",
+      "size": 1069
+    },
+    {
+      "path": "apps/client/src/shared/services/auth/logout-service.ts",
+      "sha256": "8161cfbba8066eecda118cf242bd388a5a20dcee50fb5dd3cb02bbbd30030f39",
+      "size": 5169
+    },
+    {
+      "path": "apps/client/src/shared/services/auth/token-storage.ts",
+      "sha256": "4cd08931778a49e5d8b3bf77a35e717ff4403089b61ed807ca7bfce4b142bdf2",
+      "size": 2561
+    },
+    {
+      "path": "apps/client/src/shared/services/directions/index.ts",
+      "sha256": "78b54bf7ecd6793a9f46d400bf0e269a84e1bbb92d270e2f2c90eb9f6b83bc58",
+      "size": 26
+    },
+    {
+      "path": "apps/client/src/shared/services/directions/mapbox.ts",
+      "sha256": "c5471689eff8354181a7a52e20a0a6a2deb2959aa8a2ca82fbd2c71383c03144",
+      "size": 3070
+    },
+    {
+      "path": "apps/client/src/shared/services/directions/route-downloader.ts",
+      "sha256": "6ec08efe9eddf12f661eecce8df37b4545a2aff11999d5c50cb023a455e398a4",
+      "size": 5539
+    },
+    {
+      "path": "apps/client/src/shared/services/id/ulid.ts",
+      "sha256": "d6925498a77d483e4c03dd5f3fc4bd5de1097446bd24b0479ecafe7fa06316a3",
+      "size": 2162
+    },
+    {
+      "path": "apps/client/src/shared/services/offline-map/cleanup.ts",
+      "sha256": "8ee18d530c62e5a13bcf54aa56c262f1c4a91dc11e08888f649fff70981811d2",
+      "size": 6724
+    },
+    {
+      "path": "apps/client/src/shared/services/offline-map/download.ts",
+      "sha256": "20ecc77cef9ea681129dc53ed16ae6d6bdc8385c73e6adc5a192d57bcc046d52",
+      "size": 6159
+    },
+    {
+      "path": "apps/client/src/shared/services/offline-map/index.ts",
+      "sha256": "af348c85a8610820a1bc85859ab76fa0dc4fa3d450248e203486f81e83ead65c",
+      "size": 278
+    },
+    {
+      "path": "apps/client/src/shared/services/offline-map/useOfflineMapCleanup.ts",
+      "sha256": "b0822ee37c150df9aa39ad81a80a425eeec7a170e86dd5fcdb17be606c7cd718",
+      "size": 646
+    },
+    {
+      "path": "apps/client/src/shared/services/offline-prep/errors.ts",
+      "sha256": "9231d8d16f99d2ed722b52588f974cb9b151b0502ba46f90e6497003c6215cd2",
+      "size": 1135
+    },
+    {
+      "path": "apps/client/src/shared/services/offline-prep/index.ts",
+      "sha256": "30db454679de18046d191ad83f0294d833e12c31325f18134d367141923287a8",
+      "size": 429
+    },
+    {
+      "path": "apps/client/src/shared/services/offline-prep/metadata.ts",
+      "sha256": "b6a7599228b6a6cf2e8c71942293ac6169d0f1f56312c318fa6b43c4a3ef309e",
+      "size": 4089
+    },
+    {
+      "path": "apps/client/src/shared/services/offline-prep/router.ts",
+      "sha256": "7ddfeb22d08854a69da1ab6f6fd3f103d6bf7e39ca5e75b78158e0a53008d3a6",
+      "size": 3717
+    },
+    {
+      "path": "apps/client/src/shared/services/sync/api.ts",
+      "sha256": "4f7188a6e78cfff7b7d38ade59a5efb88e664a145ad9ef4f9cf16d6e51d19522",
+      "size": 2522
+    },
+    {
+      "path": "apps/client/src/shared/services/sync/cleanup-job.ts",
+      "sha256": "c954a9d7af88dd36c67673c8e374fb8fcd5684812a8b9ea6ceb59b590f2373e4",
+      "size": 9221
+    },
+    {
+      "path": "apps/client/src/shared/services/sync/engine.ts",
+      "sha256": "941533e022a1d739a18cfbcd67ece7bb339aaacf087aec9c3337f0b572d0f99e",
+      "size": 9016
+    },
+    {
+      "path": "apps/client/src/shared/services/sync/provider.tsx",
+      "sha256": "758b1faaa64ed0f6bb0697611fe115b151df3c5248796a8425d20df3af9583b7",
+      "size": 2777
+    },
+    {
+      "path": "apps/client/src/shared/services/sync/queue.ts",
+      "sha256": "b97592d6f614bcf09c6f8b67e20b5f05ade4216a8dfb3d630bdef08c30749fe5",
+      "size": 7933
+    },
+    {
+      "path": "apps/client/src/shared/services/sync/storage.ts",
+      "sha256": "85709b712674e411f12acf8f6ab395af8ec73d81d4eddd1d90af572fb60abcf9",
+      "size": 2330
+    },
+    {
+      "path": "apps/client/src/shared/store/auth.ts",
+      "sha256": "5bfa4f08868ddef38471371309e3936263b7acedacabdfd3ece6c6d37d299e6c",
+      "size": 9240
+    },
+    {
+      "path": "apps/client/src/shared/store/index.ts",
+      "sha256": "ec10fed1e6684278ed0a742638b4afec7a6c300a4fac4120f563b5ee198b66b2",
+      "size": 101
+    },
+    {
+      "path": "apps/client/src/shared/store/network.ts",
+      "sha256": "7d2506d7d621820d0685430d63ce1541816d6c2a37d013a25e39b67cd752443a",
+      "size": 12231
+    },
+    {
+      "path": "apps/client/src/shared/store/useTripStore.ts",
+      "sha256": "a9d49d49d791156fd0b6a17d924d41c480de9649fa184d0261080ce0bdf877e6",
+      "size": 388
+    },
+    {
+      "path": "apps/client/tsconfig.json",
+      "sha256": "47df39b582ad536a2294fe2d84a10d1257f06f8906ca879047e3ff874030d917",
+      "size": 286
+    },
+    {
+      "path": "package.json",
+      "sha256": "afc29b0797fe56c794b6dfdc74ff1a19629ec73943cea1bea73027c5cd2e3517",
+      "size": 769
+    },
+    {
+      "path": "packages/schema/dist/entities/expense.d.ts",
+      "sha256": "046508f57f0beebb98a7b3667fb7c8df0b901057eb775929c252a9a2a5583c45",
+      "size": 1849
+    },
+    {
+      "path": "packages/schema/dist/entities/schedule.d.ts",
+      "sha256": "c045a2bd876fee0879d81659c1a8a4064dbf51eb0f06b2dffdc1523ae0811098",
+      "size": 1561
+    },
+    {
+      "path": "packages/schema/dist/entities/trip.d.ts",
+      "sha256": "2d922bcb4b193d985fd69d572128d0514343b83da02ee6efd605dc2cb250a49e",
+      "size": 2125
+    },
+    {
+      "path": "packages/schema/dist/requests/expense.d.ts",
+      "sha256": "7da57d18d7afcfa7ec97ec3eaa05c6af14d08b8b8e38617ecad12070c702d943",
+      "size": 2903
+    },
+    {
+      "path": "packages/schema/dist/requests/schedule.d.ts",
+      "sha256": "a64141a64d63f29ee6600b886c7a9cf9666126e96949ad3692cf2bcf5af13e0d",
+      "size": 2194
+    },
+    {
+      "path": "packages/schema/dist/requests/trip.d.ts",
+      "sha256": "d5af095457fa143256a7d40b5573cde7b9941c2e3205349d869ed5c31af23173",
+      "size": 4794
+    },
+    {
+      "path": "packages/schema/dist/responses/auth.d.ts",
+      "sha256": "236ff42d0bf1e334ec793f346471a93cd5625963f923969d2733a991fc75bb7f",
+      "size": 5380
+    },
+    {
+      "path": "packages/schema/dist/responses/expense.d.ts",
+      "sha256": "87dcd0f391acdf122c32e81c3330ebd1ded5648cd315c1929319e32e3e07b1b4",
+      "size": 6336
+    },
+    {
+      "path": "packages/schema/dist/responses/places.d.ts",
+      "sha256": "eb29c653b28622efc4eace91db9a229f42687c560ed099083735a8107b4bc1ed",
+      "size": 4263
+    },
+    {
+      "path": "packages/schema/dist/responses/schedule.d.ts",
+      "sha256": "f8470d60699d5405d66caf77398ab7102c0b4d461ef9647f4659f96aabf5f943",
+      "size": 5973
+    },
+    {
+      "path": "packages/schema/dist/responses/trip.d.ts",
+      "sha256": "7de9408e23516b31b7135780cf34ab4eaf57a35ca76ce7b6e75def50e07fa763",
+      "size": 19505
+    },
+    {
+      "path": "packages/schema/package.json",
+      "sha256": "fe1e50cd51354497b190872485e9661840ee3b01ed8bb48cb8060b41e22b3720",
+      "size": 4604
+    },
+    {
+      "path": "packages/typescript-config/package.json",
+      "sha256": "13fc47bb8b39e3875c0ddb7929925d80d6a1a9dca72ff4debc1a492aa84307be",
+      "size": 212
+    },
+    {
+      "path": "packages/typescript-config/src/base.json",
+      "sha256": "0a7b6d47a389de02c80128598cf6685b7dc261f2dca0368d1b7508c429fb1ba8",
+      "size": 375
+    },
+    {
+      "path": "packages/typescript-config/src/react-native.json",
+      "sha256": "a5899d50a88662cd9c026d2528a6b4d8e5f2864a3e6e471d0bf93622bdaf83d6",
+      "size": 347
+    },
+    {
+      "path": "packages/ui/package.json",
+      "sha256": "b5ec100f5c132dfc5c99283aa51094a2e9ae7022b3fe917771e0092d905c18cd",
+      "size": 1113
+    },
+    {
+      "path": "packages/ui/src/components/Avatar.tsx",
+      "sha256": "87614349dc1112d4d28fb34a6e510e888944b1dd65d4655f279b49d86c8ac852",
+      "size": 1675
+    },
+    {
+      "path": "packages/ui/src/components/Badge.tsx",
+      "sha256": "f81035e02fd597f6004263d7502933b9998d6e34d5f33e8eb5fea0c8d5af1153",
+      "size": 1500
+    },
+    {
+      "path": "packages/ui/src/components/Calendar.tsx",
+      "sha256": "fad3b6f938589bb5c434234503a1d8174b08740ec878f2dff4d97ddedf1c83e8",
+      "size": 1467
+    },
+    {
+      "path": "packages/ui/src/components/Card.tsx",
+      "sha256": "e2cd2b7b6fc2002d00ea6c4e05d13ea72c343b3619112f8c5ac6c205fac11b54",
+      "size": 775
+    },
+    {
+      "path": "packages/ui/src/components/Checkbox.tsx",
+      "sha256": "12b5c62cc7240fb0b12d3f8ae7addcdee182b83407878fe0108ef90167ab07a0",
+      "size": 1618
+    },
+    {
+      "path": "packages/ui/src/components/Drawer.tsx",
+      "sha256": "c9f9c944ee8b024dbcdf25e911cd8063e5f312cd98f1a822176dd214f11eaa6f",
+      "size": 4393
+    },
+    {
+      "path": "packages/ui/src/components/DropdownMenu.tsx",
+      "sha256": "79179f8d464c1160318808b76e978f593a242d7b13e2c20edbb87f9c22120fa2",
+      "size": 2634
+    },
+    {
+      "path": "packages/ui/src/components/Image.tsx",
+      "sha256": "5b930de8418573960d97bbed3dc2cbb4046d7e2d2f65ed7ed40d6fe00e3e5c89",
+      "size": 529
+    },
+    {
+      "path": "packages/ui/src/components/Input.tsx",
+      "sha256": "486476f47a74ad9cb315955960743fcd1ddc69ed2ebfc78ca1bd10eb1093cd11",
+      "size": 736
+    },
+    {
+      "path": "packages/ui/src/components/Label.tsx",
+      "sha256": "7b793131cb56d052c12d3489a3c84b3d75b5df137ed5284513039a1bde6ce5dc",
+      "size": 563
+    },
+    {
+      "path": "packages/ui/src/components/Pressable.tsx",
+      "sha256": "2c1707b5d5ca1996e7e0d6fd7ab77cdebdc662024de04c9d001a17924428a57a",
+      "size": 2622
+    },
+    {
+      "path": "packages/ui/src/components/RadioGroup.tsx",
+      "sha256": "fc30b117b5b5399c153a229d2dc8d80a7dc332490899c5a51765c6ae2f38fbce",
+      "size": 1461
+    },
+    {
+      "path": "packages/ui/src/components/Select.tsx",
+      "sha256": "39d51e6e0076acfd736d5ee02d5c650cacb3195aec103a5345a7c37e59dce1d8",
+      "size": 9816
+    },
+    {
+      "path": "packages/ui/src/components/Separator.tsx",
+      "sha256": "462120e3f9028fc26981cbe01f5dec493854159f72b84fa818f92e7026aa6730",
+      "size": 783
+    },
+    {
+      "path": "packages/ui/src/components/Switch.tsx",
+      "sha256": "8088d029ad8b95e7b166c8f213ca22dfe0a6f687cd25c759262583e661c90d7e",
+      "size": 1026
+    },
+    {
+      "path": "packages/ui/src/components/Textarea.tsx",
+      "sha256": "71dc557af10b6b2c21bcaa2117563da47df8227b04b7a47195f4d3ea259eb58e",
+      "size": 829
+    },
+    {
+      "path": "packages/ui/src/index.tsx",
+      "sha256": "3f58da49b29a73febe1d33290cc527cfb50ff117f20460d1c8f73dc76d2c10e4",
+      "size": 1684
+    },
+    {
+      "path": "packages/ui/src/lib/utils.ts",
+      "sha256": "74e8fe9d0d680c442ed6adb13e7d119d6c210c19ae6c114313b2a72552be0883",
+      "size": 169
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "sha256": "403c529a1ffa5a992d0fe6bd3b33c6623056b5848e52c97fa901d8a12e7f9010",
+      "size": 647681
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "sha256": "60ce4d1dbf137701a4683d171391c51662700c2f3e32a7caab8b2efc22540e65",
+      "size": 40
+    },
+    {
+      "path": "apps/client/src/shared/components/PlaceSearch/LocationSearchBar.tsx",
+      "sha256": "050c043231cfb4f7d0f392696dd23d24c8ce82435cba73aff1c8bc69fe575e6c",
+      "size": 1160
+    },
+    {
+      "path": "apps/client/src/shared/components/PlaceSearch/LocationSearchResults.tsx",
+      "sha256": "30fe99cb887d9d34732875315d1aea03be1b3a9d995b04fcb46099d022c90622",
+      "size": 3152
+    },
+    {
+      "path": "apps/client/src/features/schedule/create-schedule/ScheduleLocationField.tsx",
+      "sha256": "ee863a7abba6746f2d6bda52f00ea48dbcf79737fa2ea486d250243f3d19d623",
+      "size": 3710
+    },
+    {
+      "path": "apps/client/src/features/schedule/create-schedule/ScheduleSubmitActions.tsx",
+      "sha256": "f579a1427d8e09c7c05e825517b35275d7a1fc1171d6b30d08cd776a116730c7",
+      "size": 1446
+    },
+    {
+      "path": "apps/client/src/features/schedule/create-schedule/useCreateScheduleSearch.ts",
+      "sha256": "85e3541a255b030456818e1ee4d57a3dbce3d5a77b3c0f8611a7157963ad93dc",
+      "size": 946
+    },
+    {
+      "path": "apps/client/src/shared/services/places/usePlaceSearch.ts",
+      "sha256": "01c89302a9cc4fe5ef9bd44515bcdd65f5030fa81f25927b81d328ea1f28a4c5",
+      "size": 2209
+    },
+    {
+      "path": "apps/client/src/shared/services/places/api.ts",
+      "sha256": "197da4fb78e3ea1edcd222986ff8fb8ef1fd52594e5c966ae7ed2ff153203adc",
+      "size": 2364
+    },
+    {
+      "path": "apps/client/src/shared/services/places/types.ts",
+      "sha256": "19e0a5cd86deea339dc9a31dda197bc764fa1d688a0dacb0e57b91c9c64a53d9",
+      "size": 761
+    },
+    {
+      "path": "apps/client/src/features/expense/expense-form/ExpenseSubmitActions.tsx",
+      "sha256": "06a6edd0bb823c2e4126f24a6fcb0e54fdcbe41ded3cfbce72d4e8ad34246bf6",
+      "size": 1309
+    }
+  ],
+  "exit_code": 2,
+  "finished_at": "2026-10-31T06:18:56.952Z",
+  "normalization": {
+    "output_root_token": "<OUTPUT_ROOT>",
+    "stderr_replacements": 0,
+    "stdout_replacements": 23
+  },
+  "output_capture": {
+    "encoding": "utf-8",
+    "errors": "replace",
+    "limit_unit": "characters",
+    "max_chars_per_stream": 20000,
+    "stderr": {
+      "observed_chars": 0,
+      "persisted_chars": 0,
+      "read_error": null,
+      "truncated": false
+    },
+    "stdout": {
+      "observed_chars": 3613,
+      "persisted_chars": 2900,
+      "read_error": null,
+      "truncated": false
+    }
+  },
+  "process_returncode": 2,
+  "result": "fail",
+  "runtime_environment": {
+    "command_cwd": "<OUTPUT_ROOT>",
+    "os_name": "posix",
+    "platform_machine": "arm64",
+    "platform_system": "Darwin",
+    "python_implementation": "CPython",
+    "python_version": "3.14.3",
+    "verification_receipt_schema_version": 2,
+    "verify_contract_schema_version": 2
+  },
+  "schema_version": 2,
+  "snapshot_sha256": "e9df0d9491c3b5b2c59b8c2dbe8e82303853c45553fdf38e4c2575025f45d7f5",
+  "started_at": "2026-10-31T06:18:54.444Z",
+  "stderr": "",
+  "stdout": "apps/client/src/shared/lib/mapbox.ts(61,26): error TS2345: Argument of type 'number[][]' is not assignable to parameter of type '[number, number][]'.\n  Type 'number[]' is not assignable to type '[number, number]'.\n    Target requires 2 element(s) but source may have fewer.\napps/client/src/shared/services/offline-map/download.ts(171,22): error TS2339: Property 'size' does not exist on type 'OfflinePack'.\napps/client/src/shared/services/offline-map/download.ts(172,22): error TS2339: Property 'tileCount' does not exist on type 'OfflinePack'.\npackages/ui/src/index.tsx(2,20): error TS6059: File '<OUTPUT_ROOT>/packages/ui/src/lib/utils.ts' is not under 'rootDir' '<OUTPUT_ROOT>/apps/client'. 'rootDir' is expected to contain all source files.\n  The file is in the program because:\n    Imported via './lib/utils' from file '<OUTPUT_ROOT>/packages/ui/src/index.tsx'\n    Imported via '../lib/utils' from file '<OUTPUT_ROOT>/packages/ui/src/components/Pressable.tsx'\n    Imported via '../lib/utils' from file '<OUTPUT_ROOT>/packages/ui/src/components/Input.tsx'\n    Imported via '../lib/utils' from file '<OUTPUT_ROOT>/packages/ui/src/components/Textarea.tsx'\n    Imported via '../lib/utils' from file '<OUTPUT_ROOT>/packages/ui/src/components/Label.tsx'\n    Imported via '../lib/utils' from file '<OUTPUT_ROOT>/packages/ui/src/components/Card.tsx'\n    Imported via '../lib/utils' from file '<OUTPUT_ROOT>/packages/ui/src/components/Image.tsx'\n    Imported via '../lib/utils' from file '<OUTPUT_ROOT>/packages/ui/src/components/Badge.tsx'\n    Imported via '../lib/utils' from file '<OUTPUT_ROOT>/packages/ui/src/components/Separator.tsx'\n    Imported via '../lib/utils' from file '<OUTPUT_ROOT>/packages/ui/src/components/Avatar.tsx'\n    Imported via '../lib/utils' from file '<OUTPUT_ROOT>/packages/ui/src/components/Checkbox.tsx'\n    Imported via '../lib/utils' from file '<OUTPUT_ROOT>/packages/ui/src/components/Switch.tsx'\n    Imported via '../lib/utils' from file '<OUTPUT_ROOT>/packages/ui/src/components/RadioGroup.tsx'\n    Imported via '../lib/utils' from file '<OUTPUT_ROOT>/packages/ui/src/components/Select.tsx'\n    Imported via '../lib/utils' from file '<OUTPUT_ROOT>/packages/ui/src/components/Drawer.tsx'\n    Imported via '../lib/utils' from file '<OUTPUT_ROOT>/packages/ui/src/components/DropdownMenu.tsx'\npackages/ui/src/index.tsx(35,24): error TS6059: File '<OUTPUT_ROOT>/packages/ui/src/components/Select.tsx' is not under 'rootDir' '<OUTPUT_ROOT>/apps/client'. 'rootDir' is expected to contain all source files.\n  The file is in the program because:\n    Imported via './components/Select' from file '<OUTPUT_ROOT>/packages/ui/src/index.tsx'\n    Imported via './components/Select' from file '<OUTPUT_ROOT>/packages/ui/src/index.tsx'\n    Imported via '../../../../../packages/ui/src/components/Select' from file '<OUTPUT_ROOT>/apps/client/tests/features/edit/offline-values.test.tsx'\n",
+  "timeout": {
+    "timed_out": false,
+    "timeout_seconds": 90.0
+  },
+  "workspace_id": "002-code-readability-refactoring"
+}

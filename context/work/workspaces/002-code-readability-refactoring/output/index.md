@@ -12,7 +12,6 @@
 - [Ticket 작성](../../spec-and-tickets/TICKET.md): 실행 결과·맥락·접근·완료 근거·실제 결과 작성
 - [갱신과 작업의 연속성](../../spec-and-tickets/MAINTENANCE.md): Main·Maintain의 갱신 책임과 재판단 기준
 - [선택 배경과 변경 이력](../../spec-and-tickets/HISTORY.md): Ticket 03에서 드러난 문제, 현재 판단을 선택한 이유, reviewer 과정, 문서 분리와 검증 한계 및 후속 변경 기록
-- [프로젝트 결정 연결](../../../../../.claude/decisions/2026-09-12-spec-ticket-execution-criteria.md): 기존 프로젝트 결정 목록에서 현재 `HISTORY.md`와 운영 기준으로 이어지는 경로
 
 기존 `context/work/workspaces/SPEC-AND-TICKETS.md`는 과거 링크를 새 진입점으로 연결하는 위치 안내로 남아 있다. `HISTORY.md`는 기준 자체를 변경할 때 읽는 배경 Owner이며 일반 Ticket 실행이나 Maintain의 매 판단 입력에 추가되지 않는다. 실제 구현·완료 행동의 후속 검증과 이 Workspace 전체의 사용자 acceptance는 아직 남아 있다.
 

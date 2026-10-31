@@ -1,0 +1,24 @@
+{
+  "workspace_id": "002-code-readability-refactoring",
+  "reason": "현재 타입 검사 claim·argv는 유지하고 삭제된 폼의 책임을 이어받은 실제 파일로 입력을 현행화한다. 제품 코드나 기존 receipt는 수정하지 않았다.",
+  "removed_missing_paths": [
+    "apps/client/src/features/expense/create-expense/ManualExpenseForm.tsx",
+    "apps/client/src/features/schedule/create-schedule/LocationSearchBar.tsx",
+    "apps/client/src/features/schedule/create-schedule/LocationSearchResults.tsx",
+    "apps/client/src/features/schedule/create-schedule/ManualScheduleForm.tsx",
+    "apps/client/src/features/schedule/create-schedule/useLocationSearch.ts",
+    "apps/client/src/features/trip/create-trip/useCreateTripForm.ts"
+  ],
+  "added_or_already_present_paths": [
+    "apps/client/src/shared/components/PlaceSearch/LocationSearchBar.tsx",
+    "apps/client/src/shared/components/PlaceSearch/LocationSearchResults.tsx",
+    "apps/client/src/features/schedule/create-schedule/ScheduleLocationField.tsx",
+    "apps/client/src/features/schedule/create-schedule/ScheduleSubmitActions.tsx",
+    "apps/client/src/features/schedule/create-schedule/useCreateScheduleSearch.ts",
+    "apps/client/src/shared/services/places/usePlaceSearch.ts",
+    "apps/client/src/shared/services/places/api.ts",
+    "apps/client/src/shared/services/places/types.ts",
+    "apps/client/src/features/expense/expense-form/ExpenseSubmitActions.tsx"
+  ],
+  "evidence": "현재 import/구성 및 삭제·분리 commits 78acff5,a8e60a7,852b74b를 코드 조사 담당이 직접 대조함. 후속 구현을 미커밋 trial의 원판으로 주장하지 않는다."
+}

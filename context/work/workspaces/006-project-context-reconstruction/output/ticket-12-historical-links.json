@@ -1,0 +1,1539 @@
+{
+  "schema_version": 1,
+  "purpose": "Ticket 12 historical reaccess map; does not grant checker exceptions or make old URLs current execution paths.",
+  "review_date": "2026-10-31",
+  "baseline": {
+    "command": "node scripts/check-harness.mjs",
+    "failure_count": 63,
+    "unique_target_count": 29,
+    "log_sha256": "2690965d113f64c338b2c58c37e0c712ff580f818910af140e616b0431d6a866",
+    "log_text": "보존 원문으로 대조한 과거 스킬 참조: 2건 (옛 URL은 현재 실행 경로가 아님)\nHarness check failed with 63 issue(s):\n- context/work/workspaces/001-noline-context-harness-application/records/2026-09-11-03-workspace-writing-and-maintainer-settings.md links to missing ../../../../../.claude/decisions/2026-09-11-workspace-writing-contract.md\n- context/work/workspaces/001-noline-context-harness-application/records/2026-10-30-02-development-skill-transition.md links to missing ../../../../../.claude/decisions/2026-10-30-development-skill-transition.md\n- context/work/workspaces/002-code-readability-refactoring/output/index.md links to missing ../../../../../.claude/decisions/2026-09-12-spec-ticket-execution-criteria.md\n- context/work/workspaces/002-code-readability-refactoring/records/2026-09-18-02-app-initialization-and-style.md links to missing ../../../../../.claude/decisions/2026-09-18-app-startup-failure-recovery.md\n- context/work/workspaces/002-code-readability-refactoring/records/2026-09-18-05-auth-session-implementation.md links to missing ../../../../../apps/client/src/shared/services/auth/session-restoration.ts\n- context/work/workspaces/002-code-readability-refactoring/records/2026-09-19-01-auth-complexity-review-and-decisions.md links to missing ../../../../../.claude/decisions/2026-09-18-device-session-and-local-access.md\n- context/work/workspaces/002-code-readability-refactoring/records/2026-09-29-07-read-query-composition-trial.md links to missing ../../../../../apps/client/src/screens/read-query.ts\n- context/work/workspaces/002-code-readability-refactoring/records/2026-10-01-01-schedule-create-provisional-review.md links to missing ../../../../../apps/client/src/features/schedule/create-schedule/useLocationSearch.ts\n- context/work/workspaces/002-code-readability-refactoring/records/2026-10-02-03-expense-time-decisions-and-verification.md links to missing ../../../../../.claude/context/policy-architecture.md\n- context/work/workspaces/002-code-readability-refactoring/records/2026-10-02-03-expense-time-decisions-and-verification.md links to missing ../../../../../.claude/decisions/2026-10-02-expense-draft-and-schedule-association.md\n- context/work/workspaces/002-code-readability-refactoring/records/2026-10-02-03-expense-time-decisions-and-verification.md links to missing ../../../../../.claude/decisions/2026-10-02-expense-date-boundaries.md\n- context/work/workspaces/002-code-readability-refactoring/records/2026-10-06-01-city-time-zone-commits-and-original-bug-continuity.md links to missing ../../../../../.claude/decisions/2026-10-06-trip-city-time-zone.md\n- context/work/workspaces/002-code-readability-refactoring/source/codebase-analysis/components.md links to missing ../../../../../../apps/client/src/features/trip/create-trip/useCreateTripForm.ts\n- context/work/workspaces/003-bug-investigation-and-fixes/current/memory/project-context.md links to missing ../../../../../../.claude/rules/activation-router.md\n- context/work/workspaces/003-bug-investigation-and-fixes/current/memory/project-context.md links to missing ../../../../../../.claude/rules/transaction-sync-queue.md\n- context/work/workspaces/003-bug-investigation-and-fixes/current/memory/project-context.md links to missing ../../../../../../.claude/rules/schema-first.md\n- context/work/workspaces/003-bug-investigation-and-fixes/current/memory/project-context.md links to missing ../../../../../../.claude/rules/auth-user-scope.md\n- context/work/workspaces/003-bug-investigation-and-fixes/current/memory/project-context.md links to missing ../../../../../../.claude/guards/README.md\n- context/work/workspaces/003-bug-investigation-and-fixes/current/memory/project-context.md links to missing ../../../../../../.claude/runbooks/README.md\n- context/work/workspaces/003-bug-investigation-and-fixes/current/memory/tickets/09-map-search-route-behavior.md links to missing ../../../../../../../apps/client/src/features/schedule/create-schedule/useLocationSearch.ts\n- context/work/workspaces/003-bug-investigation-and-fixes/records/2026-09-13-02-major-feature-category-investigation.md links to missing ../../../../../apps/client/src/features/schedule/create-schedule/useLocationSearch.ts\n- context/work/workspaces/003-bug-investigation-and-fixes/records/2026-09-13-02-major-feature-category-investigation.md links to missing ../../../../../apps/client/src/features/trip/create-trip/useCreateTripForm.ts\n- context/work/workspaces/003-bug-investigation-and-fixes/source/codebase-analysis/components.md links to missing ../../../../../../apps/client/src/features/trip/create-trip/useCreateTripForm.ts\n- context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md links to missing ../../../../../../.claude/context/currency.md\n- context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md links to missing ../../../../../../.claude/context/time.md\n- context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md links to missing ../../../../../../.claude/context/api-data.md\n- context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md links to missing ../../../../../../.claude/runbooks/README.md\n- context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md links to missing ../../../../../../.claude/decisions/2026-10-30-development-skill-transition.md\n- context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/tickets/01-product-contract-agreements.md links to missing ../../../../../../../.claude/context/error-handling.md\n- context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/tickets/02-guidance-failure-analysis-and-retest.md links to missing ../../../../../../../.claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md\n- context/work/workspaces/004-project-context-contracts-and-guidance/output/index.md links to missing ../../../../../.claude/runbooks/README.md\n- context/work/workspaces/004-project-context-contracts-and-guidance/output/index.md links to missing ../../../../../.claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md\n- context/work/workspaces/004-project-context-contracts-and-guidance/output/index.md links to missing ../../../../../.claude/decisions/2026-10-30-development-skill-transition.md\n- context/work/workspaces/004-project-context-contracts-and-guidance/records/2026-09-14-02-guidance-failure-analysis-and-retest.md links to missing ../../../../../.claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md\n- context/work/workspaces/005-context-based-code-improvement/current/memory/project-context.md links to missing ../../../../../../.claude/context/policy-architecture.md\n- context/work/workspaces/005-context-based-code-improvement/current/memory/project-context.md links to missing ../../../../../../.claude/context/error-handling.md\n- context/work/workspaces/005-context-based-code-improvement/current/memory/project-context.md links to missing ../../../../../../.claude/context/selective-activation-architecture.md\n- context/work/workspaces/005-context-based-code-improvement/current/memory/project-context.md links to missing ../../../../../../.claude/context/form.md\n- context/work/workspaces/005-context-based-code-improvement/current/memory/project-context.md links to missing ../../../../../../.claude/context/README.md\n- context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/02-policy-query-composition.md links to missing ../../../../../../../.claude/context/policy-architecture.md\n- context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/05-network-read-context.md links to missing ../../../../../../../.claude/context/policy-architecture.md\n- context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/05-network-read-context.md links to missing ../../../../../../../.claude/context/selective-activation-architecture.md\n- context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/05-network-read-context.md links to missing ../../../../../../../.claude/context/policy-architecture.md\n- context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/05-network-read-context.md links to missing ../../../../../../../.claude/context/error-handling.md\n- context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/06-draft-input-context.md links to missing ../../../../../../../.claude/context/form.md\n- context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/06-draft-input-context.md links to missing ../../../../../../../.claude/context/form.md\n- context/work/workspaces/005-context-based-code-improvement/output/index.md links to missing ../../../../../.claude/context/policy-architecture.md\n- context/work/workspaces/005-context-based-code-improvement/output/index.md links to missing ../../../../../.claude/context/error-handling.md\n- context/work/workspaces/005-context-based-code-improvement/output/index.md links to missing ../../../../../.claude/context/selective-activation-architecture.md\n- context/work/workspaces/005-context-based-code-improvement/output/index.md links to missing ../../../../../.claude/context/form.md\n- context/work/workspaces/005-context-based-code-improvement/output/index.md links to missing ../../../../../.claude/context/components.md\n- context/work/workspaces/005-context-based-code-improvement/output/index.md links to missing ../../../../../.claude/context/manual-input.md\n- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-07-impact-and-context-reassessment.md links to missing ../../../../../.claude/decisions/2026-09-18-device-session-and-local-access.md\n- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-07-impact-and-context-reassessment.md links to missing ../../../../../.claude/context/policy-architecture.md\n- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-07-impact-and-context-reassessment.md links to missing ../../../../../.claude/context/selective-activation-architecture.md\n- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-13-network-read-context.md links to missing ../../../../../.claude/context/policy-architecture.md\n- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-13-network-read-context.md links to missing ../../../../../.claude/context/error-handling.md\n- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-13-network-read-context.md links to missing ../../../../../.claude/context/selective-activation-architecture.md\n- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-14-save05-and-review06.md links to missing ../../../../../.claude/context/form.md\n- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-14-save05-and-review06.md links to missing ../../../../../.claude/context/components.md\n- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-15-draft-input-context.md links to missing ../../../../../.claude/context/form.md\n- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-15-draft-input-context.md links to missing ../../../../../.claude/context/components.md\n- context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-15-draft-input-context.md links to missing ../../../../../.claude/context/manual-input.md\n",
+    "source_hash_capture": "Before Main reconciliation of the one live 002 output row. Hashes identify the reviewed source bytes; no historical source was edited."
+  },
+  "consumer_evidence": {
+    "confirmed_by": "Main report from operational metadata only",
+    "default_workspace": "001-noline-context-harness-application",
+    "current_generation_bound_workspaces": [
+      "002-code-readability-refactoring",
+      "006-project-context-reconstruction"
+    ],
+    "metadata_scope": "17 session.json files; 004 current_generation is None; no 003/005 binding",
+    "warning": "This dated observation does not authorize activation or infer future consumer status."
+  },
+  "counts": {
+    "occurrences": 63,
+    "targets": 29,
+    "record_occurrences": 25,
+    "source_occurrences": 2,
+    "current_occurrences": 26,
+    "output_occurrences": 10,
+    "targets_with_original_path_git_object": 27,
+    "targets_without_confirmed_exact_original": 2,
+    "historical_occurrences_to_freeze": 62,
+    "resolved_live_output_occurrences": 1
+  },
+  "targets": [
+    {
+      "id": "T01",
+      "original_target": ".claude/decisions/2026-09-11-workspace-writing-contract.md",
+      "occurrence_count": 1,
+      "original_git_object": {
+        "commit": "1648540783d1d2f92337a2d61b7ea7b0cc8e1b25",
+        "path": ".claude/decisions/2026-09-11-workspace-writing-contract.md",
+        "blob_oid": "0124ba419eb22fa9767f1deeebb59de7d9431f37",
+        "sha256": "7a41870ddff9a736cd36d53629f1ef2999fe70a0acd11c9701b2bd3d2312e3f9",
+        "access": "git show 1648540783d1d2f92337a2d61b7ea7b0cc8e1b25:.claude/decisions/2026-09-11-workspace-writing-contract.md",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive_manifest": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/manifest.json",
+      "manifest_sha256": "7a41870ddff9a736cd36d53629f1ef2999fe70a0acd11c9701b2bd3d2312e3f9",
+      "archive": {
+        "path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-11-workspace-writing-contract.md.txt",
+        "sha256": "7a41870ddff9a736cd36d53629f1ef2999fe70a0acd11c9701b2bd3d2312e3f9",
+        "equals_identified_git_bytes": true,
+        "status": "byte-identical to identified Git object"
+      }
+    },
+    {
+      "id": "T02",
+      "original_target": ".claude/decisions/2026-10-30-development-skill-transition.md",
+      "occurrence_count": 3,
+      "original_git_object": {
+        "commit": "1648540783d1d2f92337a2d61b7ea7b0cc8e1b25",
+        "path": ".claude/decisions/2026-10-30-development-skill-transition.md",
+        "blob_oid": "6412ca8b14dda14df078c7aa0790f898f41eaa22",
+        "sha256": "0a5fe166e552b1134bb9f414e28b10456afd3e33626ca180a206b9c2a1665746",
+        "access": "git show 1648540783d1d2f92337a2d61b7ea7b0cc8e1b25:.claude/decisions/2026-10-30-development-skill-transition.md",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive_manifest": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/manifest.json",
+      "manifest_sha256": "0a5fe166e552b1134bb9f414e28b10456afd3e33626ca180a206b9c2a1665746",
+      "archive": {
+        "path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-10-30-development-skill-transition.md.txt",
+        "sha256": "0a5fe166e552b1134bb9f414e28b10456afd3e33626ca180a206b9c2a1665746",
+        "equals_identified_git_bytes": true,
+        "status": "byte-identical to identified Git object"
+      }
+    },
+    {
+      "id": "T03",
+      "original_target": ".claude/decisions/2026-09-12-spec-ticket-execution-criteria.md",
+      "occurrence_count": 1,
+      "original_git_object": {
+        "commit": "1648540783d1d2f92337a2d61b7ea7b0cc8e1b25",
+        "path": ".claude/decisions/2026-09-12-spec-ticket-execution-criteria.md",
+        "blob_oid": "e4e3fcf849489b75960decb0a300c5acddd1bd69",
+        "sha256": "8aa1d8fc6822cfe96ad7d8a5d7c11af17a2de6080ca9df826dff490092324e4e",
+        "access": "git show 1648540783d1d2f92337a2d61b7ea7b0cc8e1b25:.claude/decisions/2026-09-12-spec-ticket-execution-criteria.md",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive_manifest": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/manifest.json",
+      "manifest_sha256": "8aa1d8fc6822cfe96ad7d8a5d7c11af17a2de6080ca9df826dff490092324e4e",
+      "archive": {
+        "path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-12-spec-ticket-execution-criteria.md.txt",
+        "sha256": "8aa1d8fc6822cfe96ad7d8a5d7c11af17a2de6080ca9df826dff490092324e4e",
+        "equals_identified_git_bytes": true,
+        "status": "byte-identical to identified Git object"
+      }
+    },
+    {
+      "id": "T04",
+      "original_target": ".claude/decisions/2026-09-18-app-startup-failure-recovery.md",
+      "occurrence_count": 1,
+      "original_git_object": {
+        "commit": "f466a32ac22bb49f52c23d603dc74b6a5a124f09",
+        "path": ".claude/decisions/2026-09-18-app-startup-failure-recovery.md",
+        "blob_oid": "c697e0e6cca7a27bbd5dc595b699e6f3d2fb0e30",
+        "sha256": "3b35e08fef42b01442b9c55d5ae34b80d70c83401ece2e9a292bab7c277089f7",
+        "access": "git show f466a32ac22bb49f52c23d603dc74b6a5a124f09:.claude/decisions/2026-09-18-app-startup-failure-recovery.md",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive": {
+        "path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2026-09-18-app-startup-failure-recovery.md",
+        "sha256": "3b35e08fef42b01442b9c55d5ae34b80d70c83401ece2e9a292bab7c277089f7",
+        "equals_identified_git_bytes": true,
+        "status": "byte-identical to identified Git object"
+      }
+    },
+    {
+      "id": "T05",
+      "original_target": "apps/client/src/shared/services/auth/session-restoration.ts",
+      "occurrence_count": 1,
+      "original_git_object": null,
+      "preservation_status": "exact_record_time_original_not_confirmed",
+      "archive": null
+    },
+    {
+      "id": "T06",
+      "original_target": ".claude/decisions/2026-09-18-device-session-and-local-access.md",
+      "occurrence_count": 2,
+      "original_git_object": {
+        "commit": "f466a32ac22bb49f52c23d603dc74b6a5a124f09",
+        "path": ".claude/decisions/2026-09-18-device-session-and-local-access.md",
+        "blob_oid": "189b222143cab5c68c58b0962d4f443f5af62230",
+        "sha256": "e0d41a50daa9642544ab606146e079e2ebe23e43e5b31bbd5cb83fc6fd034164",
+        "access": "git show f466a32ac22bb49f52c23d603dc74b6a5a124f09:.claude/decisions/2026-09-18-device-session-and-local-access.md",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive": {
+        "path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-08/decisions/2026-09-18-device-session-and-local-access.md",
+        "sha256": "e0d41a50daa9642544ab606146e079e2ebe23e43e5b31bbd5cb83fc6fd034164",
+        "equals_identified_git_bytes": true,
+        "status": "byte-identical to identified Git object"
+      }
+    },
+    {
+      "id": "T07",
+      "original_target": "apps/client/src/screens/read-query.ts",
+      "occurrence_count": 1,
+      "original_git_object": null,
+      "preservation_status": "exact_record_time_original_not_confirmed",
+      "archive": null
+    },
+    {
+      "id": "T08",
+      "original_target": "apps/client/src/features/schedule/create-schedule/useLocationSearch.ts",
+      "occurrence_count": 3,
+      "original_git_object": {
+        "commit": "ee1c005219467f7cd8fd55e5b5b44a6c96a79300",
+        "path": "apps/client/src/features/schedule/create-schedule/useLocationSearch.ts",
+        "blob_oid": "797d270b5f22201eadc3d173afde6668bdcf250e",
+        "sha256": "7a17c029f8a3e52ba7ef43dea930314a027e19d3922bcf7530ee62a1efbc94bd",
+        "access": "git show ee1c005219467f7cd8fd55e5b5b44a6c96a79300:apps/client/src/features/schedule/create-schedule/useLocationSearch.ts",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive": null
+    },
+    {
+      "id": "T09",
+      "original_target": ".claude/context/policy-architecture.md",
+      "occurrence_count": 8,
+      "original_git_object": {
+        "commit": "c9eb33cac631a848f34c36705611bbf254566c2b",
+        "path": ".claude/context/policy-architecture.md",
+        "blob_oid": "b77a896e6bf482749a731c37dd5ed7f05914a95b",
+        "sha256": "9070453a729a16da89e9463d4a5a33d6da96eccdf3404276afa58fef28e6e1da",
+        "access": "git show c9eb33cac631a848f34c36705611bbf254566c2b:.claude/context/policy-architecture.md",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive": {
+        "path": ".claude/_archive/policy-architecture-pre-project-2026-10-30.md",
+        "sha256": "1c482ef13acf7ef5207a432828877e451c69c0d3ea49c709f263a8bede398dff",
+        "equals_identified_git_bytes": false,
+        "status": "preserved edition; notice or relative-link edits may differ; use Git object for exact bytes"
+      }
+    },
+    {
+      "id": "T10",
+      "original_target": ".claude/decisions/2026-10-02-expense-draft-and-schedule-association.md",
+      "occurrence_count": 1,
+      "original_git_object": {
+        "commit": "cde5f979f002e9cab7ccd113b39e5a63f6e5cadf",
+        "path": ".claude/decisions/2026-10-02-expense-draft-and-schedule-association.md",
+        "blob_oid": "3e20b13c282e0af1e8e1af4e4b02fa78d2575412",
+        "sha256": "4d26bf0fda9d2927f05366c3ffeb1192f74983b50d26ca76863f4ce5c91322c9",
+        "access": "git show cde5f979f002e9cab7ccd113b39e5a63f6e5cadf:.claude/decisions/2026-10-02-expense-draft-and-schedule-association.md",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive": {
+        "path": ".claude/_archive/expense-association-decision-pre-project-2026-10-31.md",
+        "sha256": "fa3cab2c89cbcd64661484227417712fb08a6529a5cb0609c0ab49ebce55bf7f",
+        "equals_identified_git_bytes": false,
+        "status": "preserved edition; notice or relative-link edits may differ; use Git object for exact bytes"
+      }
+    },
+    {
+      "id": "T11",
+      "original_target": ".claude/decisions/2026-10-02-expense-date-boundaries.md",
+      "occurrence_count": 1,
+      "original_git_object": {
+        "commit": "cde5f979f002e9cab7ccd113b39e5a63f6e5cadf",
+        "path": ".claude/decisions/2026-10-02-expense-date-boundaries.md",
+        "blob_oid": "531a47810354c38e585ffb71faf08542013ecdfd",
+        "sha256": "29e1babc32a77f82a3a309a467d82cf093297de121335ce6335ebf8753462833",
+        "access": "git show cde5f979f002e9cab7ccd113b39e5a63f6e5cadf:.claude/decisions/2026-10-02-expense-date-boundaries.md",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive": {
+        "path": ".claude/_archive/expense-date-decision-pre-project-2026-10-31.md",
+        "sha256": "48fe26d0816aa1c11f74c04772fa18d28138ec37252935859edbe89a4a16fc6b",
+        "equals_identified_git_bytes": false,
+        "status": "preserved edition; notice or relative-link edits may differ; use Git object for exact bytes"
+      }
+    },
+    {
+      "id": "T12",
+      "original_target": ".claude/decisions/2026-10-06-trip-city-time-zone.md",
+      "occurrence_count": 1,
+      "original_git_object": {
+        "commit": "cde5f979f002e9cab7ccd113b39e5a63f6e5cadf",
+        "path": ".claude/decisions/2026-10-06-trip-city-time-zone.md",
+        "blob_oid": "2664eb1f897888bff34cc28b3d036c055bcc25bb",
+        "sha256": "a3bc3916211a614255d80bedb5859376e7933f4f7158004961528a481fdd7ea5",
+        "access": "git show cde5f979f002e9cab7ccd113b39e5a63f6e5cadf:.claude/decisions/2026-10-06-trip-city-time-zone.md",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive": {
+        "path": ".claude/_archive/trip-time-zone-decision-pre-project-2026-10-31.md",
+        "sha256": "17ca369c59a75deadcebafbc00fbd838c5b2335bf7367a7e0111a907059e2023",
+        "equals_identified_git_bytes": false,
+        "status": "preserved edition; notice or relative-link edits may differ; use Git object for exact bytes"
+      }
+    },
+    {
+      "id": "T13",
+      "original_target": "apps/client/src/features/trip/create-trip/useCreateTripForm.ts",
+      "occurrence_count": 3,
+      "original_git_object": {
+        "commit": "b4ed41f6e4bbae26fd45827b3b9063097a2c1ea4",
+        "path": "apps/client/src/features/trip/create-trip/useCreateTripForm.ts",
+        "blob_oid": "020a1452a8a6b4797e209be0853189808669a2c0",
+        "sha256": "e13c1cbd2b4f7ce9686ffde649b29af3ef8aac736f8c88db52afe4c08826c7c7",
+        "access": "git show b4ed41f6e4bbae26fd45827b3b9063097a2c1ea4:apps/client/src/features/trip/create-trip/useCreateTripForm.ts",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive": null
+    },
+    {
+      "id": "T14",
+      "original_target": ".claude/rules/activation-router.md",
+      "occurrence_count": 1,
+      "original_git_object": {
+        "commit": "55dbe0a281a813ee4e738608b084f3a61d9d4f20",
+        "path": ".claude/rules/activation-router.md",
+        "blob_oid": "a33e96a8f7500d097beb5afcafe6b9b8a0b7e3c4",
+        "sha256": "71ff36908ddcd6f0a8c8b2b8964e6ac044363b42aa052bef04fe3b7dcc17d5d2",
+        "access": "git show 55dbe0a281a813ee4e738608b084f3a61d9d4f20:.claude/rules/activation-router.md",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive_manifest": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/manifest.json",
+      "manifest_sha256": "71ff36908ddcd6f0a8c8b2b8964e6ac044363b42aa052bef04fe3b7dcc17d5d2",
+      "archive": {
+        "path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/activation-router.md",
+        "sha256": "71ff36908ddcd6f0a8c8b2b8964e6ac044363b42aa052bef04fe3b7dcc17d5d2",
+        "equals_identified_git_bytes": true,
+        "status": "byte-identical to identified Git object"
+      }
+    },
+    {
+      "id": "T15",
+      "original_target": ".claude/rules/transaction-sync-queue.md",
+      "occurrence_count": 1,
+      "original_git_object": {
+        "commit": "55dbe0a281a813ee4e738608b084f3a61d9d4f20",
+        "path": ".claude/rules/transaction-sync-queue.md",
+        "blob_oid": "a13628d0ce28355361c359f509720bbb597271ec",
+        "sha256": "76380c6f2e075989757cfd539c9214846203ee3c6c7ba07129b36885f9be1983",
+        "access": "git show 55dbe0a281a813ee4e738608b084f3a61d9d4f20:.claude/rules/transaction-sync-queue.md",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive_manifest": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/manifest.json",
+      "manifest_sha256": "76380c6f2e075989757cfd539c9214846203ee3c6c7ba07129b36885f9be1983",
+      "archive": {
+        "path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/transaction-sync-queue.md",
+        "sha256": "76380c6f2e075989757cfd539c9214846203ee3c6c7ba07129b36885f9be1983",
+        "equals_identified_git_bytes": true,
+        "status": "byte-identical to identified Git object"
+      }
+    },
+    {
+      "id": "T16",
+      "original_target": ".claude/rules/schema-first.md",
+      "occurrence_count": 1,
+      "original_git_object": {
+        "commit": "55dbe0a281a813ee4e738608b084f3a61d9d4f20",
+        "path": ".claude/rules/schema-first.md",
+        "blob_oid": "80431a53785e739316d37b9302202fd8b98b63a9",
+        "sha256": "63028f7ea09f4c4abbf0d2eaa4046c74f7f5b04e0da7d8b1ce5d7ed468b3804b",
+        "access": "git show 55dbe0a281a813ee4e738608b084f3a61d9d4f20:.claude/rules/schema-first.md",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive_manifest": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/manifest.json",
+      "manifest_sha256": "63028f7ea09f4c4abbf0d2eaa4046c74f7f5b04e0da7d8b1ce5d7ed468b3804b",
+      "archive": {
+        "path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/schema-first.md",
+        "sha256": "63028f7ea09f4c4abbf0d2eaa4046c74f7f5b04e0da7d8b1ce5d7ed468b3804b",
+        "equals_identified_git_bytes": true,
+        "status": "byte-identical to identified Git object"
+      }
+    },
+    {
+      "id": "T17",
+      "original_target": ".claude/rules/auth-user-scope.md",
+      "occurrence_count": 1,
+      "original_git_object": {
+        "commit": "55dbe0a281a813ee4e738608b084f3a61d9d4f20",
+        "path": ".claude/rules/auth-user-scope.md",
+        "blob_oid": "ea720cf2452a352426208995d6de6d97b7652600",
+        "sha256": "1924ea8079c15060aea63a68c39fa8d95106432d9c18851efd53fcfe2c5eb08b",
+        "access": "git show 55dbe0a281a813ee4e738608b084f3a61d9d4f20:.claude/rules/auth-user-scope.md",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive_manifest": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/manifest.json",
+      "manifest_sha256": "1924ea8079c15060aea63a68c39fa8d95106432d9c18851efd53fcfe2c5eb08b",
+      "archive": {
+        "path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/rules/auth-user-scope.md",
+        "sha256": "1924ea8079c15060aea63a68c39fa8d95106432d9c18851efd53fcfe2c5eb08b",
+        "equals_identified_git_bytes": true,
+        "status": "byte-identical to identified Git object"
+      }
+    },
+    {
+      "id": "T18",
+      "original_target": ".claude/guards/README.md",
+      "occurrence_count": 1,
+      "original_git_object": {
+        "commit": "55dbe0a281a813ee4e738608b084f3a61d9d4f20",
+        "path": ".claude/guards/README.md",
+        "blob_oid": "65b301f02984dc24917e801909ae2a42abdd158e",
+        "sha256": "f08d451dfbda1b165180c0b7a2f38f52d36db750fcf34e70bd118a4d4cec5cb2",
+        "access": "git show 55dbe0a281a813ee4e738608b084f3a61d9d4f20:.claude/guards/README.md",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive_manifest": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/manifest.json",
+      "manifest_sha256": "f08d451dfbda1b165180c0b7a2f38f52d36db750fcf34e70bd118a4d4cec5cb2",
+      "archive": {
+        "path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-09/guards/README.md",
+        "sha256": "f08d451dfbda1b165180c0b7a2f38f52d36db750fcf34e70bd118a4d4cec5cb2",
+        "equals_identified_git_bytes": true,
+        "status": "byte-identical to identified Git object"
+      }
+    },
+    {
+      "id": "T19",
+      "original_target": ".claude/runbooks/README.md",
+      "occurrence_count": 3,
+      "original_git_object": {
+        "commit": "c6bc416e8c5b1ac9e745c0efe1dd78d2f476cdfa",
+        "path": ".claude/runbooks/README.md",
+        "blob_oid": "93dbc0479d45fa8a70f19045b2b83ab0448a0d1d",
+        "sha256": "969baef56379ebd2605abb0975c03815247478cfa4b539015a5909f07227e142",
+        "access": "git show c6bc416e8c5b1ac9e745c0efe1dd78d2f476cdfa:.claude/runbooks/README.md",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive_manifest": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/manifest.json",
+      "manifest_sha256": "969baef56379ebd2605abb0975c03815247478cfa4b539015a5909f07227e142",
+      "archive": {
+        "path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-10/runbooks/README.md.txt",
+        "sha256": "969baef56379ebd2605abb0975c03815247478cfa4b539015a5909f07227e142",
+        "equals_identified_git_bytes": true,
+        "status": "byte-identical to identified Git object"
+      }
+    },
+    {
+      "id": "T20",
+      "original_target": ".claude/context/currency.md",
+      "occurrence_count": 1,
+      "original_git_object": {
+        "commit": "6d95e189e6e39c9c80dcf3a22e94a1553a4c2c1c",
+        "path": ".claude/context/currency.md",
+        "blob_oid": "ff391f7d39b1315c8426f7b07d11ab4edc1e6e3a",
+        "sha256": "ae9c9429e11d615f5afdb07130ad38bfc8eab0edb3aed72d651e2d152a1ca448",
+        "access": "git show 6d95e189e6e39c9c80dcf3a22e94a1553a4c2c1c:.claude/context/currency.md",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive": {
+        "path": ".claude/_archive/currency-pre-project-2026-10-31.md",
+        "sha256": "cf550e047ff097c8c2b902c1f49c4737f7c3fa14cc49ba98bedd756001a96db5",
+        "equals_identified_git_bytes": false,
+        "status": "preserved edition; notice or relative-link edits may differ; use Git object for exact bytes"
+      }
+    },
+    {
+      "id": "T21",
+      "original_target": ".claude/context/time.md",
+      "occurrence_count": 1,
+      "original_git_object": {
+        "commit": "cde5f979f002e9cab7ccd113b39e5a63f6e5cadf",
+        "path": ".claude/context/time.md",
+        "blob_oid": "6bf1c8fb0b9a77fdb441a52f8d154eb54a9dd25e",
+        "sha256": "70a84ad203c976c22e623f5c6ff6d7e46e6052c79c02351a27827e963f435d74",
+        "access": "git show cde5f979f002e9cab7ccd113b39e5a63f6e5cadf:.claude/context/time.md",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive": {
+        "path": ".claude/_archive/time-pre-project-2026-10-31.md",
+        "sha256": "d404980367fb86b5ce28ee03b8ef51a9dfb0cf8c5c7b1f75ef33a85788cbec51",
+        "equals_identified_git_bytes": false,
+        "status": "preserved edition; notice or relative-link edits may differ; use Git object for exact bytes"
+      }
+    },
+    {
+      "id": "T22",
+      "original_target": ".claude/context/api-data.md",
+      "occurrence_count": 1,
+      "original_git_object": {
+        "commit": "6d95e189e6e39c9c80dcf3a22e94a1553a4c2c1c",
+        "path": ".claude/context/api-data.md",
+        "blob_oid": "ba5bbdff8785b8aae82b8d257f3c042032248407",
+        "sha256": "d5fafe91332ba3fb3feda6f3561b979709bf257538c35386be610d35aa82bcf2",
+        "access": "git show 6d95e189e6e39c9c80dcf3a22e94a1553a4c2c1c:.claude/context/api-data.md",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive": {
+        "path": ".claude/_archive/api-data-pre-project-2026-10-31.md",
+        "sha256": "e49f3d195976c2c1a007db29f9c0c8718beedd3b4a1aeb35ec7f29cf45f0ef8e",
+        "equals_identified_git_bytes": false,
+        "status": "preserved edition; notice or relative-link edits may differ; use Git object for exact bytes"
+      }
+    },
+    {
+      "id": "T23",
+      "original_target": ".claude/context/error-handling.md",
+      "occurrence_count": 5,
+      "original_git_object": {
+        "commit": "6d95e189e6e39c9c80dcf3a22e94a1553a4c2c1c",
+        "path": ".claude/context/error-handling.md",
+        "blob_oid": "d8624879970c6415b55c5a022c052fc3dc06e9bb",
+        "sha256": "278f7cd8bb9e7f93b807200229282c11daf301aa26e8cd7baa203ed8f40a6d46",
+        "access": "git show 6d95e189e6e39c9c80dcf3a22e94a1553a4c2c1c:.claude/context/error-handling.md",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive": {
+        "path": ".claude/_archive/error-handling-pre-project-2026-10-31.md",
+        "sha256": "4a606723ef35e8150ad4d51ee82327056c2e3233b9448fa1c107ba2a7668b2d8",
+        "equals_identified_git_bytes": false,
+        "status": "preserved edition; notice or relative-link edits may differ; use Git object for exact bytes"
+      }
+    },
+    {
+      "id": "T24",
+      "original_target": ".claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md",
+      "occurrence_count": 3,
+      "original_git_object": {
+        "commit": "1648540783d1d2f92337a2d61b7ea7b0cc8e1b25",
+        "path": ".claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md",
+        "blob_oid": "90b7a0ff301ee49272a7d4aabe4fe627116ecb1d",
+        "sha256": "0737935af0d8a4e49d2347f13e9293c26d7635df1bd082b5fb5092e22a806f4c",
+        "access": "git show 1648540783d1d2f92337a2d61b7ea7b0cc8e1b25:.claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive_manifest": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/manifest.json",
+      "manifest_sha256": "0737935af0d8a4e49d2347f13e9293c26d7635df1bd082b5fb5092e22a806f4c",
+      "archive": {
+        "path": ".claude/_archive/2026-10-31-project-context-reconstruction/history-integration/decisions/2026-09-14-project-context-semantic-and-routing-verification.md.txt",
+        "sha256": "0737935af0d8a4e49d2347f13e9293c26d7635df1bd082b5fb5092e22a806f4c",
+        "equals_identified_git_bytes": true,
+        "status": "byte-identical to identified Git object"
+      }
+    },
+    {
+      "id": "T25",
+      "original_target": ".claude/context/selective-activation-architecture.md",
+      "occurrence_count": 5,
+      "original_git_object": {
+        "commit": "725e6d583916c66432e7c0dd2a7fee1ca4ec6b45",
+        "path": ".claude/context/selective-activation-architecture.md",
+        "blob_oid": "3339d7e1578e6640a95ee5ae774863ef9c126863",
+        "sha256": "f89a7594c0cae5a89a38bf605a9aef55681a57b7d3522c77880bd68a16898913",
+        "access": "git show 725e6d583916c66432e7c0dd2a7fee1ca4ec6b45:.claude/context/selective-activation-architecture.md",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive": {
+        "path": ".claude/_archive/selective-activation-pre-project-2026-10-31.md",
+        "sha256": "50b22117d08512a5590ba5df6f1edb8443b3dbb59e922330f61d2d695b825d5c",
+        "equals_identified_git_bytes": false,
+        "status": "preserved edition; notice or relative-link edits may differ; use Git object for exact bytes"
+      }
+    },
+    {
+      "id": "T26",
+      "original_target": ".claude/context/form.md",
+      "occurrence_count": 6,
+      "original_git_object": {
+        "commit": "cde5f979f002e9cab7ccd113b39e5a63f6e5cadf",
+        "path": ".claude/context/form.md",
+        "blob_oid": "a02fa2437a1e9f311137b44d0e315a52ec21865c",
+        "sha256": "65e0173a74fb0e0edbd3e42abb3af46e1ab3c4f8a0f83c2d1a64c37a5b6eff4b",
+        "access": "git show cde5f979f002e9cab7ccd113b39e5a63f6e5cadf:.claude/context/form.md",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive": {
+        "path": ".claude/_archive/form-pre-project-2026-10-31.md",
+        "sha256": "317c0f0821bbbc4d7e6aa83534c31946e0aa3bf8fa61c88d93dbe52b58b8ad9c",
+        "equals_identified_git_bytes": false,
+        "status": "preserved edition; notice or relative-link edits may differ; use Git object for exact bytes"
+      }
+    },
+    {
+      "id": "T27",
+      "original_target": ".claude/context/README.md",
+      "occurrence_count": 1,
+      "original_git_object": {
+        "commit": "f466a32ac22bb49f52c23d603dc74b6a5a124f09",
+        "path": ".claude/context/README.md",
+        "blob_oid": "bdc4790beef6bc2315fdfcec02af8ab453a88484",
+        "sha256": "0ac32bec016ac6d2b3596b073663932285dd682f47ac313ec7d4f92c5327c261",
+        "access": "git show f466a32ac22bb49f52c23d603dc74b6a5a124f09:.claude/context/README.md",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive": {
+        "path": ".claude/_archive/2026-10-31-project-context-reconstruction/ticket-08/context/README.md",
+        "sha256": "0ac32bec016ac6d2b3596b073663932285dd682f47ac313ec7d4f92c5327c261",
+        "equals_identified_git_bytes": true,
+        "status": "byte-identical to identified Git object"
+      }
+    },
+    {
+      "id": "T28",
+      "original_target": ".claude/context/components.md",
+      "occurrence_count": 3,
+      "original_git_object": {
+        "commit": "efb59516d84c14eb83f5695596004aa9a14e8228",
+        "path": ".claude/context/components.md",
+        "blob_oid": "122f6678b846e3e3205e94751d56fd9e47877cf1",
+        "sha256": "549f38b94192ca11ece8cc01d4f194b0da7f5f1c5c1b4c50d24e31500fba6363",
+        "access": "git show efb59516d84c14eb83f5695596004aa9a14e8228:.claude/context/components.md",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive": {
+        "path": ".claude/_archive/components-pre-project-2026-10-31.md",
+        "sha256": "406c774e4ce6c91908c302d552a4ae0cc56536c8ca5956c3fc9bf524c0b2c915",
+        "equals_identified_git_bytes": false,
+        "status": "preserved edition; notice or relative-link edits may differ; use Git object for exact bytes"
+      }
+    },
+    {
+      "id": "T29",
+      "original_target": ".claude/context/manual-input.md",
+      "occurrence_count": 2,
+      "original_git_object": {
+        "commit": "cde5f979f002e9cab7ccd113b39e5a63f6e5cadf",
+        "path": ".claude/context/manual-input.md",
+        "blob_oid": "505ccefbad7dcb72bc6f40f57feafd88be91d665",
+        "sha256": "69fb801cd9e9c60cf3c9f13fd53247dd4f42a5c7b25bf414206ace007155d9dc",
+        "access": "git show cde5f979f002e9cab7ccd113b39e5a63f6e5cadf:.claude/context/manual-input.md",
+        "status": "exact_bytes_at_identified_commit; not a claim of the uncommitted record-time working tree"
+      },
+      "archive": {
+        "path": ".claude/_archive/manual-input-pre-project-2026-10-31.md",
+        "sha256": "d4e2e3645c633743c15afe782a25a827226ee9e6683d578fafd20f0609348b88",
+        "equals_identified_git_bytes": false,
+        "status": "preserved edition; notice or relative-link edits may differ; use Git object for exact bytes"
+      }
+    }
+  ],
+  "occurrences": [
+    {
+      "id": "L01",
+      "source": "context/work/workspaces/001-noline-context-harness-application/records/2026-09-11-03-workspace-writing-and-maintainer-settings.md",
+      "source_sha256_before_reconciliation": "80f6f786e09b71b92797db1f646715b15e313e8eafe105e61c0a3c0bf8da0e1c",
+      "source_line_before_reconciliation": 15,
+      "source_link_excerpt": "공통 파일 6개는 source와 바이트가 같다. Work AGENTS·Maintain README·역할 설정 3개는 source의 해당 변경만 적용하고 Noline 역할 설명, Claude Code의 같은 semantic runner 연결, 증거 수집 경로·제품 경로·검증 명령을 보존했다. 기존 skill·공통 설명 기준·Project layer·root 설정과 hook·wrapper는 변경하지 않았다. Noline 하네스의 결정 기록 경로에는 [짧은 선택 기록](../../../../../.claude/decisions/2026-09-11-workspace-writing-contract.md)을 연결하며, 상세 적용 결과는 이 문서가 소유한다.",
+      "original_link": "../../../../../.claude/decisions/2026-09-11-workspace-writing-contract.md",
+      "target_id": "T01",
+      "workspace_id": "001-noline-context-harness-application",
+      "workspace_live_at_review": true,
+      "document_role": "records",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L02",
+      "source": "context/work/workspaces/001-noline-context-harness-application/records/2026-10-30-02-development-skill-transition.md",
+      "source_sha256_before_reconciliation": "c818d9b3a556ddb095d6acbbd7e4530f6c5b1a8ae0fe358cbed453e07451dcd1",
+      "source_line_before_reconciliation": 9,
+      "source_link_excerpt": "[전환 Decision](../../../../../.claude/decisions/2026-10-30-development-skill-transition.md)에 역할별 적용·유지·제거의 이유를 남겼다. 개발 수행의 구현·검토·검증·수정·완료 기준과 개선 루프의 사용자 요청·선택·실제 반영·한정 시도 종료 강도는 유지했다. Work 기록은 현행 Main·Maintain 계약으로 적응하고 장치·hook·설정·수집기·generation/activation은 바꾸지 않았다. 기존 agent는 report-only로 유지한다.",
+      "original_link": "../../../../../.claude/decisions/2026-10-30-development-skill-transition.md",
+      "target_id": "T02",
+      "workspace_id": "001-noline-context-harness-application",
+      "workspace_live_at_review": true,
+      "document_role": "records",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L03",
+      "source": "context/work/workspaces/002-code-readability-refactoring/output/index.md",
+      "source_sha256_before_reconciliation": "be2f1b57b4b991538b4011c5d8ef502fdcca8938c11eefe547473b6fed46ebc1",
+      "source_line_before_reconciliation": 15,
+      "source_link_excerpt": "- [프로젝트 결정 연결](../../../../../.claude/decisions/2026-09-12-spec-ticket-execution-criteria.md): 기존 프로젝트 결정 목록에서 현재 `HISTORY.md`와 운영 기준으로 이어지는 경로",
+      "original_link": "../../../../../.claude/decisions/2026-09-12-spec-ticket-execution-criteria.md",
+      "target_id": "T03",
+      "workspace_id": "002-code-readability-refactoring",
+      "workspace_live_at_review": true,
+      "document_role": "output",
+      "disposition": "resolved_live_output_duplicate",
+      "reason": "중복된 옛 stub 연결 행을 제거했다. 기존 HISTORY 직접 연결은 같은 문서에 남아 있다.",
+      "resolution_target": "context/work/workspaces/spec-and-tickets/HISTORY.md",
+      "source_sha256_after_reconciliation": "ee54a9bcb06a210fc8bef26195d5cac4925938ad83fe571152c2c38fa8d43ec2"
+    },
+    {
+      "id": "L04",
+      "source": "context/work/workspaces/002-code-readability-refactoring/records/2026-09-18-02-app-initialization-and-style.md",
+      "source_sha256_before_reconciliation": "73128057597662b6ff66d5a83ea59078ced0fa5befc9a520bd19d11a24d42c07",
+      "source_line_before_reconciliation": 3,
+      "source_link_excerpt": "2026-09-18, Ticket 06의 네트워크/Provider 정리 이후 앱 시작의 DB·인증·첫 화면·인증 후 작업을 개선한 기록이다. 현재 실행 계약은 [Ticket 06](../current/memory/tickets/06-app-startup-lifecycle.md), 전체 진행과 다음 후보는 [state](../current/state/index.md), 코드 읽기 경로는 [output](../output/index.md)이 소유한다. 아래 사용자 발췌는 이 Main 대화에서 직접 확인한 문구이며, 세부 실행 이력은 Main의 보고와 [구현 결정 기록](../../../../../.claude/decisions/2026-09-18-app-startup-failure-recovery.md)을 연결한다. 이전 [파일별 검토 기록](2026-09-18-01-network-provider-layout-review-and-commits.md)의 레이아웃 내부 유지 결정은 당시 선택으로 보존한다.",
+      "original_link": "../../../../../.claude/decisions/2026-09-18-app-startup-failure-recovery.md",
+      "target_id": "T04",
+      "workspace_id": "002-code-readability-refactoring",
+      "workspace_live_at_review": true,
+      "document_role": "records",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L05",
+      "source": "context/work/workspaces/002-code-readability-refactoring/records/2026-09-18-05-auth-session-implementation.md",
+      "source_sha256_before_reconciliation": "91e2ecac6f467a2c762f7eb08c8515a683bb694a85ef3c7880804f3e5d99d3ac",
+      "source_line_before_reconciliation": 11,
+      "source_link_excerpt": "[복원 연결](../../../../../apps/client/src/shared/services/auth/session-restoration.ts)은 DB 준비 뒤 실제 데이터 소유자 검사까지 끝내고 상태를 공개한다. [요청 인터셉터](../../../../../apps/client/src/shared/services/auth/auth-interceptor.ts)는 일반 API와 sync가 공유한다. access 거부 뒤 refresh를 시도하고, 통신 실패·5xx는 일시 실패로 남긴다. refresh의 인증 거부·갱신 수단 부재는 계정을 남기고 토큰을 비워 재시작 뒤에도 재인증 필요 상태를 복원한다.",
+      "original_link": "../../../../../apps/client/src/shared/services/auth/session-restoration.ts",
+      "target_id": "T05",
+      "workspace_id": "002-code-readability-refactoring",
+      "workspace_live_at_review": true,
+      "document_role": "records",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L06",
+      "source": "context/work/workspaces/002-code-readability-refactoring/records/2026-09-19-01-auth-complexity-review-and-decisions.md",
+      "source_sha256_before_reconciliation": "b25e10899b4120607806b807df8050671ed39a1ad46e26ffb099680e25a6b839",
+      "source_line_before_reconciliation": 62,
+      "source_link_excerpt": "검토 시작 당시 Workspace Spec·Ticket 06과 [기존 결정 문서](../../../../../.claude/decisions/2026-09-18-device-session-and-local-access.md)에 예전 전환 기준이 남아 있었다. 이번 반영에서 Workspace current는 새 방향으로 맞추고, 과거 records는 당시 근거로 보존했다. 기존 구현 범위와 후속 보완도 구분했다. Workspace 밖의 결정 문서는 제품 구현 때 후속 결정과 연결해야 한다.",
+      "original_link": "../../../../../.claude/decisions/2026-09-18-device-session-and-local-access.md",
+      "target_id": "T06",
+      "workspace_id": "002-code-readability-refactoring",
+      "workspace_live_at_review": true,
+      "document_role": "records",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L07",
+      "source": "context/work/workspaces/002-code-readability-refactoring/records/2026-09-29-07-read-query-composition-trial.md",
+      "source_sha256_before_reconciliation": "98384cc3d46ae375632cfcbb8b4802a112011d812955c88b8065b90527449475",
+      "source_line_before_reconciliation": 13,
+      "source_link_excerpt": "[read-query.ts](../../../../../apps/client/src/screens/read-query.ts) 한 모듈에 조회 전 `useTripReadAccess`와 조회 후 순수 함수 `getReadQueryView`를 둔다. 전자는 기존 Policy를 표시용·실제용으로 두 번 호출하고 일정·경비 접근 결과를 함께 반환한다. 상세 화면이 경비와 연결 일정에 같은 관측 쌍을 쓰기 위해서다. 후자는 미선택·제한·로딩·오류·표시 가능 결과를 계산한다. 반환 타입은 매번 계산한 표시 결과이며 별도 데이터 복사·저장 상태·effect·복구 이력이 없다.",
+      "original_link": "../../../../../apps/client/src/screens/read-query.ts",
+      "target_id": "T07",
+      "workspace_id": "002-code-readability-refactoring",
+      "workspace_live_at_review": true,
+      "document_role": "records",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L08",
+      "source": "context/work/workspaces/002-code-readability-refactoring/records/2026-10-01-01-schedule-create-provisional-review.md",
+      "source_sha256_before_reconciliation": "d0d67598c6beda24e249fbcce2409340b897ba68fdaffb8130e020522437cd6a",
+      "source_line_before_reconciliation": 50,
+      "source_link_excerpt": "근거 위치: [날짜 입력 연결](../../../../../apps/client/src/screens/CreateScheduleScreen.tsx), [목록 날짜 구성](../../../../../apps/client/src/screens/ScheduleScreen.tsx), [검색 패널](../../../../../apps/client/src/features/schedule/create-schedule/ScheduleSearchPanel.tsx), [지도](../../../../../apps/client/src/shared/components/PolicyBasedMapView/PolicyBasedMapView.tsx), [제출과 후속 처리](../../../../../apps/client/src/features/schedule/create-schedule/useSubmitSchedule.ts), [서버 생성](../../../../../apps/server/src/routes/schedules.ts), [경로 다운로드](../../../../../apps/client/src/entities/route/data/useAutoDownloadRoutes.ts), [검색 요청](../../../../../apps/client/src/features/schedule/create-schedule/useLocationSearch.ts).",
+      "original_link": "../../../../../apps/client/src/features/schedule/create-schedule/useLocationSearch.ts",
+      "target_id": "T08",
+      "workspace_id": "002-code-readability-refactoring",
+      "workspace_live_at_review": true,
+      "document_role": "records",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L09",
+      "source": "context/work/workspaces/002-code-readability-refactoring/records/2026-10-02-03-expense-time-decisions-and-verification.md",
+      "source_sha256_before_reconciliation": "f3eb6c967debc7ab692d24866cdf9b5824624b379f7323e01b172bd842ea6179",
+      "source_line_before_reconciliation": 39,
+      "source_link_excerpt": "현재 제품 기준은 [Policy Architecture](../../../../../.claude/context/policy-architecture.md), 데이터 관계는 [Product](../../../../project/common/product.md), 선택 과정은 [경비 초안·연결 결정](../../../../../.claude/decisions/2026-10-02-expense-draft-and-schedule-association.md)이 소유한다.",
+      "original_link": "../../../../../.claude/context/policy-architecture.md",
+      "target_id": "T09",
+      "workspace_id": "002-code-readability-refactoring",
+      "workspace_live_at_review": true,
+      "document_role": "records",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L10",
+      "source": "context/work/workspaces/002-code-readability-refactoring/records/2026-10-02-03-expense-time-decisions-and-verification.md",
+      "source_sha256_before_reconciliation": "f3eb6c967debc7ab692d24866cdf9b5824624b379f7323e01b172bd842ea6179",
+      "source_line_before_reconciliation": 39,
+      "source_link_excerpt": "현재 제품 기준은 [Policy Architecture](../../../../../.claude/context/policy-architecture.md), 데이터 관계는 [Product](../../../../project/common/product.md), 선택 과정은 [경비 초안·연결 결정](../../../../../.claude/decisions/2026-10-02-expense-draft-and-schedule-association.md)이 소유한다.",
+      "original_link": "../../../../../.claude/decisions/2026-10-02-expense-draft-and-schedule-association.md",
+      "target_id": "T10",
+      "workspace_id": "002-code-readability-refactoring",
+      "workspace_live_at_review": true,
+      "document_role": "records",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L11",
+      "source": "context/work/workspaces/002-code-readability-refactoring/records/2026-10-02-03-expense-time-decisions-and-verification.md",
+      "source_sha256_before_reconciliation": "f3eb6c967debc7ab692d24866cdf9b5824624b379f7323e01b172bd842ea6179",
+      "source_line_before_reconciliation": 81,
+      "source_link_excerpt": "이전에는 Expense entity 자체도 datetime이었다가 이번에 처음 날짜로 바뀐 것으로 설명하면 안 된다. entity는 이미 date-only였고 입력·저장 경계가 그 계약과 어긋나 있었다. PostgreSQL timestamp 물리 저장과 응답 serializer를 유지했고, 일괄 migration이나 과거 입력자의 의도 날짜 복원은 하지 않았다. 결제일/사용일의 명칭, Trip 날짜의 장기 domain 의미와 별도 여행 timezone 모델은 이번 확정 범위가 아니다. 현재 규칙은 [날짜와 시각](../../../../project/common/date-and-time.md), 호환 선택 이유는 [경비 날짜 결정](../../../../../.claude/decisions/2026-10-02-expense-date-boundaries.md)에 있다.",
+      "original_link": "../../../../../.claude/decisions/2026-10-02-expense-date-boundaries.md",
+      "target_id": "T11",
+      "workspace_id": "002-code-readability-refactoring",
+      "workspace_live_at_review": true,
+      "document_role": "records",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L12",
+      "source": "context/work/workspaces/002-code-readability-refactoring/records/2026-10-06-01-city-time-zone-commits-and-original-bug-continuity.md",
+      "source_sha256_before_reconciliation": "44c3b59f644396bd302848fe38caec403a8303748fa0b0f6c18bfdd370496a21",
+      "source_line_before_reconciliation": 31,
+      "source_link_excerpt": "책임은 도시 서비스의 시간대 확인 → Trip 계약·저장 → shared 변환 → 폼·화면의 소비로 이어진다. Repository·Activation Router·transaction·sync의 기존 저장 흐름은 유지한다. [제품 날짜 기준](../../../../project/common/date-and-time.md)과 [설계 결정](../../../../../.claude/decisions/2026-10-06-trip-city-time-zone.md)이 현재 상세 의미를 소유한다.",
+      "original_link": "../../../../../.claude/decisions/2026-10-06-trip-city-time-zone.md",
+      "target_id": "T12",
+      "workspace_id": "002-code-readability-refactoring",
+      "workspace_live_at_review": true,
+      "document_role": "records",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L13",
+      "source": "context/work/workspaces/002-code-readability-refactoring/source/codebase-analysis/components.md",
+      "source_sha256_before_reconciliation": "97b88547caf44095376590172271a0e2bb41f692cf381b0f8aefd6a6b41d92ab",
+      "source_line_before_reconciliation": 35,
+      "source_link_excerpt": "근거: [여행 생성](../../../../../../apps/client/src/features/trip/create-trip/useCreateTripForm.ts) 69행, [경비 생성](../../../../../../apps/client/src/features/expense/create-expense/useCreateExpenseForm.ts) 59행, [일정 생성](../../../../../../apps/client/src/features/schedule/create-schedule/useCreateScheduleForm.ts) 83행, [일정 수정](../../../../../../apps/client/src/features/schedule/update-schedule/UpdateScheduleDrawer.tsx) 120행.",
+      "original_link": "../../../../../../apps/client/src/features/trip/create-trip/useCreateTripForm.ts",
+      "target_id": "T13",
+      "workspace_id": "002-code-readability-refactoring",
+      "workspace_live_at_review": true,
+      "document_role": "source",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L14",
+      "source": "context/work/workspaces/003-bug-investigation-and-fixes/current/memory/project-context.md",
+      "source_sha256_before_reconciliation": "4343eb1dad6c5f577cfa525925048935a62cb348d2f2ee12ca6ecaff0b9525c0",
+      "source_line_before_reconciliation": 7,
+      "source_link_excerpt": "실제 변경 대상을 고를 때 [client guide](../../../../../../apps/client/CLAUDE.md), [server guide](../../../../../../apps/server/CLAUDE.md), [schema guide](../../../../../../packages/schema/CLAUDE.md), [UI guide](../../../../../../packages/ui/CLAUDE.md) 중 해당 경로를 읽는다. 데이터·동기화 변경 전에는 [Activation Router](../../../../../../.claude/rules/activation-router.md), [Transaction + Sync Queue](../../../../../../.claude/rules/transaction-sync-queue.md), [Schema First](../../../../../../.claude/rules/schema-first.md), [Auth/User Scope](../../../../../../.claude/rules/auth-user-scope.md)와 [Guard Map](../../../../../../.claude/guards/README.md)을 직접 대조한다. 폼·날짜·통화·UI의 세부 기준은 [Runbooks](../../../../../../.claude/runbooks/README.md)에서 해당 항목으로 들어간다.",
+      "original_link": "../../../../../../.claude/rules/activation-router.md",
+      "target_id": "T14",
+      "workspace_id": "003-bug-investigation-and-fixes",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L15",
+      "source": "context/work/workspaces/003-bug-investigation-and-fixes/current/memory/project-context.md",
+      "source_sha256_before_reconciliation": "4343eb1dad6c5f577cfa525925048935a62cb348d2f2ee12ca6ecaff0b9525c0",
+      "source_line_before_reconciliation": 7,
+      "source_link_excerpt": "실제 변경 대상을 고를 때 [client guide](../../../../../../apps/client/CLAUDE.md), [server guide](../../../../../../apps/server/CLAUDE.md), [schema guide](../../../../../../packages/schema/CLAUDE.md), [UI guide](../../../../../../packages/ui/CLAUDE.md) 중 해당 경로를 읽는다. 데이터·동기화 변경 전에는 [Activation Router](../../../../../../.claude/rules/activation-router.md), [Transaction + Sync Queue](../../../../../../.claude/rules/transaction-sync-queue.md), [Schema First](../../../../../../.claude/rules/schema-first.md), [Auth/User Scope](../../../../../../.claude/rules/auth-user-scope.md)와 [Guard Map](../../../../../../.claude/guards/README.md)을 직접 대조한다. 폼·날짜·통화·UI의 세부 기준은 [Runbooks](../../../../../../.claude/runbooks/README.md)에서 해당 항목으로 들어간다.",
+      "original_link": "../../../../../../.claude/rules/transaction-sync-queue.md",
+      "target_id": "T15",
+      "workspace_id": "003-bug-investigation-and-fixes",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L16",
+      "source": "context/work/workspaces/003-bug-investigation-and-fixes/current/memory/project-context.md",
+      "source_sha256_before_reconciliation": "4343eb1dad6c5f577cfa525925048935a62cb348d2f2ee12ca6ecaff0b9525c0",
+      "source_line_before_reconciliation": 7,
+      "source_link_excerpt": "실제 변경 대상을 고를 때 [client guide](../../../../../../apps/client/CLAUDE.md), [server guide](../../../../../../apps/server/CLAUDE.md), [schema guide](../../../../../../packages/schema/CLAUDE.md), [UI guide](../../../../../../packages/ui/CLAUDE.md) 중 해당 경로를 읽는다. 데이터·동기화 변경 전에는 [Activation Router](../../../../../../.claude/rules/activation-router.md), [Transaction + Sync Queue](../../../../../../.claude/rules/transaction-sync-queue.md), [Schema First](../../../../../../.claude/rules/schema-first.md), [Auth/User Scope](../../../../../../.claude/rules/auth-user-scope.md)와 [Guard Map](../../../../../../.claude/guards/README.md)을 직접 대조한다. 폼·날짜·통화·UI의 세부 기준은 [Runbooks](../../../../../../.claude/runbooks/README.md)에서 해당 항목으로 들어간다.",
+      "original_link": "../../../../../../.claude/rules/schema-first.md",
+      "target_id": "T16",
+      "workspace_id": "003-bug-investigation-and-fixes",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L17",
+      "source": "context/work/workspaces/003-bug-investigation-and-fixes/current/memory/project-context.md",
+      "source_sha256_before_reconciliation": "4343eb1dad6c5f577cfa525925048935a62cb348d2f2ee12ca6ecaff0b9525c0",
+      "source_line_before_reconciliation": 7,
+      "source_link_excerpt": "실제 변경 대상을 고를 때 [client guide](../../../../../../apps/client/CLAUDE.md), [server guide](../../../../../../apps/server/CLAUDE.md), [schema guide](../../../../../../packages/schema/CLAUDE.md), [UI guide](../../../../../../packages/ui/CLAUDE.md) 중 해당 경로를 읽는다. 데이터·동기화 변경 전에는 [Activation Router](../../../../../../.claude/rules/activation-router.md), [Transaction + Sync Queue](../../../../../../.claude/rules/transaction-sync-queue.md), [Schema First](../../../../../../.claude/rules/schema-first.md), [Auth/User Scope](../../../../../../.claude/rules/auth-user-scope.md)와 [Guard Map](../../../../../../.claude/guards/README.md)을 직접 대조한다. 폼·날짜·통화·UI의 세부 기준은 [Runbooks](../../../../../../.claude/runbooks/README.md)에서 해당 항목으로 들어간다.",
+      "original_link": "../../../../../../.claude/rules/auth-user-scope.md",
+      "target_id": "T17",
+      "workspace_id": "003-bug-investigation-and-fixes",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L18",
+      "source": "context/work/workspaces/003-bug-investigation-and-fixes/current/memory/project-context.md",
+      "source_sha256_before_reconciliation": "4343eb1dad6c5f577cfa525925048935a62cb348d2f2ee12ca6ecaff0b9525c0",
+      "source_line_before_reconciliation": 7,
+      "source_link_excerpt": "실제 변경 대상을 고를 때 [client guide](../../../../../../apps/client/CLAUDE.md), [server guide](../../../../../../apps/server/CLAUDE.md), [schema guide](../../../../../../packages/schema/CLAUDE.md), [UI guide](../../../../../../packages/ui/CLAUDE.md) 중 해당 경로를 읽는다. 데이터·동기화 변경 전에는 [Activation Router](../../../../../../.claude/rules/activation-router.md), [Transaction + Sync Queue](../../../../../../.claude/rules/transaction-sync-queue.md), [Schema First](../../../../../../.claude/rules/schema-first.md), [Auth/User Scope](../../../../../../.claude/rules/auth-user-scope.md)와 [Guard Map](../../../../../../.claude/guards/README.md)을 직접 대조한다. 폼·날짜·통화·UI의 세부 기준은 [Runbooks](../../../../../../.claude/runbooks/README.md)에서 해당 항목으로 들어간다.",
+      "original_link": "../../../../../../.claude/guards/README.md",
+      "target_id": "T18",
+      "workspace_id": "003-bug-investigation-and-fixes",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L19",
+      "source": "context/work/workspaces/003-bug-investigation-and-fixes/current/memory/project-context.md",
+      "source_sha256_before_reconciliation": "4343eb1dad6c5f577cfa525925048935a62cb348d2f2ee12ca6ecaff0b9525c0",
+      "source_line_before_reconciliation": 7,
+      "source_link_excerpt": "실제 변경 대상을 고를 때 [client guide](../../../../../../apps/client/CLAUDE.md), [server guide](../../../../../../apps/server/CLAUDE.md), [schema guide](../../../../../../packages/schema/CLAUDE.md), [UI guide](../../../../../../packages/ui/CLAUDE.md) 중 해당 경로를 읽는다. 데이터·동기화 변경 전에는 [Activation Router](../../../../../../.claude/rules/activation-router.md), [Transaction + Sync Queue](../../../../../../.claude/rules/transaction-sync-queue.md), [Schema First](../../../../../../.claude/rules/schema-first.md), [Auth/User Scope](../../../../../../.claude/rules/auth-user-scope.md)와 [Guard Map](../../../../../../.claude/guards/README.md)을 직접 대조한다. 폼·날짜·통화·UI의 세부 기준은 [Runbooks](../../../../../../.claude/runbooks/README.md)에서 해당 항목으로 들어간다.",
+      "original_link": "../../../../../../.claude/runbooks/README.md",
+      "target_id": "T19",
+      "workspace_id": "003-bug-investigation-and-fixes",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L20",
+      "source": "context/work/workspaces/003-bug-investigation-and-fixes/current/memory/tickets/09-map-search-route-behavior.md",
+      "source_sha256_before_reconciliation": "ff5f5d52cdd2a8a5c1f2fa83ce38636c25dd9acfa1e1ac2cb9395d1978414f5a",
+      "source_line_before_reconciliation": 13,
+      "source_link_excerpt": "[검색 hook](../../../../../../../apps/client/src/features/schedule/create-schedule/useLocationSearch.ts), [공통 downloader](../../../../../../../apps/client/src/shared/services/directions/route-downloader.ts), [자동 downloader](../../../../../../../apps/client/src/entities/route/data/useAutoDownloadRoutes.ts), [일정 수정](../../../../../../../apps/client/src/features/schedule/update-schedule/UpdateScheduleDrawer.tsx), [상세](../../../../../../../apps/client/src/screens/ScheduleDetailScreen.tsx)가 시작점이다. fixture 기반 독립 착수가 가능하고 실제 수정 왕복은 07과 연결한다. 05에 경로 없음·성공·부분 실패 계약을 제공한다.",
+      "original_link": "../../../../../../../apps/client/src/features/schedule/create-schedule/useLocationSearch.ts",
+      "target_id": "T08",
+      "workspace_id": "003-bug-investigation-and-fixes",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L21",
+      "source": "context/work/workspaces/003-bug-investigation-and-fixes/records/2026-09-13-02-major-feature-category-investigation.md",
+      "source_sha256_before_reconciliation": "a438aa04cc7d3cdff854d877b5a81b0963967629ffe4272b5bde004d3f017905",
+      "source_line_before_reconciliation": 97,
+      "source_link_excerpt": "[장소 검색 hook](../../../../../apps/client/src/features/schedule/create-schedule/useLocationSearch.ts)은 query 오류를 반환하지 않는다. 최초 검색 요청 실패도 결과 없음과 구별할 표시를 화면이 받지 못하는 코드 경로다. 실제 네트워크·키·공급자 장애는 시험하지 않았다.",
+      "original_link": "../../../../../apps/client/src/features/schedule/create-schedule/useLocationSearch.ts",
+      "target_id": "T08",
+      "workspace_id": "003-bug-investigation-and-fixes",
+      "workspace_live_at_review": false,
+      "document_role": "records",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L22",
+      "source": "context/work/workspaces/003-bug-investigation-and-fixes/records/2026-09-13-02-major-feature-category-investigation.md",
+      "source_sha256_before_reconciliation": "a438aa04cc7d3cdff854d877b5a81b0963967629ffe4272b5bde004d3f017905",
+      "source_line_before_reconciliation": 115,
+      "source_link_excerpt": "근거: [날짜 util](../../../../../apps/client/src/shared/lib/datetime.ts), [일정 작성](../../../../../apps/client/src/features/schedule/create-schedule/useCreateScheduleForm.ts), [경비 작성](../../../../../apps/client/src/features/expense/create-expense/useCreateExpenseForm.ts), [여행 작성](../../../../../apps/client/src/features/trip/create-trip/useCreateTripForm.ts). 실험 `date-roundtrip-*`.",
+      "original_link": "../../../../../apps/client/src/features/trip/create-trip/useCreateTripForm.ts",
+      "target_id": "T13",
+      "workspace_id": "003-bug-investigation-and-fixes",
+      "workspace_live_at_review": false,
+      "document_role": "records",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L23",
+      "source": "context/work/workspaces/003-bug-investigation-and-fixes/source/codebase-analysis/components.md",
+      "source_sha256_before_reconciliation": "97b88547caf44095376590172271a0e2bb41f692cf381b0f8aefd6a6b41d92ab",
+      "source_line_before_reconciliation": 35,
+      "source_link_excerpt": "근거: [여행 생성](../../../../../../apps/client/src/features/trip/create-trip/useCreateTripForm.ts) 69행, [경비 생성](../../../../../../apps/client/src/features/expense/create-expense/useCreateExpenseForm.ts) 59행, [일정 생성](../../../../../../apps/client/src/features/schedule/create-schedule/useCreateScheduleForm.ts) 83행, [일정 수정](../../../../../../apps/client/src/features/schedule/update-schedule/UpdateScheduleDrawer.tsx) 120행.",
+      "original_link": "../../../../../../apps/client/src/features/trip/create-trip/useCreateTripForm.ts",
+      "target_id": "T13",
+      "workspace_id": "003-bug-investigation-and-fixes",
+      "workspace_live_at_review": false,
+      "document_role": "source",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L24",
+      "source": "context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md",
+      "source_sha256_before_reconciliation": "6adae4f85c1620a6ff5f58eb10fb9e23ed8d412938be7f7354609d402597b0ff",
+      "source_line_before_reconciliation": 3,
+      "source_link_excerpt": "Recover는 Project README와 제품 공통 기준에 더해 [통화와 금액](../../../../../project/common/currency.md), [날짜와 시각](../../../../../project/common/date-and-time.md), [API 계약과 변경 가이드](../../../../../project/guidance/api-contracts.md)를 선택한다. 이 본문들은 기존 `.claude` Owner의 유효한 의미와 직접 코드 사실을 통합한 현재 Project Owner다. 기존 [통화](../../../../../../.claude/context/currency.md), [시간](../../../../../../.claude/context/time.md), [API/Data](../../../../../../.claude/context/api-data.md) 문서는 구현 위치와 호환 진입을 맡는다.",
+      "original_link": "../../../../../../.claude/context/currency.md",
+      "target_id": "T20",
+      "workspace_id": "004-project-context-contracts-and-guidance",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L25",
+      "source": "context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md",
+      "source_sha256_before_reconciliation": "6adae4f85c1620a6ff5f58eb10fb9e23ed8d412938be7f7354609d402597b0ff",
+      "source_line_before_reconciliation": 3,
+      "source_link_excerpt": "Recover는 Project README와 제품 공통 기준에 더해 [통화와 금액](../../../../../project/common/currency.md), [날짜와 시각](../../../../../project/common/date-and-time.md), [API 계약과 변경 가이드](../../../../../project/guidance/api-contracts.md)를 선택한다. 이 본문들은 기존 `.claude` Owner의 유효한 의미와 직접 코드 사실을 통합한 현재 Project Owner다. 기존 [통화](../../../../../../.claude/context/currency.md), [시간](../../../../../../.claude/context/time.md), [API/Data](../../../../../../.claude/context/api-data.md) 문서는 구현 위치와 호환 진입을 맡는다.",
+      "original_link": "../../../../../../.claude/context/time.md",
+      "target_id": "T21",
+      "workspace_id": "004-project-context-contracts-and-guidance",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L26",
+      "source": "context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md",
+      "source_sha256_before_reconciliation": "6adae4f85c1620a6ff5f58eb10fb9e23ed8d412938be7f7354609d402597b0ff",
+      "source_line_before_reconciliation": 3,
+      "source_link_excerpt": "Recover는 Project README와 제품 공통 기준에 더해 [통화와 금액](../../../../../project/common/currency.md), [날짜와 시각](../../../../../project/common/date-and-time.md), [API 계약과 변경 가이드](../../../../../project/guidance/api-contracts.md)를 선택한다. 이 본문들은 기존 `.claude` Owner의 유효한 의미와 직접 코드 사실을 통합한 현재 Project Owner다. 기존 [통화](../../../../../../.claude/context/currency.md), [시간](../../../../../../.claude/context/time.md), [API/Data](../../../../../../.claude/context/api-data.md) 문서는 구현 위치와 호환 진입을 맡는다.",
+      "original_link": "../../../../../../.claude/context/api-data.md",
+      "target_id": "T22",
+      "workspace_id": "004-project-context-contracts-and-guidance",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L27",
+      "source": "context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md",
+      "source_sha256_before_reconciliation": "6adae4f85c1620a6ff5f58eb10fb9e23ed8d412938be7f7354609d402597b0ff",
+      "source_line_before_reconciliation": 13,
+      "source_link_excerpt": "이전 진입점을 대조할 때는 [.claude 문서 지도](../../../../../../.claude/README.md), [API·날짜 runbook](../../../../../../.claude/runbooks/README.md), [server guide](../../../../../../apps/server/CLAUDE.md)에서 실제 경로를 따라간다. 원문·코드·이전 합의의 정확한 접근점과 용도는 [source 색인](../../source/index.md)에 있다.",
+      "original_link": "../../../../../../.claude/runbooks/README.md",
+      "target_id": "T19",
+      "workspace_id": "004-project-context-contracts-and-guidance",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L28",
+      "source": "context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/project-context.md",
+      "source_sha256_before_reconciliation": "6adae4f85c1620a6ff5f58eb10fb9e23ed8d412938be7f7354609d402597b0ff",
+      "source_line_before_reconciliation": 15,
+      "source_link_excerpt": "2026-10-30 실행 경로 전환: 당시 읽기·갱신 스킬의 현재 책임은 USAGE·context-update로 이어진다. 위 접근 링크만 새 정본에 맞췄으며 이 Workspace의 당시 선택·진행·검증은 바꾸지 않았다. [전환 근거](../../../../../../.claude/decisions/2026-10-30-development-skill-transition.md).",
+      "original_link": "../../../../../../.claude/decisions/2026-10-30-development-skill-transition.md",
+      "target_id": "T02",
+      "workspace_id": "004-project-context-contracts-and-guidance",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L29",
+      "source": "context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/tickets/01-product-contract-agreements.md",
+      "source_sha256_before_reconciliation": "41a280f755fd57e4e2be92a09183869af89514c70a8070293776faec063c24aa",
+      "source_line_before_reconciliation": 13,
+      "source_link_excerpt": "오류는 [.claude 오류 가이드](../../../../../../../.claude/context/error-handling.md), [client fetcher](../../../../../../../apps/client/src/shared/api/fetcher.ts), [server routes](../../../../../../../apps/server/src/routes/), [error middleware](../../../../../../../apps/server/src/middleware/errorHandler.ts)를 연결해 본다. Client가 해석할 status·code·message와 서버의 변환 책임을 논의하고, 단순 catch 정리로 공개 오류 계약을 바꾸지 않는다.",
+      "original_link": "../../../../../../../.claude/context/error-handling.md",
+      "target_id": "T23",
+      "workspace_id": "004-project-context-contracts-and-guidance",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L30",
+      "source": "context/work/workspaces/004-project-context-contracts-and-guidance/current/memory/tickets/02-guidance-failure-analysis-and-retest.md",
+      "source_sha256_before_reconciliation": "fd8204bcd38e76a38c64034def8b4ec86f2d3745ca1e831586071cafb2e9a309",
+      "source_line_before_reconciliation": 44,
+      "source_link_excerpt": "최소 지침 수정과 현재 문서 보완은 commit `33bde33` (`docs(context): Project 계약과 읽기 경로 정비`)에 포함됐다. 다음 실제 독립 갱신에서 같은 누락이 반복되는지 확인한 뒤 Ticket 완료와 추가 장치의 필요성을 판단한다. 앞선 원인·실행·검증 한계는 [작업 기록](../../../records/2026-09-14-02-guidance-failure-analysis-and-retest.md), 당시 기준 선택은 [결정 기록](../../../../../../../.claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md)에 남아 있다.",
+      "original_link": "../../../../../../../.claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md",
+      "target_id": "T24",
+      "workspace_id": "004-project-context-contracts-and-guidance",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L31",
+      "source": "context/work/workspaces/004-project-context-contracts-and-guidance/output/index.md",
+      "source_sha256_before_reconciliation": "f7e1c79e245fa535f9721f9911b73362aa753e0eeb1764a63ef108e876353341",
+      "source_line_before_reconciliation": 8,
+      "source_link_excerpt": "- [기존 작업 runbook](../../../../../.claude/runbooks/README.md), [server guide](../../../../../apps/server/CLAUDE.md), [client guide](../../../../../apps/client/CLAUDE.md): 새 Owner와 현재 날짜 경계로 이어지는 실제 작업 진입점",
+      "original_link": "../../../../../.claude/runbooks/README.md",
+      "target_id": "T19",
+      "workspace_id": "004-project-context-contracts-and-guidance",
+      "workspace_live_at_review": false,
+      "document_role": "output",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L32",
+      "source": "context/work/workspaces/004-project-context-contracts-and-guidance/output/index.md",
+      "source_sha256_before_reconciliation": "f7e1c79e245fa535f9721f9911b73362aa753e0eeb1764a63ef108e876353341",
+      "source_line_before_reconciliation": 13,
+      "source_link_excerpt": "- [후속 결정](../../../../../.claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md): 실패 원인, 선택, 격리 재시험과 다시 볼 조건",
+      "original_link": "../../../../../.claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md",
+      "target_id": "T24",
+      "workspace_id": "004-project-context-contracts-and-guidance",
+      "workspace_live_at_review": false,
+      "document_role": "output",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L33",
+      "source": "context/work/workspaces/004-project-context-contracts-and-guidance/output/index.md",
+      "source_sha256_before_reconciliation": "f7e1c79e245fa535f9721f9911b73362aa753e0eeb1764a63ef108e876353341",
+      "source_line_before_reconciliation": 18,
+      "source_link_excerpt": "2026-10-30 실행 경로 전환: 당시 읽기·갱신 스킬의 현재 책임은 USAGE·context-update로 이어진다. 위 접근 링크만 새 정본에 맞췄으며 이 Workspace의 당시 선택·진행·검증은 바꾸지 않았다. [전환 근거](../../../../../.claude/decisions/2026-10-30-development-skill-transition.md).",
+      "original_link": "../../../../../.claude/decisions/2026-10-30-development-skill-transition.md",
+      "target_id": "T02",
+      "workspace_id": "004-project-context-contracts-and-guidance",
+      "workspace_live_at_review": false,
+      "document_role": "output",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L34",
+      "source": "context/work/workspaces/004-project-context-contracts-and-guidance/records/2026-09-14-02-guidance-failure-analysis-and-retest.md",
+      "source_sha256_before_reconciliation": "54c0dca1e30e595cb16636477f7e5dcff538bd3aaf6df01f75f7db759aecb10e",
+      "source_line_before_reconciliation": 28,
+      "source_link_excerpt": "각 실패의 금지문이나 고정 checklist 파일은 만들지 않았다. 자세한 선택과 재검토 조건은 [결정 기록](../../../../../.claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md)이 소유한다.",
+      "original_link": "../../../../../.claude/decisions/2026-09-14-project-context-semantic-and-routing-verification.md",
+      "target_id": "T24",
+      "workspace_id": "004-project-context-contracts-and-guidance",
+      "workspace_live_at_review": false,
+      "document_role": "records",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L35",
+      "source": "context/work/workspaces/005-context-based-code-improvement/current/memory/project-context.md",
+      "source_sha256_before_reconciliation": "9ccf00f9241d441a276f80cb515768266742a83ccd1a648ac5f10f1a048e2ba1",
+      "source_line_before_reconciliation": 9,
+      "source_link_excerpt": "- [네트워크·조회·화면 복구](../../../../../../.claude/context/policy-architecture.md), [오류 표현](../../../../../../.claude/context/error-handling.md), [목록·선택 보존](../../../../../../.claude/context/selective-activation-architecture.md): 05에서 관측·정책·실행·내용 공개의 관계를 보완했다. 06에서 읽기 제한과 작성 수명을 구별할 때 참조한다. 기존 상세 Owner를 유지한다.",
+      "original_link": "../../../../../../.claude/context/policy-architecture.md",
+      "target_id": "T09",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L36",
+      "source": "context/work/workspaces/005-context-based-code-improvement/current/memory/project-context.md",
+      "source_sha256_before_reconciliation": "9ccf00f9241d441a276f80cb515768266742a83ccd1a648ac5f10f1a048e2ba1",
+      "source_line_before_reconciliation": 9,
+      "source_link_excerpt": "- [네트워크·조회·화면 복구](../../../../../../.claude/context/policy-architecture.md), [오류 표현](../../../../../../.claude/context/error-handling.md), [목록·선택 보존](../../../../../../.claude/context/selective-activation-architecture.md): 05에서 관측·정책·실행·내용 공개의 관계를 보완했다. 06에서 읽기 제한과 작성 수명을 구별할 때 참조한다. 기존 상세 Owner를 유지한다.",
+      "original_link": "../../../../../../.claude/context/error-handling.md",
+      "target_id": "T23",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L37",
+      "source": "context/work/workspaces/005-context-based-code-improvement/current/memory/project-context.md",
+      "source_sha256_before_reconciliation": "9ccf00f9241d441a276f80cb515768266742a83ccd1a648ac5f10f1a048e2ba1",
+      "source_line_before_reconciliation": 9,
+      "source_link_excerpt": "- [네트워크·조회·화면 복구](../../../../../../.claude/context/policy-architecture.md), [오류 표현](../../../../../../.claude/context/error-handling.md), [목록·선택 보존](../../../../../../.claude/context/selective-activation-architecture.md): 05에서 관측·정책·실행·내용 공개의 관계를 보완했다. 06에서 읽기 제한과 작성 수명을 구별할 때 참조한다. 기존 상세 Owner를 유지한다.",
+      "original_link": "../../../../../../.claude/context/selective-activation-architecture.md",
+      "target_id": "T25",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L38",
+      "source": "context/work/workspaces/005-context-based-code-improvement/current/memory/project-context.md",
+      "source_sha256_before_reconciliation": "9ccf00f9241d441a276f80cb515768266742a83ccd1a648ac5f10f1a048e2ba1",
+      "source_line_before_reconciliation": 10,
+      "source_link_excerpt": "- [작성 초안·장소·날짜 입력](../../../../../../.claude/context/form.md): 06에서 초안·picker·저장값과 Places·일정 연결·제출의 관계를 복원했다. 날짜·통화·API 본문과 함께 필요한 경계를 읽는다.",
+      "original_link": "../../../../../../.claude/context/form.md",
+      "target_id": "T26",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L39",
+      "source": "context/work/workspaces/005-context-based-code-improvement/current/memory/project-context.md",
+      "source_sha256_before_reconciliation": "9ccf00f9241d441a276f80cb515768266742a83ccd1a648ac5f10f1a048e2ba1",
+      "source_line_before_reconciliation": 12,
+      "source_link_excerpt": "- [기존 상세 입구](../../../../../../.claude/context/README.md): policy·form·manual-input·components·선택적 활성화 등 05/06에서 보완하거나 재사용한 기존 본문 Owner.",
+      "original_link": "../../../../../../.claude/context/README.md",
+      "target_id": "T27",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L40",
+      "source": "context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/02-policy-query-composition.md",
+      "source_sha256_before_reconciliation": "8c53dc7b42ab8c96fd315b1e219847b781cadcf086c066d7eaaa798ed8bcfe54",
+      "source_line_before_reconciliation": 15,
+      "source_link_excerpt": "[공통 조합](../../../../../../../apps/client/src/shared/services/policy-query/index.ts), [일정 조회](../../../../../../../apps/client/src/features/schedule/read-schedules/index.ts), [경비 조회](../../../../../../../apps/client/src/features/expense/read-expenses/index.ts)에서 실제 import 소비자를 찾아 연결한다. [조합 검사](../../../../../../../apps/client/tests/shared/services/policy-query/read-query.test.tsx)와 화면 복구 검사의 mock 경계를 확인한다. [Context](../project-context.md)의 공통 제공·사용처 선택, 계약·수명과 [제품 Policy 계약](../../../../../../../.claude/context/policy-architecture.md)을 대조한다.",
+      "original_link": "../../../../../../../.claude/context/policy-architecture.md",
+      "target_id": "T09",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L41",
+      "source": "context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/05-network-read-context.md",
+      "source_sha256_before_reconciliation": "bf22ac4d124538a202d27a6a3545b6a9ac4ff5dd6370748d147a9775d739b8ba",
+      "source_line_before_reconciliation": 18,
+      "source_link_excerpt": "- [현재 Policy](../../../../../../../.claude/context/policy-architecture.md)",
+      "original_link": "../../../../../../../.claude/context/policy-architecture.md",
+      "target_id": "T09",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L42",
+      "source": "context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/05-network-read-context.md",
+      "source_sha256_before_reconciliation": "bf22ac4d124538a202d27a6a3545b6a9ac4ff5dd6370748d147a9775d739b8ba",
+      "source_line_before_reconciliation": 19,
+      "source_link_excerpt": "- [목록·Router 계약](../../../../../../../.claude/context/selective-activation-architecture.md)",
+      "original_link": "../../../../../../../.claude/context/selective-activation-architecture.md",
+      "target_id": "T25",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L43",
+      "source": "context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/05-network-read-context.md",
+      "source_sha256_before_reconciliation": "bf22ac4d124538a202d27a6a3545b6a9ac4ff5dd6370748d147a9775d739b8ba",
+      "source_line_before_reconciliation": 31,
+      "source_link_excerpt": "본문 보완과 대표 읽기·소스 대조를 마쳤다. 기존 [Policy 본문](../../../../../../../.claude/context/policy-architecture.md)이 실제 관측·표시 강제값·unknown 재확인 수명, query/access/actions/view의 책임과 표시 우선순위, 홈의 부분 데이터, 연결 복귀와 실제 조회의 차이를 설명한다. [오류 가이드](../../../../../../../.claude/context/error-handling.md)는 최초 실패·갱신 실패를 구별하고 실제 `policy` prop과 작성 폼 보존 경계를 바로잡았다.",
+      "original_link": "../../../../../../../.claude/context/policy-architecture.md",
+      "target_id": "T09",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L44",
+      "source": "context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/05-network-read-context.md",
+      "source_sha256_before_reconciliation": "bf22ac4d124538a202d27a6a3545b6a9ac4ff5dd6370748d147a9775d739b8ba",
+      "source_line_before_reconciliation": 31,
+      "source_link_excerpt": "본문 보완과 대표 읽기·소스 대조를 마쳤다. 기존 [Policy 본문](../../../../../../../.claude/context/policy-architecture.md)이 실제 관측·표시 강제값·unknown 재확인 수명, query/access/actions/view의 책임과 표시 우선순위, 홈의 부분 데이터, 연결 복귀와 실제 조회의 차이를 설명한다. [오류 가이드](../../../../../../../.claude/context/error-handling.md)는 최초 실패·갱신 실패를 구별하고 실제 `policy` prop과 작성 폼 보존 경계를 바로잡았다.",
+      "original_link": "../../../../../../../.claude/context/error-handling.md",
+      "target_id": "T23",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L45",
+      "source": "context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/06-draft-input-context.md",
+      "source_sha256_before_reconciliation": "cd02db7d9a7d6fa51f6eacd74d90da7802db419cf306721c7826b4acd6481560",
+      "source_line_before_reconciliation": 18,
+      "source_link_excerpt": "- [현재 폼 가이드](../../../../../../../.claude/context/form.md)",
+      "original_link": "../../../../../../../.claude/context/form.md",
+      "target_id": "T26",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L46",
+      "source": "context/work/workspaces/005-context-based-code-improvement/current/memory/tickets/06-draft-input-context.md",
+      "source_sha256_before_reconciliation": "cd02db7d9a7d6fa51f6eacd74d90da7802db419cf306721c7826b4acd6481560",
+      "source_line_before_reconciliation": 45,
+      "source_link_excerpt": "본문 보완과 대표 읽기·근거 대조를 마쳤다. [작성·입력 가이드](../../../../../../../.claude/context/form.md)에 작성 단계·초안·picker 임시값·저장값의 수명, 장소 후보/채택/상세 실패, 경비 일정 연결, 요청 변환과 저장 실패를 하나의 흐름으로 설명했다. 일정·경비 수정의 서로 다른 초기화 조건, 늦은 날짜와 통화 기본값의 차이도 현재 지원 범위로 남겼다.",
+      "original_link": "../../../../../../../.claude/context/form.md",
+      "target_id": "T26",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "current",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L47",
+      "source": "context/work/workspaces/005-context-based-code-improvement/output/index.md",
+      "source_sha256_before_reconciliation": "75e3c5ff2fd0b7a0dbc53305b9ef0f20191eb249bf2b696b93ccb9a1721b2386",
+      "source_line_before_reconciliation": 9,
+      "source_link_excerpt": "[네트워크·조회·화면 복구](../../../../../.claude/context/policy-architecture.md)는 실제 관측부터 Policy·Query·화면 복구까지를 설명한다. [오류 가이드](../../../../../.claude/context/error-handling.md)는 최초 실패와 기존 내용의 갱신 실패를 구별하고, [여행 목록·선택 계약](../../../../../.claude/context/selective-activation-architecture.md)은 목록 보존의 상세 Owner를 유지한다. Project·client·API/Data·Policy UI 진입이 같은 본문을 연결한다. 05의 대조·199개 검사와 확인 한계는 [실행 기록](../records/2026-10-30-13-network-read-context.md)에 있다.",
+      "original_link": "../../../../../.claude/context/policy-architecture.md",
+      "target_id": "T09",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "output",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L48",
+      "source": "context/work/workspaces/005-context-based-code-improvement/output/index.md",
+      "source_sha256_before_reconciliation": "75e3c5ff2fd0b7a0dbc53305b9ef0f20191eb249bf2b696b93ccb9a1721b2386",
+      "source_line_before_reconciliation": 9,
+      "source_link_excerpt": "[네트워크·조회·화면 복구](../../../../../.claude/context/policy-architecture.md)는 실제 관측부터 Policy·Query·화면 복구까지를 설명한다. [오류 가이드](../../../../../.claude/context/error-handling.md)는 최초 실패와 기존 내용의 갱신 실패를 구별하고, [여행 목록·선택 계약](../../../../../.claude/context/selective-activation-architecture.md)은 목록 보존의 상세 Owner를 유지한다. Project·client·API/Data·Policy UI 진입이 같은 본문을 연결한다. 05의 대조·199개 검사와 확인 한계는 [실행 기록](../records/2026-10-30-13-network-read-context.md)에 있다.",
+      "original_link": "../../../../../.claude/context/error-handling.md",
+      "target_id": "T23",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "output",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L49",
+      "source": "context/work/workspaces/005-context-based-code-improvement/output/index.md",
+      "source_sha256_before_reconciliation": "75e3c5ff2fd0b7a0dbc53305b9ef0f20191eb249bf2b696b93ccb9a1721b2386",
+      "source_line_before_reconciliation": 9,
+      "source_link_excerpt": "[네트워크·조회·화면 복구](../../../../../.claude/context/policy-architecture.md)는 실제 관측부터 Policy·Query·화면 복구까지를 설명한다. [오류 가이드](../../../../../.claude/context/error-handling.md)는 최초 실패와 기존 내용의 갱신 실패를 구별하고, [여행 목록·선택 계약](../../../../../.claude/context/selective-activation-architecture.md)은 목록 보존의 상세 Owner를 유지한다. Project·client·API/Data·Policy UI 진입이 같은 본문을 연결한다. 05의 대조·199개 검사와 확인 한계는 [실행 기록](../records/2026-10-30-13-network-read-context.md)에 있다.",
+      "original_link": "../../../../../.claude/context/selective-activation-architecture.md",
+      "target_id": "T25",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "output",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L50",
+      "source": "context/work/workspaces/005-context-based-code-improvement/output/index.md",
+      "source_sha256_before_reconciliation": "75e3c5ff2fd0b7a0dbc53305b9ef0f20191eb249bf2b696b93ccb9a1721b2386",
+      "source_line_before_reconciliation": 11,
+      "source_link_excerpt": "[작성 초안·장소·날짜 입력](../../../../../.claude/context/form.md)은 작성 단계·초안·picker 임시값·저장값, Places 결과와 채택, 경비 일정 연결·제출의 관계를 설명한다. [components](../../../../../.claude/context/components.md)와 [manual-input](../../../../../.claude/context/manual-input.md)이 현재 책임과 입력 경계를 연결하고, 날짜·통화·API의 기존 제품 계약을 재사용한다. 06의 대표 읽기·118개 검사·지원 한계는 [실행 기록](../records/2026-10-30-15-draft-input-context.md)에 있다.",
+      "original_link": "../../../../../.claude/context/form.md",
+      "target_id": "T26",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "output",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L51",
+      "source": "context/work/workspaces/005-context-based-code-improvement/output/index.md",
+      "source_sha256_before_reconciliation": "75e3c5ff2fd0b7a0dbc53305b9ef0f20191eb249bf2b696b93ccb9a1721b2386",
+      "source_line_before_reconciliation": 11,
+      "source_link_excerpt": "[작성 초안·장소·날짜 입력](../../../../../.claude/context/form.md)은 작성 단계·초안·picker 임시값·저장값, Places 결과와 채택, 경비 일정 연결·제출의 관계를 설명한다. [components](../../../../../.claude/context/components.md)와 [manual-input](../../../../../.claude/context/manual-input.md)이 현재 책임과 입력 경계를 연결하고, 날짜·통화·API의 기존 제품 계약을 재사용한다. 06의 대표 읽기·118개 검사·지원 한계는 [실행 기록](../records/2026-10-30-15-draft-input-context.md)에 있다.",
+      "original_link": "../../../../../.claude/context/components.md",
+      "target_id": "T28",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "output",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L52",
+      "source": "context/work/workspaces/005-context-based-code-improvement/output/index.md",
+      "source_sha256_before_reconciliation": "75e3c5ff2fd0b7a0dbc53305b9ef0f20191eb249bf2b696b93ccb9a1721b2386",
+      "source_line_before_reconciliation": 11,
+      "source_link_excerpt": "[작성 초안·장소·날짜 입력](../../../../../.claude/context/form.md)은 작성 단계·초안·picker 임시값·저장값, Places 결과와 채택, 경비 일정 연결·제출의 관계를 설명한다. [components](../../../../../.claude/context/components.md)와 [manual-input](../../../../../.claude/context/manual-input.md)이 현재 책임과 입력 경계를 연결하고, 날짜·통화·API의 기존 제품 계약을 재사용한다. 06의 대표 읽기·118개 검사·지원 한계는 [실행 기록](../records/2026-10-30-15-draft-input-context.md)에 있다.",
+      "original_link": "../../../../../.claude/context/manual-input.md",
+      "target_id": "T29",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "output",
+      "disposition": "freeze_historical_original",
+      "reason": "Workspace is outside confirmed default/current-generation bound consumers; freeze its then-current inputs and outputs; reconcile before reactivation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L53",
+      "source": "context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-07-impact-and-context-reassessment.md",
+      "source_sha256_before_reconciliation": "3802624ddb9c43e82125bb29cdf779a21f556a7b4ea86b92c3c69d31d8669b57",
+      "source_line_before_reconciliation": 20,
+      "source_link_excerpt": "**인증의 현재 계약과 소비 관계 복원이 우선 후보다.** Project의 주제별 입구와 기존 상세 Context 색인에서는 현재 인증 관계를 한 주제로 읽는 경로가 확인되지 않았다. [기존 결정](../../../../../.claude/decisions/2026-09-18-device-session-and-local-access.md)은 최초 선택과 후속 변경을 함께 보존하며 002 Spec·기록으로 연결한다. 현재 계약을 이해하려면 중간안·원복 기록·여러 코드 파일을 다시 조립해야 한다.",
+      "original_link": "../../../../../.claude/decisions/2026-09-18-device-session-and-local-access.md",
+      "target_id": "T06",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "records",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L54",
+      "source": "context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-07-impact-and-context-reassessment.md",
+      "source_sha256_before_reconciliation": "3802624ddb9c43e82125bb29cdf779a21f556a7b4ea86b92c3c69d31d8669b57",
+      "source_line_before_reconciliation": 28,
+      "source_link_excerpt": "**입력 보존은 이미 기준이 있다.** [현재 정책 설명](../../../../../.claude/context/policy-architecture.md)의 ‘작성과 읽기의 제한을 구별한다’는 네트워크 변화 때 작성 중인 form과 입력을 유지하고 제한을 필요한 동작에 적용하는 뜻을 담는다. 새 규칙을 같은 뜻으로 추가하기보다 관련 작업이 이 본문을 선택하고 화면·상태 수명에 적용하는지 확인할 대상이다. 모든 일정 생성 구조의 정당성을 이 한 규칙으로 판정할 수는 없다. [여행 활성화 설명](../../../../../.claude/context/selective-activation-architecture.md)에도 여행 목록의 조회·보존·갱신 관계가 이미 통합돼 있어, 002의 후반 내용을 전부 미반영으로 분류하지 않는다.",
+      "original_link": "../../../../../.claude/context/policy-architecture.md",
+      "target_id": "T09",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "records",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L55",
+      "source": "context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-07-impact-and-context-reassessment.md",
+      "source_sha256_before_reconciliation": "3802624ddb9c43e82125bb29cdf779a21f556a7b4ea86b92c3c69d31d8669b57",
+      "source_line_before_reconciliation": 28,
+      "source_link_excerpt": "**입력 보존은 이미 기준이 있다.** [현재 정책 설명](../../../../../.claude/context/policy-architecture.md)의 ‘작성과 읽기의 제한을 구별한다’는 네트워크 변화 때 작성 중인 form과 입력을 유지하고 제한을 필요한 동작에 적용하는 뜻을 담는다. 새 규칙을 같은 뜻으로 추가하기보다 관련 작업이 이 본문을 선택하고 화면·상태 수명에 적용하는지 확인할 대상이다. 모든 일정 생성 구조의 정당성을 이 한 규칙으로 판정할 수는 없다. [여행 활성화 설명](../../../../../.claude/context/selective-activation-architecture.md)에도 여행 목록의 조회·보존·갱신 관계가 이미 통합돼 있어, 002의 후반 내용을 전부 미반영으로 분류하지 않는다.",
+      "original_link": "../../../../../.claude/context/selective-activation-architecture.md",
+      "target_id": "T25",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "records",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L56",
+      "source": "context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-13-network-read-context.md",
+      "source_sha256_before_reconciliation": "a7d0d7dd30ebc21d55a5bdbf8b0d2d0e2ef8c460462c0cef435c0d940ff19609",
+      "source_line_before_reconciliation": 7,
+      "source_link_excerpt": "[Policy 본문](../../../../../.claude/context/policy-architecture.md)을 연결 관측, 조회와 표시, 복구의 흐름으로 구성했다. 실제 연결과 Debug 표시, unknown 확인 중·확인 불가, foreground와 수동 재확인의 공유 수명·늦은 응답·해제 조건을 설명한다. Query 데이터·접근·실행·표시의 책임과 우선순위를 표로 묶고 정상 빈 결과·부분 캐시·초기 실패·갱신 실패를 구별했다.",
+      "original_link": "../../../../../.claude/context/policy-architecture.md",
+      "target_id": "T09",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "records",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L57",
+      "source": "context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-13-network-read-context.md",
+      "source_sha256_before_reconciliation": "a7d0d7dd30ebc21d55a5bdbf8b0d2d0e2ef8c460462c0cef435c0d940ff19609",
+      "source_line_before_reconciliation": 9,
+      "source_link_excerpt": "[오류 가이드](../../../../../.claude/context/error-handling.md)의 모든 isError에서 전체 화면을 교체하는 예시는 갱신 실패의 보존 조건을 놓쳤다. 기존 `view`와 실제 소비자를 연결하는 설명으로 보완하고 `PolicyErrorDisplay`의 실제 prop인 `policy`로 바로잡았다. 읽기 영역의 제한 예시를 작성 폼 전체 교체로 확장하지 않도록 기존 초안 보존 계약을 연결했다.",
+      "original_link": "../../../../../.claude/context/error-handling.md",
+      "target_id": "T23",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "records",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L58",
+      "source": "context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-13-network-read-context.md",
+      "source_sha256_before_reconciliation": "a7d0d7dd30ebc21d55a5bdbf8b0d2d0e2ef8c460462c0cef435c0d940ff19609",
+      "source_line_before_reconciliation": 11,
+      "source_link_excerpt": "[여행 목록 본문](../../../../../.claude/context/selective-activation-architecture.md)의 사본·remote/mixed/local·취소 후 갱신·실패 fallback 계약은 이미 충분해 유지했다. 사라진 선택을 정리하는 실제 online·성공·갱신 완료 조건을 명확히 하고 일정·경비 내용 공개와 다른 보존 계약을 연결했다. 새 경쟁 본문이나 폴더는 만들지 않았다.",
+      "original_link": "../../../../../.claude/context/selective-activation-architecture.md",
+      "target_id": "T25",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "records",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L59",
+      "source": "context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-14-save05-and-review06.md",
+      "source_sha256_before_reconciliation": "21d8ac616c35d9a35be0296378abf56f26df461514c86e8694b2812de6359106",
+      "source_line_before_reconciliation": 7,
+      "source_link_excerpt": "[form 가이드](../../../../../.claude/context/form.md)는 RHF·Controller와 일반 계층 표는 설명하지만 검색/작성 화면 전환 위에서 유지되는 초안, 제목·장소 채택, 저장 실패와 종료, picker의 별도 선택 수명을 설명하지 못한다. picker state를 일괄 feature hook 책임으로 둔 표는 현재 TimeField와 맞지 않는다. [components](../../../../../.claude/context/components.md)에는 제거된 ManualExpenseForm 예시도 남는다. manual-input의 단일 폼·기능별 제한 계약은 유효하므로 유지한다.",
+      "original_link": "../../../../../.claude/context/form.md",
+      "target_id": "T26",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "records",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L60",
+      "source": "context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-14-save05-and-review06.md",
+      "source_sha256_before_reconciliation": "21d8ac616c35d9a35be0296378abf56f26df461514c86e8694b2812de6359106",
+      "source_line_before_reconciliation": 7,
+      "source_link_excerpt": "[form 가이드](../../../../../.claude/context/form.md)는 RHF·Controller와 일반 계층 표는 설명하지만 검색/작성 화면 전환 위에서 유지되는 초안, 제목·장소 채택, 저장 실패와 종료, picker의 별도 선택 수명을 설명하지 못한다. picker state를 일괄 feature hook 책임으로 둔 표는 현재 TimeField와 맞지 않는다. [components](../../../../../.claude/context/components.md)에는 제거된 ManualExpenseForm 예시도 남는다. manual-input의 단일 폼·기능별 제한 계약은 유효하므로 유지한다.",
+      "original_link": "../../../../../.claude/context/components.md",
+      "target_id": "T28",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "records",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L61",
+      "source": "context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-15-draft-input-context.md",
+      "source_sha256_before_reconciliation": "96c539159f54ce8c39ea4024aa1a87063cef35e11c36f902734063f3da5d6168",
+      "source_line_before_reconciliation": 7,
+      "source_link_excerpt": "[form 가이드](../../../../../.claude/context/form.md)를 초안·장소 후보/채택·선택창·저장 요청의 흐름으로 구성했다. 첫머리에 세 읽기 경로를 두고, 책임·초기화 조건·결과 계약·picker 동작을 비교하는 표를 사용했다. Controller·Field·Zod·제출/저장 분리·Policy·날짜/통화 경계라는 기존 의미는 유지했다. picker 상태를 일괄 feature hook 소유로 둔 설명은 현재 TimeField 구독·선택창 수명에 맞췄다.",
+      "original_link": "../../../../../.claude/context/form.md",
+      "target_id": "T26",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "records",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L62",
+      "source": "context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-15-draft-input-context.md",
+      "source_sha256_before_reconciliation": "96c539159f54ce8c39ea4024aa1a87063cef35e11c36f902734063f3da5d6168",
+      "source_line_before_reconciliation": 9,
+      "source_link_excerpt": "[components](../../../../../.claude/context/components.md)는 제거된 ManualExpenseForm을 실제 ExpenseForm으로 정정하고 adapter와 picker의 책임을 연결했다. [manual-input](../../../../../.claude/context/manual-input.md)은 기존 단일 폼과 Local/Remote 계약을 유지했다. 직접 입력 장소를 선택 입력처럼 보이게 하던 설명은 현재 생성 schema의 필수 제목·장소 텍스트·날짜·시각에 맞추고, 좌표 null과 수정의 상세 실패 0/0 호환을 구별했다.",
+      "original_link": "../../../../../.claude/context/components.md",
+      "target_id": "T28",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "records",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    },
+    {
+      "id": "L63",
+      "source": "context/work/workspaces/005-context-based-code-improvement/records/2026-10-30-15-draft-input-context.md",
+      "source_sha256_before_reconciliation": "96c539159f54ce8c39ea4024aa1a87063cef35e11c36f902734063f3da5d6168",
+      "source_line_before_reconciliation": 9,
+      "source_link_excerpt": "[components](../../../../../.claude/context/components.md)는 제거된 ManualExpenseForm을 실제 ExpenseForm으로 정정하고 adapter와 picker의 책임을 연결했다. [manual-input](../../../../../.claude/context/manual-input.md)은 기존 단일 폼과 Local/Remote 계약을 유지했다. 직접 입력 장소를 선택 입력처럼 보이게 하던 설명은 현재 생성 schema의 필수 제목·장소 텍스트·날짜·시각에 맞추고, 좌표 null과 수정의 상세 실패 0/0 호환을 구별했다.",
+      "original_link": "../../../../../.claude/context/manual-input.md",
+      "target_id": "T29",
+      "workspace_id": "005-context-based-code-improvement",
+      "workspace_live_at_review": false,
+      "document_role": "records",
+      "disposition": "freeze_historical_original",
+      "reason": "Append-only record or selected source snapshot; preserve original observation.",
+      "resolution_target": null
+    }
+  ],
+  "unconfirmed_originals": [
+    {
+      "target_id": "T05",
+      "target": "apps/client/src/shared/services/auth/session-restoration.ts"
+    },
+    {
+      "target_id": "T07",
+      "target": "apps/client/src/screens/read-query.ts"
+    }
+  ],
+  "final_check": {
+    "strict_failures": 62,
+    "baseline_failures": 63,
+    "change": "live002 output의중복호환stub행만제거했고다른HISTORY직접연결은유지했다. 검사예외는추가하지않았다."
+  }
+}

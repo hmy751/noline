@@ -22,15 +22,12 @@
 
 ## 현재 상태와 실제 결과
 
-Main은 사용자가 승인한 [역사 자료 28개 통합안](../../../output/history-integration-proposal.md)을 적용했다고 보고했다. 적용 내용과 보존·검증 범위는 [통합 결과](../../../output/history-integration-result.md)에 정리됐다.
+audits·decisions·sessions 28개의 현재 의미 통합과 원문 보존, 기존 세 폴더 제거는 앞서 완료돼 commit `b3e29bd`에 포함됐다. 이번 잔여 범위에서는 [Ticket 12 결과](../../../output/ticket-12-result.md)에 따라 CHANGELOG와 역사 링크를 추가로 정리했다.
 
-- 기존 Selective Local-First Decision은 활성화 대안, 온라인 의존 비용과 Router/Sync 구분을 보완했다.
-- 주제별 Owner로 통합한 이유와 Project의 `common`·`current`·`guidance` 구성 및 검증 방식의 형성 이유를 각각 새 Project Decision으로 구성했다.
-- audits 6개는 당시 조사·검증·실행·재진입 기록으로 보존하고 현재 정비의 선행 입력으로 요구하던 연결을 제거했다.
-- sessions의 활성화 대안과 비용은 기존 Decision에 통합했다. 지도·경로 의미는 현재 Owner와 형성 자료에 이미 있어 중복하지 않았으며 당시 완료·성능·rollback 주장을 현재 지원 근거로 옮기지 않았다.
-- 원문 28개는 `.claude/_archive/2026-10-31-project-context-reconstruction/history-integration/`에 원래 경로·기준 commit·SHA-256과 함께 보존했다. Main은 삭제 전 원문과 보존본의 바이트·해시를 대조한 뒤 기존 `.claude/audits`·`.claude/decisions`·`.claude/sessions` 폴더를 제거했다고 보고했다.
-- 루트·Document Map·harness·스킬 색인·Project/REFERENCE 입구와 현재 소비자를 새 Owner에 맞췄다. 001의 Recover/Verify 근거와 006 Recover 선택도 현재 경로로 전환했지만 durable Verify receipt는 새로 만들지 않았다.
+- CHANGELOG 614줄의 제품·구조·하네스 의미를 현재 Owner와 대조했다. 필요한 의미·대안·비용이 이미 Project와 형성 자료에 있어 새 제품 본문은 만들지 않았고, 원문은 경로·기준 commit·SHA-256과 함께 같은 바이트로 보존한 뒤 현재 `.claude/CHANGELOG.md`와 일반 읽기 연결을 제거했다.
+- baseline 63회, 고유 target 29개의 역사 링크를 [재접근 지도](../../../output/ticket-12-historical-access.md)와 기계용 상세 지도에 분류했다. default 001과 current-generation 002·006을 당시 live consumer로 확인했고, live 002 output의 삭제된 결정 stub 중복 연결 1건만 제거했다.
+- strict checker의 역사 링크 실패는 63건에서 62건이 됐다. 나머지 역사 기록을 현재 정책으로 고치거나 검사 예외를 추가하지 않았다.
+- target 29개 중 27개는 식별한 commit의 exact-path Git 객체를 확인했고, 문서 25개는 별도 보존판도 확인했다. `session-restoration.ts`와 `screens/read-query.ts` 두 미커밋 초기 원판은 현재 파일과 Git에서 확인되지 않으며 후속 구현을 원판 복구로 간주하지 않는다.
+- 독립 대조는 기존 manifest에 포함된 보존 파일 47개, Git 객체 27개, archive 대상 25개의 재접근 근거와 원문 해시 보존을 확인했다.
 
-Main이 전달한 독립 검토에서는 내용상 추가 결함을 찾지 못했고, 별도 검증자는 28개 원문의 바이트·SHA 일치와 대표 질문의 선택 이유·비용·대체·재검토 조건을 확인했다고 기록됐다. 전체 Harness 검사는 기존 55건에 역사 문서의 옛 링크 8건이 추가되어 63건 실패를 재현했다. 추가 8건은 현재 일반 읽기의 소비자가 아니라 역사 Workspace 문서이며, 보존 묶음의 경로표와 `historical-links.json`으로 재접근할 수 있다.
-
-이번 적용은 승인된 28개 자료의 현재 의미 통합·원문 보존·현재 읽기 전환 범위를 마쳤고, Main 보고에 따르면 완료 기록과 함께 commit `b3e29bd`에 포함됐다. 역사 링크 전반의 정비·제품 실행·이미 로드된 host cache 갱신·전체 스킬과 host 연결 작업·006 전체 사용자 수락을 완료한 것은 아니다. Ticket 11의 공통 실행 기준·host 연결 작업도 이 결과로 완료 처리하지 않는다.
+현재 의미와 역사 원문을 구별하고 재접근 한계를 드러내는 범위는 완료됐다. 모든 역사 링크를 유효하게 만들거나 두 미커밋 원판을 복구한 것은 아니다. 보존 위치를 `.claude` 아래에 계속 둘 필요가 있는지는 Ticket 13의 남은 배치 정리에서 다시 판단한다.

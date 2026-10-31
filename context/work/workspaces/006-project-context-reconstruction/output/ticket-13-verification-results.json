@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-31",
+  "verify001": {
+    "workspace_id": "001-noline-context-harness-application",
+    "claim": "Noline의 현재 지침·Context Harness regular input과 실행 시 관찰한 bridge·경로 구조가 정해진 구조 검사를 통과한다. 선언 파일 freshness는 이후 directory·symlink topology, Git index 또는 제품 동작을 증명하지 않는다.",
+    "result": "fail",
+    "exit_code": 1,
+    "receipt": "workspaces/001-noline-context-harness-application/records/receipts/verify/verify-20261031T062013220568Z-6f6f00a2843a4dfb994739bb826cbfff.json",
+    "status": "verification_failed",
+    "timed_out": false
+  },
+  "verify002": {
+    "workspace_id": "002-code-readability-refactoring",
+    "claim": "당시 설치된 TypeScript와 외부 의존성 및 선언된 로컬 입력을 사용한 client noEmit 타입 검사가 통과한다. server 검사, 실제 앱 동작, 리팩토링 효과, 버그 해결 또는 Work 전체 완료를 증명하지 않는다. 외부 node_modules와 이후 새로 포함된 파일은 기존 snapshot freshness의 보장 밖이다.",
+    "result": "fail",
+    "exit_code": 2,
+    "receipt": "workspaces/002-code-readability-refactoring/records/receipts/verify/verify-20261031T061856953626Z-8eefff29beff432ea0c2113c11947b64.json",
+    "status": "verification_failed",
+    "timed_out": false
+  },
+  "scope": "001은현재Harness구조검사(역사62실패),002는현재client noEmit타입검사(제품타입오류실패). 새receipt를보존했고기존receipt원문을변경하지않았다. 실패를통과로보고하지않는다.",
+  "recover": [
+    {
+      "workspace_id": "001-noline-context-harness-application",
+      "exit_code": 0,
+      "packet_sha256": "3646519fd17ce57932904e597373b986641f0a99e94e77e5e492137def6a41f2",
+      "receipt_freshness_observation": "- receipt_freshness: fresh"
+    },
+    {
+      "workspace_id": "002-code-readability-refactoring",
+      "exit_code": 0,
+      "packet_sha256": "1fef2038fe4a57a7270085b6b8fb81fadf64bc82241af10c52011940ee99774d",
+      "receipt_freshness_observation": "- receipt_freshness: fresh"
+    },
+    {
+      "workspace_id": "006-project-context-reconstruction",
+      "exit_code": 0,
+      "packet_sha256": "ad07de097054a45e9a179d0b538f6adbcb1108aaf1b9679e59e2e33a0807b34b",
+      "receipt_freshness_observation": "- receipt_freshness: not_applicable"
+    }
+  ]
+}

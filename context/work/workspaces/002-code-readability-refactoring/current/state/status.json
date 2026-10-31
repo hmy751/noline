@@ -1,8 +1,8 @@
 {
+  "finished_at": "2026-10-31T06:18:56.952Z",
+  "receipt": "workspaces/002-code-readability-refactoring/records/receipts/verify/verify-20261031T061856953626Z-8eefff29beff432ea0c2113c11947b64.json",
+  "result": "fail",
   "schema_version": 3,
-  "workspace_id": "002-code-readability-refactoring",
-  "status": "ready_for_verification",
-  "result": null,
-  "receipt": null,
-  "finished_at": null
+  "status": "verification_failed",
+  "workspace_id": "002-code-readability-refactoring"
 }

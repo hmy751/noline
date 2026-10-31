@@ -1,0 +1,78 @@
+{
+  "date": "2026-10-31",
+  "scope": "당시 current_generation과default index의관찰. binding제어·runtime수정은수행하지않았다. futurelive상태보장아님.",
+  "runtime_session_count": 17,
+  "default_workspace": "001-noline-context-harness-application",
+  "current_generation_bindings": [
+    {
+      "runtime_session_key": "4d343d17e6f56bb1c0eef628969af45a6fd36f63bf653c8120732ed14324f96e",
+      "generation": 2,
+      "workspace_id": "002-code-readability-refactoring"
+    },
+    {
+      "runtime_session_key": "e4751c25d9ff1f3fb0d3db549ec996ccbec980a9e013dd643fc2565db8e64b25",
+      "generation": 1,
+      "workspace_id": "002-code-readability-refactoring"
+    },
+    {
+      "runtime_session_key": "2f4bc10018500199f1b5d8bcad50c985d69c7fb9068d3e9d22335d73073c0d8b",
+      "generation": 1,
+      "workspace_id": "002-code-readability-refactoring"
+    },
+    {
+      "runtime_session_key": "2cff9c4669f0874c75f945e68686ed2f107295e58547c735be66e2f937b88d40",
+      "generation": 1,
+      "workspace_id": "002-code-readability-refactoring"
+    },
+    {
+      "runtime_session_key": "f2d33f66f5f441e7c09edbb58974fdbe78124ca74c7be3aead34717770f36f1f",
+      "generation": 3,
+      "workspace_id": "006-project-context-reconstruction"
+    },
+    {
+      "runtime_session_key": "57c81d38a109c38538792d641be13a2957e52a551d5ae6aa5b38215ab11a4e1a",
+      "generation": 1,
+      "workspace_id": "006-project-context-reconstruction"
+    },
+    {
+      "runtime_session_key": "f325006590fc6b6b90aabdc2303b35fefcb1238aa92f80bb38243d8bd1ee9c0f",
+      "generation": 2,
+      "workspace_id": "002-code-readability-refactoring"
+    },
+    {
+      "runtime_session_key": "012d3f6c4fe7cd45704af2d3839d8e5efb198a337767d6e3f348b0fbb61720dc",
+      "generation": 1,
+      "workspace_id": "002-code-readability-refactoring"
+    },
+    {
+      "runtime_session_key": "6160efbdd6b82be3ed1a886a051eb6cd7633e85409bb3ab8057a4696b1f0d247",
+      "generation": 1,
+      "workspace_id": "002-code-readability-refactoring"
+    }
+  ],
+  "live_workspaces": [
+    "001-noline-context-harness-application",
+    "002-code-readability-refactoring",
+    "006-project-context-reconstruction"
+  ],
+  "recover_checks": [
+    {
+      "workspace_id": "001-noline-context-harness-application",
+      "exit_code": 0,
+      "packet_sha256": "3646519fd17ce57932904e597373b986641f0a99e94e77e5e492137def6a41f2",
+      "receipt_freshness_observation": "- receipt_freshness: fresh"
+    },
+    {
+      "workspace_id": "002-code-readability-refactoring",
+      "exit_code": 0,
+      "packet_sha256": "1fef2038fe4a57a7270085b6b8fb81fadf64bc82241af10c52011940ee99774d",
+      "receipt_freshness_observation": "- receipt_freshness: fresh"
+    },
+    {
+      "workspace_id": "006-project-context-reconstruction",
+      "exit_code": 0,
+      "packet_sha256": "ad07de097054a45e9a179d0b538f6adbcb1108aaf1b9679e59e2e33a0807b34b",
+      "receipt_freshness_observation": "- receipt_freshness: not_applicable"
+    }
+  ]
+}

@@ -144,6 +144,7 @@ function checkNoLegacySurfaces() {
     '.claude/audits',
     '.claude/decisions',
     '.claude/sessions',
+    '.claude/CHANGELOG.md',
     '.claude/agents',
     '.codex/agents',
     '.claude/skills/noline-work',

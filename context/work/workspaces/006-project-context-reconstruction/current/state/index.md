@@ -1,30 +1,28 @@
 # 현재 상태와 다음 행동
 
-**Ticket 11의 공통 스킬 원본·Claude 연결 전환과 실제 host 검증이 완료됐다. `.agents/skills`를 공통 원본으로 두고 `.claude/skills`를 Claude용 연결로 바꿨으며, Claude와 Codex가 각각 `explain` 본문을 실제로 로드했다.** 회귀 검사 45개와 독립 재검증도 끝났지만 변경은 아직 커밋하지 않았다.
+**Ticket 12의 남은 역사 자료 정리와 Ticket 13의 전체 대조는 수행됐다. 현재 단계는 그 결과를 중간 커밋으로 보존한 뒤, 남은 `.claude` 문서·archive의 책임과 배치를 정리하는 것이다. 006 전체 수락은 아직 받지 않았다.**
 
-## Ticket 11의 현재 결과
+## 확인된 결과
 
-[Ticket 11](../memory/tickets/11-shared-execution-and-host-connections.md)은 Claude와 Codex가 공유하는 스킬의 실제 원본과 host별 발견 경로를 정리했다.
+- CHANGELOG의 유효한 의미를 현재 Owner와 대조하고 원문을 보존한 뒤 현재 읽기에서 제거했다.
+- 역사 링크 63건 중 live output의 중복 1건을 제거했다. 남은 62건은 역사 문서와 이전 Workspace의 재접근 문제로 보존했으며 검사 예외를 추가하지 않았다.
+- 고유 target 29개 중 27개의 Git 객체와 문서 25개의 보존판을 확인했다. 미커밋 초기 원판 2개는 보존 확인 불가다.
+- Project의 archive 읽기 연결은 0이고, client/server guide의 옛 Owner 연결과 transaction 계약 약화는 수정 후 독립 재확인됐다.
+- default 001과 current-generation 002·006의 선언을 대조했다. 001 구조 검사와 002 client 타입 검사는 각각 역사 링크 62건과 현재 제품 타입 오류로 실패했으며 receipt에 그대로 남았다.
+- 이후 001·002·006 Recover는 모두 성공했다. receipt freshness는 검사 pass나 006 수락을 뜻하지 않는다.
 
-- `.agents/skills`는 바로가기 대신 공통 스킬의 실제 원본 폴더가 됐다.
-- 기존 `.claude/skills`의 파일은 공통 원본으로 이동했고, `.claude/skills`는 Claude가 같은 원본을 읽는 연결이 됐다.
-- Claude와 Codex 양쪽에서 대상 스킬 8개가 발견됐다.
-- 사용자의 명시적 시험 요청 뒤 격리된 시험 프로젝트에서 두 host가 `explain`을 각각 실제 호출해 본문을 읽었다.
-- 관련 회귀 검사 45개가 통과했고 독립 재검증도 완료됐다.
-- 전체 Harness의 기존 역사 링크 실패 63건은 그대로이며 새 오류는 보고되지 않았다.
+상세 결과와 근거는 [Ticket 12 결과](../../output/ticket-12-result.md), [Ticket 13 결과](../../output/ticket-13-result.md)와 [배치 재검토 기록](../../records/2026-10-31-10-ticket-12-13-checkpoint-and-layout-reconsideration.md)에서 찾는다.
 
-Git 화면의 `D`와 미등록 항목은 경로 전환이 커밋되기 전에 기존 항목의 삭제와 새 항목의 추가가 함께 보이는 상태다. Main은 결과를 기록했다고 보고했지만 정확한 결과 문서 경로는 이번 입력에 연결하지 않았다.
+## 다음 행동
 
-## 완료된 선행 결과
+1. 위 결과·receipt·Work 기록을 포함한 현재 변경을 중간 커밋으로 보존한다.
+2. `.claude/README.md`와 `.claude/harness/README.md`의 유효한 공통 내용을 기존 Owner에 통합하고 두 문서 제거 가능성을 확인한다.
+3. `.claude/_archive`를 현재 읽기와 분리된 root 보존 경계로 이동하고 참조·보존 경로표·검사를 함께 맞춘다. 원문과 원래 경로를 기록한 provenance는 보존한다.
+4. 프로젝트 root와 앱·패키지의 `CLAUDE.md`를 전역·Context·스킬 책임과 중복되지 않는 진입 지침으로 정리한다.
+5. 로컬 정리의 결과와 남은 한계를 제시한 뒤 006 전체 수락을 별도로 요청한다.
 
-Ticket 10의 제품 runbook·workflow와 옛 commands·dispatcher·agent 정리는 commit `1648540`에 포함됐다. audits·decisions·sessions 원문 28개의 현재 의미 통합·원문 보존·읽기 전환과 기존 세 폴더 제거는 commit `b3e29bd`에 포함됐다. 완료한 역사 원문 28개는 Ticket 11에서 다시 처리하지 않았다.
+전역 `CLAUDE.md` 개편은 별도 작업으로 구분하며 006 종료의 선행 조건으로 삼지 않는다. 이번 중간 커밋에서 전역 변경의 실행·완료를 약속하지 않는다.
 
-## 다음 판단과 행동
+## 계속 유효한 경계
 
-1. Ticket 11의 변경과 연결된 완료 기록을 확인해 커밋한다.
-2. 전체 Harness에 남은 역사 링크 실패 63건의 현재 소비 영향과 정리 범위를 구별한다.
-3. [Ticket 13](../memory/tickets/13-integrated-verification-and-acceptance.md)에서 전체 검증과 006 종료 여부를 판단한다.
-
-## 계속 유효한 확인 상한
-
-실제 host 검증은 격리된 시험 프로젝트에서 두 host가 `explain`을 한 번씩 로드한 범위다. 다른 host 동작 전반, 제품 실행, durable Verify receipt와 006 전체 사용자 acceptance는 확인하지 않았다. 기존 역사 링크 실패 63건도 해결되지 않았다.
+제품 코드 오류를 이번 문서 통합 작업에서 고친 것으로 보고하지 않는다. 역사 records/source를 현재 정책으로 소급 수정하지 않으며, 필요한 보존 책임이 있다는 이유만으로 기존 `.claude` 배치를 유지하지 않는다. settings·hook·skills symlink 같은 실제 host 소비자는 대체 연결을 확인한 뒤에만 변경한다.

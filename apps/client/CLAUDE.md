@@ -33,18 +33,18 @@
 | `application/*` | 앱 전체 준비 순서·실패·재시도와 실행 수명 조합 | 여행 선택 규칙은 entity, DB·인증·cleanup 실행은 각 shared 모듈 |
 | `entities/*/model` | schema에서 `z.infer`로 client model 연결 | schema shape 자체는 `packages/schema` |
 | `entities/*/api` | remote 호출과 response validation | 서버 route 정책은 `apps/server` |
-| `entities/*/lib` | SQLite datasource와 local mutation | 공통 transaction 정책은 rule |
-| `entities/*/repository` | Activation Router 경계 | Router 정책 본문은 rule/context |
-| `entities/*/data` | React Query keys/hooks | query key 원칙은 context |
+| `entities/*/lib` | SQLite datasource와 local mutation | 공통 원자성 계약은 [데이터 수명](../../context/project/guidance/data-lifecycle/INDEX.md) |
+| `entities/*/repository` | Activation Router 경계 | Router 계약은 [여행 접근](../../context/project/guidance/travel-access/INDEX.md) |
+| `entities/*/data` | React Query keys/hooks | query 계약은 [API 기준](../../context/project/guidance/api-contracts.md) |
 | `features/*` | 사용자 workflow와 form submit 조합 | 초안·제출·실패 처리는 Project 작성·입력 가이드 |
 | `shared/components` | 앱 공용 composition | 순수 primitive는 `packages/ui` |
-| `shared/services/*` | client-side policy/service integration | Data/Service 분리 정책은 guard/context |
+| `shared/services/*` | client-side policy/service integration | Data/Service 경계는 [여행 접근](../../context/project/guidance/travel-access/INDEX.md) |
 
 ## High-Risk Checks
 
 - sync-owned Data Entity는 `model -> api/lib -> repository -> data` 경계를 유지한다.
 - UI나 feature screen에서 SQLite/API를 직접 골라 Local/Remote routing을 우회하지 않는다.
-- local mutation과 `sync_queue` 추가는 가능한 한 같은 `withTransaction` 안에 둔다.
+- sync-owned Entity의 Local mutation과 해당 `sync_queue` 추가는 같은 `withTransaction` 안에서 원자적으로 확정한다.
 - create flow는 `generateId()`와 client-created ID 전략을 따른다.
 - 날짜/시간은 [날짜와 시각의 데이터 의미](../../context/project/common/date-and-time.md)에서 필드 의미와 현재 경계 차이를 확인하고, 한 시점을 나타내는 값은 저장/전송 boundary에서 ISO 8601 datetime with timezone을 유지한다.
 - offline/active/inactive 제한은 `useAppPolicy`, `PolicyErrorDisplay`, `NetworkStatusIndicator` 같은 기존 policy primitive를 먼저 확인한다.
@@ -79,4 +79,4 @@ pnpm harness:check
 
 ## Update Rule
 
-이 파일에는 client 작업자가 시작 전에 알아야 할 경계만 남긴다. 긴 feature 설명, 과거 구현 과정, 디버깅 사례는 `context/project/`, `sessions/`, `_archive/`로 보낸다.
+이 파일에는 client 작업자가 시작 전에 알아야 할 경계만 남긴다. 지속할 제품 설명은 `context/project/`의 해당 Owner에, 이번 구현·조사·검증은 Work 기록에 남긴다. 정확한 과거 원문은 재검토·복구 목적의 보존물로 구별한다.

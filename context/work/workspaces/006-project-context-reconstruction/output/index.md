@@ -22,6 +22,14 @@
 | [역사 자료 28개 통합안](history-integration-proposal.md) | audits·decisions·sessions 원문의 현재 Owner 대응, Project Decision 보완·신설 후보, 원문 보존과 기존 폴더 제거의 선행 조건·확인 한계를 검토할 때 |
 | [역사 자료 28개 통합 결과](history-integration-result.md) | 승인안의 실제 적용, 세 역사 폴더의 원문 보존·제거, 현재 소비자 전환과 독립 검토·검증 범위 및 남은 63건 실패를 확인할 때 |
 | [Ticket 11 공통 스킬·host 연결 결과](ticket-11-result.md) | 공통 정본·Claude 연결 전환, 원본 보존·발견·실제 호출과 회귀 검증 근거, 유지한 host 책임과 확인 상한을 확인할 때 |
+| [Ticket 12 역사 자료 정리 결과](ticket-12-result.md) | CHANGELOG 판단·보존·제거와 63개 역사 링크의 현재 소비·재접근 판정 및 두 원판 공백을 확인할 때 |
+| [Ticket 12 역사 재접근 지도](ticket-12-historical-access.md) | 고유 target 29개의 Git·archive 재접근 위치와 두 미커밋 원판의 근거 한계를 사람이 검토할 때 |
+| [Ticket 12 역사 링크 상세](ticket-12-historical-links.json) | baseline 63회 참조의 source hash·행·target과 최종 62건 판정을 기계적으로 대조할 때 |
+| [Ticket 13 전체 대조 결과](ticket-13-result.md) | 최초 후보와 현재 Owner, 최종 교정·독립 검토, live consumer·Verify·Recover 결과와 후속 배치 재검토를 확인할 때 |
+| [Ticket 13 live consumer 관찰](ticket-13-live-consumers.json) | default와 current-generation binding의 당시 관찰 및 세 Workspace Recover 결과를 대조할 때 |
+| [Ticket 13 Verify 결과](ticket-13-verification-results.json) | 001·002의 실제 실패 receipt와 세 Workspace Recover 결과를 확인할 때 |
+| [Ticket 13 Verify 입력 조정](ticket-13-verify-input-reconciliation.json) | 002의 삭제된 입력 6개를 현재 책임 파일 9개로 전환한 근거를 확인할 때 |
+| [Ticket 12·13 검사 기록](ticket-12-13-check.txt) | strict checker의 62건 역사 실패와 최종 정적 확인 원문이 필요할 때 |
 
 현재 제품 설명은 [제품 기준](../../../../project/common/product.md), [여행 접근](../../../../project/guidance/travel-access/INDEX.md), [선택 이유](../../../../project/decisions/0001-selective-local-first.md), [저장·동기화·정리](../../../../project/guidance/data-lifecycle/INDEX.md), [지도·경로](../../../../project/guidance/offline-maps-and-routes/INDEX.md), [구조·UI·schema](../../../../project/guidance/development-boundaries/INDEX.md), [작성·입력](../../../../project/guidance/writing-and-input/INDEX.md), [날짜와 시각](../../../../project/common/date-and-time.md)과 [통화](../../../../project/common/currency.md)·[API](../../../../project/guidance/api-contracts.md)·[오류](../../../../project/guidance/error-handling.md), 가까운 형성 자료가 소유한다. 이 폴더는 그 본문을 복제하지 않고 조사·검토 결과를 남긴다.
 
