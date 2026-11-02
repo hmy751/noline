@@ -11,12 +11,30 @@ services:
         value: production
       - key: NODE_VERSION
         value: 20
+      - key: HOST
+        value: 0.0.0.0 # 서버 기본값은 localhost라 외부 접속에는 필요
       - key: DATABASE_URL
         sync: false # Render 대시보드에서 직접 설정
       - key: JWT_SECRET
         sync: false
-      - key: GOOGLE_CLIENT_ID
+      - key: JWT_ISSUER
+        value: noline-api
+      - key: CORS_ORIGIN
+        value: "*" # 모바일 앱은 origin 제한 없음
+      - key: GOOGLE_WEB_CLIENT_ID
+        sync: false
+      - key: GOOGLE_IOS_CLIENT_ID
+        sync: false
+      - key: GOOGLE_PLACES_API_KEY
+        sync: false
+      - key: GOOGLE_GEO_DIRECTIONS_API_KEY
         sync: false
       - key: APPLE_CLIENT_ID
+        sync: false
+      - key: APPLE_TEAM_ID
+        sync: false
+      - key: APPLE_KEY_ID
+        sync: false
+      - key: APPLE_PRIVATE_KEY
         sync: false
     autoDeploy: true # main 브랜치 푸시 시 자동 배포

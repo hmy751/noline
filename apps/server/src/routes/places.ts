@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { Client } from '@googlemaps/google-maps-services-js';
+import { Client, type Language } from '@googlemaps/google-maps-services-js';
 import { placesSearchRequest } from '@repo/schema/requests/places';
 import { placesSearchResponse } from '@repo/schema/responses/places';
 import config from '../config/index.js';
@@ -135,7 +135,7 @@ router.get('/:placeId', async (req, res, next) => {
       params: {
         place_id: placeId,
         key: config.googleMaps.placesApiKey,
-        language: resultLanguage as string,
+        language: resultLanguage as Language,
         fields: ['name', 'formatted_address', 'geometry', 'photos', 'rating', 'place_id'],
       },
     });
