@@ -59,5 +59,5 @@ client test와 typecheck가 통과한다. 데이터 수명 문서의 상태표�
 - 채택한 보완은 두 가지다.
   - [데이터 수명](../../../../../../project/guidance/data-lifecycle/INDEX.md)에 한도 제거의 비용을 적었다. 막힌 작업도 sync마다 실제 요청을 보내고, 5xx면 HTTP 재시도 대기가 붙는다.
   - `pushChanges`의 빈 작업 분기에 방어용이라는 주석을 남겼다. 검증자가 첫 주석 문구의 잘못을 지적했고, 고친 문구는 충족으로 재확인됐다.
-- 간격 재시도는 도입하지 않았다. Ticket 03에서 실제 sync 빈도를 잰 뒤 판단한다.
+- 간격 재시도는 도입하지 않고 보류했다. Ticket 03에서 sync가 조건이 새로 갖춰질 때만 시작하는 것은 확인했지만, 실제 사용에서 그 횟수는 측정하지 못했다([Ticket 03](03-stage-one-real-app-verification.md#현재-상태와-실제-결과)). 다시 볼 조건은 [Spec 02](../spec/02-behavior-and-cases.md)에 있다.
 - 최종 판본에서 client Jest 655개가 통과했다.

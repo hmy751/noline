@@ -1,22 +1,28 @@
 {
   "schema_version": 2,
   "workspace_id": "007-sync-failure-recovery",
-  "claim": "007의 초기 recover.json이 표준 JSON으로 파싱된다. 재전송 응답·큐 회복 같은 제품 동작이나 Work 완료를 증명하지 않는다. 1단계 제품 Verify의 claim과 고정 argv는 Ticket 03에서 실제 테스트가 갖춰진 뒤 구성한다.",
+  "claim": "서버 route 단위 테스트(DB 대역 사용)에서 일정·경비 생성 재전송이 같은 사용자·같은 여행이면 200, 다른 사용자·다른 여행이면 409로 응답하고, 일정·경비 삭제 재전송이 이미 삭제된 자기 행이면 200과 처음 삭제 시각, 아니면 404로 응답한다. 실제 PostgreSQL의 충돌 처리·동시 요청, 여행 삭제 재전송, 앱 큐의 IN_PROGRESS 되돌림과 재시도 한도 제거, 실제 앱에서 막힌 큐가 풀리는 것, Work 완료나 사용자 수락은 증명하지 않는다. 그 근거는 Ticket 01~03과 records에 있다.",
   "canonical_basis": [
+    "context/project/guidance/api-contracts.md",
     "context/work/workspaces/007-sync-failure-recovery/current/memory/spec/04-quality-and-completion.md"
   ],
   "verification": {
     "argv": [
-      "python3",
-      "-B",
-      "-m",
-      "json.tool",
-      "context/work/workspaces/007-sync-failure-recovery/recover.json"
+      "node",
+      "node_modules/vitest/vitest.mjs",
+      "run",
+      "--root",
+      "apps/server",
+      "tests/routes/replay.idempotency.test.ts"
     ],
     "evidence_paths": [
-      "context/work/workspaces/007-sync-failure-recovery/recover.json"
+      "apps/server/tests/routes/replay.idempotency.test.ts",
+      "apps/server/tests/support/test-app.ts",
+      "apps/server/src/routes/schedules.ts",
+      "apps/server/src/routes/expenses.ts",
+      "apps/server/vitest.config.ts"
     ],
-    "timeout_seconds": 10,
+    "timeout_seconds": 120,
     "max_output_chars": 10000
   }
 }
