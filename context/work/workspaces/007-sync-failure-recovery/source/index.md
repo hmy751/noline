@@ -28,6 +28,8 @@
 | `apps/server/tests/routes/create.idempotency.test.ts` | 새 파일 | `b9435c04bcb632ba30dc133ef5e1b1358728b67febd3c9fda2c3b79938ee082b` |
 | `apps/server/tests/integration/create.idempotency.test.ts` | 새 파일 | `4b24ceb604bb441fde861ae0cc8a14eb2c96a5797142fff9155c91ab3ed25fd8` |
 
+위 표는 생성 시점의 식별 정보다. 이후 Ticket 01 진행으로 다섯 파일 모두 바뀌었고, 두 테스트 파일은 2026-11-03 개선 검토 뒤 `replay.idempotency.test.ts`로 이름을 바꿨다.
+
 ## 대화 기록
 
 이 Work의 논의는 Claude Code 세션 `a3669485-d435-43dd-9b82-a2891a7e403e`에서 이뤄졌다. 로컬 대화 기록은 저장소 밖에 있으며 다른 사람이 열 수 없다. 판단에 필요한 사용자 발화는 위 원문 파일에, 관찰과 설계 판단은 records에 옮겨 두었다.

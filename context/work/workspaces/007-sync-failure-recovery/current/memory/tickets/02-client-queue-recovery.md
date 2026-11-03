@@ -41,4 +41,23 @@ client test와 typecheck가 통과한다. 데이터 수명 문서의 상태표�
 
 ## 현재 상태와 실제 결과
 
-실행 전. 1단계 진행 승인을 기다린다.
+2026-11-03에 구현과 문서 반영을 마치고 커밋했다(코드 `437cc5c7`, Project 문서 `7f8cb819`). build 13에는 아직 들어가지 않았다.
+
+- **IN_PROGRESS 되돌림:** [queue.ts](../../../../../../../apps/client/src/shared/services/sync/queue.ts)에 `recoverInterruptedTasks()`를 추가했다. [engine.ts](../../../../../../../apps/client/src/shared/services/sync/engine.ts)의 `pushChanges`가 작업을 고르기 전에 이를 부른다. 조회 함수에 상태 변경을 섞지 않으려고 따로 두었다. 이 지점은 계정 검사보다 앞이어서 다른 계정 작업의 IN_PROGRESS도 PENDING으로 바뀐다. 다만 상태만 되돌릴 뿐 삭제나 전송은 하지 않는다.
+- **한도 제거:** `getSyncableTasks`는 PENDING과 FAILED를 횟수와 관계없이 고르고, 그 밖의 상태에서 멈춘다.
+- **테스트**
+  - [local-access.test.ts](../../../../../../../apps/client/tests/shared/services/auth/local-access.test.ts)의 3회 한도 테스트를 새 계약으로 바꿨다. FAILED는 FIFO로 모두 선택되고, IN_PROGRESS는 되돌리기 전까지 막고, 되돌려도 retryCount를 유지한다.
+  - [retry.test.ts](../../../../../../../apps/client/tests/shared/services/sync/retry.test.ts)에 두 가지를 추가했다. 되돌림이 선택보다 먼저 일어나는지, 그리고 retryCount 7인 작업이 다시 전송되고 실패하면 8로 기록되는지다.
+  - 큐를 mock하는 다른 두 테스트에는 새 함수만 추가했다.
+- **검사 결과:** Jest 655개가 통과했다. client typecheck 실패 8건과 lint 실패는 이번 변경 전부터 바꾸지 않은 파일에서 나던 것이다.
+- **문서:** [데이터 수명](../../../../../../project/guidance/data-lifecycle/INDEX.md)의 push 상태표, 두 재시도 문단, 확인 절을 고쳤다. FIFO 문단 뒤에는 "횟수로 막거나 버리지 않는 이유와, 그 대신 남는 정지"를 넣었다.
+- **별도 검증자:** 완료 조건 전부와 실행 잠금 주장에 충족 근거가 있다고 판정했다. 실제 SQLite 큐에서 되돌림부터 전송·삭제까지를 한 흐름으로 보는 테스트는 없다고 지적했다. 이 흐름은 Ticket 03에서 실제 앱으로 확인한다.
+
+**개선 검토 뒤 (2026-11-03)**
+
+- 별도 개선 검토자는 되돌림의 위치·분리와 한도 제거를 현행 유지로 판정했다.
+- 채택한 보완은 두 가지다.
+  - [데이터 수명](../../../../../../project/guidance/data-lifecycle/INDEX.md)에 한도 제거의 비용을 적었다. 막힌 작업도 sync마다 실제 요청을 보내고, 5xx면 HTTP 재시도 대기가 붙는다.
+  - `pushChanges`의 빈 작업 분기에 방어용이라는 주석을 남겼다. 검증자가 첫 주석 문구의 잘못을 지적했고, 고친 문구는 충족으로 재확인됐다.
+- 간격 재시도는 도입하지 않았다. Ticket 03에서 실제 sync 빈도를 잰 뒤 판단한다.
+- 최종 판본에서 client Jest 655개가 통과했다.

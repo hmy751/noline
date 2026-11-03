@@ -15,7 +15,7 @@ Main은 범위를 넘었다고 밝히고 멈췄다. Project 문서와 Work 기�
   - 같은 여행이면 200, 아니면 409를 돌려준다.
   - 일정 생성은 그 전에 부모 여행을 확인한다.
 - 테스트 DB 대역 [test-app.ts](../../../../../apps/server/tests/support/test-app.ts): insert mock이 `onConflictDoNothing`을 지원한다.
-- 새 테스트: [route 단위](../../../../../apps/server/tests/routes/create.idempotency.test.ts) 6개, [PostgreSQL 통합](../../../../../apps/server/tests/integration/create.idempotency.test.ts) 7개
+- 새 테스트: [route 단위](../../../../../apps/server/tests/routes/replay.idempotency.test.ts) 6개, [PostgreSQL 통합](../../../../../apps/server/tests/integration/replay.idempotency.test.ts) 7개 (당시 이름은 `create.idempotency.test.ts`였고, 2026-11-03 개선 검토 뒤 삭제 재전송 테스트가 더해지며 이름을 바꿨다. 링크는 현재 경로다)
 
 ## 당시 확인 결과
 
