@@ -41,6 +41,24 @@ Schedule은 생성·전체 목록·단건·수정·Trip 하위 목록·Trip acti
 
 부모 Trip이 없거나 다른 사용자 소유이거나 삭제된 경우를 같은 404로 처리하는 현재 경계는 자원의 존재 여부를 추가로 노출하지 않는다. 이 접근 계약은 실제 PostgreSQL query와 route 응답 모두에서 확인해야 한다.
 
+## 큐 작업 재전송에는 이미 반영된 결과로 응답한다
+
+앱의 sync queue는 응답을 받지 못한 요청을 다음 sync에서 같은 ID·payload로 다시 보낸다. 401 갱신 뒤의 재전송과 구별해 큐 작업 재전송이라 부른다. 서버는 같은 사용자의 이미 반영된 변경을 오류로 거절하지 않고 처음과 같은 결과로 응답한다. 그렇지 않으면 성공한 변경이 앱에서는 실패로 남아 뒤 작업까지 막는다. 이 계약은 서버만 바꿔도 이미 설치된 앱에 적용된다. Push는 성공 body를 parse하지 않고 2xx로 완료를 판단하기 때문이다.
+
+| 요청 | 응답 |
+| --- | --- |
+| Schedule·Expense 생성: 같은 사용자·같은 Trip에 같은 ID가 이미 있음 | 200과 기존 행. 새 행을 만들거나 요청 body로 덮어쓰지 않는다. 기존 행이 soft-deleted면 되살리지 않고 삭제된 행을 반환한다. 처음 생성은 201이다. |
+| Schedule·Expense 생성: 같은 ID가 다른 사용자 또는 같은 사용자의 다른 Trip에 있음 | 409 `{ error: 'Conflict', message: '<Entity> ID is already in use' }`. 다른 사용자의 소유 여부는 구별해 알리지 않는다. |
+| Schedule·Expense 삭제: 이미 삭제된 자기 행 | 200과 처음 삭제 시각. 행과 version을 다시 바꾸지 않는다. |
+| Schedule·Expense 삭제: 다른 사용자 행 또는 없는 행 | 404. 다른 사용자가 이미 삭제한 행도 같다. |
+| Trip 삭제 재전송 | 200. 현재 구현은 삭제 시각을 다시 찍고 version을 올린다. 아래 Trip mutation의 ID 단독 변경 공백과 함께 정리할 차이다. |
+
+실제 쓰기 조건은 바꾸지 않는다. 생성은 ID 충돌 시 아무것도 쓰지 않고(`onConflictDoNothing`), 삭제는 `id + userId + deletedAt IS NULL` 조건을 유지한다. 쓴 행이 없을 때만 `id + userId`로 자기 행을 조회해 응답을 정한다. 같은 생성 요청이 동시에 와도 행은 하나이고 응답은 201과 200이다.
+
+Schedule 생성은 기존 행보다 부모 Trip 확인이 먼저다. 그래서 부모 Trip이 삭제된 뒤 도착한 생성 재전송은 404다. 이처럼 다시 보내도 성공할 수 없는 변경을 어떤 규칙으로 끝낼지는 아직 정하지 않았다. Expense 생성은 아래의 부모 확인 공백이 그대로 남아 있다.
+
+응답 status를 바꾸는 계약이므로 [오류 처리](error-handling.md)의 기준대로 이 본문과 테스트로 고정한다. 근거는 [route 단위 검사](../../../apps/server/tests/routes/replay.idempotency.test.ts)와 [PostgreSQL 통합 검사](../../../apps/server/tests/integration/replay.idempotency.test.ts)다. 수정 재전송은 같은 값을 다시 쓰고 200을 반환한다.
+
 ## Expense·Trip과 Local 입수의 실제 적용 범위를 구별한다
 
 [Expense client API](../../../apps/client/src/entities/expense/api/expenses.ts)는 생성·수정 request를 HTTP 전에 parse하고, 목록·생성·수정·삭제 response를 반환 전에 parse한다. API 함수 자체는 네트워크 오류를 기록한 뒤 같은 오류를 다시 던지는 catch를 두지 않는다. 현재 [apiClient](../../../apps/client/src/shared/api/fetcher.ts)가 Axios 오류를 `APIError`로 변환하고 React Query hook·화면이 전달된 오류를 소비한다.

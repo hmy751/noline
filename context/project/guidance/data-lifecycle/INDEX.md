@@ -39,7 +39,7 @@ Sync 대상 Entity 생성은 client의 [generateId()](../../../../apps/client/sr
 
 현재 여행·일정·경비 생성 폼이 ID를 만들고 세 create request schema가 그 필드를 요구하며 서버 create route는 전달받은 값을 저장한다. 새 여행은 Remote에서 생성하므로 ‘client 생성 ID’와 ‘Local 생성’을 같은 뜻으로 읽지 않는다. Client ID 수용은 인증 사용자나 부모 소유권 검사를 생략할 이유도 아니다. [API 접근 경계](../api-contracts.md#사용자-데이터를-다루면-인증과-소유권을-각각-검사한다)를 함께 지킨다.
 
-Create 흐름이나 request schema를 바꾸면 동일 ID가 Local 행·CREATE payload·HTTP 요청·서버 응답에 보존되는지, 자식의 부모 ID가 바뀌지 않는지 확인한다. 응답 전 앱 중단 뒤 같은 CREATE를 재전송하는 처리는 별도 확인 대상이다. 클라이언트 ID만으로 충돌 불가능이나 중복 요청의 멱등성을 보장하지 않는다.
+Create 흐름이나 request schema를 바꾸면 동일 ID가 Local 행·CREATE payload·HTTP 요청·서버 응답에 보존되는지, 자식의 부모 ID가 바뀌지 않는지 확인한다. 응답 전 앱이 끊겨 같은 CREATE를 다시 보내면 서버는 같은 사용자·같은 Trip의 기존 행을 200으로 돌려준다. 클라이언트 ID만으로 충돌 불가능을 보장하지는 않는다. 그래서 다른 사용자나 다른 Trip에 이미 쓰인 ID는 409로 거절된다. 응답별 조건은 [큐 작업 재전송 계약](../api-contracts.md#큐-작업-재전송에는-이미-반영된-결과로-응답한다)을 따른다.
 
 ## push를 바꾸면 전송 상태와 두 종류의 재시도를 구별한다
 
@@ -48,15 +48,17 @@ Create 흐름이나 request schema를 바꾸면 동일 ID가 Local 행·CREATE p
 | 상태·결과 | 현재 처리와 다음 판단 |
 | --- | --- |
 | PENDING | 아직 전송할 작업. 생성 시각 순으로 선택한다. |
-| FAILED, retryCount < 3 | 다음 sync에서 다시 선택할 수 있다. |
-| IN_PROGRESS 또는 재시도 한도에 도달한 FAILED | 그 작업부터 뒤를 건너뛰지 않는다. 중단된 IN_PROGRESS 자동 회수는 구현돼 있지 않다. |
-| 서버 요청 성공 | 해당 queue 작업을 제거한다. 응답 전에 앱이 끊기는 경우의 중복 처리 보장은 별도 확인이 필요하다. |
+| FAILED | 실패 횟수와 관계없이 다음 sync에서 다시 선택한다. retryCount는 계속 세지만 전송 여부를 정하지 않는다. |
+| IN_PROGRESS | push를 시작할 때 PENDING으로 되돌린다. sync는 한 번에 하나만 실행되므로 이 시점의 IN_PROGRESS는 앱 종료 등으로 중단된 이전 실행의 흔적이다. 되돌리기 전에는 그 작업부터 뒤를 건너뛰지 않는다. |
+| 서버 요청 성공 | 해당 queue 작업을 제거한다. 응답 전에 앱이 끊겨 같은 작업을 다시 보내면 서버가 처음과 같은 결과로 응답한다. |
 | 일반 실패 | FAILED와 증가한 retryCount를 남기고 뒤 작업 전송을 중단한다. 남은 FAILED·IN_PROGRESS는 `SyncIncompleteError`로 전달한다. |
 | 인증 오류 | 요청 중 인증 오류는 해당 작업을 PENDING으로 돌려 오류를 전달한다. 전송 전 계정 불일치·귀속 미확인도 요청을 막으며 queue를 폐기하지 않는다. |
 
 FIFO 순서를 유지하는 비용은 앞의 막힌 작업이 뒤 작업도 지연한다는 점이다. 이 지연을 없애려고 뒤 작업부터 보내거나 queue를 비우면 같은 Entity의 생성·수정·삭제 순서와 미전송 보존을 깨뜨릴 수 있다. 실패 상태를 해결하는 정책 없이 ‘완료’로 바꾸지 않는다.
 
-두 재시도는 별개다. [HTTP client](../../../../apps/client/src/shared/services/sync/api.ts)는 한 요청의 5xx를 2·4·8초 뒤 최대 세 번 재시도한다. 네트워크 오류는 이 재시도 대상이 아니다. queue의 retryCount는 그 요청이 최종 실패한 뒤 다음 sync에서 다시 전송할지를 정한다. 인증 refresh와 원래 요청 재전송은 [세션의 인증 처리](../../current/app-runtime/INDEX.md#서버의-인증-거부와-통신-실패를-구별한다)가 맡는다.
+실패 횟수로 작업을 막거나 버리지 않는다. 앱은 어떤 실패가 영원한지 확실히 알 수 없다. 횟수로 막으면 연결이 자주 끊기는 여행 중 일시 오류만 쌓여도 작업이 영구히 멈추고, 버리면 입력을 잃는다. 대신 다시 보내도 성공할 수 없는 변경(409, 부모가 지워진 뒤의 404 등)은 sync마다 실제 요청을 다시 보내 실패하며 뒤 작업과 pull을 계속 막는다. 횟수 한도가 있을 때는 막힌 작업에 요청을 보내지 않았으므로, 매 sync의 요청과 5xx일 때 HTTP 재시도 대기가 한도를 없앤 비용이다. 실패 뒤 일정 시간이 지나야 다시 보내는 간격 재시도는 이 비용을 줄이지만 연결 회복 뒤 전송도 늦추므로 실제 sync 빈도를 확인한 뒤 판단할 열린 선택이다. 이런 정지를 사용자나 개발자가 알게 하는 표시와 충돌을 끝내는 규칙도 아직 없다.
+
+두 재시도는 별개다. [HTTP client](../../../../apps/client/src/shared/services/sync/api.ts)는 한 요청의 5xx를 2·4·8초 뒤 최대 세 번 재시도한다. 네트워크 오류는 이 재시도 대상이 아니다. queue 재시도는 최종 실패한 요청을 다음 sync에서 다시 보내는 것이며, retryCount는 그 실패 횟수를 센다. 인증 refresh와 원래 요청 재전송은 [세션의 인증 처리](../../current/app-runtime/INDEX.md#서버의-인증-거부와-통신-실패를-구별한다)가 맡는다.
 
 ## pull과 완료 표시를 바꾸면 반영 경계를 확인한다
 
@@ -126,8 +128,8 @@ pending cleanup은 앱 준비 후 hook과 push 뒤 경로에서 요청하며 하
 
 ## 변경한 경계에 맞춰 확인한다
 
-Local 쓰기는 실제 SQLite에서 queue insert 실패·반환 검증 실패의 rollback과 독립 upsert 간섭을 확인한다. push는 일반 실패·인증 오류·한도에 도달한 FAILED·남은 IN_PROGRESS·뒤 작업의 순서를 확인하며 HTTP 재시도와 queue 재시도를 나눈다. pull은 schema 실패 전 쓰기 없음, 중간 반영 실패, 동시 Local 변경과 서버 cursor를 구분해 확인한다.
+Local 쓰기는 실제 SQLite에서 queue insert 실패·반환 검증 실패의 rollback과 독립 upsert 간섭을 확인한다. push는 일반 실패·인증 오류·실패가 여러 번 쌓인 FAILED의 재전송·남은 IN_PROGRESS의 되돌림·뒤 작업의 순서를 확인하며 HTTP 재시도와 queue 재시도를 나눈다. 같은 작업의 재전송이 서버에서 중복이나 오류를 만들지 않는지는 서버 route의 PostgreSQL 검사로 확인한다. pull은 schema 실패 전 쓰기 없음, 중간 반영 실패, 동시 Local 변경과 서버 cursor를 구분해 확인한다.
 
 정리 경로를 바꾸면 세 미전송 상태, tripId가 없는 부분 UPDATE·손상 payload, 재활성화, 검사 직후 새 저장, 지도 실패를 포함한다. 일반 종료·명시적 폐기·vacuum은 같은 predicate를 쓸 것이라고 가정하지 말고 실제 소비자를 각각 대조한다. Node 메모리 SQLite와 mock HTTP 검사는 Expo 기기 저장소·실제 서버 동시성·앱 중단 복구를 대신하지 않는다.
 
-현재 사실은 2026-10-31의 [Local datasource](../../../../apps/client/src/entities/), [DB](../../../../apps/client/src/shared/db/), [queue](../../../../apps/client/src/shared/services/sync/queue.ts), [sync lifecycle](../../../../apps/client/src/shared/services/sync/lifecycle.ts), [서버 sync](../../../../apps/server/src/routes/sync.ts)를 대조했다. 관련 회귀 근거는 [DB transaction 검사](../../../../apps/client/tests/shared/db/transaction-serialization.test.ts), [sync 검사](../../../../apps/client/tests/shared/services/sync/), [Local 보존 검사](../../../../apps/client/tests/shared/services/auth/local-preservation.test.ts)에 있다. 제품 결함이 문서 반영만으로 해결된 것은 아니다.
+현재 사실은 2026-10-31의 [Local datasource](../../../../apps/client/src/entities/), [DB](../../../../apps/client/src/shared/db/), [queue](../../../../apps/client/src/shared/services/sync/queue.ts), [sync lifecycle](../../../../apps/client/src/shared/services/sync/lifecycle.ts), [서버 sync](../../../../apps/server/src/routes/sync.ts)를 대조했다. 관련 회귀 근거는 [DB transaction 검사](../../../../apps/client/tests/shared/db/transaction-serialization.test.ts), [sync 검사](../../../../apps/client/tests/shared/services/sync/), [Local 보존 검사](../../../../apps/client/tests/shared/services/auth/local-preservation.test.ts)에 있다. push 상태 처리와 큐 작업 재전송 응답은 2026-11-03에 [queue](../../../../apps/client/src/shared/services/sync/queue.ts)·[engine](../../../../apps/client/src/shared/services/sync/engine.ts)과 서버 Schedule·Expense·Trip route를 다시 대조했고, 근거는 [queue 재시도 검사](../../../../apps/client/tests/shared/services/sync/retry.test.ts)와 [서버 재전송 검사](../../../../apps/server/tests/integration/replay.idempotency.test.ts)에 있다. 제품 결함이 문서 반영만으로 해결된 것은 아니다.
