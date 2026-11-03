@@ -16,6 +16,7 @@ jest.mock('@/shared/services/sync/queue', () => ({
   updateTaskStatus: jest.fn(),
   deleteTask: jest.fn(),
   retryFailedTask: jest.fn(),
+  recoverInterruptedTasks: jest.fn(async () => undefined),
 }));
 jest.mock('@/shared/services/auth/local-account', () => ({ getQueueOwner: async () => 'a' }));
 jest.mock('@/shared/services/sync/storage', () => ({ getLastSyncedAt: async () => null, setLastSyncedAt: jest.fn() }));

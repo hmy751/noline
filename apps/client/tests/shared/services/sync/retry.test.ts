@@ -1,7 +1,13 @@
 import { updateExpenseRequest } from '@repo/schema/requests/expense';
 import { afterEach, beforeEach, expect, it, jest } from '@jest/globals';
 import { pushChanges, SyncIncompleteError } from '@/shared/services/sync/engine';
-import { getSyncableTasks, getSyncQueueStats, updateTaskStatus, deleteTask } from '@/shared/services/sync/queue';
+import {
+  getSyncableTasks,
+  getSyncQueueStats,
+  updateTaskStatus,
+  deleteTask,
+  recoverInterruptedTasks,
+} from '@/shared/services/sync/queue';
 import { getQueueOwner } from '@/shared/services/auth/local-account';
 import api from '@/shared/services/sync/api';
 import { useAuthStore } from '@/shared/store/auth';
@@ -16,6 +22,7 @@ jest.mock('@/shared/services/sync/queue', () => ({
   updateTaskStatus: jest.fn(),
   retryFailedTask: jest.fn(),
   deleteTask: jest.fn(),
+  recoverInterruptedTasks: jest.fn(),
 }));
 jest.mock('@/shared/services/auth/local-account', () => ({ getQueueOwner: jest.fn() }));
 jest.mock('@/shared/db', () => ({}));
@@ -47,6 +54,7 @@ beforeEach(() => {
   jest.mocked(getQueueOwner).mockReset().mockResolvedValue('user-1');
   jest.mocked(updateTaskStatus).mockReset().mockResolvedValue(undefined);
   jest.mocked(deleteTask).mockReset().mockResolvedValue(undefined);
+  jest.mocked(recoverInterruptedTasks).mockReset().mockResolvedValue(undefined);
   jest.mocked(api.put).mockReset().mockResolvedValue({});
   jest.spyOn(console, 'log').mockImplementation(() => undefined);
   jest.spyOn(console, 'error').mockImplementation(() => undefined);
@@ -61,6 +69,23 @@ it('이전 FAILED 작업을 다음 sync에서 다시 전송하고 성공하면 �
   expect(updateTaskStatus).toHaveBeenCalledWith('failed-1', 'IN_PROGRESS');
   expect(api.put).toHaveBeenCalledTimes(1);
   expect(deleteTask).toHaveBeenCalledWith('failed-1');
+});
+
+it('전송할 작업을 고르기 전에 중단된 IN_PROGRESS부터 되돌린다', async () => {
+  await pushChanges();
+  expect(jest.mocked(recoverInterruptedTasks).mock.invocationCallOrder[0]).toBeLessThan(
+    jest.mocked(getSyncableTasks).mock.invocationCallOrder[0],
+  );
+});
+
+it('실패 횟수가 많이 쌓인 FAILED도 다시 전송하고 횟수를 계속 센다', async () => {
+  jest.mocked(getSyncableTasks).mockResolvedValue([{ ...failedTask, retryCount: 7 }]);
+  jest.mocked(getSyncQueueStats).mockResolvedValue({ pending: 0, inProgress: 0, failed: 1, total: 1 });
+  jest.mocked(api.put).mockRejectedValueOnce(new Error('timeout'));
+
+  await expect(pushChanges()).rejects.toBeInstanceOf(SyncIncompleteError);
+  expect(api.put).toHaveBeenCalledTimes(1);
+  expect(updateTaskStatus).toHaveBeenLastCalledWith('failed-1', 'FAILED', 8);
 });
 
 it('재시도 실패를 다시 FAILED로 남기고 뒤 작업을 진행하지 않은 채 실패를 보고한다', async () => {

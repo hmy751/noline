@@ -57,15 +57,33 @@ export async function getPendingTasks(): Promise<SyncQueueItem[]> {
   return tasks;
 }
 
-/** FIFO를 유지하며 전송 가능한 앞부분만 반환한다. 막힌 작업을 건너뛰지 않는다. */
+/**
+ * FIFO를 유지하며 전송 가능한 앞부분만 반환한다. 막힌 작업을 건너뛰지 않는다.
+ *
+ * FAILED는 실패 횟수와 관계없이 다시 보낸다. 재전송은 서버가 같은 결과로 받으므로
+ * 횟수로 막으면 일시 오류가 쌓인 작업이 영구히 멈춘다. retryCount는 계속 센다.
+ */
 export async function getSyncableTasks(): Promise<SyncQueueItem[]> {
   const tasks = await runDatabaseOperation(() =>
     getDatabase().select().from(syncQueue).orderBy(syncQueue.createdAt).all(),
   );
-  const blockedIndex = tasks.findIndex(
-    (task) => task.status !== 'PENDING' && !(task.status === 'FAILED' && task.retryCount < 3),
-  );
+  const blockedIndex = tasks.findIndex((task) => task.status !== 'PENDING' && task.status !== 'FAILED');
   return blockedIndex === -1 ? tasks : tasks.slice(0, blockedIndex);
+}
+
+/**
+ * 지난 실행이 끝나지 못하고 남긴 IN_PROGRESS를 PENDING으로 되돌린다.
+ *
+ * 동기화는 executeSync 잠금 안에서 한 번에 하나만 실행되므로, push를 시작하는 순간의
+ * IN_PROGRESS는 앱 종료 등으로 중단된 이전 실행의 흔적이다. retryCount는 유지한다.
+ */
+export async function recoverInterruptedTasks(): Promise<void> {
+  await runDatabaseOperation(() =>
+    getDatabase()
+      .update(syncQueue)
+      .set({ status: 'PENDING', updatedAt: getCurrentISOString() })
+      .where(eq(syncQueue.status, 'IN_PROGRESS')),
+  );
 }
 
 /**

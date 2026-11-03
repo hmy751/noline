@@ -38,6 +38,7 @@ jest.mock('@/shared/services/sync/queue', () => ({
   updateTaskStatus: jest.fn(),
   deleteTask: jest.fn(),
   retryFailedTask: jest.fn(),
+  recoverInterruptedTasks: jest.fn(async () => undefined),
 }));
 
 it('push가 인증 거부로 PENDING을 남겼으면 활성 여행이 없어도 sync 완료로 알리지 않는다', async () => {

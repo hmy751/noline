@@ -21,7 +21,7 @@ import {
 } from '@/entities/schedule/lib/schedule-local';
 import { getExpensesByTripIdLocal, createExpenseLocal } from '@/entities/expense/lib/expense-local';
 import { getTripActivationStatus } from '@/shared/services/offline-prep/metadata';
-import { getSyncableTasks } from '@/shared/services/sync/queue';
+import { getSyncableTasks, recoverInterruptedTasks } from '@/shared/services/sync/queue';
 
 interface TestDatabase {
   exec: (sql: string) => void;
@@ -192,22 +192,22 @@ describe.each(['signed-in', 'reauth-required'] as const)('%s의 활성 여행 �
   });
 });
 
-it('FAILED 작업은 3회 미만까지만 다음 sync 대상으로 복구한다', async () => {
+it('FAILED 작업은 실패 횟수와 관계없이 다음 sync 대상이며 FIFO 순서를 유지한다', async () => {
   await getDatabase()
     .insert(syncQueue)
     .values([
       {
-        id: 'retryable',
+        id: 'failed-once',
         tableName: 'trips',
         recordId: 'trip-a',
         action: 'UPDATE',
         payload: '{}',
         status: 'FAILED',
-        retryCount: 2,
+        retryCount: 1,
         createdAt: now,
       },
       {
-        id: 'exhausted',
+        id: 'failed-many',
         tableName: 'trips',
         recordId: 'trip-a',
         action: 'UPDATE',
@@ -228,9 +228,42 @@ it('FAILED 작업은 3회 미만까지만 다음 sync 대상으로 복구한다'
       },
     ]);
 
-  expect((await getSyncableTasks()).map((task) => task.id)).toContain('retryable');
-  expect((await getSyncableTasks()).map((task) => task.id)).not.toContain('exhausted');
-  expect((await getSyncableTasks()).map((task) => task.id)).not.toContain('later');
+  expect((await getSyncableTasks()).map((task) => task.id)).toEqual(['failed-once', 'failed-many', 'later']);
+});
+
+it('IN_PROGRESS는 되돌리기 전까지 뒤 작업을 막고, 되돌리면 횟수를 유지한 채 PENDING으로 다시 보낸다', async () => {
+  await getDatabase()
+    .insert(syncQueue)
+    .values([
+      {
+        id: 'interrupted',
+        tableName: 'trips',
+        recordId: 'trip-a',
+        action: 'UPDATE',
+        payload: '{}',
+        status: 'IN_PROGRESS',
+        retryCount: 2,
+        createdAt: now,
+      },
+      {
+        id: 'later',
+        tableName: 'trips',
+        recordId: 'trip-a',
+        action: 'UPDATE',
+        payload: '{}',
+        status: 'PENDING',
+        retryCount: 0,
+        createdAt: '2026-01-03T00:00:00Z',
+      },
+    ]);
+
+  expect(await getSyncableTasks()).toEqual([]);
+
+  await recoverInterruptedTasks();
+
+  const tasks = await getSyncableTasks();
+  expect(tasks.map((task) => task.id)).toEqual(['interrupted', 'later']);
+  expect(tasks[0]).toMatchObject({ status: 'PENDING', retryCount: 2 });
 });
 
 it('큐 소유자는 원본 row와 payload 계정을 함께 확인한다', async () => {

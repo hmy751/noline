@@ -1,5 +1,12 @@
 import syncApiClient from './api';
-import { getSyncableTasks, getSyncQueueStats, deleteTask, updateTaskStatus, retryFailedTask } from './queue';
+import {
+  getSyncableTasks,
+  getSyncQueueStats,
+  deleteTask,
+  updateTaskStatus,
+  retryFailedTask,
+  recoverInterruptedTasks,
+} from './queue';
 import { getLastSyncedAt, setLastSyncedAt } from './storage';
 import { upsertTrips, upsertSchedules, upsertExpenses } from '@/shared/db/utils';
 import { queryClient } from '@/shared/lib/queryClient';
@@ -65,13 +72,16 @@ async function pushTaskToServer(
   }
 }
 
-/** PENDING과 재시도 가능한 FAILED 작업을 FIFO로 전송한다. */
+/** 중단된 작업을 되돌린 뒤 PENDING과 FAILED 작업을 FIFO로 전송하고 첫 실패에서 멈춘다. */
 export async function pushChanges(): Promise<void> {
   let serverChanged = false;
   try {
+    await recoverInterruptedTasks();
     const tasks = await getSyncableTasks();
 
     if (tasks.length === 0) {
+      // 복구·선택 뒤 맨 앞에는 PENDING·FAILED만 오므로, 이 검사는 알 수 없는 status가
+      // 맨 앞을 막고 그 뒤에 미전송이 남은 경우를 위한 방어용이다.
       const stats = await getSyncQueueStats();
       if (stats.failed + stats.inProgress > 0) {
         throw new SyncIncompleteError(stats.failed + stats.inProgress);
