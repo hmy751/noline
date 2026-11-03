@@ -29,9 +29,13 @@ vi.mock('../../src/db/index.js', async () => {
   };
 
   testState.select.mockImplementation(() => createSelectQuery(testState.selectResults.shift() ?? []));
+  // onConflictDoNothing 뒤의 returning도 같은 결과를 쓴다. 충돌 행은 빈 배열로 지정하면 재현된다.
   testState.insert.mockImplementation(() => ({
     values: vi.fn(() => ({
       returning: vi.fn(async () => testState.insertResult),
+      onConflictDoNothing: vi.fn(() => ({
+        returning: vi.fn(async () => testState.insertResult),
+      })),
     })),
   }));
   testState.update.mockImplementation(() => ({

@@ -83,12 +83,15 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
     const { id, tripId, scheduleId, title, amount, currency, category, date, hasReceipt, receiptUrl } =
       validationResult.data;
 
+    const userId = req.userId!;
+
     // 경비 생성 (클라이언트가 생성한 ID 사용)
-    const [newExpense] = await db
+    // 응답이 유실돼 같은 CREATE가 다시 오면 같은 사용자의 기존 행으로 수렴한다(멱등 생성).
+    const [createdExpense] = await db
       .insert(expenses)
       .values({
         id, // ✨ 클라이언트가 생성한 ULID
-        userId: req.userId!, // 인증된 사용자 ID 사용
+        userId, // 인증된 사용자 ID 사용
         tripId,
         scheduleId: scheduleId || null,
         title,
@@ -99,7 +102,29 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
         hasReceipt: hasReceipt ? 1 : 0, // boolean → integer
         receiptUrl: receiptUrl || null,
       })
+      .onConflictDoNothing({ target: expenses.id })
       .returning();
+
+    let newExpense = createdExpense;
+
+    if (!newExpense) {
+      // 이미 있는 ID는 같은 사용자·같은 부모 Trip의 재전송일 때만 성공으로 본다.
+      // 다른 사용자의 ID는 존재 여부를 드러내지 않도록 같은 충돌 응답으로 거절한다.
+      const [existingExpense] = await db
+        .select()
+        .from(expenses)
+        .where(and(eq(expenses.id, id), eq(expenses.userId, userId)))
+        .limit(1);
+
+      if (!existingExpense || existingExpense.tripId !== tripId) {
+        return res.status(409).json({
+          error: 'Conflict',
+          message: 'Expense ID is already in use',
+        });
+      }
+
+      newExpense = existingExpense;
+    }
 
     // Zod로 응답 데이터 검증
     const validated = expenseEntity.safeParse(serializeExpense(newExpense));
@@ -109,7 +134,7 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
       throw new Error('Invalid expense data');
     }
 
-    res.status(201).json({
+    res.status(createdExpense ? 201 : 200).json({
       success: true,
       data: validated.data,
     });
@@ -247,19 +272,33 @@ router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
       .where(and(eq(expenses.id, id), eq(expenses.userId, userId), isNull(expenses.deletedAt)))
       .returning();
 
-    if (!deletedExpense) {
-      return res.status(404).json({
-        error: 'Not found',
-        message: 'Expense not found',
-      });
+    let resultExpense = deletedExpense;
+
+    if (!resultExpense) {
+      // 응답이 유실돼 같은 DELETE가 다시 오면 처음 삭제 결과로 수렴한다(멱등 삭제).
+      // 다른 사용자의 행은 이 조회에서도 보이지 않으므로 기존처럼 404다.
+      const [ownExpense] = await db
+        .select()
+        .from(expenses)
+        .where(and(eq(expenses.id, id), eq(expenses.userId, userId)))
+        .limit(1);
+
+      if (!ownExpense?.deletedAt) {
+        return res.status(404).json({
+          error: 'Not found',
+          message: 'Expense not found',
+        });
+      }
+
+      resultExpense = ownExpense;
     }
 
     // 정책: 모든 API 응답은 { success, data } 구조를 따른다
     res.json({
       success: true,
       data: {
-        id: deletedExpense.id,
-        deletedAt: deletedExpense.deletedAt?.toISOString(),
+        id: resultExpense.id,
+        deletedAt: resultExpense.deletedAt?.toISOString(),
       },
     });
   } catch (error) {
