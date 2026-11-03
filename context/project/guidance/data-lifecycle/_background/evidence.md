@@ -29,3 +29,16 @@
 Local mutation과 queue의 같은 transaction, FIFO 앞부분 선택·재시도 한도, 인증 중단, 전체 pull schema 검사와 순차 upsert, 조회 뒤 serverTime 생성은 각 실제 코드에서 대조했다. 실제 SQLite 검사와 mock HTTP·cleanup 검사는 해당 경계의 보존·제어 흐름 근거다. 기기 저장 내구성, 프로세스 강제 종료 복구, 서버 동시 쓰기 중 cursor 무누락이나 모든 여행 정리의 안전은 이 대조로 확인되지 않는다.
 
 문서 재구성은 기존 보존 약속을 지우거나 새 충돌 정책을 선택하는 작업이 아니다. 현재 지원과 차이는 본문에서 사용 조건 가까이 설명하고, 실제 개선은 그 계약과 사용 경로에 대한 별도 구현·검증을 요구한다.
+
+## 재시도 한도 제거와 중단 전송 회복의 근거
+
+위 "확인 범위"의 재시도 한도는 2026-10-31 판본의 관찰이다. 그 뒤 Workspace 007에서 다음을 근거로 바꿨다.
+
+- **사고 관찰:** 시뮬레이터 개발 앱의 queue 맨 앞에 FAILED·retryCount 3인 경비 CREATE가 있었고 서버 DB에는 같은 ID의 행이 1초 뒤 생성돼 있었다. 실패 3번은 큐 등록 뒤 약 57초 안에 쌓였다. 시각별 사실과 원인의 확인 범위는 [관찰 기록](../../../../work/workspaces/007-sync-failure-recovery/records/2026-11-02-01-simulator-sync-block-observation.md)에 있다.
+- **대안 비교:** 재시도·IN_PROGRESS 되돌림·폐기·큐 구조의 전체 비교표와 기각 이유는 [설계 판단 기록](../../../../work/workspaces/007-sync-failure-recovery/records/2026-11-03-01-sync-failure-design-decisions.md#주제별-선택지-비교)에 있다.
+- **구현과 검사 (2026-11-03):** 앱 변경은 커밋 `437cc5c7`, 서버 응답은 `ba91d1a3`이다. [queue 재시도 검사](../../../../../apps/client/tests/shared/services/sync/retry.test.ts)가 "FAILED는 횟수와 관계없이 선택, IN_PROGRESS는 되돌리기 전까지 막음"을 고정한다. 구현에 참여하지 않은 검증자가 완료 조건을 확인했다([구현 기록](../../../../work/workspaces/007-sync-failure-recovery/records/2026-11-03-03-stage-one-implementation.md)).
+- **실제 앱 확인 (2026-11-03):** 위 막힌 DB에 IN_PROGRESS 일정 하나를 더해 시뮬레이터에서 실행했다. 첫 sync에서 세 작업이 200으로 끝나고 pull이 돌았으며 서버 행은 중복되지 않았다. 약 4분 동안 sync 시작은 1번이었고 홈으로 보냈다 돌아와도 늘지 않았다. 이 관찰은 연결이 안정적인 환경에서 숨은 반복 실행이 없다는 것만 보여 준다. 실제 사용의 시작 횟수와 10-31의 "1분 안에 3번"의 원인은 확인하지 못했다([실제 앱 확인 기록](../../../../work/workspaces/007-sync-failure-recovery/records/2026-11-03-05-stage-one-real-app-verification.md)).
+
+간격 재시도를 처음에는 "두지 않음"으로 결론 냈다가, 빈도를 아직 모른다는 사용자 지적으로 같은 날 "보류"로 정정했다. 사용자의 질문은 다음과 같았다.
+
+> "근데 빈도는 여전히 염두해두어야 하는거 아닌가? 지금은 괜찮았다 할지라도 아직 정확히 모르잖아"

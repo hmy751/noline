@@ -1,6 +1,6 @@
 # API 계약과 변경 가이드
 
-Client API·repository·query hook, server route, 공유 schema·serializer·user scope를 바꿀 때 읽는다. **전송 검증·인증·소유권·저장소 선택을 각각의 경계에서 확인하고, 한 경로의 보장을 모든 API에 확대하지 않는다.** 현재 계약은 이 본문을, 오류 응답·사용자 표시를 바꾸면 [오류 처리](error-handling.md)를 함께 읽는다. 책임 분리와 인증 전송 선택의 이유는 [형성 자료](_background/api-contracts/README.md)에 있다.
+Client API·repository·query hook, server route, 공유 schema·serializer·user scope를 바꿀 때 읽는다. **전송 검증·인증·소유권·저장소 선택을 각각의 경계에서 확인하고, 한 경로의 보장을 모든 API에 확대하지 않는다.** 현재 계약은 이 본문을, 오류 응답·사용자 표시를 바꾸면 [오류 처리](error-handling.md)를 함께 읽는다. 책임 분리, 인증 전송, 큐 작업 재전송 응답을 정한 이유는 [형성 자료](_background/api-contracts/README.md)에 있다.
 
 ## API를 바꾸면 전송·접근·직렬화의 책임을 각각 확인한다
 
