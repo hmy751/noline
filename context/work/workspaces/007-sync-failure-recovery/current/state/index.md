@@ -10,7 +10,7 @@
   - Project의 API 계약·데이터 수명 반영: `7f8cb819`
   - 파일 목록은 [output](../../output/index.md)에 있다.
   - 선택 이유·검사 결과·검증 판정은 [구현 기록](../../records/2026-11-03-03-stage-one-implementation.md)에, 뒤늦게 돌린 개선 검토와 반영은 [개선 검토 기록](../../records/2026-11-03-04-stage-one-improvement-review.md)에 있다.
-- **Ticket 03 결과 (커밋됨):** 실제 앱 확인·독립 검증·동기화 시작 횟수·제품 Verify 구성. 근거는 [실제 앱 확인 기록](../../records/2026-11-03-05-stage-one-real-app-verification.md)에 있다. 이 결과로 [데이터 수명](../../../../../project/guidance/data-lifecycle/INDEX.md)의 간격 재시도 문장, Spec 02, Ticket 02·03·06, `verify.json`을 고쳤다. 간격 재시도를 "두지 않음"으로 썼다가, 사용자 지적으로 "보류, 빈도 관찰"로 정정했다.
+- **Ticket 03 결과 (커밋됨):** 실제 앱 확인·독립 검증·동기화 시작 횟수·제품 Verify 구성. 근거는 [실제 앱 확인 기록](../../records/2026-11-03-05-stage-one-real-app-verification.md)에 있다. 이 결과로 [데이터 수명](../../../../../project/guidance/data-lifecycle/INDEX.md)의 간격 재시도 문장, Spec 02, Ticket 02·03·06, `verify.json`을 고쳤다. 간격 재시도를 "두지 않음"으로 썼다가, 사용자 지적으로 "보류, 빈도 관찰"로 정정했다. 이어 사용자 지적으로 01·02·03의 Project 반영에서 빠진 형성 자료(`_background`)와 Workspace의 낡은 문장을 보완했다([보완 기록](../../records/2026-11-03-06-project-formation-backfill.md)). Project 형성 자료는 `74a402a4`, Workspace 보완은 그 다음 Work 문서 커밋에 있다(사용자 지시 "Commit").
 - **커밋 위치:** Workspace 생성 문서는 `d048c9f1`, 1단계 기록은 `8eac08da`에 있다. Ticket 03에 따른 Project 데이터 수명 갱신은 `c8ab78b2`, Ticket 03의 Work 문서·Verify 구성·receipt는 그 다음 Work 문서 커밋에 있다(2026-11-03, 사용자 지시 "커밋 잘 해놔봐").
 - **이 Work와 무관한 미커밋 변경:** `context/personal/experience/` 2개 파일, 006의 Ticket 14와 state, `.pnpm-store/`가 있다. 007에서 건드리지 않는다.
 - **출시 상태:** TestFlight에 1.1.0 (12)가 있다. App Store Connect 1.1.0 초안은 build 12에 연결돼 있고 심사에는 제출하지 않았다.
@@ -55,5 +55,5 @@
   - 최종 판본에서 서버 단위 테스트가 연달아 두 번 실패한 뒤로는 재현되지 않았다. 순차 38번, 동시 4개 프로세스, 순서 섞기 8번 모두 통과였다. 원인은 미확인이고, 이번 변경 때문일 가능성은 낮다고 판단했다. 근거는 [Ticket 01](../memory/tickets/01-server-replay-responses.md#현재-상태와-실제-결과)에 있다.
 - **이후 담당 배치:** 구현·검토·검증은 Sonnet medium 담당자에게 맡긴다. Main은 조율, 채택 판단, Project·Work 반영을 맡는다(2026-11-03 사용자 지시).
 - **실패하는 기존 검사:** 저장소 lint, client typecheck 8건, `pnpm harness:check`의 과거 Workspace 깨진 링크 64건이다. 이번 변경 전부터 실패하던 것이다.
-- **제품 Verify:** claim을 서버 재전송 route 단위 테스트로 구성했고 2026-11-03 12:42Z에 `verification_passed`였다. 실제 PostgreSQL·앱 큐·실제 앱 경로는 claim 밖이며 위 확인 근거가 맡는다.
+- **제품 Verify:** claim을 서버 재전송 route 단위 테스트로 구성했고 2026-11-03 12:42Z에 `verification_passed`였다. 형성 자료 보완 때 기준 문서인 API 계약의 읽기 안내를 고쳐 receipt가 stale이 됐고, 13:02Z에 다시 실행해 통과했다. 실제 PostgreSQL·앱 큐·실제 앱 경로는 claim 밖이며 위 확인 근거가 맡는다.
 - **문서 반영 방식:** 이 세션은 Claude Code이고 자동 Maintain hook이 연결돼 있지 않다. 그래서 문서 반영은 [Maintain 수동 fallback](../../../../harness/maintain/README.md#session-binding과-lifecycle)으로 Main이 했다.

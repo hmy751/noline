@@ -1,6 +1,6 @@
 {
-  "finished_at": "2026-11-03T12:42:19.780Z",
-  "receipt": "workspaces/007-sync-failure-recovery/records/receipts/verify/verify-20261103T124219781467Z-ddd9aa1ad40946b6ac34514f03be5dce.json",
+  "finished_at": "2026-11-03T13:02:27.296Z",
+  "receipt": "workspaces/007-sync-failure-recovery/records/receipts/verify/verify-20261103T130227297242Z-84e3373612b54eea9f9f05786805bc1f.json",
   "result": "pass",
   "schema_version": 3,
   "status": "verification_passed",

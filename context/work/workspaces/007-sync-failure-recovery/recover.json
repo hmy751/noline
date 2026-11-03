@@ -8,11 +8,11 @@
     },
     {
       "path": "context/project/guidance/data-lifecycle/INDEX.md",
-      "reason": "queue의 FIFO·push 상태·두 종류의 재시도·push 실패 시 pull 생략·pending cleanup 계약을 소유한다. 재전송(42행)과 push 상태표·FIFO 비용(48–57행)은 Ticket 01·02가 실제 동작에 맞춰 고칠 대상이다."
+      "reason": "queue의 FIFO·push 상태표·두 종류의 재시도·push 실패 시 pull 생략·pending cleanup 계약을 소유한다. Ticket 01·02 뒤 FAILED는 횟수와 관계없이 다시 보내고 IN_PROGRESS는 push 시작 때 되돌린다. 한도 제거의 비용과 간격 재시도 보류 조건도 여기 있으며, 선택 이유는 같은 폴더의 _background가 맡는다."
     },
     {
       "path": "context/project/guidance/api-contracts.md",
-      "reason": "인증·소유권·부모 확인 순서(37행)·mutation 조건(39행)·존재 비노출 404(42행)와 Expense 부모 확인 공백(22·52행)을 소유한다. 재전송 응답 200·409를 이 계약 안에서 정하고 문서에 남긴다."
+      "reason": "인증·소유권·부모 확인 순서·mutation 조건·존재 비노출 404와 Expense 부모 확인 공백을 소유한다. Ticket 01이 추가한 '큐 작업 재전송' 절이 생성·삭제 재전송의 200·409·404 응답을 정하며, 선택 이유는 guidance/_background/api-contracts가 맡는다."
     },
     {
       "path": "context/project/guidance/error-handling.md",

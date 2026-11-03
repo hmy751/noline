@@ -41,7 +41,7 @@ client test와 typecheck가 통과한다. 데이터 수명 문서의 상태표�
 
 ## 현재 상태와 실제 결과
 
-2026-11-03에 구현과 문서 반영을 마치고 커밋했다(코드 `437cc5c7`, Project 문서 `7f8cb819`). build 13에는 아직 들어가지 않았다.
+2026-11-03에 구현과 문서 반영을 마치고 커밋했다(코드 `437cc5c7`, Project 문서 `7f8cb819`). 이때 Project 본문만 고치고 형성 자료(`_background`)의 선택 이유·근거를 빠뜨려, 같은 날 뒤늦게 보완했다([문서 반영 보완 기록](../../../records/2026-11-03-06-project-formation-backfill.md)). build 13에는 아직 들어가지 않았다.
 
 - **IN_PROGRESS 되돌림:** [queue.ts](../../../../../../../apps/client/src/shared/services/sync/queue.ts)에 `recoverInterruptedTasks()`를 추가했다. [engine.ts](../../../../../../../apps/client/src/shared/services/sync/engine.ts)의 `pushChanges`가 작업을 고르기 전에 이를 부른다. 조회 함수에 상태 변경을 섞지 않으려고 따로 두었다. 이 지점은 계정 검사보다 앞이어서 다른 계정 작업의 IN_PROGRESS도 PENDING으로 바뀐다. 다만 상태만 되돌릴 뿐 삭제나 전송은 하지 않는다.
 - **한도 제거:** `getSyncableTasks`는 PENDING과 FAILED를 횟수와 관계없이 고르고, 그 밖의 상태에서 멈춘다.

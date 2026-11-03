@@ -1,0 +1,101 @@
+{
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "--root",
+    "apps/server",
+    "tests/routes/replay.idempotency.test.ts"
+  ],
+  "canonical_basis_capture": "before_verification",
+  "canonical_basis_collected_at": "2026-11-03T13:02:26.365Z",
+  "canonical_basis_files": [
+    {
+      "path": "context/project/guidance/api-contracts.md",
+      "sha256": "d53ebc62dd9be86786553ac79d9000024a3de4fcd273d9b8eee53ecfee691720",
+      "size": 18348
+    },
+    {
+      "path": "context/work/workspaces/007-sync-failure-recovery/current/memory/spec/04-quality-and-completion.md",
+      "sha256": "8057e1ea35af180aec3e38a327a776403b070147c2634fb2c191819132805777",
+      "size": 3100
+    }
+  ],
+  "claim": "서버 route 단위 테스트(DB 대역 사용)에서 일정·경비 생성 재전송이 같은 사용자·같은 여행이면 200, 다른 사용자·다른 여행이면 409로 응답하고, 일정·경비 삭제 재전송이 이미 삭제된 자기 행이면 200과 처음 삭제 시각, 아니면 404로 응답한다. 실제 PostgreSQL의 충돌 처리·동시 요청, 여행 삭제 재전송, 앱 큐의 IN_PROGRESS 되돌림과 재시도 한도 제거, 실제 앱에서 막힌 큐가 풀리는 것, Work 완료나 사용자 수락은 증명하지 않는다. 그 근거는 Ticket 01~03과 records에 있다.",
+  "evidence_capture": "before_verification",
+  "evidence_collected_at": "2026-11-03T13:02:26.365Z",
+  "evidence_files": [
+    {
+      "path": "apps/server/tests/routes/replay.idempotency.test.ts",
+      "sha256": "02d2ab8f500d1ad0979177af04006b98ebec4e7c1f45fdbd8d4a4a64c7b558db",
+      "size": 5454
+    },
+    {
+      "path": "apps/server/tests/support/test-app.ts",
+      "sha256": "8dd062e1abce29fa41ac49584e4f36114f76bc88abc270c8f406d0bc08965f94",
+      "size": 3779
+    },
+    {
+      "path": "apps/server/src/routes/schedules.ts",
+      "sha256": "b4caf90dc4143cebd57982e41bad37040abd60dd30e93cc4cc999a4cb4f55436",
+      "size": 10830
+    },
+    {
+      "path": "apps/server/src/routes/expenses.ts",
+      "sha256": "b956d3e6dbe214ecbf7aefc276a29d76d4c9a912c932d6b285af04301cd74e19",
+      "size": 10263
+    },
+    {
+      "path": "apps/server/vitest.config.ts",
+      "sha256": "cdfe88f0e7f50ef1e787a797e8214450d2a47134c1322e692d5cd018b92f2f20",
+      "size": 417
+    }
+  ],
+  "exit_code": 0,
+  "finished_at": "2026-11-03T13:02:27.296Z",
+  "normalization": {
+    "output_root_token": "<OUTPUT_ROOT>",
+    "stderr_replacements": 0,
+    "stdout_replacements": 1
+  },
+  "output_capture": {
+    "encoding": "utf-8",
+    "errors": "replace",
+    "limit_unit": "characters",
+    "max_chars_per_stream": 10000,
+    "stderr": {
+      "observed_chars": 0,
+      "persisted_chars": 0,
+      "read_error": null,
+      "truncated": false
+    },
+    "stdout": {
+      "observed_chars": 243,
+      "persisted_chars": 212,
+      "read_error": null,
+      "truncated": false
+    }
+  },
+  "process_returncode": 0,
+  "result": "pass",
+  "runtime_environment": {
+    "command_cwd": "<OUTPUT_ROOT>",
+    "os_name": "posix",
+    "platform_machine": "arm64",
+    "platform_system": "Darwin",
+    "python_implementation": "CPython",
+    "python_version": "3.14.3",
+    "verification_receipt_schema_version": 2,
+    "verify_contract_schema_version": 2
+  },
+  "schema_version": 2,
+  "snapshot_sha256": "5d16cae1f853903cb54d93e9d93ec2c477f5f434e7bb2c58db6fa0a7b45d332e",
+  "started_at": "2026-11-03T13:02:26.366Z",
+  "stderr": "",
+  "stdout": "\n RUN  v4.1.11 <OUTPUT_ROOT>/apps/server\n\n\n Test Files  1 passed (1)\n      Tests  10 passed (10)\n   Start at  22:02:26\n   Duration  656ms (transform 166ms, setup 0ms, import 105ms, tests 459ms, environment 0ms)\n\n",
+  "timeout": {
+    "timed_out": false,
+    "timeout_seconds": 120.0
+  },
+  "workspace_id": "007-sync-failure-recovery"
+}

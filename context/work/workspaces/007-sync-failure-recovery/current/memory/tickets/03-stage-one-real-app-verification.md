@@ -4,7 +4,7 @@
 
 01·02를 합친 최신 판본으로 다음을 확인한다. 실제로 막혀 있던 개발 앱이 다음 동기화에서 풀리고, 뒤 작업 전송과 pull까지 이어진다. 구현에 참여하지 않은 검증자가 01·02의 테스트·문서·동작 근거를 최신 판본에서 확인한다.
 
-1단계 제품 Verify의 claim과 고정 argv도 이 Ticket에서 구성한다. 지금 `verify.json`은 recover.json의 JSON 파싱만 확인한다.
+1단계 제품 Verify의 claim과 고정 argv도 이 Ticket에서 구성한다. Ticket을 만들 때 `verify.json`은 recover.json의 JSON 파싱만 확인했다.
 
 ## 실행 맥락과 접근
 
