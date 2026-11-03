@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "workspace_id": "007-sync-failure-recovery",
+  "claim": "007의 초기 recover.json이 표준 JSON으로 파싱된다. 재전송 응답·큐 회복 같은 제품 동작이나 Work 완료를 증명하지 않는다. 1단계 제품 Verify의 claim과 고정 argv는 Ticket 03에서 실제 테스트가 갖춰진 뒤 구성한다.",
+  "canonical_basis": [
+    "context/work/workspaces/007-sync-failure-recovery/current/memory/spec/04-quality-and-completion.md"
+  ],
+  "verification": {
+    "argv": [
+      "python3",
+      "-B",
+      "-m",
+      "json.tool",
+      "context/work/workspaces/007-sync-failure-recovery/recover.json"
+    ],
+    "evidence_paths": [
+      "context/work/workspaces/007-sync-failure-recovery/recover.json"
+    ],
+    "timeout_seconds": 10,
+    "max_output_chars": 10000
+  }
+}
