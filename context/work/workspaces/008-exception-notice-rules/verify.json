@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "workspace_id": "008-exception-notice-rules",
+  "claim": "008의 초기 recover.json이 표준 JSON으로 파싱된다. 안내 규칙이나 화면 동작, Work 완료를 증명하지 않는다. 제품 Verify의 claim과 고정 argv는 규칙이 정해지고 실제 변경과 검사가 갖춰진 뒤 구성한다.",
+  "canonical_basis": [
+    "context/work/workspaces/008-exception-notice-rules/current/memory/spec/04-quality-and-completion.md"
+  ],
+  "verification": {
+    "argv": [
+      "python3",
+      "-B",
+      "-m",
+      "json.tool",
+      "context/work/workspaces/008-exception-notice-rules/recover.json"
+    ],
+    "evidence_paths": [
+      "context/work/workspaces/008-exception-notice-rules/recover.json"
+    ],
+    "timeout_seconds": 10,
+    "max_output_chars": 10000
+  }
+}
