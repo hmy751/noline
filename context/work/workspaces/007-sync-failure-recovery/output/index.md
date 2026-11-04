@@ -10,6 +10,6 @@
 | [데이터 수명의 형성 자료](../../../../project/guidance/data-lifecycle/_background/README.md), [API 계약의 형성 자료](../../../../project/guidance/_background/api-contracts/README.md) | 재시도 한도 제거·IN_PROGRESS 되돌림·간격 재시도 보류와 재전송 응답의 선택 이유·근거. 2026-11-03 뒤늦게 보완, 커밋 `74a402a4` | 위 계약을 바꾸거나 선택을 다시 판단할 때 |
 | [verify.json](../verify.json)과 [Verify receipt](../records/receipts/verify/) | Ticket 03. 서버 재전송 route 단위 테스트의 claim, 2026-11-03 `verification_passed` | 서버 재전송 경로가 Verify 뒤에 바뀌었는지 Recover로 확인하거나 다시 실행할 때 |
 
-배포 산출물(Ticket 05)은 아직 없다. 산출물이 생기면 이 표에 canonical 경로를 연결하며 복제하지 않는다.
+배포 경과와 결과는 [배포 기록](../records/2026-11-03-08-release-deploy-and-build-13.md)에 있다. 새 산출물이 생기면 이 표에 canonical 경로를 연결하며 복제하지 않는다.
 
 이 표에 있다는 사실은 검증 통과나 사용자 수락을 뜻하지 않는다. 진행은 [state](../current/state/index.md)를 따른다.
