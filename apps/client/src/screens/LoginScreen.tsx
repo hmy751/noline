@@ -1,4 +1,4 @@
-import { View, Text, Platform, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, Platform, ActivityIndicator, Alert, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { Plane } from 'lucide-react-native';
@@ -133,89 +133,95 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView className='flex-1 bg-background'>
-      <View className='flex-1 items-center justify-center px-lg'>
-        <View className='mb-2xl items-center'>
-          <View className='mb-md h-24 w-24 items-center justify-center rounded-3xl bg-primary'>
-            <Plane size={48} color='hsl(120, 61%, 98%)' strokeWidth={2} />
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={false} keyboardShouldPersistTaps='handled'>
+        <View className='grow items-center justify-center px-lg'>
+          <View className='mb-2xl items-center'>
+            <View className='mb-md h-24 w-24 items-center justify-center rounded-3xl bg-primary'>
+              <Plane size={48} color='hsl(120, 61%, 98%)' strokeWidth={2} />
+            </View>
+            <Text className='mb-2xs text-display text-foreground'>Noline</Text>
+            <Text className='text-center text-body text-muted-foreground'>네트워크가 없어도 여행은 계속된다</Text>
           </View>
-          <Text className='mb-2xs text-display text-foreground'>Noline</Text>
-          <Text className='text-center text-body text-muted-foreground'>네트워크가 없어도 여행은 계속된다</Text>
-        </View>
 
-        <View className='w-full max-w-sm gap-sm'>
-          {status === 'restore-failed' && (
-            <View className='gap-sm'>
-              <Text>저장된 로그인 정보를 확인하지 못했어요. 기기의 여행 데이터는 보존되어 있어요.</Text>
-              <Pressable onPress={handleSessionRestore}>복원 다시 시도</Pressable>
-            </View>
-          )}
-          {status === 'initializing' && <ActivityIndicator accessibilityLabel='로그인 정보 복원 중' />}
-          {status === 'reauth-required' && (
-            <Pressable
-              onPress={() => {
-                if (router.canGoBack()) {
-                  router.back();
-                } else {
-                  router.replace('/(tabs)');
-                }
-              }}
-            >
-              여행으로 돌아가기
-            </Pressable>
-          )}
-          <Text className='text-caption text-muted-foreground'>
-            여행 데이터가 남아 있으면 같은 계정으로만 다시 로그인할 수 있습니다. 계정을 바꾸려면 먼저 로그아웃해주세요.
-          </Text>
-          <Pressable onPress={handleDeviceLogout} disabled={isLoading || isGoogleLoading || status === 'initializing'}>
-            기기 데이터 정리하고 로그아웃
-          </Pressable>
-          {error && (
-            <View className='mb-sm rounded-lg bg-destructive/10 p-sm'>
-              <Text className='text-center text-body text-destructive'>{error}</Text>
-            </View>
-          )}
-
-          {isGoogleAuthConfigured() && (
-            <Pressable
-              variant='outline'
-              onPress={handleGoogleLogin}
-              disabled={isLoading || isGoogleLoading || status === 'initializing'}
-              className='h-14 flex-row items-center justify-center gap-sm'
-            >
-              {isLoading ? (
-                <ActivityIndicator size='small' color='hsl(0, 0%, 12%)' />
-              ) : (
-                <>
-                  <GoogleIcon />
-                  <Text className='text-body-large font-medium text-foreground'>Google로 계속하기</Text>
-                </>
-              )}
-            </Pressable>
-          )}
-
-          {Platform.OS === 'ios' && isAppleAuthAvailable() && (
-            <View className='h-14 overflow-hidden rounded-lg'>
-              <AppleAuthenticationButton
-                buttonType={AppleAuthenticationButtonType.SIGN_IN}
-                buttonStyle={AppleAuthenticationButtonStyle.BLACK}
-                cornerRadius={8}
-                style={{ width: '100%', height: 56 }}
-                onPress={async () => {
-                  if (!isLoading && status !== 'initializing') {
-                    await handleAppleLogin();
+          <View className='w-full max-w-sm gap-sm'>
+            {status === 'restore-failed' && (
+              <View className='gap-sm'>
+                <Text>저장된 로그인 정보를 확인하지 못했어요. 기기의 여행 데이터는 보존되어 있어요.</Text>
+                <Pressable onPress={handleSessionRestore}>복원 다시 시도</Pressable>
+              </View>
+            )}
+            {status === 'initializing' && <ActivityIndicator accessibilityLabel='로그인 정보 복원 중' />}
+            {status === 'reauth-required' && (
+              <Pressable
+                onPress={() => {
+                  if (router.canGoBack()) {
+                    router.back();
+                  } else {
+                    router.replace('/(tabs)');
                   }
                 }}
-              />
-            </View>
-          )}
+              >
+                여행으로 돌아가기
+              </Pressable>
+            )}
+            <Text className='text-caption text-muted-foreground'>
+              여행 데이터가 남아 있으면 같은 계정으로만 다시 로그인할 수 있습니다. 계정을 바꾸려면 먼저
+              로그아웃해주세요.
+            </Text>
+            <Pressable
+              onPress={handleDeviceLogout}
+              disabled={isLoading || isGoogleLoading || status === 'initializing'}
+            >
+              기기 데이터 정리하고 로그아웃
+            </Pressable>
+            {error && (
+              <View className='mb-sm rounded-lg bg-destructive/10 p-sm'>
+                <Text className='text-center text-body text-destructive'>{error}</Text>
+              </View>
+            )}
+
+            {isGoogleAuthConfigured() && (
+              <Pressable
+                variant='outline'
+                onPress={handleGoogleLogin}
+                disabled={isLoading || isGoogleLoading || status === 'initializing'}
+                className='h-14 flex-row items-center justify-center gap-sm'
+              >
+                {isLoading ? (
+                  <ActivityIndicator size='small' color='hsl(0, 0%, 12%)' />
+                ) : (
+                  <>
+                    <GoogleIcon />
+                    <Text className='text-body-large font-medium text-foreground'>Google로 계속하기</Text>
+                  </>
+                )}
+              </Pressable>
+            )}
+
+            {Platform.OS === 'ios' && isAppleAuthAvailable() && (
+              <View className='h-14 overflow-hidden rounded-lg'>
+                <AppleAuthenticationButton
+                  buttonType={AppleAuthenticationButtonType.SIGN_IN}
+                  buttonStyle={AppleAuthenticationButtonStyle.BLACK}
+                  cornerRadius={8}
+                  style={{ width: '100%', height: 56 }}
+                  onPress={async () => {
+                    if (!isLoading && status !== 'initializing') {
+                      await handleAppleLogin();
+                    }
+                  }}
+                />
+              </View>
+            )}
+          </View>
         </View>
 
-        <View className='absolute bottom-8 px-lg'>
+        <View className='items-center px-lg pb-8 pt-lg'>
           <Text className='text-center text-caption text-muted-foreground'>
             로그인하면 서비스 이용약관 및{'\n'}개인정보 처리방침에 동의하게 됩니다.
           </Text>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
