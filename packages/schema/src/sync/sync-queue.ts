@@ -15,6 +15,13 @@ export const syncStatusEnum = z.enum(['PENDING', 'IN_PROGRESS', 'FAILED', 'QUARA
  */
 export const syncActionEnum = z.enum(['CREATE', 'UPDATE', 'DELETE']);
 
+/** 삭제한 행에서 확인해 큐에 저장하는 소유자 정보. 구버전 요청에는 이 버전 표시가 없다. */
+export const deleteQueuePayloadSchema = z.object({
+  ownerVersion: z.literal(1),
+  userId: z.string().min(1),
+  tripId: z.string().min(1).nullish(),
+});
+
 /**
  * Sync Queue Entity Schema (DB)
  * - Outbox Pattern 구현을 위한 로컬 큐

@@ -35,7 +35,7 @@ import { pullChanges } from '@/shared/services/sync/engine';
 import apiClient from '@/shared/api/fetcher';
 import syncApiClient from '@/shared/services/sync/api';
 import { upsertTrips } from '@/shared/db/utils';
-import { getTripByIdLocal, updateTripLocal } from '@/entities/trip/lib/trip-local';
+import { deleteTripLocal, getTripByIdLocal, updateTripLocal } from '@/entities/trip/lib/trip-local';
 
 jest.mock('@tanstack/react-query', () => ({
   ...jest.requireActual<object>('@tanstack/react-query'),
@@ -315,6 +315,7 @@ it('잘못된 날짜 행도 날짜 검사 없이 soft delete와 큐 기록이 �
   expect(rawExpense()?.deletedAt).toBeTruthy();
   expect(await getExpensesByTripIdLocal(tripId)).toEqual([]);
   expect((await queued())[0]).toMatchObject({ action: 'DELETE', recordId: expenseId });
+  expect(JSON.parse((await queued())[0].payload)).toEqual({ userId, ownerVersion: 1, tripId });
 });
 
 it('생성 반환 날짜 검사 실패도 행과 큐를 함께 롤백한다', async () => {
@@ -444,6 +445,7 @@ it('시각 검사 실패로 일정 생성도 롤백하고 잘못된 시각의 �
   await expect(deleteScheduleLocal(scheduleId)).resolves.toMatchObject({ id: scheduleId });
   expect(getDatabase().select().from(schedules).get()?.deletedAt).toBeTruthy();
   expect((await queued())[0].action).toBe('DELETE');
+  expect(JSON.parse((await queued())[0].payload)).toEqual({ userId, ownerVersion: 1, tripId });
 });
 
 it.each([
@@ -536,3 +538,43 @@ it('정상 pull은 세 entity의 ISO 시각·date-only와 삭제 시각을 검�
   expect(rawExpense()?.date).toBe('2026-10-03');
   expect(getDatabase().select().from(syncMetadata).get()?.value).toBe(new Date(now).toISOString());
 });
+
+const localDeleteCases = [
+  { tableName: 'trips', table: trips, deleteLocal: deleteTripLocal, recordId: tripId },
+  { tableName: 'schedules', table: schedules, deleteLocal: deleteScheduleLocal, recordId: scheduleId },
+  { tableName: 'expenses', table: expenses, deleteLocal: deleteExpenseLocal, recordId: expenseId },
+] as const;
+
+it.each(localDeleteCases)(
+  '$tableName 삭제가 실제로 변경한 행이 없으면 큐를 만들지 않는다',
+  async ({ tableName, table, deleteLocal, recordId }) => {
+    getDatabase().run(
+      sql.raw(
+        `CREATE TRIGGER ignore_delete BEFORE UPDATE ON ${tableName} WHEN NEW.deleted_at IS NOT NULL BEGIN SELECT RAISE(IGNORE); END;`,
+      ),
+    );
+
+    await expect(deleteLocal(recordId)).rejects.toThrow('찾을 수 없습니다');
+    expect(
+      await getDatabase().select({ deletedAt: table.deletedAt, version: table.version }).from(table).get(),
+    ).toEqual({ deletedAt: null, version: 1 });
+    expect(await queued()).toEqual([]);
+  },
+);
+
+it.each(localDeleteCases)(
+  '$tableName DELETE 큐 기록이 실패하면 soft delete도 함께 rollback한다',
+  async ({ table, deleteLocal, recordId }) => {
+    getDatabase().run(
+      sql.raw(
+        "CREATE TRIGGER reject_delete_queue BEFORE INSERT ON sync_queue BEGIN SELECT RAISE(ABORT, 'queue failed'); END;",
+      ),
+    );
+
+    await expect(deleteLocal(recordId)).rejects.toThrow('queue failed');
+    expect(
+      await getDatabase().select({ deletedAt: table.deletedAt, version: table.version }).from(table).get(),
+    ).toEqual({ deletedAt: null, version: 1 });
+    expect(await queued()).toEqual([]);
+  },
+);

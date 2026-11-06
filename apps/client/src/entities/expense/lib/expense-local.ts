@@ -1,14 +1,15 @@
-import { requireLocalUserId } from '@/shared/store/auth';
-// Expense Local DataSource - SQLite 로컬 DB 작업
+import { desc, eq, isNull, sql } from 'drizzle-orm';
 
-import { getDatabase, expenses } from '@/shared/db';
-import { eq, isNull, desc, sql } from 'drizzle-orm';
-import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
-import { addToSyncQueue } from '@/shared/services/sync/queue';
-import { selectLocalUserId, useAuthStore } from '@/shared/store/auth';
-import { ownedActiveRow, assertActiveLocalTrip } from '@/shared/services/auth/local-access';
-import type { Expense, CreateExpenseRequest, UpdateExpenseRequest } from '../model';
 import { expenseDateInput } from '@repo/schema/requests/expense';
+import { deleteQueuePayloadSchema } from '@repo/schema/sync/sync-queue';
+
+import { expenses, getDatabase } from '@/shared/db';
+import { getCurrentISOString, withTransaction } from '@/shared/db/utils';
+import { assertActiveLocalTrip, ownedActiveRow } from '@/shared/services/auth/local-access';
+import { addToSyncQueue } from '@/shared/services/sync/queue';
+import { requireLocalUserId, selectLocalUserId, useAuthStore } from '@/shared/store/auth';
+
+import type { CreateExpenseRequest, Expense, UpdateExpenseRequest } from '../model';
 
 /** 기존 DB datetime을 앱의 달력 날짜로 읽는다. 저장된 행은 변경하지 않는다. */
 function toExpense(row: typeof expenses.$inferSelect): Expense {
@@ -169,34 +170,30 @@ export const updateExpenseLocal = async (id: string, data: UpdateExpenseRequest)
 /**
  * 로컬 DB에서 경비 삭제 (Soft Delete) + sync_queue 기록
  *
- * payload에 tripId를 포함시키면 cleanup-job이 비활성화 전에 자식 entity의
- * pending DELETE를 정확히 식별할 수 있다. 서버는 DELETE body를 사용하지 않으므로
- * 동기화 동작에는 영향이 없다.
+ * 실제 삭제 행의 계정·여행을 큐에 보존한다. 서버는 DELETE body를 사용하지 않는다.
  */
 export const deleteExpenseLocal = async (id: string): Promise<{ id: string; deletedAt: string }> => {
   const now = getCurrentISOString();
 
-  const existing = await getDatabase()
-    .select({ tripId: expenses.tripId })
-    .from(expenses)
-    .where(ownedActiveRow(expenses, eq(expenses.id, id)))
-    .get();
-  const tripId = existing?.tripId ?? null;
-
   await withTransaction(async () => {
-    if (!(await getExpenseRowById(id))) {
-      throw new Error('삭제할 경비를 찾을 수 없습니다');
-    }
-    await getDatabase()
+    const deleted = await getDatabase()
       .update(expenses)
       .set({
         deletedAt: now,
         updatedAt: now,
         version: sql`${expenses.version} + 1`,
       })
-      .where(ownedActiveRow(expenses, eq(expenses.id, id)));
+      .where(ownedActiveRow(expenses, eq(expenses.id, id), isNull(expenses.deletedAt)))
+      .returning({ userId: expenses.userId, tripId: expenses.tripId })
+      .get();
 
-    await addToSyncQueue('expenses', id, 'DELETE', { tripId });
+    if (!deleted) {
+      throw new Error('삭제할 경비를 찾을 수 없습니다');
+    }
+
+    const payload = deleteQueuePayloadSchema.parse({ userId: deleted.userId, ownerVersion: 1, tripId: deleted.tripId });
+
+    await addToSyncQueue('expenses', id, 'DELETE', payload);
   });
 
   console.log(`[ExpenseLocal] Expense deleted locally (Soft Delete): ${id}`);

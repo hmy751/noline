@@ -7,6 +7,7 @@ import { eq } from 'drizzle-orm';
 
 import { syncStatusEnum } from '@repo/schema/sync/sync-queue';
 
+import { deleteScheduleLocal } from '@/entities/schedule/lib/schedule-local';
 import { refreshTripListLocal } from '@/entities/trip/lib/trip-local';
 import {
   expenses,
@@ -137,6 +138,62 @@ it.each(['CREATE', 'UPDATE', 'DELETE'])(
   },
 );
 
+it('실제로 작성한 DELETE는 원본이 사라져도 삭제 당시 계정에서만 재전송한다', async () => {
+  const db = getDatabase();
+  await db.insert(trips).values(trip);
+  await db.insert(tripActivations).values({
+    id: 'activation',
+    tripId: trip.id,
+    userId: session.userId,
+    isActivated: true,
+    activatedAt: now,
+    expiresAt: now,
+    createdAt: now,
+    updatedAt: now,
+  });
+  await resurrectChild('schedules');
+
+  await deleteScheduleLocal(orphan.recordId);
+  expect((await db.select().from(schedules).get())?.deletedAt).toEqual(expect.any(String));
+  // 기기 사본이 모두 사라져 큐만 남은 상태로 복원과 전송을 확인한다.
+  await db.delete(schedules);
+  await db.delete(tripActivations);
+  await db.delete(trips);
+
+  useAuthStore.setState({ status: 'signed-out', userId: null });
+  await expect(completeLogin({ ...session, userId: 'other-account' })).rejects.toThrow();
+  useAuthStore.setState({ status: 'signed-in', userId: 'other-account' });
+  await expect(pushChanges()).rejects.toThrow();
+  expect(api.delete).not.toHaveBeenCalled();
+  expect((await db.select().from(syncQueue).get())?.status).toBe('PENDING');
+
+  useAuthStore.setState({ status: 'signed-out', userId: null });
+  await expect(completeLogin(session)).resolves.toBeUndefined();
+  expect(await inspectLocalAccount(session.userId)).toBe('same');
+  await pushChanges();
+  expect(api.delete).toHaveBeenCalledWith(`/api/schedules/${orphan.recordId}`);
+  expect(await db.select().from(syncQueue).all()).toEqual([]);
+});
+
+it.each([
+  { action: 'DELETE', data: { userId: session.userId }, status: 'PENDING' },
+  { action: 'DELETE', data: { userId: session.userId, ownerVersion: 2 }, status: 'PENDING' },
+  { action: 'DELETE', data: { userId: '', ownerVersion: 1 }, status: 'PENDING' },
+  { action: 'DELETE', data: { userId: session.userId, ownerVersion: 1 }, status: 'QUARANTINED' },
+  { action: 'CREATE', data: { userId: session.userId, ownerVersion: 1 }, status: 'PENDING' },
+  { action: 'UPDATE', data: { userId: session.userId, ownerVersion: 1 }, status: 'PENDING' },
+])('기존 격리와 신뢰할 수 없는 원본 없는 요청은 보내지 않는다: %j', async ({ action, data, status }) => {
+  const task = { ...orphan, action, payload: JSON.stringify(data), status };
+  await getDatabase().insert(syncQueue).values(task);
+
+  await pushChanges();
+
+  expect(await getDatabase().select().from(syncQueue).all()).toEqual([{ ...task, status: 'QUARANTINED' }]);
+  expect(api.delete).not.toHaveBeenCalled();
+  expect(api.post).not.toHaveBeenCalled();
+  expect(api.put).not.toHaveBeenCalled();
+});
+
 it('저장된 같은 계정 복원도 격리를 보존하며 성공한다', async () => {
   await getDatabase().insert(syncQueue).values(orphan);
   jest.mocked(SecureStore.getItemAsync).mockResolvedValue(JSON.stringify({ ...session, version: 1, userInfo: null }));
@@ -227,16 +284,17 @@ it.each([
 });
 
 it.each([
-  { userId: '01ARZ3NDEKTSV4RRFFQ69G5FAV', payload: '{broken' },
-  { userId: 'b', payload: '{}' },
-  { userId: '01ARZ3NDEKTSV4RRFFQ69G5FAV', payload: '{"userId":"b"}' },
-])('실제 다른 소유자와 payload 손상·모순은 기존 거절을 보존한다: %j', async ({ userId, payload }) => {
+  { userId: session.userId, action: 'CREATE', payload: '{broken' },
+  { userId: 'b', action: 'CREATE', payload: '{}' },
+  { userId: session.userId, action: 'CREATE', payload: '{"userId":"b"}' },
+  { userId: session.userId, action: 'DELETE', payload: '{"userId":"b","ownerVersion":1}' },
+])('실제 다른 소유자와 payload 손상·모순은 기존 거절을 보존한다: %j', async ({ userId, action, payload }) => {
   await getDatabase()
     .insert(trips)
     .values({ ...trip, userId });
   await getDatabase()
     .insert(syncQueue)
-    .values({ ...orphan, recordId: trip.id, payload });
+    .values({ ...orphan, recordId: trip.id, action, payload });
 
   expect(await inspectLocalAccount('01ARZ3NDEKTSV4RRFFQ69G5FAV')).toBe(userId === 'b' ? 'different' : 'unresolved');
   await expect(completeLogin(session)).rejects.toThrow();

@@ -1,6 +1,6 @@
 import { eq, ne } from 'drizzle-orm';
 
-import { syncActionEnum } from '@repo/schema/sync/sync-queue';
+import { deleteQueuePayloadSchema, syncActionEnum } from '@repo/schema/sync/sync-queue';
 
 import {
   expenses,
@@ -45,6 +45,7 @@ export const inspectLocalAccount = async (userId: string): Promise<LocalAccount>
       }
 
       hasDifferentOwner ||= ownership.owner !== userId;
+      hasLocalData = true;
     }
 
     if (hasDifferentOwner) {
@@ -55,7 +56,7 @@ export const inspectLocalAccount = async (userId: string): Promise<LocalAccount>
   });
 };
 
-/** 기존 큐도 원본 row의 소유자로 검증한다. 소유자를 알 수 없으면 전송하지 않는다. */
+/** 원본이나 삭제할 때 저장한 소유자로 검증한다. 격리된 작업은 다시 전송하지 않는다. */
 export const getQueueOwner = async (task: SyncQueueItem): Promise<string | null> => {
   return runDatabaseOperation(async () => {
     if (task.status === 'QUARANTINED') {
@@ -68,7 +69,7 @@ export const getQueueOwner = async (task: SyncQueueItem): Promise<string | null>
   });
 };
 
-/** 원본 없는 작업은 내용·이력을 그대로 격리하고, 격리되지 않은 FIFO를 반환한다. 계정을 추정하지 않는다. */
+/** 원본도 소유권 근거도 없는 작업을 격리한 뒤 나머지를 생성 순서대로 반환한다. */
 export const quarantineOrphanedTasks = async (status?: 'IN_PROGRESS'): Promise<SyncQueueItem[]> => {
   return runDatabaseOperation(async () => {
     const tasks = await getDatabase()
@@ -113,7 +114,7 @@ const inspectQueueOwnership = async (task: SyncQueueItem): Promise<QueueOwnershi
   const table = OWNED_TABLES[task.tableName];
   const row = await getDatabase().select({ userId: table.userId }).from(table).where(eq(table.id, task.recordId)).get();
 
-  if (!row) {
+  if (!row && task.action !== 'DELETE') {
     return syncActionEnum.safeParse(task.action).success ? 'orphan' : 'invalid';
   }
 
@@ -122,7 +123,14 @@ const inspectQueueOwnership = async (task: SyncQueueItem): Promise<QueueOwnershi
   try {
     payload = JSON.parse(task.payload);
   } catch {
-    return 'invalid';
+    return row ? 'invalid' : 'orphan';
+  }
+
+  if (!row) {
+    // DELETE만 삭제 권한을 확인한 시점에 소유자를 기록한다. 구버전 payload에는 이를 추정하지 않는다.
+    const saved = deleteQueuePayloadSchema.safeParse(payload);
+
+    return saved.success ? { owner: saved.data.userId } : 'orphan';
   }
 
   if (payload && typeof payload === 'object' && 'userId' in payload && payload.userId !== row.userId) {

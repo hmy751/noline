@@ -192,6 +192,7 @@ it('활성 여행의 수정·삭제는 기존 로컬 트랜잭션과 동기화 �
   expect(TripApi.fetchUpdateTrip).not.toHaveBeenCalled();
   expect(TripApi.fetchDeleteTrip).not.toHaveBeenCalled();
   expect(queued().map((t) => t.action)).toEqual(['UPDATE', 'DELETE']);
+  expect(JSON.parse(queued()[1].payload)).toEqual({ userId, ownerVersion: 1 });
 });
 
 it.each(['PENDING', 'IN_PROGRESS', 'FAILED'])(

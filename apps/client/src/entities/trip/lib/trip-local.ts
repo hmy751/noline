@@ -2,6 +2,7 @@ import { and, desc, eq, inArray, isNull, ne, or, sql, type SQL } from 'drizzle-o
 
 import { tripEntity } from '@repo/schema/entities/trip';
 import { isTripDateRangeValid } from '@repo/schema/requests/trip';
+import { deleteQueuePayloadSchema } from '@repo/schema/sync/sync-queue';
 
 import { expenses, getDatabase, schedules, syncQueue, tripActivations, trips } from '@/shared/db';
 import { getCurrentISOString, withTransaction } from '@/shared/db/utils';
@@ -242,7 +243,8 @@ export const deleteTripLocal = async (id: string): Promise<{ id: string; deleted
 
   await withTransaction(async () => {
     await assertActiveLocalTrip(id);
-    await getDatabase()
+
+    const deleted = await getDatabase()
       .update(trips)
       .set({
         deletedAt: now,
@@ -255,9 +257,17 @@ export const deleteTripLocal = async (id: string): Promise<{ id: string; deleted
           eq(trips.id, id),
           useAuthStore.getState().status === 'reauth-required' ? activeTripScope(trips.id) : undefined,
         ),
-      );
+      )
+      .returning({ userId: trips.userId })
+      .get();
 
-    await addToSyncQueue('trips', id, 'DELETE', null);
+    if (!deleted) {
+      throw new Error('삭제할 여행을 찾을 수 없습니다');
+    }
+
+    const payload = deleteQueuePayloadSchema.parse({ userId: deleted.userId, ownerVersion: 1 });
+
+    await addToSyncQueue('trips', id, 'DELETE', payload);
   });
 
   console.log(`[TripLocal] Trip deleted locally (soft): ${id}`);

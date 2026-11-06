@@ -1,13 +1,15 @@
+import { eq, isNull, sql } from 'drizzle-orm';
+
 import { scheduleEntity } from '@repo/schema/entities/schedule';
-import { requireLocalUserId } from '@/shared/store/auth';
-// Schedule Local DataSource - SQLite 로컬 DB 작업
+import { deleteQueuePayloadSchema } from '@repo/schema/sync/sync-queue';
 
 import { getDatabase, schedules } from '@/shared/db';
-import { eq, isNull, sql } from 'drizzle-orm';
-import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
+import { getCurrentISOString, withTransaction } from '@/shared/db/utils';
+import { assertActiveLocalTrip, ownedActiveRow } from '@/shared/services/auth/local-access';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
-import { ownedActiveRow, assertActiveLocalTrip } from '@/shared/services/auth/local-access';
-import type { Schedule, CreateScheduleRequest, UpdateScheduleRequest } from '../model';
+import { requireLocalUserId } from '@/shared/store/auth';
+
+import type { CreateScheduleRequest, Schedule, UpdateScheduleRequest } from '../model';
 
 /** 저장 표현을 유지하면서 실제 시각으로 해석 가능한지 앱 반환 경계에서 검사한다. */
 function toSchedule(row: typeof schedules.$inferSelect): Schedule {
@@ -145,34 +147,30 @@ export const updateScheduleLocal = async (id: string, data: UpdateScheduleReques
 /**
  * 로컬 DB에서 일정 삭제 (Soft Delete) + sync_queue 기록
  *
- * payload에 tripId를 포함시키면 cleanup-job이 비활성화 전에 자식 entity의
- * pending DELETE를 정확히 식별할 수 있다. 서버는 DELETE body를 사용하지 않으므로
- * 동기화 동작에는 영향이 없다.
+ * 실제 삭제 행의 계정·여행을 큐에 보존한다. 서버는 DELETE body를 사용하지 않는다.
  */
 export const deleteScheduleLocal = async (id: string): Promise<{ id: string; deletedAt: string }> => {
   const now = getCurrentISOString();
 
-  const existing = await getDatabase()
-    .select({ tripId: schedules.tripId })
-    .from(schedules)
-    .where(ownedActiveRow(schedules, eq(schedules.id, id)))
-    .get();
-  const tripId = existing?.tripId ?? null;
-
   await withTransaction(async () => {
-    if (!(await getScheduleRowById(id))) {
-      throw new Error('삭제할 일정을 찾을 수 없습니다');
-    }
-    await getDatabase()
+    const deleted = await getDatabase()
       .update(schedules)
       .set({
         deletedAt: now,
         updatedAt: now,
         version: sql`${schedules.version} + 1`,
       })
-      .where(ownedActiveRow(schedules, eq(schedules.id, id)));
+      .where(ownedActiveRow(schedules, eq(schedules.id, id), isNull(schedules.deletedAt)))
+      .returning({ userId: schedules.userId, tripId: schedules.tripId })
+      .get();
 
-    await addToSyncQueue('schedules', id, 'DELETE', { tripId });
+    if (!deleted) {
+      throw new Error('삭제할 일정을 찾을 수 없습니다');
+    }
+
+    const payload = deleteQueuePayloadSchema.parse({ userId: deleted.userId, ownerVersion: 1, tripId: deleted.tripId });
+
+    await addToSyncQueue('schedules', id, 'DELETE', payload);
   });
 
   console.log(`[ScheduleLocal] Schedule deleted locally (soft): ${id}`);
