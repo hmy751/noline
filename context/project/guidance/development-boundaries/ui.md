@@ -14,6 +14,8 @@
 
 재사용 컴포넌트의 외부 margin·화면 위치는 부모가 정하고 내부 padding·배치는 컴포넌트가 소유할 수 있다. 같은 primitive의 className·props를 확장할 때도 호출자의 위치 결정권을 보존한다. [UI 공개 export](../../../../packages/ui/src/index.tsx)와 [Pressable](../../../../packages/ui/src/components/Pressable.tsx)에서 실제 props·disabled·children 처리 범위를 확인한다. 현재 UI props에 interface가 있다는 사실과 [타입 작성 기본 기준](schema-and-types.md)은 구별한다.
 
+`pnpm client lint`는 앱 코드의 직접 쓴 색과 raw `TextInput`을 경고한다. 기존 코드에도 경고가 남아 있으므로 바꾸는 코드에서 새 경고를 더하지 않는지 본다. 일부러 벗어나면 `eslint-disable` 주석에 이유를 남긴다.
+
 날짜·금액을 표시하는 UI에서는 [날짜와 시각](../../common/date-and-time.md)과 [통화와 금액](../../common/currency.md)의 공용 helper·표시 계약을 따른다. 표시 형식과 저장값의 의미를 구별하고, 기존 화면의 차이를 새 formatter를 만드는 기본 근거로 삼지 않는다.
 
 ## UI가 소유할 상태는 그 interaction과 함께 둔다
