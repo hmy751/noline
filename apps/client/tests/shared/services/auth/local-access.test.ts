@@ -1,51 +1,28 @@
 /** @jest-environment node */
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+
+import { createExpenseLocal, getExpensesByTripIdLocal } from '@/entities/expense/lib/expense-local';
 import {
+  createScheduleLocal,
+  deleteScheduleLocal,
+  getSchedulesLocal,
+  updateScheduleLocal,
+} from '@/entities/schedule/lib/schedule-local';
+import { getTripByIdLocal, getTripsLocal, updateTripLocal } from '@/entities/trip/lib/trip-local';
+import {
+  expenses,
+  getDatabase,
   initializeDatabase,
   resetDatabase,
-  getDatabase,
-  trips,
   schedules,
-  expenses,
-  tripActivations,
   syncQueue,
+  tripActivations,
+  trips,
 } from '@/shared/db';
 import { getQueueOwner, inspectLocalAccount } from '@/shared/services/auth/local-account';
-import { useAuthStore } from '@/shared/store/auth';
-import { getTripsLocal, getTripByIdLocal, updateTripLocal } from '@/entities/trip/lib/trip-local';
-import {
-  getSchedulesLocal,
-  createScheduleLocal,
-  updateScheduleLocal,
-  deleteScheduleLocal,
-} from '@/entities/schedule/lib/schedule-local';
-import { getExpensesByTripIdLocal, createExpenseLocal } from '@/entities/expense/lib/expense-local';
 import { getTripActivationStatus } from '@/shared/services/offline-prep/metadata';
 import { getSyncableTasks, recoverInterruptedTasks } from '@/shared/services/sync/queue';
-
-interface TestDatabase {
-  exec: (sql: string) => void;
-  prepare: (sql: string) => TestStatement;
-}
-
-interface TestStatement {
-  setReturnArrays?: (enabled: boolean) => void;
-  columns: () => Array<{ name: string }>;
-  all: (...params: unknown[]) => unknown[];
-  run: (...params: unknown[]) => { changes: number; lastInsertRowId: number };
-}
-
-function mockReadRows(statement: TestStatement, params: unknown[]): unknown[][] {
-  const columns = statement.columns();
-  if (statement.setReturnArrays) {
-    statement.setReturnArrays(true);
-    return statement.all(...params) as unknown[][];
-  }
-
-  return (statement.all(...params) as Array<Record<string, unknown>>).map((row) =>
-    columns.map(({ name }) => row[name]),
-  );
-}
+import { useAuthStore } from '@/shared/store/auth';
 
 // 실제 Drizzle SQL과 SQLite를 사용한다. 파일·기기 SecureStore는 사용하지 않는다.
 jest.mock('expo-secure-store', () => ({ setItemAsync: jest.fn(), deleteItemAsync: jest.fn() }));
@@ -53,29 +30,8 @@ jest.mock('@/shared/services/id/ulid', () => ({
   generateId: () => jest.requireActual<typeof import('node:crypto')>('node:crypto').randomUUID(),
 }));
 jest.mock('expo-sqlite', () => ({
-  openDatabaseSync: () => {
-    const { DatabaseSync } = jest.requireActual<{ DatabaseSync: new (name: string) => TestDatabase }>('node:sqlite');
-    const sqlite = new DatabaseSync(':memory:');
-    return {
-      execSync: (statement: string) => sqlite.exec(statement),
-      getAllSync: (query: string) => sqlite.prepare(query).all(),
-      prepareSync: (query: string) => ({
-        executeForRawResultSync: (params: unknown[]) => {
-          const statement = sqlite.prepare(query);
-          const rows = mockReadRows(statement, params);
-          return { getAllSync: () => rows };
-        },
-        executeSync: (params: unknown[]) => {
-          const statement = sqlite.prepare(query);
-          if (statement.columns().length) {
-            const rows = mockReadRows(statement, params);
-            return { getAllSync: () => rows, getFirstSync: () => rows[0] ?? null };
-          }
-          return statement.run(...params);
-        },
-      }),
-    };
-  },
+  openDatabaseSync: () =>
+    jest.requireActual<typeof import('../../../helpers/sqlite')>('../../../helpers/sqlite').createExpoSQLiteDatabase(),
 }));
 
 const now = '2026-01-01T00:00:00Z';

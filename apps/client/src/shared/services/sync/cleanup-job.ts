@@ -1,10 +1,12 @@
-import { getDatabase, tripActivations, schedules, expenses, syncQueue } from '@/shared/db';
-import { eq, sql, and, isNotNull, lt, notExists } from 'drizzle-orm';
-import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
-import { hasPendingTasksForTrip } from './queue';
-import { cleanupOfflineMapForTrip } from '@/shared/services/offline-map';
-import { queryClient } from '@/shared/lib/queryClient';
+import { and, eq, isNotNull, lt, ne, notExists, sql } from 'drizzle-orm';
+
+import { expenses, getDatabase, schedules, syncQueue, tripActivations } from '@/shared/db';
+import { getCurrentISOString, withTransaction } from '@/shared/db/utils';
 import { SOFT_DELETE_VACUUM_DAYS } from '@/shared/lib/lifecycle';
+import { queryClient } from '@/shared/lib/queryClient';
+import { cleanupOfflineMapForTrip } from '@/shared/services/offline-map';
+
+import { hasPendingTasksForTrip } from './queue';
 
 let activeCleanup: Promise<number> | null = null;
 let pauseCount = 0;
@@ -227,7 +229,7 @@ export async function forceCleanupTrip(tripId: string): Promise<void> {
  *
  * @returns 삭제된 레코드 수
  */
-export async function vacuumDeletedRecords(): Promise<{ schedules: number; expenses: number }> {
+export const vacuumDeletedRecords = async (): Promise<{ schedules: number; expenses: number }> => {
   try {
     const thresholdDate = new Date();
     thresholdDate.setDate(thresholdDate.getDate() - SOFT_DELETE_VACUUM_DAYS);
@@ -239,7 +241,7 @@ export async function vacuumDeletedRecords(): Promise<{ schedules: number; expen
     let expensesDeleted = 0;
 
     await withTransaction(async () => {
-      // 큐 상태와 무관하게 원본 행이 남아 있어야 재전송과 계정 확인이 가능하다.
+      // 재전송할 큐의 원본을 보존한다. 영속 격리된 입력은 큐 자체에 남는다.
       for (const [tableName, table] of [
         ['schedules', schedules],
         ['expenses', expenses],
@@ -251,13 +253,21 @@ export async function vacuumDeletedRecords(): Promise<{ schedules: number; expen
             getDatabase()
               .select({ id: syncQueue.id })
               .from(syncQueue)
-              .where(and(eq(syncQueue.tableName, tableName), eq(syncQueue.recordId, table.id))),
+              .where(
+                and(
+                  eq(syncQueue.tableName, tableName),
+                  eq(syncQueue.recordId, table.id),
+                  ne(syncQueue.status, 'QUARANTINED'),
+                ),
+              ),
           ),
         );
         const records = await getDatabase().select({ id: table.id }).from(table).where(canDelete).all();
+
         if (records.length > 0) {
           await getDatabase().delete(table).where(canDelete);
         }
+
         if (tableName === 'schedules') {
           schedulesDeleted = records.length;
         } else {
@@ -281,4 +291,4 @@ export async function vacuumDeletedRecords(): Promise<{ schedules: number; expen
     console.error('[Cleanup] Failed to vacuum deleted records:', error);
     throw error;
   }
-}
+};

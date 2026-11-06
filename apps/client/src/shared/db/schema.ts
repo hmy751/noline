@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 // ========================================
 // Trips Table
@@ -110,7 +110,7 @@ export const syncQueue = sqliteTable('sync_queue', {
   recordId: text('record_id').notNull(), // 대상 레코드 ID
   action: text('action').notNull(), // 'CREATE', 'UPDATE', 'DELETE'
   payload: text('payload').notNull(), // JSON stringified
-  status: text('status').notNull().default('PENDING'), // 'PENDING', 'IN_PROGRESS', 'FAILED'
+  status: text('status').notNull().default('PENDING'), // 'PENDING', 'IN_PROGRESS', 'FAILED', 'QUARANTINED' (원본 없음, 자동 재전송 금지)
   retryCount: integer('retry_count').notNull().default(0),
   createdAt: text('created_at').notNull(), // ISO string
   updatedAt: text('updated_at'), // ISO string

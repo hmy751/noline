@@ -8,7 +8,7 @@ import { isoDateTime } from '../primitives/datetime';
 /**
  * 동기화 큐 작업 상태
  */
-export const syncStatusEnum = z.enum(['PENDING', 'IN_PROGRESS', 'FAILED']);
+export const syncStatusEnum = z.enum(['PENDING', 'IN_PROGRESS', 'FAILED', 'QUARANTINED']);
 
 /**
  * 동기화 작업 타입

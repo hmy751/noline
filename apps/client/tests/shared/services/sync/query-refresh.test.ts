@@ -67,7 +67,7 @@ beforeEach(() => {
   mockActivatedTrips = [];
   useAuthStore.setState({ status: 'signed-in', userId: 'a', sessionId: Symbol('session') });
   jest.mocked(getSyncableTasks).mockReset().mockResolvedValue([task]);
-  jest.mocked(getSyncQueueStats).mockReset().mockResolvedValue({ pending: 0, inProgress: 0, failed: 0, total: 0 });
+  jest.mocked(getSyncQueueStats).mockReset().mockResolvedValue({ pending: 0, inProgress: 0, failed: 0, quarantined: 0, total: 0 });
   jest.mocked(deleteTask).mockReset().mockResolvedValue(undefined);
   jest.mocked(api.put).mockReset().mockResolvedValue({});
   jest.mocked(api.get).mockReset();
@@ -116,7 +116,7 @@ it('push 일부 성공 뒤 다음 전송이 실패해도 성공한 변경을 갱
   observe(async () => '첫 전송 이후 값');
   jest.mocked(getSyncableTasks).mockResolvedValue([task, { ...task, id: 'second', recordId: 'second' }]);
   jest.mocked(api.put).mockResolvedValueOnce({}).mockRejectedValueOnce(new Error('failed'));
-  jest.mocked(getSyncQueueStats).mockResolvedValue({ pending: 0, inProgress: 0, failed: 1, total: 1 });
+  jest.mocked(getSyncQueueStats).mockResolvedValue({ pending: 0, inProgress: 0, failed: 1, quarantined: 0, total: 1 });
   await expect(syncData()).rejects.toBeInstanceOf(SyncIncompleteError);
   expect(mockClient.getQueryData(key)).toBe('첫 전송 이후 값');
   expect(api.get).not.toHaveBeenCalled();
@@ -126,7 +126,7 @@ it('서버 쓰기 뒤 큐 삭제가 실패해도 서버 변경을 다시 읽는�
   mockClient.setQueryData(key, '이전 값');
   observe(async () => '서버에 반영된 값');
   jest.mocked(deleteTask).mockRejectedValueOnce(new Error('local queue failed'));
-  jest.mocked(getSyncQueueStats).mockResolvedValue({ pending: 0, inProgress: 0, failed: 1, total: 1 });
+  jest.mocked(getSyncQueueStats).mockResolvedValue({ pending: 0, inProgress: 0, failed: 1, quarantined: 0, total: 1 });
   await expect(pushChanges()).rejects.toBeInstanceOf(SyncIncompleteError);
   expect(mockClient.getQueryData(key)).toBe('서버에 반영된 값');
 });

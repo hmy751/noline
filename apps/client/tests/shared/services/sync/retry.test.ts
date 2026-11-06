@@ -50,7 +50,7 @@ const failedTask = {
 beforeEach(() => {
   useAuthStore.setState({ status: 'signed-in', userId: 'user-1' });
   jest.mocked(getSyncableTasks).mockReset().mockResolvedValue([failedTask]);
-  jest.mocked(getSyncQueueStats).mockReset().mockResolvedValue({ pending: 0, inProgress: 0, failed: 0, total: 0 });
+  jest.mocked(getSyncQueueStats).mockReset().mockResolvedValue({ pending: 0, inProgress: 0, failed: 0, quarantined: 0, total: 0 });
   jest.mocked(getQueueOwner).mockReset().mockResolvedValue('user-1');
   jest.mocked(updateTaskStatus).mockReset().mockResolvedValue(undefined);
   jest.mocked(deleteTask).mockReset().mockResolvedValue(undefined);
@@ -80,7 +80,7 @@ it('전송할 작업을 고르기 전에 중단된 IN_PROGRESS부터 되돌린�
 
 it('실패 횟수가 많이 쌓인 FAILED도 다시 전송하고 횟수를 계속 센다', async () => {
   jest.mocked(getSyncableTasks).mockResolvedValue([{ ...failedTask, retryCount: 7 }]);
-  jest.mocked(getSyncQueueStats).mockResolvedValue({ pending: 0, inProgress: 0, failed: 1, total: 1 });
+  jest.mocked(getSyncQueueStats).mockResolvedValue({ pending: 0, inProgress: 0, failed: 1, quarantined: 0, total: 1 });
   jest.mocked(api.put).mockRejectedValueOnce(new Error('timeout'));
 
   await expect(pushChanges()).rejects.toBeInstanceOf(SyncIncompleteError);
@@ -91,7 +91,7 @@ it('실패 횟수가 많이 쌓인 FAILED도 다시 전송하고 횟수를 계�
 it('재시도 실패를 다시 FAILED로 남기고 뒤 작업을 진행하지 않은 채 실패를 보고한다', async () => {
   const laterTask = { ...failedTask, id: 'later', recordId: 'trip-2', status: 'PENDING', retryCount: 0 } as const;
   jest.mocked(getSyncableTasks).mockResolvedValue([failedTask, laterTask]);
-  jest.mocked(getSyncQueueStats).mockResolvedValue({ pending: 1, inProgress: 0, failed: 1, total: 2 });
+  jest.mocked(getSyncQueueStats).mockResolvedValue({ pending: 1, inProgress: 0, failed: 1, quarantined: 0, total: 2 });
   jest.mocked(api.put).mockRejectedValueOnce(new Error('server unavailable'));
 
   await expect(pushChanges()).rejects.toBeInstanceOf(SyncIncompleteError);

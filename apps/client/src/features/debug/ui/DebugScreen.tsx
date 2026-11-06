@@ -1,27 +1,32 @@
 import React, { useState } from 'react';
-import { View, ScrollView, RefreshControl, Alert, Text } from 'react-native';
-import { MobileHeader, Container, Stack } from '@/shared/components';
-import { ArrowLeft } from 'lucide-react-native';
+import { Alert, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { router } from 'expo-router';
+
 import MapboxGL from '@rnmapbox/maps';
+import { ne } from 'drizzle-orm';
+import { ArrowLeft } from 'lucide-react-native';
+
+import { Pressable } from '@repo/ui';
+
+import { Container, MobileHeader, Stack } from '@/shared/components';
 import {
-  getDatabase,
-  resetDatabase,
-  trips,
-  schedules,
   expenses,
-  syncQueue,
+  getDatabase,
   offlineCities,
+  resetDatabase,
+  schedules,
+  syncQueue,
   tripActivations,
+  trips,
 } from '@/shared/db';
-import type { Trip, Schedule, Expense, SyncQueueItem, OfflineCity, TripActivation } from '@/shared/db/schema';
-import { getSyncQueueStats } from '@/shared/services/sync/queue';
-import { useSyncContext } from '@/shared/services/sync/provider';
+import type { Expense, OfflineCity, Schedule, SyncQueueItem, Trip, TripActivation } from '@/shared/db/schema';
 import type { SyncSkipReason } from '@/shared/services/sync/lifecycle';
+import { useSyncContext } from '@/shared/services/sync/provider';
+import { getSyncQueueStats } from '@/shared/services/sync/queue';
+
 import { DashboardView } from './DashboardView';
 import { DataInspectorView } from './DataInspectorView';
 import { ToolsView } from './ToolsView';
-import { Pressable } from '@repo/ui';
 
 type ViewMode = 'dashboard' | 'inspector' | 'tools';
 
@@ -36,7 +41,7 @@ const SYNC_SKIP_MESSAGES: Record<SyncSkipReason, string> = {
   'override-active': '네트워크 강제 설정을 해제한 후 동기화할 수 있습니다.',
 };
 
-export default function DebugScreen() {
+const DebugScreen = () => {
   const { triggerManualSync } = useSyncContext();
   const [refreshing, setRefreshing] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('dashboard');
@@ -48,9 +53,7 @@ export default function DebugScreen() {
   const [offlineCitiesData, setOfflineCitiesData] = useState<OfflineCity[]>([]);
   const [syncQueueData, setSyncQueueData] = useState<SyncQueueItem[]>([]);
   const [tripActivationsData, setTripActivationsData] = useState<TripActivation[]>([]);
-  const [stats, setStats] = useState<{ pending: number; inProgress: number; failed: number; total: number } | null>(
-    null,
-  );
+  const [stats, setStats] = useState<Awaited<ReturnType<typeof getSyncQueueStats>> | null>(null);
 
   const loadData = async () => {
     try {
@@ -68,7 +71,11 @@ export default function DebugScreen() {
       const offlineCitiesResult = await getDatabase().select().from(offlineCities).all();
       setOfflineCitiesData(offlineCitiesResult);
 
-      const syncQueueResult = await getDatabase().select().from(syncQueue).all();
+      const syncQueueResult = await getDatabase()
+        .select()
+        .from(syncQueue)
+        .where(ne(syncQueue.status, 'QUARANTINED'))
+        .all();
       setSyncQueueData(syncQueueResult);
 
       const tripActivationsResult = await getDatabase().select().from(tripActivations).all();
@@ -374,4 +381,6 @@ export default function DebugScreen() {
       </ScrollView>
     </View>
   );
-}
+};
+
+export default DebugScreen;

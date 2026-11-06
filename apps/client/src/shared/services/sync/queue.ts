@@ -1,8 +1,11 @@
-import { eq, and } from 'drizzle-orm';
+import { and, eq, ne } from 'drizzle-orm';
+
 import { getDatabase, runDatabaseOperation } from '@/shared/db';
-import { syncQueue, type NewSyncQueueItem, type SyncQueueItem } from '@/shared/db/schema';
-import { generateId } from '../id/ulid';
+import { type NewSyncQueueItem, syncQueue, type SyncQueueItem } from '@/shared/db/schema';
 import { getCurrentISOString } from '@/shared/db/utils';
+import { quarantineOrphanedTasks } from '@/shared/services/auth/local-account';
+
+import { generateId } from '../id/ulid';
 
 /**
  * sync_queue에 작업 추가
@@ -58,18 +61,17 @@ export async function getPendingTasks(): Promise<SyncQueueItem[]> {
 }
 
 /**
- * FIFO를 유지하며 전송 가능한 앞부분만 반환한다. 막힌 작업을 건너뛰지 않는다.
+ * 격리 작업을 제외한 FIFO에서 전송 가능한 앞부분만 반환한다. 나머지 막힌 작업은 건너뛰지 않는다.
  *
  * FAILED는 실패 횟수와 관계없이 다시 보낸다. 재전송은 서버가 같은 결과로 받으므로
  * 횟수로 막으면 일시 오류가 쌓인 작업이 영구히 멈춘다. retryCount는 계속 센다.
  */
-export async function getSyncableTasks(): Promise<SyncQueueItem[]> {
-  const tasks = await runDatabaseOperation(() =>
-    getDatabase().select().from(syncQueue).orderBy(syncQueue.createdAt).all(),
-  );
+export const getSyncableTasks = async (): Promise<SyncQueueItem[]> => {
+  const tasks = await quarantineOrphanedTasks();
   const blockedIndex = tasks.findIndex((task) => task.status !== 'PENDING' && task.status !== 'FAILED');
+
   return blockedIndex === -1 ? tasks : tasks.slice(0, blockedIndex);
-}
+};
 
 /**
  * 지난 실행이 끝나지 못하고 남긴 IN_PROGRESS를 PENDING으로 되돌린다.
@@ -77,14 +79,15 @@ export async function getSyncableTasks(): Promise<SyncQueueItem[]> {
  * 동기화는 executeSync 잠금 안에서 한 번에 하나만 실행되므로, push를 시작하는 순간의
  * IN_PROGRESS는 앱 종료 등으로 중단된 이전 실행의 흔적이다. retryCount는 유지한다.
  */
-export async function recoverInterruptedTasks(): Promise<void> {
+export const recoverInterruptedTasks = async (): Promise<void> => {
+  await quarantineOrphanedTasks('IN_PROGRESS');
   await runDatabaseOperation(() =>
     getDatabase()
       .update(syncQueue)
       .set({ status: 'PENDING', updatedAt: getCurrentISOString() })
       .where(eq(syncQueue.status, 'IN_PROGRESS')),
   );
-}
+};
 
 /**
  * 특정 작업 조회
@@ -92,13 +95,18 @@ export async function recoverInterruptedTasks(): Promise<void> {
  * @param taskId - sync_queue 작업 ID
  * @returns sync_queue 항목 또는 null
  */
-export async function getTaskById(taskId: string): Promise<SyncQueueItem | null> {
+export const getTaskById = async (taskId: string): Promise<SyncQueueItem | null> => {
   const tasks = await runDatabaseOperation(() =>
-    getDatabase().select().from(syncQueue).where(eq(syncQueue.id, taskId)).limit(1).all(),
+    getDatabase()
+      .select()
+      .from(syncQueue)
+      .where(and(eq(syncQueue.id, taskId), ne(syncQueue.status, 'QUARANTINED')))
+      .limit(1)
+      .all(),
   );
 
   return tasks[0] || null;
-}
+};
 
 /**
  * 작업 상태 업데이트
@@ -107,13 +115,12 @@ export async function getTaskById(taskId: string): Promise<SyncQueueItem | null>
  * @param status - 변경할 상태 ('IN_PROGRESS', 'FAILED')
  * @param retryCount - 재시도 횟수 (선택)
  */
-export async function updateTaskStatus(
+export const updateTaskStatus = async (
   taskId: string,
   status: 'IN_PROGRESS' | 'FAILED',
   retryCount?: number,
-): Promise<void> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const updateData: any = {
+): Promise<void> => {
+  const updateData: Pick<NewSyncQueueItem, 'status' | 'updatedAt' | 'retryCount'> = {
     status,
     updatedAt: getCurrentISOString(),
   };
@@ -122,10 +129,13 @@ export async function updateTaskStatus(
     updateData.retryCount = retryCount;
   }
 
-  await runDatabaseOperation(() => getDatabase().update(syncQueue).set(updateData).where(eq(syncQueue.id, taskId)));
-
-  console.log(`[SyncQueue] Task ${taskId} status updated: ${status}`);
-}
+  await runDatabaseOperation(() =>
+    getDatabase()
+      .update(syncQueue)
+      .set(updateData)
+      .where(and(eq(syncQueue.id, taskId), ne(syncQueue.status, 'QUARANTINED'))),
+  );
+};
 
 /**
  * 작업 삭제 (성공 시)
@@ -134,11 +144,13 @@ export async function updateTaskStatus(
  *
  * @param taskId - sync_queue 작업 ID
  */
-export async function deleteTask(taskId: string): Promise<void> {
-  await runDatabaseOperation(() => getDatabase().delete(syncQueue).where(eq(syncQueue.id, taskId)));
-
-  console.log(`[SyncQueue] Task ${taskId} deleted (synced successfully)`);
-}
+export const deleteTask = async (taskId: string): Promise<void> => {
+  await runDatabaseOperation(() =>
+    getDatabase()
+      .delete(syncQueue)
+      .where(and(eq(syncQueue.id, taskId), ne(syncQueue.status, 'QUARANTINED'))),
+  );
+};
 
 /**
  * 특정 테이블의 특정 레코드에 대한 PENDING 작업 존재 여부 확인
@@ -184,7 +196,7 @@ export async function getFailedTasks(): Promise<SyncQueueItem[]> {
  *
  * @param taskId - sync_queue 작업 ID
  */
-export async function retryFailedTask(taskId: string): Promise<void> {
+export const retryFailedTask = async (taskId: string): Promise<void> => {
   await runDatabaseOperation(() =>
     getDatabase()
       .update(syncQueue)
@@ -192,11 +204,9 @@ export async function retryFailedTask(taskId: string): Promise<void> {
         status: 'PENDING',
         updatedAt: getCurrentISOString(),
       })
-      .where(eq(syncQueue.id, taskId)),
+      .where(and(eq(syncQueue.id, taskId), ne(syncQueue.status, 'QUARANTINED'))),
   );
-
-  console.log(`[SyncQueue] Task ${taskId} reset to PENDING for retry`);
-}
+};
 
 /**
  * 모든 sync_queue 작업 삭제 (개발용)
@@ -214,25 +224,27 @@ export async function clearSyncQueue(): Promise<void> {
  *
  * @returns 상태별 작업 개수
  */
-export async function getSyncQueueStats(): Promise<{
+export const getSyncQueueStats = async (): Promise<{
   pending: number;
   inProgress: number;
   failed: number;
+  quarantined: number;
   total: number;
-}> {
+}> => {
   const allTasks = await runDatabaseOperation(() => getDatabase().select().from(syncQueue).all());
 
   const stats = {
     pending: allTasks.filter((t) => t.status === 'PENDING').length,
     inProgress: allTasks.filter((t) => t.status === 'IN_PROGRESS').length,
     failed: allTasks.filter((t) => t.status === 'FAILED').length,
+    quarantined: allTasks.filter((t) => t.status === 'QUARANTINED').length,
     total: allTasks.length,
   };
 
   console.log('[SyncQueue] Sync Queue Stats:', stats);
 
   return stats;
-}
+};
 
 /**
  * 특정 여행의 PENDING 작업 조회

@@ -16,7 +16,7 @@ jest.mock('@react-native-community/netinfo', () => ({
 jest.mock('@/shared/services/sync/engine', () => ({ syncData: jest.fn() }));
 jest.mock('@/shared/services/auth/token-storage', () => ({}));
 jest.mock('@/shared/services/sync/queue', () => ({
-  getSyncQueueStats: jest.fn(async () => ({ pending: 0, inProgress: 0, failed: 0, total: 0 })),
+  getSyncQueueStats: jest.fn(async () => ({ pending: 0, inProgress: 0, failed: 0, quarantined: 0, total: 0 })),
 }));
 jest.mock('@/shared/db', () => ({
   isDatabaseReady: () => true,

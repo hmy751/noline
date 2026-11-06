@@ -1,11 +1,15 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { Text, View } from 'react-native';
+
+import { Database, RefreshCw, RotateCcw, Upload, Wifi, WifiOff } from 'lucide-react-native';
+
 import { Pressable } from '@repo/ui';
-import { Database, Wifi, WifiOff, RotateCcw, RefreshCw, Upload } from 'lucide-react-native';
+
+import type { getSyncQueueStats } from '@/shared/services/sync/queue';
 import {
+  useDisplayNetworkStatus,
   useNetworkCheck,
   useNetworkControl,
-  useDisplayNetworkStatus,
   useRealNetworkStatus,
 } from '@/shared/store/network';
 
@@ -30,8 +34,8 @@ const NETWORK_STATUS_DISPLAY = {
   },
 };
 
-interface DashboardViewProps {
-  stats: { pending: number; inProgress: number; failed: number; total: number } | null;
+type DashboardViewProps = {
+  stats: Awaited<ReturnType<typeof getSyncQueueStats>> | null;
   counts: {
     trips: number;
     schedules: number;
@@ -41,9 +45,9 @@ interface DashboardViewProps {
   };
   onRefresh: () => void;
   onManualSync: () => void;
-}
+};
 
-export function DashboardView({ stats, counts, onRefresh, onManualSync }: DashboardViewProps) {
+export const DashboardView = ({ stats, counts, onRefresh, onManualSync }: DashboardViewProps) => {
   const { overrideStatus, setOverrideOnline, setOverrideOffline, setOverrideUnknown, clearOverride } =
     useNetworkControl();
   const realNetworkStatus = useRealNetworkStatus();
@@ -123,6 +127,7 @@ export function DashboardView({ stats, counts, onRefresh, onManualSync }: Dashbo
               <Text className='text-body text-foreground'>동기화 대기: {stats.pending}개</Text>
               <Text className='text-body text-foreground'>동기화 실패: {stats.failed}개</Text>
               <Text className='text-body text-foreground'>진행 중: {stats.inProgress}개</Text>
+              <Text className='text-body text-foreground'>전송 제외 보존: {stats.quarantined}개</Text>
             </>
           )}
         </View>
@@ -150,4 +155,4 @@ export function DashboardView({ stats, counts, onRefresh, onManualSync }: Dashbo
       </View>
     </View>
   );
-}
+};

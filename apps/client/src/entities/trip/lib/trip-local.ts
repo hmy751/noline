@@ -1,16 +1,17 @@
-import { requireLocalUserId } from '@/shared/store/auth';
-// Trip Local DataSource - SQLite 로컬 DB 작업
+import { and, desc, eq, inArray, isNull, ne, or, sql, type SQL } from 'drizzle-orm';
 
-import { getDatabase, trips, tripActivations, schedules, expenses, syncQueue } from '@/shared/db';
-import { eq, isNull, desc, sql, or, and, inArray } from 'drizzle-orm';
-import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
-import { addToSyncQueue } from '@/shared/services/sync/queue';
-import { AuthRequiredError, selectLocalUserId, useAuthStore } from '@/shared/store/auth';
-import { ownedRow, activeTripScope, assertActiveLocalTrip } from '@/shared/services/auth/local-access';
-import type { Trip, UpdateTripRequest } from '../model';
 import { tripEntity } from '@repo/schema/entities/trip';
-import { getTripExpiryISO } from '@/shared/lib/lifecycle';
 import { isTripDateRangeValid } from '@repo/schema/requests/trip';
+
+import { expenses, getDatabase, schedules, syncQueue, tripActivations, trips } from '@/shared/db';
+import { getCurrentISOString, withTransaction } from '@/shared/db/utils';
+import { getTripExpiryISO } from '@/shared/lib/lifecycle';
+import { activeTripScope, assertActiveLocalTrip, ownedRow } from '@/shared/services/auth/local-access';
+import { addToSyncQueue } from '@/shared/services/sync/queue';
+import { requireLocalUserId } from '@/shared/store/auth';
+import { AuthRequiredError, selectLocalUserId, useAuthStore } from '@/shared/store/auth';
+
+import type { Trip, UpdateTripRequest } from '../model';
 
 /** 시간대 호환만 적용한다. 기존 다른 필드의 오류로 시간대 확인·교정까지 막지 않는다. */
 function readTripTimeZone(trip: Trip): Trip {
@@ -66,27 +67,48 @@ export const getTripByIdLocal = async (id: string): Promise<Trip | undefined> =>
 };
 
 /** 활성 여행과 전송 대기·진행·실패 작업의 부모 여행은 서버 목록으로 덮지 않는다. */
-function protectedTripScope() {
+const protectedTripScope = (): SQL | undefined => {
   const db = getDatabase();
+
   return or(
     activeTripScope(trips.id),
-    inArray(trips.id, db.select({ id: syncQueue.recordId }).from(syncQueue).where(eq(syncQueue.tableName, 'trips'))),
+    inArray(
+      trips.id,
+      db
+        .select({ id: syncQueue.recordId })
+        .from(syncQueue)
+        .where(and(eq(syncQueue.tableName, 'trips'), ne(syncQueue.status, 'QUARANTINED'))),
+    ),
     inArray(
       trips.id,
       db
         .select({ id: schedules.tripId })
         .from(schedules)
-        .innerJoin(syncQueue, and(eq(syncQueue.tableName, 'schedules'), eq(syncQueue.recordId, schedules.id))),
+        .innerJoin(
+          syncQueue,
+          and(
+            eq(syncQueue.tableName, 'schedules'),
+            eq(syncQueue.recordId, schedules.id),
+            ne(syncQueue.status, 'QUARANTINED'),
+          ),
+        ),
     ),
     inArray(
       trips.id,
       db
         .select({ id: expenses.tripId })
         .from(expenses)
-        .innerJoin(syncQueue, and(eq(syncQueue.tableName, 'expenses'), eq(syncQueue.recordId, expenses.id))),
+        .innerJoin(
+          syncQueue,
+          and(
+            eq(syncQueue.tableName, 'expenses'),
+            eq(syncQueue.recordId, expenses.id),
+            ne(syncQueue.status, 'QUARANTINED'),
+          ),
+        ),
     ),
   );
-}
+};
 
 /** 서버의 전체 목록을 반영하고 로컬이 책임지는 여행을 보존한다. sync_queue는 변경하지 않는다. */
 export const refreshTripListLocal = async (serverTrips: Trip[], sessionId: symbol | null, signal?: AbortSignal) => {

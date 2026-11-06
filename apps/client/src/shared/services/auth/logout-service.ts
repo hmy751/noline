@@ -1,10 +1,11 @@
-import { getSyncQueueStats } from '@/shared/services/sync/queue';
-import { logout as logoutApi, deleteAccount } from './auth-api';
-import { useAuthStore } from '@/shared/store/auth';
-import { useTripStore } from '@/shared/store/useTripStore';
-import { withSessionChange } from './session-lifecycle';
 import { resetDatabase } from '@/shared/db';
 import { queryClient } from '@/shared/lib/queryClient';
+import { getSyncQueueStats } from '@/shared/services/sync/queue';
+import { useAuthStore } from '@/shared/store/auth';
+import { useTripStore } from '@/shared/store/useTripStore';
+
+import { deleteAccount, logout as logoutApi } from './auth-api';
+import { withSessionChange } from './session-lifecycle';
 
 export interface LogoutOptions {
   /**
@@ -26,19 +27,19 @@ export interface LogoutResult {
  *
  * @returns sync_queue 통계
  */
-export async function checkPendingSync(): Promise<{
+export const checkPendingSync = async (): Promise<{
   hasPending: boolean;
   pendingCount: number;
   failedCount: number;
-}> {
+}> => {
   const stats = await getSyncQueueStats();
 
   return {
-    hasPending: stats.pending > 0 || stats.inProgress > 0 || stats.failed > 0,
-    pendingCount: stats.pending + stats.inProgress + stats.failed,
+    hasPending: stats.total > 0,
+    pendingCount: stats.total,
     failedCount: stats.failed,
   };
-}
+};
 
 /** 미동기화 작업이 있으면 종료를 보류한다. force는 이 확인을 건너뛴다. */
 export async function performLogout(options: LogoutOptions = {}): Promise<LogoutResult> {

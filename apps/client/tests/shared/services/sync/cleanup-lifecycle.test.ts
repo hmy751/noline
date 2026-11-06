@@ -68,7 +68,7 @@ beforeEach(() => {
   jest.mocked(getDatabase).mockReturnValue({
     select: () => ({ from: () => ({ where: () => ({ all: findPendingCleanups }) }) }),
   } as unknown as ReturnType<typeof getDatabase>);
-  jest.mocked(getSyncQueueStats).mockResolvedValue({ pending: 0, inProgress: 0, failed: 0, total: 0 });
+  jest.mocked(getSyncQueueStats).mockResolvedValue({ pending: 0, inProgress: 0, failed: 0, quarantined: 0, total: 0 });
   jest.mocked(resetDatabase).mockReset().mockResolvedValue(undefined);
   for (const method of ['log', 'info', 'warn', 'error'] as const) {
     jest.spyOn(console, method).mockImplementation(() => undefined);

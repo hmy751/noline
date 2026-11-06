@@ -54,7 +54,7 @@ beforeEach(() => {
   useAuthStore.setState({ status: 'signed-in', userId: 'user-1' });
   useNetworkStore.setState({ realStatus: 'online', overrideStatus: null });
   syncMock.mockReset().mockResolvedValue(undefined);
-  statsMock.mockReset().mockResolvedValue({ pending: 0, inProgress: 0, failed: 0, total: 0 });
+  statsMock.mockReset().mockResolvedValue({ pending: 0, inProgress: 0, failed: 0, quarantined: 0, total: 0 });
   jest.mocked(resetDatabase).mockReset().mockResolvedValue(undefined);
   jest.mocked(logoutApi).mockReset().mockResolvedValue(undefined);
   jest.mocked(deleteAccount).mockReset().mockResolvedValue(undefined);
@@ -144,7 +144,7 @@ describe('sync와 세션 종료 순서', () => {
   ])(
     '$scenario 확정 후 새 sync를 막고 실행 종료 뒤 서버와 DB를 정리한다',
     async ({ endSession, serverOperation, pendingCount }) => {
-      statsMock.mockResolvedValue({ pending: pendingCount, inProgress: 0, failed: 0, total: pendingCount });
+      statsMock.mockResolvedValue({ pending: pendingCount, inProgress: 0, failed: 0, quarantined: 0, total: pendingCount });
       const work = deferred<void>();
       const serverStarted = deferred<void>();
       const serverWork = deferred<void>();
@@ -244,7 +244,7 @@ describe('sync와 세션 종료 순서', () => {
     await act(async () => {
       await Promise.resolve();
     });
-    statsMock.mockResolvedValue({ pending: 1, inProgress: 0, failed: 0, total: 1 });
+    statsMock.mockResolvedValue({ pending: 1, inProgress: 0, failed: 0, quarantined: 0, total: 1 });
 
     await expect(performLogout()).resolves.toMatchObject({ success: false, hasPendingSync: true });
     expect(logoutApi).not.toHaveBeenCalled();
@@ -258,7 +258,7 @@ describe('sync와 세션 종료 순서', () => {
   });
 
   it('FAILED 작업도 손실 가능한 미동기화 데이터로 계산한다', async () => {
-    statsMock.mockResolvedValue({ pending: 0, inProgress: 0, failed: 2, total: 2 });
+    statsMock.mockResolvedValue({ pending: 0, inProgress: 0, failed: 2, quarantined: 0, total: 2 });
 
     await expect(performLogout()).resolves.toMatchObject({
       success: false,

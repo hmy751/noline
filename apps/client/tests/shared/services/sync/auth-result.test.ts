@@ -34,7 +34,7 @@ jest.mock('@/shared/services/sync/queue', () => ({
       retryCount: 0,
     },
   ]),
-  getSyncQueueStats: jest.fn(async () => ({ pending: 1, inProgress: 0, failed: 0, total: 1 })),
+  getSyncQueueStats: jest.fn(async () => ({ pending: 1, inProgress: 0, failed: 0, quarantined: 0, total: 1 })),
   updateTaskStatus: jest.fn(),
   deleteTask: jest.fn(),
   retryFailedTask: jest.fn(),
