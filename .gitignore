@@ -69,3 +69,4 @@ __pycache__/
 # Local login and notice screenshots linked from Workspace records
 /artifacts/2026-11-04-login-screens/
 /artifacts/2026-11-04-expenses-time-zone/
+/artifacts/2026-11-06-orphaned-queue/
