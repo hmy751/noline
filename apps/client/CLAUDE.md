@@ -24,7 +24,7 @@
 | policy 제한 UI | [여행 접근·Policy 기준](../../context/project/guidance/travel-access/INDEX.md) |
 | offline map/routing | [지도 준비·공유·경로 표시](../../context/project/guidance/offline-maps-and-routes/INDEX.md) |
 | 구조·계층·재사용 | [계층과 현재 예외](../../context/project/guidance/development-boundaries/layers.md) |
-| UI composition | [Component context](../../context/project/guidance/development-boundaries/ui.md), [UI package guide](../../packages/ui/CLAUDE.md) |
+| UI composition | [Component context](../../context/project/guidance/development-boundaries/ui.md), [UI package guide](../../packages/ui/CLAUDE.md), [디자인 시스템 판단](../../context/personal/development/design-system/INDEX.md) |
 
 ## Ownership
 

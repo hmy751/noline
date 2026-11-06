@@ -40,7 +40,7 @@ React Native input은 `register` 대신 `Controller`로 연결한다. `Field`는
     <Field>
       <Field.Title>제목</Field.Title>
       <Field.ElementsBox>
-        <TextInput value={value} onChangeText={onChange} />
+        <Input value={value} onChangeText={onChange} />
       </Field.ElementsBox>
       {error && <Field.Message>{error.message}</Field.Message>}
     </Field>

@@ -1,6 +1,6 @@
 # 개발 판단 — 공통 관점과 주제별 기준
 
-여러 Project에서 가져갈 개인의 개발 판단을 제공한다. [공통 관점](INDEX.md)은 책임·계약·코드 명료함을 보는 출발점을 설명하고, 아래 네 주제는 이번 쟁점에 적용할 기준과 조건별 사례를 소유한다. 필요한 판단에서 시작해 관련 본문을 고른다.
+여러 Project에서 가져갈 개인의 개발 판단을 제공한다. [공통 관점](INDEX.md)은 책임·계약·코드 명료함을 보는 출발점을 설명하고, 아래 다섯 주제는 이번 쟁점에 적용할 기준과 조건별 사례를 소유한다. 필요한 판단에서 시작해 관련 본문을 고른다.
 
 | 지금 판단할 일 | 시작 본문 | 선택 차이가 더 필요할 때 | 주제 구성·관리 |
 | --- | --- | --- | --- |
@@ -8,6 +8,7 @@
 | 공통 오류의 형태·의미, 타이머·상태·자원 수명, 지원 범위 안 정확성 | [계약과 수명](contracts-and-lifetime/INDEX.md) | [fetcher·Toast·이벤트 Hook](contracts-and-lifetime/INDEX.cases.md) | [주제 안내](contracts-and-lifetime/README.md) |
 | 함수·Hook이 맡은 일, 상태·오류의 표현, 반환·완료 알림 | [이름·책임·완료 범위](naming-and-completion/INDEX.md) | [이름·완료 판단 사례](naming-and-completion/INDEX.cases.md) | [주제 안내](naming-and-completion/README.md) |
 | 코드 묶음·배치, 주석이 보완할 내용, 실패 처리 뒤 진단 정보 | [코드 표현과 진단](code-expression/INDEX.md) | 본문의 조건·대조 설명 | [주제 안내](code-expression/README.md) |
+| 화면·폼·목록·메뉴를 만들거나 위치·간격·값·상태 표시를 고칠 때, 공통 UI 부품·토큰을 정할 때 | [UI 결정을 맡을 책임에 두고 쌓는다](design-system/INDEX.md) | [메뉴·자리·값·Button·Field 사례](design-system/INDEX.cases.md) | [주제 안내](design-system/README.md) |
 
 일반 기준에서 판단할 조건을 잡고, 선택이 갈리는 이유가 더 필요할 때 관련 사례를 읽는다. 사례에는 확인한 코드의 동작과 비교를 위해 둔 가정을 구별했다. 가정한 사용처나 미정인 제품 조건이 현재 작업에서도 성립하는지 확인하며, 모든 주제와 사례를 기본 입력으로 만들지 않는다.
 

@@ -21,3 +21,5 @@
 - [실행 상세의 계층 확장](records/2026-10-26-detail-expansion.md): 초기 유보 뒤 성숙한 구현 수행과 여러 담당자가 사용하는 검사 근거를 나눈 이유, 사용자 의도와 유지한 책임.
 
 - [PR 작성 상세의 통합](records/2026-10-31-pull-request-reference.md): 기존 PR 명령의 유효한 수행을 조건부 reference로 옮긴 이유와 제거한 템플릿 강제.
+
+- [디자인 시스템 판단 연결](records/2026-11-06-design-system-entry.md): 공통 변경을 개선 검토 호출 판단에 넣고 UI 읽을 곳을 스킬에 두지 않은 이유.
