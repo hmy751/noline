@@ -10,8 +10,4 @@
 
 같은 분석에서 코드 가독성 리팩토링 Work `002-code-readability-refactoring`를 함께 만들었다. 그 Work의 current를 먼저 읽거나 자동 추종하지 않는다. `001-noline-context-harness-application`의 이식 결과·검증 성공은 이 Work의 제품 증거가 아니다.
 
-`workspace.json`은 identity, `recover.json`은 Project context 선택, `verify.json`은 제한된 고정 검증 계약이다. 사람의 다음 행동은 state가, 마지막 Verify 결과와 receipt는 `current/state/status.json`이 소유한다. 초기 `ready_for_verification`은 미실행 기계 상태이며 모든 후보가 수정 준비됐다는 뜻이 아니다.
-
-명시적 재진입: `python3 -B -m context.work.harness recover 003-bug-investigation-and-fixes --json`
-
-생성만 수행했으므로 active 기본값과 현재 session binding은 변경하지 않았다.
+[재개 안내](recover.md)에서 현재 요청에 필요한 자료와 읽을 이유를 고른다.

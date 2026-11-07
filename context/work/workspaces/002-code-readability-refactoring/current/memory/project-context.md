@@ -1,6 +1,6 @@
 # 이 Work가 선택한 Project context
 
-[Project README](../../../../../project/README.md)는 물리 layer와 authority를 찾는 진입점이다. Recover는 [제품 의미와 공통 기준](../../../../../project/common/product.md), [동작 보존 리팩터링](../../../../../project/guidance/behavior-preserving-refactoring.md), [API 계약과 변경](../../../../../project/guidance/api-contracts.md), [날짜와 시각](../../../../../project/common/date-and-time.md), [통화와 금액](../../../../../project/common/currency.md), [현재 구현·검증 지도](../../../../../project/current/architecture.md)를 이 Work의 판단 입력으로 선택한다.
+[Project README](../../../../../project/README.md)는 물리 layer와 authority를 찾는 진입점이다. 이 작업에서는 [제품 의미와 공통 기준](../../../../../project/common/product.md), [동작 보존 리팩터링](../../../../../project/guidance/behavior-preserving-refactoring.md), [API 계약과 변경](../../../../../project/guidance/api-contracts.md), [날짜와 시각](../../../../../project/common/date-and-time.md), [통화와 금액](../../../../../project/common/currency.md), [현재 구현·검증 지도](../../../../../project/current/architecture.md)를 이 Work의 판단 입력으로 선택한다.
 
 활성 여행의 SQLite 기준, 비활성 여행의 Server API 기준, Data Entity와 지도·검색·경로 Service의 분리, 미전송 사용자 입력의 보존이 이번 코드 작업의 제약이다. Project의 원자성 설명은 지켜야 할 기준이며 현재 helper가 실제로 보장한다는 검증 결과가 아니다. 현재 코드의 결함과 증명 상한은 이 Work의 Spec·후보가 별도로 소유한다.
 

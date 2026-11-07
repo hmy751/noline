@@ -34,8 +34,8 @@ Auth Store는 현재 계정과 인증 수단을 관리한다. 재인증이 필�
 
 제품 변경은 해당 app/package guide에서 검증을 선택한다. Client는 Expo/React Native용 Jest에서 hook·API 계약을 실행하고, server는 Vitest 단위 검사와 Supertest route 계약 검사, 별도 PostgreSQL integration 경계를 갖는다. 이 기반의 존재는 client/server 전체가 테스트됐다는 뜻이 아니다. Native module mock은 실기기를, DB/auth mock은 실제 PostgreSQL·JWT를 대신하지 않으므로 [동작 보존 리팩터링](../guidance/behavior-preserving-refactoring.md)과 [API 변경 가이드](../guidance/api-contracts.md)에서 영향에 맞는 경계를 고른다.
 
-`pnpm schema build`, `pnpm server typecheck`, `pnpm server build`는 package 수준 확인이며 iOS 실기기나 외부 서비스 acceptance를 대신하지 않는다. `pnpm harness:check`는 AI 지침의 bridge·링크·expected surface·whitespace를 확인한다. Python Harness tests는 Recover·Maintain·Verify 계약을 임시 fixture에서 확인한다. 어느 쪽도 여행 기능의 동작 테스트가 아니다.
+`pnpm schema build`, `pnpm server typecheck`, `pnpm server build`는 package 수준 확인이며 iOS 실기기나 외부 서비스 acceptance를 대신하지 않는다. `pnpm harness:check`는 AI 지침의 bridge·링크·expected surface·whitespace를 확인한다. 제품 동작은 해당 app/package에서 별도로 검사한다.
 
-Root [Context Harness](../../README.md)는 Project layer와 Workspace Spec·Ticket·state를 연결한다. Noline의 공통 스킬 원본은 `.agents/skills/`에 있으며 Codex가 직접 발견하고 Claude는 `.claude/skills` symlink로 같은 원본을 읽는다. Codex·Claude lifecycle wrapper가 설치돼 있지만 새 session은 unbound이며 hook trust·사용자 explicit activation·실제 event receipt 전에는 `activation_pending`이다. Claude adapter의 semantic runner는 기존 Codex 구현을 재사용한다.
+Root [Context Harness](../../README.md)는 Project layer와 Workspace Spec·Ticket·state를 연결한다. Noline의 공통 스킬 원본은 `.agents/skills/`에 있으며 Codex가 직접 발견하고 Claude는 `.claude/skills` symlink로 같은 원본을 읽는다. 새 세션은 Workspace의 재개 안내를 읽고 필요할 때 기록 담당자를 호출한다.
 
 상세 Owner와 코드·테스트·runtime이 바뀌면 변경 책임자가 관련 부분을 갱신한다. 이 지도는 위치·현재 관계를 요약한다. 제품 계약·위험·변경 확인 조건은 대응 Project 본문이 소유하고 구현 사실은 실제 source를 근거로 하며, 둘의 충돌은 구별한다. [개발 기준의 형성 자료](../guidance/development-boundaries/_background/README.md)에서 구조·UI·schema 선택 이유를 찾는다. 전체 상세 문서 최신화 여부를 이 지도만으로 주장하지 않는다.

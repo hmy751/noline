@@ -6,6 +6,8 @@
 
 ## 설치된 역할과 진입점
 
+- [record-work](record-work/SKILL.md): 대화에서 필요할 때 같은 담당자를 불러 지정 Work에 기록하고 재개 안내를 맞춘다.
+
 - [development](development/SKILL.md): 개발 요청의 맥락·구현·개선 검토·검증·결과를 연결한다. Noline 제품·경로별 기준을 함께 적용한다.
 - [improvement-loop](improvement-loop/SKILL.md): 사용자가 대화를 돌아보고 개선을 찾자고 요청했을 때 선택한 개선·한정 시도와 경험을 잇는다. 자동 마무리 루프가 아니다.
 
@@ -25,15 +27,15 @@
 
 ## Context와 문서 갱신
 
-Context Harness 작업을 다루는 스킬은 root [AGENTS.md](../../AGENTS.md)에서 관련 context를 찾고, [Spec·Ticket 계약](../../context/work/workspaces/spec-and-tickets/README.md)의 내용·읽기·Main·Maintain 관계를 적용한다. 새 Workspace 초기 구성과 준비된 Workspace의 문서 유지를 구별한다. 자동 연결이 없을 때의 허용된 문서 반영은 같은 계약이 연결하는 Maintain 수동 fallback을 따른다. 스킬 설치·호출은 session activation이나 실제 문서 반영을 뜻하지 않는다.
+작업의 기록과 재개는 [Work 지침](../../context/work/AGENTS.md)과 [갱신 기준](../../context/work/workspaces/spec-and-tickets/MAINTENANCE.md)을 적용한다. 새 Workspace 초기 구성은 생성 스킬이 맡는다.
 
-`work-discussion`과 `explain`은 각 호출 조건에 따라 [설명과 근거 기준](shared/explanation-and-evidence-criteria.md)을 함께 읽는다. 이 기준의 범위·수명·consumer 관계는 [guidance 색인](../../context/project/guidance/README.md)이 연결한다. `reconsider-work`나 모든 Recover에 새 필수 입력으로 추가하지 않는다.
+`work-discussion`과 `explain`은 각 호출 조건에 따라 [설명과 근거 기준](shared/explanation-and-evidence-criteria.md)을 함께 읽는다. 이 기준의 범위·수명·consumer 관계는 [guidance 색인](../../context/project/guidance/README.md)이 연결한다. `reconsider-work`나 모든 재개에 새 필수 입력으로 추가하지 않는다.
 
-Project 본문의 구성과 읽기 기준은 [Project reference](../../context/project/REFERENCE/README.md)가 연결한다. 공통 읽기는 [USAGE](../../context/USAGE.md)로 수행하고 context-update는 각 영역의 관리 계약에 따라 반영한다. 공통 읽기는 Recover나 Workspace activation을 대체하지 않는다.
+Project 본문의 구성과 읽기 기준은 [Project reference](../../context/project/REFERENCE/README.md)가 연결한다. 공통 읽기는 [USAGE](../../context/USAGE.md)로 수행하고 context-update는 각 영역의 관리 계약에 따라 반영한다. 공통 읽기는 Work 재개 안내을 대체하지 않는다.
 
 ## 도구 연결과 이식
 
-Noline의 `.agents/skills/`가 공통 스킬 원본이며 Codex는 이 경로를 직접 발견한다. `.claude/skills`는 `../.agents/skills`를 가리키는 상대 symlink로 Claude가 같은 원본을 읽게 한다. 별도 `.codex/skills/` 사본은 만들지 않는다. 호출 설정과 상대 연결의 존재는 실제 host의 발견·호출·Maintain 동작을 증명하지 않는다. Codex adapter와 Noline 전용 Claude hook은 같은 Maintain 계약에 연결되며, actual-host proof는 별도다.
+Noline의 `.agents/skills/`가 공통 스킬 원본이며 Codex는 이 경로를 직접 발견한다. `.claude/skills`는 `../.agents/skills`를 가리키는 상대 symlink로 Claude가 같은 원본을 읽게 한다. 별도 `.codex/skills/` 사본은 만들지 않는다. 호출 설정과 상대 연결의 존재는 실제 host의 발견·호출·기록 반영을 증명하지 않는다.
 
 다른 Project에 이식할 때는 이 목록과 실제 디렉터리·호출 설정·연결·공통 기준을 함께 확인한다. 기존 동명 또는 같은 책임의 스킬과 비교해 설치·적응·제외를 정하고, 기존 guidance 색인을 병합한다. 이 색인과 스킬 본문이 다른 Project의 현재 제품 맥락을 소유하지 않는다.
 

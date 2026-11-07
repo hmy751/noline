@@ -1,70 +1,64 @@
-# 새 WORKSPACE 생성과 전환
+# Work의 생성과 전환
 
-이 문서는 이미 Context Harness가 설치된 Project에서 새 Workspace를 만들고 다음 세션이 독립적으로 재진입할 수 있게 준비하는 전체 계약의 canonical이다. Workspace collection과 각 내부 Owner의 의미는 [`README.md`](README.md)가 소유하고, 이 문서는 생성·전환 동작의 시작 조건, 의미 선별, 산출물, 검토와 활성화 경계를 소유한다.
+새 독립 목표를 Workspace로 구성하고, 다음 수행자가 필요한 현재 의미에서 출발하도록 준비한다. 기존 또는 새 Work로 지속 전환하는 조건도 이 문서가 소유한다. Workspace의 내용 구성은 [컬렉션](README.md), 현재 의미의 유지와 재개는 [Work 지침](../AGENTS.md)이 맡는다. [create-context-workspace](../../../.agents/skills/create-context-workspace/SKILL.md)는 이 계약을 적용하는 수행 수단이며, 수동으로 수행해도 같은 기준을 따른다.
 
-Repo-local [`create-context-workspace` skill](../../../.agents/skills/create-context-workspace/SKILL.md)은 이 계약을 적용하는 교체 가능한 관리 장치다. Skill을 사용하지 않거나 제거해도 사람이나 다른 AI가 이 문서를 따라 같은 책임을 수행할 수 있어야 하며, skill 문장을 이 계약의 두 번째 정본으로 사용하지 않는다.
+## 요청한 결과와 대상을 정한다
 
-새 Workspace의 사람용 문서를 구성할 때는 [문서 작성과 갱신](DOCUMENT-WRITING.md)을 직접 읽고 적용한다. 글의 내용 충분성·구성·표현은 해당 지침을 따르며, 생성 범위와 아래의 전환·검토 책임은 이 계약이 소유한다.
+같은 목표의 새 세션·후속 수정·미확인 해소는 기존 Work에서 잇는다. 독립 목표를 따로 관리하라는 요청이 있을 때 생성한다. 첫 Work도 같은 의미 구성 기준을 쓰며, Work가 없는 한정 읽기·설명·개발 요청에 생성을 선행 조건으로 붙이지 않는다. 생성은 Harness 최초 설치나 Project 전체 정비를 포함하지 않는다.
 
-## 시작 조건과 책임
+사용자가 지정한 Project·Work와 실제 진입 계약에서 대상 위치를 찾는다. 스킬 위치나 Git 최상위를 곧바로 대상 Project로 간주하지 않는다. 새 목표·완료 장면·범위·접근할 근거를 기존 요청에서 파악하고, 결과를 바꾸는 중요한 선택을 안전하게 추론할 수 없을 때만 묻는다. 이름·번호를 정할 때에는 요청과 기존 목록을 확인하고 실제 경로의 기존 파일·symlink·사용자 변경을 보호한다. 이미 있는 Workspace를 새 작업으로 덮어쓰지 않는다.
 
-서로 무관한 작업을 새 Workspace로 시작하거나, 현재 작업에서 이어지는 새 goal을 후속 Workspace로 분리할 때 적용한다. 기존 Workspace에 재진입하거나 그 Workspace 안의 current를 갱신하는 일에는 적용하지 않는다.
+Main은 새 목표의 해석·의미 선별·생성 결과와 전환을 책임진다. 생성 담당을 따로 두면 그 범위와 쓰기 권한을 배정한다. 현재 권한으로 결정할 수 있는 작업 선택을 매번 다시 승인받지 않으며, 생성 담당이라는 이유로 새 제품 약속이나 Personal 기준을 채택하지 않는다.
 
-- 사람은 새 goal, 완료 장면, 범위, 중요한 source 권위, Project 전체 반영과 acceptance를 결정한다.
-- Main 또는 이 계약을 적용하는 skill은 새 goal을 해석하고 필요한 현재 의미를 선별해 새 Workspace의 기존 Owner 구조에 배치한다.
-- Workspace schema와 Harness validation은 id·shape·경로·파일 안전처럼 명시 가능한 조건만 검사한다. 중요한 의미가 빠지지 않았다는 보장은 하지 않는다.
-- Recover는 완성된 bounded packet을 읽고, Maintain은 explicit Workspace 하나 안의 변화를 관리한다. 둘 다 새 Workspace 생성, predecessor 탐색과 Workspace 사이 동기화를 소유하지 않는다.
+## 새 목표에 필요한 의미를 구성한다
 
-새 Workspace는 predecessor의 다음 번호이거나 후속 작업이어도 자기 goal과 current를 소유하는 독립된 지속 단위다. 서로 무관한 새 작업에는 predecessor 관계를 만들지 않는다.
+[공통 읽기 방법](../../USAGE.md)으로 관련 Personal·Project 본문과 실제 산출물을 선택한다. 후속 작업이면 이전 Work의 관련 current·output과 필요한 exact record/source를 읽는다. 자료마다 새 목표·보존 조건·첫 판단·현재 결과의 이해·다음 행동을 바꾸는지 확인하고, 당시 근거와 지금 적용할 의미를 구별한다.
 
-## 생성 workflow
+새 Workspace에는 다음을 해당 Owner에 직접 쓴다. 이름만 다른 기존 Work 복사본이나 링크 목록으로 대신하지 않는다.
 
-1. 사용자가 정한 새 goal, 완료 장면, 범위와 하지 않을 것을 먼저 고정한다. 새 Workspace id나 goal을 안전하게 추론할 수 없거나 검증 기준·source 권위의 선택이 결과를 바꾼다면 관련 write 전에 사용자에게 묻는다.
-2. `context/project/README.md`에서 Project의 `common/current/guidance` 물리 layer와 `decisions`의 관계를 찾고, 관련 layer README에서 새 goal의 판단을 바꾸는 실제 문서를 선택한다. Root와 layer README 자체를 충분한 내용 payload로 보지 않으며, guidance는 적용 조건이 맞을 때만 고른다. 그 뒤 새 goal에 실제로 이어지는 predecessor의 current, 선택된 output, 정확한 source와 필요한 record만 확인하며 관련 이유가 없는 다른 Workspace를 넓게 탐색하지 않는다.
-3. 후보마다 그것을 모르면 새 goal, 계속 지킬 제약, 첫 판단, 현재 산출물의 의미 또는 다음 행동이 달라지는지 판단한다. 지금도 유효한지, 원문을 직접 다시 읽어야 하는지, 실제 canonical과 Owner가 어디인지 함께 확인한다.
-4. 다음 재진입에 계속 적용되는 의미는 링크로 대신하지 않고 새 Workspace의 적절한 current Owner에 직접 서술한다. [Spec과 Ticket](spec-and-tickets/README.md)에 따라 Work당 하나의 Spec을 다섯 파일로 구성한다. Work의 결과·공통 계약·품질 기준·제약과 공통 설계는 Spec에, 이번 실행의 결과·범위·맥락·설계·확인 방법과 진행·실제 결과는 필요한 Ticket에, 전체 상황과 다음 행동은 사람용 state에 둔다. Spec의 각 관점을 조사·논의로 구체화하되 미정 부분은 가정·열린 판단으로 드러내고 근거 없이 채우지 않는다. Ticket이 아직 없으면 색인에 없다고 적고 빈 작업을 만들어 채우지 않는다. 초기 구성은 Main/생성 skill이 맡고 이후 문서 유지에는 Spec·Ticket의 Main·Maintain 관계를 적용한다.
-5. 원문 전체가 기본 current에는 불필요하지만 특정 판단 전에 직접 읽어야 한다면 `source/index.md`에 원래 canonical과 provenance를 선택한다. Recover가 읽는 current에도 exact canonical 경로나 직접 링크, 문서의 역할, 필요한 이유와 읽을 시점을 함께 남긴다. Source나 current의 링크만으로 필수 재진입 의미 자체를 대신하지 않는다.
-6. Predecessor만 소유하는 당시 선택 이유나 상세 과정은 복제하지 않고 exact output·record·source를 단방향으로 가리킨다. 관련 있어도 새 goal의 판단과 행동을 바꾸지 않는 과거 상태, 세부 과정, 후보와 실행 기록은 predecessor에 그대로 둔다.
-7. 과거의 특정 범주가 successor에도 계속 적용된다고 오해할 가능성이 있고 그 오해가 현재 판단을 바꾼다면, 빠진 파일을 전부 열거하지 않고 그 범주와 지금 적용하지 않는 이유·현재 영향만 successor current에 적는다. 선택·제외 판단을 나중에 재검토할 필요가 있으면 새 Workspace record에 남긴다.
-8. [`Workspace 내부 경계`](README.md#workspace-내부-경계)에 맞춰 사람용 진입점, machine identity와 Recover·Verify 계약, current·source·output·records를 완성한다. 기존 Workspace의 파일이나 값을 통째로 복제하지 않고, live schema와 새 goal에 맞는 root Project routing anchor·실제 layer 문서 선택·검증 claim·evidence·상태를 각각 구성한다. `recover.json`의 Project 선택은 root README와 허용된 `common/`, `current/`, `guidance/`, `decisions/` 경로만 사용한다. 사람용 current는 `workspace.json`의 identity, `recover.json`의 선택, `verify.json`의 실행 계약, `status.json`의 마지막 결과·receipt cursor와 Recover가 계산하는 freshness를 혼동하지 않는다. 아직 제품 Verify를 실행하지 않았다면 machine status는 receipt나 성공을 가장하지 않는다.
+| 위치 | 생성 시 구성할 내용 |
+| --- | --- |
+| `README.md` | 작업의 정체성·범위와 구성, `recover.md`로 이어지는 진입 |
+| `recover.md` | [Work 재개 기준](../AGENTS.md#재개-안내를-구성하고-갱신한다)에 따른 현재 초점·기본/조건부 자료·선택 이유와 필요한 절·구간. 상세 상태와 Project·Personal 선택 목록은 해당 본문으로 연결한다. |
+| `current/memory/index.md`와 Spec·Ticket | 새 목표·보존 조건·완료 기준·현재 선택과 이유·열린 판단. [기존 Spec·Ticket 기준](spec-and-tickets/README.md)의 다섯 관점과 실행 책임을 사용하며 미정을 사실로 채우지 않는다. Ticket이 아직 없으면 색인에 그 상태를 밝히고 빈 실행 과업을 만들지 않는다. |
+| 선택한 Personal·Project 맥락 | 적용할 원문의 접근점과 선택 이유, 이번 작업에서 이어받은 조건·해석. 원문 전문은 복제하지 않는다. |
+| `current/state/index.md` | 실제 현재 상태·중심 과제·중요한 미확인·다음 행동과 그 이유 |
+| `source/index.md` | 선택한 원자료와 출처, 어느 판단 전에 직접 읽을지. 현재 해석은 source에 쓰지 않는다. |
+| `output/index.md` | 현재 결과로 선택한 실제 산출물의 위치와 상태. 아직 결과가 없으면 없다고 밝히며 이전 결과의 완료·pass를 상속하지 않는다. |
+| `records/` | 생성에서 중요한 선별·제외·인수 확인과 판단 근거. 모든 읽기나 이전 기록 전체를 복제하지 않는다. |
 
-## Workspace 사이의 참조 경계
+이전 Work의 현재 문서를 차례로 읽어야만 이해되는 계승 사슬을 만들지 않는다. 지금 적용할 의미는 새 current가 소유하고 상세 근거만 정확한 이전 record·source·output으로 단방향 참조한다. 기존 원문과 당시 선택을 새 결론으로 덮어쓰거나 두 Work 사이 자동 동기화를 만들지 않는다. 새 작업에도 적용된다고 오해하면 판단이 달라질 범주만 이어받지 않은 이유를 설명한다.
 
-- Successor는 predecessor의 `current/` 전체를 live dependency로 삼지 않는다. 현재 적용되는 의미는 자기 current에 소유하고, 상세 근거만 정확한 canonical이나 predecessor의 exact artifact로 연결한다.
-- 두 Workspace 사이에 자동 전파, 상호 갱신이나 역전파를 만들지 않는다. Predecessor가 나중에 바뀌어도 successor가 자동 추종하지 않으며, 영향이 생기면 successor가 원래 canonical과 현재 사실을 다시 대조해 자기 current를 갱신한다.
-- 과거 Workspace의 상세 근거를 읽을 수는 있지만, 다른 Workspace의 current를 차례로 복구해야만 이해되는 계승 사슬은 만들지 않는다.
-- 이 관계를 표현하기 위해 필수 `parent_workspace_id`, 공통 handoff 문서, 새 schema·hook이나 동기화 장치를 전제하지 않는다.
-- Workspace 밖 Project 전체에도 적용될 수 있는 사실은 Project context 후보로만 다룬다. 실제 반영은 [`Project context`](../../project/README.md)의 상세 Owner와 source 권위가 Project 전체 적용을 뒷받침하는지 별도로 판단한 뒤 그 Owner가 결정한다. 여러 Workspace가 사용했다는 사실만으로 승격하지 않는다.
+미완료 요구의 책임을 실제로 나누어 옮기는 경우에는 이전 Work에 남은 책임·새 위치를, 새 Work에 맡은 요구·조건·현재 근거를 연결한다. 원래 목표가 완료된 뒤의 새 목표와 구별하며 분리만으로 원래 실패·미확인을 완료로 바꾸지 않는다. 여러 Work에서 사용한다는 사실만으로 Project 공통 기준에 올리지 않는다.
 
-## Bounded 재진입 검토
+## 새 진입에서 인수를 확인한다
 
-생성한 Workspace를 작업 대상으로 전환하기 전에 predecessor를 보지 못한 새 주체에게 그 Workspace의 explicit bounded Recover packet만 제공하고 다음을 확인한다.
+새 Workspace의 README와 `recover.md`에서 시작해 안내한 기본 자료·요청에 맞는 추가 자료로 목표·보존 조건·완료 기준·현재 결과·핵심 미확인·첫 행동을 복원하고, 필요한 원문을 이유와 함께 찾을 수 있는지 확인한다. 일반 재개와 한정 과업에서 읽을 범위가 구별되는지도 본다. 링크의 존재뿐 아니라 주변 설명이 약속한 내용과 실제 목적지가 맞는지 대조한다. 아직 수행하지 않은 구현·검사를 완료한 것으로 읽히지 않아야 한다.
 
-- Spec의 목표·제약·완료 기준, Workspace의 실제 상태와 다음 판단을 설명할 수 있는가. Ticket 색인에서 필요한 실행 본문을 찾을 수 있는가.
-- 이전 작업에서 현재 의미로 이어받은 것과, 계속 적용된다고 오해할 수 있지만 의도적으로 이어받지 않은 범주를 구분할 수 있는가.
-- 추가 원문이 필요하다면 exact 접근점, 역할, 이유와 어느 판단 전에 읽을지를 알 수 있는가.
-- Project routing anchor 밖에서 이 goal에 필요한 `common` 제품 의미, `current` 지원 경계, 적용 조건이 맞는 `guidance`와 현재 판단에 영향을 주는 Decision을 설명할 실제 선택 문서와 이유가 있는가.
-- Current와 output의 local target이 존재하며, label·주변 설명이 말하는 실제 Owner를 가리키는가.
-- Predecessor 전체를 다시 Recover하거나 연쇄적으로 거슬러 올라가지 않고 첫 행동을 시작할 수 있는가.
+중요한 인계에서는 생성자의 설명을 받지 않은 별도 읽기 주체에게 새 진입과 현재 자료만 주어 확인한다. 작은 생성은 Main의 직접 대조로 줄일 수 있으며, 실제 대상 계약이 독립 확인을 요구하면 그 조건을 따른다. 직접 대조를 독립 인수 시험이라 부르지 않는다. 필수 의미나 접근이 빠졌으면 새 current·선택을 보완하고 다시 확인하며, 이전 Work 전체를 기본 입력으로 더해 누락을 가리지 않는다.
 
-가능하면 생성자의 warm 이해를 공유하지 않는 별도 주체가 검토한다. 별도 주체를 사용할 수 없으면 생성자가 packet 밖 자료를 다시 열지 않고 같은 질문을 점검하되 더 약한 증거임을 밝힌다. 부족하면 Recover가 과거를 더 읽게 하지 않고 successor의 current와 Project·source 선택을 보완한다. 파일 존재와 schema validation만으로 의미 충분성이나 semantic target을 통과했다고 주장하지 않는다.
+생성 결과를 [목록](README.md)에 연결한다. 준비한 범위와 필수 공백을 구별하며, 필수 공백이 남은 Work를 인수 준비 완료로 보고하지 않는다. 생성만 요청받았다면 목록의 기본 선택과 현재 수행 대상을 유지한다.
 
-새 Workspace 생성과 함께 Project 문서의 path·책임·authority도 바꿨다면 [`Workspace collection 계약`](README.md#project-context-변경과-live-consumer)의 영향을 받는 live consumer를 함께 reconcile한다. 단순 Workspace 생성만으로 Project 전체 consumer scan을 요구하지 않는다.
+## 요청에 맞춰 전환한다
 
-## 생성과 활성화 경계
+이번 요청의 대상, 다음 일반 재개의 기본 선택, host가 실제 세션에 연결한 대상은 구별한다. Noline은 목록을 사용해 수동으로 이어가며 자동 session binding을 설치하지 않았다.
 
-Workspace 생성과 실제 활성화는 별도 결정이다. 생성만 요청받았으면 `workspaces/index.json`과 현재 Main session의 explicit binding을 바꾸지 않는다. 새 Main session은 Project의 active index, 기본 Workspace나 대화 주제로 Maintain에 자동 가입하지 않는다.
+| 요청 | Noline에서 수행할 일 |
+| --- | --- |
+| 특정 Work를 읽거나 그 안의 한정된 일을 수행 | 지정 Work에서 요청을 처리한다. 목록의 기본 선택은 바꾸지 않는다. |
+| 새 Work를 생성 | 위 의미 구성과 인수 확인을 수행하고 목록에 연결한다. 생성만으로 기본 선택·현재 수행 대상을 전환하지 않는다. |
+| 기존 또는 새 Work로 계속 넘어감 | 대상의 현재 준비와 남은 영향을 확인한 뒤 이번 수행 대상을 맞추고 목록 한곳의 기본 선택을 갱신한다. 이미 있는 Work는 다시 생성하지 않는다. 사용자 요청이 이번 수행만 또는 다음 기본값만을 지정하면 그 범위를 따른다. |
 
-현재 작업을 successor로 전환할 때 새 Main session을 보편적으로 강제하지 않는다. 먼저 현재 binding과 background Maintain의 처리 중·pending·failed 상태를 확인한다. 미반영 내용이 successor의 goal·제약·첫 판단·다음 행동을 바꾸면 predecessor current를 먼저 보완하거나 successor가 알아야 할 의미를 직접 남긴다. 관련 없는 미처리 상태는 predecessor에 그대로 보존할 수 있으며, 존재 자체만으로 전환을 막지 않는다.
+전환 전에 Main은 현재 작업의 미반영 제안·결과·진행 중 담당자 가운데 다음 작업에 영향을 주는 부분을 확인한다. 필요한 현재 의미와 남은 담당·행동을 이어 주되 관련 없는 작업을 모두 취소하거나 기다리지는 않는다.
 
-같은 Main session을 이어 간다면 Main이 현재 사용자 turn 안에서 `CODEX_SESSION_ID`를 대상으로 `python3 .codex/hooks/maintain.py activate <successor_workspace_id>`를 실행한다. 실행 메커니즘과 operational state의 canonical은 [`Maintain session binding과 lifecycle`](../harness/maintain/SESSION-BINDING-AND-LIFECYCLE.md)이다. 이 전환에서는 새 Maintain grounding이 실제로 성공한 뒤에만 future turn binding을 바꾸고, 이미 접수된 현재 prompt와 그 Stop은 predecessor로 마감하며 다음 prompt부터 successor를 사용한다. Grounding이 실패하면 기존 binding을 유지한다. 현재 host가 이 경계를 지원하지 않으면 새 Main session을 fallback으로 사용하며, 더 강한 격리나 독립 재진입이 필요할 때도 새 session을 선택할 수 있다.
+늦은 결과는 원래 맡긴 Work와 실제 사용한 판본·조건의 근거로 남긴다. 계속되는 수정은 최신 배정과 공유 상태를 따르며, 원래 결과 귀속이 과거 쓰기 권한을 고정하지 않는다. 두 Work가 같은 산출물을 수정하면 Main은 겹치는 범위·순서를 조정하고, 담당자는 [실행 배치의 공유 상태 기준](../../../.agents/skills/development/references/execution.md)을 따른다. 기본 선택 변경만으로 옛 결과를 새 Work의 완료 근거로 옮기거나 쓰기 대상을 자동 변경하지 않는다.
 
-Successor 판단을 실제로 바꾸는 미반영 의미는 전환 전에 정리하지만, 관련 없는 pending의 존재만으로 이동을 막거나 successor로 넘기지 않는다. 이전 generation의 pending·failed·late worker 귀속과 `deactivate`의 runtime 보존 계약은 Maintain session lifecycle canonical이 소유한다.
+명시 Work 재개와 미지정 일반 재개가 각각 올바른 대상으로 이어지는지 확인하고 무엇을 변경했는지 반환한다. 준비나 전환이 막혔다면 준비된 부분·유지된 선택·남은 행동을 구별한다. 기본 선택을 먼저 바꿔 두고 인수 공백을 완료로 덮지 않는다.
 
-Active 기본값이나 `.codex/maintain.json`을 바꿨다는 사실만으로 actual activation, background event 반영 또는 새 grounding 완료를 주장하지 않는다. `activate` 성공 결과와 session별 persisted binding을 확인한다. Adapter test와 actual Codex host acceptance의 증명 범위는 Maintain session lifecycle canonical을 따른다.
+## 실행 환경과 완료 범위를 구별한다
 
-## 완료와 증명 상한
+Noline은 `recover.md`를 통한 직접 읽기와 기존 검사 명령을 사용한다. Work 생성에 Verify 계약·receipt·machine status를 요구하지 않으며 목록 변경은 host activation과 구별한다. 필요한 검증 근거는 development와 Work 기록 기준으로 남긴다.
 
-생성 책임은 새 Workspace의 구조와 현재 의미를 구성하고 bounded 재진입 검토 결과를 보고하는 데서 끝난다. 사람의 acceptance, Workspace 완료·보관, Project context 반영과 commit은 각각 별도 권한이다.
+설치된 runtime을 사용하는 다른 대상에서는 그 대상의 현존 계약과 실제 전환 시점·권한·의존을 먼저 확인한다. 수동 목록 변경을 그 절차에 덧씌우거나 과거 자동 Maintain 활성화를 재개하지 않는다. 이식·의존 제거 또는 대체가 필요한 부분은 실제 운영 전환 작업으로 분리한다. 그 후속이 있다는 이유로 현재 Reference의 수동 생성·인수까지 막지 않는다.
 
-Repo-local skill과 검토 절차는 의미 누락 가능성을 줄이지만, 자동 skill 선택, 자동 의미 선별, 의미 충분성이나 actual host 활성화를 결정적으로 보장하지 않는다. 반복되는 구조 오류가 실제로 확인되기 전에는 이 의미 판단을 새 schema나 생성 script로 고정하지 않는다.
+생성은 새 현재 의미를 구성하고 인수 확인 결과를 반환하면 맡은 범위가 끝난다. 전환까지 요청됐다면 실제 바뀐 수행 대상·기본 선택과 남은 host 경계를 함께 보고한다. 생성이나 전환 완료는 원래 Work·제품 검증·배포·사용자 수락의 완료가 아니다. 결과 설명과 최신 기록은 [development](../../../.agents/skills/development/SKILL.md)와 Work 지침에 연결하며 새 종합 인계 보고서를 의무화하지 않는다.

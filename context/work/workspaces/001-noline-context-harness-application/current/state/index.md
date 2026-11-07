@@ -1,5 +1,10 @@
 # 현재 이식 상태
 
+
+## 2026-11-07 기록·재개 이식
+
+여덟 Workspace에 재개 안내를 연결하고 새 Work 기록에 record-work를 설치했다. 007의 이전 연결을 해제했고 자동 실행기와 수집 hook을 중단했다. 기존 미반영 내역은 그대로 보존하며 다음 기록은 record-work가 맡는다. [적용 범위](../../records/2026-11-07-work-record-and-resume.md)에서 다음 전환과 실제 재개 관찰을 구분한다. 아래는 이식 전 경과다.
+
 ## 2026-10-30 개발 수행 스킬과 교체 경로
 
 새 development·improvement-loop와 논의·생성 보완을 반영하고 옛4개 실행 스킬·bridge를 정리한다. 적용·확인 결과는 [스킬 전환 기록](../../records/2026-10-30-02-development-skill-transition.md)에서 찾는다. Maintain 기록·생성·전환 계약은 유지하며 실제 host 통합은02 후속이다. 아래 첫 부분 반영은 이전 경과다.

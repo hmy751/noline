@@ -4,19 +4,7 @@
 
 ## 이 작업을 이어받을 때
 
-Project root에서 **006 id를 명시해** 재진입한다.
-
-```bash
-python3 -B -m context.work.harness recover 006-project-context-reconstruction
-```
-
-Recover는 읽기 전용 재진입이며 Workspace 선택·자동 기록 연결이나 제품 검증을 대신하지 않는다. 새 세션에서 자동 Maintain을 사용할 때는 Project의 [session binding 계약](../../harness/maintain/SESSION-BINDING-AND-LIFECYCLE.md)에 따라 현재 세션을 006에 명시적으로 연결한다. 기본 active Workspace나 다른 세션의 연결을 006이라고 추정하지 않는다.
-
-1. [현재 상태](current/state/index.md)에서 완료 범위·다음 실행·미확인을 읽는다.
-2. [Spec](current/memory/index.md)에서 목표·권위·작업 경계를 확인하고, 특히 [내용·형식 판단과 완료 기준](current/memory/spec/04-quality-and-completion.md)을 적용한다.
-3. [Ticket 색인](current/memory/tickets/index.md)에서 현재 실행할 Ticket을 고른다. [09–13 구성](output/ticket-recomposition-09-13.md)은 후속 범위와 나눈 이유를 설명하며 실행 상태를 별도로 소유하지 않는다.
-4. [산출물 색인](output/index.md)에서 관련 주제의 기존 결과·현재 제품 본문·검증 한계를 찾아 재사용한다. 모든 과거 원문을 처음부터 다시 읽는 순서가 아니다.
-5. 판단이 바뀐 이유가 필요하면 [기록](records/README.md), 실제 사용자 표현·원자료가 필요하면 [source](source/index.md)로 내려간다.
+[재개 안내](recover.md)에서 현재 요청에 필요한 자료와 읽을 이유를 고른다.
 
 ## 왜 이 범위가 되었는가
 

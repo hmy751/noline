@@ -1,6 +1,6 @@
 # 선택한 Project 맥락과 적용 범위
 
-Recover가 아래 Project 본문을 선택한다. 이 Work에서 Project는 **읽는 근거이며 고칠 대상이 아니다.**
+이 작업에서 아래 Project 본문을 선택한다. 이 Work에서 Project는 **읽는 근거이며 고칠 대상이 아니다.**
 
 | 본문 | 이 Work에서 쓰는 이유 |
 | --- | --- |

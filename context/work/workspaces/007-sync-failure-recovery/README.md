@@ -6,18 +6,7 @@
 
 ## 이 작업을 이어받을 때
 
-Project root에서 007 id를 명시해 재진입한다.
-
-```bash
-python3 -B -m context.work.harness recover 007-sync-failure-recovery
-```
-
-Recover는 읽기 전용 재진입이다. 자동 Maintain을 쓰려면 [session binding 계약](../../harness/maintain/SESSION-BINDING-AND-LIFECYCLE.md)에 따라 세션을 007에 명시적으로 연결한다. 생성할 때 active 기본값과 세션 연결은 바꾸지 않았다.
-
-1. [현재 상태](current/state/index.md)에서 지금 단계, 사용자 결정을 기다리는 항목, 다음 행동을 읽는다.
-2. [Spec](current/memory/index.md)에서 목표·계약·완료 기준과 현재 설계를 확인한다.
-3. [Ticket 색인](current/memory/tickets/index.md)에서 실행할 Ticket을 고른다.
-4. 선택지 비교와 받아들인 비용은 [설계 판단 기록](records/2026-11-03-01-sync-failure-design-decisions.md), 사고의 관찰 근거는 [관찰 기록](records/2026-11-02-01-simulator-sync-block-observation.md), 사용자 발화 원문은 [source](source/index.md)에서 찾는다.
+[재개 안내](recover.md)에서 현재 요청에 필요한 자료와 읽을 이유를 고른다.
 
 ## 003과의 관계
 

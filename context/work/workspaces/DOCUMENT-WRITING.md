@@ -4,7 +4,7 @@
 
 Workspace의 `README.md`, `current/`의 Spec·Ticket·추가 memory·state, `source/index.md`, `output/index.md`, `records/README.md`와 새 날짜별 record에 적용한다. 이 문서 같은 Workspace 운영 지침을 작성할 때도 같은 기준을 사용한다. 아래 관점은 문서마다 채워야 하는 고정 목차나 서식이 아니다.
 
-문서 층의 의미·Owner와 보존 경계는 [Workspace collection](README.md), Spec·Ticket·state의 상세 내용은 [Spec과 Ticket](spec-and-tickets/README.md)이 소유한다. 이 기준은 기존 작성 책임자가 적용하며, [Maintain](../harness/maintain/README.md)은 허용된 문서에 이를 적용하는 관리 장치다. Machine 계약·status·receipt의 형식, raw source의 보존, 제품 산출물의 기준이나 작성 권한을 바꾸지 않는다.
+문서 층의 의미·Owner와 보존 경계는 [Workspace collection](README.md), Spec·Ticket·state의 상세 내용은 [Spec과 Ticket](spec-and-tickets/README.md)이 소유한다. 이 기준은 기존 작성 책임자가 적용하며, [record-work](../../../.agents/skills/record-work/SKILL.md)은 허용된 문서에 이를 적용하는 관리 장치다. Machine 계약·status·receipt의 형식, raw source의 보존, 제품 산출물의 기준이나 작성 권한을 바꾸지 않는다.
 
 ## 문서가 맡은 설명
 
@@ -57,3 +57,5 @@ Workspace의 `README.md`, `current/`의 Spec·Ticket·추가 memory·state, `sou
 완성된 글을 요청과 근거 자료에 대조한다. 독자가 원대화를 다시 추측하지 않고 문서가 맡은 의미를 설명할 수 있는지, 판단을 바꾸는 이유·조건이 빠지거나 강도가 달라지지 않았는지, 필요한 상세와 현재 기준의 위치를 찾을 수 있는지 확인한다.
 
 문서 간 중복, 남아 있는 대체 전 상태, 설명 비중과 읽기 흐름도 전체 글에서 살핀다. 빠진 내용이 있으면 문장을 보완하고, 근거가 없으면 부족한 범위를 분명히 한다. 이 확인은 작성자의 의미 판단이며 링크·형식 검사나 Guard 통과가 대신하지 않는다. 매번 별도 검토 agent나 검토 기록을 만드는 절차를 요구하지 않는다.
+
+재개 안내 `recover.md`도 이 작성 기준을 따른다. 읽을 대상·이유·조건의 구성과 갱신 시점은 [Work 지침](../AGENTS.md#재개-안내를-구성하고-갱신한다)이 소유한다.

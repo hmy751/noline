@@ -1,28 +1,20 @@
-# Noline Work context
+# Work context
 
-이 디렉터리는 Noline에서 진행 중인 작업을 지속 가능한 Workspace로 운영하는 상위 경계다. 제품 의미·개발 계약과 적용·검증 방법은 [`../project/`](../project/)의 주제별 본문이, 제품 구현은 해당 코드가 소유한다.
+Work는 작업별 Workspace의 목표·현재 상태·입력·선택한 산출물·과정 기록과 이를 읽고 관리하는 관계를 소유한다. Project 공통 의미와 제품 코드는 이 층에 복제하지 않는다.
 
-- [`workspaces/`](workspaces/): 작업 identity, 현재 context, 선택한 source, goal output, records와 machine 계약
-- [`harness/`](harness/): Workspace를 Recover·Maintain·Verify하고 Harness 자체를 검증하는 제거 가능한 실행 경계
+| 구성 | 책임과 진입 |
+| --- | --- |
+| [Workspace collection](workspaces/README.md) | 작업 목록·기본 선택과 current·source·output·records의 보존 경계 |
+| [Work 지침](AGENTS.md) | 요청에 맞는 재개와 `recover.md`의 구성·갱신 기준 |
+| [Spec·Ticket](workspaces/spec-and-tickets/README.md) | 작업 정의·개별 실행·전체 상황과 작성·갱신 기준 |
+| [record-work](../../.agents/skills/record-work/SKILL.md) | 필요할 때 같은 기록 담당자를 호출해 원문 판단·직접 갱신을 수행 |
+| [생성·전환](workspaces/CREATE-AND-TRANSITION.md) | 독립 목표의 초기 구성·재진입 확인·작업 대상 전환 |
 
-Harness는 Workspace의 goal·사람 판단·Project 기준을 소유하지 않는다. Harness를 제거해도 각 Workspace는 자기 README와 `current/`을 읽어 재진입할 수 있어야 한다.
+Main은 작업을 조율하고 기록 담당자는 지정 Work의 문서를 갱신한다. 기록 내용은 [문서 작성 기준](workspaces/DOCUMENT-WRITING.md)을 따른다. Workspace README에서 `recover.md`를 찾아 필요한 본문을 직접 읽고, 검증은 [제품 검사](../../CLAUDE.md#코드-영역과-경로별-가이드)와 development의 근거 판단으로 수행한다.
 
-<!-- evidence-collector:start -->
-## 선택적 증거 수집 연결
+## Root 관계
 
-이 Work의 Workspace 작업에는 로컬 설치가 있을 때 독립 증거 수집기(`../../evidence-collector/README.md`)를 선택적으로 연결한다. 개인 설치는 Git clone으로 전달되지 않으며 없는 체크아웃에서는 기존 Maintain이 동작한다. Maintain은 Workspace 연결과 지속 context 갱신을, 수집기는 당시 자료와 회고 단서 보존을 맡는다. 연결 어댑터만 양쪽 실행 구현을 알고 확정된 요청 귀속을 전달한다. 수집 기록은 Workspace의 현재 판단이나 평가 결론을 대신하지 않는다.
+- Project root: `../..` — 제품·Project 맥락·검증 실행의 기준.
+- Work root: 이 디렉터리 — Workspace 목록·재개 안내·current·source·output·records의 기준.
 
-Main의 참여 범위와 활성 조건은 [Work 운영 지침](AGENTS.md#증거-수집-연결)이 소유하고, 수집 상세와 기록·상태 접근은 수집기 운영 안내가 소유한다. 수집 연결을 제거해도 Workspace와 기존 Harness의 의미·책임은 유지된다.
-<!-- evidence-collector:end -->
-
-명령은 Noline Project root에서 실행한다.
-
-```sh
-python3 -m context.work.harness recover
-python3 -m context.work.harness maintain bootstrap <workspace_id>
-python3 -m context.work.harness verify
-```
-
-작업 지침과 session activation 정책은 [`AGENTS.md`](AGENTS.md), Workspace 생성·전환은 [`workspaces/CREATE-AND-TRANSITION.md`](workspaces/CREATE-AND-TRANSITION.md), Harness 내부 경계는 [`harness/README.md`](harness/README.md)에서 시작한다.
-
-Workspace의 Work당 Spec 하나, 실행할 Ticket과 Main·Maintain의 유지 관계는 [Spec·Ticket 계약](workspaces/spec-and-tickets/README.md)을 따른다.
+상위 관계는 [context](../README.md), AI 작업 지침은 [AGENTS](AGENTS.md)에서 시작한다. 기존 Recover·Verify 실행기와 기계 계약은 활성 경로에서 내려갔으며 [전환 기록](workspaces/001-noline-context-harness-application/records/2026-11-07-work-record-and-resume.md)에서 보존 위치와 대체 관계를 찾는다. 기존 기록·receipt는 당시 근거로 남고 새로운 재개나 완료의 필수 조건이 되지 않는다.

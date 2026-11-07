@@ -1,6 +1,6 @@
 # 선택한 Project 본문과 직접 읽을 기준
 
-Recover는 Project README와 제품 공통 기준에 더해 [통화와 금액](../../../../../project/common/currency.md), [날짜와 시각](../../../../../project/common/date-and-time.md), [API 계약과 변경 가이드](../../../../../project/guidance/api-contracts.md)를 선택한다. 이 본문들은 기존 `.claude` Owner의 유효한 의미와 직접 코드 사실을 통합한 현재 Project Owner다. 기존 [통화](../../../../../../.claude/context/currency.md), [시간](../../../../../../.claude/context/time.md), [API/Data](../../../../../../.claude/context/api-data.md) 문서는 구현 위치와 호환 진입을 맡는다.
+이 작업에서는 Project README와 제품 공통 기준에 더해 [통화와 금액](../../../../../project/common/currency.md), [날짜와 시각](../../../../../project/common/date-and-time.md), [API 계약과 변경 가이드](../../../../../project/guidance/api-contracts.md)를 선택한다. 이 본문들은 기존 `.claude` Owner의 유효한 의미와 직접 코드 사실을 통합한 현재 Project Owner다. 기존 [통화](../../../../../../.claude/context/currency.md), [시간](../../../../../../.claude/context/time.md), [API/Data](../../../../../../.claude/context/api-data.md) 문서는 구현 위치와 호환 진입을 맡는다.
 
 Main은 통화의 금액과 code/symbol 동시 표시, 대표 금액과 나머지 통화 개수 표시를 복원하고 API·날짜·통화 runbook 및 server/client guide에서 새 Owner까지 이어지는 경로를 맞췄다. `current/architecture.md`는 일회성 실행 기록을 덜어 낸 지속 검증 범위로, 도시 검색·저장 용량 current와 리팩터링 guidance는 관련 작업의 현재 계약·판단 기준으로 채택했다.
 

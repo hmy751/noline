@@ -1,5 +1,7 @@
 # Workspace Harness
 
+이 문서는 전환 전 실행기의 보존 자료다. 현재 재개·기록은 [Work 지침](../AGENTS.md), 당시 실제 실행 파일과 설정은 [아카이브](../../../_archive/2026-11-07-work-runtime/README.md)에서 찾는다.
+
 이 디렉터리는 Workspace Context를 다시 읽고, 작업 중 의미 변화를 기존 Owner에 반영하고, 상태 전환에 필요한 제품 증거를 남기는 교체 가능한 관리 장치다. Context 자체의 의미와 책임 Owner는 [`Work context`](../README.md)와 [`Workspace collection`](../workspaces/README.md)에 남는다.
 
 ```bash

@@ -22,8 +22,7 @@
 | --- | --- |
 | 제품 주제의 의미·권위와 내용 선택 | [Project README](context/project/README.md), [읽기와 적용](context/project/REFERENCE/reading.md) |
 | Personal·Project 작성·복원·갱신 | [Context의 본문 관리 진입](context/README.md#본문을-관리할-때)에서 공통 정책과 해당 영역의 관리 계약을 선택한다. Project 반영은 [Project 관리 계약](context/project/MAINTENANCE.md)을 직접 읽는다. |
-| Workspace의 Spec·Ticket·state·기록 또는 Harness | [Work 지침](context/work/AGENTS.md). Main·Maintain의 갱신 책임은 기존 Work 계약을 따른다. |
-| Maintain의 session 연결·전환·해제와 host lifecycle | [session binding 계약](context/work/harness/maintain/SESSION-BINDING-AND-LIFECYCLE.md) |
+| Workspace 재개·Spec·Ticket·state·기록 | [Work 지침](context/work/AGENTS.md)과 [record-work](.agents/skills/record-work/SKILL.md). 일반 재개는 명시한 Workspace의 안내부터 읽는다. |
 | 스킬의 의미·구성 변경 | [스킬 관리 정책](.agents/skills/SKILLS-CONTENT-POLICY.md) |
 
 ## 제품의 정체성과 개발 기준
@@ -79,7 +78,7 @@ pnpm harness:check
 ## 지침과 도구 연결을 관리한다
 
 - 루트 `CLAUDE.md`가 이 프로젝트 가이드의 원천이고 `AGENTS.md`는 이를 가리키는 Codex bridge다. 위 네 app/package도 같은 연결을 사용하며 bridge에 별도 본문을 만들지 않는다.
-- 도구별 연결은 같은 공통 본문을 가리키거나 host 차이만 적응한다. 연결 변경 시 원본·adapter·의도적인 차이와 양쪽 소비 경로를 확인한다. 스킬 원본·host 발견 경로는 [공통 스킬 연결](.agents/skills/README.md#도구-연결과-이식), lifecycle은 위 session binding 계약에서 찾는다.
+- 도구별 연결은 같은 공통 본문을 가리키거나 host 차이만 적응한다. 연결 변경 시 원본·adapter·의도적인 차이와 양쪽 소비 경로를 확인한다. 스킬 원본·host 발견 경로는 [공통 스킬 연결](.agents/skills/README.md#도구-연결과-이식)에서 찾는다.
 - 하위 가이드는 해당 경로의 구현 책임·위험 경계·명령과 필요한 Project 본문을 안내한다. 제품 상세·선택 이유는 Project의 대응 본문·형성 자료에, 실행 방식의 형성 이유는 해당 스킬·관리 본문 가까이에, 이번 작업의 선택·조사·검증은 Work에 둔다.
 - 역사 자료를 정리할 때 해당 Owner의 관리 계약과 실제 소비 경로를 확인한다. 당시 원문·기록과 현재 기준을 구별하며, archive의 옛 제품 자료를 현재 읽기의 필수 경로나 우회 Owner로 되살리지 않는다.
 

@@ -82,8 +82,8 @@ Project 수준에서 현재 구현·지원·적용되는 범위와 연결 관계
 
 본문을 구성·복원·갱신하는 주체는 [MAINTENANCE.md](MAINTENANCE.md)를 직접 읽는다. 관리 계약은 갱신 시점·권한·영향·완료를, [reference](REFERENCE/README.md)는 본문 구성과 읽기의 판단 기준을 소유한다. 실제 제품 의미의 결정 책임은 사용자 또는 명시된 책임자에 있고, 기준·구현을 바꾸는 주체는 영향받은 문서를 맞춘다.
 
-[context-update의 Project 범위](../../.agents/skills/context-update/SKILL.md)는 관리 계약을 적용한다. Workspace Maintain은 Project 본문을 갱신하지 않는다. Skill·Harness는 기준을 적용하는 교체 가능한 장치이며 제품 의미나 사람의 acceptance를 소유하지 않는다.
+[context-update의 Project 범위](../../.agents/skills/context-update/SKILL.md)는 관리 계약을 적용한다. Work 기록 담당자은 Project 본문을 갱신하지 않는다. Skill·Harness는 기준을 적용하는 교체 가능한 장치이며 제품 의미나 사람의 acceptance를 소유하지 않는다.
 
-Workspace의 `recover.json`은 이 README를 안정된 진입점으로 선택하고 goal에 필요한 실제 내용만 추가한다. README만으로 내용 충분성을 대신하지 않으며, Project 전체·모든 층·관리 지침을 기본 입력에 싣지 않는다. 문서 선택과 실제 읽기·이해·적용은 구별한다. 공통 읽기는 Recover나 session binding을 대체하지 않는다.
+Workspace의 `recover.md`는 이 README를 안정된 진입점으로 선택하고 goal에 필요한 실제 내용만 추가한다. README만으로 내용 충분성을 대신하지 않으며, Project 전체·모든 층·관리 지침을 기본 입력에 싣지 않는다. 문서 선택과 실제 읽기·이해·적용은 구별한다. 작업 대상은 Work 지침의 명시·기본 선택을 따른다.
 
 책임 경계와 제거 가능한 장치의 관계에 `ai-system_context-ownership-boundary.md: 적용`, `ai-system_harness-rippability.md: 적용`.

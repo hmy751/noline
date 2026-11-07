@@ -16,6 +16,7 @@ const expectedSkills = [
   'create-context-workspace',
   'work-discussion',
   'reconsider-work',
+  'record-work',
   'start-app',
   'context-update',
   'explain',
@@ -198,8 +199,8 @@ function checkExecutionSurfaces() {
   }
   checkOnlyEntries(
     '.codex',
-    ['config.toml', 'hooks', 'hooks.json', 'maintain.json'],
-    ['config.toml', 'hooks', 'hooks.json', 'maintain.json', 'maintain-runtime'],
+    ['config.toml', 'hooks', 'hooks.json'],
+    ['config.toml', 'hooks', 'hooks.json', 'maintain-runtime', 'maintain.json'],
   );
 
   for (const name of expectedSkills) {
@@ -240,11 +241,10 @@ function checkContextHarnessSurface() {
     'context/work/workspaces/spec-and-tickets/SPEC.md',
     'context/work/workspaces/spec-and-tickets/TICKET.md',
     'context/work/workspaces/spec-and-tickets/MAINTENANCE.md',
-    'context/work/harness/README.md',
+    'context/work/AGENTS.md',
     '.codex/config.toml',
     '.codex/hooks.json',
     '.codex/hooks/maintain.py',
-    '.codex/maintain.json',
     '.claude/settings.json',
     '.claude/hooks/maintain.py',
   ];
@@ -253,100 +253,37 @@ function checkContextHarnessSurface() {
     if (!exists(target)) failures.push(`${target} is missing from the Context Harness surface`);
   }
 
-  const maintainConfig = path.join(root, '.codex/maintain.json');
-  if (fs.existsSync(maintainConfig)) {
-    try {
-      const parsed = JSON.parse(fs.readFileSync(maintainConfig, 'utf8'));
-      if (parsed.schema_version !== 2 || parsed.mode !== 'explicit') {
-        failures.push('.codex/maintain.json must use schema v2 explicit admission');
-      }
-    } catch {
-      failures.push('.codex/maintain.json must be valid JSON');
+  try {
+    const config = JSON.parse(execFileSync('python3', [
+      '-c', 'import json, sys, tomllib; print(json.dumps(tomllib.loads(sys.stdin.read())))',
+    ], { input: fs.readFileSync(path.join(root, '.codex/config.toml'), 'utf8'), encoding: 'utf8' }));
+    if (config.agents?.workspace_context_maintainer) {
+      failures.push('.codex/config.toml registers the retired Work maintainer');
+    }
+  } catch {
+    failures.push('.codex/config.toml must be valid TOML readable with Python 3.11+');
+  }
+
+  const collection = 'context/work/workspaces';
+  for (const workspace of fs.readdirSync(path.join(root, collection), { withFileTypes: true })) {
+    if (workspace.isDirectory() && /^\d+-/.test(workspace.name)) {
+      const guide = `${collection}/${workspace.name}/recover.md`;
+      if (!exists(guide)) failures.push(`${guide} is missing`);
     }
   }
 
-  const codexConfig = path.join(root, '.codex/config.toml');
-  if (fs.existsSync(codexConfig)) {
+  // 이미 열려 있는 세션의 호환 파일은 허용하되 자동 기록 hook은 재연결하지 않는다.
+  for (const file of ['.codex/hooks.json', '.claude/settings.json']) {
     try {
-      // Maintain already requires Python 3.11+; use its TOML parser rather than
-      // duplicating TOML syntax or adding a second parser dependency.
-      const parsed = JSON.parse(execFileSync('python3', [
-        '-c', 'import json, sys, tomllib; print(json.dumps(tomllib.loads(sys.stdin.read())))',
-      ], { input: fs.readFileSync(codexConfig, 'utf8'), encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }));
-      if (parsed.features?.hooks !== true) {
-        failures.push('.codex/config.toml must enable features.hooks');
-      }
-      const rolePath = parsed.agents?.workspace_context_maintainer?.config_file;
-      const expectedRole = path.join(root, 'context/work/harness/maintain/workspace-context-maintainer.toml');
-      if (typeof rolePath !== 'string'
-        || path.resolve(path.dirname(codexConfig), rolePath) !== expectedRole
-        || !fs.existsSync(expectedRole)
-        || !fs.lstatSync(expectedRole).isFile()) {
-        failures.push('.codex/config.toml must discover the shared Maintain role file');
+      const config = JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
+      if (/maintain\.py/.test(JSON.stringify(config.hooks))) {
+        failures.push(`${file} still routes events to retired Work hooks`);
       }
     } catch {
-      failures.push('.codex/config.toml must be valid TOML readable with Python 3.11+');
+      failures.push(`${file} must be valid JSON`);
     }
   }
 
-  const codexHooks = path.join(root, '.codex/hooks.json');
-  if (fs.existsSync(codexHooks)) {
-    try {
-      const parsed = JSON.parse(fs.readFileSync(codexHooks, 'utf8'));
-      for (const [eventName, command] of Object.entries({
-        SessionStart: 'session-start',
-        UserPromptSubmit: 'user-prompt',
-        Stop: 'response-end',
-        SessionEnd: 'session-end',
-        PreToolUse: 'tool-event',
-        PostToolUse: 'tool-event',
-        Interrupt: 'interrupt',
-      })) {
-        const handlers = parsed.hooks?.[eventName];
-        const expectedCommand = `python3 "$(git rev-parse --show-toplevel)/.codex/hooks/maintain.py" ${command}`;
-        const maintainHandler = handlers?.flatMap((group) => group.hooks ?? []).find(
-          (handler) => handler.type === 'command' && handler.command === expectedCommand,
-        );
-        if (!maintainHandler) {
-          failures.push(`.codex/hooks.json must route ${eventName} through the Codex project wrapper`);
-        }
-      }
-    } catch {
-      failures.push('.codex/hooks.json must be valid JSON');
-    }
-  }
-
-  const claudeSettings = path.join(root, '.claude/settings.json');
-  if (fs.existsSync(claudeSettings)) {
-    try {
-      const parsed = JSON.parse(fs.readFileSync(claudeSettings, 'utf8'));
-      for (const [eventName, command] of Object.entries({
-        SessionStart: 'session-start',
-        UserPromptSubmit: 'user-prompt',
-        Stop: 'response-end',
-        SessionEnd: 'session-end',
-      })) {
-        const handlers = parsed.hooks?.[eventName];
-        const maintainHandler = handlers?.flatMap((group) => group.hooks ?? []).find(
-          (handler) => handler.type === 'command'
-            && handler.command === 'python3'
-            && Array.isArray(handler.args)
-            && ((handler.args[0] === '${CLAUDE_PROJECT_DIR}/.claude/hooks/maintain.py'
-              && handler.args[1] === command)
-              || (handler.args[0] === path.join(root, 'evidence-collector/integration/dispatch.py')
-                && handler.args[1] === '--host' && handler.args[2] === 'claude'
-                && handler.args[3] === '--project-root' && handler.args[4] === root
-                && handler.args[5] === command
-                && exists('evidence-collector/integration/dispatch.py'))),
-        );
-        if (!maintainHandler) {
-          failures.push(`.claude/settings.json must route ${eventName} through a supported Claude lifecycle entrypoint`);
-        }
-      }
-    } catch {
-      failures.push('.claude/settings.json must be valid JSON');
-    }
-  }
 }
 
 function checkWorkspaceGuideContract() {

@@ -1,5 +1,8 @@
 # Goal output
 
+현재 설치 결과는 [record-work](../../../../../.agents/skills/record-work/SKILL.md)와 [재개 안내](../recover.md)다. 이전 실행기·등록 설정은 [보존본](../../../../../_archive/2026-11-07-work-runtime/README.md)에 있고 아래 목록은 당시 산출물이다.
+
+
 이 Workspace의 선택된 결과는 Noline root에 설치한 Context Harness와 이를 연결한 기존 Noline harness 문서다. 실제 산출물은 Workspace 안에 복제하지 않는다.
 
 이번 실행 스킬 전환의 범위·확인은 [스킬 전환 기록](../records/2026-10-30-02-development-skill-transition.md), 실제 수행 진입은 [development](../../../../../.claude/skills/development/SKILL.md)·[improvement-loop](../../../../../.claude/skills/improvement-loop/SKILL.md)에서 찾는다.

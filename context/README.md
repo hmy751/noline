@@ -4,7 +4,7 @@
 
 - [`personal/`](personal/): 여러 작업에 가져올 개인의 판단 관점·조건과 협업 경험. 제품 계약·이번 작업 상태와 구별한다.
 - [`project/`](project/): 여러 Workspace가 공유하는 Noline의 지속 의미·현재 구현·조건부 기준을 common/current/guidance 물리 layer로 나누고 Decision을 연결하는 Project context
-- [`work/`](work/): Workspace의 current·source·output·records와 이를 Recover·Maintain·Verify하는 교체 가능한 Harness 운영 경계
+- [`work/`](work/): Workspace의 current·source·output·records와 Workspace 재개 안내와 기록 운영 경계
 
 제품 계약·개발 기준·실패 위험·적용·검증 방법과 필요한 선택 이유의 현재 의미는 [`project/README.md`](project/README.md)가 가리키는 대응 canonical이 소유한다. 구현 사실과 충돌하면 현재 기준과 실제 코드를 대조해 영향받은 본문을 갱신하며, authority 충돌은 Project 관리 계약에 따라 판단한다.
 
@@ -22,4 +22,4 @@ Harness를 제거하거나 다른 실행 장치로 바꾸더라도 Project commo
 
 Personal·Project 본문과 형성 자료를 만들거나 의미·구성을 바꿀 때 [CONTENT-POLICY](CONTENT-POLICY.md), 본문을 작성·수정할 때 [WRITING-FORMAT](WRITING-FORMAT.md)의 역할별 적용 범위를 따른다. 체계 지침의 진입·분할·이름은 [SYSTEM-GUIDANCE](SYSTEM-GUIDANCE.md)를 읽는다. 허용된 갱신·누락 복원은 [context-update](../.agents/skills/context-update/SKILL.md)와 각 영역의 관리 계약으로 수행한다.
 
-Work에는 기존의 Spec·Ticket·current·source·output·records와 Main·Maintain 책임을 유지한다. 위 관리·형식 정책을 Work에 자동 확장하지 않는다. 형성 의도와 선택 경위는 [_background](_background/README.md), 이번 Noline 적용 범위는 [적용 안내](_background/records/2026-10-30-noline-partial-reapplication.md)에서 찾는다.
+Work에는 기존의 Spec·Ticket·current·source·output·records와 Main·기록 담당자의 책임을 유지한다. 위 관리·형식 정책을 Work에 자동 확장하지 않는다. 형성 의도와 선택 경위는 [_background](_background/README.md), 이번 Noline 적용 범위는 [적용 안내](_background/records/2026-10-30-noline-partial-reapplication.md)에서 찾는다.

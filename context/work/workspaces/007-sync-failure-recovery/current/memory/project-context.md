@@ -1,6 +1,6 @@
 # 선택한 Project 맥락과 적용 범위
 
-Recover는 아래 Project 본문을 선택한다. 모두 이 Work가 지키거나 고칠 계약을 직접 담고 있다.
+이 작업에서 아래 Project 본문을 선택한다. 모두 이 Work가 지키거나 고칠 계약을 직접 담고 있다.
 
 | 본문 | 이 Work에서 쓰는 이유 |
 | --- | --- |
@@ -16,7 +16,7 @@ Recover는 아래 Project 본문을 선택한다. 모두 이 Work가 지키거�
 
 Project 문서를 고치는 Ticket은 고치기 전에 [Project 관리 계약](../../../../../project/MAINTENANCE.md)과 [CONTENT-POLICY](../../../../../CONTENT-POLICY.md)를 읽고 [context-update](../../../../../../.agents/skills/context-update/SKILL.md)로 반영한다. 본문의 의미가 바뀌면 그 주제의 `_background`(형성 자료)에 선택 이유와 근거도 함께 남긴다. 01·02·03의 Project 반영에서 이를 빠뜨려 같은 날 뒤늦게 보완했다. 문서 반영은 각 Ticket이 자기 변경과 함께 끝내며, 마지막 검증 Ticket으로 미루지 않는다.
 
-Ticket 08의 동작을 Project-wide 계약으로 반영할지는 별도 요청과 관리 계약에 따라 판단한다. Workspace Maintain은 이를 자동 승격하지 않는다.
+Ticket 08의 동작을 Project-wide 계약으로 반영할지는 별도 요청과 관리 계약에 따라 판단한다. Work 기록 담당자는 이를 자동 승격하지 않는다.
 
 ## 판단에 쓴 Personal 기준
 

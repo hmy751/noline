@@ -4,13 +4,13 @@
 
 문서를 작성하거나 갱신하는 주체는 [문서 작성과 갱신](../DOCUMENT-WRITING.md)을 직접 읽고 적용한다. Spec과 Ticket의 상세 내용은 각각 [Spec 작성](SPEC.md), [Ticket 작성](TICKET.md)을 따른다.
 
-## Main과 Maintain의 갱신 책임
+## Main과 기록 담당자의 갱신 책임
 
-**Main**은 필요한 설계·작업 분해·위임·결과 확인·다음 행동을 조율한다. 새 Workspace의 초기 문서 구성도 [생성·전환](../CREATE-AND-TRANSITION.md)에 따라 Main과 생성 skill이 맡는다.
+Main은 설계·작업 분해·위임·결과 확인·다음 행동과 전체 완료 판단을 조율한다. 새 Workspace의 초기 구성은 [생성·전환](../CREATE-AND-TRANSITION.md)이 맡는다.
 
-**Maintain**은 Workspace가 준비된 뒤 Spec·Ticket·state와 필요한 records의 갱신을 맡는다. 대화와 결과를 이해해 무엇을 남길지 판단하며, 기록은 단순 전사에 한정되지 않는다. Main은 같은 내용을 중복 수정하지 않는다.
+[record-work](../../../../.agents/skills/record-work/SKILL.md)의 기록 담당자는 지정된 Work의 대화 원문·관련 결과를 읽고 Spec·Ticket·state와 필요한 records를 직접 갱신한다. 무엇을 남길지 판단하며 단순 전사에 한정되지 않는다. Main과 다른 담당자는 같은 문서를 중복 수정하지 않는다. 스킬을 사용할 수 없으면 Main 또는 지정 주체가 같은 작성·갱신 계약을 적용하며 서브가 수행했다고 말하지 않는다.
 
-이 역할 배치는 독점 작성 권한이나 새로운 권한 장치가 아니다. Maintain의 허용된 읽기와 반영 범위는 [Maintain 계약](../../harness/maintain/README.md)이 소유한다.
+기록 스킬의 호출·재사용·입력·수정 범위는 그 실행 본문이 맡는다. 문서의 의미·보존 기준은 Work에 유지하며 새 제품 약속·사용자 수락을 기록 담당자가 대신 결정하지 않는다.
 
 ## 새 근거가 나왔을 때
 
@@ -32,20 +32,14 @@ Ticket 안에서는 정한 입력을 잠정적으로 신뢰하며 구현과 세�
 
 ## 다른 실행자의 결과를 이어받을 때
 
-위임할 때는 결과를 Main에게 반환하고 같은 Spec·Ticket을 중복 수정하지 않게 역할을 정한다. 다른 실행자의 결과가 Main에게 도착한 것만으로 Maintain에 전달된 것은 아니다.
+Main은 채택한 판단·이유·실제 결과·출처·미확인을 기록 담당자가 읽을 수 있게 연결한다. 다른 담당자의 결과가 Main에게 도착한 것만으로 기록 담당자에게 전달됐다고 간주하지 않는다. 대화 원문에 없는 결과는 정확한 결과 문서·실행 근거로 접근하게 한다.
 
-Main은 채택한 판단·이유·실제 결과·출처·미확인 범위를 Maintain이 받는 최종 응답에 연결한다. 이 내용을 담은 정확한 로컬 결과 문서로 연결할 수도 있다.
-
-같은 대화에서 알고 있는 내용으로 허용된 논의·실행은 이어갈 수 있다. 다만 문서를 실행자에게 읽히기 전에는 필요한 내용이 실제 파일에 반영됐는지 확인한다. 비동기 접수와 문서 준비를 구별하되, 모든 응답마다 저장을 기다리거나 새 승인·인계 절차를 만들지 않는다.
-
-## 자동 연결과 수동 반영
-
-자동 Maintain은 [session binding 계약](../../harness/maintain/SESSION-BINDING-AND-LIFECYCLE.md)의 명시적 Workspace 연결을 따른다. 스킬 설치·호출이나 active 기본값으로 activation을 추론하지 않는다. 연결되지 않은 session의 자동 경로는 no-op이다.
-
-자동 연결이 없는 session에서 허용된 문서 반영을 수행할 때는 Main이 [Maintain의 수동 fallback](../../harness/maintain/README.md#session-binding과-lifecycle)을 적용한다. 자동 no-op, 수동 반영, 비동기 접수와 실제 반영을 구별한다.
+같은 대화의 유효한 이해로 작업은 이어갈 수 있다. 다만 갱신된 문서를 다른 실행자에게 넘기거나 커밋·인계하려면 필요한 실제 반영을 확인한다. 호출·읽기·수정 완료와 제품 검증을 구별하며 매 응답 저장 대기는 요구하지 않는다. 부분 실패는 반영된 곳과 남은 내용을 이어간다.
 
 ## Workspace가 끝나거나 나뉜 뒤
 
 Spec·Ticket은 memory에 유지하며 작업 중 필요하면 고친다. Workspace와 함께 스냅샷처럼 남고, 후속 Workspace나 Project의 변화에 맞춰 계속 최신화할 의무는 없다.
 
-다른 Workspace에서 필요한 의미를 새로 구성해도 서로 자동 전파하거나 공유 정본에 매달리지 않는다. 이 독립성은 작업 중 수정을 막는 불변성 규칙이 아니다. 공통 문서 경로가 바뀔 때 현재 소비 중인 Workspace를 확인하는 범위는 [Workspace collection](../README.md#project-context-변경과-live-consumer)을 따른다.
+다른 Workspace에서 필요한 의미를 새로 구성해도 서로 자동 전파하거나 공유 정본에 매달리지 않는다. 이 독립성은 작업 중 수정을 막는 불변성 규칙이 아니다. 공통 문서 경로가 바뀔 때 현재 소비 중인 Workspace를 확인하는 범위는 [Workspace collection](../README.md)을 따른다.
+
+방향·단계·중심 과제·자료 위치가 바뀌어 읽을 대상이나 이유가 달라졌으면 기록 담당자는 Workspace의 `recover.md`도 갱신한다. 유효한 안내를 매 호출 다시 쓰지 않으며, 내용과 읽기 선택의 구별은 [Work 재개 기준](../../AGENTS.md#재개-안내를-구성하고-갱신한다)을 따른다.

@@ -4,4 +4,4 @@
 
 Project context를 이식·작성·복원·갱신하는 주체는 [관리 계약](../../../../../project/MAINTENANCE.md)을 해당 작업에서 직접 읽는다. 이 계약은 일반 Recover 입력에 추가하지 않는다.
 
-선택·이유의 machine canonical은 [recover.json](../../recover.json)이다. 설명 기준은 이 이식의 기본 Recover 입력이 아니며 해당 스킬의 조건이 맞을 때 읽는다. 상세 `.claude` 문서 전체·source·records·Ticket 본문은 필요한 것만 추가 선택한다.
+현재 재개에 필요한 선택과 이유는 [재개 안내](../../recover.md)에서 찾는다. 설명 기준은 이 이식의 기본 Recover 입력이 아니며 해당 스킬의 조건이 맞을 때 읽는다. 상세 `.claude` 문서 전체·source·records·Ticket 본문은 필요한 것만 추가 선택한다.

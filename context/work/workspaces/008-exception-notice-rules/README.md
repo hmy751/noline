@@ -6,18 +6,7 @@
 
 ## 이 작업을 이어받을 때
 
-Project root에서 008 id를 명시해 재진입한다.
-
-```bash
-python3 -B -m context.work.harness recover 008-exception-notice-rules
-```
-
-Recover는 읽기 전용 재진입이다. 자동 Maintain을 쓰려면 [session binding 계약](../../harness/maintain/SESSION-BINDING-AND-LIFECYCLE.md)에 따라 세션을 명시적으로 연결한다. 생성할 때 active 기본값과 세션 연결은 바꾸지 않았다.
-
-1. [현재 상태](current/state/index.md)에서 지금 단계와 사용자 결정을 기다리는 항목을 읽는다.
-2. [Spec](current/memory/index.md)에서 목표·현재 안내·계약·완료 기준을 확인한다.
-3. [Ticket 색인](current/memory/tickets/index.md)에서 실행할 Ticket을 고른다.
-4. 사용자 발화 원문은 [source](source/index.md), 생성 때의 판단은 [생성 기록](records/2026-11-04-01-workspace-creation.md)에 있다.
+[재개 안내](recover.md)에서 현재 요청에 필요한 자료와 읽을 이유를 고른다.
 
 ## 다음 작업에도 보존할 판단
 

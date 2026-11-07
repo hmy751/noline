@@ -11,10 +11,4 @@
 
 002의 코드 리팩터링과 003의 버그 수정은 별도 Work다. 이 Workspace는 필요한 근거만 단방향으로 참고하며 두 Work의 진행이나 완료를 이어받지 않는다.
 
-저장소 root에서 다음 명령으로 명시적 재진입한다.
-
-```sh
-python3 -B -m context.work.harness recover 004-project-context-contracts-and-guidance --json
-```
-
-`workspace.json`은 identity, `recover.json`은 Project 입력 선택, `verify.json`은 제한된 기계 검사 계약이다. 사람의 다음 행동은 state에 있고 `status.json`의 초기 값은 Verify 미실행을 뜻한다. 이번 Main session의 004 binding generation 1은 마무리 시 해제했다. 다음 session에서 이어 갈 때에는 그 session을 004에 다시 명시 연결한다.
+[재개 안내](recover.md)에서 현재 요청에 필요한 자료와 읽을 이유를 고른다.
