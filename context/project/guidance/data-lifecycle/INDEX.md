@@ -29,7 +29,9 @@ Local 쓰기를 만들면 Entity 변경과 `addToSyncQueue`를 같은 `withTrans
 
 [DB 실행기](../../../../apps/client/src/shared/db/index.ts)는 async callback이 끝난 뒤 COMMIT하며 실패하면 ROLLBACK한다. transaction과 독립 `runDatabaseOperation`은 실행 큐를 공유해, 실패 transaction의 rollback이 동시에 접수한 sync upsert를 지우지 않게 한다. `runDatabaseOperation` 자체는 transaction이 아니다. transaction 내부 `addToSyncQueue`는 직접 insert하므로 이를 다시 같은 실행 큐에 넣어 자기 완료를 기다리게 만들지 않는다. 직접 DB 접근 전체가 이 조율에 자동 포함되는 것은 아니다.
 
-새 queue payload는 서버 요청뿐 아니라 여행·계정 귀속을 복원할 수 있는지도 확인한다. 현재 child CREATE에는 tripId가 있고 DELETE는 `{ tripId }`를 남기지만 UPDATE는 전달받은 부분 필드만 기록하므로 tripId가 없을 수 있다. 계정 소유권 조회는 원본 행과 payload를 함께 사용하지만, 여행별 cleanup 조회는 payload만 보므로 같은 보장을 갖지 않는다. 이 차이는 [여행 정리의 현재 공백](#여행을-정리할-때-모든-미전송-상태와-현재-활성-여부를-확인한다)에서 다룬다.
+일정·경비의 CREATE에는 tripId가 있고 UPDATE에는 일부 필드만 담겨 tripId가 빠질 수 있다. 여행별 cleanup에서 자식 작업의 여행을 찾는 조건과 그 한계는 [여행 정리의 현재 공백](#여행을-정리할-때-모든-미전송-상태와-현재-활성-여부를-확인한다)에서 다룬다.
+
+여행·일정·경비의 새 DELETE는 삭제 권한을 확인해 실제로 삭제 표시한 행에서 `userId`를 읽는다. 일정·경비는 그 행의 `tripId`도 함께 읽는다. 같은 transaction에서 이 값과 형식 표식 `ownerVersion: 1`을 큐에 기록하므로 요청 저장이 실패하면 삭제 표시도 되돌아간다. 이후 원본이 없어도 앱은 [공유 DELETE 형식](../../../../packages/schema/src/sync/sync-queue.ts)을 검증하고 저장된 소유자가 로그인 계정과 같을 때 전송할 수 있다. 현재 로그인 계정으로 옛 요청의 빈 소유자를 채우지 않는다. HTTP DELETE는 대상 ID로 보내며 서버는 인증된 계정으로 서버 행의 권한을 확인한다.
 
 Map/Search/Directions는 사용자 소유 Data Entity가 아니다. 이 서비스에 Activation Router나 `sync_queue`를 확대 적용하지 않고 [여행 접근의 서비스 정책](../travel-access/INDEX.md)을 사용한다.
 
@@ -49,12 +51,15 @@ Create 흐름이나 request schema를 바꾸면 동일 ID가 Local 행·CREATE p
 | --- | --- |
 | PENDING | 아직 전송할 작업. 생성 시각 순으로 선택한다. |
 | FAILED | 실패 횟수와 관계없이 다음 sync에서 다시 선택한다. retryCount는 계속 세지만 전송 여부를 정하지 않는다. |
-| IN_PROGRESS | push를 시작할 때 PENDING으로 되돌린다. sync는 한 번에 하나만 실행되므로 이 시점의 IN_PROGRESS는 앱 종료 등으로 중단된 이전 실행의 흔적이다. 되돌리기 전에는 그 작업부터 뒤를 건너뛰지 않는다. |
+| IN_PROGRESS | push 시작 시 중단된 이전 실행의 작업을 검사한다. 격리 대상은 분리하고 나머지는 PENDING으로 되돌려 생성 순서대로 재시도한다. |
+| QUARANTINED (격리) | 원래 작업·payload·재시도 횟수를 기기에 보존한다. 자동 push와 수동 재시도에서 제외하며 앱 재시작이나 같은 ID의 원본이 다시 내려와도 전송을 재개하지 않는다. |
 | 서버 요청 성공 | 해당 queue 작업을 제거한다. 응답 전에 앱이 끊겨 같은 작업을 다시 보내면 서버가 처음과 같은 결과로 응답한다. |
 | 일반 실패 | FAILED와 증가한 retryCount를 남기고 뒤 작업 전송을 중단한다. 남은 FAILED·IN_PROGRESS는 `SyncIncompleteError`로 전달한다. |
 | 인증 오류 | 요청 중 인증 오류는 해당 작업을 PENDING으로 돌려 오류를 전달한다. 전송 전 계정 불일치·귀속 미확인도 요청을 막으며 queue를 폐기하지 않는다. |
 
-FIFO 순서를 유지하는 비용은 앞의 막힌 작업이 뒤 작업도 지연한다는 점이다. 이 지연을 없애려고 뒤 작업부터 보내거나 queue를 비우면 같은 Entity의 생성·수정·삭제 순서와 미전송 보존을 깨뜨릴 수 있다. 실패 상태를 해결하는 정책 없이 ‘완료’로 바꾸지 않는다.
+전송 목록을 만들 때 여행·일정·경비의 원본 행이 없는 CREATE·UPDATE와, 원본도 검증된 소유자 기록도 없는 DELETE를 격리한다. 원본과 요청의 소유자가 모순되거나 현재 계정과 다른 소유자가 확인된 작업은 차단한다. 격리한 작업 뒤의 정상 작업은 보낼 수 있다. 전송 대상끼리는 생성 순서(FIFO)를 지키고 첫 전송 실패에서 멈춘다. 이 순서를 건너뛰면 같은 항목의 생성보다 수정·삭제가 먼저 도착할 수 있다.
+
+원본 없는 CREATE·UPDATE의 payload에는 사용자가 입력한 마지막 사본이 남을 수 있다. 구버전 DELETE도 현재는 보존하지만, 그 요청이 서버로 가지 않아 서버 행이 남아 있다면 이후 조회에서 다시 보일 수 있다. **원본과 검증된 소유자 기록이 모두 없는 구버전 DELETE를 최종적으로 폐기할지는 미결이다.** 나이만으로 전송 대상이나 폐기 여부를 정하지 않는다. [격리와 소유자 기록의 선택 이유](_background/context.md#원본을-잃은-요청과-새-삭제-요청)
 
 실패 횟수로 작업을 막거나 버리지 않는다. 앱은 어떤 실패가 영원한지 확실히 알 수 없다. 횟수로 막으면 연결이 자주 끊기는 여행 중 일시 오류만 쌓여도 작업이 영구히 멈추고, 버리면 입력을 잃는다. 대신 다시 보내도 성공할 수 없는 변경(409, 부모가 지워진 뒤의 404 등)은 sync마다 실제 요청을 다시 보내 실패하며 뒤 작업과 pull을 계속 막는다. 횟수 한도가 있을 때는 막힌 작업에 요청을 보내지 않았으므로, 매 sync의 요청과 5xx일 때 HTTP 재시도 대기가 한도를 없앤 비용이다. sync는 실행 조건이 새로 갖춰지는 순간과 수동 요청에만 시작하고 주기 sync는 기본으로 꺼져 있어(아래 실행 조건), 이 비용은 그 시작 횟수에 비례한다. 다만 연결이 자주 끊기는 실제 사용에서 조건이 얼마나 자주 새로 갖춰지는지는 아직 측정하지 않았다. 실패 뒤 일정 시간이 지나야 다시 보내는 간격 재시도는 이 비용을 줄이지만 연결 회복 뒤 전송도 늦추므로, 지금은 두지 않고 보류한 열린 선택이다. 실제 sync 시작 횟수를 얻었을 때, 같은 작업의 실패가 자주 반복되는 것이 보일 때, sync 계기를 늘리거나 주기 sync를 켤 때 다시 판단한다. 이런 정지를 사용자나 개발자가 알게 하는 표시와 충돌을 끝내는 규칙도 아직 없다.
 
@@ -89,7 +94,7 @@ pull은 현재 계정의 활성 여행 ID와 마지막 checkpoint를 서버에 �
 
 ## 사용자 삭제와 기기 사본 정리를 구별한다
 
-사용자의 Entity 삭제는 Local 행의 deletedAt과 DELETE queue를 함께 기록해 서버에도 삭제를 전달한다. 일반 조회에서는 숨기되 서버와 맞출 원본·전송 기록은 남긴다.
+사용자의 Entity 삭제는 Local 행의 deletedAt과 DELETE queue를 함께 기록해 서버에도 삭제를 전달한다. 일반 목록에서는 즉시 숨기되 원본을 soft delete 상태로 유지한다. 일정 행을 물리적으로 지우면 연결된 경비의 일정 ID가 비워지고 그 일정을 참조하는 경로 행도 삭제된다. 요청에서 소유자를 확인할 수 있어도 이런 연결까지 끊는 시점은 별도로 정한다. [기기 DB의 참조 관계](../../../../apps/client/src/shared/db/schema.ts)
 
 비활성화 뒤의 cleanup은 기기에 준비한 Schedule·Expense 사본을 정리하는 일이다. 현재 cleanup도 deletedAt·version을 바꾸지만 서버에 DELETE를 enqueue하지 않는다. 기기 저장 공간을 비우려다 서버 여행 기록까지 삭제하는 것으로 구현하지 않는다. Trip 기본 정보는 이 child cleanup 대상과 구별한다.
 
@@ -114,13 +119,15 @@ pending cleanup은 앱 준비 후 hook과 push 뒤 경로에서 요청하며 하
 
 ## 오래된 행도 queue가 참조하면 보존한다
 
-[vacuum](../../../../apps/client/src/shared/services/sync/cleanup-job.ts)은 삭제된 지 `SOFT_DELETE_VACUUM_DAYS`(현재 7일)가 지난 일정·경비를 물리적으로 제거한다. 단, 같은 tableName·recordId를 참조하는 queue가 하나라도 있으면 상태와 관계없이 보존한다. 원본은 재전송뿐 아니라 계정 귀속 확인에도 필요하기 때문이다. 단순히 ‘7일 지났으면 삭제’하는 과거 예제를 사용하지 않는다.
+[vacuum](../../../../apps/client/src/shared/services/sync/cleanup-job.ts)은 일정·경비에 삭제 표시한 날부터 `SOFT_DELETE_VACUUM_DAYS`(현재 7일)가 지나고, 같은 tableName·recordId를 참조하는 대기·진행·실패 요청이 없을 때 원본을 물리적으로 정리할 수 있다. 격리된 요청만 남아 있다면 같은 ID로 다시 생긴 삭제 행도 정리할 수 있다. 이 정리는 격리 요청 자체를 보존한다.
+
+예를 들어 오프라인에서 일정을 삭제한 뒤 10일째에도 정상 삭제 요청이 대기 중이면 화면에서는 숨겨도 기기에는 일정이 남는다. 11일째 연결돼 서버 삭제가 성공하면 큐에서 요청이 빠진다. 다른 전송 요청이 그 일정을 참조하지 않으면 다음 vacuum 실행에서 원본을 정리할 수 있다.
 
 이 보호는 앞 단계의 잘못된 soft delete나 재활성화 cleanup을 막는 것은 아니다. 현재 자동 경로도 pending cleanup 후보가 없으면 vacuum 전에 반환하므로 매 앱 시작이나 정확히 7일째에 공간이 회수된다고 보장할 수 없다. 기간 정책과 실행 계기를 바꾸면 queue 참조 보호·실제 삭제 시점·지도 파일 정리를 각각 확인한다.
 
 ## 계정을 종료할 때 실행 종료와 전송 성공을 구별한다
 
-로그아웃·탈퇴는 sync → pending cleanup → 접수된 DB 작업 순으로 종료를 기다리고 새 작업을 잠시 막은 뒤 미전송 여부를 검사한다. 종료 대기는 전송 성공까지 강제하거나 새 sync를 실행하는 동작이 아니다. 일반 종료는 PENDING·IN_PROGRESS·FAILED 중 하나라도 있으면 서버 종료·DB 삭제 전에 보류하고 세션과 데이터를 유지한다.
+로그아웃·탈퇴는 sync → pending cleanup → 접수된 DB 작업 순으로 종료를 기다리고 새 작업을 잠시 막은 뒤 기기를 비우면 잃을 기록이 있는지 검사한다. 일반 종료는 전송 대기·진행·실패 요청이나 격리 기록이 하나라도 있으면 서버 종료·DB 삭제 전에 보류하고 세션과 데이터를 유지한다.
 
 명시적 폐기 확인의 force는 미전송 보류만 건너뛰며 실행 대기를 유지한다. 같은 계정의 재로그인은 DB와 queue를 보존한다. 다른 계정은 명시적 로그아웃을 거쳐야 하며 귀속 불명 데이터는 자동 폐기하지 않는다.
 
@@ -130,6 +137,6 @@ pending cleanup은 앱 준비 후 hook과 push 뒤 경로에서 요청하며 하
 
 Local 쓰기는 실제 SQLite에서 queue insert 실패·반환 검증 실패의 rollback과 독립 upsert 간섭을 확인한다. push는 일반 실패·인증 오류·실패가 여러 번 쌓인 FAILED의 재전송·남은 IN_PROGRESS의 되돌림·뒤 작업의 순서를 확인하며 HTTP 재시도와 queue 재시도를 나눈다. 같은 작업의 재전송이 서버에서 중복이나 오류를 만들지 않는지는 서버 route의 PostgreSQL 검사로 확인한다. pull은 schema 실패 전 쓰기 없음, 중간 반영 실패, 동시 Local 변경과 서버 cursor를 구분해 확인한다.
 
-정리 경로를 바꾸면 세 미전송 상태, tripId가 없는 부분 UPDATE·손상 payload, 재활성화, 검사 직후 새 저장, 지도 실패를 포함한다. 일반 종료·명시적 폐기·vacuum은 같은 predicate를 쓸 것이라고 가정하지 말고 실제 소비자를 각각 대조한다. Node 메모리 SQLite와 mock HTTP 검사는 Expo 기기 저장소·실제 서버 동시성·앱 중단 복구를 대신하지 않는다.
+격리 경계를 바꾸면 앱이 저장한 상태가 공유 schema를 통과하는지, 원본이 돌아와도 격리가 유지되는지, 정상 작업의 첫 실패에서 전송이 멈추는지 [격리 회귀 검사](../../../../apps/client/tests/shared/services/auth/orphaned-queue.test.ts)로 확인한다. 정리 경로를 바꾸면 대기·진행·실패 요청과 격리 기록 각각의 보존 결과, tripId가 없는 부분 UPDATE·손상 payload, 재활성화, 검사 직후 새 저장, 지도 실패를 포함한다. 일반 종료·명시적 폐기·vacuum은 같은 predicate를 쓸 것이라고 가정하지 말고 실제 소비자를 각각 대조한다. Node 메모리 SQLite와 mock HTTP 검사는 Expo 기기 저장소·실제 서버 동시성·앱 중단 복구를 대신하지 않는다.
 
 현재 사실은 2026-10-31의 [Local datasource](../../../../apps/client/src/entities/), [DB](../../../../apps/client/src/shared/db/), [queue](../../../../apps/client/src/shared/services/sync/queue.ts), [sync lifecycle](../../../../apps/client/src/shared/services/sync/lifecycle.ts), [서버 sync](../../../../apps/server/src/routes/sync.ts)를 대조했다. 관련 회귀 근거는 [DB transaction 검사](../../../../apps/client/tests/shared/db/transaction-serialization.test.ts), [sync 검사](../../../../apps/client/tests/shared/services/sync/), [Local 보존 검사](../../../../apps/client/tests/shared/services/auth/local-preservation.test.ts)에 있다. push 상태 처리와 큐 작업 재전송 응답은 2026-11-03에 [queue](../../../../apps/client/src/shared/services/sync/queue.ts)·[engine](../../../../apps/client/src/shared/services/sync/engine.ts)과 서버 Schedule·Expense·Trip route를 다시 대조했고, 근거는 [queue 재시도 검사](../../../../apps/client/tests/shared/services/sync/retry.test.ts)와 [서버 재전송 검사](../../../../apps/server/tests/integration/replay.idempotency.test.ts)에 있다. 제품 결함이 문서 반영만으로 해결된 것은 아니다.

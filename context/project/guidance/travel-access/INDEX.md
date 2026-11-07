@@ -99,7 +99,9 @@ Local session이 없으면 로그인 안내를 먼저 적용한다. 여행 활�
 
 ### 목록 반영과 화면 선택을 구별한다
 
-[TripRepository](../../../../apps/client/src/entities/trip/repository/trip-repository.ts)는 서버 목록을 [Local datasource](../../../../apps/client/src/entities/trip/lib/trip-local.ts)의 한 transaction에서 반영한다. 활성 여행과 미전송 Trip·Schedule·Expense 작업의 부모 여행은 로컬 값을 보존한다. 대기·진행·실패 큐를 포함하며, 미전송 삭제도 서버 응답으로 되살리지 않는다. 나머지 비활성 사본은 갱신하고 서버에서 사라졌으면 soft delete한다. 이 반영은 큐를 추가하거나 삭제하지 않는다. 이전 세션·취소된 Query 응답도 반영하지 않는다.
+[TripRepository](../../../../apps/client/src/entities/trip/repository/trip-repository.ts)는 서버 목록을 [Local datasource](../../../../apps/client/src/entities/trip/lib/trip-local.ts)의 한 transaction에서 반영한다. 활성 여행과 전송할 변경이 남아 있는 여행은 로컬 값을 보존한다. 대기·진행·실패 중인 여행 요청은 recordId로, 일정·경비 요청은 기기에 남아 있는 자식 행의 tripId로 보호할 여행을 찾는다. 보호 대상인 여행의 미전송 삭제도 서버 목록으로 되살리지 않는다. 나머지 비활성 사본은 갱신하고 서버에서 사라졌으면 soft delete한다. 이 반영은 큐를 추가하거나 삭제하지 않는다. 이전 세션·취소된 Query 응답도 반영하지 않는다.
+
+격리 기록만 남은 비활성 여행은 이 보호에서 빠진다. 격리한 삭제 요청이 서버에 전달되지 않았다면 서버 목록에 있는 여행이 다시 보일 수 있다. 목록 갱신 뒤에도 [격리된 요청](../data-lifecycle/INDEX.md#push를-바꾸면-전송-상태와-두-종류의-재시도를-구별한다)은 전송에서 제외된다.
 
 결과의 `remote`는 보존할 로컬 여행 없이 서버 목록을 반영한 출처, `mixed`는 로컬 보존 여행이 섞인 출처, `local`은 서버 접근 제한 중 로컬 목록을 읽은 출처다. Local 목록은 서버의 최신 상태를 보장하지 않는다. 서버에서 사라진 활성 여행의 폐기·충돌 해결은 별도의 열린 판단이다.
 
