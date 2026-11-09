@@ -60,13 +60,5 @@ __pycache__/
 # Personal evidence collector
 /evidence-collector/
 
-# Local simulator screenshots and verification gallery
-/artifacts/ticket-06-simulator/
-
-# Local Context Harness review evidence bundle
-/artifacts/context-harness-review-20261011/
-
-# Local login and notice screenshots linked from Workspace records
-/artifacts/2026-11-04-login-screens/
-/artifacts/2026-11-04-expenses-time-zone/
-/artifacts/2026-11-06-orphaned-queue/
+# Local artifacts
+/artifacts/
