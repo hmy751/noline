@@ -9,7 +9,7 @@
   },
   "license": "MIT",
   "scripts": {
-    "lint": "eslint ."
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --resolve-plugins-relative-to ../eslint-config"
   },
   "dependencies": {
     "@rn-primitives/avatar": "^1.2.0",

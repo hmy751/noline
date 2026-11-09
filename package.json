@@ -11,7 +11,7 @@
     "server": "pnpm --filter @apps/server",
     "schema": "pnpm --filter @repo/schema",
     "harness:check": "node scripts/check-harness.mjs",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint": "pnpm -r --no-bail run lint",
     "format": "prettier --write ."
   },
   "dependencies": {

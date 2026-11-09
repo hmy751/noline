@@ -73,7 +73,7 @@ pnpm lint
 pnpm harness:check
 ```
 
-`pnpm lint`는 저장소 코드 lint다. 지침·문서 Owner·bridge·스킬 연결을 바꾼 뒤에는 `pnpm harness:check`를 실행한다. 후자는 경로·연결·형식 검사이며 의미 충분성이나 실제 host 호출 성공은 별도로 확인한다.
+`pnpm lint`는 lint 명령이 있는 패키지(client, ui)의 코드 lint다. server와 schema는 lint 설정이 갖춰지지 않아 포함되지 않는다. 지침·문서 Owner·bridge·스킬 연결을 바꾼 뒤에는 `pnpm harness:check`를 실행한다. 후자는 경로·연결·형식 검사이며 의미 충분성이나 실제 host 호출 성공은 별도로 확인한다.
 
 ## 지침과 도구 연결을 관리한다
 
