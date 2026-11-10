@@ -205,6 +205,7 @@ router.post('/google', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('❌ Google login error:', error);
+    res.locals.diagnosticError = error;
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: '로그인 처리 중 오류가 발생했습니다' },
@@ -330,6 +331,7 @@ router.post('/apple', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Apple login error:', error);
+    res.locals.diagnosticError = error;
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: '로그인 처리 중 오류가 발생했습니다' },
@@ -405,6 +407,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Token refresh error:', error);
+    res.locals.diagnosticError = error;
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: '토큰 갱신 중 오류가 발생했습니다' },
@@ -432,6 +435,7 @@ router.post('/logout', async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Logout error:', error);
+    res.locals.diagnosticError = error;
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: '로그아웃 처리 중 오류가 발생했습니다' },
@@ -469,6 +473,7 @@ router.get('/me', requireAuth, async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Get user error:', error);
+    res.locals.diagnosticError = error;
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: '사용자 정보 조회 중 오류가 발생했습니다' },
@@ -517,6 +522,7 @@ router.delete('/account', requireAuth, async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Delete account error:', error);
+    res.locals.diagnosticError = error;
     res.status(500).json({
       success: false,
       error: { code: 'INTERNAL_ERROR', message: '계정 삭제 중 오류가 발생했습니다' },

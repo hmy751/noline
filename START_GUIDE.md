@@ -98,6 +98,20 @@ MAPBOX_SECRET_ACCESS_TOKEN=<mapbox-native-download-token>
 
 실기기의 localhost는 Mac이 아니다. API 서버 주소와 Metro 연결 주소도 서로 다른 역할이다. 서버 기본 CORS origin은 `http://localhost:8081`이며 브라우저 실행을 확인한다면 실제 origin과 맞춘다. 주소만 바꿔 Android·실기기 로그인과 native 기능까지 확인됐다고 보지 않는다.
 
+### Sentry 오류 수집을 연결할 때
+
+Sentry 조직에 React Native용 앱 프로젝트와 Node.js용 서버 프로젝트를 만들고 각 프로젝트의 Client Keys에서 DSN을 가져온다. 앱 빌드 환경의 `EXPO_PUBLIC_SENTRY_DSN`과 서버 실행 환경의 `SENTRY_DSN`에 각각 대응하는 주소를 넣는다. 주소가 없는 쪽은 진단을 전송하지 않으며 여행 기능은 계속 동작한다.
+
+앱의 `EXPO_PUBLIC_SENTRY_ENVIRONMENT`에는 검증 빌드와 운영 빌드를 구별하는 값(예: `staging`, `production`)을 넣는다. 앱의 소스맵을 업로드하려면 빌드 환경에 `SENTRY_ORG`, 앱의 `SENTRY_PROJECT`, 비밀값인 `SENTRY_AUTH_TOKEN`을 지정하고 새 네이티브 빌드를 만든다. 이미 로컬 iOS 프로젝트를 생성한 뒤 조직·프로젝트를 설정했다면 앱 디렉터리에서 `pnpm exec expo prebuild --platform ios --no-install`로 설정을 다시 적용한다. Xcode의 “Bundle React Native code and images” 단계에 `sentry-xcode.sh`가 있는지 확인한다. 업로드 토큰은 빌드 서비스의 secret으로 관리한다. 같은 서버 빌드를 여러 환경에 배포할 때는 실행 환경별로 `SENTRY_ENVIRONMENT`를 지정한다. 서버 릴리스를 식별하려면 `SENTRY_RELEASE`에 배포 버전이나 커밋을 넣는다.
+
+테스트 프로젝트에서 오류의 코드 위치와 환경을 확인한 뒤 [Ticket 06](context/work/workspaces/007-sync-failure-recovery/current/memory/tickets/06-stalled-sync-visibility.md)의 오프라인·재실행·로그아웃 사례를 확인한다. 여행 데이터의 전송 여부는 앱의 큐와 서버에서 확인한다. 반복해서 막힌 작업은 앱 프로젝트의 환경·릴리스를 선택하고 이슈에서 `sync.push.blocked`와 `sync.repeated:true`로 찾는다. `sync.previous_failures`는 이번 시도 전에 큐에 누적된 실패 횟수이고 `sync.has_waiting`은 이번에 선택한 뒤 작업이 있는지 나타낸다. 같은 실행의 시작·종료는 trace에서 확인한다. Sentry의 건수는 수신한 진단의 범위다.
+
+수집 설정을 검증할 때는 새 이벤트 상세에서 실제 저장 필드를 확인한다. Noline의 검증 프로젝트에서는 IP 저장 방지를 켠 뒤에도 도시가 표시됐다. 앱의 필터와 수집 서버가 추가하는 정보는 [오류·진단 가이드](context/project/guidance/error-handling.md#개발자가-동기화-실패를-조사할-때)를 참고한다.
+
+운영 앱 프로젝트에서는 JS 예외와 동기화 신호를 수집한다. 이 프로젝트는 Expo 51과 Xcode 릴리스 빌드에 Sentry React Native 6.22 계열을 사용한다. 네이티브 크래시 원문은 JS 이벤트 필터를 거치지 않아 자동 수집을 껐다. 실행 빈도는 수신된 `sync.started` 추적을 시작 이유별로 조회한다. 같은 실행 ID의 `sync.finished`가 없으면 결과는 미확인이다. 동기화 실행당 최대 두 추적 기록이 발생하며, 격리·막힘 이벤트는 오류 이벤트 할당량을 쓴다.
+
+프로젝트 생성 시 운영 알림을 확인한다. 새 JS 예외와 서버 오류는 알리되 정보 수준의 `sync.quarantined`는 즉시 알림에서 제외한다. 동기화 경고는 `sync.push.blocked`에서 이전 실패가 있고 뒤 작업도 남은 경우를 우선한다. 서버 프로젝트의 `api.request.rejected`는 서버가 받은 HTTP 거절 로그이고, 같은 실행 안의 HTTP 재시도도 따로 들어온다. 프로젝트별 수신량과 누락을 함께 살펴본다.
+
 ## 3. PostgreSQL과 새 로컬 DB
 
 Docker가 준비되어 있는지 확인한 뒤 Compose를 시작한다.

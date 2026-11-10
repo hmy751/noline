@@ -7,7 +7,10 @@ const projectRoot = __dirname;
 const workspaceRoot = path.resolve(projectRoot, '../..');
 
 /** @type {import('expo/metro-config').MetroConfig} */
-const config = getDefaultConfig(projectRoot);
+const config =
+  process.env.SENTRY_ORG && process.env.SENTRY_PROJECT
+    ? require('@sentry/react-native/metro').getSentryExpoConfig(projectRoot, { includeWebReplay: false })
+    : getDefaultConfig(projectRoot);
 
 config.watchFolders = [workspaceRoot];
 
@@ -25,6 +28,7 @@ config.resolver.unstable_enablePackageExports = true;
 config.resolver.sourceExts.push('sql');
 
 // Web에서 Mapbox 모듈 제외 (웹 미지원)
+const previousResolver = config.resolver.resolveRequest;
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   if (platform === 'web' && moduleName === '@rnmapbox/maps') {
     // 웹에서는 빈 모듈 반환
@@ -33,7 +37,7 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
     };
   }
   // 기본 resolver 사용
-  return context.resolveRequest(context, moduleName, platform);
+  return (previousResolver ?? context.resolveRequest)(context, moduleName, platform);
 };
 
 module.exports = withNativeWind(config, {

@@ -12,6 +12,7 @@ export class AppError extends Error {
 }
 
 export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
+  res.locals.diagnosticError = err;
   console.error('Error occurred:', err);
 
   if (err instanceof AppError) {

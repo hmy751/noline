@@ -4,8 +4,10 @@ import config from './config/index.js';
 import routes from './routes/index.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { notFound } from './middleware/notFound.js';
+import { observeServerResponse } from './services/sentry.js';
 
 const app = express();
+app.use(observeServerResponse);
 
 // Middleware
 app.use(

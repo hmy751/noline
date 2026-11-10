@@ -1,3 +1,5 @@
+import axios from 'axios';
+import { reportSyncSignal, type SyncRun } from '@/shared/diagnostics/sentry';
 import syncApiClient from './api';
 import {
   getSyncableTasks,
@@ -13,10 +15,10 @@ import { queryClient } from '@/shared/lib/queryClient';
 import { cancelAndInvalidateQueries } from '@/shared/lib/query-refresh';
 import { getDatabase, tripActivations } from '@/shared/db';
 import { and, eq } from 'drizzle-orm';
-import { selectLocalUserId, useAuthStore } from '@/shared/store/auth';
+import { AuthRequiredError, requireLocalUserId, selectLocalUserId, useAuthStore } from '@/shared/store/auth';
+import { isSessionRefreshFailure } from '@/shared/services/auth/auth-interceptor';
 import { getQueueOwner } from '@/shared/services/auth/local-account';
 import { processPendingCleanups } from './cleanup-job';
-import { AuthRequiredError, requireLocalUserId } from '@/shared/store/auth';
 import type { Query } from '@tanstack/react-query';
 import { syncPullResponseSchema } from '@repo/schema/sync/sync-status';
 
@@ -72,12 +74,39 @@ async function pushTaskToServer(
   }
 }
 
+type RequestStage = 'local-before-send' | 'sending' | 'local-after-response';
+
+function failureDetails(error: unknown, stage: RequestStage) {
+  if (isSessionRefreshFailure(error)) {
+    return {
+      stage: 'auth-refresh-failed',
+      httpStatus: axios.isAxiosError(error) ? error.response?.status : undefined,
+    } as const;
+  }
+
+  if (error instanceof AuthRequiredError) {
+    return { stage: 'auth-blocked' } as const;
+  }
+
+  if (stage !== 'sending') {
+    return { stage };
+  }
+
+  if (axios.isAxiosError(error) && error.response) {
+    return { stage: 'server-rejected', httpStatus: error.response.status } as const;
+  }
+  return { stage: 'response-unconfirmed' } as const;
+}
+
 /** 중단된 작업을 되돌린 뒤 PENDING과 FAILED 작업을 FIFO로 전송하고 첫 실패에서 멈춘다. */
-export async function pushChanges(): Promise<void> {
+export async function pushChanges(run?: SyncRun): Promise<void> {
   let serverChanged = false;
+  let reportedBlock = false;
+  let stage: RequestStage = 'local-before-send';
+
   try {
-    await recoverInterruptedTasks();
-    const tasks = await getSyncableTasks();
+    await recoverInterruptedTasks(run);
+    const tasks = await getSyncableTasks(run);
 
     if (tasks.length === 0) {
       // 복구·선택 뒤 맨 앞에는 PENDING·FAILED만 오므로, 이 검사는 알 수 없는 status가
@@ -92,13 +121,19 @@ export async function pushChanges(): Promise<void> {
 
     console.log(`[Sync] Starting push: ${tasks.length} tasks`);
 
-    for (const task of tasks) {
+    for (const [index, task] of tasks.entries()) {
+      stage = 'local-before-send';
+      const hasWaiting = index + 1 < tasks.length;
+
       if (
         useAuthStore.getState().status !== 'signed-in' ||
         (await getQueueOwner(task)) !== selectLocalUserId(useAuthStore.getState())
       ) {
+        reportSyncSignal({ kind: 'sync.push.blocked', stage: 'auth-blocked', task, hasWaiting }, run);
+        reportedBlock = true;
         throw new AuthRequiredError('현재 계정으로 전송할 수 없는 작업입니다');
       }
+
       try {
         console.log(`[Sync] Processing: ${task.action} ${task.tableName}/${task.recordId}`);
 
@@ -109,13 +144,23 @@ export async function pushChanges(): Promise<void> {
         }
 
         const payload = JSON.parse(task.payload);
-        await pushTaskToServer(task.tableName, task.action as SyncAction, task.recordId, payload);
+
+        if (task.action !== 'CREATE' && task.action !== 'UPDATE' && task.action !== 'DELETE') {
+          throw new Error(`Unknown sync action: ${task.action}`);
+        }
+
+        stage = 'sending';
+        await pushTaskToServer(task.tableName, task.action, task.recordId, payload);
+        stage = 'local-after-response';
         serverChanged = true;
 
         await deleteTask(task.id);
 
         console.log(`[Sync] Success: ${task.action} ${task.tableName}/${task.recordId}`);
       } catch (error) {
+        reportedBlock = true;
+        reportSyncSignal({ kind: 'sync.push.blocked', ...failureDetails(error, stage), task, hasWaiting }, run);
+
         if (error instanceof AuthRequiredError) {
           console.warn(`[Sync] AuthRequiredError: ${task.tableName}/${task.recordId} - keeping PENDING`);
           await retryFailedTask(task.id);
@@ -142,11 +187,20 @@ export async function pushChanges(): Promise<void> {
       console.error('[Sync] Failed to process pending cleanups (ignored):', error);
     }
   } catch (error) {
+    if (!reportedBlock) {
+      reportSyncSignal({ kind: 'sync.push.blocked', ...failureDetails(error, stage) }, run);
+    }
+
     console.error('[Sync] Push failed:', error);
     throw error;
   } finally {
     // 일부 전송만 성공하거나 다음 pull이 생략·실패해도 성공한 변경은 다시 읽는다.
-    if (serverChanged) await refreshSyncQueries();
+    if (serverChanged) {
+      await refreshSyncQueries().catch((error: unknown) => {
+        reportSyncSignal({ kind: 'sync.push.blocked', stage: 'local-after-response' }, run);
+        throw error;
+      });
+    }
   }
 }
 
@@ -159,7 +213,9 @@ export async function pushChanges(): Promise<void> {
  * - React Query 캐시 무효화 → UI 자동 갱신
  * - lastSyncedAt 업데이트
  */
-export async function pullChanges(): Promise<void> {
+export async function pullChanges(run?: SyncRun): Promise<void> {
+  let stage: RequestStage = 'local-before-send';
+
   try {
     // 마지막 동기화 시간 조회
     const lastSyncedAt = await getLastSyncedAt();
@@ -188,6 +244,7 @@ export async function pullChanges(): Promise<void> {
     });
 
     // 서버에서 데이터 가져오기 (이 시점에 activatedTripIds.length > 0 임이 보장됨)
+    stage = 'sending';
     const response = await syncApiClient.get('/api/sync/pull', {
       params: {
         lastSyncedAt: lastSyncedAt?.toISOString(),
@@ -195,6 +252,7 @@ export async function pullChanges(): Promise<void> {
       },
     });
 
+    stage = 'local-after-response';
     // 정책: 서버 응답은 { success, data } 구조
     // entity와 checkpoint 모두 검증한 뒤 첫 Local 쓰기를 시작한다.
     const { trips, schedules, expenses, serverTime } = syncPullResponseSchema.parse(response.data).data;
@@ -251,18 +309,19 @@ export async function pullChanges(): Promise<void> {
 
     console.log('[Sync] Pull completed');
   } catch (error) {
+    reportSyncSignal({ kind: 'sync.pull.blocked', ...failureDetails(error, stage) }, run);
     console.error('[Sync] Pull failed:', error);
     throw error;
   }
 }
 
 /** 로컬 변경을 먼저 Push한 뒤 서버 변경을 Pull한다. */
-export async function syncData(): Promise<void> {
+export async function syncData(run?: SyncRun): Promise<void> {
   try {
     console.log('[Sync] Starting full sync (Push + Pull)...');
 
-    await pushChanges();
-    await pullChanges();
+    await pushChanges(run);
+    await pullChanges(run);
 
     console.log('[Sync] Full sync completed');
   } catch (error) {

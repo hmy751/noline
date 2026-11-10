@@ -10,6 +10,7 @@ import type { Response } from 'express';
  * 모으는 것이 목적이다. 표준 envelope 통일은 별도 결정에서 다룬다.
  */
 export function sendInternalError(res: Response, message: string, error: unknown): void {
+  res.locals.diagnosticError = error;
   if (error instanceof Error) {
     res.status(500).json({
       error: 'Internal server error',

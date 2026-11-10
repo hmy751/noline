@@ -141,6 +141,7 @@ router.get('/pull', requireAuth, async (req: Request, res: Response) => {
 
     res.status(200).json(validatedResponse.data);
   } catch (error) {
+    res.locals.diagnosticError = error;
     console.error('❌ [Sync Pull] Error:', error);
 
     if (error instanceof Error) {
@@ -200,6 +201,7 @@ router.post('/push', requireAuth, async (req: Request, res: Response) => {
       message: 'Please use existing REST endpoints (/api/trips, /api/schedules) for now',
     });
   } catch (error) {
+    res.locals.diagnosticError = error;
     console.error('❌ [Sync Push] Error:', error);
 
     res.status(500).json({

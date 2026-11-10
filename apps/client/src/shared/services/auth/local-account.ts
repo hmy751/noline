@@ -1,5 +1,6 @@
 import { eq, ne } from 'drizzle-orm';
 
+import { reportSyncSignal, type SyncRun } from '@/shared/diagnostics/sentry';
 import { deleteQueuePayloadSchema, syncActionEnum } from '@repo/schema/sync/sync-queue';
 
 import {
@@ -34,13 +35,14 @@ export const inspectLocalAccount = async (userId: string): Promise<LocalAccount>
     const tasks = await getDatabase().select().from(syncQueue).all();
 
     for (const task of tasks) {
-      const ownership = await inspectAndQuarantine(task);
+      const ownership = await inspectAndQuarantine(task, 'login');
 
       if (ownership === 'orphan') {
         continue;
       }
 
       if (ownership === 'invalid') {
+        reportSyncSignal({ kind: 'sync.login.blocked', task, stage: 'invalid-ownership' });
         return 'unresolved';
       }
 
@@ -70,7 +72,7 @@ export const getQueueOwner = async (task: SyncQueueItem): Promise<string | null>
 };
 
 /** 원본도 소유권 근거도 없는 작업을 격리한 뒤 나머지를 생성 순서대로 반환한다. */
-export const quarantineOrphanedTasks = async (status?: 'IN_PROGRESS'): Promise<SyncQueueItem[]> => {
+export const quarantineOrphanedTasks = async (status?: 'IN_PROGRESS', run?: SyncRun): Promise<SyncQueueItem[]> => {
   return runDatabaseOperation(async () => {
     const tasks = await getDatabase()
       .select()
@@ -81,7 +83,7 @@ export const quarantineOrphanedTasks = async (status?: 'IN_PROGRESS'): Promise<S
     const unquarantinedTasks: SyncQueueItem[] = [];
 
     for (const task of tasks) {
-      const ownership = await inspectAndQuarantine(task);
+      const ownership = await inspectAndQuarantine(task, 'push', run);
 
       if (ownership !== 'orphan') {
         unquarantinedTasks.push(task);
@@ -92,7 +94,11 @@ export const quarantineOrphanedTasks = async (status?: 'IN_PROGRESS'): Promise<S
   });
 };
 
-const inspectAndQuarantine = async (task: SyncQueueItem): Promise<QueueOwnership> => {
+const inspectAndQuarantine = async (
+  task: SyncQueueItem,
+  source: 'login' | 'push',
+  run?: SyncRun,
+): Promise<QueueOwnership> => {
   if (task.status === 'QUARANTINED') {
     return 'orphan';
   }
@@ -101,6 +107,7 @@ const inspectAndQuarantine = async (task: SyncQueueItem): Promise<QueueOwnership
 
   if (ownership === 'orphan') {
     await getDatabase().update(syncQueue).set({ status: 'QUARANTINED' }).where(eq(syncQueue.id, task.id));
+    reportSyncSignal({ kind: 'sync.quarantined', task, source }, run);
   }
 
   return ownership;

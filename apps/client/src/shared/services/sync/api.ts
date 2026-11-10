@@ -1,6 +1,6 @@
 import axios, { type AxiosInstance, type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { EXPO_PUBLIC_API_URL } from '@env';
-import { setupSyncAuthInterceptors } from '@/shared/services/auth/auth-interceptor';
+import { isSessionRefreshFailure, setupSyncAuthInterceptors } from '@/shared/services/auth/auth-interceptor';
 
 /**
  * 동기화 전용 Axios 클라이언트
@@ -33,6 +33,11 @@ syncApiClient.interceptors.response.use(
     return response;
   },
   async (error: AxiosError) => {
+    // 인터셉터의 갱신 실패에는 여행 요청 대신 토큰 교환 요청의 config가 들어 있다.
+    if (isSessionRefreshFailure(error)) {
+      throw error;
+    }
+
     const originalRequest = error.config as (InternalAxiosRequestConfig & { serverRetryCount?: number }) | undefined;
 
     // 재시도 가능 여부 판단

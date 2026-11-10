@@ -8,7 +8,8 @@ export default defineConfig({
   clean: true,
   sourcemap: true,
   minify: false,
-  splitting: false,
+  // 진단 초기화 뒤 import하는 서버 모듈은 별도 ESM chunk로 로드한다.
+  splitting: true,
 
   // 개발 watch는 tsx로 처리
   watch: false,

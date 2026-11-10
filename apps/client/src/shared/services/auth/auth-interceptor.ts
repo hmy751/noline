@@ -4,6 +4,12 @@ import { refreshTokens } from './auth-transport';
 
 type AuthRequest = InternalAxiosRequestConfig & { sessionId?: symbol; authRetried?: boolean };
 const refreshes = new Map<symbol, Promise<void>>();
+// 여러 호출자가 원래 예외를 그대로 받는다. 갱신 요청의 실패를 여행 요청의 응답과 구별한다.
+const refreshFailures = new WeakSet<object>();
+
+export function isSessionRefreshFailure(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && refreshFailures.has(error);
+}
 
 function assertCurrentSession(sessionId: symbol | undefined): asserts sessionId is symbol {
   if (!useAuthStore.isCurrentSession(sessionId ?? null)) {
@@ -56,7 +62,13 @@ function renewSession(sessionId: symbol): Promise<void> {
     if (!saved) {
       throw new AuthRequiredError();
     }
-  })();
+  })().catch((error: unknown) => {
+    if (typeof error === 'object' && error !== null) {
+      refreshFailures.add(error);
+    }
+
+    throw error;
+  });
 
   refreshes.set(sessionId, renewal);
   renewal.finally(() => refreshes.delete(sessionId)).catch(() => undefined);

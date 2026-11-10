@@ -29,12 +29,15 @@ pnpm server build
 
 개발 파일 예시는 [개발 시작의 환경 설정](../../START_GUIDE.md#2-개발-환경-파일)에 있다. 복사할 `env.example`은 없다. 기존 파일 전체를 출력하거나 예시 생성 명령으로 덮어쓰지 않는다.
 
-개발 실행은 [config/index.ts](src/config/index.ts)의 소스 위치를 기준으로 `apps/server/.env.development`를 읽는다. production 실행은 필요한 값을 **프로세스 환경으로 주입**하는 것을 기준으로 한다. 이미 주입된 값은 dotenv가 덮어쓰지 않는다.
+개발 실행은 [환경 로더](src/config/environment.ts)의 소스 위치를 기준으로 `apps/server/.env.development`를 읽는다. production 실행은 필요한 값을 **프로세스 환경으로 주입**하는 것을 기준으로 한다. 이미 주입된 값은 dotenv가 덮어쓰지 않는다.
 
-현재 dotenv 경로는 `import.meta.url`에서 얻은 디렉터리의 두 단계 위를 사용한다. 개발의 `src/config/index.ts`와 달리 [tsup 설정](tsup.config.ts)은 서버 소스를 `dist/index.js` 하나로 묶는다. 이 production bundle에서는 같은 계산이 `apps/.env.production`을 가리키므로 `apps/server/.env.production`을 만들었다고 로드되는 것은 아니다. 기존 `dist/index.js`에서도 이 경로 계산을 정적으로 확인했다. 소스 실행과 bundle 실행의 환경 파일 기준을 일치시키는 코드 수정은 후속 과제이며 이 문서는 이를 수정하거나 production 파일 로드를 검증하지 않았다.
+현재 dotenv 경로는 `import.meta.url`에서 얻은 디렉터리의 두 단계 위를 사용한다. 개발의 `src/config/environment.ts`와 달리 [tsup 설정](tsup.config.ts)은 `dist/index.js`와 서버 모듈을 같은 `dist/` 아래에 출력한다. 운영에서는 `dist/` 전체를 함께 배포한다. 이 production bundle에서는 같은 계산이 `apps/.env.production`을 가리키므로 `apps/server/.env.production`을 만들었다고 로드되는 것은 아니다. 기존 `dist/index.js`에서도 이 경로 계산을 정적으로 확인했다. 소스 실행과 bundle 실행의 환경 파일 기준을 일치시키는 코드 수정은 후속 과제이며 이 문서는 이를 수정하거나 production 파일 로드를 검증하지 않았다.
 
 | 변수 | 용도와 현재 기본값 |
 | --- | --- |
+| `SENTRY_DSN` | 선택. 서버용 Sentry 프로젝트의 수신 주소. 설정한 경우 진단을 시작한 뒤 Express를 불러온다. |
+| `SENTRY_ENVIRONMENT` | 선택. 같은 서버 빌드를 staging과 production에 배포할 때 실제 운영 환경을 지정한다. 생략하면 `NODE_ENV`를 사용한다. |
+| `SENTRY_RELEASE` | 선택. 배포 판본 식별자. 오류와 거절 로그를 판본별로 조회한다. |
 | `DATABASE_URL` | 필수. PostgreSQL 연결 문자열. Compose 개발 기본 DB는 `noline_dev`다. |
 | `JWT_SECRET` | 필수. 서버 token 서명용 비밀값. |
 | `HOST`, `PORT` | 기본 localhost, 3000. LAN 기기·배포에서는 접근 가능한 바인딩을 지정한다. |

@@ -5,6 +5,7 @@ import { type NewSyncQueueItem, syncQueue, type SyncQueueItem } from '@/shared/d
 import { getCurrentISOString } from '@/shared/db/utils';
 import { quarantineOrphanedTasks } from '@/shared/services/auth/local-account';
 
+import type { SyncRun } from '@/shared/diagnostics/sentry';
 import { generateId } from '../id/ulid';
 
 /**
@@ -66,8 +67,8 @@ export async function getPendingTasks(): Promise<SyncQueueItem[]> {
  * FAILED는 실패 횟수와 관계없이 다시 보낸다. 재전송은 서버가 같은 결과로 받으므로
  * 횟수로 막으면 일시 오류가 쌓인 작업이 영구히 멈춘다. retryCount는 계속 센다.
  */
-export const getSyncableTasks = async (): Promise<SyncQueueItem[]> => {
-  const tasks = await quarantineOrphanedTasks();
+export const getSyncableTasks = async (run?: SyncRun): Promise<SyncQueueItem[]> => {
+  const tasks = await quarantineOrphanedTasks(undefined, run);
   const blockedIndex = tasks.findIndex((task) => task.status !== 'PENDING' && task.status !== 'FAILED');
 
   return blockedIndex === -1 ? tasks : tasks.slice(0, blockedIndex);
@@ -79,8 +80,8 @@ export const getSyncableTasks = async (): Promise<SyncQueueItem[]> => {
  * 동기화는 executeSync 잠금 안에서 한 번에 하나만 실행되므로, push를 시작하는 순간의
  * IN_PROGRESS는 앱 종료 등으로 중단된 이전 실행의 흔적이다. retryCount는 유지한다.
  */
-export const recoverInterruptedTasks = async (): Promise<void> => {
-  await quarantineOrphanedTasks('IN_PROGRESS');
+export const recoverInterruptedTasks = async (run?: SyncRun): Promise<void> => {
+  await quarantineOrphanedTasks('IN_PROGRESS', run);
   await runDatabaseOperation(() =>
     getDatabase()
       .update(syncQueue)

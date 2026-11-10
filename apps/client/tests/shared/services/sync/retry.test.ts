@@ -1,5 +1,6 @@
 import { updateExpenseRequest } from '@repo/schema/requests/expense';
 import { afterEach, beforeEach, expect, it, jest } from '@jest/globals';
+import { reportSyncSignal } from '@/shared/diagnostics/sentry';
 import { pushChanges, SyncIncompleteError } from '@/shared/services/sync/engine';
 import {
   getSyncableTasks,
@@ -12,6 +13,7 @@ import { getQueueOwner } from '@/shared/services/auth/local-account';
 import api from '@/shared/services/sync/api';
 import { useAuthStore } from '@/shared/store/auth';
 
+jest.mock('@/shared/diagnostics/sentry', () => ({ reportSyncSignal: jest.fn() }));
 jest.mock('@/shared/services/sync/api', () => ({
   __esModule: true,
   default: { put: jest.fn(), post: jest.fn(), delete: jest.fn() },
@@ -32,7 +34,6 @@ jest.mock('@/shared/lib/queryClient', () => ({
 }));
 jest.mock('@/shared/services/sync/storage', () => ({}));
 jest.mock('@/shared/services/sync/cleanup-job', () => ({ processPendingCleanups: jest.fn() }));
-jest.mock('@/shared/services/auth/auth-interceptor', () => ({ AuthRequiredError: class extends Error {} }));
 jest.mock('expo-secure-store', () => ({}));
 
 const failedTask = {
@@ -50,7 +51,10 @@ const failedTask = {
 beforeEach(() => {
   useAuthStore.setState({ status: 'signed-in', userId: 'user-1' });
   jest.mocked(getSyncableTasks).mockReset().mockResolvedValue([failedTask]);
-  jest.mocked(getSyncQueueStats).mockReset().mockResolvedValue({ pending: 0, inProgress: 0, failed: 0, quarantined: 0, total: 0 });
+  jest
+    .mocked(getSyncQueueStats)
+    .mockReset()
+    .mockResolvedValue({ pending: 0, inProgress: 0, failed: 0, quarantined: 0, total: 0 });
   jest.mocked(getQueueOwner).mockReset().mockResolvedValue('user-1');
   jest.mocked(updateTaskStatus).mockReset().mockResolvedValue(undefined);
   jest.mocked(deleteTask).mockReset().mockResolvedValue(undefined);
@@ -100,15 +104,42 @@ it('재시도 실패를 다시 FAILED로 남기고 뒤 작업을 진행하지 �
   expect(api.put).toHaveBeenCalledTimes(1);
 });
 
-
 it('기존 경비 UPDATE 큐의 datetime은 그대로 전송해도 서버 공유 요청 계약에서 수용된다', async () => {
   const payload = { date: '2026-10-02T01:00:00+09:00', scheduleId: null };
-  jest.mocked(getSyncableTasks).mockResolvedValue([{
-    ...failedTask, tableName: 'expenses', recordId: 'expense-1', payload: JSON.stringify(payload),
-  }]);
+  jest.mocked(getSyncableTasks).mockResolvedValue([
+    {
+      ...failedTask,
+      tableName: 'expenses',
+      recordId: 'expense-1',
+      payload: JSON.stringify(payload),
+    },
+  ]);
   await expect(pushChanges()).resolves.toBeUndefined();
   expect(api.put).toHaveBeenCalledWith('/api/expenses/expense-1', payload);
-  expect(updateExpenseRequest.parse(jest.mocked(api.put).mock.calls[0][1]))
-    .toEqual({ date: '2026-10-01', scheduleId: null });
+  expect(updateExpenseRequest.parse(jest.mocked(api.put).mock.calls[0][1])).toEqual({
+    date: '2026-10-01',
+    scheduleId: null,
+  });
   expect(deleteTask).toHaveBeenCalledWith('failed-1');
+});
+
+it.each([
+  { payload: '{broken', response: undefined, expectedStage: 'local-before-send' },
+  { payload: '{}', response: { status: 404 }, expectedStage: 'server-rejected' },
+])('요청 단계별 진단을 한 번 남긴다: $expectedStage', async ({ payload, response, expectedStage }) => {
+  jest.mocked(getSyncableTasks).mockResolvedValue([{ ...failedTask, payload }]);
+  jest.mocked(getSyncQueueStats).mockResolvedValue({ failed: 1, inProgress: 0, pending: 0, quarantined: 0, total: 1 });
+  if (response) {
+    jest.mocked(api.put).mockRejectedValueOnce({ isAxiosError: true, response });
+  }
+  await expect(pushChanges()).rejects.toBeInstanceOf(SyncIncompleteError);
+  expect(reportSyncSignal).toHaveBeenCalledTimes(1);
+  expect(reportSyncSignal).toHaveBeenCalledWith(
+    expect.objectContaining({
+      stage: expectedStage,
+      hasWaiting: false,
+      ...(response && { httpStatus: response.status }),
+    }),
+    undefined,
+  );
 });

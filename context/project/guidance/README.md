@@ -24,7 +24,7 @@ Entity를 추가하거나 바꾸면 [schema 기준](development-boundaries/schem
 
 [API 계약과 변경 가이드](api-contracts.md)는 client API, server route, 공유 schema, serializer와 user scope를 추가·수정·리팩터링할 때 읽는다. Schedule·Expense·Trip의 실제 적용 차이, repository·query 경계와 인증 전송, 일반 조회와 sync의 soft-delete 차이를 설명한다.
 
-[오류 전달과 공개 응답](error-handling.md)은 서버 처리·client 변환·React Query·Policy UI의 책임, 민감정보 미공개 기준과 현재 공백을 설명한다. 공개 형식·중앙화 선택을 바꿀 때 API 가이드와 함께 읽는다.
+[오류 전달과 공개 응답](error-handling.md)은 서버 처리·client 변환·React Query·Policy UI의 책임, 민감정보 미공개 기준과 현재 공백을 설명한다. 개발자가 동기화 중단을 조사할 때는 같은 본문에서 앱·서버가 관측한 사건과 전달 한계를 확인한다. 공개 형식·중앙화 선택을 바꿀 때 API 가이드와 함께 읽는다.
 
 날짜·시각이나 통화·금액을 다루면 common의 [날짜와 시각](../common/date-and-time.md), [통화와 금액](../common/currency.md)을 선택한다. 필드의 의미와 저장·전송·표시 계약, 공용 helper와 현재 소비자의 차이는 그 본문이 함께 소유한다.
 

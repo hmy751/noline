@@ -23,6 +23,7 @@
     "@repo/ui": "workspace:*",
     "@rn-primitives/portal": "^1.2.0",
     "@rnmapbox/maps": "^10.1.33",
+    "@sentry/react-native": "~6.22.0",
     "@tanstack/react-query": "^5.90.5",
     "axios": "^1.12.2",
     "drizzle-orm": "^0.30.10",

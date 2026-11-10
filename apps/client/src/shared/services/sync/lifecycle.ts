@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { useAuthStore } from '@/shared/store/auth';
 import { networkStore } from '@/shared/store/network';
 import { isDatabaseReady } from '@/shared/db';
+import { startSyncDiagnostics, finishSyncDiagnostics } from '@/shared/diagnostics/sentry';
 import { syncData } from './engine';
 
 export type SyncReason = 'app-startup' | 'conditions-ready' | 'manual' | 'periodic';
@@ -96,11 +97,12 @@ export function getSyncBlockReason(): Exclude<SyncSkipReason, 'already-running'>
 }
 
 async function runSync(reason: SyncReason): Promise<SyncResult> {
+  const run = startSyncDiagnostics(reason);
   const startedAt = Date.now();
   console.info('[Sync] started', { reason });
 
   try {
-    await syncData();
+    await syncData(run);
 
     const syncedAt = new Date();
     useSyncLifecycleStore.setState({ lastSyncedAt: syncedAt });
@@ -109,9 +111,11 @@ async function runSync(reason: SyncReason): Promise<SyncResult> {
       durationMs: Date.now() - startedAt,
       syncedAt: syncedAt.toISOString(),
     });
+    finishSyncDiagnostics(run, 'completed');
     return { status: 'completed' };
   } catch (error) {
     console.error('[Sync] failed', { reason, durationMs: Date.now() - startedAt, error });
+    finishSyncDiagnostics(run, 'failed');
     return { status: 'failed', error };
   } finally {
     activeSync = null;

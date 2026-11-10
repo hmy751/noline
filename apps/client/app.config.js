@@ -12,6 +12,9 @@ export default {
   scheme: 'noline',
   plugins: [
     'expo-router',
+    ...(process.env.SENTRY_ORG && process.env.SENTRY_PROJECT
+      ? [['@sentry/react-native/expo', { organization: process.env.SENTRY_ORG, project: process.env.SENTRY_PROJECT }]]
+      : []),
     'expo-secure-store',
     'expo-asset',
     [

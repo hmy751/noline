@@ -7,6 +7,7 @@ import { eq } from 'drizzle-orm';
 
 import { syncStatusEnum } from '@repo/schema/sync/sync-queue';
 
+import { reportSyncSignal } from '@/shared/diagnostics/sentry';
 import { deleteScheduleLocal } from '@/entities/schedule/lib/schedule-local';
 import { refreshTripListLocal } from '@/entities/trip/lib/trip-local';
 import {
@@ -38,6 +39,7 @@ import {
 } from '@/shared/services/sync/queue';
 import { useAuthStore } from '@/shared/store/auth';
 
+jest.mock('@/shared/diagnostics/sentry', () => ({ reportSyncSignal: jest.fn() }));
 jest.mock('@/shared/services/sync/api', () => ({
   __esModule: true,
   default: { post: jest.fn(), put: jest.fn(), delete: jest.fn(), get: jest.fn() },
@@ -127,7 +129,12 @@ it.each(['CREATE', 'UPDATE', 'DELETE'])(
 
     await expect(completeLogin(session)).resolves.toBeUndefined();
     expect(useAuthStore.getState().status).toBe('signed-in');
+    expect(reportSyncSignal).toHaveBeenCalledWith(
+      expect.objectContaining({ kind: 'sync.quarantined', source: 'login' }),
+      undefined,
+    );
     expect(await inspectLocalAccount('01ARZ3NDEKTSV4RRFFQ69G5FAV')).toBe('same');
+    expect(reportSyncSignal).toHaveBeenCalledTimes(1);
     await expect(pushChanges()).resolves.toBeUndefined();
     expect(api.put).toHaveBeenCalledWith('/api/trips/trip-a', {});
     expect(api.post).not.toHaveBeenCalled();
@@ -297,6 +304,13 @@ it.each([
     .values({ ...orphan, recordId: trip.id, action, payload });
 
   expect(await inspectLocalAccount('01ARZ3NDEKTSV4RRFFQ69G5FAV')).toBe(userId === 'b' ? 'different' : 'unresolved');
+  if (userId === 'b') {
+    expect(reportSyncSignal).not.toHaveBeenCalled();
+  } else {
+    expect(reportSyncSignal).toHaveBeenCalledWith(
+      expect.objectContaining({ kind: 'sync.login.blocked', stage: 'invalid-ownership' }),
+    );
+  }
   await expect(completeLogin(session)).rejects.toThrow();
   await expect(pushChanges()).rejects.toThrow();
   expect((await getDatabase().select().from(syncQueue).get())?.status).toBe('FAILED');
@@ -389,6 +403,17 @@ it.each(['schedules', 'expenses'] as const)(
     jest.mocked(api.put).mockResolvedValueOnce({}).mockRejectedValueOnce(new Error('offline'));
 
     await expect(pushChanges()).rejects.toThrow('동기화하지 못한');
+    expect(reportSyncSignal).toHaveBeenCalledTimes(2);
+    expect(reportSyncSignal).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ kind: 'sync.quarantined', source: 'push' }),
+      undefined,
+    );
+    expect(reportSyncSignal).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ kind: 'sync.push.blocked', stage: 'response-unconfirmed', hasWaiting: true }),
+      undefined,
+    );
     expect(jest.mocked(api.put).mock.calls.map((call) => call[1])).toEqual([{ name: 'before' }, { name: 'failure' }]);
     expect((await getDatabase().select().from(syncQueue).where(eq(syncQueue.id, 'after')).get())?.status).toBe(
       'PENDING',

@@ -22,7 +22,6 @@ jest.mock('@/shared/db/utils', () => ({}));
 jest.mock('@/shared/lib/queryClient', () => ({}));
 jest.mock('@/shared/services/sync/storage', () => ({}));
 jest.mock('@/shared/services/sync/cleanup-job', () => ({ processPendingCleanups: jest.fn() }));
-jest.mock('@/shared/services/auth/auth-interceptor', () => ({ AuthRequiredError: class extends Error {} }));
 jest.mock('expo-secure-store', () => ({}));
 
 it.each([

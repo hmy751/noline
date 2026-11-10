@@ -1,6 +1,6 @@
 # 007 — 동기화 실패가 큐를 영구히 막지 않게 하기 재개
 
-다음 작업은 [Ticket 06](current/memory/tickets/06-stalled-sync-visibility.md)이다. 출시 앱의 동기화가 계속 실패할 때 개발자가 어떤 기록으로 그 사실을 확인할지 정한다.
+현재는 [Ticket 06](current/memory/tickets/06-stalled-sync-visibility.md)의 [실제 Sentry 프로젝트 수신·설정](records/2026-11-10-01-sentry-staging.md) 이후 단계다. 실제 JS 예외의 파일·행은 복원됐다. 인증 갱신과 서버 거절을 구별하는 수정판의 자동·독립 검증 및 최신 앱·서버 staging 이벤트와 trace는 [개발 재점검 기록](records/2026-11-10-02-diagnostics-review.md)에서 확인한다. 신규 이벤트에서 IP는 보이지 않았지만 도시가 계속 표시된다. 반복 경고 전용 알림 규칙은 미설정이다. [Release 빌드와 로컬 수신 기록](records/2026-11-09-01-sentry-local-receiver.md)에서 이미 확인한 오프라인 격리·계정 전환·중단 조건과 운영 환경에 남은 범위를 확인한다.
 
 일반 재개는 [목표와 범위](current/memory/spec/01-problem-goal-scope.md), [현재 상태와 다음 행동](current/state/index.md), [산출물 위치](output/index.md)를 읽는다. 한정 요청은 해당 자료부터 본다.
 
