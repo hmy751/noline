@@ -57,3 +57,9 @@ IN_PROGRESS는 다음 sync에서 바로 되돌린다. 앱 시작 때 한 번만 
 2026-11-09 사용자는 구버전 삭제 요청의 보존 범위를 확정했다. 원본과 소유자 근거가 없으면 요청을 보관해도 서버 삭제를 재개할 수 없지만, 자동 폐기하면 삭제를 시도한 기록도 사라진다. 여행 하나의 오프라인 사본을 정리할 때는 원본도 여행 ID도 없는 일정·경비 요청이 그 여행에 속하는지 확인할 수 없다. 그래서 여행 비활성화 때는 격리를 유지하고, 기기 DB 전체를 비울 때 큐와 함께 지운다.
 
 2026-11-07 개발 코드의 격리와 새 삭제 요청 형식은 각각 `06cebd6f`, `30783ccb`에 있다. 일정 원본을 제거한 뒤에도 같은 계정의 삭제가 개발 서버에 반영된 범위와 구버전 설치·업데이트 경로의 미확인은 [007의 검증 기록](../../../../work/workspaces/007-sync-failure-recovery/current/memory/tickets/08-orphaned-queue-task-blocks-login.md)에서 찾는다.
+
+## 항목별 편집과 조회 cursor를 분리한 이유
+
+서버 행의 version과 updatedAt은 각각 판본과 변경 조회에 쓰이며, 사용자가 실제로 어느 항목을 언제 고쳤는지는 알 수 없다. 따라서 저장 때 실제로 바뀐 항목과 표식을 고정하고, 장소나 지출액처럼 함께 해석해야 할 값은 묶어서 비교한다. 표식이 없는 옛 요청은 변경 의도를 추정할 수 없어 충돌 시 원문 전체를 보류한다. 다른 항목까지 쓰지 않는 비용과 화면에서 선택한 항목만 다시 저장하는 이유는 [UPDATE 정책](../../../../work/workspaces/007-sync-failure-recovery/records/2026-11-10-01-update-conflict-policy.md)과 [호환 결정](../../../../work/workspaces/007-sync-failure-recovery/records/2026-11-10-02-legacy-update-compatibility.md)에 있다.
+
+데이터베이스에 늦게 확정된 쓰기는 앱 시계와 독립적이다. 새 pull은 PostgreSQL snapshot의 가장 오래된 진행 중 트랜잭션을 다음 조회에 포함한다. 중복 수신을 허용하고 기기 반영이 끝난 범위만 기록한다. [동시 쓰기와 재전송 검증](../../../../work/workspaces/007-sync-failure-recovery/records/2026-11-10-04-conflict-pull-implementation.md)

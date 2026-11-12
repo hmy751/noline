@@ -13,13 +13,15 @@ Client API·repository·query hook, server route, 공유 schema·serializer·use
 3. Serializer는 DB row를 API entity 표현으로 바꾼다. HTTP status, envelope, Zod 판정, query나 오류 응답까지 맡지 않는다.
 4. Route는 serialized entity로 response envelope를 조립한 뒤 가장 바깥 response schema를 적용한다. 바깥 schema가 내부 entity를 포함하면 같은 entity를 중간에서 다시 검사할 이유가 있는지 확인한다.
 
+여행 목록은 각 여행의 실제 서버 `version`을 전달한다. 구버전 서버의 목록에서 판본을 생략하면 앱은 활성 여행 ID 없이 pull을 호출해 판본을 갖춘 여행 메타데이터를 받는다. 이때 함께 오는 삭제 행은 소유 여행의 삭제 확인에 쓰고 일반 목록에서는 숨긴다.
+
 Response schema를 선언하거나 client에서만 parse하는 것으로 server가 실제 계약을 적용했다고 보지 않는다. Server가 검증하지 않으면 잘못 조립한 성공 응답을 보낼 수 있고, client가 검증하지 않으면 activation처럼 여러 entity를 받는 경계에서 잘못된 표현이 local 저장으로 이어질 수 있다.
 
 ## 사용자 데이터를 다루면 인증과 소유권을 각각 검사한다
 
 보호된 route·sync endpoint는 DB 접근 전에 인증을 확인하고 인증된 `req.userId`를 기준으로 조회·변경 범위를 제한한다. Client가 보낸 `userId`는 권한의 근거가 아니다. 생성 schema가 호환을 위해 해당 필드를 수용하더라도 서버가 저장할 소유자는 인증 결과에서 정한다. 인증된 사용자라는 사실과 특정 Trip·Schedule·Expense를 다룰 권한은 별개다.
 
-부모 ID나 연결 ID를 받는 쓰기는 그 대상도 사용자 소유인지, 삭제되지 않았는지, 허용된 부모·자식 관계인지 확인한다. 선행 조회 뒤 mutation을 ID만으로 실행하지 말고 실제 쓰기 조건에도 소유 범위와 삭제 조건을 유지한다. 아래의 Expense·Trip 차이는 이 기준의 현재 불충족이며 허용 예외가 아니다. Sync pull에서도 사용자 범위는 유지하되 삭제 사실을 전파하기 위한 soft-delete 행을 제외하지 않는다.
+부모 ID나 연결 ID를 받는 쓰기는 그 대상도 사용자 소유인지, 삭제되지 않았는지, 허용된 부모·자식 관계인지 확인한다. 선행 조회 뒤 mutation을 ID만으로 실행하지 말고 실제 쓰기 조건에도 소유 범위와 삭제 조건을 유지한다. 아래의 Trip 수정 차이는 이 기준의 현재 불충족이며 허용 예외가 아니다. Sync pull에서도 사용자 범위는 유지하되 삭제 사실을 전파하기 위한 soft-delete 행을 제외하지 않는다.
 
 Local 조회·변경·입수 데이터도 현재 기기 계정의 소유 범위를 유지한다. Router를 통과했다는 사실만으로 개별 row의 귀속 확인을 대신하지 않는다. 세션 교체 중 이전 응답·queue·계정 데이터의 보존과 격리는 [앱 실행·세션](../current/app-runtime/INDEX.md), 미전송 원본 보호는 [데이터 수명](data-lifecycle/INDEX.md)이 맡는다.
 
@@ -36,14 +38,14 @@ Schedule은 생성·전체 목록·단건·수정·Trip 하위 목록·Trip acti
 - 일반 목록·단건·수정·삭제와 Trip 하위 목록·activation은 인증 사용자 소유의 삭제되지 않은 데이터를 다룬다.
 - Schedule 생성은 부모 Trip이 인증 사용자 소유이고 삭제되지 않았는지 먼저 확인한다. `userId`는 client 입력을 신뢰하지 않고 인증 사용자에서 정한다.
 - Trip 하위 목록과 activation은 부모 접근뿐 아니라 자식 Schedule·Expense에도 user scope와 일반 조회의 non-deleted 조건을 적용한다.
-- Schedule 수정·삭제는 선행 조회 뒤 ID만으로 변경하지 않고 실제 mutation 조건에 `id + userId + deletedAt IS NULL`을 적용한다.
-- Sync pull은 삭제 사실을 다른 기기에 전파해야 하므로 user scope와 갱신 시각은 적용하되 soft-deleted row를 포함할 수 있다. 일반 조회 필터를 그대로 재사용하지 않는다.
+- 일정·경비 쓰기는 인증 사용자의 부모 여행을 잠근 뒤 대상의 소유권·삭제 상태를 확인하고 같은 transaction에서 확정한다.
+- Sync pull은 삭제 사실을 다른 기기에 전파해야 하므로 user scope와 pull cursor를 적용하며 soft-deleted row를 포함할 수 있다. 일반 조회 필터를 그대로 재사용하지 않는다.
 
-부모 Trip이 없거나 다른 사용자 소유이거나 삭제된 경우를 같은 404로 처리하는 현재 경계는 자원의 존재 여부를 추가로 노출하지 않는다. 이 접근 계약은 실제 PostgreSQL query와 route 응답 모두에서 확인해야 한다.
+다른 사용자의 기록과 원인을 확인할 수 없는 부재에는 404를 반환한다. 인증된 사용자 소유의 삭제된 여행을 자식 쓰기에서 확인하면 410 `TRIP_DELETED`, 삭제된 자기 일정·경비 수정을 확인하면 410 `ENTITY_DELETED`로 기록 ID·여행 ID·삭제 시각을 전달한다.
 
 ## 큐 작업 재전송에는 이미 반영된 결과로 응답한다
 
-앱의 sync queue는 응답을 받지 못한 요청을 다음 sync에서 같은 ID·payload로 다시 보낸다. 401 갱신 뒤의 재전송과 구별해 큐 작업 재전송이라 부른다. 서버는 같은 사용자의 이미 반영된 변경을 오류로 거절하지 않고 처음과 같은 결과로 응답한다. 그렇지 않으면 성공한 변경이 앱에서는 실패로 남아 뒤 작업까지 막는다. 이 계약은 서버만 바꿔도 이미 설치된 앱에 적용된다. Push는 성공 body를 parse하지 않고 2xx로 완료를 판단하기 때문이다.
+앱의 sync queue는 응답을 받지 못한 요청을 다음 sync에서 같은 ID·payload로 다시 보낸다. 401 갱신 뒤의 재전송과 구별해 큐 작업 재전송이라 부른다. 서버는 같은 사용자의 이미 반영된 변경을 오류로 거절하지 않고 처음과 같은 결과로 응답한다. 그렇지 않으면 성공한 변경이 앱에서는 실패로 남아 뒤 작업까지 막는다. 이 계약은 서버만 바꿔도 이미 설치된 앱에 적용된다. 기존 앱은 2xx로 완료를 판단하고, 새 앱은 응답 본문까지 확인해 기기 반영과 요청 종결을 연결한다.
 
 | 요청 | 응답 |
 | --- | --- |
@@ -51,13 +53,11 @@ Schedule은 생성·전체 목록·단건·수정·Trip 하위 목록·Trip acti
 | Schedule·Expense 생성: 같은 ID가 다른 사용자 또는 같은 사용자의 다른 Trip에 있음 | 409 `{ error: 'Conflict', message: '<Entity> ID is already in use' }`. 다른 사용자의 소유 여부는 구별해 알리지 않는다. |
 | Schedule·Expense 삭제: 이미 삭제된 자기 행 | 200과 처음 삭제 시각. 행과 version을 다시 바꾸지 않는다. |
 | Schedule·Expense 삭제: 다른 사용자 행 또는 없는 행 | 404. 다른 사용자가 이미 삭제한 행도 같다. |
-| Trip 삭제 재전송 | 200. 현재 구현은 삭제 시각을 다시 찍고 version을 올린다. 아래 Trip mutation의 ID 단독 변경 공백과 함께 정리할 차이다. |
+| Trip 삭제 재전송 | 200과 처음 삭제 시각. 첫 삭제는 그 여행의 자기 일정·경비 삭제와 한 transaction에서 확정한다. |
 
-실제 쓰기 조건은 바꾸지 않는다. 생성은 ID 충돌 시 아무것도 쓰지 않고(`onConflictDoNothing`), 삭제는 `id + userId + deletedAt IS NULL` 조건을 유지한다. 쓴 행이 없을 때만 `id + userId`로 자기 행을 조회해 응답을 정한다. 같은 생성 요청이 동시에 와도 행은 하나이고 응답은 201과 200이다.
+생성은 먼저 부모 여행의 소유·삭제 여부를 확인한 뒤 ID 충돌 시 같은 여행의 자기 행을 반환한다. 일정·경비에 같은 생성 요청이 동시에 와도 행은 하나이고 응답은 201과 200이다. 일정 삭제는 살아 있는 같은 여행 경비의 연결을 풀며 삭제 뒤 도착한 연결 요청도 같은 일정의 삭제가 확인되면 빈 연결로 반영한다.
 
-Schedule 생성은 기존 행보다 부모 Trip 확인이 먼저다. 그래서 부모 Trip이 삭제된 뒤 도착한 생성 재전송은 404다. 이처럼 다시 보내도 성공할 수 없는 변경을 어떤 규칙으로 끝낼지는 아직 정하지 않았다. Expense 생성은 아래의 부모 확인 공백이 그대로 남아 있다.
-
-응답 status를 바꾸는 계약이므로 [오류 처리](error-handling.md)의 기준대로 이 본문과 테스트로 고정한다. 근거는 [route 단위 검사](../../../apps/server/tests/routes/replay.idempotency.test.ts)와 [PostgreSQL 통합 검사](../../../apps/server/tests/integration/replay.idempotency.test.ts)다. 수정 재전송은 같은 값을 다시 쓰고 200을 반환한다.
+일정·경비 UPDATE는 직접 PUT과 큐에서 같은 항목별 표식을 사용한다. 표식 없는 요청이 표시된 서버 값과 충돌하면 409 `LEGACY_UPDATE_CONFLICT`로 요청 전체를 보류한다. 인증된 사용자가 원래 요청을 찾아 복구하고 정리하는 절차는 [동기화 수명](data-lifecycle/INDEX.md)에 있다. 삭제 응답과 404의 구별, 최초 생성·재전송 계약은 [PostgreSQL 통합 검사](../../../apps/server/tests/integration/field-edits-and-deletion.test.ts)에서 확인한다.
 
 ## Expense·Trip과 Local 입수의 실제 적용 범위를 구별한다
 
@@ -65,15 +65,13 @@ Schedule 생성은 기존 행보다 부모 Trip 확인이 먼저다. 그래서 �
 
 HTTP interceptor에서 변환된 APIError와 API 함수가 응답 parse 도중 던진 ZodError는 서로 다른 실패다. 재전파 catch를 제거하는 리팩터링과 오류 envelope·로그·사용자 문구 정책의 변경도 구별한다. Server의 AppError 기준과 Data route의 실제 처리 차이는 [오류 처리](error-handling.md)에서 판단한다.
 
-[Expense route](../../../apps/server/src/routes/expenses.ts)의 생성·수정은 serializeExpense 결과를 entity로 검사한 뒤 envelope를 직접 조립하고, 삭제는 최외곽 response 검사를 하지 않는다. [Trip route](../../../apps/server/src/routes/trips.ts)의 삭제도 response 검사가 없다. 이것은 위의 최외곽 검증 기준을 완전히 적용한 상태가 아니며 client parse가 server 검증을 대신하지 않는다.
-
-접근 경계도 같은 수준으로 구현돼 있지 않다. Expense 생성은 인증 userId를 사용하지만 입력의 부모 Trip·Schedule 소유자·삭제 여부·연결 관계를 조회해 검증하지 않는다. 수정의 scheduleId 연결도 같은 공백이 있다. Trip 수정·삭제는 선행 ownership 조회 뒤 mutation을 ID만으로 수행하고 선행 조회에 non-deleted 조건이 없다. Schedule의 부모 확인·scoped mutation을 이 경로의 현재 보장으로 확대하지 않는다. 이는 위 인증·소유권 기준과 일반 조회·삭제 계약의 확인·보완 대상이며 새 허용 정책이 아니다.
+[일정·경비 쓰기](../../../apps/server/src/services/entity-mutations.ts)는 검증한 요청으로 부모 여행을 잠그고, 연결 일정이 같은 여행·사용자에 속하는지 확인한다. Trip 수정은 여전히 선행 ownership 조회 뒤 ID로 변경한다. 자식 쓰기의 보장을 Trip 수정에 확대하지 않는다.
 
 생성·수정 body와 sync pull의 lastSyncedAt은 공유 schema를 검사하지만 대부분의 목록 query·path ID는 직접 사용한다. “요청을 검사한다”는 기준과 모든 입력 경계가 이미 검사된 상태는 다르다.
 
 Expense `date`의 공유 입력 정규화·date-only 계약·기존 datetime 호환과 저장 경계는 [날짜와 시각](../common/date-and-time.md), 통화 분리·금액 정밀도는 [통화와 금액](../common/currency.md)에서 판단한다.
 
-Expense·Schedule Local 조회와 mutation 반환도 날짜·시점 계약을 검사한다. 내부 행의 존재·소유권 확인은 반환 검사와 분리하며, mutation 결과 검사 실패는 commit 전에 행·큐를 함께 롤백한다. 세 entity Repository의 생성·수정 요청 검사는 Local/Remote 분기 전에 동일한 공유 schema를 적용한다.
+Expense·Schedule Local 조회와 mutation 반환도 날짜·시점 계약을 검사한다. 내부 행의 존재·소유권 확인은 반환 검사와 분리하며, mutation 결과 검사 실패는 commit 전에 행·큐를 함께 롤백한다. 세 entity Repository의 생성·수정 요청 검사는 Local/Remote 분기 전에 동일한 공유 schema를 적용한다. 일정·경비의 새 수정은 Repository에서 표식까지 준비하고, Local·API는 `edit`이 필수인 내부 입력 `PreparedEdit`를 받는다. 이 타입은 표식의 존재를 요구하며 실제 그룹 검증과 표식 발급은 `prepareEdit`가 수행한다. 하위 함수는 표식을 새로 발급하지 않고, API의 전송 전 request 검증은 유지한다. 구버전 전송 호환을 위한 공유 schema의 선택적 `edit`과 이 내부 계약을 구별한다.
 
 Activation은 `activateTripResponse`, sync pull은 `syncPullResponseSchema`로 envelope와 세 entity를 첫 Local 쓰기 전에 검사한다. Pull checkpoint인 `serverTime`도 포함한다. Sync schema에서 DB Date 객체나 필수 Trip 날짜의 null 허용을 제거해 일반 API entity와 같은 JSON 계약을 사용한다. 검사 뒤 소유권 확인을 유지하며, 입수 검사를 pull 전체 transaction이나 DB 오류 처리의 재설계로 확대하지 않는다. 서버 pull의 `lastSyncedAt`도 query schema로 검사한 뒤 SQL 비교에 사용한다.
 
@@ -88,6 +86,8 @@ Trip·Schedule·Expense는 `model/api/lib/repository/data/ui` 구조를 우선�
 | Local/Remote 선택 | `entities/*/repository`: Activation Router를 통해 분기한다. 화면·data hook이 직접 저장소를 고르지 않는다. |
 | Query cache | `entities/*/data/keys.ts`와 조회·mutation hook: repository를 호출하고 key factory로 같은 데이터의 캐시를 식별한다. 성공 뒤 영향받는 key를 invalidate한다. |
 
+일정·경비의 생성·수정·삭제 뒤에는 기존 `cancelAndInvalidateQueries`로 진행 중인 옛 조회를 취소하고 영향받는 key를 갱신한다. 캐시 없는 최초 조회는 무효화만으로 기존 요청을 계속 사용할 수 있기 때문이다. 새 조회의 완료나 성공은 저장 성공의 조건으로 삼지 않는다. 수정 중 확인한 삭제·보류로 Local 상태가 바뀔 수 있어 수정 훅은 실패 뒤에도 갱신한다.
+
 Activation/deactivation은 Trip 하나만 바뀐 작업처럼 취급하지 않고 Schedule·Expense·Route key까지 영향 관계를 확인한다. 조회 hook의 데이터 책임과 feature의 Policy 조합, 최초 실패·갱신 실패·정상 빈 결과, 취소 뒤 갱신·연결 복귀의 차이는 [여행 접근](travel-access/INDEX.md)이 소유한다. 현재 계층 예외와 제한적 조회 재사용은 [개발 기준](development-boundaries/layers.md)에서 판단한다.
 
 ## 인증 전송을 바꾸면 갱신 호출의 독립성과 세션 수명을 유지한다
@@ -96,7 +96,7 @@ Activation/deactivation은 Trip 하나만 바뀐 작업처럼 취급하지 않�
 
 갱신 요청이 인증 interceptor가 붙은 client를 다시 호출하면 순환 의존·재귀 갱신을 만들 수 있다. [auth-transport](../../../apps/client/src/shared/services/auth/auth-transport.ts)는 authAxios로 refresh하고 공유 response를 검사한다. 일반 API와 sync는 같은 [auth-interceptor](../../../apps/client/src/shared/services/auth/auth-interceptor.ts)를 사용해 요청 시점 session을 확인하고, 첫 401 뒤 갱신·한 번 재전송한다. 재전송도 401이거나 갱신이 401/403으로 거부되거나 갱신 수단이 없으면 재인증 필요로 처리한다. 통신 실패·5xx를 인증 거부로 확정하지 않는다. session 교체 뒤 응답 적용과 Local 보존의 전체 책임은 [앱 실행·세션](../current/app-runtime/INDEX.md)을 따른다.
 
-[Sync client](../../../apps/client/src/shared/services/sync/api.ts)는 별도 instance와 15초 timeout, 5xx 최대 3회 재시도(2·4·8초)를 유지한다. 일반 API의 10초 timeout·응답 unwrap·APIError 변환과는 다르지만, 401 갱신은 공유한다. sync가 무조건 갱신 없이 401을 반환한다는 옛 설명은 현재와 다르다. Sync는 AxiosResponse를 유지하므로 pull engine이 response.data를 검사하며, push는 개별 REST create/update/delete를 호출하고 성공 body를 일반 entity API처럼 parse하지 않는다. `/api/sync/push`는 인증 후 501을 반환하는 stub이며 endpoint 상수의 존재가 bulk push 구현을 뜻하지 않는다.
+[Sync client](../../../apps/client/src/shared/services/sync/api.ts)는 별도 instance와 15초 timeout, 5xx 최대 3회 재시도(2·4·8초)를 유지한다. 일반 API의 10초 timeout·응답 unwrap·APIError 변환과는 다르지만, 401 갱신은 공유한다. sync가 무조건 갱신 없이 401을 반환한다는 옛 설명은 현재와 다르다. Sync는 AxiosResponse를 유지하므로 pull engine이 response.data를 검사하며, push는 개별 REST create/update/delete를 호출한다. CREATE·UPDATE의 성공 본문은 해당 entity와 요청 ID·계정으로 검증하고 DELETE는 ID·삭제 시각이 담긴 응답을 검증한다. 기기 반영과 해당 큐 요청의 종결은 함께 확정한다. `/api/sync/push`는 인증 후 501을 반환하는 stub이며 endpoint 상수의 존재가 bulk push 구현을 뜻하지 않는다.
 
 ## 변경 전후에는 주장에 맞는 검사를 선택한다
 

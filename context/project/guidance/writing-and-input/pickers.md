@@ -16,7 +16,7 @@
 
 [TimeField](../../../../apps/client/src/shared/components/Form/TimeField.tsx)는 `useController`로 값과 오류를 구독하고 선택창 수명과 확인 반영을 함께 소유한다. `getValues`는 읽는 순간의 값만 반환하므로 구독의 대체가 아니다. 그렇다고 모든 소비자에 별도 watch가 필요한 것도 아니다. 현재 adapter의 구독을 재사용하고 `renderTrigger`로 필드 모양을 구성한다.
 
-확인은 기존 `setValue(..., { shouldValidate: true })`로 값을 쓰고 검증한다. dirty/touched를 자동 변경하지 않는 기존 동작을 보존하므로, 단순히 `field.onChange`로 치환해 검증·편집 여부의 의미를 바꾸지 않는다. 같은 폼을 외부에서 reset해도 이미 열린 시간 선택의 임시값은 유지되며, 닫고 다시 열면 최신 폼 값을 쓴다. 일정 수정은 항목 ID·Drawer 열림을 TimeField key에 반영해 다른 일정으로 넘어갈 때 이전 임시 선택을 폐기한다.
+확인은 기존 `setValue(..., { shouldValidate: true })`로 값을 쓰고 검증한다. dirty/touched를 자동 변경하지 않는 기존 동작을 보존하므로, 단순히 `field.onChange`로 치환해 검증·편집 여부의 의미를 바꾸지 않는다. 같은 폼을 외부에서 reset해도 이미 열린 시간 선택의 임시값은 유지되며, 닫고 다시 열면 최신 폼 값을 쓴다. 일정 수정은 닫기·대상 ID 변경 때 내부 편집 폼 전체를 해제하므로 TimeField에도 같은 수명이 적용된다. 별도의 TimeField key로 초기화를 중복 관리하지 않는다.
 
 예를 들어 **저장된 일정이 10:00이고 시간 선택창에서 11:00을 확인했다면**, 폼과 다음 선택창은 11:00이다. 아직 일정은 저장하지 않았으므로 수정 폼 자체를 취소하면 저장값은 10:00이다. 반대로 시간 선택창을 확인 없이 닫으면 폼의 확정값도 바뀌지 않는다.
 

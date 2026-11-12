@@ -8,8 +8,9 @@
 | [04 — 서버가 잠들어 동기화가 실패하는 일을 주기 헬스체크로 막고 확인하기](04-server-cold-start-measurement.md) | 사용자가 정한 외부 주기 헬스체크가 운영 서버를 실제로 깨워 두는지 확인한다 | 출시 전후 |
 | [05 — 서버 배포와 1.1.0 build 13 출시](05-release-server-and-build-13.md) | 1단계 결과를 운영 서버와 build 13에 싣고 사용자의 심사 제출로 넘긴다 | 출시 |
 | [06 — 멈춘 동기화를 알 수 있게 하기](06-stalled-sync-visibility.md) | 계속 실패하는 작업을 출시 빌드에서 개발자가 알 수 있게 하고 동기화 시작·실패 횟수를 남긴다. 사용자 표시는 Workspace 008 | 2단계 |
-| [07 — 충돌로 막힌 변경을 규칙으로 끝내기](07-conflict-rule-and-cleanup.md) | 일정·경비 UPDATE, 구버전 호환, 삭제된 여행의 미전송 일정·경비 정리와 일정·경비 자체의 삭제 처리를 결정했다. | 3단계 · 구현 전 |
+| [07 — 충돌로 막힌 변경을 규칙으로 끝내기](07-conflict-rule-and-cleanup.md) | 일정·경비 UPDATE, 구버전 호환, 삭제된 여행의 미전송 일정·경비 정리와 일정·경비 자체의 삭제 처리를 결정했다. | 최종 high 검토 보완 포함 완료 · 배포 별도 |
 | [08 — 원본 없는 큐 작업이 복원과 로그인을 막지 않게 하기](08-orphaned-queue-task-blocks-login.md) | 1.0.1에서 어긋난 큐 때문에 데이터 삭제만 남는 막힘을 없앤다 | 완료 · 배포 별도 |
+| [09 — 2〜7단계 후속 코드 검토·정리](09-staged-code-review-and-refinement.md) | 선행 high 완료는 유지하고 실제 선택의 전제·근거·반례를 단계별로 확인해 필요 수정·독립 검증·사용자 설명까지 잇는다 | 후속 미착수 · 다음은 2단계 |
 
 개별 진행과 실제 결과는 각 Ticket 본문에서 확인한다.
 
@@ -28,3 +29,5 @@
 - **여행별 큐 분리:** pull 보호가 생기거나 실제 막힘이 관찰될 때 다시 판단한다. 조건은 [Spec 05](../spec/05-constraints-design-assumptions.md)에 있다.
 - **동기화 계기 확대(저장 직후, 앱 복귀):** 제품 결정이 먼저다. [state](../../state/index.md)의 열린 판단에 있다.
 - **버전 사이 payload 호환 규칙:** Project 반영 후보다. [Spec 03](../spec/03-concepts-and-contracts.md#버전-사이-payload-호환-project-반영-후보)에 있다.
+
+09와 [009의 루프 개선](../../../../009-development-review-improvement/current/memory/tickets/01-stage-one-review-and-judgment-loop.md)은 독립적으로 시작한다. 7개 번호는 설명 구획으로 실제 동기화 실행 순서를 고정하지 않는다.

@@ -27,18 +27,18 @@
 | 대상 | 현재 초기화·보존 조건 |
 | --- | --- |
 | 일정 생성 | 여행 ID별 작성 수명. 검색/작성 전환과 연결 변화로 초기화하지 않음 |
-| 일정 수정 | Drawer를 열거나 열린 상태에서 일정 ID가 바뀌면 해당 항목으로 폼을 다시 구성. 편집 중 같은 ID의 조회 갱신으로 날짜·시간대 기준을 바꾸지 않음 |
+| 일정 수정 | 열린 유효 대상에만 내부 폼을 장착하고 일정 ID를 key로 사용. 닫기·대상 전환은 폼과 선택창 상태를 해제하며, 같은 ID의 조회 갱신은 처음 연 데이터·시간대 기준을 바꾸지 않음 |
 | 경비 생성 | 훅의 최초 기본값을 사용. 여행 시간대·연결 일정이 늦게 도착하면 사용자가 수정하지 않은 빈 날짜만 보완 |
-| 경비 수정 | 컴포넌트는 경비 ID 변경 시 reset하며 isOpen만 바꾸면 초안 유지. 실제 ExpensesScreen은 닫을 때 expenseData를 null로 만들므로 같은 경비도 다시 열면 원본 값으로 reset. 성공 시 저장한 값을 비교 기준으로 reset |
+| 경비 수정 | 열린 유효 대상에만 내부 폼을 장착하고 경비 ID를 key로 사용. 같은 ID의 조회 갱신은 초안을 유지하고, 성공하면 닫고, 다시 열면 새 초기값으로 시작 |
 
-실제 수정 경계는 [UpdateScheduleDrawer](../../../../apps/client/src/features/schedule/update-schedule/UpdateScheduleDrawer.tsx)와 [UpdateExpenseDrawer](../../../../apps/client/src/features/expense/update-expense/UpdateExpenseDrawer.tsx)에서 확인한다. **닫힘과 해제는 다르다.** 소비자가 Drawer를 계속 장착하는지까지 보지 않고 모든 취소가 초안을 초기화한다고 설명하지 않는다. 전체 폼의 늦은 데이터·다른 항목 전환·취소 복원까지 하나의 공통 계약으로 완성된 상태는 아니다.
+실제 수정 경계는 [UpdateScheduleDrawer](../../../../apps/client/src/features/schedule/update-schedule/UpdateScheduleDrawer.tsx)와 [UpdateExpenseDrawer](../../../../apps/client/src/features/expense/update-expense/UpdateExpenseDrawer.tsx)에서 확인한다. **폼의 제출 상태와 이전 요청의 결과 반영 권한을 구별한다.** 각 폼은 RHF `isSubmitting`으로 저장 버튼을 비활성화한다. 취소 버튼은 누를 수 있게 두고, 제출 중 취소·배경 터치·시스템 닫기를 시도하면 저장 중임을 안내하며 폼을 유지한다. 외부에서 대상을 교체하면 새 폼은 제출 가능한 상태로 시작하며 이전 폼의 저장을 기다리게 하지 않는다. 이미 시작한 저장 자체는 취소되지 않으므로, 해제된 폼의 늦은 검증·성공·실패가 새 초안·안내·닫기에 영향을 주지 않게 별도로 확인한다.
 
-[ExpensesScreen](../../../../apps/client/src/screens/ExpensesScreen.tsx)은 Drawer를 장착한 채 닫을 때 선택 경비를 비운다. 이 `id → undefined → id` 변화가 재열기의 reset을 일으킨다. [ScheduleScreen](../../../../apps/client/src/screens/ScheduleScreen.tsx)도 닫을 때 선택 일정을 비우며, 일정 Drawer는 대상 ID뿐 아니라 열림 자체에도 reset한다. 부모에서 대상 객체를 계속 유지하도록 바꾸면 경비의 취소·재열기 동작도 달라지므로 Drawer 내부만 보고 변경 범위를 정하지 않는다.
+[ExpensesScreen](../../../../apps/client/src/screens/ExpensesScreen.tsx)과 [ScheduleScreen](../../../../apps/client/src/screens/ScheduleScreen.tsx)은 공개 Drawer를 장착한 채 닫을 때 선택 대상을 비운다. 내부 폼은 `isOpen`과 대상의 존재를 함께 보므로, 부모가 대상 객체를 유지해도 닫았다 재열면 새 폼으로 시작한다. 공개 Drawer는 장착 조건과 대상 key를 연결하며 별도의 저장 잠금을 소유하지 않는다. 이 구조는 native 닫힘 애니메이션의 완료를 보장하는 계약은 아니다.
 
 ## 연결 제한에서 가려진 입력과 보존된 값을 구별한다
 
 현재 일정 수정은 비활성 여행의 offline/unknown에서 전체 입력 대신 제한 안내를 보여 줘 기본 입력을 계속 표시·편집한다는 계약을 충족하지 못한다. 그러나 `useForm`과 채택 장소의 상태는 그 분기 위에 있어 유지된다. 같은 항목을 계속 연 채 정책을 허용으로 복구하면 제목·확인한 폼 시각은 복원되고 명시적으로 저장할 수 있다. 복구가 자동 제출을 일으키지는 않는다.
 
-입력 영역의 TimeField는 제한 중 해제된다. 따라서 폼에 확인해 둔 시각과 picker에서 아직 확인하지 않은 임시 선택의 보존은 다르다. 다시 입력이 나타나면 시간 선택창은 닫힌 상태로 시작한다. DatePicker·장소 검색의 열림 flag는 상위 Drawer 상태이므로 이 하위 상태들까지 모두 같은 수명이라고 일반화하지 않는다. 실제 연결 전환에서의 native modal·스크롤 동작 전체를 이 코드와 제어된 검사만으로 보장하지 않는다.
+입력 영역의 TimeField는 제한 중 해제된다. 따라서 폼에 확인해 둔 시각과 picker에서 아직 확인하지 않은 임시 선택의 보존은 다르다. 다시 입력이 나타나면 시간 선택창은 닫힌 상태로 시작한다. DatePicker·장소 검색의 열림 flag는 내부 편집 폼 상태이므로 이 하위 상태들까지 모두 같은 수명이라고 일반화하지 않는다. 실제 연결 전환에서의 native modal·스크롤 동작 전체를 이 코드와 제어된 검사만으로 보장하지 않는다.
 
-경비는 입력을 유지하면서 후보·저장 영역에 제한을 표시한다. 선택한 일정의 설명을 기억하는 것은 전체 목록 cache를 제한 중 공개하는 것과 다르다. 저장 실패 뒤 초안을 유지하고 사용자의 재저장을 기다리는 기준은 생성·수정에 함께 적용하되, 같은 tick 제출 잠금과 닫기 방어는 실제 구현별로 확인한다.
+경비는 입력을 유지하면서 후보·저장 영역에 제한을 표시한다. 선택한 일정의 설명을 기억하는 것은 전체 목록 cache를 제한 중 공개하는 것과 다르다. 저장 실패 뒤 초안을 유지하고 사용자의 재저장을 기다리는 기준은 생성·수정에 함께 적용하되, 제출 상태와 닫기 제어의 구체적인 구현은 생성·수정별로 확인한다.

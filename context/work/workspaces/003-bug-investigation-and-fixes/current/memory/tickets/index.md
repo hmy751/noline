@@ -23,7 +23,7 @@
 
 - [10. 로컬 저장과 미전송 작업 보존](10-local-write-queue-safety.md): 오프라인 입력과 로컬 저장 보존 확인.
 - [11. 동기화 실패·재시도·중단 복구](11-sync-retry-recovery.md): 재연결·수동 동기화·중단 후 재시도.
-- [12. Pull 누락과 미전송 수정 덮어쓰기 방지](12-pull-consistency.md): 서버 변경 수신과 미전송 수정의 충돌 확인.
+- [12. Pull 누락과 미전송 수정 덮어쓰기 방지](12-pull-consistency.md): 서버 변경 수신과 미전송 수정의 충돌 확인. 007-07 공동 최종 high 검토 보완 포함 개발·검증 완료, 배포 별도.
 - [13. 서버 소유권과 응답 계약](13-server-scope-and-contracts.md): 다른 계정·삭제 데이터·응답을 대조하는 서버 경계 확인.
 - [14. 개발자 첫 사용의 iOS 통합 검증](14-first-use-integrated-verification.md): 로그아웃·계정 전환·재시작을 포함한 전체 사용 흐름의 마무리 검증.
 
