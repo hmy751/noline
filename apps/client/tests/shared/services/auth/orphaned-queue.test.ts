@@ -27,7 +27,6 @@ import api from '@/shared/services/sync/api';
 import { vacuumDeletedRecords } from '@/shared/services/sync/cleanup-job';
 import { pushChanges, syncData } from '@/shared/services/sync/engine';
 import {
-  deleteTask,
   getFailedTasks,
   getPendingTasks,
   getSyncableTasks,
@@ -78,10 +77,16 @@ jest.mock('expo-sqlite', () => ({
 const now = '2026-01-01T00:00:00Z';
 const session = { userId: '01ARZ3NDEKTSV4RRFFQ69G5FAV', accessToken: 'access', refreshToken: 'refresh' };
 const trip = {
-  id: 'trip-a',
+  id: '01ARZ3NDEKTSV4RRFFQ69G5FAW',
   userId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
   name: '서울',
   destination: '서울',
+  baseCurrency: 'USD',
+  country: null,
+  cityId: null,
+  latitude: null,
+  longitude: null,
+  timeZone: null,
   startDate: now,
   endDate: now,
   createdAt: now,
@@ -101,6 +106,8 @@ const orphan = {
 
 beforeEach(async () => {
   jest.clearAllMocks();
+  jest.mocked(api.put).mockResolvedValue({ data: { success: true, data: trip } });
+  jest.mocked(api.delete).mockResolvedValue({ data: { success: true, data: { id: orphan.recordId, deletedAt: now } } });
   await initializeDatabase();
   await resetDatabase();
   useAuthStore.setState({ status: 'signed-out', userId: null });
@@ -136,7 +143,7 @@ it.each(['CREATE', 'UPDATE', 'DELETE'])(
     expect(await inspectLocalAccount('01ARZ3NDEKTSV4RRFFQ69G5FAV')).toBe('same');
     expect(reportSyncSignal).toHaveBeenCalledTimes(1);
     await expect(pushChanges()).resolves.toBeUndefined();
-    expect(api.put).toHaveBeenCalledWith('/api/trips/trip-a', {});
+    expect(api.put).toHaveBeenCalledWith(`/api/trips/${trip.id}`, {});
     expect(api.post).not.toHaveBeenCalled();
     expect(api.delete).not.toHaveBeenCalled();
     expect(await getDatabase().select().from(syncQueue).all()).toEqual([{ ...orphan, action, status: 'QUARANTINED' }]);
@@ -261,7 +268,6 @@ it('원본이 pull로 되살아나도 재시도·중단 복구·상태 수정·�
   await retryFailedTask(orphan.id);
   await recoverInterruptedTasks();
   await updateTaskStatus(orphan.id, 'FAILED', 0);
-  await deleteTask(orphan.id);
   await pushChanges();
 
   expect(api.post).not.toHaveBeenCalled();
@@ -322,16 +328,19 @@ it('계정 미확정 격리는 다른 계정 로그인 후에도 조회·전송�
   expect(await inspectLocalAccount('01ARZ3NDEKTSV4RRFFQ69G5FAV')).toBe('empty');
 
   useAuthStore.setState({ status: 'signed-out', userId: null });
-  await completeLogin({ ...session, userId: 'b' });
+  await completeLogin({ ...session, userId: '01ARZ3NDEKTSV4RRFFQ69G5FB0' });
   await getDatabase()
     .insert(trips)
-    .values({ ...trip, userId: 'b' });
+    .values({ ...trip, userId: '01ARZ3NDEKTSV4RRFFQ69G5FB0' });
   await getDatabase()
     .insert(syncQueue)
     .values({ ...orphan, id: 'b-task', recordId: trip.id, payload: '{}', status: 'PENDING', action: 'UPDATE' });
 
   expect(await getTaskById(orphan.id)).toBeNull();
 
+  jest
+    .mocked(api.put)
+    .mockResolvedValueOnce({ data: { success: true, data: { ...trip, userId: '01ARZ3NDEKTSV4RRFFQ69G5FB0' } } });
   await pushChanges();
 
   expect(api.put).toHaveBeenCalledTimes(1);
@@ -400,7 +409,10 @@ it.each(['schedules', 'expenses'] as const)(
           createdAt: '2026-01-03T00:00:00Z',
         },
       ]);
-    jest.mocked(api.put).mockResolvedValueOnce({}).mockRejectedValueOnce(new Error('offline'));
+    jest
+      .mocked(api.put)
+      .mockResolvedValueOnce({ data: { success: true, data: trip } })
+      .mockRejectedValueOnce(new Error('offline'));
 
     await expect(pushChanges()).rejects.toThrow('동기화하지 못한');
     expect(reportSyncSignal).toHaveBeenCalledTimes(2);

@@ -23,6 +23,7 @@ jest.mock('@/shared/db', () => ({
 jest.mock('@/shared/lib/queryClient', () => ({ queryClient: {} }));
 jest.mock('@/shared/services/sync/cleanup-job', () => ({ processPendingCleanups: jest.fn() }));
 jest.mock('@/shared/services/sync/queue', () => ({
+  getTaskById: jest.fn(async () => ({ id: 'existing' })),
   getSyncableTasks: jest.fn(async () => [
     {
       id: 'task',
@@ -36,7 +37,6 @@ jest.mock('@/shared/services/sync/queue', () => ({
   ]),
   getSyncQueueStats: jest.fn(async () => ({ pending: 1, inProgress: 0, failed: 0, quarantined: 0, total: 1 })),
   updateTaskStatus: jest.fn(),
-  deleteTask: jest.fn(),
   retryFailedTask: jest.fn(),
   recoverInterruptedTasks: jest.fn(async () => undefined),
 }));

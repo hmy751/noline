@@ -11,10 +11,10 @@ jest.mock('@/shared/services/sync/api', () => ({
 }));
 jest.mock('@/shared/services/sync/queue', () => ({
   getSyncableTasks: jest.fn(),
+  getTaskById: jest.fn(async () => ({ id: 'existing' })),
   getSyncQueueStats: jest.fn(),
   updateTaskStatus: jest.fn(),
   retryFailedTask: jest.fn(),
-  deleteTask: jest.fn(),
 }));
 jest.mock('@/shared/services/auth/local-account', () => ({ getQueueOwner: jest.fn() }));
 jest.mock('@/shared/db', () => ({}));

@@ -144,21 +144,6 @@ export const updateTaskStatus = async (
 };
 
 /**
- * 작업 삭제 (성공 시)
- *
- * 서버 Push 성공 후 호출
- *
- * @param taskId - sync_queue 작업 ID
- */
-export const deleteTask = async (taskId: string): Promise<void> => {
-  await runDatabaseOperation(() =>
-    getDatabase()
-      .delete(syncQueue)
-      .where(and(eq(syncQueue.id, taskId), ne(syncQueue.status, 'QUARANTINED'))),
-  );
-};
-
-/**
  * 특정 테이블의 특정 레코드에 대한 PENDING 작업 존재 여부 확인
  *
  * 중복 작업 방지용

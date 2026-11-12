@@ -1,26 +1,45 @@
+import type { Query } from '@tanstack/react-query';
 import axios from 'axios';
-import { reportSyncSignal, type SyncRun } from '@/shared/diagnostics/sentry';
-import syncApiClient from './api';
+import { and, eq } from 'drizzle-orm';
+
+import { expenseEntity } from '@repo/schema/entities/expense';
+import { scheduleEntity } from '@repo/schema/entities/schedule';
+import { tripEntity } from '@repo/schema/entities/trip';
+import { deleteTripResponse } from '@repo/schema/responses/trip';
+import { deleteQueuePayloadSchema } from '@repo/schema/sync/sync-queue';
+import { syncPullResponseSchema } from '@repo/schema/sync/sync-status';
+
 import {
+  type SyncQueueItem,
+  getDatabase,
+  tripActivations,
+  runDatabaseTransaction,
+  syncQueue,
+  trips as localTrips,
+  schedules as localSchedules,
+  expenses as localExpenses,
+} from '@/shared/db';
+import { reportSyncSignal, type SyncRun } from '@/shared/diagnostics/sentry';
+import { cancelAndInvalidateQueries } from '@/shared/lib/query-refresh';
+import { queryClient } from '@/shared/lib/queryClient';
+import { isSessionRefreshFailure } from '@/shared/services/auth/auth-interceptor';
+import { getQueueOwner } from '@/shared/services/auth/local-account';
+import { AuthRequiredError, requireLocalUserId, selectLocalUserId, useAuthStore } from '@/shared/store/auth';
+
+import syncApiClient from './api';
+import { processPendingCleanups } from './cleanup-job';
+import {
+  getTaskById,
   getSyncableTasks,
   getSyncQueueStats,
-  deleteTask,
   updateTaskStatus,
   retryFailedTask,
   recoverInterruptedTasks,
 } from './queue';
+import { reconcileServerRecord, reconcileRecordInTransaction } from './reconcile';
+import { applyConfirmedDeletionInTransaction } from './confirmed-deletion';
+import { rememberConfirmedDeletionInTransaction } from './server-state';
 import { getLastSyncedAt, setLastSyncedAt } from './storage';
-import { upsertTrips, upsertSchedules, upsertExpenses } from '@/shared/db/utils';
-import { queryClient } from '@/shared/lib/queryClient';
-import { cancelAndInvalidateQueries } from '@/shared/lib/query-refresh';
-import { getDatabase, tripActivations } from '@/shared/db';
-import { and, eq } from 'drizzle-orm';
-import { AuthRequiredError, requireLocalUserId, selectLocalUserId, useAuthStore } from '@/shared/store/auth';
-import { isSessionRefreshFailure } from '@/shared/services/auth/auth-interceptor';
-import { getQueueOwner } from '@/shared/services/auth/local-account';
-import { processPendingCleanups } from './cleanup-job';
-import type { Query } from '@tanstack/react-query';
-import { syncPullResponseSchema } from '@repo/schema/sync/sync-status';
 
 /** sync-owned table의 endpoint는 여기서 관리하고 HTTP method는 action으로 결정한다. */
 const SYNC_PUSH_ENDPOINTS = {
@@ -30,6 +49,8 @@ const SYNC_PUSH_ENDPOINTS = {
 } as const;
 
 type SyncTable = keyof typeof SYNC_PUSH_ENDPOINTS;
+const LOCAL_TABLES = { trips: localTrips, schedules: localSchedules, expenses: localExpenses };
+const RESPONSE_ENTITIES = { trips: tripEntity, schedules: scheduleEntity, expenses: expenseEntity };
 type SyncAction = 'CREATE' | 'UPDATE' | 'DELETE';
 
 export class SyncIncompleteError extends Error {
@@ -49,30 +70,27 @@ async function refreshSyncQueries(): Promise<void> {
   await cancelAndInvalidateQueries(queryClient, filters);
 }
 
-async function pushTaskToServer(
+const pushTaskToServer = async (
   tableName: SyncTable,
   action: SyncAction,
   recordId: string,
   payload: unknown,
-): Promise<void> {
+): Promise<unknown> => {
   const endpoint = SYNC_PUSH_ENDPOINTS[tableName];
 
   switch (action) {
     case 'CREATE':
-      await syncApiClient.post(endpoint, payload);
-      return;
+      return (await syncApiClient.post(endpoint, payload)).data;
     case 'UPDATE':
-      await syncApiClient.put(`${endpoint}/${recordId}`, payload);
-      return;
+      return (await syncApiClient.put(`${endpoint}/${recordId}`, payload)).data;
     case 'DELETE':
-      await syncApiClient.delete(`${endpoint}/${recordId}`);
-      return;
+      return (await syncApiClient.delete(`${endpoint}/${recordId}`)).data;
     default: {
       const exhaustive: never = action;
-      throw new Error(`Unknown sync action: ${exhaustive as string}`);
+      throw new Error(`Unknown sync action: ${exhaustive}`);
     }
   }
-}
+};
 
 type RequestStage = 'local-before-send' | 'sending' | 'local-after-response';
 
@@ -122,12 +140,18 @@ export async function pushChanges(run?: SyncRun): Promise<void> {
     console.log(`[Sync] Starting push: ${tasks.length} tasks`);
 
     for (const [index, task] of tasks.entries()) {
+      if (!(await getTaskById(task.id))) {
+        continue;
+      }
       stage = 'local-before-send';
       const hasWaiting = index + 1 < tasks.length;
 
+      const taskOwnerId = await getQueueOwner(task);
+
       if (
         useAuthStore.getState().status !== 'signed-in' ||
-        (await getQueueOwner(task)) !== selectLocalUserId(useAuthStore.getState())
+        !taskOwnerId ||
+        taskOwnerId !== selectLocalUserId(useAuthStore.getState())
       ) {
         reportSyncSignal({ kind: 'sync.push.blocked', stage: 'auth-blocked', task, hasWaiting }, run);
         reportedBlock = true;
@@ -150,11 +174,11 @@ export async function pushChanges(run?: SyncRun): Promise<void> {
         }
 
         stage = 'sending';
-        await pushTaskToServer(task.tableName, task.action, task.recordId, payload);
+        const result = await pushTaskToServer(task.tableName, task.action, task.recordId, payload);
         stage = 'local-after-response';
         serverChanged = true;
 
-        await deleteTask(task.id);
+        await applyPushResponse(task, task.tableName, taskOwnerId, payload, result);
 
         console.log(`[Sync] Success: ${task.action} ${task.tableName}/${task.recordId}`);
       } catch (error) {
@@ -209,7 +233,7 @@ export async function pushChanges(run?: SyncRun): Promise<void> {
  *
  * 서버의 최신 데이터를 로컬 DB에 반영
  * - lastSyncedAt 이후 변경된 데이터만 가져옴 (증분 동기화)
- * - Upsert로 로컬 DB 업데이트
+ * - 서버 확인본 위에 미전송 입력을 투영해 로컬 DB 업데이트
  * - React Query 캐시 무효화 → UI 자동 갱신
  * - lastSyncedAt 업데이트
  */
@@ -269,36 +293,17 @@ export async function pullChanges(run?: SyncRun): Promise<void> {
       serverTime,
     });
 
-    // 로컬 DB에 Upsert (ISO string 그대로 저장)
-    if (trips && trips.length > 0) {
-      const normalizedTrips = trips.map((trip) => ({
-        ...trip,
-        userId,
-        deletedAt: trip.deletedAt ?? null,
-        version: trip.version ?? 1,
-      }));
-      await upsertTrips(normalizedTrips);
-    }
-
-    if (schedules && schedules.length > 0) {
-      const normalizedSchedules = schedules.map((schedule) => ({
-        ...schedule,
-        userId,
-        deletedAt: schedule.deletedAt ?? null,
-        version: schedule.version ?? 1,
-      }));
-      await upsertSchedules(normalizedSchedules);
-    }
-
-    if (expenses && expenses.length > 0) {
-      const normalizedExpenses = expenses.map((expense) => ({
-        ...expense,
-        userId,
-        deletedAt: expense.deletedAt ?? null,
-        version: expense.version ?? 1,
-      }));
-      await upsertExpenses(normalizedExpenses);
-    }
+    await runDatabaseTransaction(async () => {
+      for (const row of trips) {
+        await reconcileRecordInTransaction('trips', row);
+      }
+      for (const row of schedules) {
+        await reconcileRecordInTransaction('schedules', row);
+      }
+      for (const row of expenses) {
+        await reconcileRecordInTransaction('expenses', row);
+      }
+    });
 
     await refreshSyncQueries();
 
@@ -329,3 +334,60 @@ export async function syncData(run?: SyncRun): Promise<void> {
     throw error;
   }
 }
+
+/** 2xx 응답의 대상과 소유권을 확인하고 해당 요청의 SQLite 반영과 ACK를 함께 확정한다. */
+const applyPushResponse = async (
+  task: SyncQueueItem,
+  tableName: SyncTable,
+  taskOwnerId: string,
+  payload: unknown,
+  result: unknown,
+): Promise<void> => {
+  if (!result || typeof result !== 'object' || !('success' in result) || result.success !== true) {
+    throw new Error('동기화 응답이 유효하지 않습니다');
+  }
+  if (task.action !== 'DELETE') {
+    const row = 'data' in result ? result.data : undefined;
+    const parsed = RESPONSE_ENTITIES[tableName].parse(row);
+
+    if (parsed.id !== task.recordId) {
+      throw new Error('동기화 응답의 기록이 일치하지 않습니다');
+    }
+
+    await reconcileServerRecord(tableName, parsed, task.id);
+    return;
+  }
+
+  const deletion = deleteTripResponse.parse(result).data;
+
+  if (deletion.id !== task.recordId) {
+    throw new Error('삭제 확인 응답의 기록이 일치하지 않습니다');
+  }
+
+  await runDatabaseTransaction(async () => {
+    requireLocalUserId(taskOwnerId);
+    const db = getDatabase();
+    const entityTable = LOCAL_TABLES[tableName];
+    const original = await db.select().from(entityTable).where(eq(entityTable.id, task.recordId)).get();
+
+    if (original && original.userId !== taskOwnerId) {
+      throw new Error('삭제 확인 응답의 소유자가 일치하지 않습니다');
+    }
+
+    const saved = deleteQueuePayloadSchema.safeParse(payload);
+    const savedTripId = saved.success && saved.data.userId === taskOwnerId ? saved.data.tripId : null;
+    const originalTripId = original && 'tripId' in original ? original.tripId : null;
+    const tripId =
+      tableName === 'trips' ? task.recordId : typeof originalTripId === 'string' ? originalTripId : savedTripId;
+
+    if (tripId) {
+      await applyConfirmedDeletionInTransaction(tableName, task.recordId, tripId, deletion.deletedAt, {
+        completedTaskId: task.id,
+      });
+    } else {
+      // 이전 앱의 요청에 부모 ID가 없어도, 서버가 확인한 자기 기록의 삭제는 보존한다.
+      await rememberConfirmedDeletionInTransaction(tableName, task.recordId, null, deletion.deletedAt);
+    }
+    await db.delete(syncQueue).where(eq(syncQueue.id, task.id));
+  });
+};

@@ -34,7 +34,7 @@ import { useActivateTrip } from '@/entities/trip/data/useActivateTrip';
 import { pullChanges } from '@/shared/services/sync/engine';
 import apiClient from '@/shared/api/fetcher';
 import syncApiClient from '@/shared/services/sync/api';
-import { upsertTrips } from '@/shared/db/utils';
+import { reconcileServerRecord } from '@/shared/services/sync/reconcile';
 import { deleteTripLocal, getTripByIdLocal, updateTripLocal } from '@/entities/trip/lib/trip-local';
 
 jest.mock('@tanstack/react-query', () => ({
@@ -230,12 +230,12 @@ it('만료 기록 갱신에 실패하면 여행 수정과 sync_queue도 같은 t
   }
 });
 
-it('Trip pull upsert는 삽입·충돌 수정 모두에서 서버 도시 시간대를 저장한다', async () => {
+it('Trip 수신은 삽입·충돌 수정 모두에서 서버 도시 시간대를 저장한다', async () => {
   const normalized = { ...trip, deletedAt: null, version: 2 };
-  await upsertTrips([{ ...normalized, timeZone: 'Europe/Paris' }]);
+  await reconcileServerRecord('trips', { ...normalized, timeZone: 'Europe/Paris' });
   expect((await getTripByIdLocal(tripId))?.timeZone).toBe('Europe/Paris');
   const newId = '01ARZ3NDEKTSV4RRFFQ69G5FAZ';
-  await upsertTrips([{ ...normalized, id: newId, timeZone: 'America/New_York' }]);
+  await reconcileServerRecord('trips', { ...normalized, id: newId, timeZone: 'America/New_York' });
   expect((await getTripByIdLocal(newId))?.timeZone).toBe('America/New_York');
   expect((await getTripByIdLocal(tripId))?.startDate).toBe(now);
 });
@@ -364,7 +364,9 @@ it('정상 date-only 경비 pull은 그대로 저장하고 다음 기준 시각�
   } as never);
   await pullChanges();
   expect(rawExpense()).toMatchObject({ date: '2026-10-03', version: 2 });
-  expect(getDatabase().select().from(syncMetadata).get()?.value).toBe(new Date(now).toISOString());
+  expect(getDatabase().select().from(syncMetadata).where(eq(syncMetadata.key, 'lastSyncedAt')).get()?.value).toBe(
+    new Date(now).toISOString(),
+  );
 });
 
 it('잘못된 activation 경비는 기존 활성 상태·행을 변경하기 전에 거절한다', async () => {
@@ -379,6 +381,25 @@ it('잘못된 activation 경비는 기존 활성 상태·행을 변경하기 전
     expect.objectContaining({ tripId, isActivated: true }),
   ]);
   expect(getDatabase().select().from(trips).all()).toHaveLength(1);
+});
+
+it('재활성화 응답에서도 전송을 기다리는 금액과 삭제를 보호하고 독립 분류를 받는다', async () => {
+  await updateExpenseLocal(expenseId, { edit, amount: '30', currency: 'USD' });
+  const serverRow = { ...row, date: '2026-10-02', amount: '25', category: 'transportation' };
+  jest.mocked(apiClient.post).mockResolvedValue({
+    success: true,
+    data: { trips: [trip], schedules: [], expenses: [serverRow] },
+  } as never);
+  const activation = useActivateTrip() as unknown as { mutationFn: (id: string) => Promise<unknown> };
+  await getDatabase().update(tripActivations).set({ isActivated: false });
+  await activation.mutationFn(tripId);
+  expect(rawExpense()).toMatchObject({ amount: '30', category: 'transportation', deletedAt: null });
+
+  await deleteExpenseLocal(expenseId);
+  await getDatabase().update(tripActivations).set({ isActivated: false });
+  await activation.mutationFn(tripId);
+  expect(rawExpense()?.deletedAt).toBeTruthy();
+  expect(queued().map((task) => task.action)).toEqual(['UPDATE', 'DELETE']);
 });
 
 it('정상 activation 경비는 date-only로 저장하고 앱에도 같은 날짜를 반환한다', async () => {
@@ -546,7 +567,9 @@ it('정상 pull은 세 entity의 ISO 시각·date-only와 삭제 시각을 검�
     deletedAt: now,
   });
   expect(rawExpense()?.date).toBe('2026-10-03');
-  expect(getDatabase().select().from(syncMetadata).get()?.value).toBe(new Date(now).toISOString());
+  expect(getDatabase().select().from(syncMetadata).where(eq(syncMetadata.key, 'lastSyncedAt')).get()?.value).toBe(
+    new Date(now).toISOString(),
+  );
 });
 
 const localDeleteCases = [

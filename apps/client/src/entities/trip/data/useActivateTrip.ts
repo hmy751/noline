@@ -1,37 +1,39 @@
-import { withTripOperation } from '@/shared/services/offline-prep/trip-operation';
-import { AuthRequiredError, requireLocalUserId, requireRemoteSession, useAuthStore } from '@/shared/store/auth';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { and, eq, isNull } from 'drizzle-orm';
+
+import { activateTripResponse } from '@repo/schema/responses/trip';
+
+import { expenseQueryKeys } from '@/entities/expense/data/keys';
+import { routeQueryKeys } from '@/entities/route/data/keys';
+import { scheduleQueryKeys } from '@/entities/schedule/data/keys';
+import apiClient from '@/shared/api/fetcher';
 import {
   getDatabase,
-  trips,
   tripActivations,
+  trips as tripsTable,
   schedules as schedulesTable,
   expenses as expensesTable,
 } from '@/shared/db';
-import { eq } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
-import apiClient from '@/shared/api/fetcher';
-import { tripQueryKeys } from './keys';
-import { scheduleQueryKeys } from '@/entities/schedule/data/keys';
-import { expenseQueryKeys } from '@/entities/expense/data/keys';
-import { routeQueryKeys } from '@/entities/route/data/keys';
-import { downloadOfflineMapInBackground } from '@/shared/services/offline-map/download';
-import { downloadRoutesForSchedules } from '@/shared/services/directions/route-downloader';
-import { generateId } from '@/shared/services/id/ulid';
 import { getTripExpiryISO } from '@/shared/lib/lifecycle';
 import { cancelAndInvalidateQueries } from '@/shared/lib/query-refresh';
-import type { Trip } from '../model/types';
-import { activateTripResponse } from '@repo/schema/responses/trip';
+import { downloadRoutesForSchedules } from '@/shared/services/directions/route-downloader';
+import { generateId } from '@/shared/services/id/ulid';
+import { downloadOfflineMapInBackground } from '@/shared/services/offline-map/download';
+import { withTripOperation } from '@/shared/services/offline-prep/trip-operation';
+import { reconcileRecordInTransaction } from '@/shared/services/sync/reconcile';
+import { AuthRequiredError, requireLocalUserId, requireRemoteSession, useAuthStore } from '@/shared/store/auth';
 
-/**
- * 여행 활성화 Mutation Hook
- *
- * - 서버에서 모든 Trip 메타데이터 + 선택한 여행의 데이터 Pull (일정, 경비 등)
- * - tripActivations 레코드 생성 (Single Source of Truth)
- * - 동시에 1개 여행만 활성화 가능 (기존 활성화된 여행 자동 비활성화)
- * - 오프라인 지도 다운로드 백그라운드 실행
- *
- */
+import { tripQueryKeys } from './keys';
+
+const readVisibleSchedules = (tripId: string, userId: string) =>
+  getDatabase()
+    .select()
+    .from(schedulesTable)
+    .where(and(eq(schedulesTable.tripId, tripId), eq(schedulesTable.userId, userId), isNull(schedulesTable.deletedAt)))
+    .all();
+
+/** 서버 판본을 반영한 사본과 활성 상태를 함께 저장한다. 지도와 경로 다운로드는 성공 반환 후에도 진행될 수 있다. */
 export const useActivateTrip = () => {
   const queryClient = useQueryClient();
 
@@ -40,18 +42,23 @@ export const useActivateTrip = () => {
       withTripOperation(tripId, async () => {
         requireRemoteSession();
         const sessionId = useAuthStore.getState().sessionId;
-        const now = getCurrentISOString();
+        const requestingUserId = requireLocalUserId();
 
-        // 이미 활성화된 경우 - 경로만 다운로드하고 종료
         const existingActivation = getDatabase()
           .select()
           .from(tripActivations)
-          .where(eq(tripActivations.tripId, tripId))
+          .where(and(eq(tripActivations.tripId, tripId), eq(tripActivations.userId, requestingUserId)))
           .get();
 
-        if (existingActivation?.isActivated) {
-          console.log(`[TripActivation] Trip already activated: ${tripId}, checking routes...`);
-
+        const existingTrip = getDatabase()
+          .select()
+          .from(tripsTable)
+          .where(and(eq(tripsTable.id, tripId), eq(tripsTable.userId, requestingUserId)))
+          .get();
+        if (existingActivation?.isActivated && existingTrip?.deletedAt) {
+          throw new Error('삭제된 여행은 활성화할 수 없습니다');
+        }
+        if (existingActivation?.isActivated && existingTrip) {
           downloadRoutesForSchedules({ tripId }).catch((error) => {
             console.error('[TripActivation] Route download failed for already activated trip:', error);
           });
@@ -59,49 +66,54 @@ export const useActivateTrip = () => {
           return { tripId, alreadyActivated: true };
         }
 
-        // 서버에서 여행 데이터 Pull (모든 Trip + 일정, 경비)
         const response = await apiClient.post(`/api/trips/${tripId}/activate`);
 
-        // apiClient가 HTTP wrapper를 제거한 응답 envelope 전체를 입수 전에 검사한다.
         const { trips: allTrips, schedules, expenses } = activateTripResponse.parse(response).data;
 
-        // 활성화하려는 여행 정보 찾기 (서버 응답에서)
-        const trip = allTrips.find((t: Trip) => t.id === tripId);
-
-        if (!trip) {
+        if (!allTrips.some((trip) => trip.id === tripId)) {
           throw new Error(`Trip not found in server response: ${tripId}`);
         }
-        if (!trip.timeZone) throw new Error('여행 도시의 시간대를 확인한 뒤 활성화해주세요.');
-        const expiresAt = getTripExpiryISO(trip.endDate, trip.timeZone);
 
-        // 트랜잭션: 로컬 DB 업데이트
-        await withTransaction(async () => {
+        const reconciled = await withTransaction(async () => {
           if (!useAuthStore.isCurrentSession(sessionId)) {
             throw new AuthRequiredError();
           }
+
           const userId = requireLocalUserId();
-          if (
-            [...allTrips, ...schedules, ...expenses].some((row: { userId: string | null }) => row.userId !== userId)
-          ) {
+
+          if (userId !== requestingUserId) {
+            throw new AuthRequiredError();
+          }
+          if ([...allTrips, ...schedules, ...expenses].some((row) => row.userId !== userId)) {
             throw new Error('다른 계정의 여행 데이터는 활성화할 수 없습니다');
           }
-          // 모든 Trip 메타데이터 저장 (upsert)
-          if (allTrips.length > 0) {
-            for (const tripData of allTrips) {
-              await getDatabase()
-                .insert(trips)
-                .values({ ...tripData, userId })
-                .onConflictDoUpdate({
-                  target: trips.id,
-                  set: {
-                    ...tripData,
-                    userId,
-                    updatedAt: tripData.updatedAt,
-                  },
-                });
-            }
-            console.log(`[TripActivation] Saved ${allTrips.length} trips to local DB`);
+          if ([...schedules, ...expenses].some((row) => row.tripId !== tripId)) {
+            throw new Error('활성화 응답의 여행이 일치하지 않습니다');
           }
+
+          for (const row of allTrips) {
+            await reconcileRecordInTransaction('trips', row);
+          }
+
+          const currentTrip = await getDatabase()
+            .select()
+            .from(tripsTable)
+            .where(and(eq(tripsTable.id, tripId), eq(tripsTable.userId, userId)))
+            .get();
+
+          // 삭제 응답을 받은 뒤 도착한 활성화는 다시 살리지 않는다. 수신한 사실은 rollback하지 않는다.
+          if (!currentTrip || currentTrip.deletedAt) {
+            if (!useAuthStore.isCurrentSession(sessionId)) {
+              throw new AuthRequiredError();
+            }
+            return null;
+          }
+          if (!currentTrip.timeZone) {
+            throw new Error('여행 도시의 시간대를 확인한 뒤 활성화해주세요.');
+          }
+
+          const expiresAt = getTripExpiryISO(currentTrip.endDate, currentTrip.timeZone);
+          const now = getCurrentISOString();
 
           // 기존 활성화 레코드 비활성화 (1-Trip 제한, tripActivations만 사용)
           await getDatabase()
@@ -148,69 +160,56 @@ export const useActivateTrip = () => {
               },
             });
 
-          // Pull된 데이터 로컬 DB에 저장 (Last-Write-Wins)
-          if (schedules.length > 0) {
-            for (const schedule of schedules) {
-              await getDatabase()
-                .insert(schedulesTable)
-                .values({ ...schedule, userId })
-                .onConflictDoUpdate({
-                  target: schedulesTable.id,
-                  set: {
-                    ...schedule,
-                    userId,
-                    updatedAt: schedule.updatedAt,
-                  },
-                });
-            }
-            console.log(`[TripActivation] Saved ${schedules.length} schedules to local DB`);
+          for (const row of schedules) {
+            await reconcileRecordInTransaction('schedules', row);
+          }
+          for (const row of expenses) {
+            await reconcileRecordInTransaction('expenses', row);
+          }
+          const reconciledRecords = {
+            schedules: readVisibleSchedules(tripId, userId),
+            expenses: await getDatabase()
+              .select()
+              .from(expensesTable)
+              .where(
+                and(
+                  eq(expensesTable.tripId, tripId),
+                  eq(expensesTable.userId, userId),
+                  isNull(expensesTable.deletedAt),
+                ),
+              )
+              .all(),
+          };
+
+          if (!useAuthStore.isCurrentSession(sessionId)) {
+            throw new AuthRequiredError();
           }
 
-          if (expenses.length > 0) {
-            for (const expense of expenses) {
-              await getDatabase()
-                .insert(expensesTable)
-                .values({ ...expense, userId })
-                .onConflictDoUpdate({
-                  target: expensesTable.id,
-                  set: {
-                    ...expense,
-                    userId,
-                    updatedAt: expense.updatedAt,
-                  },
-                });
-            }
-            console.log(`[TripActivation] Saved ${expenses.length} expenses to local DB`);
-          }
+          return reconciledRecords;
         });
 
-        console.log(
-          `[TripActivation] Trip activated: ${tripId} (${schedules.length} schedules, ${expenses.length} expenses)`,
-        );
+        if (!reconciled) {
+          throw new Error('삭제된 여행은 활성화할 수 없습니다');
+        }
 
-        // 백그라운드로 오프라인 지도 다운로드 시작 (비동기, UI 블로킹 방지)
         downloadOfflineMapInBackground(tripId).catch((error) => {
           console.error('[TripActivation] Background map download failed:', error);
         });
 
-        // 백그라운드로 경로 다운로드 (Mapbox Directions API)
         downloadRoutesForSchedules({ tripId }).catch((error) => {
           console.error('[TripActivation] Background route download failed:', error);
         });
 
-        return { tripId, alreadyActivated: false, schedules, expenses };
+        return { tripId, alreadyActivated: false, ...reconciled };
       }),
-    onSuccess: async (data) => {
-      // 캐시 무효화 - 여행 목록 및 활성화 상태 다시 조회
+    onSuccess: async (activation) => {
       await cancelAndInvalidateQueries(queryClient, { queryKey: tripQueryKeys.base });
 
-      // Pull된 데이터 반영 (Schedule, Expense, Route)
-      if (!data.alreadyActivated) {
+      if (!activation.alreadyActivated) {
         // Remote에서 시작한 최초 조회도 Local 전환 뒤 결과를 덮어쓰지 않게 한다.
-        await cancelAndInvalidateQueries(queryClient, { queryKey: scheduleQueryKeys.list(data.tripId) });
-        await cancelAndInvalidateQueries(queryClient, { queryKey: expenseQueryKeys.byTrip(data.tripId) });
-        queryClient.invalidateQueries({ queryKey: routeQueryKeys.byTrip(data.tripId) });
-        console.log(`[TripActivation] Trip activation completed: ${data.tripId}`);
+        await cancelAndInvalidateQueries(queryClient, { queryKey: scheduleQueryKeys.list(activation.tripId) });
+        await cancelAndInvalidateQueries(queryClient, { queryKey: expenseQueryKeys.byTrip(activation.tripId) });
+        queryClient.invalidateQueries({ queryKey: routeQueryKeys.byTrip(activation.tripId) });
       }
     },
     onError: (error) => {

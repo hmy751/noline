@@ -1,9 +1,11 @@
 /** @jest-environment node */
-import { sql } from 'drizzle-orm';
 import { beforeEach, expect, it, jest } from '@jest/globals';
+import { sql } from 'drizzle-orm';
+
 import { getDatabase, initializeDatabase, resetDatabase, runDatabaseTransaction, schedules, trips } from '@/shared/db';
-import { upsertSchedules } from '@/shared/db/utils';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
+import { reconcileServerRecord } from '@/shared/services/sync/reconcile';
+import { useAuthStore } from '@/shared/store/auth';
 
 interface TestDatabase {
   exec: (sql: string) => void;
@@ -75,6 +77,7 @@ const schedule = {
 };
 
 beforeEach(async () => {
+  useAuthStore.setState({ status: 'signed-in', userId: 'user-a' });
   await initializeDatabase();
   await resetDatabase();
   await getDatabase().insert(trips).values({
@@ -106,11 +109,11 @@ it('실패한 local transaction의 rollback이 동시에 시작한 sync upsert�
   });
 
   await transactionStarted;
-  const upsert = upsertSchedules([{ ...schedule, id: 'independent', title: 'independent' }]);
+  const reconciliation = reconcileServerRecord('schedules', { ...schedule, id: 'independent', title: 'independent' });
   releaseTransaction();
 
   await expect(failedTransaction).rejects.toThrow('local write failed');
-  await upsert;
+  await reconciliation;
   const ids = (await getDatabase().select().from(schedules).all()).map(({ id }) => id);
   expect(ids).toContain('independent');
 });

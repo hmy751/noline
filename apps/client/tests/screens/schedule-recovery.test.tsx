@@ -27,6 +27,7 @@ jest.mock('@/shared/services/sync/storage', () => ({ getLastSyncedAt: async () =
 jest.mock('@/shared/services/sync/cleanup-job', () => ({}));
 jest.mock('@/shared/db/utils', () => ({}));
 jest.mock('@/shared/db', () => ({
+  runDatabaseTransaction: async (operation: () => unknown) => operation(),
   tripActivations: { isActivated: 'active', userId: 'user', tripId: 'trip' },
   getDatabase: () => ({ select: () => ({ from: () => ({ where: async () => [{ tripId: 'local' }] }) }) }),
 }));

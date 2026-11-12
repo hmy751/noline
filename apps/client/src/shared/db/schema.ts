@@ -1,5 +1,8 @@
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import type { z } from 'zod';
+
 import type { FieldEdits } from '@repo/schema/sync/field-edits';
+import type { syncPullDataSchema } from '@repo/schema/sync/sync-status';
 
 // ========================================
 // Trips Table
@@ -282,3 +285,40 @@ export const tripActivations = sqliteTable('trip_activations', {
 
 export type TripActivation = typeof tripActivations.$inferSelect;
 export type NewTripActivation = typeof tripActivations.$inferInsert;
+
+/** 구버전 수정의 원문과 서버 현재 값을 보존한다. 큐와 분리해 후속 전송을 허용한다. */
+export const legacySyncHolds = sqliteTable('legacy_sync_holds', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  serverBacked: integer('server_backed', { mode: 'boolean' }).notNull().default(false),
+  tableName: text('table_name').notNull(),
+  recordId: text('record_id').notNull(),
+  tripId: text('trip_id').notNull(),
+  payload: text('payload', { mode: 'json' }).$type<Record<string, unknown>>().notNull(),
+  current: text('current', { mode: 'json' }).$type<Record<string, unknown>>().notNull(),
+  createdAt: text('created_at').notNull(),
+});
+export type LegacySyncHold = typeof legacySyncHolds.$inferSelect;
+
+/** 오프라인에서 확인한 입력이 다음 서버 수신으로 다시 나타나지 않게 한다. */
+export const legacyHoldAcks = sqliteTable('legacy_hold_acks', {
+  id: text('id').primaryKey(),
+  acknowledged: integer('acknowledged', { mode: 'boolean' }).notNull().default(false),
+  userId: text('user_id').notNull(),
+  createdAt: text('created_at').notNull(),
+});
+
+export type SyncTableName = 'trips' | 'schedules' | 'expenses';
+export type ServerRow<Table extends SyncTableName = SyncTableName> = z.infer<typeof syncPullDataSchema>[Table][number];
+
+/** 서버에서 확인한 판본과 pending 표시 아래의 원본. FK 없이 삭제 증거를 vacuum 뒤에도 보존한다. */
+export const serverRecords = sqliteTable('server_records', {
+  key: text('key').primaryKey(),
+  userId: text('user_id').notNull(),
+  tableName: text('table_name').notNull(),
+  recordId: text('record_id').notNull(),
+  tripId: text('trip_id'),
+  version: integer('version'),
+  record: text('record', { mode: 'json' }).$type<ServerRow>(),
+  deletedAt: text('deleted_at'),
+});

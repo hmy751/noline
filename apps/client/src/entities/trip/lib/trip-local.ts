@@ -9,6 +9,7 @@ import { getCurrentISOString, withTransaction } from '@/shared/db/utils';
 import { getTripExpiryISO } from '@/shared/lib/lifecycle';
 import { activeTripScope, assertActiveLocalTrip, ownedRow } from '@/shared/services/auth/local-access';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
+import { reconcileRecordInTransaction } from '@/shared/services/sync/reconcile';
 import { requireLocalUserId } from '@/shared/store/auth';
 import { AuthRequiredError, selectLocalUserId, useAuthStore } from '@/shared/store/auth';
 
@@ -131,19 +132,9 @@ export const refreshTripListLocal = async (serverTrips: Trip[], sessionId: symbo
     const serverIds = new Set(serverTrips.map((trip) => trip.id));
 
     for (const trip of serverTrips) {
-      if (protectedIds.has(trip.id)) continue;
-
-      const record = { ...trip, userId, deletedAt: trip.deletedAt ?? null, version: trip.version ?? 1 };
-
-      await getDatabase()
-        .insert(trips)
-        .values(record)
-        .onConflictDoUpdate({
-          target: trips.id,
-          set: record,
-          setWhere: ownedRow(trips.userId),
-        });
+      await reconcileRecordInTransaction('trips', { ...trip, userId });
     }
+
     // 서버에서 사라진 비활성 사본을 숨긴다. 미전송 삭제를 포함한 로컬 원본은 보존한다.
     const now = getCurrentISOString();
 

@@ -1,10 +1,13 @@
-import { drizzle, type ExpoSQLiteDatabase } from 'drizzle-orm/expo-sqlite';
 import * as SQLite from 'expo-sqlite';
-import * as schema from './schema';
+
 import { sql } from 'drizzle-orm';
+import { drizzle, type ExpoSQLiteDatabase } from 'drizzle-orm/expo-sqlite';
+
 import { migrateFieldEdits } from './migrations/field-edits';
+import { migrateServerRecords } from './migrations/server-records';
 import { migrateRouteInputs } from './migrations/route-inputs';
 import { migrateTripTimeZone } from './migrations/trip-time-zone';
+import * as schema from './schema';
 
 let databaseConnection: SQLite.SQLiteDatabase | undefined;
 
@@ -161,6 +164,7 @@ export async function initializeDatabase() {
     `);
 
     migrateFieldEdits(expoDb);
+    migrateServerRecords(expoDb);
 
     // Sync Queue 테이블 생성
     expoDb.execSync(`
@@ -301,7 +305,10 @@ export async function resetDatabase() {
       expoDb.execSync(`DROP TABLE IF EXISTS routes;`);
       expoDb.execSync(`DROP TABLE IF EXISTS offline_cities;`);
       expoDb.execSync(`DROP TABLE IF EXISTS sync_metadata;`);
+      expoDb.execSync(`DROP TABLE IF EXISTS server_records;`);
       expoDb.execSync(`DROP TABLE IF EXISTS sync_queue;`);
+      expoDb.execSync(`DROP TABLE IF EXISTS legacy_sync_holds;`);
+      expoDb.execSync(`DROP TABLE IF EXISTS legacy_hold_acks;`);
       expoDb.execSync(`DROP TABLE IF EXISTS expenses;`);
       expoDb.execSync(`DROP TABLE IF EXISTS schedules;`);
       expoDb.execSync(`DROP TABLE IF EXISTS trips;`);

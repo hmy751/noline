@@ -43,3 +43,4 @@ export * from './sync/sync-queue';
 export * from './sync/sync-status';
 
 export * from './sync/field-edits';
+export * from './sync/storage-input';

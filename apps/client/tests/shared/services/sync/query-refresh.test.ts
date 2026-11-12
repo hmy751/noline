@@ -1,25 +1,32 @@
 import { afterEach, beforeEach, expect, it, jest } from '@jest/globals';
 import { QueryClient, QueryObserver } from '@tanstack/react-query';
 import { pushChanges, syncData, SyncIncompleteError } from '@/shared/services/sync/engine';
-import { getSyncableTasks, getSyncQueueStats, deleteTask } from '@/shared/services/sync/queue';
+import { getSyncableTasks, getSyncQueueStats } from '@/shared/services/sync/queue';
 import api from '@/shared/services/sync/api';
 import { useAuthStore } from '@/shared/store/auth';
+import { reconcileServerRecord } from '@/shared/services/sync/reconcile';
 
 jest.mock('expo-secure-store', () => ({}));
+jest.mock('@/shared/services/sync/reconcile', () => ({
+  reconcileServerRecord: jest.fn<() => Promise<void>>(),
+}));
 jest.mock('@/shared/services/sync/api', () => ({
   __esModule: true,
   default: { put: jest.fn(), get: jest.fn(), post: jest.fn(), delete: jest.fn() },
 }));
 jest.mock('@/shared/services/sync/queue', () => ({
   getSyncableTasks: jest.fn(),
+  getTaskById: jest.fn(async () => ({ id: 'existing' })),
   getSyncQueueStats: jest.fn(),
   updateTaskStatus: jest.fn(),
-  deleteTask: jest.fn(),
   retryFailedTask: jest.fn(),
   recoverInterruptedTasks: jest.fn(async () => undefined),
 }));
-jest.mock('@/shared/services/auth/local-account', () => ({ getQueueOwner: async () => 'a' }));
-jest.mock('@/shared/services/sync/storage', () => ({ getLastSyncedAt: async () => null, setLastSyncedAt: jest.fn() }));
+jest.mock('@/shared/services/auth/local-account', () => ({ getQueueOwner: async () => '01ARZ3NDEKTSV4RRFFQ69G5FAZ' }));
+jest.mock('@/shared/services/sync/storage', () => ({
+  getLastSyncedAt: async () => null,
+  setLastSyncedAt: jest.fn(),
+}));
 jest.mock('@/shared/services/sync/cleanup-job', () => ({ processPendingCleanups: async () => 0 }));
 jest.mock('@/shared/db/utils', () => ({}));
 jest.mock('@/shared/db', () => ({
@@ -39,7 +46,7 @@ const key = ['schedule', 'list', 'inactive-trip'];
 const task = {
   id: 'task',
   tableName: 'schedules',
-  recordId: 'schedule',
+  recordId: '01ARZ3NDEKTSV4RRFFQ69G5FAW',
   action: 'UPDATE',
   payload: '{}',
   status: 'PENDING',
@@ -65,11 +72,17 @@ function observe(queryFn: () => Promise<string>, queryKey = key) {
 beforeEach(() => {
   mockClient = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0, refetchOnReconnect: false } } });
   mockActivatedTrips = [];
-  useAuthStore.setState({ status: 'signed-in', userId: 'a', sessionId: Symbol('session') });
+  useAuthStore.setState({ status: 'signed-in', userId: '01ARZ3NDEKTSV4RRFFQ69G5FAZ', sessionId: Symbol('session') });
   jest.mocked(getSyncableTasks).mockReset().mockResolvedValue([task]);
-  jest.mocked(getSyncQueueStats).mockReset().mockResolvedValue({ pending: 0, inProgress: 0, failed: 0, quarantined: 0, total: 0 });
-  jest.mocked(deleteTask).mockReset().mockResolvedValue(undefined);
-  jest.mocked(api.put).mockReset().mockResolvedValue({});
+  jest
+    .mocked(getSyncQueueStats)
+    .mockReset()
+    .mockResolvedValue({ pending: 0, inProgress: 0, failed: 0, quarantined: 0, total: 0 });
+  jest.mocked(reconcileServerRecord).mockReset().mockResolvedValue(undefined);
+  jest
+    .mocked(api.put)
+    .mockReset()
+    .mockResolvedValue({ data: { success: true, data: mockServerRow } });
   jest.mocked(api.get).mockReset();
   jest.spyOn(console, 'log').mockImplementation(() => undefined);
   jest.spyOn(console, 'error').mockImplementation(() => undefined);
@@ -100,7 +113,7 @@ it.each([
     observe(read, queryKey);
     jest.mocked(api.put).mockImplementationOnce(async () => {
       serverValue = 'push 이후 값';
-      return {} as never;
+      return { data: { success: true, data: mockServerRow } } as never;
     });
     await syncData();
     expect(api.get).not.toHaveBeenCalled();
@@ -115,7 +128,10 @@ it('push 일부 성공 뒤 다음 전송이 실패해도 성공한 변경을 갱
   mockClient.setQueryData(key, '이전 값');
   observe(async () => '첫 전송 이후 값');
   jest.mocked(getSyncableTasks).mockResolvedValue([task, { ...task, id: 'second', recordId: 'second' }]);
-  jest.mocked(api.put).mockResolvedValueOnce({}).mockRejectedValueOnce(new Error('failed'));
+  jest
+    .mocked(api.put)
+    .mockResolvedValueOnce({ data: { success: true, data: mockServerRow } })
+    .mockRejectedValueOnce(new Error('failed'));
   jest.mocked(getSyncQueueStats).mockResolvedValue({ pending: 0, inProgress: 0, failed: 1, quarantined: 0, total: 1 });
   await expect(syncData()).rejects.toBeInstanceOf(SyncIncompleteError);
   expect(mockClient.getQueryData(key)).toBe('첫 전송 이후 값');
@@ -125,7 +141,7 @@ it('push 일부 성공 뒤 다음 전송이 실패해도 성공한 변경을 갱
 it('서버 쓰기 뒤 큐 삭제가 실패해도 서버 변경을 다시 읽는다', async () => {
   mockClient.setQueryData(key, '이전 값');
   observe(async () => '서버에 반영된 값');
-  jest.mocked(deleteTask).mockRejectedValueOnce(new Error('local queue failed'));
+  jest.mocked(reconcileServerRecord).mockRejectedValueOnce(new Error('local queue failed'));
   jest.mocked(getSyncQueueStats).mockResolvedValue({ pending: 0, inProgress: 0, failed: 1, quarantined: 0, total: 1 });
   await expect(pushChanges()).rejects.toBeInstanceOf(SyncIncompleteError);
   expect(mockClient.getQueryData(key)).toBe('서버에 반영된 값');
@@ -169,3 +185,19 @@ it('활성 구독이 없으면 캐시를 무효화만 하고 나중 구독할 �
   await observer.refetch();
   expect(mockClient.getQueryData(key)).toBe('새 값');
 });
+
+const mockServerRow = {
+  id: '01ARZ3NDEKTSV4RRFFQ69G5FAW',
+  userId: '01ARZ3NDEKTSV4RRFFQ69G5FAZ',
+  createdAt: '2026-01-01T00:00:00Z',
+  updatedAt: '2026-01-01T00:00:00Z',
+  deletedAt: null,
+  version: 1,
+  latitude: null,
+  longitude: null,
+  tripId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+  title: '제목',
+  location: '서울',
+  address: null,
+  scheduledAt: '2026-01-01T00:00:00Z',
+};
