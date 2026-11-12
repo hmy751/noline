@@ -1,13 +1,15 @@
-import { getTripActivationStatus, hasAnyActivatedTrip } from './metadata';
-import { OfflineError, type OfflineErrorOptions } from './errors';
 import { APIError } from '@/shared/api/errors';
+import { AuthRequiredError, requireLocalUserId, requireRemoteSession, useAuthStore } from '@/shared/store/auth';
 import { networkStore } from '@/shared/store/network';
-import { requireLocalUserId, requireRemoteSession, useAuthStore } from '@/shared/store/auth';
 
-interface RouteOperations<T> {
-  local: () => Promise<T>;
-  remote: () => Promise<T>;
-}
+import { OfflineError, type OfflineErrorOptions } from './errors';
+import { getTripActivationStatus, hasAnyActivatedTrip } from './metadata';
+import { withTripOperation } from './trip-operation';
+
+type RouteOperations<T, Input = void> = {
+  local: (input: Input) => Promise<T>;
+  remote: (input: Input) => Promise<T>;
+};
 
 function assertRemoteAvailable(
   offlineMessage: string,
@@ -79,16 +81,53 @@ export async function routeTripCreation<T>(remote: () => Promise<T>): Promise<T>
 }
 
 /** Trip 수정·삭제와 Schedule·Expense 쓰기는 대상 여행의 활성 여부로 분기한다. */
-export async function routeChildMutation<T>(tripId: string, operations: RouteOperations<T>): Promise<T> {
-  requireLocalUserId();
-  const isActivated = await getTripActivationStatus(tripId);
+export function routeChildMutation<T>(tripId: string, operations: RouteOperations<T>): Promise<T>;
+export function routeChildMutation<T, Input>(
+  tripId: string,
+  operations: RouteOperations<T, Input>,
+  preparation: Promise<Input>,
+): Promise<T>;
+export async function routeChildMutation<T, Input>(
+  tripId: string,
+  operations: RouteOperations<T, Input>,
+  preparation?: Promise<Input>,
+): Promise<T> {
+  // 먼저 여행 작업 순서를 확보하고, 앞선 작업을 기다리는 동안 발생한 준비 실패도 전달한다.
+  const prepared = preparation?.then(
+    (input) => ({ success: true as const, input }),
+    (error: unknown) => ({ success: false as const, error }),
+  );
 
-  assertWritesAllowed();
+  return await withTripOperation(tripId, async () => {
+    const userId = requireLocalUserId();
+    const sessionId = useAuthStore.getState().sessionId;
+    const result = await prepared;
 
-  if (isActivated) {
-    return await operations.local();
-  }
+    if (result && !result.success) {
+      throw result.error;
+    }
 
-  assertRemoteAvailable('오프라인에서는 활성화된 여행만 수정할 수 있어요', tripId);
-  return await operations.remote();
+    if (requireLocalUserId() !== userId || useAuthStore.getState().sessionId !== sessionId) {
+      throw new AuthRequiredError();
+    }
+
+    const isActivated = await getTripActivationStatus(tripId);
+
+    if (requireLocalUserId() !== userId || useAuthStore.getState().sessionId !== sessionId) {
+      throw new AuthRequiredError();
+    }
+
+    assertWritesAllowed();
+
+    // 입력을 받는 callback은 공개 overload에서 preparation 전달을 요구한다.
+    const input = result?.input as Input;
+
+    if (isActivated) {
+      return await operations.local(input);
+    }
+
+    assertRemoteAvailable('오프라인에서는 활성화된 여행만 수정할 수 있어요', tripId);
+
+    return await operations.remote(input);
+  });
 }

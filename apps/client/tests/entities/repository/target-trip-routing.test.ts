@@ -59,7 +59,10 @@ describe('child entity의 대상 여행별 라우팅', () => {
 
     expect(activationMock).toHaveBeenCalledWith('trip-b');
     expect(ScheduleLocal.updateScheduleLocal).not.toHaveBeenCalled();
-    expect(ScheduleApi.fetchUpdateSchedule).toHaveBeenCalledWith('schedule-b', update);
+    expect(ScheduleApi.fetchUpdateSchedule).toHaveBeenCalledWith(
+      'schedule-b',
+      expect.objectContaining({ ...update, edit: expect.any(Object) }),
+    );
   });
 
   it('활성 일정은 같은 tripId 판단으로 Local 수정한다', async () => {
@@ -71,7 +74,10 @@ describe('child entity의 대상 여행별 라우팅', () => {
     await expect(ScheduleRepository.update('schedule-a', 'trip-a', update)).resolves.toBe(localSchedule);
 
     expect(activationMock).toHaveBeenCalledWith('trip-a');
-    expect(ScheduleLocal.updateScheduleLocal).toHaveBeenCalledWith('schedule-a', update);
+    expect(ScheduleLocal.updateScheduleLocal).toHaveBeenCalledWith(
+      'schedule-a',
+      expect.objectContaining({ ...update, edit: expect.any(Object) }),
+    );
     expect(ScheduleApi.fetchUpdateSchedule).not.toHaveBeenCalled();
   });
 
@@ -133,11 +139,11 @@ describe('경비 날짜는 Local/Remote 분기 전에 같은 계약으로 정리
     const create = active ? ExpenseLocal.createExpenseLocal : ExpenseApi.fetchCreateExpense;
     const update = active ? ExpenseLocal.updateExpenseLocal : ExpenseApi.fetchUpdateExpense;
     expect(create).toHaveBeenCalledWith({ ...input, date: '2026-10-01' });
-    expect(update).toHaveBeenCalledWith(expenseId, { date: '2026-10-01' });
+    expect(update).toHaveBeenCalledWith(expenseId, { date: '2026-10-01', edit: expect.any(Object) });
   });
   it('날짜가 없는 부분 수정은 날짜를 추가하지 않고 잘못된 날짜는 저장하지 않는다', async () => {
     await ExpenseRepository.update(expenseId, tripId, { title: '수정' });
-    expect(ExpenseApi.fetchUpdateExpense).toHaveBeenCalledWith(expenseId, { title: '수정' });
+    expect(ExpenseApi.fetchUpdateExpense).toHaveBeenCalledWith(expenseId, { title: '수정', edit: expect.any(Object) });
     await expect(ExpenseRepository.update(expenseId, tripId, { date: '2026-02-30' })).rejects.toMatchObject({
       name: 'ZodError',
     });
@@ -158,7 +164,7 @@ describe('시점 입력도 분기 전에 공유 계약을 검사한다', () => {
     const create = active ? ScheduleLocal.createScheduleLocal : ScheduleApi.fetchCreateSchedule;
     const update = active ? ScheduleLocal.updateScheduleLocal : ScheduleApi.fetchUpdateSchedule;
     expect(create).toHaveBeenCalledWith(input);
-    expect(update).toHaveBeenCalledWith(id, { scheduledAt });
+    expect(update).toHaveBeenCalledWith(id, { scheduledAt, edit: expect.any(Object) });
   });
   it.each(['2026-10-02T09:00:00', '2026-10-02T09:00:00+99:99', '2026-02-30T09:00:00Z'])(
     '잘못된 시점 %s는 라우팅·저장 전에 일정·여행에서 모두 거절한다',

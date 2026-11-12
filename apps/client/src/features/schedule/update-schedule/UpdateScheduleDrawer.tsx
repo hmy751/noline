@@ -1,18 +1,25 @@
 import { useEffect, useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, Alert } from 'react-native';
-import { Controller, useForm } from 'react-hook-form';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Calendar, Clock, MapPin } from 'lucide-react-native';
+import { Controller, useForm } from 'react-hook-form';
+
 import { Drawer, Pressable } from '@repo/ui';
+
+import { useAutoDownloadRoutes } from '@/entities/route';
+import { useUpdateSchedule } from '@/entities/schedule';
+import { APIError } from '@/shared/api/errors';
 import { DatePicker, PolicyErrorDisplay } from '@/shared/components';
 import { Field, TimeField } from '@/shared/components/Form';
-import { useUpdateSchedule } from '@/entities/schedule';
-import { useAutoDownloadRoutes } from '@/entities/route';
-import { useAppPolicy } from '@/shared/policy';
-import { makeScheduleUpdateFormSchema, type ScheduleUpdateFormData } from './schema';
 import { combineDateTimeInTimeZoneToISO } from '@/shared/lib/datetime';
+import { changedFields } from '@/shared/lib/edit-fields';
+import { useAppPolicy } from '@/shared/policy';
+import { ConfirmedUpdateError } from '@/shared/services/edit-stamp/errors';
+
 import { LocationSearchModal } from './LocationSearchModal';
 import type { UpdateLocationSelection } from './place-search-compatibility';
+import { makeScheduleUpdateFormSchema, type ScheduleUpdateFormData } from './schema';
 
 export type UpdateScheduleDrawerProps = {
   isOpen: boolean;
@@ -35,22 +42,34 @@ export type UpdateScheduleDrawerProps = {
  * 일정 수정 드로어 컴포넌트
  * 제목, 날짜와 시간을 수정할 수 있는 UI
  */
-export const UpdateScheduleDrawer = ({
-  isOpen,
+export const UpdateScheduleDrawer = ({ isOpen, onClose, scheduleData, timeZone }: UpdateScheduleDrawerProps) => {
+  return isOpen && scheduleData ? (
+    <ScheduleEditForm key={scheduleData.id} scheduleData={scheduleData} timeZone={timeZone} onClose={onClose} />
+  ) : null;
+};
+
+type ScheduleEditFormProps = {
+  scheduleData: NonNullable<UpdateScheduleDrawerProps['scheduleData']>;
+  timeZone: UpdateScheduleDrawerProps['timeZone'];
+  onClose: () => void;
+};
+
+const ScheduleEditForm = ({
+  scheduleData: currentSchedule,
+  timeZone: currentTimeZone,
   onClose,
-  scheduleData,
-  timeZone: suppliedTimeZone,
-}: UpdateScheduleDrawerProps) => {
-  const editingTimeZoneRef = useRef(suppliedTimeZone);
-  const timeZone = editingTimeZoneRef.current;
-  const defaultValuesRef = useRef<{ date: string; time: string } | undefined>(scheduleData ?? undefined);
-  // react-hook-form 설정
+}: ScheduleEditFormProps) => {
+  // 데이터와 시간대는 하나의 편집 회차에서 함께 해석한다. 배경 조회로 재해석하지 않는다.
+  const [{ scheduleData, timeZone }] = useState({
+    scheduleData: currentSchedule,
+    timeZone: currentTimeZone,
+  });
   const form = useForm<ScheduleUpdateFormData>({
-    resolver: zodResolver(makeScheduleUpdateFormSchema(timeZone, defaultValuesRef.current)),
+    resolver: zodResolver(makeScheduleUpdateFormSchema(timeZone, scheduleData)),
     defaultValues: {
-      title: scheduleData?.title || '',
-      date: scheduleData?.date || '',
-      time: scheduleData?.time || '',
+      title: scheduleData.title,
+      date: scheduleData.date,
+      time: scheduleData.time,
     },
     mode: 'onChange',
   });
@@ -59,36 +78,28 @@ export const UpdateScheduleDrawer = ({
     handleSubmit,
     setValue,
     watch,
-    reset,
-    formState: { defaultValues },
+    formState: { isSubmitting },
   } = form;
 
-  // Picker visibility state
-  const [datePickerVisible, setDatePickerVisible] = useState(false);
-  const [locationSearchVisible, setLocationSearchVisible] = useState(false);
+  const [isDatePickerVisible, setDatePickerVisible] = useState(false);
+  const [isLocationSearchVisible, setLocationSearchVisible] = useState(false);
 
-  // 선택된 장소 (재검색 시)
   const [selectedLocation, setSelectedLocation] = useState<UpdateLocationSelection | null>(null);
 
-  // Mutations and queries
-  const { mutate: updateSchedule, isPending } = useUpdateSchedule();
+  const { mutateAsync: updateSchedule } = useUpdateSchedule();
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
   const { mutate: autoDownloadRoutes } = useAutoDownloadRoutes();
 
-  // Policy 체크
-  const policy = useAppPolicy(scheduleData?.tripId);
+  const policy = useAppPolicy(scheduleData.tripId);
 
-  // scheduleData가 변경되면 폼 값 및 상태 초기화
-  useEffect(() => {
-    if (scheduleData && isOpen) {
-      editingTimeZoneRef.current = suppliedTimeZone;
-      defaultValuesRef.current = { date: scheduleData.date, time: scheduleData.time };
-      reset({ title: scheduleData.title, date: scheduleData.date, time: scheduleData.time });
-      setSelectedLocation(null); // 장소 재검색 결과 초기화
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scheduleData?.id, isOpen]);
-
-  // Handlers
   const handleDateSelect = (selectedDate: string) => {
     setValue('date', selectedDate, { shouldValidate: true });
     setDatePickerVisible(false);
@@ -99,19 +110,17 @@ export const UpdateScheduleDrawer = ({
     setLocationSearchVisible(false);
   };
 
-  // 저장 핸들러 (유효성 검사는 zodResolver가 처리)
-  const onValid = (data: ScheduleUpdateFormData) => {
-    if (!scheduleData) {
+  const handleValidSubmit = async (data: ScheduleUpdateFormData) => {
+    // 바꾸지 않은 시각은 재조합하지 않아 초·밀리초와 DST 중복 시각의 원본을 보존한다.
+    const hasTimeChanged = data.date !== scheduleData.date || data.time !== scheduleData.time;
+
+    if (hasTimeChanged && !timeZone) {
       return;
     }
 
-    // 바꾸지 않은 시각은 재조합하지 않아 초·밀리초와 DST 중복 시각의 원본을 보존한다.
-    const timeChanged = data.date !== defaultValues?.date || data.time !== defaultValues?.time;
-    if (timeChanged && !timeZone) return;
     const scheduledAt =
-      timeChanged && timeZone ? combineDateTimeInTimeZoneToISO(data.date, data.time, timeZone) : undefined;
+      hasTimeChanged && timeZone ? combineDateTimeInTimeZoneToISO(data.date, data.time, timeZone) : undefined;
 
-    // 장소 재검색한 경우 location 정보 추가
     const locationData = selectedLocation
       ? {
           location: selectedLocation.name,
@@ -121,53 +130,86 @@ export const UpdateScheduleDrawer = ({
         }
       : {};
 
-    updateSchedule(
-      {
-        id: scheduleData.id,
-        tripId: scheduleData.tripId,
-        data: {
-          title: data.title,
-          ...(scheduledAt !== undefined ? { scheduledAt } : {}),
-          ...locationData,
-        },
-      },
-      {
-        onSuccess: () => {
-          defaultValuesRef.current = { date: data.date, time: data.time };
-          reset(data);
-          Alert.alert('성공', '일정이 수정되었습니다.');
+    const patch = changedFields('schedules', scheduleData, { title: data.title, ...locationData });
 
-          if (scheduledAt !== undefined || selectedLocation) {
-            autoDownloadRoutes({ tripId: scheduleData.tripId });
-          }
+    if (scheduledAt !== undefined) {
+      patch.scheduledAt = scheduledAt;
+    }
 
-          onClose();
-        },
-        onError: () => {
-          Alert.alert('오류', '일정 수정에 실패했습니다.');
-        },
-      },
-    );
+    if (!Object.keys(patch).length) {
+      onClose();
+      return;
+    }
+
+    await updateSchedule({
+      id: scheduleData.id,
+      tripId: scheduleData.tripId,
+      data: patch,
+    });
+
+    if ('scheduledAt' in patch || 'latitude' in patch || 'longitude' in patch) {
+      autoDownloadRoutes({ tripId: scheduleData.tripId });
+    }
+
+    // 폼이 해제되어도 요청은 끝날 수 있다. 그 뒤에는 성공 안내나 닫기를 실행하지 않는다.
+    if (!isMounted.current) {
+      return;
+    }
+
+    Alert.alert('성공', '일정이 수정되었습니다.');
+
+    onClose();
   };
 
-  const onInvalid = () => {
+  const handleInvalidSubmit = () => {
     Alert.alert('오류', '입력한 정보를 확인해주세요.');
   };
 
-  if (!scheduleData) {
-    return null;
-  }
+  const handleSave = async () => {
+    try {
+      await handleSubmit(
+        async (data) => {
+          if (isMounted.current) {
+            await handleValidSubmit(data);
+          }
+        },
+        () => {
+          if (isMounted.current) {
+            handleInvalidSubmit();
+          }
+        },
+      )();
+    } catch (error) {
+      if (isMounted.current) {
+        Alert.alert(
+          '수정 확인',
+          error instanceof APIError || error instanceof ConfirmedUpdateError
+            ? error.message
+            : '일정 수정에 실패했습니다. 입력은 유지되어 있어요.',
+        );
+      }
+    }
+  };
+
+  const handleClose = () => {
+    if (isSubmitting) {
+      Alert.alert('저장 중입니다', '저장이 끝난 뒤 닫을 수 있어요.');
+      return;
+    }
+
+    onClose();
+  };
 
   if (!policy.schedule.update.allowed) {
     return (
-      <Drawer isOpen={isOpen} onClose={onClose} title='일정 수정'>
+      <Drawer isOpen onClose={handleClose} title='일정 수정'>
         <PolicyErrorDisplay policy={policy.schedule.update} variant='block' />
       </Drawer>
     );
   }
 
   return (
-    <Drawer isOpen={isOpen} onClose={onClose} title='일정 수정'>
+    <Drawer isOpen onClose={handleClose} title='일정 수정'>
       <View className='gap-md'>
         {policy.schedule.update.mode === 'manual-only' && policy.schedule.update.reason && (
           <PolicyErrorDisplay policy={policy.schedule.update} variant='banner' />
@@ -238,7 +280,6 @@ export const UpdateScheduleDrawer = ({
 
         {/* 시간 필드 */}
         <TimeField
-          key={`${scheduleData.id}:${isOpen}`}
           form={form}
           name='time'
           title='시간'
@@ -292,12 +333,12 @@ export const UpdateScheduleDrawer = ({
         {/* 버튼 영역 */}
         <View className='flex-row gap-sm mt-md'>
           <View className='flex-1'>
-            <Pressable variant='default' onPress={handleSubmit(onValid, onInvalid)} disabled={isPending}>
-              {isPending ? '저장 중...' : '저장'}
+            <Pressable variant='default' onPress={handleSave} disabled={isSubmitting}>
+              {isSubmitting ? '저장 중...' : '저장'}
             </Pressable>
           </View>
           <View className='flex-1'>
-            <Pressable variant='outline' onPress={onClose} disabled={isPending}>
+            <Pressable variant='outline' onPress={handleClose}>
               취소
             </Pressable>
           </View>
@@ -305,9 +346,9 @@ export const UpdateScheduleDrawer = ({
       </View>
 
       {/* DatePicker Modal */}
-      {datePickerVisible && (
+      {isDatePickerVisible && (
         <DatePicker
-          visible={datePickerVisible}
+          visible={isDatePickerVisible}
           onClose={() => setDatePickerVisible(false)}
           onSelectDate={handleDateSelect}
           selectedDate={watch('date')}
@@ -315,9 +356,9 @@ export const UpdateScheduleDrawer = ({
       )}
 
       {/* LocationSearch Modal */}
-      {locationSearchVisible && scheduleData && (
+      {isLocationSearchVisible && (
         <LocationSearchModal
-          isOpen={locationSearchVisible}
+          isOpen={isLocationSearchVisible}
           onClose={() => setLocationSearchVisible(false)}
           onSelectLocation={handleLocationSelect}
           tripId={scheduleData.tripId}

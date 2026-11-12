@@ -1,4 +1,5 @@
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import type { FieldEdits } from '@repo/schema/sync/field-edits';
 
 // ========================================
 // Trips Table
@@ -62,6 +63,7 @@ export const schedules = sqliteTable('schedules', {
   // Selective Local-First sync fields
   deletedAt: text('deleted_at'), // ISO string
   version: integer('version').default(1).notNull(),
+  fieldEdits: text('field_edits', { mode: 'json' }).$type<FieldEdits>().notNull().default({}),
 });
 
 // ========================================
@@ -93,6 +95,7 @@ export const expenses = sqliteTable('expenses', {
   // Selective Local-First sync fields
   deletedAt: text('deleted_at'), // ISO string
   version: integer('version').default(1).notNull(),
+  fieldEdits: text('field_edits', { mode: 'json' }).$type<FieldEdits>().notNull().default({}),
 });
 
 // ========================================

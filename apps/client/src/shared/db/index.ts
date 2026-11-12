@@ -2,6 +2,7 @@ import { drizzle, type ExpoSQLiteDatabase } from 'drizzle-orm/expo-sqlite';
 import * as SQLite from 'expo-sqlite';
 import * as schema from './schema';
 import { sql } from 'drizzle-orm';
+import { migrateFieldEdits } from './migrations/field-edits';
 import { migrateRouteInputs } from './migrations/route-inputs';
 import { migrateTripTimeZone } from './migrations/trip-time-zone';
 
@@ -158,6 +159,8 @@ export async function initializeDatabase() {
         FOREIGN KEY (schedule_id) REFERENCES schedules(id) ON DELETE SET NULL
       );
     `);
+
+    migrateFieldEdits(expoDb);
 
     // Sync Queue 테이블 생성
     expoDb.execSync(`

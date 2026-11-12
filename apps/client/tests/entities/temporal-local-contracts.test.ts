@@ -78,7 +78,11 @@ function mockReadRows(statement: TestStatement, params: unknown[]): unknown[][] 
 }
 
 // 실제 Drizzle SQL과 SQLite를 사용한다. 파일·기기 SecureStore는 사용하지 않는다.
-jest.mock('expo-secure-store', () => ({ setItemAsync: jest.fn(), deleteItemAsync: jest.fn() }));
+jest.mock('expo-secure-store', () => ({
+  getItemAsync: jest.fn(async () => null),
+  setItemAsync: jest.fn(),
+  deleteItemAsync: jest.fn(),
+}));
 jest.mock('@/shared/services/id/ulid', () => ({
   generateId: () => jest.requireActual<typeof import('node:crypto')>('node:crypto').randomUUID(),
 }));
@@ -107,6 +111,8 @@ jest.mock('expo-sqlite', () => ({
     };
   },
 }));
+
+const edit = { time: '2026-11-12T00:00:00.000Z', sequence: 0, id: 'prepared-edit' };
 
 const now = '2026-10-02T00:00:00Z';
 const userId = '01ARZ3NDEKTSV4RRFFQ69G5FA0';
@@ -273,10 +279,10 @@ it('신규 date-only 경비의 반환·DB·큐 날짜가 모두 같다', async (
 });
 
 it('날짜 없는 부분 수정은 기존 datetime을 보존하고 반환만 날짜로 정리한다', async () => {
-  const result = await updateExpenseLocal(expenseId, { title: '수정 경비' });
+  const result = await updateExpenseLocal(expenseId, { edit, title: '수정 경비' });
   expect(result).toMatchObject({ title: '수정 경비', date: '2026-10-01', version: 2 });
   expect(rawExpense()?.date).toBe(row.date);
-  expect(JSON.parse((await queued())[0].payload)).toEqual({ title: '수정 경비' });
+  expect(JSON.parse((await queued())[0].payload)).toEqual({ title: '수정 경비', edit: expect.any(Object) });
 });
 
 it('잘못된 Local 날짜는 Query 오류가 되고 행·큐는 그대로 둔다', async () => {
@@ -297,16 +303,18 @@ it('잘못된 Local 날짜는 Query 오류가 되고 행·큐는 그대로 둔�
 
 it('수정 결과의 날짜 검사가 실패하면 변경된 행·version·큐를 함께 롤백한다', async () => {
   await getDatabase().update(expenses).set({ date: 'invalid' });
-  await expect(updateExpenseLocal(expenseId, { title: '실패할 수정' })).rejects.toMatchObject({ name: 'ZodError' });
+  await expect(updateExpenseLocal(expenseId, { edit, title: '실패할 수정' })).rejects.toMatchObject({
+    name: 'ZodError',
+  });
   expect(rawExpense()).toMatchObject({ title: row.title, date: 'invalid', updatedAt: now, version: 1 });
   expect(await queued()).toEqual([]);
 });
 
 it('잘못된 날짜 행도 올바른 날짜로 교정할 수 있다', async () => {
   await getDatabase().update(expenses).set({ date: 'invalid' });
-  expect((await updateExpenseLocal(expenseId, { date: '2026-10-03' })).date).toBe('2026-10-03');
+  expect((await updateExpenseLocal(expenseId, { edit, date: '2026-10-03' })).date).toBe('2026-10-03');
   expect(rawExpense()?.date).toBe('2026-10-03');
-  expect(JSON.parse((await queued())[0].payload)).toEqual({ date: '2026-10-03' });
+  expect(JSON.parse((await queued())[0].payload)).toEqual({ date: '2026-10-03', edit: expect.any(Object) });
 });
 
 it('잘못된 날짜 행도 날짜 검사 없이 soft delete와 큐 기록이 가능하다', async () => {
@@ -412,9 +420,9 @@ it('offset이 다른 Local 일정도 문자열이 아닌 실제 시각 순으로
 it('시각을 수정하지 않는 Local 저장은 원래 offset·초·밀리초를 그대로 둔다', async () => {
   const scheduledAt = '2026-11-01T01:30:12.345-08:00';
   await getDatabase().update(schedules).set({ scheduledAt });
-  const result = await updateScheduleLocal(scheduleId, { title: '제목만' });
+  const result = await updateScheduleLocal(scheduleId, { edit, title: '제목만' });
   expect(result.scheduledAt).toBe(scheduledAt);
-  expect(JSON.parse((await queued())[0].payload)).toEqual({ title: '제목만' });
+  expect(JSON.parse((await queued())[0].payload)).toEqual({ title: '제목만', edit: expect.any(Object) });
 });
 
 it('해석할 수 없는 Local 시각은 읽기 오류가 되고 실패한 수정은 행·큐를 함께 롤백한다', async () => {
@@ -422,10 +430,12 @@ it('해석할 수 없는 Local 시각은 읽기 오류가 되고 실패한 수�
   await getDatabase().update(schedules).set({ scheduledAt: invalid });
   await expect(getSchedulesLocal(tripId)).rejects.toMatchObject({ name: 'ZodError' });
   await expect(getScheduleByIdLocal(scheduleId)).rejects.toMatchObject({ name: 'ZodError' });
-  await expect(updateScheduleLocal(scheduleId, { title: '실패' })).rejects.toMatchObject({ name: 'ZodError' });
+  await expect(updateScheduleLocal(scheduleId, { edit, title: '실패' })).rejects.toMatchObject({ name: 'ZodError' });
   expect(getDatabase().select().from(schedules).get()).toMatchObject({ title: '일정', scheduledAt: invalid });
   expect(await queued()).toEqual([]);
-  await expect(updateScheduleLocal(scheduleId, { scheduledAt: now })).resolves.toMatchObject({ scheduledAt: now });
+  await expect(updateScheduleLocal(scheduleId, { edit, scheduledAt: now })).resolves.toMatchObject({
+    scheduledAt: now,
+  });
 });
 
 it('시각 검사 실패로 일정 생성도 롤백하고 잘못된 시각의 기존 일정은 삭제할 수 있다', async () => {
@@ -575,6 +585,45 @@ it.each(localDeleteCases)(
     expect(
       await getDatabase().select({ deletedAt: table.deletedAt, version: table.version }).from(table).get(),
     ).toEqual({ deletedAt: null, version: 1 });
+    expect(await queued()).toEqual([]);
+  },
+);
+
+const localUpdateCases = [
+  { tableName: 'schedules', table: schedules, updateLocal: updateScheduleLocal, recordId: scheduleId, title: '일정' },
+  { tableName: 'expenses', table: expenses, updateLocal: updateExpenseLocal, recordId: expenseId, title: row.title },
+] as const;
+
+it.each(localUpdateCases)(
+  '$tableName UPDATE가 실제로 바꾼 행이 없으면 성공 결과와 큐를 남기지 않는다',
+  async ({ tableName, table, updateLocal, recordId, title }) => {
+    getDatabase().run(
+      sql.raw(`CREATE TRIGGER ignore_update BEFORE UPDATE ON ${tableName} BEGIN SELECT RAISE(IGNORE); END;`),
+    );
+
+    await expect(updateLocal(recordId, { edit, title: '수정' })).rejects.toThrow('찾을 수 없습니다');
+    expect(getDatabase().select({ title: table.title, version: table.version }).from(table).get()).toEqual({
+      title,
+      version: 1,
+    });
+    expect(await queued()).toEqual([]);
+  },
+);
+
+it.each(localUpdateCases)(
+  '$tableName UPDATE 큐 쓰기 실패는 반환할 행의 변경도 함께 rollback한다',
+  async ({ table, updateLocal, recordId, title }) => {
+    getDatabase().run(
+      sql.raw(
+        "CREATE TRIGGER reject_update_queue BEFORE INSERT ON sync_queue BEGIN SELECT RAISE(ABORT, 'queue failed'); END;",
+      ),
+    );
+
+    await expect(updateLocal(recordId, { edit, title: '수정' })).rejects.toThrow('queue failed');
+    expect(getDatabase().select({ title: table.title, version: table.version }).from(table).get()).toEqual({
+      title,
+      version: 1,
+    });
     expect(await queued()).toEqual([]);
   },
 );

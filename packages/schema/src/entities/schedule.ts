@@ -1,5 +1,7 @@
 import { z } from 'zod';
+
 import { isoDateTime } from '../primitives/datetime';
+import { fieldEdits } from '../sync/field-edits';
 
 // ========================================
 // Schedule Entity Schema (DB와 1:1 매핑)
@@ -18,6 +20,7 @@ export const scheduleEntity = z.object({
   updatedAt: isoDateTime,
   deletedAt: isoDateTime.nullable().optional(),
   version: z.number().default(1).optional(),
+  fieldEdits: fieldEdits.optional(),
 
   // 비즈니스 필드
   userId: z.string().ulid().nullable(), // 인증 추가 전까지 nullable

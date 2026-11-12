@@ -20,6 +20,8 @@ jest.mock('@/shared/api/fetcher', () => ({
   },
 }));
 
+const edit = { time: '2026-11-12T00:00:00.000Z', sequence: 0, id: 'prepared-edit' };
+
 const getMock = apiClient.get as jest.MockedFunction<typeof apiClient.get>;
 const postMock = apiClient.post as jest.MockedFunction<typeof apiClient.post>;
 const putMock = apiClient.put as jest.MockedFunction<typeof apiClient.put>;
@@ -102,9 +104,12 @@ describe('경비 remote API', () => {
     const updatedExpense = { ...expense, title: updateInput.title };
     putMock.mockResolvedValue({ success: true, data: updatedExpense });
 
-    await expect(fetchUpdateExpense(expenseId, updateInput)).resolves.toEqual(updatedExpense);
+    await expect(fetchUpdateExpense(expenseId, { ...updateInput, edit })).resolves.toEqual(updatedExpense);
 
-    expect(putMock).toHaveBeenCalledWith(`/api/expenses/${expenseId}`, updateInput);
+    expect(putMock).toHaveBeenCalledWith(
+      `/api/expenses/${expenseId}`,
+      expect.objectContaining({ ...updateInput, edit: expect.any(Object) }),
+    );
     expect(putMock).toHaveBeenCalledTimes(1);
   });
 
@@ -114,19 +119,24 @@ describe('경비 remote API', () => {
     ['2026-09-11', '2026-09-11'],
   ])('수정 날짜 %s는 기존 서버 UTC 날짜 계약 %s로 전달한다', async (date, expectedDate) => {
     putMock.mockResolvedValue({ success: true, data: expense });
-    await fetchUpdateExpense(expenseId, { date });
-    expect(putMock).toHaveBeenCalledWith(`/api/expenses/${expenseId}`, { date: expectedDate });
+    await fetchUpdateExpense(expenseId, { edit, date });
+    expect(putMock).toHaveBeenCalledWith(
+      `/api/expenses/${expenseId}`,
+      expect.objectContaining({ date: expectedDate, edit: expect.any(Object) }),
+    );
   });
 
   it('잘못된 날짜는 정규화로 수용하지 않고 HTTP 전에 거절한다', async () => {
-    await expect(fetchUpdateExpense(expenseId, { date: 'invalidTdate' })).rejects.toMatchObject({ name: 'ZodError' });
+    await expect(fetchUpdateExpense(expenseId, { edit, date: 'invalidTdate' })).rejects.toMatchObject({
+      name: 'ZodError',
+    });
     expect(putMock).not.toHaveBeenCalled();
   });
 
   it('잘못된 수정 요청은 HTTP를 호출하지 않고 검증 실패를 전달한다', async () => {
     const invalidUpdate = { amount: 15000 } as unknown as UpdateExpenseRequest;
 
-    await expect(fetchUpdateExpense(expenseId, invalidUpdate)).rejects.toMatchObject({
+    await expect(fetchUpdateExpense(expenseId, { ...invalidUpdate, edit })).rejects.toMatchObject({
       name: 'ZodError',
     });
 

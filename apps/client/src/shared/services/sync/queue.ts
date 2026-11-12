@@ -1,4 +1,4 @@
-import { and, eq, ne } from 'drizzle-orm';
+import { sql, and, eq, ne } from 'drizzle-orm';
 
 import { getDatabase, runDatabaseOperation } from '@/shared/db';
 import { type NewSyncQueueItem, syncQueue, type SyncQueueItem } from '@/shared/db/schema';
@@ -55,7 +55,12 @@ export async function addToSyncQueue(
  */
 export async function getPendingTasks(): Promise<SyncQueueItem[]> {
   const tasks = await runDatabaseOperation(() =>
-    getDatabase().select().from(syncQueue).where(eq(syncQueue.status, 'PENDING')).orderBy(syncQueue.createdAt).all(),
+    getDatabase()
+      .select()
+      .from(syncQueue)
+      .where(eq(syncQueue.status, 'PENDING'))
+      .orderBy(sql`rowid`)
+      .all(),
   );
 
   return tasks;
@@ -184,7 +189,12 @@ export async function hasPendingTask(tableName: string, recordId: string): Promi
  */
 export async function getFailedTasks(): Promise<SyncQueueItem[]> {
   const tasks = await runDatabaseOperation(() =>
-    getDatabase().select().from(syncQueue).where(eq(syncQueue.status, 'FAILED')).orderBy(syncQueue.createdAt).all(),
+    getDatabase()
+      .select()
+      .from(syncQueue)
+      .where(eq(syncQueue.status, 'FAILED'))
+      .orderBy(sql`rowid`)
+      .all(),
   );
 
   return tasks;
@@ -258,7 +268,12 @@ export const getSyncQueueStats = async (): Promise<{
  */
 export async function getPendingTasksForTrip(tripId: string): Promise<SyncQueueItem[]> {
   const tasks = await runDatabaseOperation(() =>
-    getDatabase().select().from(syncQueue).where(eq(syncQueue.status, 'PENDING')).orderBy(syncQueue.createdAt).all(),
+    getDatabase()
+      .select()
+      .from(syncQueue)
+      .where(eq(syncQueue.status, 'PENDING'))
+      .orderBy(sql`rowid`)
+      .all(),
   );
 
   // Trip 자체 또는 Child Entity (schedules, expenses) 필터링

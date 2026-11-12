@@ -1,5 +1,7 @@
 import { z } from 'zod';
+
 import { scheduleEntity } from '../entities/schedule';
+import { editStamp, scheduleEditGroups, validateEditedGroups } from '../sync/field-edits';
 
 // ========================================
 // Schedule Request Schemas (API 요청)
@@ -53,4 +55,6 @@ export const updateScheduleRequest = scheduleEntity
     // 요청 시 숫자로 받을 수 있도록
     latitude: z.number().nullable().optional(),
     longitude: z.number().nullable().optional(),
-  });
+  })
+  .extend({ edit: editStamp.optional() })
+  .superRefine(validateEditedGroups(scheduleEditGroups));

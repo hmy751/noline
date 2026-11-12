@@ -1,18 +1,24 @@
 import { useEffect, useState, useRef } from 'react';
 import { View, Text, Alert, TouchableOpacity, ScrollView } from 'react-native';
-import { Controller, useForm } from 'react-hook-form';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Wallet, ChevronDown, Calendar as CalendarIcon } from 'lucide-react-native';
+import { Controller, useForm } from 'react-hook-form';
+
 import { Drawer, Select } from '@repo/ui';
-import { DatePicker } from '@/shared/components';
-import { Field } from '@/shared/components/Form';
+
 import { EXPENSE_CATEGORIES, CURRENCIES, CURRENCY_SYMBOLS } from '@/entities/expense';
 import { useUpdateExpense } from '@/entities/expense/data/useUpdateExpense';
-import { expenseSubmitError } from '../expense-form/submit-error';
+import { DatePicker } from '@/shared/components';
+import { Field } from '@/shared/components/Form';
+import { changedFields } from '@/shared/lib/edit-fields';
+import { useAppPolicy } from '@/shared/policy';
+import { ConfirmedUpdateError } from '@/shared/services/edit-stamp/errors';
+
+import { expenseUpdateFormSchema, type ExpenseUpdateFormData } from './schema';
 import { ExpenseScheduleField } from '../expense-form/ExpenseScheduleField';
 import { ExpenseSubmitActions } from '../expense-form/ExpenseSubmitActions';
-import { expenseUpdateFormSchema, type ExpenseUpdateFormData } from './schema';
-import { useAppPolicy } from '@/shared/policy';
+import { expenseSubmitError } from '../expense-form/submit-error';
 
 export type UpdateExpenseDrawerProps = {
   isOpen: boolean;
@@ -34,21 +40,33 @@ export type UpdateExpenseDrawerProps = {
  * 제목, 금액, 통화, 카테고리, 날짜, 연결된 일정을 수정할 수 있는 UI
  */
 export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpenseDrawerProps) => {
+  return isOpen && expenseData ? (
+    <ExpenseEditForm key={expenseData.id} expenseData={expenseData} onClose={onClose} />
+  ) : null;
+};
+
+type ExpenseEditFormProps = {
+  expenseData: NonNullable<UpdateExpenseDrawerProps['expenseData']>;
+  onClose: () => void;
+};
+
+const ExpenseEditForm = ({ expenseData: currentExpense, onClose }: ExpenseEditFormProps) => {
+  // 같은 ID의 배경 조회는 이번 편집의 입력·비교 기준을 바꾸지 않는다.
+  const [expenseData] = useState(currentExpense);
   const {
     control,
     handleSubmit,
-    reset,
     watch,
     formState: { isSubmitting, defaultValues },
   } = useForm<ExpenseUpdateFormData>({
     resolver: zodResolver(expenseUpdateFormSchema),
     defaultValues: {
-      title: expenseData?.title || '',
-      amount: expenseData?.amount || '',
-      currency: expenseData?.currency || 'USD',
-      category: expenseData?.category || '',
-      date: expenseData?.date || '',
-      scheduleId: expenseData?.scheduleId || undefined,
+      title: expenseData.title,
+      amount: expenseData.amount,
+      currency: expenseData.currency,
+      category: expenseData.category,
+      date: expenseData.date,
+      scheduleId: expenseData.scheduleId || undefined,
     },
     mode: 'onChange',
   });
@@ -59,72 +77,80 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
 
   const selectedDate = watch('date');
 
-  const policy = useAppPolicy(expenseData?.tripId);
-  // 다시 렌더링되기 전의 연속 탭과 닫기를 차단한다. 표시 상태는 form이 관리한다.
-  const submitting = useRef(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const close = () => {
-    if (!submitting.current) onClose();
-  };
+  const policy = useAppPolicy(expenseData.tripId);
+  const isMounted = useRef(true);
+  const [submitError, setSubmitError] = useState<unknown>(null);
 
-  // expenseData가 변경되면 폼 값 업데이트
   useEffect(() => {
-    if (expenseData) {
-      setSubmitError(null);
-      reset({
-        title: expenseData.title,
-        amount: expenseData.amount,
-        currency: expenseData.currency,
-        category: expenseData.category,
-        date: expenseData.date,
-        scheduleId: expenseData.scheduleId || undefined,
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expenseData?.id]);
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
-  const onValid = async (data: ExpenseUpdateFormData) => {
-    if (!expenseData) return;
-
+  const handleValidSubmit = async (data: ExpenseUpdateFormData) => {
     setSubmitError(null);
+    const patch = changedFields('expenses', defaultValues ?? {}, {
+      ...data,
+      scheduleId: data.scheduleId || null,
+    });
+
+    if (!Object.keys(patch).length) {
+      onClose();
+      return;
+    }
+
     await updateExpense({
       id: expenseData.id,
       tripId: expenseData.tripId,
-      data: {
-        title: data.title,
-        amount: data.amount,
-        currency: data.currency,
-        category: data.category,
-        ...(data.date !== defaultValues?.date ? { date: data.date } : {}),
-        scheduleId: data.scheduleId || null,
-      },
+      data: patch,
     });
-    // 같은 경비를 다시 편집해도 방금 저장한 날짜를 미변경 기준으로 사용한다.
-    reset(data);
+
+    // 폼이 해제되어도 요청은 끝날 수 있다. 그 뒤에는 성공 안내나 닫기를 실행하지 않는다.
+    if (!isMounted.current) {
+      return;
+    }
+
     Alert.alert('성공', '경비가 수정되었습니다.');
     onClose();
   };
 
-  const onInvalid = () => {
+  const handleInvalidSubmit = () => {
     Alert.alert('오류', '입력한 정보를 확인해주세요.');
   };
 
-  const submit = async () => {
-    if (submitting.current) return;
-    submitting.current = true;
+  const handleSave = async () => {
     try {
-      await handleSubmit(onValid, onInvalid)();
+      await handleSubmit(
+        async (data) => {
+          if (isMounted.current) {
+            await handleValidSubmit(data);
+          }
+        },
+        () => {
+          if (isMounted.current) {
+            handleInvalidSubmit();
+          }
+        },
+      )();
     } catch (error) {
-      setSubmitError(expenseSubmitError(error));
-    } finally {
-      submitting.current = false;
+      if (isMounted.current) {
+        setSubmitError(() => error);
+      }
     }
   };
 
-  if (!expenseData) return null;
+  const handleClose = () => {
+    if (isSubmitting) {
+      Alert.alert('저장 중입니다', '저장이 끝난 뒤 닫을 수 있어요.');
+      return;
+    }
+
+    onClose();
+  };
 
   return (
-    <Drawer isOpen={isOpen} onClose={close} title='경비 수정'>
+    <Drawer isOpen onClose={handleClose} title='경비 수정'>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View className='gap-md'>
           {/* 설명 */}
@@ -333,16 +359,18 @@ export const UpdateExpenseDrawer = ({ isOpen, onClose, expenseData }: UpdateExpe
                 value={value}
                 onChange={onChange}
                 error={error?.message}
-                enabled={isOpen}
+                enabled
               />
             )}
           />
           <ExpenseSubmitActions
             policy={policy.expense.update}
-            submitError={submitError}
+            submitError={submitError === null ? null : expenseSubmitError(submitError)}
+            submitErrorLabel={submitError instanceof ConfirmedUpdateError ? '저장 확인' : undefined}
             isPending={isSubmitting}
-            onSubmit={submit}
-            onCancel={close}
+            isCancelDisabled={false}
+            onSubmit={handleSave}
+            onCancel={handleClose}
           />
         </View>
       </ScrollView>

@@ -1,20 +1,22 @@
+import { deleteQueuePayloadSchema } from '@repo/schema/sync/sync-queue';
 import { eq, isNull, sql } from 'drizzle-orm';
 
 import { scheduleEntity } from '@repo/schema/entities/schedule';
-import { deleteQueuePayloadSchema } from '@repo/schema/sync/sync-queue';
 
 import { getDatabase, schedules } from '@/shared/db';
 import { getCurrentISOString, withTransaction } from '@/shared/db/utils';
 import { assertActiveLocalTrip, ownedActiveRow } from '@/shared/services/auth/local-access';
+import { editedMarks } from '@/shared/lib/edit-fields';
+import type { PreparedEdit } from '@/shared/services/edit-stamp';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
 import { requireLocalUserId } from '@/shared/store/auth';
 
 import type { CreateScheduleRequest, Schedule, UpdateScheduleRequest } from '../model';
 
 /** 저장 표현을 유지하면서 실제 시각으로 해석 가능한지 앱 반환 경계에서 검사한다. */
-function toSchedule(row: typeof schedules.$inferSelect): Schedule {
+const toSchedule = (row: typeof schedules.$inferSelect): Schedule => {
   return { ...row, scheduledAt: scheduleEntity.shape.scheduledAt.parse(row.scheduledAt) };
-}
+};
 
 /**
  * 로컬 DB에서 여행의 일정 목록 조회
@@ -28,7 +30,6 @@ export const getSchedulesLocal = async (tripId: string): Promise<Schedule[]> => 
     .where(ownedActiveRow(schedules, isNull(schedules.deletedAt), eq(schedules.tripId, tripId)))
     .all();
 
-  console.log(`[ScheduleLocal] Schedules loaded from local DB: ${scheduleList.length} items`);
   // SQLite TEXT 순서는 timezone offset이 다른 시각의 실제 순서와 다르다.
   return scheduleList.map(toSchedule).sort((a, b) => Date.parse(a.scheduledAt) - Date.parse(b.scheduledAt));
 };
@@ -43,9 +44,6 @@ const getScheduleRowById = async (id: string) => {
     .where(ownedActiveRow(schedules, isNull(schedules.deletedAt), eq(schedules.id, id)))
     .get();
 
-  if (schedule) {
-    console.log(`[ScheduleLocal] Schedule loaded from local DB: ${schedule.id}`);
-  }
   return schedule;
 };
 
@@ -78,6 +76,7 @@ export const createScheduleLocal = async (data: CreateScheduleRequest): Promise<
   const userId = requireLocalUserId(rest.userId);
 
   const newSchedule = {
+    fieldEdits: {},
     id,
     userId,
     tripId: rest.tripId,
@@ -95,9 +94,7 @@ export const createScheduleLocal = async (data: CreateScheduleRequest): Promise<
 
   return await withTransaction(async () => {
     await assertActiveLocalTrip(data.tripId);
-    await getDatabase()
-      .insert(schedules)
-      .values(newSchedule as typeof schedules.$inferInsert);
+    await getDatabase().insert(schedules).values(newSchedule);
     await addToSyncQueue('schedules', id, 'CREATE', {
       id,
       userId,
@@ -117,29 +114,43 @@ export const createScheduleLocal = async (data: CreateScheduleRequest): Promise<
  * 로컬 DB에서 일정 수정 + sync_queue 기록
  * - latitude/longitude: number → string 변환
  */
-export const updateScheduleLocal = async (id: string, data: UpdateScheduleRequest): Promise<Schedule> => {
+export const updateScheduleLocal = async (
+  id: string,
+  request: PreparedEdit<UpdateScheduleRequest>,
+): Promise<Schedule> => {
   const now = getCurrentISOString();
 
-  const { latitude, longitude, ...rest } = data;
-  const dbData = {
-    ...rest,
-    ...(latitude !== undefined && { latitude: latitude?.toString() ?? null }),
-    ...(longitude !== undefined && { longitude: longitude?.toString() ?? null }),
-    updatedAt: now,
-    version: sql`${schedules.version} + 1`,
-  };
-
   return await withTransaction(async () => {
-    if (!(await getScheduleRowById(id))) {
+    const current = await getScheduleRowById(id);
+
+    if (!current) {
       throw new Error('수정할 일정을 찾을 수 없습니다');
     }
-    await getDatabase()
+
+    const { latitude, longitude, edit, ...fields } = request;
+    const localChanges = {
+      ...fields,
+      ...(latitude !== undefined && { latitude: latitude?.toString() ?? null }),
+      ...(longitude !== undefined && { longitude: longitude?.toString() ?? null }),
+      fieldEdits: editedMarks('schedules', request, edit, current.fieldEdits),
+      updatedAt: now,
+      version: sql`${schedules.version} + 1`,
+    };
+
+    const updated = await getDatabase()
       .update(schedules)
-      .set(dbData)
-      .where(ownedActiveRow(schedules, eq(schedules.id, id)));
-    await addToSyncQueue('schedules', id, 'UPDATE', data);
-    const updated = await getScheduleRowById(id);
-    if (!updated) throw new Error('수정한 일정을 다시 불러오지 못했습니다');
+      .set(localChanges)
+      .where(ownedActiveRow(schedules, eq(schedules.id, id)))
+      .returning()
+      .get();
+
+    if (!updated) {
+      throw new Error('수정한 일정을 찾을 수 없습니다');
+    }
+
+    await addToSyncQueue('schedules', id, 'UPDATE', request);
+
+    // 결과를 앱 계약으로 읽는 데 실패하면 행 변경과 큐 기록도 함께 롤백한다.
     return toSchedule(updated);
   });
 };

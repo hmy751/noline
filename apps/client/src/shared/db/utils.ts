@@ -73,7 +73,9 @@ export async function upsertTrips(records: Trip[]): Promise<void> {
   console.log(`[Database] ${records.length} trips upserted successfully`);
 }
 
-export async function upsertSchedules(records: Schedule[]): Promise<void> {
+export async function upsertSchedules(
+  records: (Omit<Schedule, 'fieldEdits'> & Partial<Pick<Schedule, 'fieldEdits'>>)[],
+): Promise<void> {
   if (records.length === 0) {
     console.log('[Database] No schedules to upsert');
     return;
@@ -113,7 +115,9 @@ export async function upsertSchedules(records: Schedule[]): Promise<void> {
   console.log(`[Database] ${records.length} schedules upserted successfully`);
 }
 
-export async function upsertExpenses(records: Expense[]): Promise<void> {
+export async function upsertExpenses(
+  records: (Omit<Expense, 'fieldEdits'> & Partial<Pick<Expense, 'fieldEdits'>>)[],
+): Promise<void> {
   if (records.length === 0) {
     console.log('[Database] No expenses to upsert');
     return;

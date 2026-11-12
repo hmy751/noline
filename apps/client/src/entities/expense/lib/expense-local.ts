@@ -1,20 +1,22 @@
+import { deleteQueuePayloadSchema } from '@repo/schema/sync/sync-queue';
 import { desc, eq, isNull, sql } from 'drizzle-orm';
 
 import { expenseDateInput } from '@repo/schema/requests/expense';
-import { deleteQueuePayloadSchema } from '@repo/schema/sync/sync-queue';
 
 import { expenses, getDatabase } from '@/shared/db';
 import { getCurrentISOString, withTransaction } from '@/shared/db/utils';
+import { editedMarks } from '@/shared/lib/edit-fields';
 import { assertActiveLocalTrip, ownedActiveRow } from '@/shared/services/auth/local-access';
+import type { PreparedEdit } from '@/shared/services/edit-stamp';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
 import { requireLocalUserId, selectLocalUserId, useAuthStore } from '@/shared/store/auth';
 
 import type { CreateExpenseRequest, Expense, UpdateExpenseRequest } from '../model';
 
 /** 기존 DB datetime을 앱의 달력 날짜로 읽는다. 저장된 행은 변경하지 않는다. */
-function toExpense(row: typeof expenses.$inferSelect): Expense {
+const toExpense = (row: typeof expenses.$inferSelect): Expense => {
   return { ...row, date: expenseDateInput.parse(row.date) };
-}
+};
 
 /**
  * 로컬 DB에서 현재 사용자의 전체 경비 조회
@@ -24,8 +26,8 @@ function toExpense(row: typeof expenses.$inferSelect): Expense {
  */
 export const getAllExpensesLocal = async (): Promise<Expense[]> => {
   const userId = selectLocalUserId(useAuthStore.getState());
+
   if (!userId) {
-    console.log('[ExpenseLocal] No authenticated user, returning empty expenses');
     return [];
   }
 
@@ -36,7 +38,6 @@ export const getAllExpensesLocal = async (): Promise<Expense[]> => {
     .orderBy(desc(expenses.createdAt))
     .all();
 
-  console.log(`[ExpenseLocal] All expenses loaded from local DB: ${expenseList.length} items for user ${userId}`);
   return expenseList.map(toExpense);
 };
 
@@ -53,7 +54,6 @@ export const getExpensesByTripIdLocal = async (tripId: string): Promise<Expense[
     .orderBy(desc(expenses.createdAt))
     .all();
 
-  console.log(`[ExpenseLocal] Trip expenses loaded from local DB: ${expenseList.length} items`);
   return expenseList.map(toExpense);
 };
 
@@ -68,7 +68,6 @@ export const getExpensesByScheduleIdLocal = async (scheduleId: string): Promise<
     .orderBy(desc(expenses.createdAt))
     .all();
 
-  console.log(`[ExpenseLocal] Schedule expenses loaded from local DB: ${expenseList.length} items`);
   return expenseList.map(toExpense);
 };
 
@@ -99,6 +98,7 @@ export const createExpenseLocal = async (data: CreateExpenseRequest): Promise<Ex
   const userId = requireLocalUserId(data.userId);
 
   const newExpense = {
+    fieldEdits: {},
     id,
     userId,
     tripId: data.tripId,
@@ -118,9 +118,7 @@ export const createExpenseLocal = async (data: CreateExpenseRequest): Promise<Ex
 
   return await withTransaction(async () => {
     await assertActiveLocalTrip(data.tripId);
-    await getDatabase()
-      .insert(expenses)
-      .values(newExpense as typeof expenses.$inferInsert);
+    await getDatabase().insert(expenses).values(newExpense);
     await addToSyncQueue('expenses', id, 'CREATE', {
       id,
       userId,
@@ -141,28 +139,37 @@ export const createExpenseLocal = async (data: CreateExpenseRequest): Promise<Ex
 /**
  * 로컬 DB에서 경비 수정 + sync_queue 기록
  */
-export const updateExpenseLocal = async (id: string, data: UpdateExpenseRequest): Promise<Expense> => {
+export const updateExpenseLocal = async (id: string, request: PreparedEdit<UpdateExpenseRequest>): Promise<Expense> => {
   const now = getCurrentISOString();
 
   return await withTransaction(async () => {
-    if (!(await getExpenseRowById(id))) {
+    const current = await getExpenseRowById(id);
+
+    if (!current) {
       throw new Error('수정할 경비를 찾을 수 없습니다');
     }
-    await getDatabase()
+
+    const { edit, ...patch } = request;
+
+    const updated = await getDatabase()
       .update(expenses)
       .set({
-        ...data,
+        ...patch,
+        fieldEdits: editedMarks('expenses', patch, edit, current.fieldEdits),
         updatedAt: now,
         version: sql`${expenses.version} + 1`,
       })
-      .where(ownedActiveRow(expenses, eq(expenses.id, id)));
+      .where(ownedActiveRow(expenses, eq(expenses.id, id)))
+      .returning()
+      .get();
 
-    await addToSyncQueue('expenses', id, 'UPDATE', data);
-    // 결과를 앱 계약으로 읽는 데 실패하면 행 변경과 큐 기록도 함께 롤백한다.
-    const updated = await getExpenseRowById(id);
     if (!updated) {
-      throw new Error('수정한 경비를 다시 불러오지 못했습니다');
+      throw new Error('수정한 경비를 찾을 수 없습니다');
     }
+
+    await addToSyncQueue('expenses', id, 'UPDATE', request);
+
+    // 결과를 앱 계약으로 읽는 데 실패하면 행 변경과 큐 기록도 함께 롤백한다.
     return toExpense(updated);
   });
 };

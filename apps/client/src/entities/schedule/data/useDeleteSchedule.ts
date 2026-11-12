@@ -1,8 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ScheduleRepository } from '../repository/schedule-repository';
-import { scheduleQueryKeys } from './keys';
-import { routeQueryKeys } from '@/entities/route/data/keys';
+
+import { cancelAndInvalidateQueries } from '@/shared/lib/query-refresh';
 import { expenseQueryKeys } from '@/entities/expense/data/keys';
+import { routeQueryKeys } from '@/entities/route/data/keys';
+
+import { scheduleQueryKeys } from './keys';
+import { ScheduleRepository } from '../repository/schedule-repository';
 
 /**
  * 일정 삭제 Mutation Hook (Soft Delete)
@@ -20,18 +23,13 @@ export const useDeleteSchedule = () => {
 
   return useMutation({
     mutationFn: ({ id, tripId }: { id: string; tripId: string }) => ScheduleRepository.delete(id, tripId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: scheduleQueryKeys.base,
-      });
-      // Route 캐시 무효화 (경로 재계산 필요)
-      queryClient.invalidateQueries({
-        queryKey: routeQueryKeys.base,
-      });
-      // 연관 Expense 캐시 무효화
-      queryClient.invalidateQueries({
-        queryKey: expenseQueryKeys.base,
-      });
+    onSuccess: async () => {
+      await Promise.all([
+        cancelAndInvalidateQueries(queryClient, { queryKey: scheduleQueryKeys.base }),
+        cancelAndInvalidateQueries(queryClient, { queryKey: routeQueryKeys.base }),
+        // 삭제한 일정과 연결되어 있던 경비도 다시 조회한다.
+        cancelAndInvalidateQueries(queryClient, { queryKey: expenseQueryKeys.base }),
+      ]);
     },
     onError: (error) => {
       console.error('[Schedule] Failed to delete schedule', error);

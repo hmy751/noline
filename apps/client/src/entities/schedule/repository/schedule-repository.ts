@@ -1,11 +1,10 @@
-// ========================================
-// Schedule Repository - 활성화 상태에 따른 Local/Remote 분기
-// ========================================
-
 import { createScheduleRequest, updateScheduleRequest } from '@repo/schema/requests/schedule';
+
+import { prepareEdit } from '@/shared/services/edit-stamp';
 import { routeChildQuery, routeChildMutation } from '@/shared/services/offline-prep/router';
-import * as ScheduleLocal from '../lib/schedule-local';
+
 import * as ScheduleApi from '../api/schedules';
+import * as ScheduleLocal from '../lib/schedule-local';
 import type { Schedule, CreateScheduleRequest, UpdateScheduleRequest } from '../model';
 
 /**
@@ -62,11 +61,16 @@ export const ScheduleRepository = {
    * - 화면이 이미 알고 있는 tripId로 로컬 선조회 없이 라우팅
    */
   update: async (id: string, tripId: string, data: UpdateScheduleRequest): Promise<Schedule> => {
-    const input = updateScheduleRequest.parse(data);
-    return await routeChildMutation(tripId, {
-      local: () => ScheduleLocal.updateScheduleLocal(id, input),
-      remote: () => ScheduleApi.fetchUpdateSchedule(id, input),
-    });
+    const preparedRequest = prepareEdit(updateScheduleRequest, data);
+
+    return await routeChildMutation(
+      tripId,
+      {
+        local: (input) => ScheduleLocal.updateScheduleLocal(id, input),
+        remote: (input) => ScheduleApi.fetchUpdateSchedule(id, input),
+      },
+      preparedRequest,
+    );
   },
 
   /**

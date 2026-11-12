@@ -1,4 +1,4 @@
-import { eq, ne } from 'drizzle-orm';
+import { sql, eq, ne } from 'drizzle-orm';
 
 import { reportSyncSignal, type SyncRun } from '@/shared/diagnostics/sentry';
 import { deleteQueuePayloadSchema, syncActionEnum } from '@repo/schema/sync/sync-queue';
@@ -78,7 +78,7 @@ export const quarantineOrphanedTasks = async (status?: 'IN_PROGRESS', run?: Sync
       .select()
       .from(syncQueue)
       .where(status ? eq(syncQueue.status, status) : ne(syncQueue.status, 'QUARANTINED'))
-      .orderBy(syncQueue.createdAt)
+      .orderBy(sql`rowid`)
       .all();
     const unquarantinedTasks: SyncQueueItem[] = [];
 

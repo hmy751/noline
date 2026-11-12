@@ -1,6 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ExpenseRepository } from '../repository/expense-repository';
+
+import { cancelAndInvalidateQueries } from '@/shared/lib/query-refresh';
+
 import { expenseQueryKeys } from './keys';
+import { ExpenseRepository } from '../repository/expense-repository';
 
 /**
  * 경비 삭제 Mutation Hook (Soft Delete)
@@ -18,11 +21,7 @@ export const useDeleteExpense = () => {
 
   return useMutation({
     mutationFn: ({ id, tripId }: { id: string; tripId: string }) => ExpenseRepository.delete(id, tripId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: expenseQueryKeys.base,
-      });
-    },
+    onSuccess: () => cancelAndInvalidateQueries(queryClient, { queryKey: expenseQueryKeys.base }),
     onError: (error) => {
       console.error('[Expense] Failed to delete expense', error);
     },

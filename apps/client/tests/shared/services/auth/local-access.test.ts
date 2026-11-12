@@ -1,5 +1,7 @@
 /** @jest-environment node */
-import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import * as SecureStore from 'expo-secure-store';
+
+import { beforeEach, describe, expect, it } from '@jest/globals';
 
 import { createExpenseLocal, getExpensesByTripIdLocal } from '@/entities/expense/lib/expense-local';
 import {
@@ -8,6 +10,7 @@ import {
   getSchedulesLocal,
   updateScheduleLocal,
 } from '@/entities/schedule/lib/schedule-local';
+import { ScheduleRepository } from '@/entities/schedule/repository/schedule-repository';
 import { getTripByIdLocal, getTripsLocal, updateTripLocal } from '@/entities/trip/lib/trip-local';
 import {
   expenses,
@@ -24,8 +27,14 @@ import { getTripActivationStatus } from '@/shared/services/offline-prep/metadata
 import { getSyncableTasks, recoverInterruptedTasks } from '@/shared/services/sync/queue';
 import { useAuthStore } from '@/shared/store/auth';
 
+jest.mock('@/shared/api/fetcher', () => ({ __esModule: true, default: { put: jest.fn() } }));
+
 // 실제 Drizzle SQL과 SQLite를 사용한다. 파일·기기 SecureStore는 사용하지 않는다.
-jest.mock('expo-secure-store', () => ({ setItemAsync: jest.fn(), deleteItemAsync: jest.fn() }));
+jest.mock('expo-secure-store', () => ({
+  getItemAsync: jest.fn(async () => null),
+  setItemAsync: jest.fn(),
+  deleteItemAsync: jest.fn(),
+}));
 jest.mock('@/shared/services/id/ulid', () => ({
   generateId: () => jest.requireActual<typeof import('node:crypto')>('node:crypto').randomUUID(),
 }));
@@ -33,6 +42,8 @@ jest.mock('expo-sqlite', () => ({
   openDatabaseSync: () =>
     jest.requireActual<typeof import('../../../helpers/sqlite')>('../../../helpers/sqlite').createExpoSQLiteDatabase(),
 }));
+
+const edit = { time: '2026-11-12T00:00:00.000Z', sequence: 0, id: 'prepared-edit' };
 
 const now = '2026-01-01T00:00:00Z';
 const scheduleInput = {
@@ -119,7 +130,7 @@ describe.each(['signed-in', 'reauth-required'] as const)('%s의 활성 여행 �
 
   it('기존 활성 여행에서 만료일과 무관하게 생성·수정·삭제와 큐 기록을 허용한다', async () => {
     await createScheduleLocal(scheduleInput);
-    await updateScheduleLocal('new-schedule', { title: '수정' });
+    await updateScheduleLocal('new-schedule', { edit, title: '수정' });
     await deleteScheduleLocal('new-schedule');
     expect(await getSchedulesLocal('trip-a')).toHaveLength(1);
     expect(await getDatabase().select().from(syncQueue).all()).toHaveLength(3);
@@ -127,7 +138,7 @@ describe.each(['signed-in', 'reauth-required'] as const)('%s의 활성 여행 �
 
   it('다른 계정 데이터와 활성화하지 않은 여행의 로컬 수정을 거절하며 큐도 만들지 않는다', async () => {
     await expect(updateTripLocal('trip-b', { name: '침범' })).rejects.toThrow();
-    await expect(updateScheduleLocal('schedule-trip-b', { title: '침범' })).rejects.toThrow();
+    await expect(updateScheduleLocal('schedule-trip-b', { edit, title: '침범' })).rejects.toThrow();
     await expect(createScheduleLocal({ ...scheduleInput, tripId: 'inactive' })).rejects.toThrow();
     await expect(createScheduleLocal({ ...scheduleInput, userId: 'b' })).rejects.toThrow();
     await expect(
@@ -238,4 +249,15 @@ it('큐 소유자는 원본 row와 payload 계정을 함께 확인한다', async
   expect(await getQueueOwner({ ...task, payload: '{"userId":"b"}' })).toBeNull();
   expect(await getQueueOwner({ ...task, recordId: 'missing' })).toBeNull();
   expect(await inspectLocalAccount('a')).toBe('different');
+});
+
+it('편집 표식 보존 실패는 원래 행과 큐를 함께 유지한다', async () => {
+  const before = await getDatabase().select().from(schedules).all();
+  const queueBefore = await getDatabase().select().from(syncQueue).all();
+  jest.mocked(SecureStore.getItemAsync).mockRejectedValueOnce(new Error('storage-unavailable'));
+  await expect(ScheduleRepository.update('schedule-trip-a', 'trip-a', { title: '변경' })).rejects.toThrow(
+    'storage-unavailable',
+  );
+  expect(await getDatabase().select().from(schedules).all()).toEqual(before);
+  expect(await getDatabase().select().from(syncQueue).all()).toEqual(queueBefore);
 });

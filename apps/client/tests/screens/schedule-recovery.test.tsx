@@ -187,14 +187,14 @@ jest.mock('@/entities/schedule', () => ({
     '@/entities/schedule/data/useGetSchedules',
   ).useGetSchedules,
   useDeleteSchedule: () => ({ mutate: jest.fn() }),
-  useUpdateSchedule: () => ({ mutate: mockSaveSchedule, isPending: false }),
+  useUpdateSchedule: () => ({ mutateAsync: mockSaveSchedule }),
 }));
 jest.mock('@/features/expense/expense-menu', () => ({ ExpenseMenu: () => null }));
 jest.mock('@/features/expense/update-expense', () => ({ UpdateExpenseDrawer: () => null }));
 
 type Schedules = Awaited<ReturnType<typeof ScheduleRepository.getByTripId>>;
 const fetchSchedules = jest.mocked(ScheduleRepository.getByTripId);
-const mockSaveSchedule = jest.fn();
+const mockSaveSchedule = jest.fn<(input: { data: { scheduledAt?: string } }) => Promise<{ scheduledAt: string }>>();
 const clients: QueryClient[] = [];
 let mockClient: QueryClient;
 let mockTrips: { id: string; startDate: string; endDate: string; baseCurrency: string; timeZone: string }[];
@@ -326,6 +326,9 @@ beforeEach(() => {
     timeZone: 'UTC',
   }));
   fetchSchedules.mockReset();
+  mockSaveSchedule.mockImplementation(async ({ data }) => ({
+    scheduledAt: data.scheduledAt ?? '2026-09-21T10:00:00Z',
+  }));
   useNetworkStore.setState({ realStatus: 'online', overrideStatus: null, checkStatus: 'idle' });
   useAuthStore.setState({ status: 'signed-in', userId: 'a', sessionId: Symbol('session') });
   useTripStore.setState({ selectedTripId: 'trip' });

@@ -1,5 +1,7 @@
 import { z } from 'zod';
+
 import { isoDateTime } from '../primitives/datetime';
+import { fieldEdits } from '../sync/field-edits';
 
 /** 경비가 속하는 달력 날짜. 기기 시간대로 변환하지 않는다. */
 export const expenseDate = z.string().date();
@@ -22,6 +24,7 @@ export const expenseEntity = z.object({
   updatedAt: isoDateTime,
   deletedAt: isoDateTime.nullable().optional(),
   version: z.number().default(1).optional(),
+  fieldEdits: fieldEdits.optional(),
 
   // 비즈니스 필드
   userId: z.string().ulid().nullable(), // 인증 추가 전까지 nullable

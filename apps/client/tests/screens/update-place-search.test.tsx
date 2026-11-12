@@ -56,7 +56,7 @@ jest.mock('@/shared/components/TimePicker/TimePicker', () => ({
 jest.mock('@/entities/trip/data/useGetTripActivation', () => ({
   useGetTripActivation: () => ({ data: { isActivated: true } }),
 }));
-jest.mock('@/entities/schedule', () => ({ useUpdateSchedule: () => ({ mutate: mockSave, isPending: false }) }));
+jest.mock('@/entities/schedule', () => ({ useUpdateSchedule: () => ({ mutateAsync: mockSave, isPending: false }) }));
 jest.mock('@/entities/route', () => ({ useAutoDownloadRoutes: () => ({ mutate: jest.fn() }) }));
 jest.mock('@/features/schedule/read-schedules', () => ({
   useTripSchedulesReadQuery: () => ({ query: { data: [] } }),
@@ -72,6 +72,7 @@ const detail = { ...candidate, latitude: 0, longitude: 2.294 };
 const clients: QueryClient[] = [];
 beforeEach(() => {
   jest.useFakeTimers();
+  mockSave.mockImplementation(async () => ({ scheduledAt: '2026-09-21T10:00:00Z' }));
   useAuthStore.setState({ status: 'signed-in', userId: 'user' });
   useNetworkStore.setState({ realStatus: 'online', overrideStatus: null, checkStatus: 'idle' });
   mockSearch.mockResolvedValue({
@@ -134,9 +135,8 @@ it('수정 화면은 검증된 상세 좌표 0을 그대로 선택하고 수정 
     expect(mockSave).toHaveBeenCalledWith(
       expect.objectContaining({
         id: 'schedule',
-        data: expect.objectContaining({ title: '기존 제목', location: '에펠탑', latitude: 0, longitude: 2.294 }),
+        data: { location: '에펠탑', address: 'Paris', latitude: 0, longitude: 2.294 },
       }),
-      expect.any(Object),
     ),
   );
 });
@@ -158,7 +158,6 @@ it('수정의 상세 실패는 생성 캐시와 분리되고 명시적인 legacy
       expect.objectContaining({
         data: expect.objectContaining({ location: '에펠탑', latitude: 0, longitude: 0 }),
       }),
-      expect.any(Object),
     ),
   );
 });

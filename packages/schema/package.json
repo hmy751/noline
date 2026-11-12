@@ -10,23 +10,60 @@
   ],
   "typesVersions": {
     "*": {
-      "entities/trip": ["./dist/entities/trip.d.ts"],
-      "entities/schedule": ["./dist/entities/schedule.d.ts"],
-      "entities/expense": ["./dist/entities/expense.d.ts"],
-      "entities/user": ["./dist/entities/user.d.ts"],
-      "requests/trip": ["./dist/requests/trip.d.ts"],
-      "requests/schedule": ["./dist/requests/schedule.d.ts"],
-      "requests/expense": ["./dist/requests/expense.d.ts"],
-      "requests/user": ["./dist/requests/user.d.ts"],
-      "requests/places": ["./dist/requests/places.d.ts"],
-      "responses/trip": ["./dist/responses/trip.d.ts"],
-      "responses/schedule": ["./dist/responses/schedule.d.ts"],
-      "responses/expense": ["./dist/responses/expense.d.ts"],
-      "responses/user": ["./dist/responses/user.d.ts"],
-      "responses/places": ["./dist/responses/places.d.ts"],
-      "responses/auth": ["./dist/responses/auth.d.ts"],
-      "sync/sync-queue": ["./dist/sync/sync-queue.d.ts"],
-      "sync/sync-status": ["./dist/sync/sync-status.d.ts"]
+      "entities/trip": [
+        "./dist/entities/trip.d.ts"
+      ],
+      "entities/schedule": [
+        "./dist/entities/schedule.d.ts"
+      ],
+      "entities/expense": [
+        "./dist/entities/expense.d.ts"
+      ],
+      "entities/user": [
+        "./dist/entities/user.d.ts"
+      ],
+      "requests/trip": [
+        "./dist/requests/trip.d.ts"
+      ],
+      "requests/schedule": [
+        "./dist/requests/schedule.d.ts"
+      ],
+      "requests/expense": [
+        "./dist/requests/expense.d.ts"
+      ],
+      "requests/user": [
+        "./dist/requests/user.d.ts"
+      ],
+      "requests/places": [
+        "./dist/requests/places.d.ts"
+      ],
+      "responses/trip": [
+        "./dist/responses/trip.d.ts"
+      ],
+      "responses/schedule": [
+        "./dist/responses/schedule.d.ts"
+      ],
+      "responses/expense": [
+        "./dist/responses/expense.d.ts"
+      ],
+      "responses/user": [
+        "./dist/responses/user.d.ts"
+      ],
+      "responses/places": [
+        "./dist/responses/places.d.ts"
+      ],
+      "responses/auth": [
+        "./dist/responses/auth.d.ts"
+      ],
+      "sync/sync-queue": [
+        "./dist/sync/sync-queue.d.ts"
+      ],
+      "sync/sync-status": [
+        "./dist/sync/sync-status.d.ts"
+      ],
+      "sync/field-edits": [
+        "./dist/sync/field-edits.d.ts"
+      ]
     }
   },
   "exports": {
@@ -119,6 +156,11 @@
       "types": "./dist/sync/sync-status.d.ts",
       "import": "./dist/sync/sync-status.mjs",
       "require": "./dist/sync/sync-status.js"
+    },
+    "./sync/field-edits": {
+      "types": "./dist/sync/field-edits.d.ts",
+      "import": "./dist/sync/field-edits.mjs",
+      "require": "./dist/sync/field-edits.js"
     }
   },
   "scripts": {

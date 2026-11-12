@@ -1,7 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ExpenseRepository } from '../repository/expense-repository';
-import type { CreateExpenseRequest } from '../model';
+
+import { cancelAndInvalidateQueries } from '@/shared/lib/query-refresh';
+
 import { expenseQueryKeys } from './keys';
+import type { CreateExpenseRequest } from '../model';
+import { ExpenseRepository } from '../repository/expense-repository';
 
 /**
  * 경비 생성 Mutation Hook
@@ -28,22 +31,16 @@ export const useCreateExpense = () => {
 
   return useMutation({
     mutationFn: (data: CreateExpenseRequest) => ExpenseRepository.create(data),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: expenseQueryKeys.all(),
-      });
-
-      if (variables.tripId) {
-        queryClient.invalidateQueries({
-          queryKey: expenseQueryKeys.byTrip(variables.tripId),
-        });
-      }
-
-      if (variables.scheduleId) {
-        queryClient.invalidateQueries({
-          queryKey: expenseQueryKeys.bySchedule(variables.scheduleId),
-        });
-      }
+    onSuccess: async (_, variables) => {
+      await Promise.all([
+        cancelAndInvalidateQueries(queryClient, { queryKey: expenseQueryKeys.all() }),
+        ...(variables.tripId
+          ? [cancelAndInvalidateQueries(queryClient, { queryKey: expenseQueryKeys.byTrip(variables.tripId) })]
+          : []),
+        ...(variables.scheduleId
+          ? [cancelAndInvalidateQueries(queryClient, { queryKey: expenseQueryKeys.bySchedule(variables.scheduleId) })]
+          : []),
+      ]);
     },
     onError: (error) => {
       console.error('❌ Failed to create expense:', error);

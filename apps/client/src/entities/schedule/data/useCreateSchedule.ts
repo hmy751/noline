@@ -1,8 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ScheduleRepository } from '../repository/schedule-repository';
-import type { CreateScheduleRequest } from '../model';
-import { scheduleQueryKeys } from './keys';
+
+import { cancelAndInvalidateQueries } from '@/shared/lib/query-refresh';
 import { routeQueryKeys } from '@/entities/route/data/keys';
+
+import { scheduleQueryKeys } from './keys';
+import type { CreateScheduleRequest } from '../model';
+import { ScheduleRepository } from '../repository/schedule-repository';
 
 /**
  * 일정 생성 Mutation Hook
@@ -35,17 +38,13 @@ export const useCreateSchedule = () => {
 
   return useMutation({
     mutationFn: (data: CreateScheduleRequest) => ScheduleRepository.create(data),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: scheduleQueryKeys.list(variables.tripId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: scheduleQueryKeys.count(variables.tripId),
-      });
-      // Route 캐시 무효화 (경로 재계산 필요)
-      queryClient.invalidateQueries({
-        queryKey: routeQueryKeys.byTrip(variables.tripId),
-      });
+    onSuccess: async (_, variables) => {
+      await Promise.all([
+        cancelAndInvalidateQueries(queryClient, { queryKey: scheduleQueryKeys.list(variables.tripId) }),
+        cancelAndInvalidateQueries(queryClient, { queryKey: scheduleQueryKeys.count(variables.tripId) }),
+        // 저장된 경로를 다시 조회한다. 경로 준비는 생성 흐름에서 따로 시작한다.
+        cancelAndInvalidateQueries(queryClient, { queryKey: routeQueryKeys.byTrip(variables.tripId) }),
+      ]);
     },
     onError: (error) => {
       console.error('❌ Failed to create schedule:', error);
