@@ -110,7 +110,7 @@ jest.mock('@/entities/schedule', () => ({
     '@/entities/schedule/data/useGetScheduleById',
   ).useGetScheduleById,
   useCreateSchedule: () => ({ mutate: mockSaveSchedule, isPending: false }),
-  useUpdateSchedule: () => ({ mutate: mockSaveSchedule, isPending: false }),
+  useUpdateSchedule: () => ({ mutate: mockSaveSchedule, mutateAsync: mockSaveSchedule, isPending: false }),
 }));
 jest.mock('@/entities/schedule/data', () => ({
   useGetScheduleById: jest.requireActual<typeof import('@/entities/schedule/data/useGetScheduleById')>(
@@ -419,8 +419,6 @@ it('대표 여행이 없는 최초 여행 조회 실패는 여행 없음과 구�
 it.each([
   { name: '경비 생성', ui: <CreateExpense /> },
   { name: '경비 수정', ui: updateExpense() },
-  { name: '일정 생성', ui: <CreateSchedule /> },
-  { name: '일정 수정', ui: updateSchedule() },
 ])('$name의 보조조회도 실제 연결 제한 중에는 시작하지 않고 복구 후 조회한다', async ({ ui }) => {
   connect('unknown');
   const view = setup(ui, false);
@@ -442,18 +440,18 @@ it('경비 생성의 조회 제한과 복귀에도 작성 값과 선택한 일�
   await waitFor(() => expect(mockSaveExpense).toHaveBeenCalled());
   expect(mockSaveExpense.mock.calls[0][0]).toMatchObject({ title: '바꾼 제목', scheduleId: 's' });
 });
-it.each([
-  { name: '경비', ui: updateExpense },
-  { name: '일정', ui: updateSchedule },
-])('닫힌 $name 수정 폼은 무효화돼도 조회하지 않고 열면 조회한다', async ({ ui }) => {
-  const view = setup(ui(false));
-  await act(async () => {
-    await view.client.invalidateQueries({ queryKey: scheduleQueryKeys.list('trip') });
-  });
-  expect(ScheduleRepository.getByTripId).not.toHaveBeenCalled();
-  view.rerender(view.wrap(ui(true)));
-  await waitFor(() => expect(ScheduleRepository.getByTripId).toHaveBeenCalledTimes(1));
-});
+it.each([{ name: '경비', ui: updateExpense }])(
+  '닫힌 $name 수정 폼은 무효화돼도 조회하지 않고 열면 조회한다',
+  async ({ ui }) => {
+    const view = setup(ui(false));
+    await act(async () => {
+      await view.client.invalidateQueries({ queryKey: scheduleQueryKeys.list('trip') });
+    });
+    expect(ScheduleRepository.getByTripId).not.toHaveBeenCalled();
+    view.rerender(view.wrap(ui(true)));
+    await waitFor(() => expect(ScheduleRepository.getByTripId).toHaveBeenCalledTimes(1));
+  },
+);
 
 it('일정에서 경비를 추가하면 오래된 navigation 시각 대신 현재 조회한 일정 날짜를 전달한다', async () => {
   mockTimeZone = 'Asia/Tokyo';
@@ -481,3 +479,34 @@ it.each(['missing', 'loading'])(
     expect(mockPush).toHaveBeenCalledWith('/create-expense?tripId=trip&scheduleId=s');
   },
 );
+
+it.each([
+  { name: '일정 생성', ui: <CreateSchedule /> },
+  { name: '일정 수정', ui: updateSchedule() },
+])('$name 폼은 경로 준비를 위해 전체 일정 목록을 구독하지 않는다', async ({ ui }) => {
+  connect('unknown');
+  const view = setup(ui, false);
+  connect('online');
+  await act(async () => {
+    await view.client.invalidateQueries({ queryKey: scheduleQueryKeys.list('trip') });
+  });
+  expect(ScheduleRepository.getByTripId).not.toHaveBeenCalled();
+  expect(mockSaveSchedule).not.toHaveBeenCalled();
+  expect(mockDownloadRoutes).not.toHaveBeenCalled();
+});
+
+it('일정 제목만 저장하면 성공 후에도 경로 준비를 요청하지 않는다', async () => {
+  mockSaveSchedule.mockImplementationOnce(async (_input, callbacks) => {
+    (callbacks as { onSuccess?: () => void } | undefined)?.onSuccess?.();
+  });
+  const prompt = jest.spyOn(Alert, 'prompt').mockImplementation(() => undefined);
+  const view = setup(updateSchedule());
+  fireEvent.press(view.getByText('기존 일정'));
+  const buttons = prompt.mock.calls[0][2];
+  if (!Array.isArray(buttons)) throw new Error('제목 입력 버튼이 필요합니다');
+  act(() => buttons.find((button) => button.text === '확인')?.onPress?.('바꾼 일정'));
+  fireEvent.press(view.getByText('저장'));
+  await waitFor(() => expect(Alert.alert).toHaveBeenCalledWith('성공', '일정이 수정되었습니다.'));
+  expect(mockSaveSchedule.mock.calls[0][0]).toMatchObject({ data: { title: '바꾼 일정' } });
+  expect(mockDownloadRoutes).not.toHaveBeenCalled();
+});

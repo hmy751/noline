@@ -1,5 +1,4 @@
-import { useCreateSchedule, type Schedule } from '@/entities/schedule';
-import { useTripSchedulesReadQuery } from '@/features/schedule/read-schedules';
+import { useCreateSchedule } from '@/entities/schedule';
 import { useAutoDownloadRoutes } from '@/entities/route';
 import { combineDateTimeInTimeZoneToISO } from '@/shared/lib/datetime';
 import { generateId } from '@/shared/services/id/ulid';
@@ -20,8 +19,6 @@ export function useSubmitSchedule({
 }) {
   const mutation = useCreateSchedule();
   const { mutate: autoDownloadRoutes } = useAutoDownloadRoutes();
-  const { query: schedulesQuery } = useTripSchedulesReadQuery(tripId);
-  const schedules = schedulesQuery.data ?? [];
 
   const submit = (data: CreateScheduleFormData, place: Location | null) => {
     if (mutation.isPending || !timeZone) return;
@@ -40,32 +37,7 @@ export function useSubmitSchedule({
       },
       {
         onSuccess: () => {
-          // 경로 자동 다운로드 (새 일정 포함)
-          setTimeout(() => {
-            const newSchedule = {
-              id,
-              latitude: place?.latitude ? parseFloat(String(place.latitude)) : undefined,
-              longitude: place?.longitude ? parseFloat(String(place.longitude)) : undefined,
-            };
-
-            // scheduledAt 기준으로 정렬된 전체 일정 목록
-            const allSchedules = [
-              ...schedules.map((s: Schedule) => ({
-                id: s.id,
-                latitude: s.latitude ? parseFloat(s.latitude) : undefined,
-                longitude: s.longitude ? parseFloat(s.longitude) : undefined,
-                scheduledAt: s.scheduledAt,
-              })),
-              {
-                ...newSchedule,
-                scheduledAt,
-              },
-            ]
-              .sort((a, b) => new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime())
-              .map(({ id: scheduleId, latitude, longitude }) => ({ id: scheduleId, latitude, longitude }));
-
-            autoDownloadRoutes({ tripId, schedules: allSchedules });
-          }, 500);
+          autoDownloadRoutes({ tripId });
 
           onSuccess?.();
         },

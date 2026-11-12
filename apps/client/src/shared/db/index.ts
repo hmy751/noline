@@ -2,6 +2,7 @@ import { drizzle, type ExpoSQLiteDatabase } from 'drizzle-orm/expo-sqlite';
 import * as SQLite from 'expo-sqlite';
 import * as schema from './schema';
 import { sql } from 'drizzle-orm';
+import { migrateRouteInputs } from './migrations/route-inputs';
 import { migrateTripTimeZone } from './migrations/trip-time-zone';
 
 let databaseConnection: SQLite.SQLiteDatabase | undefined;
@@ -212,6 +213,7 @@ export async function initializeDatabase() {
         from_schedule_id TEXT,
         to_schedule_id TEXT NOT NULL,
         profile TEXT NOT NULL,
+        coordinates_key TEXT,
         geometry TEXT NOT NULL,
         distance INTEGER NOT NULL,
         duration INTEGER NOT NULL,
@@ -224,6 +226,8 @@ export async function initializeDatabase() {
         FOREIGN KEY (to_schedule_id) REFERENCES schedules(id) ON DELETE CASCADE
       );
     `);
+
+    migrateRouteInputs(expoDb);
 
     // Trip Activations 테이블 생성 (활성화 관리)
     expoDb.execSync(`

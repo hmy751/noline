@@ -196,6 +196,7 @@ export const routes = sqliteTable('routes', {
   profile: text('profile').notNull(), // Mapbox profile
 
   // Mapbox Directions API 응답
+  coordinatesKey: text('coordinates_key'),
   geometry: text('geometry').notNull(), // polyline6 압축 문자열
   distance: integer('distance').notNull(), // 미터 (meters)
   duration: integer('duration').notNull(), // 초 (seconds)

@@ -6,8 +6,7 @@ import { Calendar, Clock, MapPin } from 'lucide-react-native';
 import { Drawer, Pressable } from '@repo/ui';
 import { DatePicker, PolicyErrorDisplay } from '@/shared/components';
 import { Field, TimeField } from '@/shared/components/Form';
-import { useUpdateSchedule, type Schedule } from '@/entities/schedule';
-import { useTripSchedulesReadQuery } from '@/features/schedule/read-schedules';
+import { useUpdateSchedule } from '@/entities/schedule';
 import { useAutoDownloadRoutes } from '@/entities/route';
 import { useAppPolicy } from '@/shared/policy';
 import { makeScheduleUpdateFormSchema, type ScheduleUpdateFormData } from './schema';
@@ -74,9 +73,6 @@ export const UpdateScheduleDrawer = ({
   // Mutations and queries
   const { mutate: updateSchedule, isPending } = useUpdateSchedule();
   const { mutate: autoDownloadRoutes } = useAutoDownloadRoutes();
-  // 입력은 닫힌 동안에도 보관하되, 저장 후 경로 재계산용 조회는 편집 중에만 활성화한다.
-  const { query: schedulesQuery } = useTripSchedulesReadQuery(scheduleData?.tripId, { enabled: isOpen });
-  const schedules = schedulesQuery.data ?? [];
 
   // Policy 체크
   const policy = useAppPolicy(scheduleData?.tripId);
@@ -136,38 +132,14 @@ export const UpdateScheduleDrawer = ({
         },
       },
       {
-        onSuccess: (savedSchedule) => {
+        onSuccess: () => {
           defaultValuesRef.current = { date: data.date, time: data.time };
           reset(data);
           Alert.alert('성공', '일정이 수정되었습니다.');
 
-          // 경로 재다운로드 (날짜/시간 변경으로 순서가 바뀔 수 있음)
-          setTimeout(() => {
-            const allSchedules = schedules
-              .map((s: Schedule) => ({
-                id: s.id,
-                latitude: s.latitude ? parseFloat(s.latitude) : undefined,
-                longitude: s.longitude ? parseFloat(s.longitude) : undefined,
-                scheduledAt: s.id === scheduleData.id ? savedSchedule.scheduledAt : s.scheduledAt,
-              }))
-              .sort(
-                (a: { scheduledAt: string }, b: { scheduledAt: string }) =>
-                  new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime(),
-              )
-              .map(
-                ({
-                  id: scheduleId,
-                  latitude,
-                  longitude,
-                }: {
-                  id: string;
-                  latitude: number | undefined;
-                  longitude: number | undefined;
-                }) => ({ id: scheduleId, latitude, longitude }),
-              );
-
-            autoDownloadRoutes({ tripId: scheduleData.tripId, schedules: allSchedules });
-          }, 500);
+          if (scheduledAt !== undefined || selectedLocation) {
+            autoDownloadRoutes({ tripId: scheduleData.tripId });
+          }
 
           onClose();
         },

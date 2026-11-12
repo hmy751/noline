@@ -50,17 +50,9 @@ export const useActivateTrip = () => {
       if (existingActivation?.isActivated) {
         console.log(`[TripActivation] Trip already activated: ${tripId}, checking routes...`);
 
-        // 이미 활성화되어 있어도 경로 다운로드는 시도 (없는 경로만 다운로드됨)
-        const localSchedules = getDatabase()
-          .select()
-          .from(schedulesTable)
-          .where(eq(schedulesTable.tripId, tripId))
-          .all();
-        if (localSchedules.length > 0) {
-          downloadRoutesForSchedules({ tripId, schedules: localSchedules }).catch((error) => {
-            console.error('[TripActivation] Route download failed for already activated trip:', error);
-          });
-        }
+        downloadRoutesForSchedules({ tripId }).catch((error) => {
+          console.error('[TripActivation] Route download failed for already activated trip:', error);
+        });
 
         return { tripId, alreadyActivated: true };
       }
@@ -198,7 +190,7 @@ export const useActivateTrip = () => {
       });
 
       // 백그라운드로 경로 다운로드 (Mapbox Directions API)
-      downloadRoutesForSchedules({ tripId, schedules }).catch((error) => {
+      downloadRoutesForSchedules({ tripId }).catch((error) => {
         console.error('[TripActivation] Background route download failed:', error);
       });
 

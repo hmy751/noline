@@ -1,138 +1,112 @@
-/**
- * Route Downloader - 경로 다운로드 유틸리티
- * - 일정 목록에서 모든 경로 세그먼트 다운로드
- * - 3가지 이동 수단 (walking, cycling, driving-traffic)
- * - useActivateTrip, useAutoDownloadRoutes 에서 사용
- */
+import { and, eq, isNull } from 'drizzle-orm';
 
-import { generateId } from '@/shared/services/id/ulid';
-import { getDatabase } from '@/shared/db';
-import { routes } from '@/shared/db/schema';
-import { queryClient } from '@/shared/lib/queryClient';
 import { routeQueryKeys } from '@/entities/route/data/keys';
-import { getDirections, type MapboxProfile } from './mapbox';
-import type { NewRoute } from '@/shared/db/schema';
-import { eq } from 'drizzle-orm';
+import {
+  getDatabase,
+  routes,
+  schedules as scheduleTable,
+  tripActivations,
+  trips,
+  type NewRoute,
+  type Route,
+} from '@/shared/db';
+import { withTransaction } from '@/shared/db/utils';
+import { formatISOToTimeZoneDate } from '@/shared/lib/datetime';
+import { queryClient } from '@/shared/lib/queryClient';
+import { generateId } from '@/shared/services/id/ulid';
+import { AuthRequiredError, requireLocalUserId, useAuthStore } from '@/shared/store/auth';
 
-interface ScheduleCoordinates {
-  id: string;
-  latitude?: number | string | null;
-  longitude?: number | string | null;
-}
+import { getDirections, type Coordinate, type MapboxProfile } from './mapbox';
+import { buildRouteSegments, findSavedRoute, isSameRouteSegment, type RouteSegment } from './route-plan';
 
-interface DownloadRoutesParams {
+export type DownloadRoutesParams = {
   tripId: string;
-  schedules: ScheduleCoordinates[];
-  accommodationCoords?: { latitude: number; longitude: number };
-}
+  accommodationCoords?: Coordinate;
+};
 
 const PROFILES: MapboxProfile[] = ['walking', 'cycling', 'driving-traffic'];
 
-/**
- * 일정 목록에서 모든 경로 세그먼트 다운로드
- * - 숙소 → 첫 일정
- * - 일정 → 일정
- * - 각 세그먼트당 3가지 이동 수단
- *
- * @param tripId - 여행 ID
- * @param schedules - 일정 목록
- * @param accommodationCoords - 숙소 좌표 (선택)
- * @returns 다운로드된 경로 수
- */
-export async function downloadRoutesForSchedules({
-  tripId,
-  schedules,
-  accommodationCoords,
-}: DownloadRoutesParams): Promise<{ downloaded: number }> {
-  const now = new Date().toISOString();
-  const newRoutes: NewRoute[] = [];
+// 경로 요청끼리만 직렬화한다. 일정 저장·삭제와 DB transaction은 네트워크를 기다리지 않는다.
+const pendingDownloads = new Map<string, { sessionId: symbol | null; promise: Promise<unknown> }>();
 
-  // 좌표가 있는 일정만 필터링 (string → number 변환 포함)
-  const schedulesWithCoords = schedules
-    .map((s) => ({
-      id: s.id,
-      latitude: typeof s.latitude === 'string' ? parseFloat(s.latitude) : s.latitude,
-      longitude: typeof s.longitude === 'string' ? parseFloat(s.longitude) : s.longitude,
-    }))
-    .filter((s) => s.latitude && s.longitude && !isNaN(s.latitude) && !isNaN(s.longitude));
+/** 저장 성공과 독립적인 서비스 캐시 준비. 실패 profile은 비워 두고 다음 요청에서 다시 계산한다. */
+export const downloadRoutesForSchedules = async (params: DownloadRoutesParams): Promise<{ downloaded: number }> => {
+  const userId = requireLocalUserId();
+  const sessionId = useAuthStore.getState().sessionId;
+  const key = `${userId}:${params.tripId}`;
+  const previous = pendingDownloads.get(key);
 
-  if (schedulesWithCoords.length === 0) {
-    console.log('[Routes] No schedules with coordinates, skipping route download');
+  const assertSession = () => {
+    if (requireLocalUserId() !== userId || useAuthStore.getState().sessionId !== sessionId) {
+      throw new AuthRequiredError();
+    }
+  };
+
+  const result = (previous?.sessionId === sessionId ? previous.promise : Promise.resolve())
+    .catch(() => undefined)
+    .then(async () => {
+      assertSession();
+      return refreshRoutes(params, userId, assertSession);
+    });
+  pendingDownloads.set(key, { sessionId, promise: result });
+
+  try {
+    return await result;
+  } finally {
+    if (pendingDownloads.get(key)?.promise === result) {
+      pendingDownloads.delete(key);
+    }
+  }
+};
+
+const refreshRoutes = async (
+  { tripId, accommodationCoords }: DownloadRoutesParams,
+  userId: string,
+  assertSession: () => void,
+): Promise<{ downloaded: number }> => {
+  const initial = await withTransaction(async () => {
+    assertSession();
+    const segments = readCurrentSegments(tripId, userId, accommodationCoords);
+
+    if (segments === null) {
+      return null;
+    }
+
+    const savedRoutes = pruneCache(tripId, segments);
+    return { segments, savedRoutes };
+  });
+
+  if (!initial) {
     return { downloaded: 0 };
   }
 
-  // 기존 경로 조회 (중복 다운로드 방지)
-  const existingRoutes = getDatabase().select().from(routes).where(eq(routes.tripId, tripId)).all();
+  await queryClient.invalidateQueries({ queryKey: routeQueryKeys.byTrip(tripId) });
 
-  // 경로 존재 여부 체크 헬퍼
-  const routeExists = (fromId: string | null, toId: string, profile: MapboxProfile) => {
-    return existingRoutes.some((r) => r.fromScheduleId === fromId && r.toScheduleId === toId && r.profile === profile);
-  };
+  const candidates: NewRoute[] = [];
 
-  console.log(
-    `[Routes] Downloading routes for ${schedulesWithCoords.length} schedules (existing: ${existingRoutes.length})...`,
-  );
-
-  // 숙소 → 첫 일정 (있는 경우)
-  if (accommodationCoords && schedulesWithCoords[0]) {
-    const firstSchedule = schedulesWithCoords[0];
-
+  for (const segment of initial.segments) {
     for (const profile of PROFILES) {
-      // 이미 존재하면 스킵
-      if (routeExists(null, firstSchedule.id, profile)) {
+      assertSession();
+
+      if (findSavedRoute(initial.savedRoutes, segment, profile)) {
+        continue;
+      }
+
+      const segments = readCurrentSegments(tripId, userId, accommodationCoords);
+
+      if (!segments?.some((live) => isSameRouteSegment(live, segment))) {
         continue;
       }
 
       try {
-        const directions = await getDirections({
-          from: { latitude: accommodationCoords.latitude, longitude: accommodationCoords.longitude },
-          to: { latitude: firstSchedule.latitude!, longitude: firstSchedule.longitude! },
-          profile,
-        });
-
-        newRoutes.push({
+        const directions = await getDirections({ from: segment.from, to: segment.to, profile });
+        const now = new Date().toISOString();
+        candidates.push({
           id: generateId(),
           tripId,
-          fromScheduleId: null, // 숙소
-          toScheduleId: firstSchedule.id,
-          profile,
-          geometry: directions.geometry,
-          distance: directions.distance,
-          duration: directions.duration,
-          createdAt: now,
-          updatedAt: now,
-          deletedAt: null,
-          version: 1,
-        });
-      } catch (error) {
-        console.error(`[Routes] Failed to download route (accommodation → ${firstSchedule.id}, ${profile}):`, error);
-      }
-    }
-  }
-
-  // 일정 → 일정 경로들
-  for (let i = 0; i < schedulesWithCoords.length - 1; i++) {
-    const currentSchedule = schedulesWithCoords[i];
-    const nextSchedule = schedulesWithCoords[i + 1];
-
-    for (const profile of PROFILES) {
-      // 이미 존재하면 스킵
-      if (routeExists(currentSchedule.id, nextSchedule.id, profile)) {
-        continue;
-      }
-
-      try {
-        const directions = await getDirections({
-          from: { latitude: currentSchedule.latitude!, longitude: currentSchedule.longitude! },
-          to: { latitude: nextSchedule.latitude!, longitude: nextSchedule.longitude! },
-          profile,
-        });
-
-        newRoutes.push({
-          id: generateId(),
-          tripId,
-          fromScheduleId: currentSchedule.id,
-          toScheduleId: nextSchedule.id,
+          fromScheduleId: segment.fromScheduleId,
+          toScheduleId: segment.toScheduleId,
+          coordinatesKey: segment.coordinatesKey,
           profile,
           geometry: directions.geometry,
           distance: directions.distance,
@@ -144,22 +118,118 @@ export async function downloadRoutesForSchedules({
         });
       } catch (error) {
         console.error(
-          `[Routes] Failed to download route (${currentSchedule.id} → ${nextSchedule.id}, ${profile}):`,
+          `[Routes] Failed to download route (${segment.fromScheduleId} → ${segment.toScheduleId}, ${profile}):`,
           error,
         );
       }
     }
   }
 
-  // DB에 일괄 저장
-  if (newRoutes.length > 0) {
-    await getDatabase().insert(routes).values(newRoutes).run();
+  const downloaded = await withTransaction(async () => {
+    assertSession();
+    const segments = readCurrentSegments(tripId, userId, accommodationCoords);
 
-    // ✅ UI 갱신 요청 (지도 경로 표시)
-    queryClient.invalidateQueries({ queryKey: routeQueryKeys.byTrip(tripId) });
+    if (segments === null) {
+      return 0;
+    }
 
-    console.log(`[Routes] Downloaded ${newRoutes.length} routes for trip ${tripId}`);
+    const savedRoutes = pruneCache(tripId, segments);
+    let inserted = 0;
+
+    for (const candidate of candidates) {
+      const segment = segments.find((live) => isSameRouteSegment(live, candidate));
+
+      if (!segment || findSavedRoute(savedRoutes, segment, candidate.profile)) {
+        continue;
+      }
+
+      getDatabase().insert(routes).values(candidate).run();
+      inserted++;
+    }
+
+    return inserted;
+  });
+
+  await queryClient.invalidateQueries({ queryKey: routeQueryKeys.byTrip(tripId) });
+  return { downloaded };
+};
+
+// 제출·활성화 시 캡처한 목록 대신 저장된 Local 원본으로 최신 인접 관계를 정한다.
+const readCurrentSegments = (
+  tripId: string,
+  userId: string,
+  accommodationCoords?: Coordinate,
+): RouteSegment[] | null => {
+  const db = getDatabase();
+  const trip = db
+    .select()
+    .from(trips)
+    .where(and(eq(trips.id, tripId), eq(trips.userId, userId)))
+    .get();
+
+  if (!trip) {
+    return null;
+  }
+  if (trip.deletedAt) {
+    return [];
   }
 
-  return { downloaded: newRoutes.length };
-}
+  const activation = db
+    .select({ id: tripActivations.id })
+    .from(tripActivations)
+    .where(
+      and(
+        eq(tripActivations.tripId, tripId),
+        eq(tripActivations.userId, userId),
+        eq(tripActivations.isActivated, true),
+      ),
+    )
+    .get();
+
+  if (!activation) {
+    return null;
+  }
+
+  const currentSchedules = db
+    .select()
+    .from(scheduleTable)
+    .where(and(eq(scheduleTable.tripId, tripId), eq(scheduleTable.userId, userId), isNull(scheduleTable.deletedAt)))
+    .all();
+
+  // 지도는 선택한 여행 도시 날짜만 표시하므로 날짜 경계를 잇는 구간은 준비하지 않는다.
+  const schedulesByDate = new Map<string, typeof currentSchedules>();
+
+  for (const schedule of currentSchedules) {
+    const date = formatISOToTimeZoneDate(schedule.scheduledAt, trip.timeZone ?? 'UTC');
+    const daySchedules = schedulesByDate.get(date) ?? [];
+    daySchedules.push(schedule);
+    schedulesByDate.set(date, daySchedules);
+  }
+
+  return [...schedulesByDate.values()].flatMap((daySchedules) => buildRouteSegments(daySchedules, accommodationCoords));
+};
+
+// 서비스 캐시만 정리한다. sync-owned 원본과 sync_queue는 건드리지 않는다.
+const pruneCache = (tripId: string, segments: readonly RouteSegment[]): Route[] => {
+  const db = getDatabase();
+  const existing = db.select().from(routes).where(eq(routes.tripId, tripId)).all();
+  const retainedIds = new Set<string>();
+
+  for (const segment of segments) {
+    for (const profile of PROFILES) {
+      const saved = findSavedRoute(existing, segment, profile);
+
+      if (saved) {
+        retainedIds.add(saved.id);
+      }
+    }
+  }
+
+  for (const row of existing) {
+    if (!retainedIds.has(row.id)) {
+      db.delete(routes).where(eq(routes.id, row.id)).run();
+    }
+  }
+
+  return existing.filter(({ id }) => retainedIds.has(id));
+};

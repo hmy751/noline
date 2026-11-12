@@ -232,7 +232,7 @@ function setup(additionalTripId?: string, cachedSchedules: Schedules | null = ro
   return { ...view, client };
 }
 
-// 홈 화면·수정 Drawer처럼 같은 Query를 계속 구독하는 다른 소비자.
+// 홈 화면처럼 같은 Query를 계속 구독하는 다른 소비자.
 function AdditionalScheduleObserver({ tripId }: { tripId: string }) {
   useGetSchedules(tripId);
   return null;
@@ -242,7 +242,7 @@ function connect(realStatus: 'online' | 'offline' | 'unknown') {
   act(() => useNetworkStore.setState({ realStatus, checkStatus: realStatus === 'unknown' ? 'checking' : 'idle' }));
 }
 
-it('수정 폼의 일정 조회는 닫혀 있는 동안 무효화돼도 시작하지 않고 열 때 갱신한다', async () => {
+it('수정 폼은 열기·닫기·무효화로 경로용 전체 일정 조회를 시작하지 않는다', async () => {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
   clients.push(client);
   client.setQueryData(scheduleQueryKeys.list('trip'), rows('이전 일정'));
@@ -266,14 +266,15 @@ it('수정 폼의 일정 조회는 닫혀 있는 동안 무효화돼도 시작�
   expect(fetchSchedules).not.toHaveBeenCalled();
 
   view.rerender(form(true));
-  await waitFor(() => expect(client.getQueryData(scheduleQueryKeys.list('trip'))).toEqual(rows('갱신한 일정')));
-  expect(fetchSchedules).toHaveBeenCalledTimes(1);
+  await act(async () => undefined);
+  expect(view.getByText('이전 일정')).toBeTruthy();
+  expect(fetchSchedules).not.toHaveBeenCalled();
 
   view.rerender(form(false));
   await act(async () => {
     await client.invalidateQueries({ queryKey: scheduleQueryKeys.list('trip') });
   });
-  expect(fetchSchedules).toHaveBeenCalledTimes(1);
+  expect(fetchSchedules).not.toHaveBeenCalled();
 });
 
 it('화면에서 수정 중인 제목과 날짜는 연결 제한·복귀와 조회 실패·갱신 후에도 저장 전까지 유지한다', async () => {

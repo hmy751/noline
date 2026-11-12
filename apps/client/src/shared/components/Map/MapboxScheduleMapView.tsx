@@ -14,6 +14,7 @@ import MapboxGL from '@rnmapbox/maps';
 import { useGetRoutes } from '@/entities/route';
 import { decodePolyline } from '@/shared/lib/mapbox';
 import { formatDistance, formatDuration, type MapboxProfile } from '@/shared/services/directions/mapbox';
+import { buildRouteSegments, findSavedRoute, getScheduleCoordinate } from '@/shared/services/directions/route-plan';
 import type { ScheduleMapViewProps } from './types';
 
 const styles = StyleSheet.create({
@@ -116,99 +117,35 @@ export function MapboxScheduleMapView({
   // 저장된 경로 조회
   const { data: savedRoutes = [] } = useGetRoutes({ tripId });
 
-  // 좌표가 있는 일정만 필터링
-  const schedulesWithCoords = schedules.filter(
-    (s) => s.latitude && s.longitude && !isNaN(s.latitude) && !isNaN(s.longitude),
+  const schedulesWithCoords = schedules.flatMap((schedule) => {
+    const coordinate = getScheduleCoordinate(schedule);
+    return coordinate ? [{ ...schedule, ...coordinate }] : [];
+  });
+
+  const routeSegments = useMemo(
+    () =>
+      buildRouteSegments(schedules, accommodationCoords).map((segment) => {
+        const savedRoute = findSavedRoute(savedRoutes, segment, selectedProfile);
+        const coordinates: [number, number][] = savedRoute
+          ? decodePolyline(savedRoute.geometry)
+          : [
+              [segment.from.longitude, segment.from.latitude],
+              [segment.to.longitude, segment.to.latitude],
+            ];
+
+        return {
+          id: `route-${segment.fromScheduleId ?? 'accommodation'}-${segment.toScheduleId}`,
+          type: savedRoute ? 'saved' : 'straight',
+          coordinates,
+          color: savedRoute ? '#4CAF50' : '#9E9E9E',
+          width: savedRoute ? 4 : 2,
+          dashed: !savedRoute,
+          distance: savedRoute?.distance,
+          duration: savedRoute?.duration,
+        };
+      }),
+    [schedules, savedRoutes, accommodationCoords, selectedProfile],
   );
-
-  // 경로 데이터 계산 (저장 vs 미저장)
-  const routeSegments = useMemo(() => {
-    const segments: Array<{
-      id: string;
-      type: 'saved' | 'straight';
-      coordinates: [number, number][]; // [lng, lat]
-      color: string;
-      width: number;
-      dashed?: boolean;
-      distance?: number; // 미터
-      duration?: number; // 초
-    }> = [];
-
-    // 1. 숙소 → 첫 일정 (있는 경우)
-    if (accommodationCoords && schedulesWithCoords[0]) {
-      const firstSchedule = schedulesWithCoords[0];
-      const savedRoute = savedRoutes.find(
-        (r) => r.fromScheduleId === null && r.toScheduleId === firstSchedule.id && r.profile === selectedProfile,
-      );
-
-      if (savedRoute) {
-        // 저장된 경로 - 실제 도로
-        segments.push({
-          id: `route-accommodation-${firstSchedule.id}`,
-          type: 'saved',
-          coordinates: decodePolyline(savedRoute.geometry),
-          color: '#4CAF50', // 초록색
-          width: 4,
-          distance: savedRoute.distance,
-          duration: savedRoute.duration,
-        });
-      } else {
-        // 미저장 경로 - 직선
-        segments.push({
-          id: `route-accommodation-${firstSchedule.id}`,
-          type: 'straight',
-          coordinates: [
-            [accommodationCoords.longitude, accommodationCoords.latitude],
-            [firstSchedule.longitude!, firstSchedule.latitude!],
-          ],
-          color: '#9E9E9E', // 회색
-          width: 2,
-          dashed: true,
-        });
-      }
-    }
-
-    // 2. 일정 → 일정 경로들
-    for (let i = 0; i < schedulesWithCoords.length - 1; i++) {
-      const currentSchedule = schedulesWithCoords[i];
-      const nextSchedule = schedulesWithCoords[i + 1];
-
-      const savedRoute = savedRoutes.find(
-        (r) =>
-          r.fromScheduleId === currentSchedule.id &&
-          r.toScheduleId === nextSchedule.id &&
-          r.profile === selectedProfile,
-      );
-
-      if (savedRoute) {
-        // 저장된 경로 - 실제 도로
-        segments.push({
-          id: `route-${currentSchedule.id}-${nextSchedule.id}`,
-          type: 'saved',
-          coordinates: decodePolyline(savedRoute.geometry),
-          color: '#4CAF50', // 초록색
-          width: 4,
-          distance: savedRoute.distance,
-          duration: savedRoute.duration,
-        });
-      } else {
-        // 미저장 경로 - 직선
-        segments.push({
-          id: `route-${currentSchedule.id}-${nextSchedule.id}`,
-          type: 'straight',
-          coordinates: [
-            [currentSchedule.longitude!, currentSchedule.latitude!],
-            [nextSchedule.longitude!, nextSchedule.latitude!],
-          ],
-          color: '#9E9E9E', // 회색
-          width: 2,
-          dashed: true,
-        });
-      }
-    }
-
-    return segments;
-  }, [schedulesWithCoords, savedRoutes, accommodationCoords, selectedProfile]);
 
   // 총 거리/시간 계산 (저장된 경로만)
   const routeSummary = useMemo(() => {
@@ -250,7 +187,7 @@ export function MapboxScheduleMapView({
   useEffect(() => {
     if (cameraRef.current && selectedScheduleId) {
       const selectedSchedule = schedulesWithCoords.find((s) => s.id === selectedScheduleId);
-      if (selectedSchedule?.latitude && selectedSchedule?.longitude) {
+      if (selectedSchedule) {
         cameraRef.current.setCamera({
           centerCoordinate: [selectedSchedule.longitude, selectedSchedule.latitude],
           zoomLevel: 15,
