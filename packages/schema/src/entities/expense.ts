@@ -7,13 +7,13 @@ import { fieldEdits } from '../sync/field-edits';
 export const expenseDate = z.string().date();
 
 // ========================================
-// Expense Entity Schema (DB와 1:1 매핑)
+// Expense Entity Schema (공유 도메인/API 표현)
 // ========================================
 
 /**
  * Expense Entity Schema (강제 계약)
  * - 모든 앱이 준수해야 하는 도메인 모델
- * - DB와 1:1 매핑
+ * - DB 저장 표현은 서버 serializer와 Local 저장·조회 경계에서 변환
  * - 금액: string (decimal 처리)
  * - 경비 날짜: YYYY-MM-DD, 생성·수정·삭제 시각: ISO datetime
  */

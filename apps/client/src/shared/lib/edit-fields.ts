@@ -35,9 +35,17 @@ type ScheduleFields = Omit<z.infer<typeof updateScheduleRequest>, 'edit'>;
 type ScheduleBaseline = Partial<Pick<z.infer<typeof scheduleEntity>, keyof ScheduleFields>> | ScheduleFields;
 
 /** 폼을 열 때의 값과 비교해 변경된 그룹 전체를 보낸다. 명시적으로 지운 값은 null로 남긴다. */
-export function changedFields(table: 'expenses', baseline: ExpenseFields, values: ExpenseFields): ExpenseFields;
-export function changedFields(table: 'schedules', baseline: ScheduleBaseline, values: ScheduleFields): ScheduleFields;
-export function changedFields(
+export function buildChangedGroupPatch(
+  table: 'expenses',
+  baseline: ExpenseFields,
+  values: ExpenseFields,
+): ExpenseFields;
+export function buildChangedGroupPatch(
+  table: 'schedules',
+  baseline: ScheduleBaseline,
+  values: ScheduleFields,
+): ScheduleFields;
+export function buildChangedGroupPatch(
   table: keyof typeof EDITABLE_GROUPS,
   baseline: Record<string, unknown>,
   values: Record<string, unknown>,

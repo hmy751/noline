@@ -91,6 +91,7 @@ describe('sync와 세션 종료 순서', () => {
     expect(useAuthStore.getState()).toMatchObject({ status: 'reauth-required', userId: 'user-1' });
     expect(useTripStore.getState().selectedTripId).toBeNull();
     expect(queryClient.clear).toHaveBeenCalledTimes(1);
+
     await act(async () => {
       await expect(result.current.triggerManualSync()).resolves.toEqual({
         status: 'skipped',
@@ -148,7 +149,13 @@ describe('sync와 세션 종료 순서', () => {
   ])(
     '$scenario 확정 후 새 sync를 막고 실행 종료 뒤 서버와 DB를 정리한다',
     async ({ endSession, serverOperation, pendingCount }) => {
-      statsMock.mockResolvedValue({ pending: pendingCount, inProgress: 0, failed: 0, quarantined: 0, total: pendingCount });
+      statsMock.mockResolvedValue({
+        pending: pendingCount,
+        inProgress: 0,
+        failed: 0,
+        quarantined: 0,
+        total: pendingCount,
+      });
       const work = deferred<void>();
       const serverStarted = deferred<void>();
       const serverWork = deferred<void>();
@@ -285,6 +292,7 @@ describe('sync와 세션 종료 순서', () => {
     });
     expect(resetDatabase).not.toHaveBeenCalled();
     expect(useAuthStore.getState().status).toBe('signed-in');
+
     syncMock.mockClear();
 
     await act(async () => {
@@ -305,6 +313,7 @@ describe('sync와 세션 종료 순서', () => {
     });
     expect(resetDatabase).toHaveBeenCalledTimes(1);
     expect(useAuthStore.getState().status).toBe('signed-out');
+
     syncMock.mockClear();
 
     await act(async () => {

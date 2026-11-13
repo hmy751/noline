@@ -62,6 +62,7 @@ export function runDatabaseTransaction<T>(operation: () => Promise<T>): Promise<
   if (transactionPauseCount > 0) {
     return Promise.reject(new Error('로그인 정보를 변경하는 중입니다. 잠시 후 다시 저장해주세요.'));
   }
+
   return serializeDatabaseOperation(async () => {
     const db = getDatabase();
     db.run(sql.raw('BEGIN'));

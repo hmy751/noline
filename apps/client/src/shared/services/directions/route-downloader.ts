@@ -30,7 +30,7 @@ const PROFILES: MapboxProfile[] = ['walking', 'cycling', 'driving-traffic'];
 const pendingDownloads = new Map<string, { sessionId: symbol | null; promise: Promise<unknown> }>();
 
 /** 저장 성공과 독립적인 서비스 캐시 준비. 실패 profile은 비워 두고 다음 요청에서 다시 계산한다. */
-export const downloadRoutesForSchedules = async (params: DownloadRoutesParams): Promise<{ downloaded: number }> => {
+export const downloadRoutesForSchedules = async (params: DownloadRoutesParams): Promise<{ savedCount: number }> => {
   const userId = requireLocalUserId();
   const sessionId = useAuthStore.getState().sessionId;
   const key = `${userId}:${params.tripId}`;
@@ -63,9 +63,10 @@ const refreshRoutes = async (
   { tripId, accommodationCoords }: DownloadRoutesParams,
   userId: string,
   assertSession: () => void,
-): Promise<{ downloaded: number }> => {
+): Promise<{ savedCount: number }> => {
   const initial = await withTransaction(async () => {
     assertSession();
+
     const segments = readCurrentSegments(tripId, userId, accommodationCoords);
 
     if (segments === null) {
@@ -77,7 +78,7 @@ const refreshRoutes = async (
   });
 
   if (!initial) {
-    return { downloaded: 0 };
+    return { savedCount: 0 };
   }
 
   await queryClient.invalidateQueries({ queryKey: routeQueryKeys.byTrip(tripId) });
@@ -125,8 +126,9 @@ const refreshRoutes = async (
     }
   }
 
-  const downloaded = await withTransaction(async () => {
+  const savedCount = await withTransaction(async () => {
     assertSession();
+
     const segments = readCurrentSegments(tripId, userId, accommodationCoords);
 
     if (segments === null) {
@@ -151,10 +153,11 @@ const refreshRoutes = async (
   });
 
   await queryClient.invalidateQueries({ queryKey: routeQueryKeys.byTrip(tripId) });
-  return { downloaded };
+  return { savedCount };
 };
 
 // 제출·활성화 시 캡처한 목록 대신 저장된 Local 원본으로 최신 인접 관계를 정한다.
+// null은 기존 캐시 보존, []는 현재 구간이 없어 기존 캐시 전체 정리를 뜻한다.
 const readCurrentSegments = (
   tripId: string,
   userId: string,
@@ -170,6 +173,7 @@ const readCurrentSegments = (
   if (!trip) {
     return null;
   }
+
   if (trip.deletedAt) {
     return [];
   }

@@ -66,9 +66,9 @@ export class SyncIncompleteError extends Error {
   }
 }
 
-function isSyncTable(tableName: string): tableName is SyncTable {
-  return tableName in SYNC_PUSH_ENDPOINTS;
-}
+const isSyncTable = (tableName: string): tableName is SyncTable => {
+  return Object.hasOwn(SYNC_PUSH_ENDPOINTS, tableName);
+};
 
 /** 변경 이전에 시작한 조회 결과를 버리고, 구독 중인 Query의 갱신을 요청한다. */
 const refreshSyncQueries = async (): Promise<void> => {

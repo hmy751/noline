@@ -3,9 +3,9 @@ import { sql, and, eq, ne, inArray } from 'drizzle-orm';
 import { getDatabase, runDatabaseOperation, legacySyncHolds, schedules, expenses } from '@/shared/db';
 import { type NewSyncQueueItem, syncQueue, type SyncQueueItem } from '@/shared/db/schema';
 import { getCurrentISOString } from '@/shared/db/utils';
+import type { SyncRun } from '@/shared/diagnostics/sentry';
 import { quarantineOrphanedTasks } from '@/shared/services/auth/local-account';
 
-import type { SyncRun } from '@/shared/diagnostics/sentry';
 import { generateId } from '../id/ulid';
 
 /**
@@ -48,7 +48,7 @@ export async function addToSyncQueue(
  *
  * @returns PENDING 상태의 sync_queue 항목 배열
  */
-export async function getPendingTasks(): Promise<SyncQueueItem[]> {
+export const getPendingTasks = async (): Promise<SyncQueueItem[]> => {
   const tasks = await runDatabaseOperation(() =>
     getDatabase()
       .select()
@@ -59,7 +59,7 @@ export async function getPendingTasks(): Promise<SyncQueueItem[]> {
   );
 
   return tasks;
-}
+};
 
 /**
  * 격리 작업을 제외한 FIFO에서 전송 가능한 앞부분만 반환한다. 나머지 막힌 작업은 건너뛰지 않는다.
@@ -139,35 +139,13 @@ export const updateTaskStatus = async (
 };
 
 /**
- * 특정 테이블의 특정 레코드에 대한 PENDING 작업 존재 여부 확인
- *
- * 중복 작업 방지용
- *
- * @param tableName - 대상 테이블명
- * @param recordId - 대상 레코드 ID
- * @returns PENDING 작업 존재 여부
- */
-export async function hasPendingTask(tableName: string, recordId: string): Promise<boolean> {
-  const tasks = await runDatabaseOperation(() =>
-    getDatabase()
-      .select()
-      .from(syncQueue)
-      .where(and(eq(syncQueue.tableName, tableName), eq(syncQueue.recordId, recordId), eq(syncQueue.status, 'PENDING')))
-      .limit(1)
-      .all(),
-  );
-
-  return tasks.length > 0;
-}
-
-/**
  * FAILED 상태 작업 조회
  *
  * 재시도가 필요한 작업 목록
  *
  * @returns FAILED 상태의 sync_queue 항목 배열
  */
-export async function getFailedTasks(): Promise<SyncQueueItem[]> {
+export const getFailedTasks = async (): Promise<SyncQueueItem[]> => {
   const tasks = await runDatabaseOperation(() =>
     getDatabase()
       .select()
@@ -178,7 +156,7 @@ export async function getFailedTasks(): Promise<SyncQueueItem[]> {
   );
 
   return tasks;
-}
+};
 
 /**
  * FAILED 작업을 PENDING으로 재설정
@@ -206,8 +184,6 @@ export const retryFailedTask = async (taskId: string): Promise<void> => {
  */
 export async function clearSyncQueue(): Promise<void> {
   await runDatabaseOperation(() => getDatabase().delete(syncQueue));
-
-  console.log('[SyncQueue] Sync queue cleared');
 }
 
 /**
@@ -224,71 +200,14 @@ export const getSyncQueueStats = async (): Promise<{
 }> => {
   const allTasks = await runDatabaseOperation(() => getDatabase().select().from(syncQueue).all());
 
-  const stats = {
+  return {
     pending: allTasks.filter((t) => t.status === 'PENDING').length,
     inProgress: allTasks.filter((t) => t.status === 'IN_PROGRESS').length,
     failed: allTasks.filter((t) => t.status === 'FAILED').length,
     quarantined: allTasks.filter((t) => t.status === 'QUARANTINED').length,
     total: allTasks.length,
   };
-
-  console.log('[SyncQueue] Sync Queue Stats:', stats);
-
-  return stats;
 };
-
-/**
- * 특정 여행의 PENDING 작업 조회
- *
- * 여행 비활성화 전 동기화되지 않은 데이터 확인용
- *
- * @param tripId - 여행 ID
- * @returns 해당 여행의 PENDING 상태 sync_queue 항목 배열
- *
- */
-export async function getPendingTasksForTrip(tripId: string): Promise<SyncQueueItem[]> {
-  const tasks = await runDatabaseOperation(() =>
-    getDatabase()
-      .select()
-      .from(syncQueue)
-      .where(eq(syncQueue.status, 'PENDING'))
-      .orderBy(sql`rowid`)
-      .all(),
-  );
-
-  // Trip 자체 또는 Child Entity (schedules, expenses) 필터링
-  return tasks.filter((task) => {
-    if (task.tableName === 'trips' && task.recordId === tripId) {
-      return true;
-    }
-    // Child entities의 경우 payload에서 tripId 확인.
-    // CREATE/UPDATE payload는 entity 전체, DELETE payload는 { tripId } 만 포함.
-    // 이전 버전이 남긴 payload === "null"도 옵셔널 체이닝으로 안전하게 처리.
-    if (task.tableName === 'schedules' || task.tableName === 'expenses') {
-      try {
-        const payload = JSON.parse(task.payload) as { tripId?: string } | null;
-        return payload?.tripId === tripId;
-      } catch {
-        return false;
-      }
-    }
-    return false;
-  });
-}
-
-/**
- * 특정 여행의 PENDING 작업 존재 여부 확인
- *
- * 여행 비활성화 가능 여부 판단용
- *
- * @param tripId - 여행 ID
- * @returns PENDING 작업 존재 여부
- *
- */
-export async function hasPendingTasksForTrip(tripId: string): Promise<boolean> {
-  const tasks = await getPendingTasksForTrip(tripId);
-  return tasks.length > 0;
-}
 
 /** 전송 또는 사용자 복구가 끝나지 않아 기기 사본을 보존해야 하는지 확인한다. */
 export const hasUnresolvedTripChanges = async (tripId: string): Promise<boolean> => {

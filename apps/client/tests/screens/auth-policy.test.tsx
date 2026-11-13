@@ -130,6 +130,14 @@ beforeEach(() => {
   useTripStore.setState({ selectedTripId: 'trip' });
 });
 
+afterEach(async () => {
+  cleanup();
+  await client.cancelQueries();
+  client.clear();
+  act(() => networkStore.cleanup());
+  jest.useRealTimers();
+});
+
 it.each([
   { name: '일정 목록', Screen: ScheduleScreen, content: '저장된 일정' },
   { name: '경비 목록', Screen: ExpensesScreen, content: '저장된 경비' },
@@ -140,6 +148,7 @@ it.each([
     .mockReturnValue({ data: { isActivated: false } } as ReturnType<typeof useGetTripActivation>);
   const view = render(<Screen />);
   expect(view.queryAllByText(content).length).toBeGreaterThan(0);
+
   act(() => useAuthStore.setState({ status: 'reauth-required' }));
   expect(view.queryAllByText(content)).toHaveLength(0);
   expect(view.getByText('다시 로그인한 뒤 사용할 수 있습니다')).toBeTruthy();
@@ -159,6 +168,7 @@ it.each(['offline', 'unknown'] as const)('%s에서는 비활성 여행의 캐시
     .mockReturnValue({ data: { isActivated: false } } as ReturnType<typeof useGetTripActivation>);
   const view = render(<ExpensesScreen />);
   expect(view.getByText('저장된 경비')).toBeTruthy();
+
   act(() =>
     useNetworkStore.setState({
       realStatus: networkStatus,
@@ -205,14 +215,6 @@ it.each([
   expect(view.queryByText('여행 활성 상태를 확인하지 못했어요.')).toBeNull();
 });
 
-afterEach(async () => {
-  cleanup();
-  await client.cancelQueries();
-  client.clear();
-  act(() => networkStore.cleanup());
-  jest.useRealTimers();
-});
-
 it.each([
   { name: '일정 목록', Screen: ScheduleScreen, content: '저장된 일정' },
   { name: '경비 목록', Screen: ExpensesScreen, content: '저장된 경비' },
@@ -230,7 +232,9 @@ it.each([
   expect(view.getByText('확인 중')).toBeTruthy();
   expect(view.queryAllByText(content)).toHaveLength(0);
   const listener = jest.mocked(NetInfo.addEventListener).mock.calls.at(-1)?.[0];
-  if (!listener) throw new Error('네트워크 관측 구독이 등록되지 않았습니다');
+  if (!listener) {
+    throw new Error('네트워크 관측 구독이 등록되지 않았습니다');
+  }
   const emit = (isConnected: boolean | null, isInternetReachable: boolean | null) =>
     listener({ isConnected, isInternetReachable } as Parameters<typeof listener>[0]);
   act(() => {
@@ -238,14 +242,17 @@ it.each([
     emit(null, null);
   });
   expect(view.getByText('인터넷 연결을 확인하고 있어요.')).toBeTruthy();
+
   act(() => jest.advanceTimersByTime(1_000));
   expect(view.getByText('인터넷 연결을 확인할 수 없어요.')).toBeTruthy();
   expect(view.getByText('확인 불가')).toBeTruthy();
   expect(useNetworkStore.getState().realStatus).toBe('unknown');
   expect(view.queryAllByText(content)).toHaveLength(0);
+
   act(() => emit(false, false));
   expect(view.getByText('인터넷에 연결되어 있지 않아요. 오프라인에서는 활성 여행을 선택해주세요.')).toBeTruthy();
   expect(view.getByText('오프라인')).toBeTruthy();
+
   await act(async () => emit(true, true));
   expect(view.getByText('온라인')).toBeTruthy();
   expect(view.queryAllByText(content).length).toBeGreaterThan(0);
@@ -264,6 +271,7 @@ it('활성 여행은 연결 확인 중과 10초 후에도 Local 내용을 유지
     </>,
   );
   expect(view.getByText('저장된 일정')).toBeTruthy();
+
   act(() => jest.advanceTimersByTime(10_000));
   expect(view.getByText('확인 불가')).toBeTruthy();
   expect(view.getByText('저장된 일정')).toBeTruthy();
@@ -282,6 +290,7 @@ it.each([
     act(() => networkStore.init());
     const view = render(<Screen />);
     expect(view.queryByRole('button', { name: '다시 확인' })).toBeNull();
+
     act(() => jest.advanceTimersByTime(10_000));
     let resolve!: (value: Awaited<ReturnType<typeof NetInfo.refresh>>) => void;
     jest.mocked(NetInfo.refresh).mockImplementation(
@@ -300,14 +309,18 @@ it.each([
     expect(view.getByText('인터넷 연결을 확인하고 있어요.')).toBeTruthy();
     expect(view.queryByRole('button', { name: '다시 확인' })).toBeNull();
     expect(view.queryAllByText(content)).toHaveLength(0);
+
     await act(async () =>
       resolve({ isConnected: null, isInternetReachable: null } as Awaited<ReturnType<typeof NetInfo.refresh>>),
     );
     expect(view.getByText('인터넷 연결을 확인하고 있어요.')).toBeTruthy();
+
     act(() => jest.advanceTimersByTime(10_000));
     expect(view.getByRole('button', { name: '다시 확인' })).toBeTruthy();
+
     act(() => fireEvent.press(view.getByRole('button', { name: '다시 확인' })));
     expect(NetInfo.refresh).toHaveBeenCalledTimes(2);
+
     await act(async () =>
       resolve({ isConnected: true, isInternetReachable: true } as Awaited<ReturnType<typeof NetInfo.refresh>>),
     );
@@ -334,7 +347,9 @@ it.each(['reject', 'timeout'] as const)('재확인 %s 후에는 다시 확인 �
     );
   }
   await act(async () => fireEvent.press(view.getByRole('button', { name: '다시 확인' })));
-  if (failure === 'timeout') act(() => jest.advanceTimersByTime(10_000));
+  if (failure === 'timeout') {
+    act(() => jest.advanceTimersByTime(10_000));
+  }
   expect(view.getByText('인터넷 연결을 확인할 수 없어요.')).toBeTruthy();
   expect(view.getByRole('button', { name: '다시 확인' }).props.accessibilityState.disabled).toBe(false);
   expect(useNetworkStore.getState().isRefreshing).toBe(false);
@@ -357,6 +372,7 @@ it('강제 unknown에서 재확인은 실제 online을 유지하고 진행 중 �
   act(() => fireEvent.press(view.getByRole('button', { name: '다시 확인' })));
   expect(view.getByRole('button', { name: '확인 중' }).props.accessibilityState.disabled).toBe(true);
   expect(useNetworkStore.getState().realStatus).toBe('online');
+
   await act(async () =>
     resolve({ isConnected: true, isInternetReachable: true } as Awaited<ReturnType<typeof NetInfo.refresh>>),
   );
@@ -374,6 +390,7 @@ it('일정 헤더의 보기 전환 버튼에는 안내나 재확인 버튼이 �
   expect(within(toggle).queryByRole('button', { name: '다시 확인' })).toBeNull();
   expect(view.getAllByText('인터넷 연결을 확인할 수 없어요.')).toHaveLength(1);
   expect(view.getAllByRole('button', { name: '다시 확인' })).toHaveLength(1);
+
   fireEvent.press(toggle);
   expect(view.getByRole('button', { name: '목록 보기로 전환' })).toBeTruthy();
   expect(view.getAllByRole('button', { name: '다시 확인' })).toHaveLength(1);

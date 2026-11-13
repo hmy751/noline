@@ -6,6 +6,7 @@ export const EXPENSE_ID = '01ARZ3NDEKTSV4RRFFQ69G5FAD';
 export const START_DATE = '2026-09-19T00:00:00.000Z';
 export const END_DATE = '2026-09-22T00:00:00.000Z';
 export const EXPENSE_DATE = '2026-09-20';
+export const SCHEDULED_AT = '2026-09-20T01:30:00.000Z';
 export const CREATED_AT = '2026-09-13T02:00:00.000Z';
 export const UPDATED_AT = '2026-09-13T03:00:00.000Z';
 
@@ -59,6 +60,30 @@ export const serializedExpense = {
   ...expenseRow,
   date: EXPENSE_DATE,
   hasReceipt: true,
+  createdAt: CREATED_AT,
+  updatedAt: UPDATED_AT,
+  deletedAt: null,
+};
+
+export const scheduleRow = {
+  id: SCHEDULE_ID,
+  userId: TEST_USER_ID,
+  tripId: TRIP_ID,
+  title: 'Museum visit',
+  location: 'National Museum',
+  address: null,
+  scheduledAt: new Date(SCHEDULED_AT),
+  latitude: null,
+  longitude: null,
+  createdAt: new Date(CREATED_AT),
+  updatedAt: new Date(UPDATED_AT),
+  deletedAt: null,
+  version: 1,
+};
+
+export const serializedSchedule = {
+  ...scheduleRow,
+  scheduledAt: SCHEDULED_AT,
   createdAt: CREATED_AT,
   updatedAt: UPDATED_AT,
   deletedAt: null,

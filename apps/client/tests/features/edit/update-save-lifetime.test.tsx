@@ -172,8 +172,10 @@ it('실제 mutation 저장 중 재제출을 막고 취소 시 안내하며 완�
   await user.press(view.getByText('저장'));
   await waitFor(() => expect(ScheduleRepository.update).toHaveBeenCalledTimes(1));
   expect(view.getByText('저장 중...')).toBeTruthy();
+
   await user.press(view.getByText('저장 중...'));
   expect(view.getByText('취소')).toBeEnabled();
+
   await user.press(view.getByText('취소'));
   expect(Alert.alert).toHaveBeenCalledWith('저장 중입니다', '저장이 끝난 뒤 닫을 수 있어요.');
   expect(ScheduleRepository.update).toHaveBeenCalledTimes(1);
@@ -221,10 +223,13 @@ it('실제 Drawer의 backdrop·native 닫기 콜백 계약은 저장 중 거부�
   expect(onClose).not.toHaveBeenCalled();
   expect(Alert.alert).toHaveBeenCalledTimes(2);
   expect(Alert.alert).toHaveBeenLastCalledWith('저장 중입니다', '저장이 끝난 뒤 닫을 수 있어요.');
+
   await act(async () => fail(new Error('save failed')));
   expect(view.queryByText('저장 중...')).toBeNull();
+
   fireEvent(view.UNSAFE_getByType(Modal), 'requestClose');
   expect(onClose).toHaveBeenCalledTimes(1);
+
   fireEvent.press(view.UNSAFE_getByType(TouchableWithoutFeedback));
   expect(onClose).toHaveBeenCalledTimes(2);
 });
@@ -268,6 +273,7 @@ it('서버 처리 뒤 기기 준비 실패는 확인 안내와 초안을 유지�
   expect(alert).toHaveBeenCalledWith('수정 확인', error.message);
   expect(view.getByText('2026-09-22')).toBeTruthy();
   expect(onClose).not.toHaveBeenCalled();
+
   await user.press(view.getByText('취소'));
   expect(onClose).toHaveBeenCalledTimes(1);
 });
@@ -304,6 +310,7 @@ it.each(['success', 'error', 'confirmed'] as const)(
     );
     expect(view.queryByText('저장 중...')).toBeNull();
     expect(view.getByText('저장')).toBeEnabled();
+
     fireEvent.press(view.getByText('2026-09-21'));
     fireEvent.press(view.getByText('선택 2026-09-22'));
     await user.press(view.getByText('저장'));
@@ -325,8 +332,10 @@ it.each(['success', 'error', 'confirmed'] as const)(
     expect(view.getByText('저장 중...')).toBeTruthy();
     expect(alert).not.toHaveBeenCalled();
     expect(onClose).not.toHaveBeenCalled();
+
     await user.press(view.getByText('취소'));
     expect(onClose).not.toHaveBeenCalled();
+
     await act(async () => finishSecond());
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(alert).toHaveBeenCalledWith('성공', '일정이 수정되었습니다.');

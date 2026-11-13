@@ -2,16 +2,16 @@ import type { Application } from 'express';
 import request from 'supertest';
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import {
-  CREATED_AT,
   EXPENSE_DATE,
   EXPENSE_ID,
   expenseRow,
   SCHEDULE_ID,
+  SCHEDULED_AT,
+  scheduleRow,
+  serializedSchedule,
   serializedExpense,
-  TEST_USER_ID,
   tripRow,
   TRIP_ID,
-  UPDATED_AT,
 } from '../fixtures/data-rows.js';
 import {
   dbInsertMock,
@@ -24,31 +24,6 @@ import {
 } from '../support/test-app.js';
 
 const OTHER_TRIP_ID = '01ARZ3NDEKTSV4RRFFQ69G5FAG';
-const SCHEDULED_AT = '2026-09-20T01:30:00.000Z';
-
-const scheduleRow = {
-  id: SCHEDULE_ID,
-  userId: TEST_USER_ID,
-  tripId: TRIP_ID,
-  title: 'Museum visit',
-  location: 'National Museum',
-  address: null,
-  scheduledAt: new Date(SCHEDULED_AT),
-  latitude: null,
-  longitude: null,
-  createdAt: new Date(CREATED_AT),
-  updatedAt: new Date(UPDATED_AT),
-  deletedAt: null,
-  version: 1,
-};
-
-const serializedSchedule = {
-  ...scheduleRow,
-  scheduledAt: SCHEDULED_AT,
-  createdAt: CREATED_AT,
-  updatedAt: UPDATED_AT,
-};
-
 const scheduleBody = {
   id: SCHEDULE_ID,
   tripId: TRIP_ID,

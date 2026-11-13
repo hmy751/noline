@@ -31,7 +31,7 @@ describe('여행 목록과 조회 출처 전달', () => {
       jest
         .mocked(routeTripQuery)
         .mockImplementation((operations) => operations[source === 'local' ? 'local' : 'remote']());
-      jest.mocked(refreshTripListLocal).mockResolvedValue({ trips, hasLocalTrips: source === 'mixed' });
+      jest.mocked(refreshTripListLocal).mockResolvedValue({ trips, hasProtectedLocalTrips: source === 'mixed' });
       client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 
       const view = renderHook(() => useGetTrips(), {

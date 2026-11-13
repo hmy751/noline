@@ -5,6 +5,18 @@ import { activateTripResponse } from '@repo/schema/responses/trip';
 import request from 'supertest';
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import {
+  CREATED_AT,
+  expenseRow,
+  SCHEDULE_ID,
+  SCHEDULED_AT,
+  scheduleRow,
+  serializedExpense,
+  serializedSchedule,
+  tripRow as sharedTripRow,
+  TRIP_ID,
+  UPDATED_AT,
+} from '../fixtures/data-rows.js';
+import {
   dbInsertMock,
   dbSelectMock,
   dbUpdateMock,
@@ -13,86 +25,9 @@ import {
   setInsertResult,
   setSelectResults,
   setUpdateResult,
-  TEST_USER_ID,
 } from '../support/test-app.js';
 
-const TRIP_ID = '01ARZ3NDEKTSV4RRFFQ69G5FAC';
-const SCHEDULE_ID = '01ARZ3NDEKTSV4RRFFQ69G5FAB';
-const EXPENSE_ID = '01ARZ3NDEKTSV4RRFFQ69G5FAD';
-const SCHEDULED_AT = '2026-09-20T01:30:00.000Z';
-const EXPENSE_DATE = '2026-09-20';
-const CREATED_AT = '2026-09-13T02:00:00.000Z';
-const UPDATED_AT = '2026-09-13T03:00:00.000Z';
-
-const scheduleRow = {
-  id: SCHEDULE_ID,
-  userId: TEST_USER_ID,
-  tripId: TRIP_ID,
-  title: 'Museum visit',
-  location: 'National Museum',
-  address: null,
-  scheduledAt: new Date(SCHEDULED_AT),
-  latitude: null,
-  longitude: null,
-  createdAt: new Date(CREATED_AT),
-  updatedAt: new Date(UPDATED_AT),
-  deletedAt: null,
-  version: 1,
-};
-
-const serializedSchedule = {
-  ...scheduleRow,
-  scheduledAt: SCHEDULED_AT,
-  createdAt: CREATED_AT,
-  updatedAt: UPDATED_AT,
-  deletedAt: null,
-};
-
-const tripRow = {
-  id: TRIP_ID,
-  userId: TEST_USER_ID,
-  name: 'Seoul trip',
-  destination: 'Seoul',
-  country: 'KR',
-  baseCurrency: 'KRW',
-  latitude: null,
-  longitude: null,
-  cityId: null,
-  timeZone: null,
-  startDate: new Date('2026-09-19T00:00:00.000Z'),
-  endDate: new Date('2026-09-22T00:00:00.000Z'),
-  createdAt: new Date(CREATED_AT),
-  updatedAt: new Date(UPDATED_AT),
-  deletedAt: null,
-  version: 1,
-};
-
-const expenseRow = {
-  id: EXPENSE_ID,
-  userId: TEST_USER_ID,
-  tripId: TRIP_ID,
-  scheduleId: SCHEDULE_ID,
-  title: 'Lunch',
-  amount: '12000.00',
-  currency: 'KRW',
-  category: 'food',
-  date: new Date(`${EXPENSE_DATE}T00:00:00.000Z`),
-  hasReceipt: 1,
-  receiptUrl: null,
-  createdAt: new Date(CREATED_AT),
-  updatedAt: new Date(UPDATED_AT),
-  deletedAt: null,
-  version: 1,
-};
-
-const serializedExpense = {
-  ...expenseRow,
-  date: EXPENSE_DATE,
-  hasReceipt: true,
-  createdAt: CREATED_AT,
-  updatedAt: UPDATED_AT,
-  deletedAt: null,
-};
+const tripRow = { ...sharedTripRow, timeZone: null };
 
 let app: Application;
 

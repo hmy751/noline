@@ -27,6 +27,7 @@ const hasPostgresStrings = (value: unknown): boolean => {
   if (typeof value === 'string') {
     return isPostgresText(value);
   }
+
   if (value && typeof value === 'object') {
     return Object.values(value).every(hasPostgresStrings);
   }
@@ -64,6 +65,7 @@ export const hasStorableMutationDates = (input: Record<string, unknown>): boolea
 const fitsNumeric = (value: unknown, precision: number, scale: number): boolean => {
   if (value == null) {
     return true;
+
   }
   if (typeof value !== 'string' && typeof value !== 'number') {
     return false;
@@ -101,6 +103,7 @@ const fitsNumeric = (value: unknown, precision: number, scale: number): boolean 
     return false;
   }
   if (retainedDigitCount < precision) {
+
     return true;
   }
 
@@ -117,12 +120,15 @@ export const canConfirmMutationStorageLocally = (table: MutationTable, input: Re
     return false;
   }
   if (table === 'expenses' && input.amount !== undefined && !fitsNumeric(input.amount, 10, 2)) {
+
     return false;
   }
   if (table !== 'expenses' && (!fitsNumeric(input.latitude, 10, 7) || !fitsNumeric(input.longitude, 10, 7))) {
+
     return false;
   }
   if (
+
     table === 'trips' &&
     input.cityId != null &&
     (typeof input.cityId !== 'number' ||

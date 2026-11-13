@@ -153,7 +153,12 @@ beforeEach(() => {
     .mockReturnValue({ mutateAsync: saveExpense } as unknown as ReturnType<typeof useUpdateExpense>);
 });
 
-it('오프라인 일정 수정은 장소 검색을 숨기고 저장 payload에서 기존 장소·좌표를 덮지 않는다', async () => {
+afterEach(() => {
+  act(() => networkStore.cleanup());
+  jest.useRealTimers();
+});
+
+it('오프라인 일정 수정은 장소 검색을 숨기고 값이 같으면 저장하지 않는다', async () => {
   const view = render(
     <UpdateScheduleDrawer
       timeZone='UTC'
@@ -174,11 +179,12 @@ it('오프라인 일정 수정은 장소 검색을 숨기고 저장 payload에�
   );
   expect(view.getByText('기존 장소')).toBeTruthy();
   expect(view.queryByText('검색')).toBeNull();
+
   await user.press(view.getByText('저장'));
   expect(saveSchedule).not.toHaveBeenCalled();
 });
 
-it('오프라인 경비 수정은 연결된 일정과 입력값을 표시하고 같은 연결을 저장한다', async () => {
+it('오프라인 경비 수정은 연결된 일정과 입력값을 표시하고 값이 같으면 저장하지 않는다', async () => {
   const date = '2026-09-21';
   const view = render(
     <UpdateExpenseDrawer
@@ -197,6 +203,7 @@ it('오프라인 경비 수정은 연결된 일정과 입력값을 표시하고 
     />,
   );
   expect(view.getByText(/기존 연결 일정 · 2026-09-21/)).toBeTruthy();
+
   await user.press(view.getByText('저장'));
   expect(saveExpense).not.toHaveBeenCalled();
 });
@@ -221,22 +228,21 @@ it('수정 제한 안내가 나타났다 사라져도 작성 중인 값과 일�
   );
   fireEvent.press(view.getByText('기존 경비'));
   const buttons = prompt.mock.calls[0][2];
-  if (!Array.isArray(buttons)) throw new Error('제목 변경 확인 버튼이 없습니다');
+  if (!Array.isArray(buttons)) {
+    throw new Error('제목 변경 확인 버튼이 없습니다');
+  }
   act(() => buttons.find((button) => button.text === '확인')?.onPress?.('작성 중 제목'));
   act(() => useAuthStore.setState({ status: 'signed-out' }));
   expect(view.getByText('작성 중 제목')).toBeTruthy();
   expect(view.getByText('저장')).toBeTruthy();
+
   act(() => useAuthStore.setState({ status: 'reauth-required' }));
   expect(view.getByText('작성 중 제목')).toBeTruthy();
+
   await user.press(view.getByText('저장'));
   await waitFor(() => expect(saveExpense).toHaveBeenCalled());
   expect(saveExpense.mock.calls[0][0]).toMatchObject({ data: { title: '작성 중 제목' } });
   prompt.mockRestore();
-});
-
-afterEach(() => {
-  act(() => networkStore.cleanup());
-  jest.useRealTimers();
 });
 
 it('경비 수정의 재확인 전후에도 작성 중인 값과 일정 연결을 유지하고 자동 저장하지 않는다', async () => {
@@ -266,10 +272,14 @@ it('경비 수정의 재확인 전후에도 작성 중인 값과 일정 연결�
   );
   fireEvent.press(view.getByText('기존 경비'));
   const buttons = prompt.mock.calls[0][2];
-  if (!Array.isArray(buttons)) throw new Error('제목 변경 확인 버튼이 없습니다');
+  if (!Array.isArray(buttons)) {
+    throw new Error('제목 변경 확인 버튼이 없습니다');
+  }
   act(() => buttons.find((button) => button.text === '확인')?.onPress?.('재확인 중 보존할 제목'));
   const listener = jest.mocked(NetInfo.addEventListener).mock.calls.at(-1)?.[0];
-  if (!listener) throw new Error('네트워크 구독이 없습니다');
+  if (!listener) {
+    throw new Error('네트워크 구독이 없습니다');
+  }
   act(() => listener({ isConnected: null, isInternetReachable: null } as Parameters<typeof listener>[0]));
   act(() => jest.advanceTimersByTime(10_000));
   jest
@@ -280,6 +290,7 @@ it('경비 수정의 재확인 전후에도 작성 중인 값과 일정 연결�
   await user.press(view.getAllByRole('button', { name: '다시 확인' })[0]);
   expect(view.getByText('재확인 중 보존할 제목')).toBeTruthy();
   expect(saveExpense).not.toHaveBeenCalled();
+
   await user.press(view.getByText('저장'));
   expect(saveExpense.mock.calls[0][0]).toMatchObject({
     data: { title: '재확인 중 보존할 제목' },
@@ -339,6 +350,7 @@ it('수정 저장 실패는 입력과 연결을 유지하고 자동 재시도하
   expect(view.getByText('기존 경비')).toBeTruthy();
   expect(view.queryByText(/SQLITE_FULL/)).toBeNull();
   expect(saveExpense).toHaveBeenCalledTimes(1);
+
   await user.press(view.getByText('저장'));
   expect(saveExpense).toHaveBeenCalledTimes(2);
 });
@@ -375,9 +387,11 @@ it('경비 수정은 저장 완료까지 중복 제출과 닫기를 막고 완�
   await waitFor(() => expect(saveExpense).toHaveBeenCalledTimes(1));
   expect(view.getByText('저장 중...')).toBeTruthy();
   expect(view.getByText('취소')).toBeEnabled();
+
   await user.press(view.getByText('취소'));
   expect(alert).toHaveBeenCalledWith('저장 중입니다', '저장이 끝난 뒤 닫을 수 있어요.');
   expect(onClose).not.toHaveBeenCalled();
+
   await act(async () => finish());
   expect(onClose).toHaveBeenCalledTimes(1);
 });
@@ -461,8 +475,10 @@ it('경비 저장 성공으로 닫고 다시 열면 저장된 날짜로 새 편�
   await user.press(view.getByText('저장'));
   expect((saveExpense.mock.calls[0][0] as { data: object }).data).toHaveProperty('date', '2026-09-22');
   expect(view.queryByText('저장')).toBeNull();
+
   await user.press(view.getByText('다시 수정'));
   expect(view.getByText('2026-09-22')).toBeTruthy();
+
   await user.press(view.getByText('저장'));
   expect(saveExpense).toHaveBeenCalledTimes(1);
   expect(view.queryByText('저장')).toBeNull();
@@ -502,7 +518,9 @@ it.each(['unchanged', 'date', 'time', 'reverted'])(
       expect(saveSchedule).not.toHaveBeenCalled();
     } else {
       const data = (saveSchedule.mock.calls[0][0] as { data: { scheduledAt?: string } }).data;
-      if (!data.scheduledAt) throw new Error('변경한 시각이 요청에 없습니다');
+      if (!data.scheduledAt) {
+        throw new Error('변경한 시각이 요청에 없습니다');
+      }
       const saved = new Date(data.scheduledAt);
       expect(saved.getUTCDate()).toBe(change === 'date' ? 22 : 21);
       expect(saved.getUTCHours()).toBe(change === 'time' ? 11 : 10);
@@ -532,8 +550,10 @@ it('일정 저장 성공으로 닫고 다시 열면 저장된 시각으로 새 �
   await user.press(view.getByText('저장'));
   expect(saveSchedule).toHaveBeenCalledTimes(1);
   expect(view.queryByText('저장')).toBeNull();
+
   await user.press(view.getByText('다시 수정'));
   expect(view.getByText('2026-09-22')).toBeTruthy();
+
   await user.press(view.getByText('저장'));
   expect(saveSchedule).toHaveBeenCalledTimes(1);
   expect(view.queryByText('저장')).toBeNull();
@@ -585,9 +605,11 @@ it.each(['expense', 'schedule'] as const)(
     await user.press(view.getByText('저장'));
     expect(view.getByText('저장 중...')).toBeDisabled();
     // DatePicker는 확인 콜백을 제공하는 mock이며 native picker 조작 검사는 아니다.
+
     await user.press(view.getByText('2026-09-22'));
     await user.press(view.getByText('선택 2026-09-21'));
     expect(view.getByText('2026-09-21')).toBeTruthy();
+
     await act(async () => finish());
     expect(view.queryByText('저장')).toBeNull();
     expect(view.queryByText('저장 중...')).toBeNull();
@@ -620,6 +642,7 @@ it('수정 중 여행 시간대가 조회로 바뀌어도 처음 연 입력의 �
   );
   expect(view.getByText('11:00')).toBeTruthy();
   expect(view.getByText(/시간대 확인 필요 · UTC 기준/)).toBeTruthy();
+
   await user.press(view.getByText('저장'));
   expect(saveSchedule).not.toHaveBeenCalled();
   expect(view.getByText('여행 시간대를 먼저 확인해주세요.')).toBeTruthy();
@@ -636,14 +659,17 @@ it('일정 수정은 확인한 현재 날짜·시간으로 picker를 다시 연�
   );
   fireEvent.press(view.getByText('2026-09-21'));
   expect(view.UNSAFE_getByType(DatePicker).props.selectedDate).toBe('2026-09-21');
+
   await act(async () => fireEvent.press(view.getByText('선택 2026-09-22')));
   fireEvent.press(view.getByText('2026-09-22'));
   expect(view.UNSAFE_getByType(DatePicker).props.selectedDate).toBe('2026-09-22');
+
   fireEvent(view.UNSAFE_getByType(DatePicker), 'close');
   fireEvent.press(view.getByText('10:00'));
   await act(async () => fireEvent.press(view.getByText('선택 11:00')));
   fireEvent.press(view.getByText('11:00'));
   expect(view.UNSAFE_getByType(TimePicker).props.initialTime).toBe('11:00');
+
   fireEvent(view.UNSAFE_getByType(TimePicker), 'close');
   expect(view.getByText('11:00')).toBeTruthy();
   expect(saveSchedule).not.toHaveBeenCalled();
@@ -656,9 +682,11 @@ it('다른 일정으로 전환하거나 drawer를 닫으면 열린 시간 선택
   const view = render(<UpdateScheduleDrawer isOpen onClose={onClose} timeZone='UTC' scheduleData={first} />);
   fireEvent.press(view.getByText('10:00'));
   expect(view.UNSAFE_getByType(TimePicker).props.visible).toBe(true);
+
   view.rerender(<UpdateScheduleDrawer isOpen onClose={onClose} timeZone='UTC' scheduleData={second} />);
   expect(view.UNSAFE_getByType(TimePicker).props.visible).toBe(false);
   expect(view.getByText('11:00')).toBeTruthy();
+
   fireEvent.press(view.getByText('11:00'));
   view.rerender(<UpdateScheduleDrawer isOpen={false} onClose={onClose} timeZone='UTC' scheduleData={second} />);
   view.rerender(<UpdateScheduleDrawer isOpen onClose={onClose} timeZone='UTC' scheduleData={second} />);
@@ -729,6 +757,7 @@ it('열린 경비의 배경 조회가 초안과 비교 기준을 바꾸지 않�
   act(() => buttons.find((button) => button.text === '확인')?.onPress?.('25'));
   view.rerender(<UpdateExpenseDrawer isOpen onClose={jest.fn()} expenseData={{ ...expense, amount: '30.00' }} />);
   expect(view.getByText('25')).toBeTruthy();
+
   await user.press(view.getByText('저장'));
   expect(saveExpense).not.toHaveBeenCalled();
   prompt.mockRestore();
@@ -772,16 +801,19 @@ it.each(['success', 'error', 'confirmed'] as const)(
     await user.press(view.getByText('저장'));
     expect(saveExpense).toHaveBeenCalledTimes(1);
     // 외부 prop로 닫고 다시 여는 수명 경계이며 사용자 탐색을 대신하지 않는다.
+
     view.rerender(content(null, false));
     view.rerender(content(second));
     expect(view.getByText('99')).toBeTruthy();
     expect(view.queryByText('저장 중...')).toBeNull();
     expect(view.getByText('저장')).toBeEnabled();
+
     fireEvent.press(view.getByText('2026-09-21'));
     fireEvent.press(view.getByText('선택 2026-09-22'));
     await user.press(view.getByText('저장'));
     expect(saveExpense).toHaveBeenCalledTimes(2);
     expect(view.getByText('저장 중...')).toBeTruthy();
+
     await act(async () =>
       outcome === 'success'
         ? succeed()
@@ -797,8 +829,10 @@ it.each(['success', 'error', 'confirmed'] as const)(
     expect(view.queryByText(/마지막 저장 실패|저장 확인:/)).toBeNull();
     expect(onClose).not.toHaveBeenCalled();
     expect(alert).not.toHaveBeenCalled();
+
     await user.press(view.getByText('취소'));
     expect(onClose).not.toHaveBeenCalled();
+
     await act(async () => finishSecond());
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(alert).toHaveBeenCalledWith('성공', '경비가 수정되었습니다.');
@@ -857,8 +891,10 @@ it.each<{ entity: 'expense' | 'schedule'; invalid: boolean }>([
     await user.press(view.getByText('저장'));
     expect(view.getByText('저장 중...')).toBeTruthy();
     // 지연된 실제 resolver가 완료되기 전에 외부 prop로 다음 대상을 장착한다.
+
     view.rerender(content(true));
     expect(view.queryByText('저장 중...')).toBeNull();
+
     await act(async () => finishValidation());
     expect(saveExpense).not.toHaveBeenCalled();
     expect(saveSchedule).not.toHaveBeenCalled();
@@ -896,6 +932,7 @@ it.each(['expense', 'schedule'] as const)(
       );
     const view = render(content(false, '2026-09-21', false));
     expect(view.queryByText('저장')).toBeNull();
+
     view.rerender(content(true, '2026-09-21'));
     if (entity === 'schedule') {
       expect(view.getByText('여행 현지 시간 (Asia/Tokyo)')).toBeTruthy();
@@ -904,10 +941,12 @@ it.each(['expense', 'schedule'] as const)(
     fireEvent.press(view.getByText('선택 2026-09-22'));
     fireEvent.press(view.getByText('2026-09-22'));
     expect(view.getByText('선택 2026-09-22')).toBeTruthy();
+
     view.rerender(content(false, '2026-09-21'));
     view.rerender(content(true, '2026-09-21'));
     expect(view.getByText('2026-09-21')).toBeTruthy();
     expect(view.queryByText('선택 2026-09-22')).toBeNull();
+
     await user.press(view.getByText('저장'));
     expect(saveExpense).not.toHaveBeenCalled();
     expect(saveSchedule).not.toHaveBeenCalled();

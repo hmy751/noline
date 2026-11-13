@@ -1,28 +1,20 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { getDatabase, trips, tripActivations } from '@/shared/db';
 import { eq } from 'drizzle-orm';
-import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
-import apiClient from '@/shared/api/fetcher';
-import { tripQueryKeys } from './keys';
-import { scheduleQueryKeys } from '@/entities/schedule/data/keys';
+
 import { expenseQueryKeys } from '@/entities/expense/data/keys';
 import { routeQueryKeys } from '@/entities/route/data/keys';
-import { clearTripCopiesInTransaction } from '@/shared/services/sync/cleanup-job';
-import { cleanupOfflineMapForTrip } from '@/shared/services/offline-map';
-import { hasUnresolvedTripChangesInTransaction } from '@/shared/services/sync/queue';
+import { scheduleQueryKeys } from '@/entities/schedule/data/keys';
+import apiClient from '@/shared/api/fetcher';
+import { getDatabase, trips, tripActivations } from '@/shared/db';
+import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { cancelAndInvalidateQueries } from '@/shared/lib/query-refresh';
+import { cleanupOfflineMapForTrip } from '@/shared/services/offline-map';
+import { clearTripCopiesInTransaction } from '@/shared/services/sync/cleanup-job';
+import { hasUnresolvedTripChangesInTransaction } from '@/shared/services/sync/queue';
 
-/**
- * 여행 비활성화 Mutation Hook
- *
- * - tripActivations 레코드 업데이트 (isActivated = false)
- * - sync_queue 체크: 미해결 입력이 있으면 cleanup 지연 (cleanupPending = true)
- * - Soft delete 패턴: 로컬 데이터를 deletedAt으로 마킹 (Hard delete 없음)
- * - Background job에서 cleanup 완료 (sync 완료 후)
- * - 오프라인 지도 삭제
- * - 서버에 비활성화 알림 (선택적)
- *
- */
+import { tripQueryKeys } from './keys';
+
+/** 미전송 입력이 있으면 사본 정리를 예약한다. 지도 정리·서버 알림 실패 뒤에도 기기 비활성화는 유지된다. */
 export const useDeactivateTrip = () => {
   const queryClient = useQueryClient();
 
@@ -30,14 +22,12 @@ export const useDeactivateTrip = () => {
     mutationFn: async ({ tripId, cleanupData = false }: { tripId: string; cleanupData?: boolean }) => {
       const now = getCurrentISOString();
 
-      // 여행 정보 조회
       const trip = await getDatabase().select().from(trips).where(eq(trips.id, tripId)).get();
 
       if (!trip) {
         throw new Error(`Trip not found: ${tripId}`);
       }
 
-      // 이미 비활성화된 경우 스킵 (tripActivations 테이블 확인)
       const existingActivation = await getDatabase()
         .select()
         .from(tripActivations)
@@ -45,83 +35,58 @@ export const useDeactivateTrip = () => {
         .get();
 
       if (!existingActivation?.isActivated) {
-        console.log(`[TripActivation] Trip already deactivated: ${tripId}`);
         return { tripId, alreadyDeactivated: true };
       }
 
-      // 정리 판단도 쓰기와 같은 transaction에서 확정한다.
-      let hasPending = false;
+      const cleanupExecuted = await withTransaction(async () => {
+        const hasPendingTasks = await hasUnresolvedTripChangesInTransaction(tripId);
+        const shouldDeferCleanup = cleanupData && hasPendingTasks;
+        const shouldClearCopies = cleanupData && !hasPendingTasks;
 
-      // 트랜잭션: 로컬 DB 업데이트
-      let cleanupExecuted = false;
-
-      await withTransaction(async () => {
-        hasPending = await hasUnresolvedTripChangesInTransaction(tripId);
-
-        // 활성화 레코드 업데이트 (tripActivations만 사용)
         await getDatabase()
           .update(tripActivations)
           .set({
             isActivated: false,
             deactivatedAt: now,
-            // 미전송 작업·보류 입력이 있으면 cleanup 지연, 없으면 즉시 실행
-            cleanupPending: cleanupData && hasPending,
+            cleanupPending: shouldDeferCleanup,
             updatedAt: now,
           })
           .where(eq(tripActivations.tripId, tripId));
 
-        // 데이터 정리 (선택적)
-        // 미해결 입력이 없으면 즉시 Soft delete 실행
-        if (cleanupData && !hasPending) {
+        if (shouldClearCopies) {
           await clearTripCopiesInTransaction(tripId, now);
-
-          cleanupExecuted = true;
-          console.log(`[TripActivation] Local data soft-deleted for trip: ${tripId}`);
         }
+
+        return shouldClearCopies;
       });
 
-      // 오프라인 지도 정리 (선택적, 트랜잭션 외부에서 실행)
-      // cleanup이 즉시 실행된 경우에만 지도도 삭제
-      if (cleanupData && cleanupExecuted) {
+      if (cleanupExecuted) {
         try {
           await cleanupOfflineMapForTrip(tripId);
         } catch (error) {
           console.error(`[TripActivation] Failed to cleanup offline map (ignored):`, error);
-          // 지도 정리 실패해도 비활성화는 성공으로 처리
         }
       }
 
-      // 서버에 비활성화 알림 (선택적, 실패해도 무시)
       try {
         await apiClient.post(`/api/trips/${tripId}/deactivate`);
-        console.log(`[TripActivation] Deactivation notified to server: ${tripId}`);
       } catch (error) {
         console.warn(`[TripActivation] Failed to notify deactivation to server (ignored):`, error);
       }
 
-      console.log(
-        `[TripActivation] Trip deactivated: ${tripId} (cleanup: ${cleanupData}, executed: ${cleanupExecuted})`,
-      );
-
       return {
         tripId,
         alreadyDeactivated: false,
-        cleanupData,
-        cleanupExecuted,
-        cleanupPending: cleanupData && hasPending,
       };
     },
-    onSuccess: async (data) => {
-      // 캐시 무효화 - 여행 목록 및 활성화 상태 다시 조회
+    onSuccess: async (deactivation) => {
       await cancelAndInvalidateQueries(queryClient, { queryKey: tripQueryKeys.base });
 
-      // 정리된 데이터 반영 (Soft delete된 Schedule, Expense, Route)
-      if (!data.alreadyDeactivated) {
+      if (!deactivation.alreadyDeactivated) {
         // Local에서 시작한 조회 결과 대신 전환 뒤 Router가 선택한 데이터를 읽는다.
         await cancelAndInvalidateQueries(queryClient, { queryKey: scheduleQueryKeys.base });
         await cancelAndInvalidateQueries(queryClient, { queryKey: expenseQueryKeys.base });
         queryClient.invalidateQueries({ queryKey: routeQueryKeys.base });
-        console.log(`[TripActivation] Trip deactivation completed: ${data.tripId}`);
       }
     },
     onError: (error) => {

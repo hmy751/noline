@@ -1,43 +1,48 @@
-import { LegacyUpdateRecovery } from '@/features/sync-recovery/LegacyUpdateRecovery';
-import { TripTimeZoneNotice } from '@/features/trip/TripTimeZoneNotice';
-import { EditTripDrawer } from '@/features/trip/update-trip';
-import { PolicyErrorDisplay } from '@/shared/components/ErrorBoundary';
 import { useState, useCallback } from 'react';
 import { View, Alert } from 'react-native';
-import { MobileHeader } from '@/shared/components';
-import { TripSelector } from '@/entities/trip';
-import { useDeleteSchedule } from '@/entities/schedule';
-import { useGetTrips } from '@/entities/trip';
-import { useTripStore } from '@/shared/store';
-import { Pressable } from '@repo/ui';
+
 import { Map, List } from 'lucide-react-native';
+
+import { Pressable } from '@repo/ui';
+
+import { useDeleteSchedule } from '@/entities/schedule';
+import { TripSelector, useGetTrips } from '@/entities/trip';
+import { useTripSchedulesReadQuery } from '@/features/schedule/read-schedules';
 import { ScheduleListView } from '@/features/schedule/schedule-list-view';
 import { ScheduleMapViewContainer } from '@/features/schedule/schedule-map-view';
 import { ScheduleMenu } from '@/features/schedule/schedule-menu';
 import { UpdateScheduleDrawer } from '@/features/schedule/update-schedule';
+import { LegacyUpdateRecovery } from '@/features/sync-recovery/LegacyUpdateRecovery';
+import { TripTimeZoneNotice } from '@/features/trip/TripTimeZoneNotice';
+import { EditTripDrawer } from '@/features/trip/update-trip';
+import { MobileHeader } from '@/shared/components';
+import { PolicyErrorDisplay } from '@/shared/components/ErrorBoundary';
 import { formatISOToTimeZoneDate, formatISOToTimeZoneTime, getTimeZoneDateRange } from '@/shared/lib/datetime';
 import { useAppPolicy } from '@/shared/policy';
-import { useTripSchedulesReadQuery } from '@/features/schedule/read-schedules';
+import { useTripStore } from '@/shared/store';
+
 import { ScheduleQueryFeedback, ScheduleRefreshError } from './ScheduleQueryFeedback';
 
 type ViewMode = 'list' | 'map';
 
+type ScheduleListItem = {
+  id: string;
+  tripId: string;
+  scheduledAt: string;
+  time: string;
+  title: string;
+  location: string;
+  address?: string | null;
+  latitude?: string | null;
+  longitude?: string | null;
+  expense?: string;
+  expenseCount?: number;
+};
+
 interface ScheduleByDate {
   date: string;
   dateLabel: string;
-  schedules: Array<{
-    id: string;
-    tripId: string;
-    scheduledAt: string;
-    time: string;
-    title: string;
-    location: string;
-    address?: string | null;
-    latitude?: string | null;
-    longitude?: string | null;
-    expense?: string;
-    expenseCount?: number;
-  }>;
+  schedules: ScheduleListItem[];
 }
 
 export default function ScheduleScreen() {
@@ -50,19 +55,7 @@ export default function ScheduleScreen() {
   }>({ tripId: selectedTripId, date: null, scheduleId: null });
   const [isScheduleMenuOpen, setIsScheduleMenuOpen] = useState(false);
   const [isUpdateDrawerOpen, setIsUpdateDrawerOpen] = useState(false);
-  const [selectedSchedule, setSelectedSchedule] = useState<{
-    id: string;
-    tripId: string;
-    scheduledAt: string;
-    time: string;
-    title: string;
-    location: string;
-    address?: string | null;
-    latitude?: string | null;
-    longitude?: string | null;
-    expense?: string;
-    expenseCount?: number;
-  } | null>(null);
+  const [selectedSchedule, setSelectedSchedule] = useState<ScheduleListItem | null>(null);
   const [buttonPosition, setButtonPosition] = useState<
     { x: number; y: number; width: number; height: number } | undefined
   >(undefined);
@@ -79,8 +72,12 @@ export default function ScheduleScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = useCallback(async () => {
-    if (!access.canFetch) return;
+    if (!access.canFetch) {
+      return;
+    }
+
     setRefreshing(true);
+
     try {
       await refetch();
     } finally {
@@ -96,82 +93,6 @@ export default function ScheduleScreen() {
   const dateRange = selectedTrip
     ? getTimeZoneDateRange(selectedTrip.startDate, selectedTrip.endDate, selectedTrip.timeZone ?? 'UTC')
     : [];
-
-  // 일정 메뉴 핸들러
-  const handleScheduleMenuPress = (
-    schedule: {
-      id: string;
-      tripId: string;
-      scheduledAt: string;
-      time: string;
-      title: string;
-      location: string;
-      address?: string | null;
-      latitude?: string | null;
-      longitude?: string | null;
-      expense?: string;
-      expenseCount?: number;
-    },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    event: any,
-  ) => {
-    setSelectedSchedule(schedule);
-    // 버튼 위치 측정
-    event.currentTarget.measure((x: number, y: number, width: number, height: number, pageX: number, pageY: number) => {
-      setButtonPosition({ x: pageX, y: pageY, width, height });
-    });
-    setIsScheduleMenuOpen(true);
-  };
-
-  const handleEditSchedule = () => {
-    if (!policy.schedule.update.allowed) {
-      Alert.alert('일정을 수정할 수 없습니다', policy.schedule.update.reason);
-      return;
-    }
-    setIsUpdateDrawerOpen(true);
-  };
-
-  const handleDeleteSchedule = () => {
-    if (!selectedSchedule) {
-      return;
-    }
-    if (!policy.schedule.delete.allowed) {
-      Alert.alert('일정을 삭제할 수 없습니다', policy.schedule.delete.reason);
-      return;
-    }
-
-    Alert.alert(
-      '일정 삭제',
-      `"${selectedSchedule.title}" 일정을 삭제하시겠습니까?`,
-      [
-        {
-          text: '취소',
-          style: 'cancel',
-        },
-        {
-          text: '삭제',
-          style: 'destructive',
-          onPress: () => {
-            deleteSchedule(
-              { id: selectedSchedule.id, tripId: selectedSchedule.tripId },
-              {
-                onSuccess: () => {
-                  Alert.alert('성공', '일정이 삭제되었습니다.');
-                  setIsScheduleMenuOpen(false);
-                  setSelectedSchedule(null);
-                  setButtonPosition(undefined);
-                },
-                onError: () => {
-                  Alert.alert('오류', '일정 삭제에 실패했습니다.');
-                },
-              },
-            );
-          },
-        },
-      ],
-      { cancelable: true },
-    );
-  };
 
   // 날짜별로 일정 그룹화
   const schedulesByDate: ScheduleByDate[] =
@@ -219,6 +140,72 @@ export default function ScheduleScreen() {
   ) {
     setMapSelection({ tripId: selectedTripId, date: selectedMapDate, scheduleId: selectedMapScheduleId });
   }
+
+  // 일정 메뉴 핸들러
+  const handleScheduleMenuPress = (
+    schedule: ScheduleListItem,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    event: any,
+  ) => {
+    setSelectedSchedule(schedule);
+    // 버튼 위치 측정
+    event.currentTarget.measure((x: number, y: number, width: number, height: number, pageX: number, pageY: number) => {
+      setButtonPosition({ x: pageX, y: pageY, width, height });
+    });
+    setIsScheduleMenuOpen(true);
+  };
+
+  const handleEditSchedule = () => {
+    if (!policy.schedule.update.allowed) {
+      Alert.alert('일정을 수정할 수 없습니다', policy.schedule.update.reason);
+      return;
+    }
+
+    setIsUpdateDrawerOpen(true);
+  };
+
+  const handleDeleteSchedule = () => {
+    if (!selectedSchedule) {
+      return;
+    }
+
+    if (!policy.schedule.delete.allowed) {
+      Alert.alert('일정을 삭제할 수 없습니다', policy.schedule.delete.reason);
+      return;
+    }
+
+    Alert.alert(
+      '일정 삭제',
+      `"${selectedSchedule.title}" 일정을 삭제하시겠습니까?`,
+      [
+        {
+          text: '취소',
+          style: 'cancel',
+        },
+        {
+          text: '삭제',
+          style: 'destructive',
+          onPress: () => {
+            deleteSchedule(
+              { id: selectedSchedule.id, tripId: selectedSchedule.tripId },
+              {
+                onSuccess: () => {
+                  Alert.alert('성공', '일정이 삭제되었습니다.');
+                  setIsScheduleMenuOpen(false);
+                  setSelectedSchedule(null);
+                  setButtonPosition(undefined);
+                },
+                onError: () => {
+                  Alert.alert('오류', '일정 삭제에 실패했습니다.');
+                },
+              },
+            );
+          },
+        },
+      ],
+      { cancelable: true },
+    );
+  };
 
   return (
     <View className='flex-1 bg-background'>

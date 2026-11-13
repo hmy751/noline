@@ -1,4 +1,3 @@
-jest.mock('@/shared/services/sync/direct-deletion', () => ({ confirmRemoteChildDeletion: async () => undefined }));
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 import { ExpenseRepository } from '@/entities/expense/repository/expense-repository';
@@ -25,6 +24,7 @@ jest.mock('@/shared/services/offline-prep/metadata', () => ({
   getTripActivationStatus: jest.fn(),
   hasAnyActivatedTrip: jest.fn(),
 }));
+jest.mock('@/shared/services/sync/direct-deletion', () => ({ confirmRemoteChildDeletion: async () => undefined }));
 jest.mock('@/entities/schedule/api/schedules');
 jest.mock('@/entities/schedule/lib/schedule-local');
 jest.mock('@/entities/expense/api/expenses');
@@ -148,6 +148,7 @@ describe('경비 날짜는 Local/Remote 분기 전에 같은 계약으로 정리
     expect(create).toHaveBeenCalledWith({ ...input, date: '2026-10-01' });
     expect(update).toHaveBeenCalledWith(expenseId, { date: '2026-10-01', edit: expect.any(Object) });
   });
+
   it('날짜가 없는 부분 수정은 날짜를 추가하지 않고 잘못된 날짜는 저장하지 않는다', async () => {
     await ExpenseRepository.update(expenseId, tripId, { title: '수정' });
     expect(ExpenseApi.fetchUpdateExpense).toHaveBeenCalledWith(expenseId, { title: '수정', edit: expect.any(Object) });
@@ -173,6 +174,7 @@ describe('시점 입력도 분기 전에 공유 계약을 검사한다', () => {
     expect(create).toHaveBeenCalledWith(input);
     expect(update).toHaveBeenCalledWith(id, { scheduledAt, edit: expect.any(Object) });
   });
+
   it.each(['2026-10-02T09:00:00', '2026-10-02T09:00:00+99:99', '2026-02-30T09:00:00Z'])(
     '잘못된 시점 %s는 라우팅·저장 전에 일정·여행에서 모두 거절한다',
     async (invalid) => {
@@ -189,6 +191,7 @@ describe('시점 입력도 분기 전에 공유 계약을 검사한다', () => {
       expect(TripApi.fetchUpdateTrip).not.toHaveBeenCalled();
     },
   );
+
   it.each([true, false])('활성 %s: 여행 날짜의 기존 ISO 표현은 검증만 하고 변환하지 않는다', async (active) => {
     activationMock.mockResolvedValue(active);
     await TripRepository.update(tripId, { startDate: scheduledAt });

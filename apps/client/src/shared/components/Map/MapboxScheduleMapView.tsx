@@ -17,87 +17,6 @@ import { formatDistance, formatDuration, type MapboxProfile } from '@/shared/ser
 import { buildRouteSegments, findSavedRoute, getScheduleCoordinate } from '@/shared/services/directions/route-plan';
 import type { ScheduleMapViewProps } from './types';
 
-const styles = StyleSheet.create({
-  map: {
-    flex: 1,
-  },
-  emptyContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F5F5F5',
-    padding: 32,
-  },
-  profileSelector: {
-    position: 'absolute',
-    top: 60, // 날짜 선택 UI 아래로 이동
-    right: 16,
-    flexDirection: 'row',
-    backgroundColor: 'white',
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  profileButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  profileButtonActive: {
-    backgroundColor: '#4CAF50',
-  },
-  profileButtonText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#666',
-  },
-  profileButtonTextActive: {
-    color: 'white',
-  },
-  routeInfo: {
-    position: 'absolute',
-    top: 104, // 프로필 선택기 아래
-    right: 16,
-    backgroundColor: 'white',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  routeInfoItem: {
-    alignItems: 'center',
-  },
-  routeInfoLabel: {
-    fontSize: 10,
-    color: '#999',
-    marginBottom: 2,
-  },
-  routeInfoValue: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-  },
-  routeInfoDivider: {
-    width: 1,
-    height: 24,
-    backgroundColor: '#E0E0E0',
-  },
-  routeInfoNoRoute: {
-    fontSize: 13,
-    color: '#999',
-  },
-});
-
 /**
  * 일정 목록을 Mapbox 지도에 표시 (오프라인)
  * - 저장된 경로: 실제 도로 polyline (초록색 실선)
@@ -152,9 +71,8 @@ export function MapboxScheduleMapView({
     const savedSegments = routeSegments.filter((s) => s.type === 'saved' && s.distance && s.duration);
     const totalDistance = savedSegments.reduce((sum, s) => sum + (s.distance || 0), 0);
     const totalDuration = savedSegments.reduce((sum, s) => sum + (s.duration || 0), 0);
-    const hasAllRoutes = routeSegments.length > 0 && savedSegments.length === routeSegments.length;
 
-    return { totalDistance, totalDuration, hasAllRoutes, savedCount: savedSegments.length };
+    return { totalDistance, totalDuration, savedCount: savedSegments.length };
   }, [routeSegments]);
 
   // 초기 카메라 설정
@@ -339,3 +257,84 @@ export function MapboxScheduleMapView({
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  map: {
+    flex: 1,
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F5F5F5',
+    padding: 32,
+  },
+  profileSelector: {
+    position: 'absolute',
+    top: 60, // 날짜 선택 UI 아래로 이동
+    right: 16,
+    flexDirection: 'row',
+    backgroundColor: 'white',
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  profileButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  profileButtonActive: {
+    backgroundColor: '#4CAF50',
+  },
+  profileButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#666',
+  },
+  profileButtonTextActive: {
+    color: 'white',
+  },
+  routeInfo: {
+    position: 'absolute',
+    top: 104, // 프로필 선택기 아래
+    right: 16,
+    backgroundColor: 'white',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  routeInfoItem: {
+    alignItems: 'center',
+  },
+  routeInfoLabel: {
+    fontSize: 10,
+    color: '#999',
+    marginBottom: 2,
+  },
+  routeInfoValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+  },
+  routeInfoDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: '#E0E0E0',
+  },
+  routeInfoNoRoute: {
+    fontSize: 13,
+    color: '#999',
+  },
+});

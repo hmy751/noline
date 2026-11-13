@@ -36,6 +36,7 @@ it.each(['read', 'write'])(
     }
 
     await expect(observeFieldEdits({ amount: observed })).rejects.toBe(failure);
+
     jest.mocked(SecureStore.setItemAsync).mockRejectedValueOnce(failure);
     await expect(allocateEdit()).rejects.toBe(failure);
 
@@ -61,6 +62,7 @@ it('does not apply a later observation to a save already waiting for its clock r
   finishRead(null);
 
   expect((await firstSave).time).toBe('2026-11-10T09:00:00.000Z');
+
   await observation;
   expect((await allocateEdit()).sequence).toBe(10);
 });

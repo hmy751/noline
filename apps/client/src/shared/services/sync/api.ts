@@ -1,5 +1,6 @@
-import axios, { type AxiosInstance, type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { EXPO_PUBLIC_API_URL } from '@env';
+import axios, { type AxiosInstance, type AxiosError, type InternalAxiosRequestConfig } from 'axios';
+
 import { isSessionRefreshFailure, setupSyncAuthInterceptors } from '@/shared/services/auth/auth-interceptor';
 
 /**
@@ -58,7 +59,8 @@ syncApiClient.interceptors.response.use(
     }
 
     // 재시도 불가 또는 실패
-    console.error('[Sync API] Error', error.response?.status, error.response?.data || error.message);
+    // 409 본문에 사용자의 원래 입력이 있을 수 있다. 진단에는 HTTP 상태만 남긴다.
+    console.debug('[Sync API] Request rejected', error.response?.status);
 
     return Promise.reject(error);
   },

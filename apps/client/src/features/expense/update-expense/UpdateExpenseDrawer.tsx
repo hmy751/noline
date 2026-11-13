@@ -11,7 +11,7 @@ import { EXPENSE_CATEGORIES, CURRENCIES, CURRENCY_SYMBOLS } from '@/entities/exp
 import { useUpdateExpense } from '@/entities/expense/data/useUpdateExpense';
 import { DatePicker } from '@/shared/components';
 import { Field } from '@/shared/components/Form';
-import { changedFields } from '@/shared/lib/edit-fields';
+import { buildChangedGroupPatch } from '@/shared/lib/edit-fields';
 import { useAppPolicy } from '@/shared/policy';
 import { ConfirmedUpdateError } from '@/shared/services/edit-stamp/errors';
 
@@ -83,14 +83,20 @@ const ExpenseEditForm = ({ expenseData: currentExpense, onClose }: ExpenseEditFo
 
   useEffect(() => {
     isMounted.current = true;
+
     return () => {
       isMounted.current = false;
     };
   }, []);
 
   const handleValidSubmit = async (data: ExpenseUpdateFormData) => {
+    if (!isMounted.current) {
+      return;
+    }
+
     setSubmitError(null);
-    const patch = changedFields('expenses', defaultValues ?? {}, {
+
+    const patch = buildChangedGroupPatch('expenses', defaultValues ?? {}, {
       ...data,
       scheduleId: data.scheduleId || null,
     });
@@ -116,23 +122,16 @@ const ExpenseEditForm = ({ expenseData: currentExpense, onClose }: ExpenseEditFo
   };
 
   const handleInvalidSubmit = () => {
+    if (!isMounted.current) {
+      return;
+    }
+
     Alert.alert('오류', '입력한 정보를 확인해주세요.');
   };
 
   const handleSave = async () => {
     try {
-      await handleSubmit(
-        async (data) => {
-          if (isMounted.current) {
-            await handleValidSubmit(data);
-          }
-        },
-        () => {
-          if (isMounted.current) {
-            handleInvalidSubmit();
-          }
-        },
-      )();
+      await handleSubmit(handleValidSubmit, handleInvalidSubmit)();
     } catch (error) {
       if (isMounted.current) {
         setSubmitError(() => error);

@@ -29,6 +29,7 @@ it('같은 여행은 순서대로 실행하고 다른 여행은 기다리지 않
     events.push('other');
   });
   expect(events).toEqual(['other']);
+
   gate.resolve();
   await Promise.all([first, next]);
   expect(events).toEqual(['other', 'first', 'next']);

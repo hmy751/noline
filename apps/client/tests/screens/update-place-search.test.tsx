@@ -151,6 +151,7 @@ it('수정의 상세 실패는 생성 캐시와 분리되고 명시적인 legacy
     { source: 'legacy-unresolved-detail', id: 'tower', name: '에펠탑', address: 'Paris', latitude: 0, longitude: 0 },
   ]);
   expect(mockSearch).toHaveBeenCalledTimes(1);
+
   fireEvent.press(view.getByText('에펠탑'));
   await act(async () => fireEvent.press(view.getByText('저장')));
   await waitFor(() =>
@@ -170,6 +171,7 @@ it('수정 검색에서 단절되면 위치 표시는 유지하면서 선택을 
   expect(view.getByTestId('map-region').props.children).toBe(mapBefore);
   expect(view.queryByText('검색 결과')).toBeNull();
   expect(view.queryByText('에펠탑')).toBeNull();
+
   act(() => useNetworkStore.setState({ realStatus: 'online' }));
   await waitFor(() => expect(view.getByText('에펠탑')).toBeTruthy());
   expect(mockSearch).toHaveBeenCalledTimes(1);
@@ -191,6 +193,7 @@ it('닫힌 채 장착된 수정 검색은 debounce 요청을 멈추고 재개 �
     await jest.advanceTimersByTimeAsync(500);
   });
   expect(mockSearch).not.toHaveBeenCalled();
+
   view.rerender(contents(true));
   expect(view.getByDisplayValue('tower')).toBeTruthy();
   await waitFor(() => expect(view.getByText('에펠탑')).toBeTruthy());

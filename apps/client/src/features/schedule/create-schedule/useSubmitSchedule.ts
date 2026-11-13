@@ -21,9 +21,13 @@ export function useSubmitSchedule({
   const { mutate: autoDownloadRoutes } = useAutoDownloadRoutes();
 
   const submit = (data: CreateScheduleFormData, place: Location | null) => {
-    if (mutation.isPending || !timeZone) return;
+    if (mutation.isPending || !timeZone) {
+      return;
+    }
+
     const id = generateId();
     const scheduledAt = combineDateTimeInTimeZoneToISO(data.date, data.time, timeZone);
+
     mutation.mutate(
       {
         id,
@@ -51,5 +55,6 @@ export function useSubmitSchedule({
     : error instanceof OfflineError || error instanceof AuthRequiredError
       ? error.message
       : '일정을 저장하지 못했어요. 입력한 내용은 유지됩니다. 다시 시도해주세요.';
+
   return { submit, isPending: mutation.isPending, submitError };
 }

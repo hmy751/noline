@@ -1,8 +1,4 @@
 /** @jest-environment node */
-jest.mock('@/shared/services/sync/legacy-holds', () => ({
-  ...jest.requireActual<typeof import('@/shared/services/sync/legacy-holds')>('@/shared/services/sync/legacy-holds'),
-  synchronizeLegacyHolds: async () => undefined,
-}));
 import { beforeEach, afterEach, expect, it, jest } from '@jest/globals';
 import { eq, sql } from 'drizzle-orm';
 import { QueryClient } from '@tanstack/react-query';
@@ -41,6 +37,10 @@ import syncApiClient from '@/shared/services/sync/api';
 import { reconcileServerRecord } from '@/shared/services/sync/reconcile';
 import { deleteTripLocal, getTripByIdLocal, updateTripLocal } from '@/entities/trip/lib/trip-local';
 
+jest.mock('@/shared/services/sync/legacy-holds', () => ({
+  ...jest.requireActual<typeof import('@/shared/services/sync/legacy-holds')>('@/shared/services/sync/legacy-holds'),
+  synchronizeLegacyHolds: async () => undefined,
+}));
 jest.mock('@tanstack/react-query', () => ({
   ...jest.requireActual<object>('@tanstack/react-query'),
   useMutation: (options: unknown) => options,
@@ -57,30 +57,6 @@ jest.mock('@/shared/services/directions/route-downloader', () => ({
   downloadRoutesForSchedules: async () => undefined,
 }));
 
-interface TestDatabase {
-  exec: (sql: string) => void;
-  prepare: (sql: string) => TestStatement;
-}
-
-interface TestStatement {
-  setReturnArrays?: (enabled: boolean) => void;
-  columns: () => Array<{ name: string }>;
-  all: (...params: unknown[]) => unknown[];
-  run: (...params: unknown[]) => { changes: number; lastInsertRowId: number };
-}
-
-function mockReadRows(statement: TestStatement, params: unknown[]): unknown[][] {
-  const columns = statement.columns();
-  if (statement.setReturnArrays) {
-    statement.setReturnArrays(true);
-    return statement.all(...params) as unknown[][];
-  }
-
-  return (statement.all(...params) as Array<Record<string, unknown>>).map((row) =>
-    columns.map(({ name }) => row[name]),
-  );
-}
-
 // 실제 Drizzle SQL과 SQLite를 사용한다. 파일·기기 SecureStore는 사용하지 않는다.
 jest.mock('expo-secure-store', () => ({
   getItemAsync: jest.fn(async () => null),
@@ -92,27 +68,8 @@ jest.mock('@/shared/services/id/ulid', () => ({
 }));
 jest.mock('expo-sqlite', () => ({
   openDatabaseSync: () => {
-    const { DatabaseSync } = jest.requireActual<{ DatabaseSync: new (name: string) => TestDatabase }>('node:sqlite');
-    const sqlite = new DatabaseSync(':memory:');
-    return {
-      execSync: (statement: string) => sqlite.exec(statement),
-      getAllSync: (query: string) => sqlite.prepare(query).all(),
-      prepareSync: (query: string) => ({
-        executeForRawResultSync: (params: unknown[]) => {
-          const statement = sqlite.prepare(query);
-          const rows = mockReadRows(statement, params);
-          return { getAllSync: () => rows };
-        },
-        executeSync: (params: unknown[]) => {
-          const statement = sqlite.prepare(query);
-          if (statement.columns().length) {
-            const rows = mockReadRows(statement, params);
-            return { getAllSync: () => rows, getFirstSync: () => rows[0] ?? null };
-          }
-          return statement.run(...params);
-        },
-      }),
-    };
+    const { createExpoSQLiteDatabase } = jest.requireActual<typeof import('../helpers/sqlite')>('../helpers/sqlite');
+    return createExpoSQLiteDatabase();
   },
 }));
 
@@ -238,6 +195,7 @@ it('Trip 수신은 삽입·충돌 수정 모두에서 서버 도시 시간대를
   const normalized = { ...trip, deletedAt: null, version: 2 };
   await reconcileServerRecord('trips', { ...normalized, timeZone: 'Europe/Paris' });
   expect((await getTripByIdLocal(tripId))?.timeZone).toBe('Europe/Paris');
+
   const newId = '01ARZ3NDEKTSV4RRFFQ69G5FAZ';
   await reconcileServerRecord('trips', { ...normalized, id: newId, timeZone: 'America/New_York' });
   expect((await getTripByIdLocal(newId))?.timeZone).toBe('America/New_York');
@@ -475,6 +433,7 @@ it('시각 검사 실패로 일정 생성도 롤백하고 잘못된 시각의 �
   ).rejects.toMatchObject({ name: 'ZodError' });
   expect(getDatabase().select().from(schedules).all()).toHaveLength(1);
   expect(await queued()).toEqual([]);
+
   await getDatabase().update(schedules).set({ scheduledAt: 'invalid' });
   await expect(deleteScheduleLocal(scheduleId)).resolves.toMatchObject({ id: scheduleId });
   expect(getDatabase().select().from(schedules).get()?.deletedAt).toBeTruthy();
@@ -493,7 +452,9 @@ it.each([
   'missing-array',
 ])('pull의 %s 계약 오류는 모든 행과 동기화 기준 시각을 유지한다', async (kind) => {
   const schedule = getDatabase().select().from(schedules).get();
-  if (!schedule) throw new Error('fixture 일정이 없습니다');
+  if (!schedule) {
+    throw new Error('fixture 일정이 없습니다');
+  }
   const envelope = {
     success: true,
     data: {
@@ -503,14 +464,30 @@ it.each([
       serverTime: now,
     },
   };
-  if (kind === 'trip-date') envelope.data.trips[0].endDate = '2026-10-02';
-  if (kind === 'trip-date-null') Reflect.set(envelope.data.trips[0], 'endDate', null);
-  if (kind === 'db-date') Reflect.set(envelope.data.trips[0], 'createdAt', new Date(now));
-  if (kind === 'schedule-time') envelope.data.schedules[0].scheduledAt = '2026-10-02T09:00:00+99:99';
-  if (kind === 'expense-metadata') envelope.data.expenses[0].updatedAt = 'invalid';
-  if (kind === 'server-time') envelope.data.serverTime = '2026-10-02T09:00:00+99:99';
-  if (kind === 'envelope') envelope.success = false;
-  if (kind === 'missing-array') Reflect.deleteProperty(envelope.data, 'schedules');
+  if (kind === 'trip-date') {
+    envelope.data.trips[0].endDate = '2026-10-02';
+  }
+  if (kind === 'trip-date-null') {
+    Reflect.set(envelope.data.trips[0], 'endDate', null);
+  }
+  if (kind === 'db-date') {
+    Reflect.set(envelope.data.trips[0], 'createdAt', new Date(now));
+  }
+  if (kind === 'schedule-time') {
+    envelope.data.schedules[0].scheduledAt = '2026-10-02T09:00:00+99:99';
+  }
+  if (kind === 'expense-metadata') {
+    envelope.data.expenses[0].updatedAt = 'invalid';
+  }
+  if (kind === 'server-time') {
+    envelope.data.serverTime = '2026-10-02T09:00:00+99:99';
+  }
+  if (kind === 'envelope') {
+    envelope.success = false;
+  }
+  if (kind === 'missing-array') {
+    Reflect.deleteProperty(envelope.data, 'schedules');
+  }
   jest.mocked(syncApiClient.get).mockResolvedValue({ data: envelope } as never);
   await expect(pullChanges()).rejects.toMatchObject({ name: 'ZodError' });
   expect(getDatabase().select().from(trips).get()?.name).toBe(trip.name);
@@ -525,7 +502,9 @@ it.each(['trip-date', 'schedule-time', 'expense-metadata', 'envelope'])(
   async (kind) => {
     const newTripId = '01ARZ3NDEKTSV4RRFFQ69G5FAZ';
     const schedule = getDatabase().select().from(schedules).get();
-    if (!schedule) throw new Error('fixture 일정이 없습니다');
+    if (!schedule) {
+      throw new Error('fixture 일정이 없습니다');
+    }
     const envelope = {
       success: true,
       data: {
@@ -534,10 +513,18 @@ it.each(['trip-date', 'schedule-time', 'expense-metadata', 'envelope'])(
         expenses: [{ ...row, tripId: newTripId, date: '2026-10-03' }],
       },
     };
-    if (kind === 'trip-date') envelope.data.trips[0].startDate = 'invalid';
-    if (kind === 'schedule-time') envelope.data.schedules[0].scheduledAt = '2026-10-02T09:00:00+99:99';
-    if (kind === 'expense-metadata') envelope.data.expenses[0].createdAt = 'invalid';
-    if (kind === 'envelope') envelope.success = false;
+    if (kind === 'trip-date') {
+      envelope.data.trips[0].startDate = 'invalid';
+    }
+    if (kind === 'schedule-time') {
+      envelope.data.schedules[0].scheduledAt = '2026-10-02T09:00:00+99:99';
+    }
+    if (kind === 'expense-metadata') {
+      envelope.data.expenses[0].createdAt = 'invalid';
+    }
+    if (kind === 'envelope') {
+      envelope.success = false;
+    }
     jest.mocked(apiClient.post).mockResolvedValue(envelope as never);
     const mutation = useActivateTrip() as unknown as { mutationFn: (id: string) => Promise<unknown> };
     await expect(mutation.mutationFn(newTripId)).rejects.toMatchObject({ name: 'ZodError' });
@@ -551,7 +538,9 @@ it.each(['trip-date', 'schedule-time', 'expense-metadata', 'envelope'])(
 
 it('정상 pull은 세 entity의 ISO 시각·date-only와 삭제 시각을 검사하고 저장한다', async () => {
   const schedule = getDatabase().select().from(schedules).get();
-  if (!schedule) throw new Error('fixture 일정이 없습니다');
+  if (!schedule) {
+    throw new Error('fixture 일정이 없습니다');
+  }
   jest.mocked(syncApiClient.get).mockResolvedValue({
     data: {
       success: true,

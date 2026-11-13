@@ -1,7 +1,3 @@
-jest.mock('@/shared/services/sync/legacy-holds', () => ({
-  ...jest.requireActual<typeof import('@/shared/services/sync/legacy-holds')>('@/shared/services/sync/legacy-holds'),
-  synchronizeLegacyHolds: async () => undefined,
-}));
 import { afterEach, beforeEach, expect, it, jest } from '@jest/globals';
 import { QueryClient, QueryObserver } from '@tanstack/react-query';
 import { pushChanges, syncData, SyncIncompleteError } from '@/shared/services/sync/engine';
@@ -10,6 +6,10 @@ import api from '@/shared/services/sync/api';
 import { useAuthStore } from '@/shared/store/auth';
 import { reconcileServerRecord } from '@/shared/services/sync/reconcile';
 
+jest.mock('@/shared/services/sync/legacy-holds', () => ({
+  ...jest.requireActual<typeof import('@/shared/services/sync/legacy-holds')>('@/shared/services/sync/legacy-holds'),
+  synchronizeLegacyHolds: async () => undefined,
+}));
 jest.mock('expo-secure-store', () => ({}));
 jest.mock('@/shared/services/sync/reconcile', () => ({
   reconcileServerRecord: jest.fn<() => Promise<void>>(),

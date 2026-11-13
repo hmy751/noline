@@ -1,19 +1,16 @@
 /** @jest-environment node */
-jest.mock('@/shared/services/sync/legacy-holds', () => ({
-  ...jest.requireActual<object>('@/shared/services/sync/legacy-holds'),
-  synchronizeLegacyHolds: async () => undefined,
-}));
 import { beforeEach, expect, it, jest } from '@jest/globals';
 import { eq, sql } from 'drizzle-orm';
+
 import { getExpensesByTripIdLocal } from '@/entities/expense/lib/expense-local';
-import { getSchedulesLocal } from '@/entities/schedule/lib/schedule-local';
-import { useDeactivateTrip } from '@/entities/trip/data/useDeactivateTrip';
-import { useActivateTrip as getActivationOptions } from '@/entities/trip/data/useActivateTrip';
-import { refreshTripListLocal } from '@/entities/trip/lib/trip-local';
 import { ExpenseRepository } from '@/entities/expense/repository/expense-repository';
+import { getSchedulesLocal } from '@/entities/schedule/lib/schedule-local';
 import { ScheduleRepository } from '@/entities/schedule/repository/schedule-repository';
-import { TripRepository } from '@/entities/trip/repository/trip-repository';
 import { fetchAllTrips } from '@/entities/trip/api/trips';
+import { useActivateTrip as getActivationOptions } from '@/entities/trip/data/useActivateTrip';
+import { useDeactivateTrip } from '@/entities/trip/data/useDeactivateTrip';
+import { refreshTripListLocal } from '@/entities/trip/lib/trip-local';
+import { TripRepository } from '@/entities/trip/repository/trip-repository';
 import apiClient from '@/shared/api/fetcher';
 import {
   getDatabase,
@@ -28,20 +25,24 @@ import {
   syncMetadata,
   runDatabaseTransaction,
 } from '@/shared/db';
+import { observeFieldEdits } from '@/shared/services/edit-stamp';
 import { downloadRoutesForSchedules } from '@/shared/services/directions/route-downloader';
 import { downloadOfflineMapInBackground } from '@/shared/services/offline-map/download';
-import { observeFieldEdits } from '@/shared/services/edit-stamp';
 import syncApi from '@/shared/services/sync/api';
-import { pullChanges } from '@/shared/services/sync/engine';
-import { getPullCursor, setPullCheckpointInTransaction } from '@/shared/services/sync/storage';
 import { preserveLegacyHold, clearLegacyHold } from '@/shared/services/sync/legacy-holds';
 import { processPendingCleanups, forceCleanupTrip, vacuumDeletedRecords } from '@/shared/services/sync/cleanup-job';
+import { pullChanges } from '@/shared/services/sync/engine';
 import { reconcileServerRecord } from '@/shared/services/sync/reconcile';
 import { applyConfirmedDeletionInTransaction } from '@/shared/services/sync/confirmed-deletion';
+import { getPullCursor, setPullCheckpointInTransaction } from '@/shared/services/sync/storage';
 import { AuthRequiredError, useAuthStore } from '@/shared/store/auth';
 import { useNetworkStore } from '@/shared/store/network';
 
 jest.mock('@/shared/services/sync/api', () => ({ __esModule: true, default: { get: jest.fn() } }));
+jest.mock('@/shared/services/sync/legacy-holds', () => ({
+  ...jest.requireActual<object>('@/shared/services/sync/legacy-holds'),
+  synchronizeLegacyHolds: async () => undefined,
+}));
 jest.mock('expo-sqlite', () => ({
   openDatabaseSync: () =>
     jest.requireActual<typeof import('../../../helpers/sqlite')>('../../../helpers/sqlite').createExpoSQLiteDatabase(),
@@ -175,6 +176,7 @@ it('낙관적 local version보다 서버에서 실제 수신한 판본끼리 비
     amount: '35',
     category: 'transport',
   });
+
   await reconcileServerRecord('expenses', { ...EXPENSE, version: 1, category: 'shopping' });
   expect(await getDatabase().select().from(expenses).get()).toMatchObject({ amount: '35', category: 'transport' });
 });
@@ -185,12 +187,14 @@ it('25 서버 원본 위의 pending35를 오래된 ACK 뒤 25로 수렴하고 �
   await enqueueTestTask('title', { title: '다음 입력', edit: { ...EDIT_STAMP, sequence: 3 } });
   await reconcileServerRecord('expenses', { ...EXPENSE, version: 4, amount: '25', category: 'transport' });
   expect(await getDatabase().select().from(expenses).get()).toMatchObject({ amount: '35', title: '다음 입력' });
+
   await reconcileServerRecord('expenses', { ...EXPENSE, version: 2, amount: '30' }, 'old');
   expect(await getDatabase().select().from(expenses).get()).toMatchObject({
     amount: '35',
     category: 'transport',
     title: '다음 입력',
   });
+
   await reconcileServerRecord('expenses', { ...EXPENSE, version: 3, amount: '35' }, 'amount');
   expect(await getDatabase().select().from(expenses).get()).toMatchObject({
     amount: '25',
@@ -223,6 +227,7 @@ it.each(['expenses', 'schedules'] as const)(
     }
   },
 );
+
 it('일반 활성화 HTTP가 늦게 끝나도 최신 값·만료일을 저장하고 경로 준비를 요청한다', async () => {
   const response = createDeferred<unknown>();
   jest.mocked(apiClient.post<unknown, unknown>).mockReturnValueOnce(response.promise);
@@ -259,12 +264,66 @@ it('계정 전체 목록도 판본·확정 삭제 증거를 따르고 기존 숨
   await reconcileServerRecord('trips', { ...TRIP, version: 4, name: '새 서버 여행' });
   await refreshTripListLocal([TRIP], session);
   expect(await getDatabase().select().from(trips).get()).toMatchObject({ name: '새 서버 여행' });
+
   await refreshTripListLocal([], session);
   await refreshTripListLocal([{ ...TRIP, version: 4, name: '새 서버 여행' }], session);
   expect(await getDatabase().select().from(trips).get()).toMatchObject({ deletedAt: null });
+
   await runDatabaseTransaction(() => applyConfirmedDeletionInTransaction('trips', TRIP.id, TRIP.id, FIXTURE_TIME));
   await refreshTripListLocal([{ ...TRIP, version: 99 }], session);
   expect(await getDatabase().select().from(trips).get()).toMatchObject({ deletedAt: FIXTURE_TIME });
+});
+
+it('기기 사본 정리는 서버 원문도 지우고 같은 서버 판본으로 재활성화할 수 있다', async () => {
+  await reconcileServerRecord('schedules', SCHEDULE);
+  await reconcileServerRecord('expenses', EXPENSE);
+  await forceCleanupTrip(TRIP.id);
+  expect((await getDatabase().select().from(serverRecords).all()).every((state) => state.record === null)).toBe(true);
+
+  jest.mocked(apiClient.post<unknown, unknown>).mockResolvedValueOnce({
+    success: true,
+    data: { trips: [TRIP], schedules: [SCHEDULE], expenses: [EXPENSE] },
+  });
+  await activateTripForTest();
+  expect(await getSchedulesLocal(TRIP.id)).toHaveLength(1);
+  expect(await getExpensesByTripIdLocal(TRIP.id)).toHaveLength(1);
+});
+
+it('비활성 여행 직접 수정 응답이 최신 목록을 되돌리지 않고 직접 삭제 증거도 늦은 목록을 막는다', async () => {
+  const response = createDeferred<unknown>();
+  jest.mocked(apiClient.put<unknown, unknown>).mockReturnValueOnce(response.promise);
+  const pending = TripRepository.update(TRIP.id, { name: '옛 수정' });
+  await refreshTripListLocal([{ ...TRIP, version: 4, name: '새 서버 여행' }], useAuthStore.getState().sessionId);
+  response.resolve({ success: true, data: { ...TRIP, version: 2, name: '옛 수정' } });
+  expect(await pending).toMatchObject({ name: '새 서버 여행' });
+
+  jest
+    .mocked(apiClient.delete<unknown, unknown>)
+    .mockResolvedValueOnce({ success: true, data: { id: TRIP.id, deletedAt: FIXTURE_TIME } });
+  await TripRepository.delete(TRIP.id);
+  await refreshTripListLocal([TRIP], useAuthStore.getState().sessionId);
+  expect(await getDatabase().select().from(trips).get()).toMatchObject({ deletedAt: FIXTURE_TIME });
+});
+
+it('조회 시작 뒤 생성·확인한 여행은 늦은 빈 목록으로 숨기지 않고 다음 실제 누락은 숨긴다', async () => {
+  const response = createDeferred<unknown>();
+  const requested = createDeferred<void>();
+  jest.mocked(apiClient.get<unknown, unknown>).mockImplementationOnce(async () => {
+    requested.resolve();
+    return await response.promise;
+  });
+  const pending = TripRepository.getAllWithSource();
+  await requested.promise;
+  await reconcileServerRecord('trips', { ...TRIP, version: 4, name: '조회 중 확인한 값' });
+  const created = { ...TRIP, id: '01ARZ3NDEKTSV4RRFFQ69G5FB0', name: '방금 생성' };
+  await getDatabase().insert(trips).values(created);
+  response.resolve({ success: true, data: [] });
+  expect((await pending).trips.map((row) => row.name)).toEqual(
+    expect.arrayContaining(['조회 중 확인한 값', '방금 생성']),
+  );
+
+  jest.mocked(apiClient.get<unknown, unknown>).mockResolvedValueOnce({ success: true, data: [] });
+  expect((await TripRepository.getAllWithSource()).trips).toEqual([]);
 });
 
 it('렌더링할 자식이 없는 확정 여행 삭제도 남은 서버 원문을 지운다', async () => {
@@ -273,6 +332,194 @@ it('렌더링할 자식이 없는 확정 여행 삭제도 남은 서버 원문�
   await runDatabaseTransaction(() => applyConfirmedDeletionInTransaction('trips', TRIP.id, TRIP.id, FIXTURE_TIME));
   expect((await getDatabase().select().from(serverRecords).all()).every((state) => state.record === null)).toBe(true);
 });
+
+it('일반 비활성화의 즉시 정리도 서버 원문을 같이 버린다', async () => {
+  await reconcileServerRecord('schedules', SCHEDULE);
+  jest.mocked(apiClient.post<unknown, unknown>).mockResolvedValueOnce({
+    success: true,
+    data: { trips: [TRIP], schedules: [SCHEDULE], expenses: [EXPENSE] },
+  });
+  await activateTripForTest();
+  const deactivate = useDeactivateTrip() as unknown as {
+    mutationFn: (input: { tripId: string; cleanupData: boolean }) => Promise<unknown>;
+  };
+  jest.mocked(apiClient.post<unknown, unknown>).mockResolvedValueOnce({ success: true });
+  await deactivate.mutationFn({ tripId: TRIP.id, cleanupData: true });
+  expect((await getDatabase().select().from(serverRecords).all()).every((state) => state.record === null)).toBe(true);
+});
+
+it('구버전의 판본 없는 여행 목록은 메타데이터 pull 판본과 삭제를 수신한다', async () => {
+  const oldTrip = { ...TRIP, version: undefined };
+  jest
+    .mocked(apiClient.get<unknown, unknown>)
+    .mockResolvedValueOnce({ success: true, data: [oldTrip] })
+    .mockResolvedValueOnce({
+      success: true,
+      data: {
+        trips: [{ ...TRIP, version: 8, name: '최근 서버 여행' }],
+        schedules: [],
+        expenses: [],
+        serverTime: FIXTURE_TIME,
+      },
+    });
+  expect((await fetchAllTrips()).data).toEqual([expect.objectContaining({ version: 8, name: '최근 서버 여행' })]);
+  expect(apiClient.get).toHaveBeenLastCalledWith('/api/sync/pull');
+
+  jest
+    .mocked(apiClient.get<unknown, unknown>)
+    .mockClear()
+    .mockResolvedValueOnce({ success: true, data: [TRIP] });
+  await fetchAllTrips();
+  expect(apiClient.get).toHaveBeenCalledTimes(1);
+});
+
+it.each(['schedules', 'expenses'] as const)(
+  '비활성 %s PUT가 먼저 시작되면 확인 뒤 활성화 snapshot을 받으며 비활성 본문을 저장하지 않는다',
+  async (tableName) => {
+    const response = createDeferred<unknown>();
+    const requested = createDeferred<void>();
+    const row = tableName === 'schedules' ? SCHEDULE : EXPENSE;
+    const repository = tableName === 'schedules' ? ScheduleRepository : ExpenseRepository;
+    jest.mocked(apiClient.put<unknown, unknown>).mockImplementationOnce(async () => {
+      requested.resolve();
+      return await response.promise;
+    });
+    const mutation = repository.update(row.id, TRIP.id, { title: '최신 입력', edit: EDIT_STAMP });
+    await requested.promise;
+    jest.mocked(apiClient.post<unknown, unknown>).mockResolvedValueOnce({
+      success: true,
+      data: {
+        trips: [TRIP],
+        schedules: [{ ...SCHEDULE, ...(tableName === 'schedules' ? { title: '최신 입력', version: 4 } : {}) }],
+        expenses: [{ ...EXPENSE, ...(tableName === 'expenses' ? { title: '최신 입력', version: 4 } : {}) }],
+      },
+    });
+    const activation = activateTripForTest();
+    expect(apiClient.post).not.toHaveBeenCalled();
+
+    response.resolve({ success: true, data: { ...row, title: '최신 입력', version: 4 } });
+    await mutation;
+    const table = tableName === 'schedules' ? schedules : expenses;
+    // 본문 수신은 활성화 응답의 transaction만 맡는다.
+    expect(await getDatabase().select().from(table).get()).toMatchObject({ title: row.title });
+
+    await activation;
+    const readRecords = tableName === 'schedules' ? getSchedulesLocal : getExpensesByTripIdLocal;
+    expect(await readRecords(TRIP.id)).toEqual([expect.objectContaining({ title: '최신 입력' })]);
+  },
+);
+
+it.each(['schedules', 'expenses'] as const)(
+  '활성화가 먼저 시작되면 대기하던 %s 수정은 Local로 다시 라우팅한다',
+  async (tableName) => {
+    const response = createDeferred<unknown>();
+    const requested = createDeferred<void>();
+    jest.mocked(apiClient.post<unknown, unknown>).mockImplementationOnce(async () => {
+      requested.resolve();
+      return await response.promise;
+    });
+    const activation = activateTripForTest();
+    await requested.promise;
+    const row = tableName === 'schedules' ? SCHEDULE : EXPENSE;
+    const repository = tableName === 'schedules' ? ScheduleRepository : ExpenseRepository;
+    const mutation = repository.update(row.id, TRIP.id, { title: '활성화 중 저장', edit: EDIT_STAMP });
+    response.resolve({ success: true, data: { trips: [TRIP], schedules: [SCHEDULE], expenses: [EXPENSE] } });
+    await activation;
+    await mutation;
+    expect(apiClient.put).not.toHaveBeenCalled();
+    const table = tableName === 'schedules' ? schedules : expenses;
+    expect(await getDatabase().select().from(table).get()).toMatchObject({ title: '활성화 중 저장' });
+    expect(await getDatabase().select().from(syncQueue).all()).toEqual([
+      expect.objectContaining({ tableName, action: 'UPDATE' }),
+    ]);
+  },
+);
+
+it.each(['schedules', 'expenses'] as const)(
+  '비활성 %s DELETE 뒤 활성화는 남은 기기 사본을 노출하지 않는다',
+  async (tableName) => {
+    const response = createDeferred<unknown>();
+    const requested = createDeferred<void>();
+    const row = tableName === 'schedules' ? SCHEDULE : EXPENSE;
+    const repository = tableName === 'schedules' ? ScheduleRepository : ExpenseRepository;
+    jest.mocked(apiClient.delete<unknown, unknown>).mockImplementationOnce(async () => {
+      requested.resolve();
+      return await response.promise;
+    });
+    const mutation = repository.delete(row.id, TRIP.id);
+    await requested.promise;
+    jest.mocked(apiClient.post<unknown, unknown>).mockResolvedValueOnce({
+      success: true,
+      data: {
+        trips: [TRIP],
+        schedules: tableName === 'schedules' ? [] : [SCHEDULE],
+        expenses: tableName === 'expenses' ? [] : [{ ...EXPENSE, scheduleId: null }],
+      },
+    });
+    const activation = activateTripForTest();
+    response.resolve({ success: true, data: { id: row.id, deletedAt: FIXTURE_TIME } });
+    await mutation;
+    await activation;
+    const readRecords = tableName === 'schedules' ? getSchedulesLocal : getExpensesByTripIdLocal;
+    expect(await readRecords(TRIP.id)).toEqual([]);
+  },
+);
+
+it('사본 정리로 최신 원문이 없으면 오래된 활성화는 빈 데이터 성공 대신 재시도를 요구한다', async () => {
+  await reconcileServerRecord('schedules', { ...SCHEDULE, version: 5, title: '정리 전 최신 값' });
+  await forceCleanupTrip(TRIP.id);
+  jest.mocked(apiClient.post<unknown, unknown>).mockResolvedValueOnce({
+    success: true,
+    data: { trips: [TRIP], schedules: [SCHEDULE], expenses: [EXPENSE] },
+  });
+  await expect(activateTripForTest()).rejects.toThrow('최신 여행 데이터를 다시 받아야');
+  expect(await getDatabase().select().from(tripActivations).all()).toEqual([]);
+  expect(downloadOfflineMapInBackground).not.toHaveBeenCalled();
+});
+
+it.each(['schedules', 'expenses'] as const)(
+  '비활성 %s CREATE가 먼저 시작되면 본문은 활성화가 입수할 때만 저장한다',
+  async (tableName) => {
+    const createResponse = createDeferred<unknown>();
+    const activationResponse = createDeferred<unknown>();
+    const createRequested = createDeferred<void>();
+    const activationRequested = createDeferred<void>();
+    const created = { ...(tableName === 'schedules' ? SCHEDULE : EXPENSE), id: '01ARZ3NDEKTSV4RRFFQ69G5FB9' };
+    jest
+      .mocked(apiClient.post<unknown, unknown>)
+      .mockImplementationOnce(async () => {
+        createRequested.resolve();
+        return await createResponse.promise;
+      })
+      .mockImplementationOnce(async () => {
+        activationRequested.resolve();
+        return await activationResponse.promise;
+      });
+    const mutation =
+      tableName === 'schedules'
+        ? ScheduleRepository.create({ ...SCHEDULE, id: created.id })
+        : ExpenseRepository.create({ ...EXPENSE, id: created.id });
+    await createRequested.promise;
+    const activation = activateTripForTest();
+    createResponse.resolve({ success: true, data: created });
+    await mutation;
+    await activationRequested.promise;
+    const table = tableName === 'schedules' ? schedules : expenses;
+    expect(await getDatabase().select().from(table).where(eq(table.id, created.id)).get()).toBeUndefined();
+
+    activationResponse.resolve({
+      success: true,
+      data: {
+        trips: [TRIP],
+        schedules: tableName === 'schedules' ? [SCHEDULE, created] : [SCHEDULE],
+        expenses: tableName === 'expenses' ? [EXPENSE, created] : [EXPENSE],
+      },
+    });
+    await activation;
+    const readRecords = tableName === 'schedules' ? getSchedulesLocal : getExpensesByTripIdLocal;
+    expect(await readRecords(TRIP.id)).toEqual(expect.arrayContaining([expect.objectContaining({ id: created.id })]));
+  },
+);
 
 const prepareActiveTripForPull = async () => {
   await getDatabase().insert(tripActivations).values({
@@ -504,142 +751,6 @@ it.each(['live', 'deleted'] as const)('활성화 반영 중 세션이 바뀌면 
   expect(await getDatabase().select().from(serverRecords).all()).toEqual([]);
   expect(downloadOfflineMapInBackground).not.toHaveBeenCalled();
   expect(downloadRoutesForSchedules).not.toHaveBeenCalled();
-});
-
-it.each(['schedules', 'expenses'] as const)(
-  '비활성 %s DELETE 뒤 활성화는 남은 기기 사본을 노출하지 않는다',
-  async (tableName) => {
-    const response = createDeferred<unknown>();
-    const requested = createDeferred<void>();
-    const row = tableName === 'schedules' ? SCHEDULE : EXPENSE;
-    const repository = tableName === 'schedules' ? ScheduleRepository : ExpenseRepository;
-    jest.mocked(apiClient.delete<unknown, unknown>).mockImplementationOnce(async () => {
-      requested.resolve();
-      return await response.promise;
-    });
-    const mutation = repository.delete(row.id, TRIP.id);
-    await requested.promise;
-    jest.mocked(apiClient.post<unknown, unknown>).mockResolvedValueOnce({
-      success: true,
-      data: {
-        trips: [TRIP],
-        schedules: tableName === 'schedules' ? [] : [SCHEDULE],
-        expenses: tableName === 'expenses' ? [] : [{ ...EXPENSE, scheduleId: null }],
-      },
-    });
-    const activation = activateTripForTest();
-    response.resolve({ success: true, data: { id: row.id, deletedAt: FIXTURE_TIME } });
-    await mutation;
-    await activation;
-    const readRecords = tableName === 'schedules' ? getSchedulesLocal : getExpensesByTripIdLocal;
-    expect(await readRecords(TRIP.id)).toEqual([]);
-  },
-);
-
-
-it('비활성 여행 직접 수정 응답이 최신 목록을 되돌리지 않고 직접 삭제 증거도 늦은 목록을 막는다', async () => {
-  const response = createDeferred<unknown>();
-  jest.mocked(apiClient.put<unknown, unknown>).mockReturnValueOnce(response.promise);
-  const pending = TripRepository.update(TRIP.id, { name: '옛 수정' });
-  await refreshTripListLocal([{ ...TRIP, version: 4, name: '새 서버 여행' }], useAuthStore.getState().sessionId);
-  response.resolve({ success: true, data: { ...TRIP, version: 2, name: '옛 수정' } });
-  expect(await pending).toMatchObject({ name: '새 서버 여행' });
-
-  jest
-    .mocked(apiClient.delete<unknown, unknown>)
-    .mockResolvedValueOnce({ success: true, data: { id: TRIP.id, deletedAt: FIXTURE_TIME } });
-  await TripRepository.delete(TRIP.id);
-  await refreshTripListLocal([TRIP], useAuthStore.getState().sessionId);
-  expect(await getDatabase().select().from(trips).get()).toMatchObject({ deletedAt: FIXTURE_TIME });
-});
-
-it('조회 시작 뒤 생성·확인한 여행은 늦은 빈 목록으로 숨기지 않고 다음 실제 누락은 숨긴다', async () => {
-  const response = createDeferred<unknown>();
-  const requested = createDeferred<void>();
-  jest.mocked(apiClient.get<unknown, unknown>).mockImplementationOnce(async () => {
-    requested.resolve();
-    return await response.promise;
-  });
-  const pending = TripRepository.getAllWithSource();
-  await requested.promise;
-  await reconcileServerRecord('trips', { ...TRIP, version: 4, name: '조회 중 확인한 값' });
-  const created = { ...TRIP, id: '01ARZ3NDEKTSV4RRFFQ69G5FB0', name: '방금 생성' };
-  await getDatabase().insert(trips).values(created);
-  response.resolve({ success: true, data: [] });
-  expect((await pending).trips.map((row) => row.name)).toEqual(
-    expect.arrayContaining(['조회 중 확인한 값', '방금 생성']),
-  );
-
-  jest.mocked(apiClient.get<unknown, unknown>).mockResolvedValueOnce({ success: true, data: [] });
-  expect((await TripRepository.getAllWithSource()).trips).toEqual([]);
-});
-
-it('구버전의 판본 없는 여행 목록은 메타데이터 pull 판본과 삭제를 수신한다', async () => {
-  const oldTrip = { ...TRIP, version: undefined };
-  jest
-    .mocked(apiClient.get<unknown, unknown>)
-    .mockResolvedValueOnce({ success: true, data: [oldTrip] })
-    .mockResolvedValueOnce({
-      success: true,
-      data: {
-        trips: [{ ...TRIP, version: 8, name: '최근 서버 여행' }],
-        schedules: [],
-        expenses: [],
-        serverTime: FIXTURE_TIME,
-      },
-    });
-  expect((await fetchAllTrips()).data).toEqual([expect.objectContaining({ version: 8, name: '최근 서버 여행' })]);
-  expect(apiClient.get).toHaveBeenLastCalledWith('/api/sync/pull');
-
-  jest
-    .mocked(apiClient.get<unknown, unknown>)
-    .mockClear()
-    .mockResolvedValueOnce({ success: true, data: [TRIP] });
-  await fetchAllTrips();
-  expect(apiClient.get).toHaveBeenCalledTimes(1);
-});
-
-
-it('기기 사본 정리는 서버 원문도 지우고 같은 서버 판본으로 재활성화할 수 있다', async () => {
-  await reconcileServerRecord('schedules', SCHEDULE);
-  await reconcileServerRecord('expenses', EXPENSE);
-  await forceCleanupTrip(TRIP.id);
-  expect((await getDatabase().select().from(serverRecords).all()).every((state) => state.record === null)).toBe(true);
-
-  jest.mocked(apiClient.post<unknown, unknown>).mockResolvedValueOnce({
-    success: true,
-    data: { trips: [TRIP], schedules: [SCHEDULE], expenses: [EXPENSE] },
-  });
-  await activateTripForTest();
-  expect(await getSchedulesLocal(TRIP.id)).toHaveLength(1);
-  expect(await getExpensesByTripIdLocal(TRIP.id)).toHaveLength(1);
-});
-
-it('일반 비활성화의 즉시 정리도 서버 원문을 같이 버린다', async () => {
-  await reconcileServerRecord('schedules', SCHEDULE);
-  jest.mocked(apiClient.post<unknown, unknown>).mockResolvedValueOnce({
-    success: true,
-    data: { trips: [TRIP], schedules: [SCHEDULE], expenses: [EXPENSE] },
-  });
-  await activateTripForTest();
-  const deactivate = useDeactivateTrip() as unknown as {
-    mutationFn: (input: { tripId: string; cleanupData: boolean }) => Promise<unknown>;
-  };
-  jest.mocked(apiClient.post<unknown, unknown>).mockResolvedValueOnce({ success: true });
-  await deactivate.mutationFn({ tripId: TRIP.id, cleanupData: true });
-  expect((await getDatabase().select().from(serverRecords).all()).every((state) => state.record === null)).toBe(true);
-});
-
-it('사본 정리로 최신 원문이 없으면 오래된 활성화는 빈 데이터 성공 대신 재시도를 요구한다', async () => {
-  await reconcileServerRecord('schedules', { ...SCHEDULE, version: 5, title: '정리 전 최신 값' });
-  await forceCleanupTrip(TRIP.id);
-  jest.mocked(apiClient.post<unknown, unknown>).mockResolvedValueOnce({
-    success: true,
-    data: { trips: [TRIP], schedules: [SCHEDULE], expenses: [EXPENSE] },
-  });
-  await expect(activateTripForTest()).rejects.toThrow('최신 여행 데이터를 다시 받아야');
-  expect(await getDatabase().select().from(tripActivations).all()).toEqual([]);
-  expect(downloadOfflineMapInBackground).not.toHaveBeenCalled();
 });
 
 it.each(['PENDING', 'FAILED', 'IN_PROGRESS'] as const)(

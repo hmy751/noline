@@ -1,13 +1,12 @@
-import { Router } from 'express';
-import type { Request, Response } from 'express';
+import { Router, type Request, type Response } from 'express';
 
 import authRouter from './auth.js';
-import tripsRouter from './trips.js';
-import schedulesRouter from './schedules.js';
 import expensesRouter from './expenses.js';
-import placesRouter from './places.js';
-import syncRouter from './sync.js';
 import legacyHoldsRouter from './legacy-holds.js';
+import placesRouter from './places.js';
+import schedulesRouter from './schedules.js';
+import syncRouter from './sync.js';
+import tripsRouter from './trips.js';
 
 const router = Router();
 

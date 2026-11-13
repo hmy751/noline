@@ -125,8 +125,9 @@ function setup(Screen: typeof ExpensesScreen, cached: Expenses | null = rows('�
     defaultOptions: { queries: { retry: false, gcTime: 0, refetchOnReconnect: false } },
   });
   clients.push(client);
-  if (cached)
+  if (cached) {
     client.setQueryData(expenseQueryKeys.byTrip('trip'), cached, { updatedAt: Date.now() - (stale ? 360000 : 0) });
+  }
   const view = render(
     <QueryClientProvider client={client}>
       <Screen />
@@ -165,6 +166,7 @@ it.each([
   const view = setup(Screen);
   connect('offline');
   expect(view.queryByText('기존 경비')).toBeNull();
+
   connect('online');
   expect(view.getByText('기존 경비')).toBeTruthy();
   expect(fetchExpenses).not.toHaveBeenCalled();
@@ -194,9 +196,11 @@ it.each([
   const view = setup(Screen, null);
   expect(view.getByText('경비를 불러오고 있어요.')).toBeTruthy();
   expect(view.queryByText(absent)).toBeNull();
+
   await act(async () => request.reject(new Error('server unavailable')));
   await waitFor(() => expect(view.getByText('경비를 불러오지 못했어요.')).toBeTruthy());
   expect(view.queryByText(absent)).toBeNull();
+
   fetchExpenses.mockResolvedValueOnce([]);
   fireEvent.press(view.getByRole('button', { name: '다시 불러오기' }));
   await waitFor(() => expect(view.getAllByText(absent)).toHaveLength(Screen === ExpensesScreen ? 3 : 1));
@@ -208,6 +212,7 @@ it('상세는 이전 여행 목록에 대상 경비가 없어도 재조회 중�
   const view = setup(ExpenseDetailScreen, [], true);
   expect(view.getByText('경비를 불러오고 있어요.')).toBeTruthy();
   expect(view.queryByText('경비를 찾을 수 없습니다.')).toBeNull();
+
   await act(async () => request.resolve(rows('늦게 확인한 경비')));
   await waitFor(() => expect(view.getByText('늦게 확인한 경비')).toBeTruthy());
 });
@@ -222,6 +227,7 @@ it.each([
   connect('online');
   await waitFor(() => expect(view.getByText('경비를 갱신하지 못했어요. 이전 내용을 표시하고 있어요.')).toBeTruthy());
   expect(view.getByText('기존 경비')).toBeTruthy();
+
   fetchExpenses.mockResolvedValueOnce(rows('재시도 경비'));
   fireEvent.press(view.getByRole('button', { name: '다시 불러오기' }));
   await waitFor(() => expect(view.getByText('재시도 경비')).toBeTruthy());
@@ -230,6 +236,7 @@ it.each([
 it('상세는 제한 중 또는 연결된 일정이 없을 때 일정 조회를 시작하지 않는다', () => {
   const view = setup(ExpenseDetailScreen, rows('기존 경비', 'schedule'));
   expect(fetchSchedules).toHaveBeenCalledTimes(1);
+
   connect('unknown');
   expect(view.queryByText('기존 경비')).toBeNull();
   expect(fetchSchedules).toHaveBeenCalledTimes(1);
@@ -246,6 +253,7 @@ it('비활성 여행이 unknown이면 캐시 없는 목록·상세는 조회하�
   expect(list.getByText('인터넷 연결을 확인하고 있어요.')).toBeTruthy();
   expect(detail.getByText('인터넷 연결을 확인하고 있어요.')).toBeTruthy();
   expect(fetchExpenses).not.toHaveBeenCalled();
+
   connect('online');
   await waitFor(() => expect(list.getByText('연결 뒤 경비')).toBeTruthy());
   await waitFor(() => expect(detail.getByText('연결 뒤 경비')).toBeTruthy());

@@ -1,7 +1,9 @@
-import { syncPullResponseSchema } from '@repo/schema/sync/sync-status';
-import apiClient from '@/shared/api/fetcher';
 import { createTripRequest, updateTripRequest } from '@repo/schema/requests/trip';
 import { tripResponse, tripListResponse, deleteTripResponse } from '@repo/schema/responses/trip';
+import { syncPullResponseSchema } from '@repo/schema/sync/sync-status';
+
+import apiClient from '@/shared/api/fetcher';
+
 import type {
   GetAllTripsResponse,
   CreateTripRequest,
@@ -11,14 +13,7 @@ import type {
   DeleteTripResponse,
 } from '../model';
 
-// ========================================
-// Trip API Functions
-// ========================================
-
-/**
- * 전체 여행을 조회합니다.
- * @returns 모든 여행 정보
- */
+/** 옛 서버의 목록에는 판본이 없어 여행 메타데이터 pull로 같은 목록의 판본을 확인한다. */
 export const fetchAllTrips = async (): Promise<GetAllTripsResponse> => {
   const response = await apiClient.get('/api/trips');
   const tripList = tripListResponse.parse(response);
@@ -32,56 +27,19 @@ export const fetchAllTrips = async (): Promise<GetAllTripsResponse> => {
   return tripList;
 };
 
-/**
- * 새로운 여행을 생성합니다.
- * @param data - 여행 생성 요청 데이터
- * @returns 생성된 여행 정보
- */
-export const fetchCreateTrip = async (data: CreateTripRequest): Promise<CreateTripResponse> => {
-  try {
-    const validatedInput = createTripRequest.parse(data);
-    const responseData = await apiClient.post('/api/trips', validatedInput);
-
-    const validated = tripResponse.parse(responseData);
-    return validated.data;
-  } catch (error) {
-    console.error('❌ error', error);
-    throw error;
-  }
+export const fetchCreateTrip = async (input: CreateTripRequest): Promise<CreateTripResponse> => {
+  const request = createTripRequest.parse(input);
+  const response = await apiClient.post('/api/trips', request);
+  return tripResponse.parse(response).data;
 };
 
-/**
- * 여행 정보를 수정합니다.
- * @param id - 여행 ID (ULID)
- * @param data - 수정할 여행 데이터
- * @returns 수정된 여행 정보
- */
-export const fetchUpdateTrip = async (id: string, data: UpdateTripRequest): Promise<UpdateTripResponse> => {
-  try {
-    const validatedInput = updateTripRequest.parse(data);
-    const responseData = await apiClient.put(`/api/trips/${id}`, validatedInput);
-
-    const validated = tripResponse.parse(responseData);
-    return validated.data;
-  } catch (error) {
-    console.error('❌ error', error);
-    throw error;
-  }
+export const fetchUpdateTrip = async (id: string, input: UpdateTripRequest): Promise<UpdateTripResponse> => {
+  const request = updateTripRequest.parse(input);
+  const response = await apiClient.put(`/api/trips/${id}`, request);
+  return tripResponse.parse(response).data;
 };
 
-/**
- * 여행을 삭제합니다.
- * @param id - 여행 ID (ULID)
- * @returns 삭제된 여행 정보 (id, deletedAt)
- */
 export const fetchDeleteTrip = async (id: string): Promise<DeleteTripResponse> => {
-  try {
-    const responseData = await apiClient.delete(`/api/trips/${id}`);
-
-    const validated = deleteTripResponse.parse(responseData);
-    return validated.data;
-  } catch (error) {
-    console.error('❌ error', error);
-    throw error;
-  }
+  const response = await apiClient.delete(`/api/trips/${id}`);
+  return deleteTripResponse.parse(response).data;
 };

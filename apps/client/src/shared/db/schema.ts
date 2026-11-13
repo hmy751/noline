@@ -201,8 +201,10 @@ export const routes = sqliteTable('routes', {
   // 교통수단: walking | cycling | driving-traffic
   profile: text('profile').notNull(), // Mapbox profile
 
-  // Mapbox Directions API 응답
+  // 계산에 사용한 숫자 좌표. 기존 row는 출처를 알 수 없어 null로 남긴다.
   coordinatesKey: text('coordinates_key'),
+
+  // Mapbox Directions API 응답
   geometry: text('geometry').notNull(), // polyline6 압축 문자열
   distance: integer('distance').notNull(), // 미터 (meters)
   duration: integer('duration').notNull(), // 초 (seconds)

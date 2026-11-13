@@ -13,7 +13,7 @@ import { APIError } from '@/shared/api/errors';
 import { DatePicker, PolicyErrorDisplay } from '@/shared/components';
 import { Field, TimeField } from '@/shared/components/Form';
 import { combineDateTimeInTimeZoneToISO } from '@/shared/lib/datetime';
-import { changedFields } from '@/shared/lib/edit-fields';
+import { buildChangedGroupPatch } from '@/shared/lib/edit-fields';
 import { useAppPolicy } from '@/shared/policy';
 import { ConfirmedUpdateError } from '@/shared/services/edit-stamp/errors';
 
@@ -91,6 +91,7 @@ const ScheduleEditForm = ({
 
   useEffect(() => {
     isMounted.current = true;
+
     return () => {
       isMounted.current = false;
     };
@@ -111,6 +112,10 @@ const ScheduleEditForm = ({
   };
 
   const handleValidSubmit = async (data: ScheduleUpdateFormData) => {
+    if (!isMounted.current) {
+      return;
+    }
+
     // 바꾸지 않은 시각은 재조합하지 않아 초·밀리초와 DST 중복 시각의 원본을 보존한다.
     const hasTimeChanged = data.date !== scheduleData.date || data.time !== scheduleData.time;
 
@@ -130,7 +135,7 @@ const ScheduleEditForm = ({
         }
       : {};
 
-    const patch = changedFields('schedules', scheduleData, { title: data.title, ...locationData });
+    const patch = buildChangedGroupPatch('schedules', scheduleData, { title: data.title, ...locationData });
 
     if (scheduledAt !== undefined) {
       patch.scheduledAt = scheduledAt;
@@ -162,23 +167,16 @@ const ScheduleEditForm = ({
   };
 
   const handleInvalidSubmit = () => {
+    if (!isMounted.current) {
+      return;
+    }
+
     Alert.alert('오류', '입력한 정보를 확인해주세요.');
   };
 
   const handleSave = async () => {
     try {
-      await handleSubmit(
-        async (data) => {
-          if (isMounted.current) {
-            await handleValidSubmit(data);
-          }
-        },
-        () => {
-          if (isMounted.current) {
-            handleInvalidSubmit();
-          }
-        },
-      )();
+      await handleSubmit(handleValidSubmit, handleInvalidSubmit)();
     } catch (error) {
       if (isMounted.current) {
         Alert.alert(

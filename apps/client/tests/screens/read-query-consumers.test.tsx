@@ -139,7 +139,7 @@ const mockPush = jest.fn();
 let mockTimeZone: string | null = 'UTC';
 let mockTripsLoaded = true;
 const mockSaveExpense = jest.fn();
-const mockSaveSchedule = jest.fn();
+const mockSaveSchedule = jest.fn<(input: unknown) => Promise<void>>();
 const mockDownloadRoutes = jest.fn();
 const date = '2026-09-21T10:00:00Z';
 const schedule = {
@@ -266,11 +266,13 @@ it('일정 상세는 비활성 여행의 캐시를 제한 중 숨기고 복귀 �
   expect(view.queryByText('기존 일정')).toBeNull();
   expect(view.queryByText('기존 경비')).toBeNull();
   expect(view.client.getQueryData(scheduleQueryKeys.detail('s'))).toEqual(schedule);
+
   connect('online');
   expect(view.getByText('기존 일정')).toBeTruthy();
   expect(view.getByText('기존 경비')).toBeTruthy();
   expect(ScheduleRepository.getById).not.toHaveBeenCalled();
 });
+
 it('일정 상세는 단건 일정과 일정별 경비만 조회한다', async () => {
   const view = setup(detail, false);
   await waitFor(() => expect(view.getByText('기존 경비')).toBeTruthy());
@@ -279,14 +281,17 @@ it('일정 상세는 단건 일정과 일정별 경비만 조회한다', async (
   expect(ScheduleRepository.getByTripId).not.toHaveBeenCalled();
   expect(ExpenseRepository.getByTripId).not.toHaveBeenCalled();
 });
+
 it('일정 상세 최초 오류를 부재와 구분하고 다시 조회한다', async () => {
   jest.mocked(ScheduleRepository.getById).mockRejectedValueOnce(new Error('server'));
   const view = setup(detail, false);
   await waitFor(() => expect(view.getByText('일정을 불러오지 못했어요.')).toBeTruthy());
   expect(view.queryByText('일정을 찾을 수 없습니다.')).toBeNull();
+
   fireEvent.press(view.getByRole('button', { name: '다시 불러오기' }));
   await waitFor(() => expect(view.getByText('기존 일정')).toBeTruthy());
 });
+
 it('일정 상세의 경비만 실패하면 일정은 유지하고 빈 경비로 표시하지 않는다', async () => {
   jest.mocked(ExpenseRepository.getByScheduleId).mockRejectedValue(new Error('server'));
   const view = setup(detail, false);
@@ -295,6 +300,7 @@ it('일정 상세의 경비만 실패하면 일정은 유지하고 빈 경비로
   expect(view.queryByText('경비 내역이 없습니다')).toBeNull();
   expect(view.queryByText('USD 0.00')).toBeNull();
 });
+
 it('홈은 비활성 요약을 숨기면서 여행 카드를 유지하고 복귀 시 캐시를 표시한다', () => {
   const view = setup(home);
   connect('offline');
@@ -302,11 +308,13 @@ it('홈은 비활성 요약을 숨기면서 여행 카드를 유지하고 복귀
   expect(view.queryByText('1개')).toBeNull();
   expect(view.queryByText('USD 12.00')).toBeNull();
   expect(view.queryByText('USD 0.00')).toBeNull();
+
   connect('online');
   expect(view.getByText('1개')).toBeTruthy();
   expect(view.getByText('USD 12.00')).toBeTruthy();
   expect(ScheduleRepository.getByTripId).not.toHaveBeenCalled();
 });
+
 it('홈의 경비 최초 실패는 0원과 구분하고 정상 일정 요약을 유지한다', async () => {
   jest.mocked(ExpenseRepository.getByTripId).mockRejectedValue(new Error('server'));
   const view = setup(home, false);
@@ -314,6 +322,7 @@ it('홈의 경비 최초 실패는 0원과 구분하고 정상 일정 요약을 
   expect(view.getByText('1개')).toBeTruthy();
   expect(view.queryByText('USD 0.00')).toBeNull();
 });
+
 it.each([
   {
     cached: 'schedule' as const,
@@ -339,12 +348,14 @@ it.each([
     expect(view.queryByText('일정 · 경비')).toBeNull();
     expect(ScheduleRepository.getByTripId).not.toHaveBeenCalled();
     expect(ExpenseRepository.getByTripId).not.toHaveBeenCalled();
+
     connect('online');
     await waitFor(() => expect(view.getByText(missing)).toBeTruthy());
     expect(view.getByText(retained)).toBeTruthy();
     expect(view.queryByText(message)).toBeNull();
   },
 );
+
 it('홈의 공동 제한에서 다시 확인은 기존 Store 작업을 공유하고 연결 복귀 뒤 캐시 숫자를 다시 표시한다', async () => {
   jest.useFakeTimers();
   jest.mocked(NetInfo.refresh).mockReset();
@@ -352,6 +363,7 @@ it('홈의 공동 제한에서 다시 확인은 기존 Store 작업을 공유하
   const view = setup(home);
   expect(view.getAllByText('인터넷 연결을 확인하고 있어요.')).toHaveLength(1);
   expect(view.queryByText('1개')).toBeNull();
+
   act(() => jest.advanceTimersByTime(10_000));
   expect(view.getAllByRole('button', { name: '다시 확인' })).toHaveLength(1);
   let resolve!: (value: Awaited<ReturnType<typeof NetInfo.refresh>>) => void;
@@ -369,6 +381,7 @@ it('홈의 공동 제한에서 다시 확인은 기존 Store 작업을 공유하
   expect(NetInfo.refresh).toHaveBeenCalledTimes(1);
   expect(view.getAllByText('인터넷 연결을 확인하고 있어요.')).toHaveLength(1);
   expect(view.queryByRole('button', { name: '다시 확인' })).toBeNull();
+
   await act(async () => {
     resolve({ isConnected: true, isInternetReachable: true } as Awaited<ReturnType<typeof NetInfo.refresh>>);
   });
@@ -377,6 +390,7 @@ it('홈의 공동 제한에서 다시 확인은 기존 Store 작업을 공유하
   expect(ScheduleRepository.getByTripId).not.toHaveBeenCalled();
   expect(ExpenseRepository.getByTripId).not.toHaveBeenCalled();
 });
+
 it.each(['offline', 'unknown'] as const)('홈은 %s에서도 활성 여행의 Local 숫자를 유지한다', async (realStatus) => {
   jest
     .mocked(useGetTripActivation)
@@ -388,6 +402,7 @@ it.each(['offline', 'unknown'] as const)('홈은 %s에서도 활성 여행의 Lo
   expect(view.getByText('USD 12.00')).toBeTruthy();
   expect(view.queryByText('일정 · 경비')).toBeNull();
 });
+
 it('홈의 갱신 실패는 기존 숫자를 유지하며 해당 항목의 재시도로 회복한다', async () => {
   const view = setup(home);
   jest.mocked(ExpenseRepository.getByTripId).mockRejectedValueOnce(new Error('server'));
@@ -397,11 +412,13 @@ it('홈의 갱신 실패는 기존 숫자를 유지하며 해당 항목의 재�
   await waitFor(() => expect(view.getByText('경비를 갱신하지 못했어요. 이전 내용을 표시하고 있어요.')).toBeTruthy());
   expect(view.getByText('1개')).toBeTruthy();
   expect(view.getByText('USD 12.00')).toBeTruthy();
+
   fireEvent.press(view.getByRole('button', { name: '다시 불러오기' }));
   await waitFor(() => expect(view.queryByText('경비를 갱신하지 못했어요. 이전 내용을 표시하고 있어요.')).toBeNull());
   expect(ExpenseRepository.getByTripId).toHaveBeenCalledTimes(2);
   expect(ScheduleRepository.getByTripId).not.toHaveBeenCalled();
 });
+
 it('기존 대표 여행이 있으면 여행 목록 재조회 실패에서도 기본 정보와 요약을 유지한다', async () => {
   const view = setup(React.cloneElement(home, { isError: true }));
   await act(async () => undefined);
@@ -410,12 +427,14 @@ it('기존 대표 여행이 있으면 여행 목록 재조회 실패에서도 �
   expect(view.getByText('USD 12.00')).toBeTruthy();
   expect(view.queryByText('여행 정보를 불러올 수 없습니다.')).toBeNull();
 });
+
 it('대표 여행이 없는 최초 여행 조회 실패는 여행 없음과 구별한다', async () => {
   const view = setup(React.cloneElement(home, { mainTripData: null, isError: true }), false);
   await act(async () => undefined);
   expect(view.getByText('여행 정보를 불러올 수 없습니다.')).toBeTruthy();
   expect(view.queryByText('아직 생성된 여행이 없습니다.')).toBeNull();
 });
+
 it.each([
   { name: '경비 생성', ui: <CreateExpense /> },
   { name: '경비 수정', ui: updateExpense() },
@@ -424,34 +443,36 @@ it.each([
   const view = setup(ui, false);
   await act(async () => undefined);
   expect(ScheduleRepository.getByTripId).not.toHaveBeenCalled();
+
   connect('online');
   await waitFor(() => expect(ScheduleRepository.getByTripId).toHaveBeenCalledTimes(1));
   expect(view.client.getQueryData(scheduleQueryKeys.list('trip'))).toEqual([schedule]);
   expect(mockSaveExpense).not.toHaveBeenCalled();
   expect(mockSaveSchedule).not.toHaveBeenCalled();
 });
+
 it('경비 생성의 조회 제한과 복귀에도 작성 값과 선택한 일정 ID를 유지한다', async () => {
   const view = setup(<CreateExpense />);
   fireEvent.changeText(view.getByDisplayValue('작성 중 경비'), '바꾼 제목');
   connect('offline');
   expect(view.getByDisplayValue('바꾼 제목')).toBeTruthy();
+
   connect('online');
   fireEvent.press(view.getByText('저장'));
   await waitFor(() => expect(mockSaveExpense).toHaveBeenCalled());
   expect(mockSaveExpense.mock.calls[0][0]).toMatchObject({ title: '바꾼 제목', scheduleId: 's' });
 });
-it.each([{ name: '경비', ui: updateExpense }])(
-  '닫힌 $name 수정 폼은 무효화돼도 조회하지 않고 열면 조회한다',
-  async ({ ui }) => {
-    const view = setup(ui(false));
-    await act(async () => {
-      await view.client.invalidateQueries({ queryKey: scheduleQueryKeys.list('trip') });
-    });
-    expect(ScheduleRepository.getByTripId).not.toHaveBeenCalled();
-    view.rerender(view.wrap(ui(true)));
-    await waitFor(() => expect(ScheduleRepository.getByTripId).toHaveBeenCalledTimes(1));
-  },
-);
+
+it('닫힌 경비 수정 폼은 무효화돼도 조회하지 않고 열면 조회한다', async () => {
+  const view = setup(updateExpense(false));
+  await act(async () => {
+    await view.client.invalidateQueries({ queryKey: scheduleQueryKeys.list('trip') });
+  });
+  expect(ScheduleRepository.getByTripId).not.toHaveBeenCalled();
+
+  view.rerender(view.wrap(updateExpense(true)));
+  await waitFor(() => expect(ScheduleRepository.getByTripId).toHaveBeenCalledTimes(1));
+});
 
 it('일정에서 경비를 추가하면 오래된 navigation 시각 대신 현재 조회한 일정 날짜를 전달한다', async () => {
   mockTimeZone = 'Asia/Tokyo';
@@ -496,14 +517,14 @@ it.each([
 });
 
 it('일정 제목만 저장하면 성공 후에도 경로 준비를 요청하지 않는다', async () => {
-  mockSaveSchedule.mockImplementationOnce(async (_input, callbacks) => {
-    (callbacks as { onSuccess?: () => void } | undefined)?.onSuccess?.();
-  });
+  mockSaveSchedule.mockResolvedValueOnce(undefined);
   const prompt = jest.spyOn(Alert, 'prompt').mockImplementation(() => undefined);
   const view = setup(updateSchedule());
   fireEvent.press(view.getByText('기존 일정'));
   const buttons = prompt.mock.calls[0][2];
-  if (!Array.isArray(buttons)) throw new Error('제목 입력 버튼이 필요합니다');
+  if (!Array.isArray(buttons)) {
+    throw new Error('제목 입력 버튼이 필요합니다');
+  }
   act(() => buttons.find((button) => button.text === '확인')?.onPress?.('바꾼 일정'));
   fireEvent.press(view.getByText('저장'));
   await waitFor(() => expect(Alert.alert).toHaveBeenCalledWith('성공', '일정이 수정되었습니다.'));

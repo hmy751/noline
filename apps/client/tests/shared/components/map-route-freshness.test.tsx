@@ -68,6 +68,7 @@ it('현재 좌표와 맞는 경로를 선택하고, 장소가 바뀌면 캐시�
     [20, 2],
   ]);
   expect(view.getByTestId('route-a-b-layer').props.style.lineDasharray).toBeUndefined();
+
   const moved = schedules.map((schedule) => (schedule.id === 'b' ? { ...schedule, longitude: 25 } : schedule));
   view.rerender(<MapboxScheduleMapView tripId='trip' schedules={moved} />);
   expect(view.getByTestId('route-a-b').props.shape.geometry.coordinates).toEqual([
@@ -107,6 +108,7 @@ it('구버전·다른 좌표·삭제된 중복 행이 앞에 있어도 현재 �
     [15, 1],
     [20, 2],
   ]);
+
   fireEvent.press(view.getByText('자전거'));
   expect(view.getByTestId('route-a-b-layer').props.style.lineDasharray).toEqual([2, 2]);
 });

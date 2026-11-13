@@ -64,7 +64,7 @@ export const ScheduleRepository = {
    * - 화면이 이미 알고 있는 tripId로 로컬 선조회 없이 라우팅
    */
   update: async (id: string, tripId: string, data: UpdateScheduleRequest): Promise<Schedule> => {
-    const preparedRequest = prepareEdit(updateScheduleRequest, data);
+    const requestPreparation = prepareEdit(updateScheduleRequest, data);
 
     return await routeChildMutation(
       tripId,
@@ -78,7 +78,7 @@ export const ScheduleRepository = {
           }
         },
       },
-      preparedRequest,
+      requestPreparation,
     );
   },
 

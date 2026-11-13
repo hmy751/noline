@@ -22,7 +22,7 @@ const withEditClock = <T>(work: () => Promise<T>): Promise<T> => {
   return result;
 };
 
-const readObservedClock = async (marks?: FieldEdits | null): Promise<EditStamp | undefined> => {
+const retainAndReadObservedClock = async (marks?: FieldEdits | null): Promise<EditStamp | undefined> => {
   // 읽기·쓰기 실패 뒤에도 이미 받은 표식을 다음 발급에서 다시 보존한다.
   for (const mark of Object.values(marks ?? {})) {
     if (isLaterClock(mark, unpersistedClock)) {
@@ -53,7 +53,7 @@ export const observeFieldEdits = (marks?: FieldEdits | null): Promise<void> => {
   }
 
   return withEditClock(async () => {
-    const clock = await readObservedClock(marks);
+    const clock = await retainAndReadObservedClock(marks);
 
     if (clock) {
       await persistClock(clock);
@@ -65,7 +65,7 @@ export const allocateEdit = (marks?: FieldEdits | null): Promise<EditStamp> => {
   const submittedAt = Date.now();
 
   return withEditClock(async () => {
-    const clock = await readObservedClock(marks);
+    const clock = await retainAndReadObservedClock(marks);
     const observedTime = clock ? Date.parse(clock.time) : 0;
     let time = Math.max(submittedAt, observedTime);
     let sequence = clock && time === observedTime ? clock.sequence + 1 : 0;

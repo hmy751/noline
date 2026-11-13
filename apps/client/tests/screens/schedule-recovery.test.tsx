@@ -231,10 +231,11 @@ function setup(additionalTripId?: string, cachedSchedules: Schedules | null = ro
   });
   clients.push(client);
   mockClient = client;
-  if (cachedSchedules)
+  if (cachedSchedules) {
     client.setQueryData(scheduleQueryKeys.list('trip'), cachedSchedules, {
       updatedAt: Date.now() - (stale ? 6 * 60 * 1000 : 0),
     });
+  }
   const view = render(
     <QueryClientProvider client={client}>
       <ScheduleScreen />
@@ -253,6 +254,33 @@ function AdditionalScheduleObserver({ tripId }: { tripId: string }) {
 function connect(realStatus: 'online' | 'offline' | 'unknown') {
   act(() => useNetworkStore.setState({ realStatus, checkStatus: realStatus === 'unknown' ? 'checking' : 'idle' }));
 }
+
+beforeEach(() => {
+  mockTrips = ['trip', 'other'].map((id) => ({
+    id,
+    startDate: '2026-09-21T00:00:00Z',
+    endDate: '2026-09-23T00:00:00Z',
+    baseCurrency: 'USD',
+    timeZone: 'UTC',
+  }));
+  fetchSchedules.mockReset();
+  mockSaveSchedule.mockImplementation(async ({ data }) => ({
+    scheduledAt: data.scheduledAt ?? '2026-09-21T10:00:00Z',
+  }));
+  useNetworkStore.setState({ realStatus: 'online', overrideStatus: null, checkStatus: 'idle' });
+  useAuthStore.setState({ status: 'signed-in', userId: 'a', sessionId: Symbol('session') });
+  useTripStore.setState({ selectedTripId: 'trip' });
+  jest.mocked(useGetTripActivation).mockReturnValue({ data: null } as ReturnType<typeof useGetTripActivation>);
+});
+
+afterEach(async () => {
+  cleanup();
+  for (const client of clients.splice(0)) {
+    await client.cancelQueries();
+    client.clear();
+  }
+  jest.restoreAllMocks();
+});
 
 it('수정 폼은 열기·닫기·무효화로 경로용 전체 일정 조회를 시작하지 않는다', async () => {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
@@ -296,7 +324,9 @@ it('화면에서 수정 중인 제목과 날짜는 연결 제한·복귀와 조�
   fireEvent.press(view.getByText('수정'));
   fireEvent.press(view.getAllByText('이전 일정')[1]);
   const buttons = prompt.mock.calls[0][2];
-  if (!Array.isArray(buttons)) throw new Error('제목 변경 확인 버튼이 없습니다');
+  if (!Array.isArray(buttons)) {
+    throw new Error('제목 변경 확인 버튼이 없습니다');
+  }
   act(() => buttons.find((button) => button.text === '확인')?.onPress?.('작성 중 제목'));
   fireEvent.press(view.getAllByText('2026-09-21')[1]);
   fireEvent.press(view.getByText('작성 날짜 선택'));
@@ -304,6 +334,7 @@ it('화면에서 수정 중인 제목과 날짜는 연결 제한·복귀와 조�
   connect('offline');
   expect(view.queryByText('저장')).toBeNull();
   expect(view.queryByText('작성 중 제목')).toBeNull();
+
   connect('online');
   expect(view.getByText('작성 중 제목')).toBeTruthy();
 
@@ -313,6 +344,7 @@ it('화면에서 수정 중인 제목과 날짜는 연결 제한·복귀와 조�
   });
   await waitFor(() => expect(view.getByText('일정을 갱신하지 못했어요. 이전 내용을 표시하고 있어요.')).toBeTruthy());
   expect(view.getByText('작성 중 제목')).toBeTruthy();
+
   fetchSchedules.mockResolvedValueOnce(rows('서버에서 갱신된 제목'));
   await act(async () => {
     fireEvent.press(view.getByRole('button', { name: '다시 불러오기' }));
@@ -329,37 +361,11 @@ it('화면에서 수정 중인 제목과 날짜는 연결 제한·복귀와 조�
   expect([savedDate.getUTCFullYear(), savedDate.getUTCMonth() + 1, savedDate.getUTCDate()]).toEqual([2026, 9, 22]);
 });
 
-beforeEach(() => {
-  mockTrips = ['trip', 'other'].map((id) => ({
-    id,
-    startDate: '2026-09-21T00:00:00Z',
-    endDate: '2026-09-23T00:00:00Z',
-    baseCurrency: 'USD',
-    timeZone: 'UTC',
-  }));
-  fetchSchedules.mockReset();
-  mockSaveSchedule.mockImplementation(async ({ data }) => ({
-    scheduledAt: data.scheduledAt ?? '2026-09-21T10:00:00Z',
-  }));
-  useNetworkStore.setState({ realStatus: 'online', overrideStatus: null, checkStatus: 'idle' });
-  useAuthStore.setState({ status: 'signed-in', userId: 'a', sessionId: Symbol('session') });
-  useTripStore.setState({ selectedTripId: 'trip' });
-  jest.mocked(useGetTripActivation).mockReturnValue({ data: null } as ReturnType<typeof useGetTripActivation>);
-});
-
-afterEach(async () => {
-  cleanup();
-  for (const client of clients.splice(0)) {
-    await client.cancelQueries();
-    client.clear();
-  }
-  jest.restoreAllMocks();
-});
-
 it('online 복귀 시 유효한 기존 데이터를 바로 표시하고 추가 조회를 강제하지 않는다', () => {
   const view = setup();
   connect('offline');
   expect(view.queryByText('이전 일정')).toBeNull();
+
   connect('online');
   expect(view.getByText('이전 일정')).toBeTruthy();
   expect(fetchSchedules).not.toHaveBeenCalled();
@@ -389,11 +395,13 @@ it('재조회 실패에도 내용을 유지하고 안내의 버튼으로 재시�
   connect('online');
   await waitFor(() => expect(view.getByText('일정을 갱신하지 못했어요. 이전 내용을 표시하고 있어요.')).toBeTruthy());
   expect(view.getByText('이전 일정')).toBeTruthy();
+
   const retry = deferred();
   fetchSchedules.mockReturnValueOnce(retry.promise);
   fireEvent.press(view.getByRole('button', { name: '다시 불러오기' }));
   await waitFor(() => expect(view.queryByRole('button', { name: '다시 불러오기' })).toBeNull());
   expect(view.getByText('이전 일정')).toBeTruthy();
+
   await act(async () => retry.resolve(rows('재시도 일정')));
   await waitFor(() => expect(view.getByText('재시도 일정')).toBeTruthy());
 });
@@ -415,8 +423,10 @@ it('조회 중 재단절되면 내용을 가리고 복귀 후 완료된 Query �
   const view = setup(undefined, null);
   connect('unknown');
   expect(view.getByText('인터넷 연결을 확인하고 있어요.')).toBeTruthy();
+
   await act(async () => request.resolve(rows('조회한 일정')));
   expect(view.queryByText('조회한 일정')).toBeNull();
+
   connect('online');
   expect(view.getByText('조회한 일정')).toBeTruthy();
   expect(fetchSchedules).toHaveBeenCalledTimes(1);
@@ -442,8 +452,10 @@ it('활성 여행은 offline과 unknown에서도 내용을 유지하며 복귀�
   const view = setup();
   connect('offline');
   expect(view.getByText('이전 일정')).toBeTruthy();
+
   connect('unknown');
   expect(view.getByText('이전 일정')).toBeTruthy();
+
   connect('online');
   expect(fetchSchedules).not.toHaveBeenCalled();
 });
@@ -483,6 +495,7 @@ it('online 강제 표시가 유지돼도 실제 연결이 복구되면 오래된
   fetchSchedules.mockReturnValueOnce(request.promise);
   const view = setup(undefined, rows('이전 일정'), true);
   expect(fetchSchedules).not.toHaveBeenCalled();
+
   connect('online');
   expect(view.getByText('이전 일정')).toBeTruthy();
   await waitFor(() => expect(fetchSchedules).toHaveBeenCalled());
@@ -514,8 +527,10 @@ it('인증 제한은 늦은 응답으로 풀리지 않고 재인증 뒤 기존 �
   // HTTP 계층의 세션 차단은 별도 interceptor 테스트에서 검증한다.
   await act(async () => request.reject(new Error('expired session')));
   expect(view.getByText('다시 로그인한 뒤 사용할 수 있습니다')).toBeTruthy();
+
   act(() => view.client.setQueryData(scheduleQueryKeys.list('trip'), rows('같은 계정의 일정')));
   expect(view.queryByText('같은 계정의 일정')).toBeNull();
+
   act(() => useAuthStore.setState({ status: 'signed-in', sessionId: Symbol('new-session') }));
   expect(view.getByText('같은 계정의 일정')).toBeTruthy();
 });
@@ -566,9 +581,11 @@ it('첫 조회 실패를 빈 일정으로 표시하지 않고 재시도 성공 �
   const view = setup(undefined, null);
   expect(view.getByText('일정을 불러오고 있어요.')).toBeTruthy();
   expect(view.queryAllByText('이 날의 일정을 추가해보세요')).toHaveLength(0);
+
   await act(async () => request.reject(new Error('server unavailable')));
   await waitFor(() => expect(view.getByText('일정을 불러오지 못했어요.')).toBeTruthy());
   expect(view.queryAllByText('이 날의 일정을 추가해보세요')).toHaveLength(0);
+
   fetchSchedules.mockResolvedValueOnce([]);
   fireEvent.press(view.getByRole('button', { name: '다시 불러오기' }));
   await waitFor(() => expect(view.getAllByText('이 날의 일정을 추가해보세요')).toHaveLength(3));
@@ -583,13 +600,16 @@ it('지도에서 고른 날짜·일정은 단절과 복구 실패 후 재시도 
   fireEvent.press(view.getByRole('button', { name: '2026-09-23' }));
   fireEvent.press(view.getByRole('button', { name: '지도 일정 C' }));
   expect(view.getByRole('button', { name: '지도 일정 C' }).props.accessibilityState.selected).toBe(true);
+
   connect('offline');
   expect(view.queryByText('일정 지도')).toBeNull();
+
   await act(async () => {
     await view.client.invalidateQueries({ queryKey: scheduleQueryKeys.list('trip') });
   });
   connect('online');
   expect(view.getByText('일정 지도')).toBeTruthy();
+
   await act(async () => request.reject(new Error('server unavailable')));
   await waitFor(() => expect(view.getByText('일정을 갱신하지 못했어요. 이전 내용을 표시하고 있어요.')).toBeTruthy());
   fetchSchedules.mockResolvedValueOnce(mapRows());
@@ -607,6 +627,7 @@ it('목록과 지도를 오가거나 새 조회로 일정 배열이 바뀌어도
   fireEvent.press(view.getByRole('button', { name: '목록 보기로 전환' }));
   fireEvent.press(view.getByRole('button', { name: '지도 보기로 전환' }));
   expect(view.getByRole('button', { name: '지도 일정 C' }).props.accessibilityState.selected).toBe(true);
+
   fetchSchedules.mockResolvedValue(mapRows().map((row) => ({ ...row, title: `${row.title} 갱신` })));
   await act(async () => {
     await view.client.refetchQueries({ queryKey: scheduleQueryKeys.list('trip') });
@@ -659,6 +680,7 @@ it('여행을 바꾸면 이전 여행의 지도 선택을 초기화한다', asyn
     expect(view.getByRole('button', { name: '2026-09-21' }).props.accessibilityState.selected).toBe(true),
   );
   expect(view.getByRole('button', { name: '지도 첫날 일정' }).props.accessibilityState.selected).toBe(true);
+
   act(() => useTripStore.setState({ selectedTripId: 'trip' }));
   expect(view.getByRole('button', { name: '2026-09-21' }).props.accessibilityState.selected).toBe(true);
 });

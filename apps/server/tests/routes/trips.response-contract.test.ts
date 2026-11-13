@@ -33,13 +33,14 @@ beforeEach(() => {
 
 describe('Trip API 직렬화 계약', () => {
   it('Trip 목록의 다섯 시간 값을 ISO 문자열로 반환한다', async () => {
-    const { deletedAt: _deletedAt, version: _version, ...tripListRow } = tripRow;
-    const { deletedAt: _serializedDeletedAt, version: _serializedVersion, ...serializedTripListRow } = serializedTrip;
-    setSelectResults([tripListRow]);
+    setSelectResults([{ ...tripRow, version: 7 }]);
 
     const response = await request(app).get('/api/trips').expect(200);
 
-    expect(response.body).toEqual({ success: true, data: [serializedTripListRow] });
+    expect(response.body).toEqual({ success: true, data: [{ ...serializedTrip, version: 7 }] });
+    expect(dbSelectMock).toHaveBeenCalledWith(
+      expect.objectContaining({ version: expect.anything(), deletedAt: expect.anything() }),
+    );
     expect(dbSelectMock).toHaveBeenCalledOnce();
   });
 

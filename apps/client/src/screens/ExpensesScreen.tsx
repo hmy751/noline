@@ -1,23 +1,24 @@
+import { useMemo, useState, useCallback } from 'react';
+import { View, Text, ScrollView, Alert, RefreshControl } from 'react-native';
+import { useRouter } from 'expo-router';
+
+import { Pressable } from '@repo/ui';
+
+import { useDeleteExpense, type Expense } from '@/entities/expense';
+import { TripSelector, useGetTrips } from '@/entities/trip';
+import { ExpenseMenu } from '@/features/expense/expense-menu';
+import { useTripExpensesReadQuery } from '@/features/expense/read-expenses';
+import { UpdateExpenseDrawer } from '@/features/expense/update-expense';
 import { LegacyUpdateRecovery } from '@/features/sync-recovery/LegacyUpdateRecovery';
 import { TripTimeZoneNotice } from '@/features/trip/TripTimeZoneNotice';
 import { EditTripDrawer } from '@/features/trip/update-trip';
-import { getTimeZoneDateRange } from '@/shared/lib/datetime';
-import { PolicyErrorDisplay } from '@/shared/components/ErrorBoundary';
-import { View, Text, ScrollView, Alert, RefreshControl } from 'react-native';
 import { Container, Stack, ExpenseCard, MobileHeader } from '@/shared/components';
-import { TripSelector } from '@/entities/trip';
-import { useDeleteExpense } from '@/entities/expense';
-import { useGetTrips } from '@/entities/trip';
-import { Pressable } from '@repo/ui';
-import { useRouter } from 'expo-router';
-import { useTripStore } from '@/shared/store';
-import { useMemo, useState, useCallback } from 'react';
-import { ExpenseMenu } from '@/features/expense/expense-menu';
-import { UpdateExpenseDrawer } from '@/features/expense/update-expense';
+import { PolicyErrorDisplay } from '@/shared/components/ErrorBoundary';
 import { groupExpensesByCurrency, formatCurrencyDisplay, getCurrencyFractionDigits } from '@/shared/lib/currency';
-import type { Expense } from '@/entities/expense';
+import { getTimeZoneDateRange } from '@/shared/lib/datetime';
 import { useAppPolicy } from '@/shared/policy';
-import { useTripExpensesReadQuery } from '@/features/expense/read-expenses';
+import { useTripStore } from '@/shared/store';
+
 import { ExpenseQueryFeedback, ExpenseRefreshError } from './ExpenseQueryFeedback';
 
 const NO_EXPENSES: Expense[] = [];
@@ -51,8 +52,12 @@ export default function ExpensesScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = useCallback(async () => {
-    if (!access.canFetch) return;
+    if (!access.canFetch) {
+      return;
+    }
+
     setRefreshing(true);
+
     try {
       await refetch();
     } finally {
@@ -119,6 +124,7 @@ export default function ExpensesScreen() {
       Alert.alert('경비를 수정할 수 없습니다', policy.expense.update.reason);
       return;
     }
+
     setIsUpdateDrawerOpen(true);
   };
 
@@ -126,6 +132,7 @@ export default function ExpensesScreen() {
     if (!selectedExpense) {
       return;
     }
+
     if (!policy.expense.delete.allowed) {
       Alert.alert('경비를 삭제할 수 없습니다', policy.expense.delete.reason);
       return;

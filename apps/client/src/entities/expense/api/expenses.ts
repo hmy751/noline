@@ -17,6 +17,7 @@ export const fetchExpensesByTripId = async (tripId: string): Promise<Expense[]> 
 
   return expenses;
 };
+
 export const fetchExpensesByScheduleId = async (scheduleId: string): Promise<Expense[]> => {
   const response = await apiClient.get(`/api/expenses?scheduleId=${scheduleId}`);
   const expenses = expenseListResponse.parse(response).data;

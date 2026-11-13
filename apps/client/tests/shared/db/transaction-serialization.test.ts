@@ -7,55 +7,12 @@ import { addToSyncQueue } from '@/shared/services/sync/queue';
 import { reconcileServerRecord } from '@/shared/services/sync/reconcile';
 import { useAuthStore } from '@/shared/store/auth';
 
-interface TestDatabase {
-  exec: (sql: string) => void;
-  prepare: (sql: string) => TestStatement;
-}
-
-interface TestStatement {
-  setReturnArrays?: (enabled: boolean) => void;
-  columns: () => Array<{ name: string }>;
-  all: (...params: unknown[]) => unknown[];
-  run: (...params: unknown[]) => { changes: number; lastInsertRowId: number };
-}
-
-function mockReadRows(statement: TestStatement, params: unknown[]): unknown[][] {
-  const columns = statement.columns();
-  if (statement.setReturnArrays) {
-    statement.setReturnArrays(true);
-    return statement.all(...params) as unknown[][];
-  }
-
-  return (statement.all(...params) as Array<Record<string, unknown>>).map((row) =>
-    columns.map(({ name }) => row[name]),
-  );
-}
-
 jest.mock('@/shared/services/id/ulid', () => ({ generateId: () => 'queue-id' }));
 jest.mock('expo-sqlite', () => ({
   openDatabaseSync: () => {
-    const { DatabaseSync } = jest.requireActual<{ DatabaseSync: new (name: string) => TestDatabase }>('node:sqlite');
-    const sqlite = new DatabaseSync(':memory:');
-
-    return {
-      execSync: (statement: string) => sqlite.exec(statement),
-      getAllSync: (query: string) => sqlite.prepare(query).all(),
-      prepareSync: (query: string) => ({
-        executeForRawResultSync: (params: unknown[]) => {
-          const statement = sqlite.prepare(query);
-          const rows = mockReadRows(statement, params);
-          return { getAllSync: () => rows };
-        },
-        executeSync: (params: unknown[]) => {
-          const statement = sqlite.prepare(query);
-          if (statement.columns().length) {
-            const rows = mockReadRows(statement, params);
-            return { getAllSync: () => rows, getFirstSync: () => rows[0] ?? null };
-          }
-          return statement.run(...params);
-        },
-      }),
-    };
+    const { createExpoSQLiteDatabase } =
+      jest.requireActual<typeof import('../../helpers/sqlite')>('../../helpers/sqlite');
+    return createExpoSQLiteDatabase();
   },
 }));
 
@@ -113,6 +70,7 @@ it('실패한 local transaction의 rollback이 동시에 시작한 sync upsert�
   releaseTransaction();
 
   await expect(failedTransaction).rejects.toThrow('local write failed');
+
   await reconciliation;
   const ids = (await getDatabase().select().from(schedules).all()).map(({ id }) => id);
   expect(ids).toContain('independent');

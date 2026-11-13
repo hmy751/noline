@@ -1,12 +1,20 @@
 import { and, eq, isNotNull, lt, ne, notExists, sql } from 'drizzle-orm';
 
-import { expenses, getDatabase, schedules, syncQueue, tripActivations, legacySyncHolds, serverRecords } from '@/shared/db';
+import {
+  expenses,
+  getDatabase,
+  schedules,
+  syncQueue,
+  tripActivations,
+  legacySyncHolds,
+  serverRecords,
+} from '@/shared/db';
 import { getCurrentISOString, withTransaction } from '@/shared/db/utils';
 import { SOFT_DELETE_VACUUM_DAYS } from '@/shared/lib/lifecycle';
 import { queryClient } from '@/shared/lib/queryClient';
 import { generateId } from '@/shared/services/id/ulid';
-import { requireLocalUserId } from '@/shared/store/auth';
 import { cleanupOfflineMapForTrip } from '@/shared/services/offline-map';
+import { requireLocalUserId } from '@/shared/store/auth';
 
 import { hasUnresolvedTripChanges, hasUnresolvedTripChangesInTransaction } from './queue';
 import { releaseServerRecordBodiesInTransaction } from './server-state';
@@ -14,18 +22,22 @@ import { releaseServerRecordBodiesInTransaction } from './server-state';
 let activeCleanup: Promise<number> | null = null;
 let pauseCount = 0;
 
-/** 앱 시작·sync가 요청한 정리를 공유하며 캐시 후처리도 한 번만 수행한다. */
+/**
+ * 앱 시작·sync가 요청한 정리를 공유하며 캐시 후처리도 한 번만 수행한다.
+ * 예외 없이 검사를 마친 여행 수를 반환하며, 미전송 입력 보호로 정리를 유예한 여행도 포함한다.
+ */
 export function processPendingCleanups(): Promise<number> {
   if (pauseCount > 0) {
     return Promise.resolve(0);
   }
+
   if (activeCleanup) {
     return activeCleanup;
   }
 
   activeCleanup = runPendingCleanups()
-    .then((processedCount) => {
-      if (processedCount > 0) {
+    .then((handledTripCount) => {
+      if (handledTripCount > 0) {
         // 캐시 재조회 완료는 정리 완료와 별개이며 실패해도 정리 결과를 바꾸지 않는다.
         void Promise.all([
           queryClient.invalidateQueries({ queryKey: ['trip'] }),
@@ -34,7 +46,7 @@ export function processPendingCleanups(): Promise<number> {
         ]).catch((error) => console.error('[Cleanup] cache refresh failed', error));
       }
 
-      return processedCount;
+      return handledTripCount;
     })
     .finally(() => {
       activeCleanup = null;
@@ -57,7 +69,6 @@ export async function withPendingCleanupsPaused<T>(operation: () => Promise<T>):
 /** 미완료 정리를 순회한다. 미동기화 보호·soft delete·지도 정리는 여행별 실행에서 처리한다. */
 async function runPendingCleanups(): Promise<number> {
   try {
-    // cleanupPending = true인 여행 조회
     const pendingCleanups = await getDatabase()
       .select()
       .from(tripActivations)
@@ -65,39 +76,30 @@ async function runPendingCleanups(): Promise<number> {
       .all();
 
     if (pendingCleanups.length === 0) {
-      console.log('[Cleanup] No pending cleanups');
       return 0;
     }
 
-    console.log(`[Cleanup] Processing ${pendingCleanups.length} pending cleanups...`);
-
-    let processedCount = 0;
+    let handledTripCount = 0;
 
     for (const activation of pendingCleanups) {
       try {
         await processCleanupForTrip(activation.tripId);
-        processedCount++;
+        handledTripCount++;
       } catch (error) {
         console.error(`[Cleanup] Failed to process cleanup for trip ${activation.tripId}:`, error);
         // 개별 여행 cleanup 실패해도 다음 여행 계속 처리
       }
     }
 
-    console.log(`[Cleanup] Processed ${processedCount}/${pendingCleanups.length} cleanups`);
-
     // Cleanup 완료 후 Vacuum 실행 (7일 이상 지난 Soft delete 레코드 Hard delete)
     try {
-      const vacuumResult = await vacuumDeletedRecords();
-      const totalVacuumed = vacuumResult.schedules + vacuumResult.expenses;
-      if (totalVacuumed > 0) {
-        console.log(`[Cleanup] Vacuumed ${totalVacuumed} old deleted records`);
-      }
+      await vacuumDeletedRecords();
     } catch (error) {
       console.error('[Cleanup] Failed to vacuum deleted records (ignored):', error);
       // Vacuum 실패해도 cleanup은 성공으로 처리
     }
 
-    return processedCount;
+    return handledTripCount;
   } catch (error) {
     console.error('[Cleanup] Failed to process pending cleanups:', error);
     throw error;
@@ -124,33 +126,17 @@ export const clearTripCopiesInTransaction = async (tripId: string, now: string):
     .where(and(eq(tripActivations.tripId, tripId), eq(tripActivations.userId, userId)));
 };
 
-/**
- * 특정 여행의 cleanup 처리
- *
- * @param tripId - 여행 ID
- */
-async function processCleanupForTrip(tripId: string): Promise<void> {
-  const now = getCurrentISOString();
-
-  // 미전송 작업·보류 입력을 보호한다.
-  const hasPending = await hasUnresolvedTripChanges(tripId);
-
-  if (hasPending) {
-    console.log(`[Cleanup] Trip ${tripId} still has pending sync tasks - skipping cleanup`);
+const processCleanupForTrip = async (tripId: string): Promise<void> => {
+  if (await hasUnresolvedTripChanges(tripId)) {
     return;
   }
-
-  // 모든 작업이 동기화 완료됨 → Soft delete 실행
-  console.log(`[Cleanup] All sync tasks completed for trip ${tripId} - executing cleanup`);
 
   const cleaned = await withTransaction(async () => {
     if (await hasUnresolvedTripChangesInTransaction(tripId)) {
       return false;
     }
 
-    await clearTripCopiesInTransaction(tripId, now);
-
-    console.log(`[Cleanup] Local data soft-deleted for trip: ${tripId}`);
+    await clearTripCopiesInTransaction(tripId, getCurrentISOString());
     return true;
   });
 
@@ -158,15 +144,13 @@ async function processCleanupForTrip(tripId: string): Promise<void> {
     return;
   }
 
-  // 오프라인 지도 삭제 (트랜잭션 외부)
   try {
     await cleanupOfflineMapForTrip(tripId);
-    console.log(`[Cleanup] Offline map cleaned up for trip: ${tripId}`);
   } catch (error) {
     console.error(`[Cleanup] Failed to cleanup offline map for trip ${tripId} (ignored):`, error);
     // 지도 정리 실패해도 cleanup은 성공으로 처리
   }
-}
+};
 
 /**
  * 특정 여행에 대한 cleanup 강제 실행
@@ -176,14 +160,12 @@ async function processCleanupForTrip(tripId: string): Promise<void> {
  *
  * @param tripId - 여행 ID
  */
-export async function forceCleanupTrip(tripId: string): Promise<void> {
+export const forceCleanupTrip = async (tripId: string): Promise<void> => {
   const now = getCurrentISOString();
 
   console.warn(`[Cleanup] Force cleanup for trip: ${tripId} (sync_queue ignored)`);
 
-  await withTransaction(async () => {
-    await clearTripCopiesInTransaction(tripId, now);
-  });
+  await withTransaction(() => clearTripCopiesInTransaction(tripId, now));
 
   // 오프라인 지도 삭제
   try {
@@ -191,112 +173,83 @@ export async function forceCleanupTrip(tripId: string): Promise<void> {
   } catch (error) {
     console.error(`[Cleanup] Failed to cleanup offline map (ignored):`, error);
   }
+};
 
-  console.log(`[Cleanup] Force cleanup completed for trip: ${tripId}`);
-}
-
-/**
- * Vacuum: Soft delete된 레코드를 완전히 삭제 (Hard delete)
- *
- * deletedAt이 설정된 지 SOFT_DELETE_VACUUM_DAYS 지난 레코드를
- * 데이터베이스에서 완전히 제거하여 저장 공간 회수
- *
- * 실행 시점:
- * - processPendingCleanups() 완료 후 자동 실행
- * - 앱 시작 시 1회 실행
- *
- * @returns 삭제된 레코드 수
- */
+/** 유예 기간이 끝난 기기 사본 중 큐·보류 입력에서 참조하지 않는 원본을 지우고 표별 삭제 수를 반환한다. */
 export const vacuumDeletedRecords = async (): Promise<{ schedules: number; expenses: number }> => {
-  try {
-    const thresholdDate = new Date();
-    thresholdDate.setDate(thresholdDate.getDate() - SOFT_DELETE_VACUUM_DAYS);
-    const thresholdISO = thresholdDate.toISOString();
+  const thresholdDate = new Date();
+  thresholdDate.setDate(thresholdDate.getDate() - SOFT_DELETE_VACUUM_DAYS);
+  const thresholdISO = thresholdDate.toISOString();
 
-    console.log(`[Cleanup] Starting vacuum for records deleted before ${thresholdISO}`);
+  let schedulesDeleted = 0;
+  let expensesDeleted = 0;
 
-    let schedulesDeleted = 0;
-    let expensesDeleted = 0;
-
-    await withTransaction(async () => {
-      // 재전송할 큐의 원본을 보존한다. 영속 격리된 입력은 큐 자체에 남는다.
-      for (const [tableName, table] of [
-        ['schedules', schedules],
-        ['expenses', expenses],
-      ] as const) {
-        const canDelete = and(
-          isNotNull(table.deletedAt),
-          lt(table.deletedAt, thresholdISO),
-          notExists(
-            getDatabase()
-              .select({ id: legacySyncHolds.id })
-              .from(legacySyncHolds)
-              .where(
-                and(
-                  eq(legacySyncHolds.tableName, tableName),
-                  eq(legacySyncHolds.recordId, table.id),
-                  eq(legacySyncHolds.userId, table.userId),
-                ),
+  await withTransaction(async () => {
+    // 재전송할 큐의 원본을 보존한다. 영속 격리된 입력은 큐 자체에 남는다.
+    for (const [tableName, table] of [
+      ['schedules', schedules],
+      ['expenses', expenses],
+    ] as const) {
+      const canDelete = and(
+        isNotNull(table.deletedAt),
+        lt(table.deletedAt, thresholdISO),
+        notExists(
+          getDatabase()
+            .select({ id: legacySyncHolds.id })
+            .from(legacySyncHolds)
+            .where(
+              and(
+                eq(legacySyncHolds.tableName, tableName),
+                eq(legacySyncHolds.recordId, table.id),
+                eq(legacySyncHolds.userId, table.userId),
               ),
-          ),
-          notExists(
-            getDatabase()
-              .select({ id: syncQueue.id })
-              .from(syncQueue)
-              .where(
-                and(
-                  eq(syncQueue.tableName, tableName),
-                  eq(syncQueue.recordId, table.id),
-                  ne(syncQueue.status, 'QUARANTINED'),
-                ),
+            ),
+        ),
+        notExists(
+          getDatabase()
+            .select({ id: syncQueue.id })
+            .from(syncQueue)
+            .where(
+              and(
+                eq(syncQueue.tableName, tableName),
+                eq(syncQueue.recordId, table.id),
+                ne(syncQueue.status, 'QUARANTINED'),
               ),
-          ),
-        );
-        const records = await getDatabase()
-          .select({ id: table.id, userId: table.userId, tripId: table.tripId })
-          .from(table)
-          .where(canDelete)
-          .all();
-
-        if (records.length > 0) {
-          for (const record of records) {
-            await getDatabase()
-              .update(serverRecords)
-              .set({ record: null })
-              .where(
-                and(
-                  eq(serverRecords.tableName, tableName),
-                  eq(serverRecords.recordId, record.id),
-                  eq(serverRecords.userId, record.userId),
-                  eq(serverRecords.tripId, record.tripId),
-                ),
-              );
-          }
-
-          await getDatabase().delete(table).where(canDelete);
-        }
-
-        if (tableName === 'schedules') {
-          schedulesDeleted = records.length;
-        } else {
-          expensesDeleted = records.length;
-        }
-      }
-    });
-
-    const totalDeleted = schedulesDeleted + expensesDeleted;
-
-    if (totalDeleted > 0) {
-      console.log(
-        `[Cleanup] Completed: ${schedulesDeleted} schedules, ${expensesDeleted} expenses (total: ${totalDeleted})`,
+            ),
+        ),
       );
-    } else {
-      console.log('[Cleanup] No records to vacuum');
-    }
 
-    return { schedules: schedulesDeleted, expenses: expensesDeleted };
-  } catch (error) {
-    console.error('[Cleanup] Failed to vacuum deleted records:', error);
-    throw error;
-  }
+      const records = await getDatabase()
+        .select({ id: table.id, userId: table.userId, tripId: table.tripId })
+        .from(table)
+        .where(canDelete)
+        .all();
+
+      if (records.length > 0) {
+        for (const record of records) {
+          await getDatabase()
+            .update(serverRecords)
+            .set({ record: null })
+            .where(
+              and(
+                eq(serverRecords.tableName, tableName),
+                eq(serverRecords.recordId, record.id),
+                eq(serverRecords.userId, record.userId),
+                eq(serverRecords.tripId, record.tripId),
+              ),
+            );
+        }
+
+        await getDatabase().delete(table).where(canDelete);
+      }
+
+      if (tableName === 'schedules') {
+        schedulesDeleted = records.length;
+      } else {
+        expensesDeleted = records.length;
+      }
+    }
+  });
+
+  return { schedules: schedulesDeleted, expenses: expensesDeleted };
 };

@@ -1,6 +1,5 @@
-// Trip Repository - 활성화 상태에 따른 Local/Remote 분기
-
 import { createTripRequest, updateTripRequest } from '@repo/schema/requests/trip';
+
 import {
   routeTripQuery,
   routeTripCreation,
@@ -8,14 +7,15 @@ import {
   routeChildMutation,
 } from '@/shared/services/offline-prep/router';
 import { useAuthStore } from '@/shared/store/auth';
-import * as TripLocal from '../lib/trip-local';
+
 import * as TripApi from '../api/trips';
+import * as TripLocal from '../lib/trip-local';
 import type { Trip, CreateTripRequest, UpdateTripRequest, DeleteTripResponse } from '../model';
 
-export interface TripListResult {
+export type TripListResult = {
   trips: Trip[];
   source: 'local' | 'remote' | 'mixed';
-}
+};
 
 /** 목록 조회가 서버 목록과 보존할 로컬 여행을 조합한다. 변경은 대상 여행의 저장소만 갱신한다. */
 export const TripRepository = {
@@ -28,7 +28,7 @@ export const TripRepository = {
         const response = await TripApi.fetchAllTrips();
         const refreshed = await TripLocal.refreshTripListLocal(response.data, sessionId, signal, tripsAtRequestStart);
 
-        return { trips: refreshed.trips, source: refreshed.hasLocalTrips ? 'mixed' : 'remote' };
+        return { trips: refreshed.trips, source: refreshed.hasProtectedLocalTrips ? 'mixed' : 'remote' };
       },
     });
   },

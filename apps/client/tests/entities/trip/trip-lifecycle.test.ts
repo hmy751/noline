@@ -25,30 +25,6 @@ jest.mock('@react-native-community/netinfo', () => ({
   default: { addEventListener: jest.fn(), refresh: jest.fn() },
 }));
 jest.mock('@/entities/trip/api/trips');
-interface TestDatabase {
-  exec: (sql: string) => void;
-  prepare: (sql: string) => TestStatement;
-}
-
-interface TestStatement {
-  setReturnArrays?: (enabled: boolean) => void;
-  columns: () => Array<{ name: string }>;
-  all: (...params: unknown[]) => unknown[];
-  run: (...params: unknown[]) => { changes: number; lastInsertRowId: number };
-}
-
-function mockReadRows(statement: TestStatement, params: unknown[]): unknown[][] {
-  const columns = statement.columns();
-  if (statement.setReturnArrays) {
-    statement.setReturnArrays(true);
-    return statement.all(...params) as unknown[][];
-  }
-
-  return (statement.all(...params) as Array<Record<string, unknown>>).map((row) =>
-    columns.map(({ name }) => row[name]),
-  );
-}
-
 // 실제 Drizzle SQL과 SQLite를 사용한다. 파일·기기 SecureStore는 사용하지 않는다.
 jest.mock('expo-secure-store', () => ({ setItemAsync: jest.fn(), deleteItemAsync: jest.fn() }));
 jest.mock('@/shared/services/id/ulid', () => ({
@@ -56,27 +32,9 @@ jest.mock('@/shared/services/id/ulid', () => ({
 }));
 jest.mock('expo-sqlite', () => ({
   openDatabaseSync: () => {
-    const { DatabaseSync } = jest.requireActual<{ DatabaseSync: new (name: string) => TestDatabase }>('node:sqlite');
-    const sqlite = new DatabaseSync(':memory:');
-    return {
-      execSync: (statement: string) => sqlite.exec(statement),
-      getAllSync: (statement: string) => sqlite.prepare(statement).all(),
-      prepareSync: (query: string) => ({
-        executeForRawResultSync: (params: unknown[]) => {
-          const statement = sqlite.prepare(query);
-          const rows = mockReadRows(statement, params);
-          return { getAllSync: () => rows };
-        },
-        executeSync: (params: unknown[]) => {
-          const statement = sqlite.prepare(query);
-          if (statement.columns().length) {
-            const rows = mockReadRows(statement, params);
-            return { getAllSync: () => rows, getFirstSync: () => rows[0] ?? null };
-          }
-          return statement.run(...params);
-        },
-      }),
-    };
+    const { createExpoSQLiteDatabase } =
+      jest.requireActual<typeof import('../../helpers/sqlite')>('../../helpers/sqlite');
+    return createExpoSQLiteDatabase();
   },
 }));
 
@@ -139,6 +97,7 @@ afterEach(() => {
 it('생성·수정·삭제는 서버에서 확정하고 목록 재조회가 로컬 사본을 갱신한다', async () => {
   expect(await TripRepository.create(input)).toEqual(remoteTrip);
   expect(getDatabase().select().from(trips).where(eq(trips.id, newId)).get()).toBeUndefined();
+
   jest.mocked(TripApi.fetchAllTrips).mockResolvedValue({ success: true, data: [remoteTrip] });
   const first = await TripRepository.getAllWithSource();
   expect(first.source).toBe('mixed');
@@ -153,9 +112,11 @@ it('생성·수정·삭제는 서버에서 확정하고 목록 재조회가 로�
   const updated = { ...remoteTrip, name: 'Tokyo edited', baseCurrency: 'USD', version: 2 };
   jest.mocked(TripApi.fetchUpdateTrip).mockResolvedValue(updated);
   await TripRepository.update(newId, { name: updated.name, baseCurrency: 'USD' });
-  expect(getDatabase().select().from(trips).where(eq(trips.id, newId)).get()?.name).toBe('Tokyo');
+  expect(getDatabase().select().from(trips).where(eq(trips.id, newId)).get()?.name).toBe('Tokyo edited');
+
   jest.mocked(TripApi.fetchAllTrips).mockResolvedValue({ success: true, data: [updated] });
   expect((await TripRepository.getAllWithSource()).trips.find((t) => t.id === newId)).toEqual(updated);
+
   await TripRepository.delete(newId);
   jest.mocked(TripApi.fetchAllTrips).mockResolvedValue({ success: true, data: [] });
   expect((await TripRepository.getAllWithSource()).trips.map((t) => t.id)).toEqual([activeId]);
@@ -182,6 +143,7 @@ it('서버 목록 오류는 기존 사본을 건드리지 않고 재조회로 �
   jest.mocked(TripApi.fetchAllTrips).mockRejectedValueOnce(new Error('server failed'));
   await expect(TripRepository.getAllWithSource()).rejects.toThrow('server failed');
   expect(getDatabase().select().from(trips).where(eq(trips.id, newId)).get()?.name).toBe('old cache');
+
   jest.mocked(TripApi.fetchAllTrips).mockResolvedValue({ success: true, data: [remoteTrip] });
   expect((await TripRepository.getAllWithSource()).trips.find((t) => t.id === newId)?.name).toBe('Tokyo');
 });
@@ -213,6 +175,7 @@ it.each(['PENDING', 'IN_PROGRESS', 'FAILED'])(
     const before = queued();
     jest.mocked(TripApi.fetchAllTrips).mockResolvedValue({ success: true, data: [remoteTrip] });
     expect((await TripRepository.getAllWithSource()).trips.find((t) => t.id === newId)?.name).toBe('local edit');
+
     jest.mocked(TripApi.fetchAllTrips).mockResolvedValue({ success: true, data: [] });
     expect((await TripRepository.getAllWithSource()).trips.some((t) => t.id === newId)).toBe(true);
     expect(queued()).toEqual(before);
@@ -259,7 +222,7 @@ it.each(['schedules', 'expenses'] as const)(
     await getDatabase()
       .insert(trips)
       .values({ ...remoteTrip, userId });
-    if (tableName === 'schedules')
+    if (tableName === 'schedules') {
       await getDatabase().insert(schedules).values({
         id: 'child',
         userId,
@@ -270,7 +233,7 @@ it.each(['schedules', 'expenses'] as const)(
         createdAt: now,
         updatedAt: now,
       });
-    else
+    } else {
       await getDatabase().insert(expenses).values({
         id: 'child',
         userId,
@@ -283,6 +246,7 @@ it.each(['schedules', 'expenses'] as const)(
         createdAt: now,
         updatedAt: now,
       });
+    }
     await getDatabase().insert(syncQueue).values({
       id: 'queue',
       tableName,
@@ -322,11 +286,13 @@ it.each([0, 408, 503])('온라인으로 감지돼도 API 오류 %s에서는 활�
     trips: [expect.objectContaining({ id: activeId })],
   });
 });
+
 it('서버 오류라도 활성 여행이 없으면 오래된 비활성 사본을 정상 조회로 반환하지 않는다', async () => {
   await getDatabase().update(tripActivations).set({ isActivated: false });
   jest.mocked(TripApi.fetchAllTrips).mockRejectedValueOnce(new APIError('unavailable', 503, 'SERVER_ERROR'));
   await expect(TripRepository.getAllWithSource()).rejects.toMatchObject({ status: 503 });
 });
+
 it.each([
   new APIError('unauthorized', 401, 'TOKEN_INVALID'),
   new APIError('unknown', 0, 'UNKNOWN_ERROR'),

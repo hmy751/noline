@@ -4,7 +4,7 @@
 
 /**
  * 카테고리별 구조:
- * 1. entities/ - 도메인 모델 (강제 계약, DB와 1:1)
+ * 1. entities/ - 공유 도메인/API 표현 (DB 저장 표현은 serializer·Local 경계에서 변환)
  * 2. requests/ - API 요청 스키마 (확장 가능)
  * 3. responses/ - API 응답 스키마 (확장 가능)
  * 4. sync/ - 동기화 관련 스키마

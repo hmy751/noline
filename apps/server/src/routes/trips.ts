@@ -1,11 +1,12 @@
-import { Router } from 'express';
-import type { Request, Response } from 'express';
-import { db, trips, schedules, expenses } from '../db/index.js';
 import { desc, sql, eq, and, isNull } from 'drizzle-orm';
-import { legacyCreateTripRequest, updateTripRequest, isTripDateRangeValid } from '@repo/schema/requests/trip';
+import { Router, type Request, type Response } from 'express';
+
 import { tripEntity } from '@repo/schema/entities/trip';
-import { activateTripResponse, tripListResponse, tripResponse } from '@repo/schema/responses/trip';
+import { legacyCreateTripRequest, updateTripRequest, isTripDateRangeValid } from '@repo/schema/requests/trip';
 import { scheduleListResponse } from '@repo/schema/responses/schedule';
+import { activateTripResponse, tripListResponse, tripResponse } from '@repo/schema/responses/trip';
+
+import { db, trips, schedules, expenses } from '../db/index.js';
 import { requireAuth } from '../middleware/auth.js';
 import { serializeExpense } from '../serializers/expense.js';
 import { serializeSchedule } from '../serializers/schedule.js';
@@ -91,7 +92,6 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
 
     const {
       id,
-      userId,
       name,
       destination,
       country,
@@ -103,16 +103,6 @@ router.post('/', requireAuth, async (req: Request, res: Response) => {
       startDate,
       endDate,
     } = validationResult.data;
-
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      return res.status(400).json({
-        error: 'Invalid date format',
-        message: 'startDate and endDate must be valid dates',
-      });
-    }
 
     if (!isTripDateRangeValid(startDate, endDate, timeZone)) {
       return res.status(400).json({
@@ -202,40 +192,28 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
       version: sql`${trips.version} + 1`, // ✅ version 증가 (Selective Local-First sync)
     };
 
-    if (name !== undefined) updateData.name = name;
-    if (destination !== undefined) updateData.destination = destination;
-    if (country !== undefined) updateData.country = country;
-    if (baseCurrency !== undefined) updateData.baseCurrency = baseCurrency;
-    if (timeZone !== undefined) updateData.timeZone = timeZone;
+    if (name !== undefined) {
+      updateData.name = name;
+    }
+    if (destination !== undefined) {
+      updateData.destination = destination;
+    }
+    if (country !== undefined) {
+      updateData.country = country;
+    }
+    if (baseCurrency !== undefined) {
+      updateData.baseCurrency = baseCurrency;
+    }
+    if (timeZone !== undefined) {
+      updateData.timeZone = timeZone;
+    }
 
     if (startDate !== undefined) {
-      if (startDate === null) {
-        updateData.startDate = null;
-      } else {
-        const start = new Date(startDate);
-        if (isNaN(start.getTime())) {
-          return res.status(400).json({
-            error: 'Invalid date format',
-            message: 'startDate must be a valid date',
-          });
-        }
-        updateData.startDate = start;
-      }
+      updateData.startDate = new Date(startDate);
     }
 
     if (endDate !== undefined) {
-      if (endDate === null) {
-        updateData.endDate = null;
-      } else {
-        const end = new Date(endDate);
-        if (isNaN(end.getTime())) {
-          return res.status(400).json({
-            error: 'Invalid date format',
-            message: 'endDate must be a valid date',
-          });
-        }
-        updateData.endDate = end;
-      }
+      updateData.endDate = new Date(endDate);
     }
 
     // 날짜 범위 검증

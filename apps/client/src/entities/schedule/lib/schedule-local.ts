@@ -1,7 +1,7 @@
-import { deleteQueuePayloadSchema } from '@repo/schema/sync/sync-queue';
 import { eq, isNull, sql } from 'drizzle-orm';
 
 import { scheduleEntity } from '@repo/schema/entities/schedule';
+import { deleteQueuePayloadSchema } from '@repo/schema/sync/sync-queue';
 
 import { getDatabase, schedules } from '@/shared/db';
 import { getCurrentISOString, withTransaction } from '@/shared/db/utils';
@@ -94,6 +94,7 @@ export const createScheduleLocal = async (data: CreateScheduleRequest): Promise<
 
   return await withTransaction(async () => {
     await assertActiveLocalTrip(data.tripId);
+
     await getDatabase().insert(schedules).values(newSchedule);
     await addToSyncQueue('schedules', id, 'CREATE', {
       id,
@@ -106,6 +107,7 @@ export const createScheduleLocal = async (data: CreateScheduleRequest): Promise<
       latitude: rest.latitude,
       longitude: rest.longitude,
     });
+
     return toSchedule(newSchedule);
   });
 };
@@ -184,6 +186,5 @@ export const deleteScheduleLocal = async (id: string): Promise<{ id: string; del
     await addToSyncQueue('schedules', id, 'DELETE', payload);
   });
 
-  console.log(`[ScheduleLocal] Schedule deleted locally (soft): ${id}`);
   return { id, deletedAt: now };
 };

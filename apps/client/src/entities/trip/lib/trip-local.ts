@@ -1,4 +1,3 @@
-import { applyConfirmedDeletionInTransaction } from '@/shared/services/sync/confirmed-deletion';
 import { and, desc, eq, inArray, isNull, ne, or, sql, type SQL } from 'drizzle-orm';
 
 import { tripEntity } from '@repo/schema/entities/trip';
@@ -11,15 +10,15 @@ import { getTripExpiryISO } from '@/shared/lib/lifecycle';
 import { activeTripScope, assertActiveLocalTrip, ownedRow } from '@/shared/services/auth/local-access';
 import { addToSyncQueue } from '@/shared/services/sync/queue';
 import { reconcileRecordInTransaction } from '@/shared/services/sync/reconcile';
-import { requireLocalUserId } from '@/shared/store/auth';
-import { AuthRequiredError, selectLocalUserId, useAuthStore } from '@/shared/store/auth';
+import { applyConfirmedDeletionInTransaction } from '@/shared/services/sync/confirmed-deletion';
+import { AuthRequiredError, requireLocalUserId, selectLocalUserId, useAuthStore } from '@/shared/store/auth';
 
 import type { DeleteTripResponse, Trip, UpdateTripRequest } from '../model';
 
 /** 시간대 호환만 적용한다. 기존 다른 필드의 오류로 시간대 확인·교정까지 막지 않는다. */
-function readTripTimeZone(trip: Trip): Trip {
+const readTripTimeZone = (trip: Trip): Trip => {
   return { ...trip, timeZone: tripEntity.shape.timeZone.parse(trip.timeZone) };
-}
+};
 
 /**
  * 로컬 DB에서 현재 사용자의 여행 조회
@@ -29,8 +28,8 @@ function readTripTimeZone(trip: Trip): Trip {
  */
 export const getTripsLocal = async (): Promise<Trip[]> => {
   const userId = selectLocalUserId(useAuthStore.getState());
+
   if (!userId) {
-    console.log('[TripLocal] No authenticated user, returning empty trips');
     return [];
   }
 
@@ -47,7 +46,6 @@ export const getTripsLocal = async (): Promise<Trip[]> => {
     .orderBy(desc(trips.updatedAt))
     .all();
 
-  console.log(`[TripLocal] Trips loaded from local DB: ${tripList.length} items for user ${userId}`);
   return tripList.map(readTripTimeZone);
 };
 
@@ -66,6 +64,7 @@ export const getTripByIdLocal = async (id: string): Promise<Trip | undefined> =>
       ),
     )
     .get();
+
   return trip ? readTripTimeZone(trip) : undefined;
 };
 
@@ -180,7 +179,7 @@ export const refreshTripListLocal = async (
       throw new Error('취소된 여행 목록 조회입니다');
     }
 
-    return { trips: await getTripsLocal(), hasLocalTrips: protectedTrips.length > 0 };
+    return { trips: await getTripsLocal(), hasProtectedLocalTrips: protectedTrips.length > 0 };
   });
 };
 
@@ -210,7 +209,10 @@ export const updateTripLocal = async (id: string, data: UpdateTripRequest): Prom
         .where(ownedRow(trips.userId, eq(trips.id, id)))
         .get();
 
-      if (!existing) throw new Error('수정할 여행을 찾을 수 없습니다');
+      if (!existing) {
+        throw new Error('수정할 여행을 찾을 수 없습니다');
+      }
+
       if (
         !isTripDateRangeValid(
           data.startDate ?? existing.startDate,
@@ -240,7 +242,10 @@ export const updateTripLocal = async (id: string, data: UpdateTripRequest): Prom
       .where(ownedRow(trips.userId, eq(trips.id, id)))
       .get();
 
-    if (!updated) throw new Error('수정한 여행을 다시 불러오지 못했습니다');
+    if (!updated) {
+      throw new Error('수정한 여행을 다시 불러오지 못했습니다');
+    }
+
     if (updated.timeZone && (data.endDate !== undefined || data.timeZone !== undefined)) {
       await getDatabase()
         .update(tripActivations)
@@ -250,8 +255,6 @@ export const updateTripLocal = async (id: string, data: UpdateTripRequest): Prom
 
     return readTripTimeZone(updated);
   });
-
-  console.log(`[TripLocal] Trip updated locally: ${id}`);
 
   return updated;
 };
@@ -291,7 +294,6 @@ export const deleteTripLocal = async (id: string): Promise<{ id: string; deleted
     await addToSyncQueue('trips', id, 'DELETE', payload);
   });
 
-  console.log(`[TripLocal] Trip deleted locally (soft): ${id}`);
   return { id, deletedAt: now };
 };
 

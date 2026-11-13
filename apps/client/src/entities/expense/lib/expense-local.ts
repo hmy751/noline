@@ -1,7 +1,7 @@
-import { deleteQueuePayloadSchema } from '@repo/schema/sync/sync-queue';
 import { desc, eq, isNull, sql } from 'drizzle-orm';
 
 import { expenseDateInput } from '@repo/schema/requests/expense';
+import { deleteQueuePayloadSchema } from '@repo/schema/sync/sync-queue';
 
 import { expenses, getDatabase } from '@/shared/db';
 import { getCurrentISOString, withTransaction } from '@/shared/db/utils';
@@ -118,6 +118,7 @@ export const createExpenseLocal = async (data: CreateExpenseRequest): Promise<Ex
 
   return await withTransaction(async () => {
     await assertActiveLocalTrip(data.tripId);
+
     await getDatabase().insert(expenses).values(newExpense);
     await addToSyncQueue('expenses', id, 'CREATE', {
       id,
@@ -132,6 +133,7 @@ export const createExpenseLocal = async (data: CreateExpenseRequest): Promise<Ex
       hasReceipt: data.hasReceipt,
       receiptUrl: data.receiptUrl,
     });
+
     return toExpense(newExpense);
   });
 };
@@ -203,6 +205,5 @@ export const deleteExpenseLocal = async (id: string): Promise<{ id: string; dele
     await addToSyncQueue('expenses', id, 'DELETE', payload);
   });
 
-  console.log(`[ExpenseLocal] Expense deleted locally (Soft Delete): ${id}`);
   return { id, deletedAt: now };
 };

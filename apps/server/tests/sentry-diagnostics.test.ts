@@ -1,15 +1,16 @@
-import { afterAll, beforeAll, expect, it, vi } from 'vitest';
+import * as Sentry from '@sentry/node';
 import type { Application } from 'express';
-import request from 'supertest';
-import { createServer } from 'node:http';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { fileURLToPath } from 'node:url';
+import { createServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
+import { fileURLToPath } from 'node:url';
 import { gunzipSync } from 'node:zlib';
-import * as Sentry from '@sentry/node';
-import { initializeServerDiagnostics, reportStartupFailure, sanitizeServerError } from '../src/services/sentry.js';
+import request from 'supertest';
+import { afterAll, beforeAll, expect, it, vi } from 'vitest';
+
 import { dbSelectMock, loadTestApp, resetDbMock } from './support/test-app.js';
+import { initializeServerDiagnostics, reportStartupFailure, sanitizeServerError } from '../src/services/sentry.js';
 
 const envelopes: string[] = [];
 const receiver = createServer((req, res) => {

@@ -59,6 +59,7 @@ it.each([
   const observer = new QueryObserver(mockClient, { queryKey: key, queryFn: read });
   unsubscribe = observer.subscribe(() => undefined);
   expect(read).toHaveBeenCalledTimes(1);
+
   const options = (entity === 'expense' ? useUpdateExpense() : useUpdateSchedule()) as unknown as {
     onSettled: (saved: unknown) => Promise<void>;
   };
@@ -70,9 +71,11 @@ it.each([
   expect(invalidate.mock.calls.some(([filters]) => filters?.queryKey?.[0] === 'routes')).toBe(
     entity === 'schedule' && !failed,
   );
+
   finishOld('pre-save value');
   await new Promise((resolve) => setTimeout(resolve, 0));
   expect(mockClient.getQueryData(key)).toBeUndefined();
+
   finishNew('saved value');
   await new Promise((resolve) => setTimeout(resolve, 0));
   expect(mockClient.getQueryData(key)).toBe('saved value');
@@ -185,6 +188,7 @@ it.each(successCases)('$name 새 조회 실패가 저장 성공을 실패로 바
 
   await expect(mutation.mutate()).resolves.toBe('saved');
   expect(read).toHaveBeenCalledTimes(2);
+
   failRefresh(new Error('read unavailable'));
   await new Promise((resolve) => setTimeout(resolve, 0));
   expect(observer.getCurrentResult().isError).toBe(true);

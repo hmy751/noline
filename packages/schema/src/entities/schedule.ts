@@ -4,13 +4,13 @@ import { isoDateTime } from '../primitives/datetime';
 import { fieldEdits } from '../sync/field-edits';
 
 // ========================================
-// Schedule Entity Schema (DB와 1:1 매핑)
+// Schedule Entity Schema (공유 도메인/API 표현)
 // ========================================
 
 /**
  * Schedule Entity Schema (강제 계약)
  * - 모든 앱이 준수해야 하는 도메인 모델
- * - DB와 1:1 매핑
+ * - DB 저장 표현은 서버 serializer와 Local 저장·조회 경계에서 변환
  * - 날짜: ISO 8601 datetime string
  */
 export const scheduleEntity = z.object({

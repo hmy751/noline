@@ -40,8 +40,10 @@ function assertWritesAllowed() {
 /** 온라인 목록은 서버에서 갱신하고, 연결·인증이 제한되면 활성 여행의 로컬 목록을 사용한다. */
 export async function routeTripQuery<T>(operations: RouteOperations<T>): Promise<T> {
   requireLocalUserId();
+
   if (networkStore.realStatus === 'online' && useAuthStore.getState().status === 'signed-in') {
     const sessionId = useAuthStore.getState().sessionId;
+
     try {
       return await operations.remote();
     } catch (error) {
@@ -49,12 +51,19 @@ export async function routeTripQuery<T>(operations: RouteOperations<T>): Promise
       const unavailable =
         error instanceof APIError &&
         ((error.status === 0 && error.code === 'NETWORK_ERROR') || error.status === 408 || error.status >= 500);
-      if (!unavailable || !(await hasAnyActivatedTrip()) || !useAuthStore.isCurrentSession(sessionId)) throw error;
+
+      if (!unavailable || !(await hasAnyActivatedTrip()) || !useAuthStore.isCurrentSession(sessionId)) {
+        throw error;
+      }
+
       return await operations.local();
     }
   }
 
-  if (await hasAnyActivatedTrip()) return await operations.local();
+  if (await hasAnyActivatedTrip()) {
+    return await operations.local();
+  }
+
   assertRemoteAvailable('오프라인에서는 활성화된 여행만 볼 수 있어요');
   return await operations.remote();
 }

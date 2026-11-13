@@ -30,7 +30,7 @@ beforeEach(() => {
   jest.mocked(hasAnyActivatedTrip).mockResolvedValue(false);
   jest.mocked(fetchAllTrips).mockResolvedValue({ success: true, data: knownTrips });
   jest.mocked(getTripsLocal).mockResolvedValue(localTrips);
-  jest.mocked(refreshTripListLocal).mockImplementation(async (trips) => ({ trips, hasLocalTrips: false }));
+  jest.mocked(refreshTripListLocal).mockImplementation(async (trips) => ({ trips, hasProtectedLocalTrips: false }));
   client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: Infinity } } });
 });
 
@@ -92,6 +92,7 @@ it('느린 최초 서버 조회 중 단절되면 로컬로 다시 읽고 복구 
   act(() => useNetworkStore.setState({ realStatus: 'online' }));
   await waitFor(() => expect(view.result.current[0].data).toEqual(knownTrips));
   expect(fetchAllTrips).toHaveBeenCalledTimes(2);
+
   await act(async () => {
     finishOld({ success: true, data: [{ id: 'old-trip' }] as Trip[] });
     await oldRequest;
@@ -106,6 +107,7 @@ it('재인증 대기에는 로컬을 읽고 같은 계정 인증 복구 뒤 서�
   act(() => useAuthStore.setState({ status: 'reauth-required' }));
   await waitFor(() => expect(view.result.current[0].dataSource).toBe('local'));
   expect(fetchAllTrips).toHaveBeenCalledTimes(1);
+
   act(() => useAuthStore.setState({ status: 'signed-in' }));
   await waitFor(() => expect(view.result.current[0].dataSource).toBe('remote'));
   expect(fetchAllTrips).toHaveBeenCalledTimes(2);

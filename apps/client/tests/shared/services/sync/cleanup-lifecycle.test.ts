@@ -1,10 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+
+import { getDatabase, resetDatabase, tripActivations } from '@/shared/db';
+import { queryClient } from '@/shared/lib/queryClient';
+import { performLogout, performDeleteAccount } from '@/shared/services/auth/logout-service';
 import * as cleanupService from '@/shared/services/sync/cleanup-job';
 import { processPendingCleanups } from '@/shared/services/sync/cleanup-job';
-import { performLogout, performDeleteAccount } from '@/shared/services/auth/logout-service';
-import { getDatabase, resetDatabase, tripActivations } from '@/shared/db';
 import { clearSyncQueue, getSyncQueueStats } from '@/shared/services/sync/queue';
-import { queryClient } from '@/shared/lib/queryClient';
 import { useAuthStore } from '@/shared/store/auth';
 import { useTripStore } from '@/shared/store/useTripStore';
 
@@ -166,6 +167,7 @@ describe('pending cleanup의 공유 실행과 로그아웃 조율', () => {
 
     await paused;
     expect(resetDatabase).not.toHaveBeenCalled();
+
     reject(new Error('실패'));
     expect(await cleanupResult).toEqual(new Error('실패'));
     await expect(logout).resolves.toMatchObject({ success: true });
@@ -177,6 +179,7 @@ describe('pending cleanup의 공유 실행과 로그아웃 조율', () => {
     jest.mocked(resetDatabase).mockRejectedValueOnce(new Error('reset 실패'));
     await expect(performLogout()).resolves.toMatchObject({ success: false });
     expect(useTripStore.getState().selectedTripId).toBe('previous-user-trip');
+
     await processPendingCleanups();
     expect(findPendingCleanups).toHaveBeenCalledTimes(1);
   });

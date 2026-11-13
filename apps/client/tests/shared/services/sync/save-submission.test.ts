@@ -123,7 +123,7 @@ const createDeferred = <T>() => {
 const activateTripForTest = async () => {
   return (
     getActivationOptions() as unknown as {
-      mutationFn: (id: string) => Promise<{ schedules: unknown[]; expenses: unknown[] }>;
+      mutationFn: (id: string) => Promise<unknown>;
     }
   ).mutationFn(TRIP.id);
 };
@@ -437,4 +437,36 @@ it('기기 원본 귀속 불일치로 삭제 반영을 거절하면 보류를 �
   );
   expect(await getDatabase().select().from(legacySyncHolds).all()).toHaveLength(1);
   expect(await getDatabase().select().from(expenses).get()).toMatchObject({ deletedAt: null });
+});
+
+it.each([
+  ['expense', false],
+  ['expense', true],
+  ['schedule', false],
+  ['schedule', true],
+])('%s repository prepares one persisted stamp per save, active=%s', async (kind, active) => {
+  if (active) {
+    await activateLocal();
+  }
+  const current = kind === 'expense' ? EXPENSE : SCHEDULE;
+  jest
+    .mocked(apiClient.put<unknown, unknown>)
+    .mockResolvedValue({ success: true, data: { ...current, title: 'edited' } });
+  if (kind === 'expense') {
+    await ExpenseRepository.update(EXPENSE.id, TRIP.id, { title: 'edited' });
+  } else {
+    await ScheduleRepository.update(SCHEDULE.id, TRIP.id, { title: 'edited' });
+  }
+
+  expect(SecureStore.getItemAsync).toHaveBeenCalledTimes(1);
+  expect(SecureStore.setItemAsync).toHaveBeenCalledTimes(1);
+  const persisted = JSON.parse(jest.mocked(SecureStore.setItemAsync).mock.calls[0][1]);
+  if (active) {
+    const task = getDatabase().select().from(syncQueue).get();
+    expect(JSON.parse(task!.payload)).toEqual({ title: 'edited', edit: persisted });
+    expect(apiClient.put).not.toHaveBeenCalled();
+  } else {
+    expect(apiClient.put).toHaveBeenCalledWith(expect.any(String), { title: 'edited', edit: persisted });
+    expect(getDatabase().select().from(syncQueue).all()).toEqual([]);
+  }
 });

@@ -3,7 +3,7 @@ import { pushChanges } from '@/shared/services/sync/engine';
 import { getSyncableTasks, updateTaskStatus } from '@/shared/services/sync/queue';
 import { getQueueOwner } from '@/shared/services/auth/local-account';
 import api from '@/shared/services/sync/api';
-import { useAuthStore } from '@/shared/store/auth';
+import { AuthRequiredError, useAuthStore } from '@/shared/store/auth';
 
 jest.mock('@/shared/services/sync/api', () => ({
   __esModule: true,
@@ -11,6 +11,7 @@ jest.mock('@/shared/services/sync/api', () => ({
 }));
 jest.mock('@/shared/services/sync/queue', () => ({
   getSyncableTasks: jest.fn(),
+  recoverInterruptedTasks: jest.fn(async () => undefined),
   getTaskById: jest.fn(async () => ({ id: 'existing' })),
   getSyncQueueStats: jest.fn(),
   updateTaskStatus: jest.fn(),
@@ -44,7 +45,8 @@ it.each([
     },
   ]);
   jest.mocked(getQueueOwner).mockResolvedValue(owner);
-  await expect(pushChanges()).rejects.toThrow();
+  await expect(pushChanges()).rejects.toThrow(AuthRequiredError);
+  expect(getQueueOwner).toHaveBeenCalledWith(expect.objectContaining({ id: 'q' }));
   expect(api.put).not.toHaveBeenCalled();
   expect(updateTaskStatus).not.toHaveBeenCalled();
   expect(errorLog).toHaveBeenCalledWith('[Sync] Push failed:', expect.any(Error));
