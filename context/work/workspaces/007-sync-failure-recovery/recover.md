@@ -1,6 +1,6 @@
 # 007 — 다음 설명과 작업을 이어가기
 
-**7단계 검증·진단 설명 뒤 관련 5파일을 ef3772df로 분리 커밋했다.** [7단계 기록](records/2026-11-14-03-stage-seven-isolated-commit.md)에서 선별·확인·커밋 결과를 본다. 사용자 승인 범위는7단계 관련 변경이며 다른 미커밋 변경의 일괄 정리나 Work007 전체 완료는 아니다. 기존 1·2단계 판단과 [5단계 설명 보완](records/2026-11-14-01-stage-five-explanation-and-isolated-commit.md)을 유지한다.
+**남은 여행 목록 보완·사본 정리 보호를 기존007-07·003-12 공동 후속으로 확인하고 각각 커밋했다.** 여행 목록 **fffab93d**, 사본 정리 보호 **6caa8846**의 범위·검사는 [후속 분리 기록](records/2026-11-14-04-trip-list-and-cleanup-isolated-commits.md)과 [Ticket09](current/memory/tickets/09-staged-code-review-and-refinement.md)에서 본다. 003-04의 재활성화 관련 옛 예약은 별도다. 일반 코드 정리·UI·다른 Work·Personal·환경 변경은 남겨 두었고, 배포나 Work007 전체 완료를 뜻하지 않는다. 기존1·2단계 판단과 [5단계 설명 보완](records/2026-11-14-01-stage-five-explanation-and-isolated-commit.md)은 유지한다.
 
 먼저 [Ticket09](current/memory/tickets/09-staged-code-review-and-refinement.md)에서 수행 범위와 현재 상태를, [후속 설명·판단 참고](records/2026-11-13-16-explanation-and-review-continuity.md)에서 이번까지 이해한 것과 설명·검토·커밋 시 참고할 조건을 읽는다. 기존 [1단계 실행 합의](records/2026-11-12-12-workflow-application-agreement.md)와 [2단계 판단의 적용](records/2026-11-13-05-stage-three-pull-review.md#기존-워크플로에-더해-적용한-판단)은 유지한다. 스킬을 바꾸거나 여섯 검토자 전수조사·매번 퀴즈 같은 새 고정 절차를 도입한 것이 아니다.
 
