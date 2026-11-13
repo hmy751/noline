@@ -12,6 +12,8 @@ import { useActivateTrip as getActivationOptions } from '@/entities/trip/data/us
 import { refreshTripListLocal } from '@/entities/trip/lib/trip-local';
 import { ExpenseRepository } from '@/entities/expense/repository/expense-repository';
 import { ScheduleRepository } from '@/entities/schedule/repository/schedule-repository';
+import { TripRepository } from '@/entities/trip/repository/trip-repository';
+import { fetchAllTrips } from '@/entities/trip/api/trips';
 import apiClient from '@/shared/api/fetcher';
 import {
   getDatabase,
@@ -532,3 +534,66 @@ it.each(['schedules', 'expenses'] as const)(
     expect(await readRecords(TRIP.id)).toEqual([]);
   },
 );
+
+
+it('비활성 여행 직접 수정 응답이 최신 목록을 되돌리지 않고 직접 삭제 증거도 늦은 목록을 막는다', async () => {
+  const response = createDeferred<unknown>();
+  jest.mocked(apiClient.put<unknown, unknown>).mockReturnValueOnce(response.promise);
+  const pending = TripRepository.update(TRIP.id, { name: '옛 수정' });
+  await refreshTripListLocal([{ ...TRIP, version: 4, name: '새 서버 여행' }], useAuthStore.getState().sessionId);
+  response.resolve({ success: true, data: { ...TRIP, version: 2, name: '옛 수정' } });
+  expect(await pending).toMatchObject({ name: '새 서버 여행' });
+
+  jest
+    .mocked(apiClient.delete<unknown, unknown>)
+    .mockResolvedValueOnce({ success: true, data: { id: TRIP.id, deletedAt: FIXTURE_TIME } });
+  await TripRepository.delete(TRIP.id);
+  await refreshTripListLocal([TRIP], useAuthStore.getState().sessionId);
+  expect(await getDatabase().select().from(trips).get()).toMatchObject({ deletedAt: FIXTURE_TIME });
+});
+
+it('조회 시작 뒤 생성·확인한 여행은 늦은 빈 목록으로 숨기지 않고 다음 실제 누락은 숨긴다', async () => {
+  const response = createDeferred<unknown>();
+  const requested = createDeferred<void>();
+  jest.mocked(apiClient.get<unknown, unknown>).mockImplementationOnce(async () => {
+    requested.resolve();
+    return await response.promise;
+  });
+  const pending = TripRepository.getAllWithSource();
+  await requested.promise;
+  await reconcileServerRecord('trips', { ...TRIP, version: 4, name: '조회 중 확인한 값' });
+  const created = { ...TRIP, id: '01ARZ3NDEKTSV4RRFFQ69G5FB0', name: '방금 생성' };
+  await getDatabase().insert(trips).values(created);
+  response.resolve({ success: true, data: [] });
+  expect((await pending).trips.map((row) => row.name)).toEqual(
+    expect.arrayContaining(['조회 중 확인한 값', '방금 생성']),
+  );
+
+  jest.mocked(apiClient.get<unknown, unknown>).mockResolvedValueOnce({ success: true, data: [] });
+  expect((await TripRepository.getAllWithSource()).trips).toEqual([]);
+});
+
+it('구버전의 판본 없는 여행 목록은 메타데이터 pull 판본과 삭제를 수신한다', async () => {
+  const oldTrip = { ...TRIP, version: undefined };
+  jest
+    .mocked(apiClient.get<unknown, unknown>)
+    .mockResolvedValueOnce({ success: true, data: [oldTrip] })
+    .mockResolvedValueOnce({
+      success: true,
+      data: {
+        trips: [{ ...TRIP, version: 8, name: '최근 서버 여행' }],
+        schedules: [],
+        expenses: [],
+        serverTime: FIXTURE_TIME,
+      },
+    });
+  expect((await fetchAllTrips()).data).toEqual([expect.objectContaining({ version: 8, name: '최근 서버 여행' })]);
+  expect(apiClient.get).toHaveBeenLastCalledWith('/api/sync/pull');
+
+  jest
+    .mocked(apiClient.get<unknown, unknown>)
+    .mockClear()
+    .mockResolvedValueOnce({ success: true, data: [TRIP] });
+  await fetchAllTrips();
+  expect(apiClient.get).toHaveBeenCalledTimes(1);
+});

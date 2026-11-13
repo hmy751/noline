@@ -1,3 +1,4 @@
+import { syncPullResponseSchema } from '@repo/schema/sync/sync-status';
 import apiClient from '@/shared/api/fetcher';
 import { createTripRequest, updateTripRequest } from '@repo/schema/requests/trip';
 import { tripResponse, tripListResponse, deleteTripResponse } from '@repo/schema/responses/trip';
@@ -19,15 +20,16 @@ import type {
  * @returns 모든 여행 정보
  */
 export const fetchAllTrips = async (): Promise<GetAllTripsResponse> => {
-  try {
-    const data = await apiClient.get('/api/trips');
+  const response = await apiClient.get('/api/trips');
+  const tripList = tripListResponse.parse(response);
 
-    const validated = tripListResponse.parse(data);
-    return validated;
-  } catch (error) {
-    console.error('❌ error', error);
-    throw error;
+  if (tripList.data.some((trip) => trip.version === undefined)) {
+    const metadataResponse = await apiClient.get('/api/sync/pull');
+    const { trips } = syncPullResponseSchema.parse(metadataResponse).data;
+    return { success: true, data: trips };
   }
+
+  return tripList;
 };
 
 /**

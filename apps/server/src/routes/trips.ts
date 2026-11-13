@@ -37,6 +37,8 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
         endDate: trips.endDate,
         createdAt: trips.createdAt,
         updatedAt: trips.updatedAt,
+        version: trips.version,
+        deletedAt: trips.deletedAt,
       })
       .from(trips)
       .where(and(eq(trips.userId, userId), isNull(trips.deletedAt)))

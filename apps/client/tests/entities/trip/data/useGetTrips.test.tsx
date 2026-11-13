@@ -8,7 +8,11 @@ import { getTripsLocal, refreshTripListLocal } from '@/entities/trip/lib/trip-lo
 import { fetchAllTrips } from '@/entities/trip/api/trips';
 
 jest.mock('@/shared/services/offline-prep/router', () => ({ routeTripQuery: jest.fn(), routeTripCreation: jest.fn() }));
-jest.mock('@/entities/trip/lib/trip-local', () => ({ getTripsLocal: jest.fn(), refreshTripListLocal: jest.fn() }));
+jest.mock('@/entities/trip/lib/trip-local', () => ({
+  getTripsLocal: jest.fn(),
+  refreshTripListLocal: jest.fn(),
+  captureTripListLocal: async () => [],
+}));
 jest.mock('@/entities/trip/api/trips', () => ({ fetchAllTrips: jest.fn() }));
 
 let client: QueryClient;

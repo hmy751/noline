@@ -110,12 +110,18 @@ it('다른 활성 여행이 있어도 비활성 대상 Trip 자체는 Remote 수
   const remoteTrip = { id: 'trip-b', name: '변경된 여행' } as Trip;
   anyActivationMock.mockResolvedValue(true);
   jest.mocked(TripApi.fetchUpdateTrip).mockResolvedValue(remoteTrip);
+  jest.mocked(TripLocal.acceptTripMutationLocal).mockResolvedValue(remoteTrip);
 
   await expect(TripRepository.update('trip-b', update)).resolves.toBe(remoteTrip);
 
   expect(activationMock).toHaveBeenCalledWith('trip-b');
   expect(TripLocal.updateTripLocal).not.toHaveBeenCalled();
   expect(TripApi.fetchUpdateTrip).toHaveBeenCalledWith('trip-b', update);
+  expect(TripLocal.acceptTripMutationLocal).toHaveBeenCalledWith(
+    remoteTrip,
+    'trip-b',
+    useAuthStore.getState().sessionId,
+  );
 });
 
 describe('경비 날짜는 Local/Remote 분기 전에 같은 계약으로 정리한다', () => {

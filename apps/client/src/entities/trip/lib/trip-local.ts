@@ -1,10 +1,11 @@
+import { applyConfirmedDeletionInTransaction } from '@/shared/services/sync/confirmed-deletion';
 import { and, desc, eq, inArray, isNull, ne, or, sql, type SQL } from 'drizzle-orm';
 
 import { tripEntity } from '@repo/schema/entities/trip';
 import { isTripDateRangeValid } from '@repo/schema/requests/trip';
 import { deleteQueuePayloadSchema } from '@repo/schema/sync/sync-queue';
 
-import { expenses, getDatabase, schedules, syncQueue, tripActivations, trips } from '@/shared/db';
+import { expenses, getDatabase, runDatabaseOperation, schedules, syncQueue, tripActivations, trips } from '@/shared/db';
 import { getCurrentISOString, withTransaction } from '@/shared/db/utils';
 import { getTripExpiryISO } from '@/shared/lib/lifecycle';
 import { activeTripScope, assertActiveLocalTrip, ownedRow } from '@/shared/services/auth/local-access';
@@ -13,7 +14,7 @@ import { reconcileRecordInTransaction } from '@/shared/services/sync/reconcile';
 import { requireLocalUserId } from '@/shared/store/auth';
 import { AuthRequiredError, selectLocalUserId, useAuthStore } from '@/shared/store/auth';
 
-import type { Trip, UpdateTripRequest } from '../model';
+import type { DeleteTripResponse, Trip, UpdateTripRequest } from '../model';
 
 /** 시간대 호환만 적용한다. 기존 다른 필드의 오류로 시간대 확인·교정까지 막지 않는다. */
 function readTripTimeZone(trip: Trip): Trip {
@@ -112,16 +113,39 @@ const protectedTripScope = (): SQL | undefined => {
   );
 };
 
+/** HTTP 조회를 시작할 때 존재한 사본만 뒤의 누락 판정 대상이다. */
+export const captureTripListLocal = async (sessionId: symbol | null): Promise<Trip[]> => {
+  return await runDatabaseOperation(async () => {
+    if (!useAuthStore.isCurrentSession(sessionId)) {
+      throw new AuthRequiredError();
+    }
+
+    return await getDatabase().select().from(trips).where(ownedRow(trips.userId)).all();
+  });
+};
+
 /** 서버의 전체 목록을 반영하고 로컬이 책임지는 여행을 보존한다. sync_queue는 변경하지 않는다. */
-export const refreshTripListLocal = async (serverTrips: Trip[], sessionId: symbol | null, signal?: AbortSignal) => {
+export const refreshTripListLocal = async (
+  serverTrips: Trip[],
+  sessionId: symbol | null,
+  signal?: AbortSignal,
+  requestTrips?: Trip[],
+) => {
   return await withTransaction(async () => {
-    if (!useAuthStore.isCurrentSession(sessionId)) throw new AuthRequiredError();
-    if (signal?.aborted) throw new Error('취소된 여행 목록 조회입니다');
+    if (!useAuthStore.isCurrentSession(sessionId)) {
+      throw new AuthRequiredError();
+    }
+    if (signal?.aborted) {
+      throw new Error('취소된 여행 목록 조회입니다');
+    }
 
     const userId = requireLocalUserId();
 
-    if (serverTrips.some((trip) => trip.userId !== userId)) throw new Error('다른 계정의 여행 목록입니다');
+    if (serverTrips.some((trip) => trip.userId !== userId)) {
+      throw new Error('다른 계정의 여행 목록입니다');
+    }
 
+    const rowsAtRequestStart = requestTrips && new Map(requestTrips.map((trip) => [trip.id, JSON.stringify(trip)]));
     const localTrips = await getDatabase().select().from(trips).where(ownedRow(trips.userId)).all();
     const protectedTrips = await getDatabase()
       .select()
@@ -139,7 +163,9 @@ export const refreshTripListLocal = async (serverTrips: Trip[], sessionId: symbo
     const now = getCurrentISOString();
 
     for (const trip of localTrips) {
-      if (!serverIds.has(trip.id) && !protectedIds.has(trip.id) && trip.deletedAt === null) {
+      const isUnchangedSinceRequest = !rowsAtRequestStart || rowsAtRequestStart.get(trip.id) === JSON.stringify(trip);
+
+      if (!serverIds.has(trip.id) && !protectedIds.has(trip.id) && trip.deletedAt === null && isUnchangedSinceRequest) {
         await getDatabase()
           .update(trips)
           .set({ deletedAt: now, updatedAt: now })
@@ -147,8 +173,12 @@ export const refreshTripListLocal = async (serverTrips: Trip[], sessionId: symbo
       }
     }
 
-    if (!useAuthStore.isCurrentSession(sessionId)) throw new AuthRequiredError();
-    if (signal?.aborted) throw new Error('취소된 여행 목록 조회입니다');
+    if (!useAuthStore.isCurrentSession(sessionId)) {
+      throw new AuthRequiredError();
+    }
+    if (signal?.aborted) {
+      throw new Error('취소된 여행 목록 조회입니다');
+    }
 
     return { trips: await getTripsLocal(), hasLocalTrips: protectedTrips.length > 0 };
   });
@@ -263,4 +293,47 @@ export const deleteTripLocal = async (id: string): Promise<{ id: string; deleted
 
   console.log(`[TripLocal] Trip deleted locally (soft): ${id}`);
   return { id, deletedAt: now };
+};
+
+/** 비활성 여행의 직접 응답도 pull·활성화와 같은 서버 판본 증거를 쓴다. */
+export const acceptTripMutationLocal = async (
+  server: Trip,
+  expectedId: string,
+  sessionId: symbol | null,
+): Promise<Trip> => {
+  const current = await withTransaction(async () => {
+    if (!useAuthStore.isCurrentSession(sessionId)) {
+      throw new AuthRequiredError();
+    }
+    if (server.id !== expectedId || server.userId !== requireLocalUserId()) {
+      throw new Error('여행 응답의 소유자·기록이 일치하지 않습니다');
+    }
+
+    await reconcileRecordInTransaction('trips', server);
+
+    return await getDatabase().select().from(trips).where(eq(trips.id, server.id)).get();
+  });
+
+  if (!current || current.deletedAt) {
+    throw new Error('삭제된 여행입니다');
+  }
+
+  return readTripTimeZone(current);
+};
+
+export const acceptTripDeletionLocal = async (
+  proof: DeleteTripResponse,
+  expectedId: string,
+  sessionId: symbol | null,
+): Promise<void> => {
+  await withTransaction(async () => {
+    if (!useAuthStore.isCurrentSession(sessionId)) {
+      throw new AuthRequiredError();
+    }
+    if (proof.id !== expectedId) {
+      throw new Error('삭제 응답의 여행이 일치하지 않습니다');
+    }
+
+    await applyConfirmedDeletionInTransaction('trips', expectedId, expectedId, proof.deletedAt);
+  });
 };

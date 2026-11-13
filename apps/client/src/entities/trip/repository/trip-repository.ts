@@ -24,9 +24,11 @@ export const TripRepository = {
       local: async () => ({ trips: await TripLocal.getTripsLocal(), source: 'local' }),
       remote: async () => {
         const sessionId = useAuthStore.getState().sessionId;
+        const tripsAtRequestStart = await TripLocal.captureTripListLocal(sessionId);
         const response = await TripApi.fetchAllTrips();
-        const result = await TripLocal.refreshTripListLocal(response.data, sessionId, signal);
-        return { trips: result.trips, source: result.hasLocalTrips ? 'mixed' : 'remote' };
+        const refreshed = await TripLocal.refreshTripListLocal(response.data, sessionId, signal, tripsAtRequestStart);
+
+        return { trips: refreshed.trips, source: refreshed.hasLocalTrips ? 'mixed' : 'remote' };
       },
     });
   },
@@ -35,9 +37,8 @@ export const TripRepository = {
     return await routeChildQuery(id, {
       local: () => TripLocal.getTripByIdLocal(id),
       remote: async () => {
-        // TODO: fetchTripById API 필요시 추가
         const response = await TripApi.fetchAllTrips();
-        return response.data.find((trip) => trip.id === id);
+        return response.data.find((trip) => trip.id === id && !trip.deletedAt);
       },
     });
   },
@@ -51,14 +52,23 @@ export const TripRepository = {
     const input = updateTripRequest.parse(data);
     return await routeChildMutation(id, {
       local: () => TripLocal.updateTripLocal(id, input),
-      remote: () => TripApi.fetchUpdateTrip(id, input),
+      remote: async () => {
+        const sessionId = useAuthStore.getState().sessionId;
+        const updatedTrip = await TripApi.fetchUpdateTrip(id, input);
+        return await TripLocal.acceptTripMutationLocal(updatedTrip, id, sessionId);
+      },
     });
   },
 
   delete: async (id: string): Promise<DeleteTripResponse> => {
     return await routeChildMutation(id, {
       local: () => TripLocal.deleteTripLocal(id),
-      remote: () => TripApi.fetchDeleteTrip(id),
+      remote: async () => {
+        const sessionId = useAuthStore.getState().sessionId;
+        const deletion = await TripApi.fetchDeleteTrip(id);
+        await TripLocal.acceptTripDeletionLocal(deletion, id, sessionId);
+        return deletion;
+      },
     });
   },
 };

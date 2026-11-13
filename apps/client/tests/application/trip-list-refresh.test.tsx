@@ -13,7 +13,11 @@ import { useAuthStore } from '@/shared/store/auth';
 import type { Trip } from '@/entities/trip/model';
 
 jest.mock('@/shared/services/offline-prep/metadata', () => ({ hasAnyActivatedTrip: jest.fn() }));
-jest.mock('@/entities/trip/lib/trip-local', () => ({ getTripsLocal: jest.fn(), refreshTripListLocal: jest.fn() }));
+jest.mock('@/entities/trip/lib/trip-local', () => ({
+  getTripsLocal: jest.fn(),
+  refreshTripListLocal: jest.fn(),
+  captureTripListLocal: async () => [],
+}));
 jest.mock('@/entities/trip/api/trips', () => ({ fetchAllTrips: jest.fn() }));
 
 const knownTrips = [{ id: 'known-trip' }] as Trip[];
