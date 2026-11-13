@@ -1,12 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { getDatabase, trips, tripActivations, schedules, expenses } from '@/shared/db';
-import { eq, sql } from 'drizzle-orm';
+import { getDatabase, trips, tripActivations } from '@/shared/db';
+import { eq } from 'drizzle-orm';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import apiClient from '@/shared/api/fetcher';
 import { tripQueryKeys } from './keys';
 import { scheduleQueryKeys } from '@/entities/schedule/data/keys';
 import { expenseQueryKeys } from '@/entities/expense/data/keys';
 import { routeQueryKeys } from '@/entities/route/data/keys';
+import { clearTripCopiesInTransaction } from '@/shared/services/sync/cleanup-job';
 import { cleanupOfflineMapForTrip } from '@/shared/services/offline-map';
 import { hasPendingTasksForTrip, getPendingTasksForTrip } from '@/shared/services/sync/queue';
 import { cancelAndInvalidateQueries } from '@/shared/lib/query-refresh';
@@ -75,25 +76,7 @@ export const useDeactivateTrip = () => {
         // 데이터 정리 (선택적)
         // PENDING 작업이 없으면 즉시 Soft delete 실행
         if (cleanupData && !hasPending) {
-          // Soft delete: schedules
-          await getDatabase()
-            .update(schedules)
-            .set({
-              deletedAt: now,
-              updatedAt: now,
-              version: sql`${schedules.version} + 1`,
-            })
-            .where(eq(schedules.tripId, tripId));
-
-          // Soft delete: expenses
-          await getDatabase()
-            .update(expenses)
-            .set({
-              deletedAt: now,
-              updatedAt: now,
-              version: sql`${expenses.version} + 1`,
-            })
-            .where(eq(expenses.tripId, tripId));
+          await clearTripCopiesInTransaction(tripId, now);
 
           cleanupExecuted = true;
           console.log(`[TripActivation] Local data soft-deleted for trip: ${tripId}`);

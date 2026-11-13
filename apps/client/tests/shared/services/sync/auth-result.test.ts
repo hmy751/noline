@@ -13,7 +13,7 @@ jest.mock('@react-native-community/netinfo', () => ({
 }));
 jest.mock('@/shared/services/sync/api', () => ({ __esModule: true, default: { put: jest.fn(), get: jest.fn() } }));
 jest.mock('@/shared/services/auth/local-account', () => ({ getQueueOwner: jest.fn(async () => 'a') }));
-jest.mock('@/shared/services/sync/storage', () => ({ getLastSyncedAt: jest.fn(async () => null) }));
+jest.mock('@/shared/services/sync/storage', () => ({}));
 jest.mock('@/shared/db/utils', () => ({}));
 jest.mock('@/shared/db', () => ({
   isDatabaseReady: () => true,

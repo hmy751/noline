@@ -24,14 +24,15 @@ jest.mock('@/shared/services/sync/queue', () => ({
 }));
 jest.mock('@/shared/services/auth/local-account', () => ({ getQueueOwner: async () => '01ARZ3NDEKTSV4RRFFQ69G5FAZ' }));
 jest.mock('@/shared/services/sync/storage', () => ({
-  getLastSyncedAt: async () => null,
-  setLastSyncedAt: jest.fn(),
+  getPullCursor: async () => null,
+  setPullCheckpointInTransaction: jest.fn(),
 }));
 jest.mock('@/shared/services/sync/cleanup-job', () => ({ processPendingCleanups: async () => 0 }));
 jest.mock('@/shared/db/utils', () => ({}));
 jest.mock('@/shared/db', () => ({
   tripActivations: { isActivated: 'active', userId: 'user', tripId: 'trip' },
-  getDatabase: () => ({ select: () => ({ from: () => ({ where: async () => mockActivatedTrips }) }) }),
+  runDatabaseOperation: async (operation: () => unknown) => operation(),
+  getDatabase: () => ({ select: () => ({ from: () => ({ where: () => ({ all: () => mockActivatedTrips }) }) }) }),
 }));
 jest.mock('@/shared/lib/queryClient', () => ({
   get queryClient() {

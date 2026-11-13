@@ -14,6 +14,7 @@ import {
   getDatabase,
   tripActivations,
   runDatabaseTransaction,
+  runDatabaseOperation,
   syncQueue,
   trips as localTrips,
   schedules as localSchedules,
@@ -39,7 +40,7 @@ import {
 import { reconcileServerRecord, reconcileRecordInTransaction } from './reconcile';
 import { applyConfirmedDeletionInTransaction } from './confirmed-deletion';
 import { rememberConfirmedDeletionInTransaction } from './server-state';
-import { getLastSyncedAt, setLastSyncedAt } from './storage';
+import { getPullCursor, setPullCheckpointInTransaction } from './storage';
 
 /** sync-owned table의 endpoint는 여기서 관리하고 HTTP method는 action으로 결정한다. */
 const SYNC_PUSH_ENDPOINTS = {
@@ -228,97 +229,119 @@ export async function pushChanges(run?: SyncRun): Promise<void> {
   }
 }
 
-/**
- * Pull 동기화 엔진
- *
- * 서버의 최신 데이터를 로컬 DB에 반영
- * - lastSyncedAt 이후 변경된 데이터만 가져옴 (증분 동기화)
- * - 서버 확인본 위에 미전송 입력을 투영해 로컬 DB 업데이트
- * - React Query 캐시 무효화 → UI 자동 갱신
- * - lastSyncedAt 업데이트
- */
-export async function pullChanges(run?: SyncRun): Promise<void> {
+/** 요청한 준비 수명이 아직 현재인 자식만 반영하고, 전체 범위를 수신했을 때 cursor를 전진한다. */
+export const pullChanges = async (run?: SyncRun): Promise<void> => {
   let stage: RequestStage = 'local-before-send';
 
   try {
-    // 마지막 동기화 시간 조회
-    const lastSyncedAt = await getLastSyncedAt();
+    const pullUserId = requireLocalUserId();
+    const sessionId = useAuthStore.getState().sessionId;
 
-    // 활성화된 여행 ID 조회 (tripActivations 테이블 사용)
-    const activatedTrips = await getDatabase()
-      .select({ tripId: tripActivations.tripId })
-      .from(tripActivations)
-      .where(
-        and(
-          eq(tripActivations.isActivated, true),
-          eq(tripActivations.userId, selectLocalUserId(useAuthStore.getState()) ?? ''),
-        ),
-      );
-    const activatedTripIds = activatedTrips.map((activation) => activation.tripId);
+    const requirePullSession = () => {
+      requireLocalUserId(pullUserId);
+
+      if (useAuthStore.getState().sessionId !== sessionId) {
+        throw new AuthRequiredError();
+      }
+    };
+
+    const readActivePreparations = () =>
+      getDatabase()
+        .select({ preparationId: tripActivations.id, tripId: tripActivations.tripId })
+        .from(tripActivations)
+        .where(and(eq(tripActivations.isActivated, true), eq(tripActivations.userId, pullUserId)))
+        .all();
+
+    const activePreparations = await runDatabaseOperation(() => {
+      requirePullSession();
+
+      return readActivePreparations();
+    });
+    const requestedPreparations = new Map(
+      activePreparations.map(({ tripId, preparationId }) => [tripId, preparationId]),
+    );
+    const activatedTripIds = [...requestedPreparations.keys()];
 
     // 비활성 여행의 서버 데이터는 local DB에 저장하지 않는다.
     if (activatedTripIds.length === 0) {
-      console.log('[Sync] Skipping pull: No activated trips');
       return;
     }
 
-    console.log('[Sync] Starting pull...', {
-      lastSyncedAt: lastSyncedAt?.toISOString() || 'Never synced (초기 동기화)',
-      activatedTripIds,
-    });
+    const cursor = await getPullCursor(pullUserId, activatedTripIds);
+    requirePullSession();
 
-    // 서버에서 데이터 가져오기 (이 시점에 activatedTripIds.length > 0 임이 보장됨)
     stage = 'sending';
     const response = await syncApiClient.get('/api/sync/pull', {
       params: {
-        lastSyncedAt: lastSyncedAt?.toISOString(),
+        cursor,
         activatedTripIds: activatedTripIds.join(','),
       },
     });
 
     stage = 'local-after-response';
-    // 정책: 서버 응답은 { success, data } 구조
     // entity와 checkpoint 모두 검증한 뒤 첫 Local 쓰기를 시작한다.
-    const { trips, schedules, expenses, serverTime } = syncPullResponseSchema.parse(response.data).data;
-    const userId = requireLocalUserId();
-    const rows = [...trips, ...schedules, ...expenses];
-    if (rows.some((row) => row.userId !== userId)) {
+    const { trips, schedules, expenses, serverTime, nextCursor } = syncPullResponseSchema.parse(response.data).data;
+    requirePullSession();
+
+    if ([...trips, ...schedules, ...expenses].some((row) => row.userId !== pullUserId)) {
       throw new Error('다른 계정의 동기화 응답입니다');
     }
 
-    console.log('[Sync] Received from server:', {
-      trips: trips?.length || 0,
-      schedules: schedules?.length || 0,
-      expenses: expenses?.length || 0,
-      serverTime,
-    });
+    if ([...schedules, ...expenses].some((row) => !requestedPreparations.has(row.tripId))) {
+      throw new Error('요청하지 않은 여행의 동기화 응답입니다');
+    }
 
     await runDatabaseTransaction(async () => {
+      requirePullSession();
+
+      const isRequestedPreparation = ({ tripId, preparationId }: (typeof activePreparations)[number]) =>
+        requestedPreparations.get(tripId) === preparationId;
+      const applicableTripIds = new Set(
+        readActivePreparations()
+          .filter(isRequestedPreparation)
+          .map(({ tripId }) => tripId),
+      );
+
+      // 여행 목록의 메타데이터·확정 삭제는 자식 사본의 준비 수명과 별개다.
       for (const row of trips) {
         await reconcileRecordInTransaction('trips', row);
       }
-      for (const row of schedules) {
-        await reconcileRecordInTransaction('schedules', row);
+
+      for (const [tableName, records] of [
+        ['schedules', schedules],
+        ['expenses', expenses],
+      ] as const) {
+        for (const row of records) {
+          if (applicableTripIds.has(row.tripId)) {
+            await reconcileRecordInTransaction(tableName, row);
+          } else if (row.deletedAt) {
+            await applyConfirmedDeletionInTransaction(tableName, row.id, row.tripId, row.deletedAt);
+          }
+        }
       }
-      for (const row of expenses) {
-        await reconcileRecordInTransaction('expenses', row);
+
+      requirePullSession();
+
+      const currentPreparations = readActivePreparations();
+
+      if (
+        applicableTripIds.size === requestedPreparations.size &&
+        currentPreparations.length === requestedPreparations.size &&
+        currentPreparations.every(isRequestedPreparation)
+      ) {
+        await setPullCheckpointInTransaction(pullUserId, activatedTripIds, nextCursor, new Date(serverTime));
       }
+
+      requirePullSession();
     });
 
     await refreshSyncQueries();
-
-    console.log('[Sync] cache refresh requested');
-
-    // 마지막 동기화 시간 업데이트
-    await setLastSyncedAt(new Date(serverTime));
-
-    console.log('[Sync] Pull completed');
   } catch (error) {
     reportSyncSignal({ kind: 'sync.pull.blocked', ...failureDetails(error, stage) }, run);
     console.error('[Sync] Pull failed:', error);
     throw error;
   }
-}
+};
 
 /** 로컬 변경을 먼저 Push한 뒤 서버 변경을 Pull한다. */
 export async function syncData(run?: SyncRun): Promise<void> {

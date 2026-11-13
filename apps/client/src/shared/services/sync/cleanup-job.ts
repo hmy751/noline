@@ -4,9 +4,12 @@ import { expenses, getDatabase, schedules, syncQueue, tripActivations } from '@/
 import { getCurrentISOString, withTransaction } from '@/shared/db/utils';
 import { SOFT_DELETE_VACUUM_DAYS } from '@/shared/lib/lifecycle';
 import { queryClient } from '@/shared/lib/queryClient';
+import { generateId } from '@/shared/services/id/ulid';
+import { requireLocalUserId } from '@/shared/store/auth';
 import { cleanupOfflineMapForTrip } from '@/shared/services/offline-map';
 
 import { hasPendingTasksForTrip } from './queue';
+import { releaseServerRecordBodiesInTransaction } from './server-state';
 
 let activeCleanup: Promise<number> | null = null;
 let pauseCount = 0;
@@ -101,6 +104,26 @@ async function runPendingCleanups(): Promise<number> {
   }
 }
 
+/** 사본 정리와 준비 ID 갱신을 함께 확정한다. 이전 준비 상태의 pull이 사본을 되살릴 수 없다. */
+export const clearTripCopiesInTransaction = async (tripId: string, now: string): Promise<void> => {
+  const db = getDatabase();
+  const userId = requireLocalUserId();
+
+  await releaseServerRecordBodiesInTransaction(tripId);
+
+  for (const table of [schedules, expenses] as const) {
+    await db
+      .update(table)
+      .set({ deletedAt: now, updatedAt: now, version: sql`${table.version} + 1` })
+      .where(and(eq(table.tripId, tripId), eq(table.userId, userId)));
+  }
+
+  await db
+    .update(tripActivations)
+    .set({ id: generateId(), cleanupPending: false, updatedAt: now })
+    .where(and(eq(tripActivations.tripId, tripId), eq(tripActivations.userId, userId)));
+};
+
 /**
  * 특정 여행의 cleanup 처리
  *
@@ -121,34 +144,7 @@ async function processCleanupForTrip(tripId: string): Promise<void> {
   console.log(`[Cleanup] All sync tasks completed for trip ${tripId} - executing cleanup`);
 
   await withTransaction(async () => {
-    // Soft delete: schedules
-    await getDatabase()
-      .update(schedules)
-      .set({
-        deletedAt: now,
-        updatedAt: now,
-        version: sql`${schedules.version} + 1`,
-      })
-      .where(eq(schedules.tripId, tripId));
-
-    // Soft delete: expenses
-    await getDatabase()
-      .update(expenses)
-      .set({
-        deletedAt: now,
-        updatedAt: now,
-        version: sql`${expenses.version} + 1`,
-      })
-      .where(eq(expenses.tripId, tripId));
-
-    // cleanupPending 플래그 제거
-    await getDatabase()
-      .update(tripActivations)
-      .set({
-        cleanupPending: false,
-        updatedAt: now,
-      })
-      .where(eq(tripActivations.tripId, tripId));
+    await clearTripCopiesInTransaction(tripId, now);
 
     console.log(`[Cleanup] Local data soft-deleted for trip: ${tripId}`);
   });
@@ -177,34 +173,7 @@ export async function forceCleanupTrip(tripId: string): Promise<void> {
   console.warn(`[Cleanup] Force cleanup for trip: ${tripId} (sync_queue ignored)`);
 
   await withTransaction(async () => {
-    // Soft delete: schedules
-    await getDatabase()
-      .update(schedules)
-      .set({
-        deletedAt: now,
-        updatedAt: now,
-        version: sql`${schedules.version} + 1`,
-      })
-      .where(eq(schedules.tripId, tripId));
-
-    // Soft delete: expenses
-    await getDatabase()
-      .update(expenses)
-      .set({
-        deletedAt: now,
-        updatedAt: now,
-        version: sql`${expenses.version} + 1`,
-      })
-      .where(eq(expenses.tripId, tripId));
-
-    // cleanupPending 플래그 제거
-    await getDatabase()
-      .update(tripActivations)
-      .set({
-        cleanupPending: false,
-        updatedAt: now,
-      })
-      .where(eq(tripActivations.tripId, tripId));
+    await clearTripCopiesInTransaction(tripId, now);
   });
 
   // 오프라인 지도 삭제

@@ -1,19 +1,16 @@
 import { z } from 'zod';
-import { isoDateTime } from '../primitives/datetime';
-import { tripEntity } from '../entities/trip';
-import { scheduleEntity } from '../entities/schedule';
+
 import { expenseEntity } from '../entities/expense';
+import { scheduleEntity } from '../entities/schedule';
+import { tripEntity } from '../entities/trip';
+import { isoDateTime } from '../primitives/datetime';
 
-// ========================================
-// Sync Pull Schemas
-// ========================================
+const pullCursor = z.string().regex(/^(0|[1-9][0-9]{0,19})$/);
 
-/**
- * Pull 요청 Query Parameter 스키마
- *
- * GET /api/sync/pull?lastSyncedAt=2025-10-24T10:00:00.000Z
- */
+/** cursor를 보내면 같은 계정·활성 여행 범위의 지난 snapshot 이후부터 조회한다. */
 export const syncPullQuerySchema = z.object({
+  cursor: pullCursor.optional(),
+  activatedTripIds: z.string().optional(),
   lastSyncedAt: isoDateTime.optional(), // ISO 8601 날짜 문자열
 });
 
@@ -21,10 +18,9 @@ export const syncPullQuerySchema = z.object({
  * Sync Pull 내부 데이터 스키마 (data 필드)
  *
  * 서버 → 클라이언트
- * - trips: updatedAt >= lastSyncedAt인 여행 목록
- * - schedules: updatedAt >= lastSyncedAt인 일정 목록
- * - expenses: updatedAt >= lastSyncedAt인 경비 목록
- * - serverTime: 다음 동기화의 기준 시간
+ * - trips는 소유 여행, schedules/expenses는 활성 여행의 변경과 삭제 표시
+ * - nextCursor는 다음 snapshot 조회의 시작점, serverTime은 마지막 수신 시각
+ * - lastSyncedAt만 보낸 이전 앱은 시각 기반 증분 조회를 계속 사용한다.
  */
 export const syncPullDataSchema = z.object({
   // HTTP JSON 계약: 서버 serializer가 DB Date를 문자열로 바꾼 뒤 반환한다.
@@ -32,6 +28,7 @@ export const syncPullDataSchema = z.object({
   schedules: z.array(scheduleEntity),
   expenses: z.array(expenseEntity),
   serverTime: isoDateTime,
+  nextCursor: pullCursor.optional(),
 });
 
 /**

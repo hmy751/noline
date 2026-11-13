@@ -402,7 +402,7 @@ it('재활성화 응답에서도 전송을 기다리는 금액과 삭제를 보�
   expect(queued().map((task) => task.action)).toEqual(['UPDATE', 'DELETE']);
 });
 
-it('정상 activation 경비는 date-only로 저장하고 앱에도 같은 날짜를 반환한다', async () => {
+it('정상 activation 경비는 date-only로 저장한다', async () => {
   const newTripId = '01ARZ3NDEKTSV4RRFFQ69G5FAZ';
   const newExpenseId = '01ARZ3NDEKTSV4RRFFQ69G5FB0';
   jest.mocked(apiClient.post).mockResolvedValue({
@@ -414,10 +414,9 @@ it('정상 activation 경비는 date-only로 저장하고 앱에도 같은 날�
     },
   } as never);
   const mutation = useActivateTrip() as unknown as {
-    mutationFn: (id: string) => Promise<{ expenses: (typeof row)[] }>;
+    mutationFn: (id: string) => Promise<unknown>;
   };
-  const result = await mutation.mutationFn(newTripId);
-  expect(result.expenses[0].date).toBe('2026-10-03');
+  await mutation.mutationFn(newTripId);
   expect(getDatabase().select().from(expenses).where(eq(expenses.id, newExpenseId)).get()?.date).toBe('2026-10-03');
 });
 

@@ -1,86 +1,68 @@
+import { eq } from 'drizzle-orm';
+
+import { syncPullQuerySchema } from '@repo/schema/sync/sync-status';
+
 import { getDatabase, runDatabaseOperation } from '@/shared/db';
 import { syncMetadata } from '@/shared/db/schema';
-import { eq } from 'drizzle-orm';
 import { getCurrentISOString } from '@/shared/db/utils';
-
-/**
- * 동기화 관련 메타데이터를 SQLite에 저장/조회
- *
- * AsyncStorage 대신 SQLite 사용:
- * - 추가 의존성 없음 (이미 SQLite 사용 중)
- * - 데이터 일관성 (모든 데이터가 SQLite에)
- * - 트랜잭션 지원 (Pull 성공 시에만 업데이트)
- */
+import { requireLocalUserId } from '@/shared/store/auth';
 
 const LAST_SYNCED_KEY = 'lastSyncedAt';
 
-/**
- * 마지막 동기화 시간 조회
- *
- * @returns {Promise<Date | null>} 마지막 동기화 시간 (없으면 null)
- *
- */
-export async function getLastSyncedAt(): Promise<Date | null> {
-  try {
-    const result = await runDatabaseOperation(() =>
-      getDatabase().select().from(syncMetadata).where(eq(syncMetadata.key, LAST_SYNCED_KEY)).get(),
-    );
+// 한 계정에서 활성 여행 집합이 바뀌면 새 범위의 전체 데이터를 먼저 읽는다.
+const serializePullScope = (tripIds: readonly string[]): string => {
+  return JSON.stringify([...new Set(tripIds)].sort());
+};
 
-    if (!result) {
-      return null;
+export const getPullCursor = async (userId: string, tripIds: readonly string[]): Promise<string | undefined> => {
+  const row = await runDatabaseOperation(() =>
+    getDatabase()
+      .select()
+      .from(syncMetadata)
+      .where(eq(syncMetadata.key, `pullCursor:${userId}`))
+      .get(),
+  );
+
+  if (!row) {
+    return undefined;
+  }
+
+  try {
+    const { scope, cursor } = JSON.parse(row.value);
+
+    if (scope !== serializePullScope(tripIds)) {
+      return undefined;
     }
 
-    return new Date(result.value);
-  } catch (error) {
-    console.error('[SyncStorage] Failed to get lastSyncedAt:', error);
-    return null;
+    const parsed = syncPullQuerySchema.shape.cursor.safeParse(cursor);
+
+    return parsed.success ? parsed.data : undefined;
+  } catch {
+    return undefined;
   }
-}
+};
 
-/**
- * 마지막 동기화 시간 저장
- *
- * @param {Date} date - 저장할 날짜
- *
- */
-export async function setLastSyncedAt(date: Date): Promise<void> {
-  try {
-    const now = getCurrentISOString();
+/** Pull의 본문 반영과 같은 transaction에서만 호출한다. */
+export const setPullCheckpointInTransaction = async (
+  userId: string,
+  tripIds: readonly string[],
+  cursor: string | undefined,
+  serverTime: Date,
+): Promise<void> => {
+  requireLocalUserId(userId);
 
-    // Upsert: 존재하면 업데이트, 없으면 삽입
-    await runDatabaseOperation(() =>
-      getDatabase()
-        .insert(syncMetadata)
-        .values({
-          key: LAST_SYNCED_KEY,
-          value: date.toISOString(),
-          updatedAt: now,
-        })
-        .onConflictDoUpdate({
-          target: syncMetadata.key,
-          set: {
-            value: date.toISOString(),
-            updatedAt: now,
-          },
-        }),
-    );
+  const updatedAt = getCurrentISOString();
+  const value = JSON.stringify({ scope: serializePullScope(tripIds), cursor });
 
-    console.log('[SyncStorage] lastSyncedAt saved:', date.toISOString());
-  } catch (error) {
-    console.error('[SyncStorage] Failed to set lastSyncedAt:', error);
+  for (const entry of [
+    { key: `pullCursor:${userId}`, value },
+    { key: LAST_SYNCED_KEY, value: serverTime.toISOString() },
+  ]) {
+    await getDatabase()
+      .insert(syncMetadata)
+      .values({ ...entry, updatedAt })
+      .onConflictDoUpdate({ target: syncMetadata.key, set: { value: entry.value, updatedAt } });
   }
-}
 
-/**
- * 마지막 동기화 시간 삭제 (디버그용)
- *
- */
-export async function clearLastSyncedAt(): Promise<void> {
-  try {
-    await runDatabaseOperation(() => getDatabase().delete(syncMetadata).where(eq(syncMetadata.key, LAST_SYNCED_KEY)));
-
-    console.log('[SyncStorage] lastSyncedAt cleared');
-  } catch (error) {
-    console.error('[SyncStorage] Failed to clear lastSyncedAt:', error);
-  }
-}
+  requireLocalUserId(userId);
+};

@@ -1,13 +1,9 @@
-import { Router } from 'express';
-import type { Request, Response } from 'express';
+import { gte, inArray, and, eq, sql } from 'drizzle-orm';
+import { Router, type Request, type Response } from 'express';
+
+import { syncPullQuerySchema, syncPullResponseSchema } from '@repo/schema/sync/sync-status';
+
 import { db, trips, schedules, expenses } from '../db/index.js';
-import { gte, inArray, and, eq } from 'drizzle-orm';
-import {
-  syncPullQuerySchema,
-  syncPullResponseSchema,
-  syncPushRequestSchema,
-  syncPushResponseSchema,
-} from '@repo/schema/sync/sync-status';
 import { requireAuth } from '../middleware/auth.js';
 import { serializeExpense } from '../serializers/expense.js';
 import { serializeSchedule } from '../serializers/schedule.js';
@@ -15,30 +11,17 @@ import { serializeTrip } from '../serializers/trip.js';
 
 const router = Router();
 
-/**
- * GET /api/sync/pull
- *
- * 서버의 최신 데이터를 클라이언트로 전송 (Pull 동기화)
- *
- * Query Parameters:
- * - lastSyncedAt: ISO 8601 날짜 문자열 (선택, 없으면 전체 데이터)
- * - activatedTripIds: 활성화된 여행 ID 배열 (쉼표로 구분, 선택)
- *
- * Response:
- * {
- *   trips: Trip[], // 모든 여행 메타데이터
- *   schedules: Schedule[], // 활성화된 여행의 일정만
- *   expenses: Expense[], // 활성화된 여행의 경비만
- *   serverTime: string (ISO 8601)
- * }
- *
- * @example
- * GET /api/sync/pull?lastSyncedAt=2025-10-24T10:00:00.000Z&activatedTripIds=trip1,trip2
+const XID_CYCLE = 4294967296n;
+
+/** 소유 여행 메타데이터와 활성 여행 자식을 같은 PostgreSQL snapshot에서 조회한다.
+ * 응답의 nextCursor는 아직 끝나지 않은 쓰기를 다음 pull에서 다시 확인할 하한이다.
+ * cursor가 없는 구버전 앱에는 기존 lastSyncedAt 조회를 제공한다.
  */
 router.get('/pull', requireAuth, async (req: Request, res: Response) => {
   try {
     const userId = req.userId!;
     const query = syncPullQuerySchema.safeParse(req.query);
+
     if (!query.success) {
       return res.status(400).json({
         error: 'Validation error',
@@ -46,90 +29,94 @@ router.get('/pull', requireAuth, async (req: Request, res: Response) => {
         details: query.error.errors,
       });
     }
-    const { lastSyncedAt } = query.data;
-    const { activatedTripIds } = req.query;
 
-    console.log('📥 [Sync Pull] Request received:', {
-      lastSyncedAt: lastSyncedAt || 'Not provided (full sync)',
-      activatedTripIds: activatedTripIds || 'None (metadata only)',
-    });
+    const { cursor, lastSyncedAt, activatedTripIds } = query.data;
+    const activatedIds =
+      activatedTripIds
+        ?.split(',')
+        .map((id) => id.trim())
+        .filter(Boolean) ?? [];
 
-    // lastSyncedAt이 있으면 증분 동기화, 없으면 전체 동기화
-    const sinceDate = lastSyncedAt ? new Date(lastSyncedAt) : new Date(0); // Epoch (1970-01-01) = 전체 데이터
+    const snapshot = await db.transaction(
+      async (tx) => {
+        // xmin보다 작은 트랜잭션은 모두 끝났다. 읽기 도중 또는 그 뒤에 commit하는
+        // 작성자는 다음 조회가 같은 하한부터 다시 읽으므로 updatedAt이 오래돼도 빠지지 않는다.
+        const [boundary] = await tx.execute<{
+          oldest: string;
+          upper: string;
+          time: string;
+        }>(sql`SELECT pg_snapshot_xmin(pg_current_snapshot())::text AS oldest,
+                   pg_snapshot_xmax(pg_current_snapshot())::text AS upper,
+                   statement_timestamp()::text AS time`);
 
-    // 활성화된 여행 ID 배열 파싱
-    const activatedIds = activatedTripIds ? (activatedTripIds as string).split(',').filter((id) => id.trim()) : [];
+        const since = cursor === undefined ? undefined : BigInt(cursor);
+        const upper = BigInt(boundary.upper);
 
-    console.log('📥 [Sync Pull] Activated trip IDs:', activatedIds);
+        // 행의 xmin은 32비트다. 한 바퀴 이상 지난 cursor나 복원 전 미래 cursor는 전체 조회한다.
+        const xidRange =
+          since !== undefined && since <= upper && upper - since < XID_CYCLE
+            ? sql`mod(xmin::text::bigint - ${String(since % XID_CYCLE)}::bigint + 4294967296, 4294967296)
+              < ${String(upper - since)}::bigint`
+            : undefined;
+        const changedSincePreviousPull = (
+          updatedAt: typeof trips.updatedAt | typeof schedules.updatedAt | typeof expenses.updatedAt,
+        ) => (cursor === undefined && lastSyncedAt ? gte(updatedAt, new Date(lastSyncedAt)) : xidRange);
 
-    // updatedAt >= sinceDate인 레코드 조회 (인증된 사용자 소유 row만)
-    // - trips: 사용자의 모든 여행 (메타데이터)
-    // - schedules/expenses: 사용자의 활성화된 여행만
-    const [tripsData, schedulesData, expensesData] = await Promise.all([
-      db
-        .select()
-        .from(trips)
-        .where(and(eq(trips.userId, userId), gte(trips.updatedAt, sinceDate)))
-        .orderBy(trips.updatedAt),
+        const tripsData = await tx
+          .select()
+          .from(trips)
+          .where(and(eq(trips.userId, userId), changedSincePreviousPull(trips.updatedAt)))
+          .orderBy(trips.updatedAt);
 
-      activatedIds.length > 0
-        ? db
-            .select()
-            .from(schedules)
-            .where(
-              and(
-                eq(schedules.userId, userId),
-                gte(schedules.updatedAt, sinceDate),
-                inArray(schedules.tripId, activatedIds),
-              ),
-            )
-            .orderBy(schedules.updatedAt)
-        : Promise.resolve([]),
+        const schedulesData = activatedIds.length
+          ? await tx
+              .select()
+              .from(schedules)
+              .where(
+                and(
+                  eq(schedules.userId, userId),
+                  inArray(schedules.tripId, activatedIds),
+                  changedSincePreviousPull(schedules.updatedAt),
+                ),
+              )
+              .orderBy(schedules.updatedAt)
+          : [];
 
-      activatedIds.length > 0
-        ? db
-            .select()
-            .from(expenses)
-            .where(
-              and(
-                eq(expenses.userId, userId),
-                gte(expenses.updatedAt, sinceDate),
-                inArray(expenses.tripId, activatedIds),
-              ),
-            )
-            .orderBy(expenses.updatedAt)
-        : Promise.resolve([]),
-    ]);
+        const expensesData = activatedIds.length
+          ? await tx
+              .select()
+              .from(expenses)
+              .where(
+                and(
+                  eq(expenses.userId, userId),
+                  inArray(expenses.tripId, activatedIds),
+                  changedSincePreviousPull(expenses.updatedAt),
+                ),
+              )
+              .orderBy(expenses.updatedAt)
+          : [];
 
-    console.log('📥 [Sync Pull] Sending data:', {
-      trips: tripsData.length,
-      schedules: schedulesData.length,
-      expenses: expensesData.length,
-    });
-
-    // ✅ Date 객체를 ISO string으로 변환
-    const tripsFormatted = tripsData.map(serializeTrip);
-
-    const schedulesFormatted = schedulesData.map(serializeSchedule);
-
-    const expensesFormatted = expensesData.map(serializeExpense);
-
-    // 서버 시간 반환 (다음 동기화의 기준점)
-    const serverTime = new Date().toISOString();
-
-    // 정책: { success, data } 구조로 응답
-    const response = {
-      success: true as const,
-      data: {
-        trips: tripsFormatted,
-        schedules: schedulesFormatted,
-        expenses: expensesFormatted,
-        serverTime,
+        return {
+          tripsData,
+          schedulesData,
+          expensesData,
+          serverTime: new Date(boundary.time).toISOString(),
+          nextCursor: boundary.oldest,
+        };
       },
-    };
+      { isolationLevel: 'repeatable read', accessMode: 'read only' },
+    );
 
-    // Zod로 응답 데이터 검증
-    const validatedResponse = syncPullResponseSchema.safeParse(response);
+    const validatedResponse = syncPullResponseSchema.safeParse({
+      success: true,
+      data: {
+        trips: snapshot.tripsData.map(serializeTrip),
+        schedules: snapshot.schedulesData.map(serializeSchedule),
+        expenses: snapshot.expensesData.map(serializeExpense),
+        serverTime: snapshot.serverTime,
+        nextCursor: snapshot.nextCursor,
+      },
+    });
 
     if (!validatedResponse.success) {
       console.error('❌ [Sync Pull] Response validation error:', validatedResponse.error);
@@ -144,19 +131,11 @@ router.get('/pull', requireAuth, async (req: Request, res: Response) => {
     res.locals.diagnosticError = error;
     console.error('❌ [Sync Pull] Error:', error);
 
-    if (error instanceof Error) {
-      res.status(500).json({
-        success: false,
-        error: 'Sync pull failed',
-        message: error.message,
-      });
-    } else {
-      res.status(500).json({
-        success: false,
-        error: 'Sync pull failed',
-        message: 'Unknown error occurred',
-      });
-    }
+    res.status(500).json({
+      success: false,
+      error: 'Sync pull failed',
+      message: error instanceof Error ? error.message : 'Unknown error occurred',
+    });
   }
 });
 

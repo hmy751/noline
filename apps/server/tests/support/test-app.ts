@@ -46,14 +46,14 @@ vi.mock('../../src/db/index.js', async () => {
     })),
   }));
 
-  return {
-    ...schema,
-    db: {
-      select: testState.select,
-      insert: testState.insert,
-      update: testState.update,
-    },
+  const mockDb = {
+    select: testState.select,
+    insert: testState.insert,
+    update: testState.update,
+    execute: vi.fn(async () => [{ oldest: '100', upper: '110', time: new Date().toISOString() }]),
+    transaction: async (callback: (tx: unknown) => unknown) => callback(mockDb),
   };
+  return { ...schema, db: mockDb };
 });
 
 // JWT 검증은 이 테스트의 대상이 아니므로 인증을 마친 사용자만 재현한다.
