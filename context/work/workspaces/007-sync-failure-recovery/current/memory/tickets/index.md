@@ -10,7 +10,7 @@
 | [06 — 멈춘 동기화를 알 수 있게 하기](06-stalled-sync-visibility.md) | 계속 실패하는 작업을 출시 빌드에서 개발자가 알 수 있게 하고 동기화 시작·실패 횟수를 남긴다. 사용자 표시는 Workspace 008 | 2단계 |
 | [07 — 충돌로 막힌 변경을 규칙으로 끝내기](07-conflict-rule-and-cleanup.md) | 일정·경비 UPDATE, 구버전 호환, 삭제된 여행의 미전송 일정·경비 정리와 일정·경비 자체의 삭제 처리를 결정했다. | 최종 high 검토 보완 포함 완료 · 배포 별도 |
 | [08 — 원본 없는 큐 작업이 복원과 로그인을 막지 않게 하기](08-orphaned-queue-task-blocks-login.md) | 1.0.1에서 어긋난 큐 때문에 데이터 삭제만 남는 막힘을 없앤다 | 완료 · 배포 별도 |
-| [09 — 2〜7단계 후속 코드 검토·정리](09-staged-code-review-and-refinement.md) | 선행 high 완료는 유지하고 실제 선택의 전제·근거·반례를 단계별로 확인해 필요 수정·독립 검증·사용자 설명까지 잇는다 | 동작·책임 검토·독립 검증 유지 · 주요 유지 판단의 표현·책임 설계 보완 검토 남음 |
+| [09 — 2〜7단계 후속 코드 검토·정리](09-staged-code-review-and-refinement.md) | 선행 high 완료는 유지하고 실제 선택의 전제·근거·반례를 단계별로 확인해 필요 수정·독립 검증·사용자 설명까지 잇는다 | 3〜7단계 순차 보완·연결 회귀 완료 · 수락·커밋·배포 별도 |
 
 개별 진행과 실제 결과는 각 Ticket 본문에서 확인한다.
 
@@ -32,4 +32,4 @@
 
 09와 [009의 루프 개선](../../../../009-development-review-improvement/current/memory/tickets/01-stage-one-review-and-judgment-loop.md)은 독립적으로 시작한다. 7개 번호는 설명 구획으로 실제 동기화 실행 순서를 고정하지 않는다.
 
-Ticket09의 2단계 제품은 **44d2a5ef**, 완료 기록은 **9f3e87f2**다. [4〜7단계 수행·검증](../../../records/2026-11-13-06-stages-four-through-seven-review.md)과 client902·서버73·PG50 통과는 유지한다. [원문 재대조](../../../records/2026-11-13-07-review-depth-and-completion-correction.md) 뒤 Main은 전반적인 세부 품질 적용까지 완료했다는 판단을 정정했다. 주요 유지 판단의 표현·책임 설계 보완 검토가 남고 이번에는 기록만 보완했다. 1단계 실행 합의·승인된 2단계 판단·마무리 피드백 제외를 유지하며 새 규칙이나 제품 변경은 없다.
+Ticket09의 [3단계 보완](../../../records/2026-11-13-08-stage-three-consumer-and-expression-rereview.md)과 [4〜7단계 순차 보완·마지막 연결 확인](../../../records/2026-11-13-09-stages-four-through-seven-sequential-rereview.md)을 마쳤다. 최종 client20묶음309 통과, 서버는 변경 없는 4단계39·독립PG22 근거를 재사용한다. 단계별 수치를 합산하지 않는다. [완료 판단 정정](../../../records/2026-11-13-07-review-depth-and-completion-correction.md)은 보존하며 사용자 최종 수락·커밋·배포는 별도다. 이번 문서 커밋 전 기록 기준은945922fe이며 사용자는 후속 기록·안내의 선별 커밋을 요청했다. 제품44d2a5ef 이후 제품 변경은 미커밋이다.
