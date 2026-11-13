@@ -1,9 +1,15 @@
 import type { Event } from '@sentry/react-native';
 
-const syncMessages = new Set(['sync.quarantined', 'sync.push.blocked', 'sync.pull.blocked', 'sync.login.blocked', 'sync.push.resolved']);
+const SYNC_MESSAGES = new Set([
+  'sync.quarantined',
+  'sync.push.blocked',
+  'sync.pull.blocked',
+  'sync.login.blocked',
+  'sync.push.resolved',
+]);
 
 // SDK scope에 다른 값이 붙었더라도 허용한 진단 어휘만 기기 밖으로 보낸다.
-const tagValues: Record<string, RegExp> = {
+const TAG_VALUES: Record<string, RegExp> = {
   'sync.reason': /^(app-startup|conditions-ready|manual|periodic)$/,
   'sync.stage':
     /^(local-before-send|response-unconfirmed|server-rejected|local-after-response|auth-blocked|auth-refresh-failed|invalid-ownership|legacy-held|entity-deleted|trip-deleted)$/,
@@ -17,7 +23,7 @@ const tagValues: Record<string, RegExp> = {
   'sync.source': /^(login|push)$/,
 };
 
-export function syncFingerprint(message: string, tags: Record<string, string>): string[] {
+function syncFingerprint(message: string, tags: Record<string, string>): string[] {
   return [
     message,
     tags['sync.stage'] ?? '',
@@ -28,16 +34,16 @@ export function syncFingerprint(message: string, tags: Record<string, string>): 
 }
 
 export function sanitizeSentryEvent(event: Event): Event {
-  const message = event.message && syncMessages.has(event.message) ? event.message : undefined;
+  const message = event.message && SYNC_MESSAGES.has(event.message) ? event.message : undefined;
   const isSync = Boolean(message) || event.transaction === 'sync.started' || event.transaction === 'sync.finished';
   const tags: Record<string, string> = {};
 
   if (isSync) {
     for (const [key, value] of Object.entries(event.tags ?? {})) {
       if (
-        Object.prototype.hasOwnProperty.call(tagValues, key) &&
+        Object.prototype.hasOwnProperty.call(TAG_VALUES, key) &&
         typeof value === 'string' &&
-        tagValues[key].test(value)
+        TAG_VALUES[key].test(value)
       ) {
         tags[key] = value;
       }

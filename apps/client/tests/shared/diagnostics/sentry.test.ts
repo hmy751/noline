@@ -17,6 +17,7 @@ it('DSN이 있을 때만 수집하고 시작·종료를 연결하며 원본·자
   initializeDiagnostics(sentry, randomUUID, '');
   expect(startSyncDiagnostics('manual')).toBeUndefined();
   expect(sentry.init).not.toHaveBeenCalled();
+
   initializeDiagnostics(sentry, randomUUID, 'https://test@localhost/1');
   expect(sentry.init).toHaveBeenCalledTimes(1);
   const opts = sentry.init.mock.calls[0]?.[0] as ReactNativeOptions;
@@ -33,6 +34,7 @@ it('DSN이 있을 때만 수집하고 시작·종료를 연결하며 원본·자
   });
   expect(opts).not.toHaveProperty('replaysSessionSampleRate');
   expect(opts).not.toHaveProperty('replaysOnErrorSampleRate');
+
   const run = startSyncDiagnostics('manual');
   finishSyncDiagnostics(run, 'completed');
   expect(sentry.captureEvent.mock.calls[0][0]).toMatchObject({
@@ -44,6 +46,7 @@ it('DSN이 있을 때만 수집하고 시작·종료를 연결하며 원본·자
     tags: { 'sync.result': 'completed' },
     contexts: { trace: { trace_id: run?.traceId } },
   });
+
   reportSyncSignal({
     kind: 'sync.quarantined',
     task: { tableName: 'secret-title', action: 'DELETE', retryCount: 2 },
@@ -52,6 +55,7 @@ it('DSN이 있을 때만 수집하고 시작·종료를 연결하며 원본·자
   expect(sentry.captureEvent.mock.calls[2][0]).toMatchObject({
     tags: { 'sync.table': 'unknown', 'sync.action': 'DELETE', 'sync.source': 'login', 'sync.previous_failures': '2' },
   });
+
   const filtered = opts.beforeSend?.(
     {
       type: undefined,
@@ -64,6 +68,7 @@ it('DSN이 있을 때만 수집하고 시작·종료를 연결하며 원본·자
     {},
   );
   expect(JSON.stringify(filtered)).not.toContain('private');
+
   reportSyncSignal(
     {
       kind: 'sync.push.resolved',
@@ -124,6 +129,7 @@ it('전송 직전 이름까지 맞는 민감한 tag·fingerprint·프레임 경�
   });
   expect(JSON.stringify(filtered)).not.toContain('private');
   expect(filtered.tags).toEqual({ 'sync.stage': 'auth-refresh-failed' });
+  expect(filtered.fingerprint).toEqual(['sync.push.blocked', 'auth-refresh-failed', '', '', '']);
   expect(filtered.exception?.values?.[0].stacktrace?.frames?.[1]).toMatchObject({
     filename: 'app:///main.jsbundle',
     lineno: 1,

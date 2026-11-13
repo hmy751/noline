@@ -4,6 +4,7 @@ import { reportSyncSignal } from '@/shared/diagnostics/sentry';
 import { pushChanges, SyncIncompleteError } from '@/shared/services/sync/engine';
 import {
   getSyncableTasks,
+  getTaskById,
   getSyncQueueStats,
   updateTaskStatus,
   recoverInterruptedTasks,
@@ -54,6 +55,7 @@ const failedTask = {
 beforeEach(() => {
   useAuthStore.setState({ status: 'signed-in', userId: '01ARZ3NDEKTSV4RRFFQ69G5FAZ' });
   jest.mocked(getSyncableTasks).mockReset().mockResolvedValue([failedTask]);
+  jest.mocked(getTaskById).mockReset().mockResolvedValue(failedTask);
   jest
     .mocked(getSyncQueueStats)
     .mockReset()
@@ -86,6 +88,23 @@ it('전송할 작업을 고르기 전에 중단된 IN_PROGRESS부터 되돌린�
   expect(jest.mocked(recoverInterruptedTasks).mock.invocationCallOrder[0]).toBeLessThan(
     jest.mocked(getSyncableTasks).mock.invocationCallOrder[0],
   );
+});
+
+it('앞 요청이 완료된 뒤 다음 큐 조회가 실패하면 전송 전 중단으로 보고한다', async () => {
+  const laterTask = { ...failedTask, id: 'later', status: 'PENDING', retryCount: 0 } as const;
+  const readError = new Error('queue read failed');
+  jest.mocked(getSyncableTasks).mockResolvedValue([failedTask, laterTask]);
+  jest.mocked(getTaskById).mockResolvedValueOnce(failedTask).mockRejectedValueOnce(readError);
+
+  await expect(pushChanges()).rejects.toBe(readError);
+
+  expect(api.put).toHaveBeenCalledTimes(1);
+  expect(reconcileServerRecord).toHaveBeenCalledTimes(1);
+  expect(reconcileServerRecord).toHaveBeenCalledWith('trips', expect.any(Object), failedTask.id);
+  expect(updateTaskStatus).toHaveBeenCalledTimes(1);
+  expect(updateTaskStatus).toHaveBeenCalledWith(failedTask.id, 'IN_PROGRESS');
+  expect(reportSyncSignal).toHaveBeenCalledTimes(1);
+  expect(reportSyncSignal).toHaveBeenCalledWith({ kind: 'sync.push.blocked', stage: 'local-before-send' }, undefined);
 });
 
 it('실패 횟수가 많이 쌓인 FAILED도 다시 전송하고 횟수를 계속 센다', async () => {

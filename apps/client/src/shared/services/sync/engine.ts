@@ -1,7 +1,7 @@
 import type { Query } from '@tanstack/react-query';
 import axios, { type AxiosError } from 'axios';
-import type { z } from 'zod';
 import { and, eq } from 'drizzle-orm';
+import type { z } from 'zod';
 
 import { expenseEntity } from '@repo/schema/entities/expense';
 import { scheduleEntity } from '@repo/schema/entities/schedule';
@@ -100,28 +100,6 @@ const pushTaskToServer = async (
 
 type RequestStage = 'local-before-send' | 'sending' | 'local-after-response';
 
-function failureDetails(error: unknown, stage: RequestStage) {
-  if (isSessionRefreshFailure(error)) {
-    return {
-      stage: 'auth-refresh-failed',
-      httpStatus: axios.isAxiosError(error) ? error.response?.status : undefined,
-    } as const;
-  }
-
-  if (error instanceof AuthRequiredError) {
-    return { stage: 'auth-blocked' } as const;
-  }
-
-  if (stage !== 'sending') {
-    return { stage };
-  }
-
-  if (axios.isAxiosError(error) && error.response) {
-    return { stage: 'server-rejected', httpStatus: error.response.status } as const;
-  }
-  return { stage: 'response-unconfirmed' } as const;
-}
-
 /** 중단된 작업을 되돌린 뒤 PENDING과 FAILED 작업을 FIFO로 전송하고 첫 실패에서 멈춘다. */
 export const pushChanges = async (run?: SyncRun): Promise<void> => {
   let shouldRefreshQueries = false;
@@ -133,11 +111,11 @@ export const pushChanges = async (run?: SyncRun): Promise<void> => {
     const tasks = await getSyncableTasks(run);
 
     for (const [index, task] of tasks.entries()) {
+      stage = 'local-before-send';
+
       if (!(await getTaskById(task.id))) {
         continue;
       }
-
-      stage = 'local-before-send';
 
       const hasWaiting = index + 1 < tasks.length;
 
@@ -363,19 +341,10 @@ export const pullChanges = async (run?: SyncRun): Promise<void> => {
 };
 
 /** 로컬 변경을 먼저 Push한 뒤 서버 변경을 Pull한다. */
-export async function syncData(run?: SyncRun): Promise<void> {
-  try {
-    console.log('[Sync] Starting full sync (Push + Pull)...');
-
-    await pushChanges(run);
-    await pullChanges(run);
-
-    console.log('[Sync] Full sync completed');
-  } catch (error) {
-    console.error('[Sync] Full sync failed:', error);
-    throw error;
-  }
-}
+export const syncData = async (run?: SyncRun): Promise<void> => {
+  await pushChanges(run);
+  await pullChanges(run);
+};
 
 /** 2xx 응답의 대상과 소유권을 확인하고 해당 요청의 SQLite 반영과 ACK를 함께 확정한다. */
 const applyPushResponse = async (
@@ -565,4 +534,27 @@ const resolveConfirmedDeletion = async (
   }
 
   return isTripDeletion ? 'trip-deleted' : 'entity-deleted';
+};
+
+const failureDetails = (error: unknown, stage: RequestStage) => {
+  if (isSessionRefreshFailure(error)) {
+    return {
+      stage: 'auth-refresh-failed',
+      httpStatus: axios.isAxiosError(error) ? error.response?.status : undefined,
+    } as const;
+  }
+
+  if (error instanceof AuthRequiredError) {
+    return { stage: 'auth-blocked' } as const;
+  }
+
+  if (stage !== 'sending') {
+    return { stage };
+  }
+
+  if (axios.isAxiosError(error) && error.response) {
+    return { stage: 'server-rejected', httpStatus: error.response.status } as const;
+  }
+
+  return { stage: 'response-unconfirmed' } as const;
 };

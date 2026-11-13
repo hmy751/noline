@@ -1,6 +1,6 @@
-import { sanitizeSentryEvent, syncFingerprint } from './sanitize-sentry-event';
-
 import type { SyncReason } from '@/shared/services/sync/lifecycle';
+
+import { sanitizeSentryEvent } from './sanitize-sentry-event';
 
 type SentrySDK = Pick<typeof import('@sentry/react-native'), 'init' | 'captureEvent'>;
 export interface SyncRun {
@@ -143,6 +143,7 @@ export function reportSyncSignal(signal: Signal, run?: SyncRun): void {
       tags['sync.action'] = syncActions.has(task.action) ? task.action : 'unknown';
       tags['sync.previous_failures'] = String(task.retryCount);
     }
+
     if (run) {
       tags['sync.reason'] = run.reason;
     }
@@ -151,6 +152,7 @@ export function reportSyncSignal(signal: Signal, run?: SyncRun): void {
       tags['sync.source'] = signal.source;
     } else {
       tags['sync.stage'] = signal.stage;
+
       if (signal.kind === 'sync.push.blocked' && task) {
         tags['sync.repeated'] = String(task.retryCount > 0);
       }
@@ -169,7 +171,6 @@ export function reportSyncSignal(signal: Signal, run?: SyncRun): void {
       level: signal.kind === 'sync.quarantined' || signal.kind === 'sync.push.resolved' ? 'info' : 'warning',
       tags,
       contexts: run ? traceContext(client, run) : undefined,
-      fingerprint: syncFingerprint(signal.kind, tags),
     });
   } catch {
     // Sentry 전송 결과는 큐 처리의 결과에 관여하지 않는다.
