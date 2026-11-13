@@ -113,7 +113,7 @@ Pull·활성화·push 응답은 같은 행을 받으면 남은 큐의 수정 항
 | 여행별 queue 조회 | PENDING·FAILED·IN_PROGRESS와 보류 입력을 확인한다. 자식의 부분 UPDATE는 로컬 원본의 여행 귀속도 사용한다. |
 | 검사와 쓰기 | 예약 조회 이후 실제 정리 transaction 안에서 미전송 입력을 다시 확인한다. |
 | 재활성화 | 신규 활성 레코드는 cleanupPending=false지만 기존 레코드의 재활성화 update에는 그 해제가 없다. pending cleanup도 isActivated를 다시 검사하지 않아 재활성 데이터에 옛 예약을 적용할 수 있다. |
-| 처리 수·부분 실패 | pending 때문에 건너뛴 여행도 processedCount에 포함될 수 있다. 지도 실패·vacuum 실패는 무시될 수 있어 반환 수를 실제 삭제·전체 정리 성공 수로 쓰지 않는다. |
+| 처리 수·부분 실패 | pending 때문에 건너뛴 여행도 반환 처리 수에 포함될 수 있다. 지도 실패·vacuum 실패는 무시될 수 있어 반환 수를 실제 삭제·전체 정리 성공 수로 쓰지 않는다. |
 
 pending cleanup은 앱 준비 후 hook과 push 뒤 경로에서 요청하며 하나의 진행 중 실행을 공유한다. 그러나 이 공유는 여행별 보존 판정을 보완하지 않는다. `forceCleanupTrip`은 queue 확인을 건너뛰는 별도 위험 경로이며 일반 cleanup의 안전한 대체재가 아니다. 함수 존재를 사용자의 폐기 승인이나 계정 종료의 force와 같은 절차로 보지 않는다.
 
