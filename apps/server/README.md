@@ -77,6 +77,14 @@ pnpm server build
 
 Trip/Schedule/Expense·sync와 인증이 필요한 계정 route는 Bearer access token을 검증한다. [requireAuth](src/middleware/auth.ts)가 `req.userId`를 설정하고 route가 소유권을 확인한다. 장소 route는 현재 같은 인증 미들웨어를 쓰지 않는다. 모든 route가 같은 인증·parse·응답 wrapper를 적용했다고 일반화하지 말고 [API 계약의 현재 차이](../../context/project/guidance/api-contracts.md)를 확인한다.
 
+## 항목별 편집 표식의 DB 적용
+
+일정·경비 UPDATE의 항목별 충돌 처리 서버를 배포하기 전에 [DDL](sql/20261110-field-edits.sql)을 대상 DB에 먼저 적용한다. `apps/server`에서 대상 연결을 `DATABASE_URL`로 지정하고 `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f sql/20261110-field-edits.sql`로 실행한다. SQL은 두 테이블에 `field_edits jsonb NOT NULL DEFAULT '{}'`와 구버전 충돌 입력의 `legacy_update_holds` 테이블을 한 트랜잭션으로 추가하며 재실행할 수 있다. 기존 값과 날짜는 유지하고 과거 편집 표식은 만들지 않는다.
+
+유효한 구버전 UPDATE가 충돌하면 서버는 본문 전체를 소유자별로 저장한 뒤 409를 반환한다. 같은 소유자·기록·동일 본문은 확인 전까지 한 보류로 합치며 객체 키 순서는 무시한다. 원래 timezone 표현과 추가 필드는 복구를 위해 남기되 권한·변경 판단에는 검증한 필드만 사용한다. 본문을 진단 로그에 남기지 않는다.
+
+적용 순서는 **DB DDL → 구·신형 UPDATE를 함께 처리하는 서버 → 새 앱**이다. 새 앱이 보낸 `edit`을 구서버는 해석하지 못하므로 서버를 먼저 교체해야 한다. 이 파일은 배포용 SQL이며 자동 migration runner나 배포 실행의 증거를 뜻하지 않는다.
+
 ## 배포 전 확인
 
 [render.yaml](../../render.yaml)은 의존성/schema/server build와 `apps/server`에서 production start를 정의한다. production 환경값은 실제 호스팅 환경의 프로세스 환경으로 주입한다. 위의 bundle 경로 차이가 해결되기 전에는 workspace의 `.env.production` 자동 로드에 의존하지 않는다. 이 설정 파일의 존재만으로 배포·DB migration 완료를 판단하지 않는다.

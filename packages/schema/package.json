@@ -64,6 +64,9 @@
       "sync/field-edits": [
         "./dist/sync/field-edits.d.ts"
       ],
+      "responses/mutation-conflict": [
+        "./dist/responses/mutation-conflict.d.ts"
+      ],
       "sync/storage-input": [
         "./dist/sync/storage-input.d.ts"
       ]
@@ -164,6 +167,11 @@
       "types": "./dist/sync/field-edits.d.ts",
       "import": "./dist/sync/field-edits.mjs",
       "require": "./dist/sync/field-edits.js"
+    },
+    "./responses/mutation-conflict": {
+      "types": "./dist/responses/mutation-conflict.d.ts",
+      "import": "./dist/responses/mutation-conflict.mjs",
+      "require": "./dist/responses/mutation-conflict.js"
     },
     "./sync/storage-input": {
       "types": "./dist/sync/storage-input.d.ts",

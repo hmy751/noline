@@ -1,5 +1,7 @@
-import { pgTable, integer, text, timestamp, varchar, decimal, pgEnum, uniqueIndex } from 'drizzle-orm/pg-core';
+import { pgTable, integer, text, timestamp, varchar, decimal, pgEnum, uniqueIndex, jsonb } from 'drizzle-orm/pg-core';
 import { ulid } from 'ulid';
+
+import type { FieldEdits } from '@repo/schema/sync/field-edits';
 
 // Enums
 export const expenseCategoryEnum = pgEnum('expense_category', [
@@ -112,6 +114,7 @@ export const schedules = pgTable('schedules', {
   // Selective Local-First sync fields
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
   version: integer('version').notNull().default(1),
+  fieldEdits: jsonb('field_edits').$type<FieldEdits>().notNull().default({}),
 });
 
 // Expenses Table
@@ -138,7 +141,38 @@ export const expenses = pgTable('expenses', {
   // Selective Local-First sync fields
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
   version: integer('version').notNull().default(1),
+  fieldEdits: jsonb('field_edits').$type<FieldEdits>().notNull().default({}),
 });
+
+// 원래 입력은 확인 선택 전까지 보존한다. 같은 활성 보류만 재전송으로 합친다.
+export const legacyUpdateHolds = pgTable(
+  'legacy_update_holds',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => ulid()),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    tripId: text('trip_id')
+      .notNull()
+      .references(() => trips.id, { onDelete: 'cascade' }),
+    tableName: text('table_name').notNull(),
+    recordId: text('record_id').notNull(),
+    payloadHash: text('payload_hash').notNull(),
+    payload: jsonb('payload').$type<Record<string, unknown>>().notNull(),
+    current: jsonb('current').$type<Record<string, unknown>>().notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    requestIdx: uniqueIndex('legacy_update_holds_request_idx').on(
+      table.userId,
+      table.tableName,
+      table.recordId,
+      table.payloadHash,
+    ),
+  }),
+);
 
 // Types
 export type User = typeof users.$inferSelect;

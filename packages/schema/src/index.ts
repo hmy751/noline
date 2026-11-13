@@ -35,6 +35,7 @@ export * from './responses/schedule';
 export * from './responses/expense';
 export * from './responses/user';
 export * from './responses/places';
+export * from './responses/mutation-conflict';
 
 // ========================================
 // Sync Schemas (동기화)

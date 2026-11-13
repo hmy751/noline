@@ -55,8 +55,8 @@ const RESPONSE_ENTITIES = { trips: tripEntity, schedules: scheduleEntity, expens
 type SyncAction = 'CREATE' | 'UPDATE' | 'DELETE';
 
 export class SyncIncompleteError extends Error {
-  constructor(public failedCount: number) {
-    super(`동기화하지 못한 변경이 ${failedCount}개 있습니다`);
+  constructor(public blockedCount: number) {
+    super(`동기화하지 못한 변경이 ${blockedCount}개 있습니다`);
     this.name = 'SyncIncompleteError';
   }
 }
@@ -118,33 +118,22 @@ function failureDetails(error: unknown, stage: RequestStage) {
 }
 
 /** 중단된 작업을 되돌린 뒤 PENDING과 FAILED 작업을 FIFO로 전송하고 첫 실패에서 멈춘다. */
-export async function pushChanges(run?: SyncRun): Promise<void> {
-  let serverChanged = false;
-  let reportedBlock = false;
+export const pushChanges = async (run?: SyncRun): Promise<void> => {
+  let shouldRefreshQueries = false;
+  let hasReportedBlock = false;
   let stage: RequestStage = 'local-before-send';
 
   try {
     await recoverInterruptedTasks(run);
     const tasks = await getSyncableTasks(run);
 
-    if (tasks.length === 0) {
-      // 복구·선택 뒤 맨 앞에는 PENDING·FAILED만 오므로, 이 검사는 알 수 없는 status가
-      // 맨 앞을 막고 그 뒤에 미전송이 남은 경우를 위한 방어용이다.
-      const stats = await getSyncQueueStats();
-      if (stats.failed + stats.inProgress > 0) {
-        throw new SyncIncompleteError(stats.failed + stats.inProgress);
-      }
-      console.log('[Sync] No pending tasks');
-      return;
-    }
-
-    console.log(`[Sync] Starting push: ${tasks.length} tasks`);
-
     for (const [index, task] of tasks.entries()) {
       if (!(await getTaskById(task.id))) {
         continue;
       }
+
       stage = 'local-before-send';
+
       const hasWaiting = index + 1 < tasks.length;
 
       const taskOwnerId = await getQueueOwner(task);
@@ -155,13 +144,11 @@ export async function pushChanges(run?: SyncRun): Promise<void> {
         taskOwnerId !== selectLocalUserId(useAuthStore.getState())
       ) {
         reportSyncSignal({ kind: 'sync.push.blocked', stage: 'auth-blocked', task, hasWaiting }, run);
-        reportedBlock = true;
+        hasReportedBlock = true;
         throw new AuthRequiredError('현재 계정으로 전송할 수 없는 작업입니다');
       }
 
       try {
-        console.log(`[Sync] Processing: ${task.action} ${task.tableName}/${task.recordId}`);
-
         await updateTaskStatus(task.id, 'IN_PROGRESS');
 
         if (!isSyncTable(task.tableName)) {
@@ -177,13 +164,11 @@ export async function pushChanges(run?: SyncRun): Promise<void> {
         stage = 'sending';
         const result = await pushTaskToServer(task.tableName, task.action, task.recordId, payload);
         stage = 'local-after-response';
-        serverChanged = true;
+        shouldRefreshQueries = true;
 
         await applyPushResponse(task, task.tableName, taskOwnerId, payload, result);
-
-        console.log(`[Sync] Success: ${task.action} ${task.tableName}/${task.recordId}`);
       } catch (error) {
-        reportedBlock = true;
+        hasReportedBlock = true;
         reportSyncSignal({ kind: 'sync.push.blocked', ...failureDetails(error, stage), task, hasWaiting }, run);
 
         if (error instanceof AuthRequiredError) {
@@ -199,20 +184,25 @@ export async function pushChanges(run?: SyncRun): Promise<void> {
     }
 
     const stats = await getSyncQueueStats();
-    if (stats.failed + stats.inProgress > 0) {
-      throw new SyncIncompleteError(stats.failed + stats.inProgress);
+    // 시작할 때 선택한 FIFO가 끝난 뒤 남은 정상 PENDING은 다음 실행의 입력이다.
+    // FAILED·IN_PROGRESS 또는 인식할 수 없는 상태가 있을 때만 중단한다.
+    const blockedCount = stats.total - stats.quarantined - stats.pending;
+
+    if (blockedCount > 0) {
+      throw new SyncIncompleteError(blockedCount);
     }
 
-    console.log('[Sync] Push completed');
+    if (tasks.length === 0) {
+      return;
+    }
 
     try {
-      console.log('[Sync] Checking for pending cleanups...');
       await processPendingCleanups();
     } catch (error) {
       console.error('[Sync] Failed to process pending cleanups (ignored):', error);
     }
   } catch (error) {
-    if (!reportedBlock) {
+    if (!hasReportedBlock) {
       reportSyncSignal({ kind: 'sync.push.blocked', ...failureDetails(error, stage) }, run);
     }
 
@@ -220,14 +210,14 @@ export async function pushChanges(run?: SyncRun): Promise<void> {
     throw error;
   } finally {
     // 일부 전송만 성공하거나 다음 pull이 생략·실패해도 성공한 변경은 다시 읽는다.
-    if (serverChanged) {
+    if (shouldRefreshQueries) {
       await refreshSyncQueries().catch((error: unknown) => {
         reportSyncSignal({ kind: 'sync.push.blocked', stage: 'local-after-response' }, run);
         throw error;
       });
     }
   }
-}
+};
 
 /** 요청한 준비 수명이 아직 현재인 자식만 반영하고, 전체 범위를 수신했을 때 cursor를 전진한다. */
 export const pullChanges = async (run?: SyncRun): Promise<void> => {

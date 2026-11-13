@@ -141,7 +141,7 @@ describe('Schedule PostgreSQL 접근 경계', () => {
         address: null,
         scheduledAt: SCHEDULED_AT,
       })
-      .expect(404);
+      .expect(410);
 
     const rows = await sql`SELECT id FROM schedules WHERE id = ${SCHEDULE_A}`;
     expect(rows).toHaveLength(0);
@@ -183,7 +183,7 @@ describe('Schedule PostgreSQL 접근 경계', () => {
     await request(app).delete(`/api/schedules/${SCHEDULE_A_SECOND}`).expect(404);
 
     authState.userId = USER_A;
-    await request(app).put(`/api/schedules/${DELETED_SCHEDULE_A}`).send({ title: 'Not allowed' }).expect(404);
+    await request(app).put(`/api/schedules/${DELETED_SCHEDULE_A}`).send({ title: 'Not allowed' }).expect(410);
     await request(app).put(`/api/schedules/${SCHEDULE_A}`).send({ title: 'Allowed update' }).expect(200);
     await request(app).delete(`/api/schedules/${SCHEDULE_A_SECOND}`).expect(200);
 

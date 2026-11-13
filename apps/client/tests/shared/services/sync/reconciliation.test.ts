@@ -13,10 +13,11 @@ import {
   syncQueue,
   runDatabaseTransaction,
   serverRecords,
+  tripActivations,
 } from '@/shared/db';
 import { reportSyncSignal } from '@/shared/diagnostics/sentry';
 import api from '@/shared/services/sync/api';
-import { pushChanges } from '@/shared/services/sync/engine';
+import { pushChanges, syncData } from '@/shared/services/sync/engine';
 
 import { reconcileServerRecord } from '@/shared/services/sync/reconcile';
 import { applyConfirmedDeletionInTransaction } from '@/shared/services/sync/confirmed-deletion';
@@ -238,6 +239,73 @@ it.each([
   } finally {
     await db.run(sql.raw('DROP TRIGGER fail_reconcile'));
   }
+});
+
+it('30 전송 중 추가된 35는 다음 FIFO로 남기고 현재 실행은 중단 진단 없이 pull까지 진행한다', async () => {
+  const later = { amount: '35', currency: 'USD', edit: { ...EDIT_STAMP, sequence: 2 } };
+  const first = { amount: '30', currency: 'USD', edit: EDIT_STAMP };
+  await enqueueTestTask('q1', 'expenses', EXPENSE.id, 'UPDATE', first);
+  await getDatabase().insert(tripActivations).values({
+    id: TRIP.id,
+    tripId: TRIP.id,
+    userId: TRIP.userId,
+    isActivated: true,
+    activatedAt: FIXTURE_TIME,
+    expiresAt: '2027-01-01T00:00:00.000Z',
+    createdAt: FIXTURE_TIME,
+    updatedAt: FIXTURE_TIME,
+  });
+  const accepted = { ...EXPENSE, amount: '30', fieldEdits: { amount: EDIT_STAMP }, version: 3 };
+  jest
+    .mocked(api.put)
+    .mockReset()
+    .mockImplementationOnce(async () => {
+      await enqueueTestTask('q2', 'expenses', EXPENSE.id, 'UPDATE', later);
+      return { data: { success: true, data: accepted } } as never;
+    })
+    .mockResolvedValueOnce({
+      data: {
+        success: true,
+        data: { ...accepted, amount: '35', category: '교통', version: 5, fieldEdits: { amount: later.edit } },
+      },
+    });
+  jest
+    .mocked(api.get)
+    .mockResolvedValueOnce({
+      data: {
+        success: true,
+        data: {
+          trips: [],
+          schedules: [],
+          expenses: [{ ...accepted, version: 4, category: '교통' }],
+          serverTime: FIXTURE_TIME,
+          nextCursor: '123',
+        },
+      },
+    });
+  await syncData();
+  expect(api.get).toHaveBeenCalledWith('/api/sync/pull', expect.anything());
+  expect(await getDatabase().select().from(expenses).get()).toMatchObject({ amount: '35', category: '교통' });
+  expect(await getDatabase().select().from(syncQueue).all()).toMatchObject([
+    { id: 'q2', status: 'PENDING', retryCount: 0 },
+  ]);
+  expect(api.put).toHaveBeenCalledTimes(1);
+  expect(reportSyncSignal).not.toHaveBeenCalled();
+
+  await pushChanges();
+  expect(api.put).toHaveBeenLastCalledWith(`/api/expenses/${EXPENSE.id}`, later);
+  expect(await getDatabase().select().from(syncQueue).all()).toHaveLength(0);
+});
+
+it('알 수 없는 FIFO 상태는 새로 저장된 정상 PENDING과 달리 다음 작업 전송과 pull을 막는다', async () => {
+  await enqueueTestTask('unknown', 'expenses', EXPENSE.id, 'UPDATE', { title: '확인 필요' });
+  await getDatabase().update(syncQueue).set({ status: 'UNKNOWN' }).where(eq(syncQueue.id, 'unknown'));
+  await enqueueTestTask('later', 'expenses', EXPENSE.id, 'UPDATE', { title: '다음' });
+  jest.mocked(api.put).mockClear();
+  await expect(syncData()).rejects.toMatchObject({ name: 'SyncIncompleteError' });
+  expect(api.put).not.toHaveBeenCalled();
+  expect(api.get).not.toHaveBeenCalled();
+  expect(reportSyncSignal).toHaveBeenCalledWith(expect.objectContaining({ kind: 'sync.push.blocked' }), undefined);
 });
 
 it('서버가 채택하지 않은 편집도 현재 값으로 수렴하고 요청만 종결한다', async () => {

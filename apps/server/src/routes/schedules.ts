@@ -1,11 +1,13 @@
-import { Router } from 'express';
-import type { Request, Response } from 'express';
-import { db, schedules, trips } from '../db/index.js';
-import { eq, and, sql, isNull } from 'drizzle-orm';
+import { eq, and, isNull } from 'drizzle-orm';
+import { Router, type Request, type Response } from 'express';
+
 import { createScheduleRequest, updateScheduleRequest } from '@repo/schema/requests/schedule';
 import { deleteScheduleResponse, scheduleListResponse, scheduleResponse } from '@repo/schema/responses/schedule';
+
+import { db, schedules } from '../db/index.js';
 import { requireAuth } from '../middleware/auth.js';
 import { serializeSchedule } from '../serializers/schedule.js';
+import { createSchedule, updateSchedule, deleteEntity } from '../services/entity-mutations.js';
 import { sendInternalError } from '../utils/http-errors.js';
 
 const router = Router();
@@ -13,86 +15,19 @@ const router = Router();
 // POST /api/schedules - 일정 생성
 router.post('/', requireAuth, async (req: Request, res: Response) => {
   try {
-    // Zod로 요청 데이터 검증
-    const validationResult = createScheduleRequest.safeParse(req.body);
+    const request = createScheduleRequest.safeParse(req.body);
 
-    if (!validationResult.success) {
-      return res.status(400).json({
-        error: 'Validation error',
-        message: 'Invalid request data',
-        details: validationResult.error.errors,
-      });
+    if (!request.success) {
+      return res
+        .status(400)
+        .json({ error: 'Validation error', message: 'Invalid request data', details: request.error.errors });
     }
 
-    const { id, tripId, title, location, address, scheduledAt, latitude, longitude } = validationResult.data;
-    const userId = req.userId!;
+    const result = await createSchedule(request.data, req.userId!);
+    const body = result.status < 300 ? scheduleResponse.parse(result.body) : result.body;
 
-    const [parentTrip] = await db
-      .select({ id: trips.id })
-      .from(trips)
-      .where(and(eq(trips.id, tripId), eq(trips.userId, userId), isNull(trips.deletedAt)))
-      .limit(1);
-
-    if (!parentTrip) {
-      return res.status(404).json({
-        error: 'Not found',
-        message: 'Trip not found or you do not have permission to add schedules to it',
-      });
-    }
-
-    // 일정 생성 (Client-Side ID: 클라이언트가 생성한 ID 사용)
-    // 응답이 유실돼 같은 CREATE가 다시 오면 같은 사용자의 기존 행으로 수렴한다(멱등 생성).
-    const [createdSchedule] = await db
-      .insert(schedules)
-      .values({
-        id, // ✅ 클라이언트가 생성한 ID 사용
-        userId, // 인증된 사용자 ID 사용
-        tripId,
-        title,
-        location,
-        address: address || null,
-        scheduledAt: new Date(scheduledAt), // ISO string → Date 객체
-        latitude: latitude ? String(latitude) : null,
-        longitude: longitude ? String(longitude) : null,
-      })
-      .onConflictDoNothing({ target: schedules.id })
-      .returning();
-
-    let newSchedule = createdSchedule;
-
-    if (!newSchedule) {
-      // 이미 있는 ID는 같은 사용자·같은 부모 Trip의 재전송일 때만 성공으로 본다.
-      // 다른 사용자의 ID는 존재 여부를 드러내지 않도록 같은 충돌 응답으로 거절한다.
-      const [existingSchedule] = await db
-        .select()
-        .from(schedules)
-        .where(and(eq(schedules.id, id), eq(schedules.userId, userId)))
-        .limit(1);
-
-      if (!existingSchedule || existingSchedule.tripId !== tripId) {
-        return res.status(409).json({
-          error: 'Conflict',
-          message: 'Schedule ID is already in use',
-        });
-      }
-
-      newSchedule = existingSchedule;
-    }
-
-    // Zod로 응답 데이터 검증
-    const validatedSchedule = scheduleResponse.safeParse({
-      success: true,
-      data: serializeSchedule(newSchedule),
-    });
-
-    if (!validatedSchedule.success) {
-      console.error('Schedule response validation error:', validatedSchedule.error);
-      throw new Error('Invalid schedule response data');
-    }
-
-    res.status(createdSchedule ? 201 : 200).json(validatedSchedule.data);
+    return res.status(result.status).json(body);
   } catch (error) {
-    console.error('Error creating schedule:', error);
     sendInternalError(res, 'Failed to create schedule', error);
   }
 });
@@ -105,6 +40,7 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
 
     // 조회 쿼리 구성 (소유권 필터링)
     const conditions = [isNull(schedules.deletedAt), eq(schedules.userId, userId)];
+
     if (tripId) {
       conditions.push(eq(schedules.tripId, tripId as string));
     }
@@ -179,75 +115,19 @@ router.get('/:id', requireAuth, async (req: Request, res: Response) => {
 // PUT /api/schedules/:id - 일정 수정
 router.put('/:id', requireAuth, async (req: Request, res: Response) => {
   try {
-    const scheduleId = req.params.id;
-    const userId = req.userId!;
+    const request = updateScheduleRequest.safeParse(req.body);
 
-    // Zod 검증
-    const validationResult = updateScheduleRequest.safeParse(req.body);
-
-    if (!validationResult.success) {
-      return res.status(400).json({
-        error: 'Validation error',
-        message: 'Invalid request data',
-        details: validationResult.error.errors,
-      });
+    if (!request.success) {
+      return res
+        .status(400)
+        .json({ error: 'Validation error', message: 'Invalid request data', details: request.error.errors });
     }
 
-    const { title, location, address, scheduledAt, latitude, longitude } = validationResult.data;
+    const result = await updateSchedule(req.params.id, req.userId!, request.data, req.body);
+    const body = result.status < 300 ? scheduleResponse.parse(result.body) : result.body;
 
-    // 업데이트할 필드 준비
-    const updateData: any = {
-      updatedAt: new Date(),
-      version: sql`${schedules.version} + 1`, // ✅ version 증가 (Selective Local-First sync)
-    };
-
-    // id는 무시 (클라이언트에서 전송되더라도 변경 불가)
-    if (title !== undefined) updateData.title = title;
-    if (location !== undefined) updateData.location = location;
-    if (address !== undefined) updateData.address = address;
-
-    if (scheduledAt !== undefined) {
-      const scheduled = new Date(scheduledAt);
-      if (isNaN(scheduled.getTime())) {
-        return res.status(400).json({
-          error: 'Invalid date format',
-          message: 'scheduledAt must be a valid ISO 8601 datetime',
-        });
-      }
-      updateData.scheduledAt = scheduled;
-    }
-
-    if (latitude !== undefined) updateData.latitude = latitude ? String(latitude) : null;
-    if (longitude !== undefined) updateData.longitude = longitude ? String(longitude) : null;
-
-    // 일정 업데이트
-    const [updatedSchedule] = await db
-      .update(schedules)
-      .set(updateData)
-      .where(and(eq(schedules.id, scheduleId), eq(schedules.userId, userId), isNull(schedules.deletedAt)))
-      .returning();
-
-    if (!updatedSchedule) {
-      return res.status(404).json({
-        error: 'Not found',
-        message: 'Schedule not found or you do not have permission to edit it',
-      });
-    }
-
-    // Zod로 응답 데이터 검증
-    const validatedSchedule = scheduleResponse.safeParse({
-      success: true,
-      data: serializeSchedule(updatedSchedule),
-    });
-
-    if (!validatedSchedule.success) {
-      console.error('Schedule response validation error:', validatedSchedule.error);
-      throw new Error('Invalid schedule response data');
-    }
-
-    res.status(200).json(validatedSchedule.data);
+    return res.status(result.status).json(body);
   } catch (error) {
-    console.error('Error updating schedule:', error);
     sendInternalError(res, 'Failed to update schedule', error);
   }
 });
@@ -255,58 +135,11 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
 // DELETE /api/schedules/:id - 일정 삭제 (Soft Delete)
 router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
   try {
-    const scheduleId = req.params.id;
-    const userId = req.userId!;
+    const result = await deleteEntity('schedule', req.params.id, req.userId!);
+    const body = result.status < 300 ? deleteScheduleResponse.parse(result.body) : result.body;
 
-    // ✅ Soft Delete: deletedAt 설정 (Selective Local-First sync)
-    const [deletedSchedule] = await db
-      .update(schedules)
-      .set({
-        deletedAt: new Date(),
-        updatedAt: new Date(),
-        version: sql`${schedules.version} + 1`, // ✅ version 증가
-      })
-      .where(and(eq(schedules.id, scheduleId), eq(schedules.userId, userId), isNull(schedules.deletedAt)))
-      .returning();
-
-    let resultSchedule = deletedSchedule;
-
-    if (!resultSchedule) {
-      // 응답이 유실돼 같은 DELETE가 다시 오면 처음 삭제 결과로 수렴한다(멱등 삭제).
-      // 다른 사용자의 행은 이 조회에서도 보이지 않으므로 기존처럼 404다.
-      const [ownSchedule] = await db
-        .select()
-        .from(schedules)
-        .where(and(eq(schedules.id, scheduleId), eq(schedules.userId, userId)))
-        .limit(1);
-
-      if (!ownSchedule?.deletedAt) {
-        return res.status(404).json({
-          error: 'Not found',
-          message: 'Schedule not found or you do not have permission to delete it',
-        });
-      }
-
-      resultSchedule = ownSchedule;
-    }
-
-    const response = {
-      success: true,
-      data: {
-        id: resultSchedule.id,
-        deletedAt: resultSchedule.deletedAt?.toISOString(),
-      },
-    };
-    const validatedResponse = deleteScheduleResponse.safeParse(response);
-
-    if (!validatedResponse.success) {
-      console.error('Schedule delete response validation error:', validatedResponse.error);
-      throw new Error('Invalid schedule delete response data');
-    }
-
-    res.status(200).json(validatedResponse.data);
+    return res.status(result.status).json(body);
   } catch (error) {
-    console.error('Error deleting schedule:', error);
     sendInternalError(res, 'Failed to delete schedule', error);
   }
 });

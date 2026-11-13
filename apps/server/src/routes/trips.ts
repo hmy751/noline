@@ -10,6 +10,7 @@ import { requireAuth } from '../middleware/auth.js';
 import { serializeExpense } from '../serializers/expense.js';
 import { serializeSchedule } from '../serializers/schedule.js';
 import { serializeTrip } from '../serializers/trip.js';
+import { deleteTrip } from '../services/entity-mutations.js';
 import { sendInternalError } from '../utils/http-errors.js';
 
 const router = Router();
@@ -278,44 +279,9 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
 // DELETE /api/trips/:id - 여행 삭제
 router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
   try {
-    const tripId = req.params.id; // ULID는 문자열
-    const userId = req.userId!;
-
-    // 여행 존재 여부 및 소유권 확인
-    const [existingTrip] = await db
-      .select()
-      .from(trips)
-      .where(and(eq(trips.id, tripId), eq(trips.userId, userId)));
-
-    if (!existingTrip) {
-      return res.status(404).json({
-        error: 'Not found',
-        message: 'Trip not found or you do not have permission to delete it',
-      });
-    }
-
-    // ✅ Soft Delete: deletedAt 설정 (Selective Local-First sync)
-    // 다른 기기에 삭제가 전파되도록 함
-    const [deletedTrip] = await db
-      .update(trips)
-      .set({
-        deletedAt: new Date(),
-        updatedAt: new Date(),
-        version: sql`${trips.version} + 1`, // ✅ version 증가
-      })
-      .where(eq(trips.id, tripId))
-      .returning();
-
-    // 정책: 모든 API 응답은 { success, data } 구조를 따른다
-    res.status(200).json({
-      success: true,
-      data: {
-        id: deletedTrip.id,
-        deletedAt: deletedTrip.deletedAt?.toISOString(),
-      },
-    });
+    const result = await deleteTrip(req.params.id, req.userId!);
+    return res.status(result.status).json(result.body);
   } catch (error) {
-    console.error('Error deleting trip:', error);
     sendInternalError(res, 'Failed to delete trip', error);
   }
 });
@@ -409,6 +375,7 @@ router.post('/:id/activate', requireAuth, async (req: Request, res: Response) =>
         updatedAt: schedules.updatedAt,
         deletedAt: schedules.deletedAt,
         version: schedules.version,
+        fieldEdits: schedules.fieldEdits,
       })
       .from(schedules)
       .where(and(eq(schedules.tripId, tripId), eq(schedules.userId, userId), isNull(schedules.deletedAt)));
@@ -431,6 +398,7 @@ router.post('/:id/activate', requireAuth, async (req: Request, res: Response) =>
         updatedAt: expenses.updatedAt,
         deletedAt: expenses.deletedAt,
         version: expenses.version,
+        fieldEdits: expenses.fieldEdits,
       })
       .from(expenses)
       .where(and(eq(expenses.tripId, tripId), eq(expenses.userId, userId), isNull(expenses.deletedAt)));

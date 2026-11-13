@@ -115,18 +115,18 @@ describe('Schedule 생성 재전송 — 응답이 유실된 같은 CREATE', () =
 
 describe('Expense 생성 재전송 — 응답이 유실된 같은 CREATE', () => {
   it('같은 사용자·같은 Trip의 기존 Expense를 200으로 반환한다', async () => {
-    setSelectResults([expenseRow]);
+    setSelectResults([tripRow], [scheduleRow], [expenseRow]);
     setInsertResult([]);
 
     const response = await request(app).post('/api/expenses').send(expenseBody).expect(200);
 
     expect(response.body).toEqual({ success: true, data: serializedExpense });
     expect(dbInsertMock).toHaveBeenCalledOnce();
-    expect(dbSelectMock).toHaveBeenCalledOnce();
+    expect(dbSelectMock).toHaveBeenCalledTimes(3);
   });
 
   it('다른 사용자 소유이거나 조회되지 않는 ID는 409로 거절한다', async () => {
-    setSelectResults([]);
+    setSelectResults([tripRow], [scheduleRow], []);
     setInsertResult([]);
 
     const response = await request(app).post('/api/expenses').send(expenseBody).expect(409);
@@ -135,7 +135,7 @@ describe('Expense 생성 재전송 — 응답이 유실된 같은 CREATE', () =>
   });
 
   it('같은 ID가 다른 Trip의 Expense이면 409로 거절한다', async () => {
-    setSelectResults([{ ...expenseRow, tripId: OTHER_TRIP_ID }]);
+    setSelectResults([tripRow], [scheduleRow], [{ ...expenseRow, tripId: OTHER_TRIP_ID }]);
     setInsertResult([]);
 
     await request(app).post('/api/expenses').send(expenseBody).expect(409);
@@ -147,7 +147,11 @@ describe('삭제 재전송 — 응답이 유실된 같은 DELETE', () => {
 
   it('이미 삭제된 자기 Schedule이면 200과 처음 삭제 시각을 반환한다', async () => {
     setUpdateResult([]);
-    setSelectResults([{ ...scheduleRow, deletedAt: new Date(DELETED_AT) }]);
+    setSelectResults(
+      [{ ...scheduleRow, deletedAt: new Date(DELETED_AT) }],
+      [tripRow],
+      [{ ...scheduleRow, deletedAt: new Date(DELETED_AT) }],
+    );
 
     const response = await request(app).delete(`/api/schedules/${SCHEDULE_ID}`).expect(200);
 
@@ -163,7 +167,11 @@ describe('삭제 재전송 — 응답이 유실된 같은 DELETE', () => {
 
   it('이미 삭제된 자기 Expense이면 200과 처음 삭제 시각을 반환한다', async () => {
     setUpdateResult([]);
-    setSelectResults([{ ...expenseRow, deletedAt: new Date(DELETED_AT) }]);
+    setSelectResults(
+      [{ ...expenseRow, deletedAt: new Date(DELETED_AT) }],
+      [tripRow],
+      [{ ...expenseRow, deletedAt: new Date(DELETED_AT) }],
+    );
 
     const response = await request(app).delete(`/api/expenses/${EXPENSE_ID}`).expect(200);
 

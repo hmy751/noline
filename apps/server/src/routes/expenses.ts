@@ -1,12 +1,14 @@
-import { Router } from 'express';
-import type { Request, Response } from 'express';
-import { db, expenses } from '../db/index.js';
 import { eq, and, isNull, sql } from 'drizzle-orm';
-import { createExpenseRequest, updateExpenseRequest } from '@repo/schema/requests/expense';
+import { Router, type Request, type Response } from 'express';
+
 import { expenseEntity } from '@repo/schema/entities/expense';
-import { expenseListResponse, expenseResponse } from '@repo/schema/responses/expense';
+import { createExpenseRequest, updateExpenseRequest } from '@repo/schema/requests/expense';
+import { deleteExpenseResponse, expenseListResponse, expenseResponse } from '@repo/schema/responses/expense';
+
+import { db, expenses } from '../db/index.js';
 import { requireAuth } from '../middleware/auth.js';
 import { serializeExpense } from '../serializers/expense.js';
+import { createExpense, updateExpense, deleteEntity } from '../services/entity-mutations.js';
 import { sendInternalError } from '../utils/http-errors.js';
 
 const router = Router();
@@ -69,77 +71,19 @@ router.get('/', requireAuth, async (req: Request, res: Response) => {
 // POST /api/expenses - 경비 생성
 router.post('/', requireAuth, async (req: Request, res: Response) => {
   try {
-    // Zod로 요청 데이터 검증
-    const validationResult = createExpenseRequest.safeParse(req.body);
+    const request = createExpenseRequest.safeParse(req.body);
 
-    if (!validationResult.success) {
-      return res.status(400).json({
-        error: 'Validation error',
-        message: 'Invalid request data',
-        details: validationResult.error.errors,
-      });
+    if (!request.success) {
+      return res
+        .status(400)
+        .json({ error: 'Validation error', message: 'Invalid request data', details: request.error.errors });
     }
 
-    const { id, tripId, scheduleId, title, amount, currency, category, date, hasReceipt, receiptUrl } =
-      validationResult.data;
+    const result = await createExpense(request.data, req.userId!);
+    const body = result.status < 300 ? expenseResponse.parse(result.body) : result.body;
 
-    const userId = req.userId!;
-
-    // 경비 생성 (클라이언트가 생성한 ID 사용)
-    // 응답이 유실돼 같은 CREATE가 다시 오면 같은 사용자의 기존 행으로 수렴한다(멱등 생성).
-    const [createdExpense] = await db
-      .insert(expenses)
-      .values({
-        id, // ✨ 클라이언트가 생성한 ULID
-        userId, // 인증된 사용자 ID 사용
-        tripId,
-        scheduleId: scheduleId || null,
-        title,
-        amount,
-        currency,
-        category,
-        date: new Date(date), // ISO string → Date 객체
-        hasReceipt: hasReceipt ? 1 : 0, // boolean → integer
-        receiptUrl: receiptUrl || null,
-      })
-      .onConflictDoNothing({ target: expenses.id })
-      .returning();
-
-    let newExpense = createdExpense;
-
-    if (!newExpense) {
-      // 이미 있는 ID는 같은 사용자·같은 부모 Trip의 재전송일 때만 성공으로 본다.
-      // 다른 사용자의 ID는 존재 여부를 드러내지 않도록 같은 충돌 응답으로 거절한다.
-      const [existingExpense] = await db
-        .select()
-        .from(expenses)
-        .where(and(eq(expenses.id, id), eq(expenses.userId, userId)))
-        .limit(1);
-
-      if (!existingExpense || existingExpense.tripId !== tripId) {
-        return res.status(409).json({
-          error: 'Conflict',
-          message: 'Expense ID is already in use',
-        });
-      }
-
-      newExpense = existingExpense;
-    }
-
-    // Zod로 응답 데이터 검증
-    const validated = expenseEntity.safeParse(serializeExpense(newExpense));
-
-    if (!validated.success) {
-      console.error('Expense validation error:', validated.error);
-      throw new Error('Invalid expense data');
-    }
-
-    res.status(createdExpense ? 201 : 200).json({
-      success: true,
-      data: validated.data,
-    });
+    return res.status(result.status).json(body);
   } catch (error) {
-    console.error('Error creating expense:', error);
     sendInternalError(res, 'Failed to create expense', error);
   }
 });
@@ -194,62 +138,19 @@ router.get('/:id', requireAuth, async (req: Request, res: Response) => {
 // PUT /api/expenses/:id - 경비 수정
 router.put('/:id', requireAuth, async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const request = updateExpenseRequest.safeParse(req.body);
 
-    // Zod로 요청 데이터 검증
-    const validationResult = updateExpenseRequest.safeParse(req.body);
-
-    if (!validationResult.success) {
-      return res.status(400).json({
-        error: 'Validation error',
-        message: 'Invalid request data',
-        details: validationResult.error.errors,
-      });
+    if (!request.success) {
+      return res
+        .status(400)
+        .json({ error: 'Validation error', message: 'Invalid request data', details: request.error.errors });
     }
 
-    const updateData = validationResult.data;
+    const result = await updateExpense(req.params.id, req.userId!, request.data, req.body);
+    const body = result.status < 300 ? expenseResponse.parse(result.body) : result.body;
 
-    const userId = req.userId!;
-
-    // 경비 수정 (소유권 확인)
-    const [updatedExpense] = await db
-      .update(expenses)
-      .set({
-        ...(updateData.title && { title: updateData.title }),
-        ...(updateData.amount && { amount: updateData.amount }),
-        ...(updateData.currency && { currency: updateData.currency }),
-        ...(updateData.category && { category: updateData.category }),
-        ...(updateData.date && { date: new Date(updateData.date) }),
-        ...(updateData.hasReceipt !== undefined && { hasReceipt: updateData.hasReceipt ? 1 : 0 }),
-        ...(updateData.receiptUrl !== undefined && { receiptUrl: updateData.receiptUrl }),
-        ...(updateData.scheduleId !== undefined && { scheduleId: updateData.scheduleId }),
-        updatedAt: new Date(),
-        version: sql`${expenses.version} + 1`, // ✅ version 증가 (Selective Local-First sync)
-      })
-      .where(and(eq(expenses.id, id), eq(expenses.userId, userId), isNull(expenses.deletedAt)))
-      .returning();
-
-    if (!updatedExpense) {
-      return res.status(404).json({
-        error: 'Not found',
-        message: 'Expense not found',
-      });
-    }
-
-    // Zod로 응답 데이터 검증
-    const validated = expenseEntity.safeParse(serializeExpense(updatedExpense));
-
-    if (!validated.success) {
-      console.error('Expense validation error:', validated.error);
-      throw new Error('Invalid expense data');
-    }
-
-    res.json({
-      success: true,
-      data: validated.data,
-    });
+    return res.status(result.status).json(body);
   } catch (error) {
-    console.error('Error updating expense:', error);
     sendInternalError(res, 'Failed to update expense', error);
   }
 });
@@ -257,52 +158,11 @@ router.put('/:id', requireAuth, async (req: Request, res: Response) => {
 // DELETE /api/expenses/:id - 경비 삭제 (Soft Delete)
 router.delete('/:id', requireAuth, async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const result = await deleteEntity('expense', req.params.id, req.userId!);
+    const body = result.status < 300 ? deleteExpenseResponse.parse(result.body) : result.body;
 
-    const userId = req.userId!;
-
-    // Soft Delete: deletedAt 업데이트 (소유권 확인)
-    const [deletedExpense] = await db
-      .update(expenses)
-      .set({
-        deletedAt: new Date(),
-        updatedAt: new Date(),
-        version: sql`${expenses.version} + 1`, // ✅ version 증가 (Selective Local-First sync)
-      })
-      .where(and(eq(expenses.id, id), eq(expenses.userId, userId), isNull(expenses.deletedAt)))
-      .returning();
-
-    let resultExpense = deletedExpense;
-
-    if (!resultExpense) {
-      // 응답이 유실돼 같은 DELETE가 다시 오면 처음 삭제 결과로 수렴한다(멱등 삭제).
-      // 다른 사용자의 행은 이 조회에서도 보이지 않으므로 기존처럼 404다.
-      const [ownExpense] = await db
-        .select()
-        .from(expenses)
-        .where(and(eq(expenses.id, id), eq(expenses.userId, userId)))
-        .limit(1);
-
-      if (!ownExpense?.deletedAt) {
-        return res.status(404).json({
-          error: 'Not found',
-          message: 'Expense not found',
-        });
-      }
-
-      resultExpense = ownExpense;
-    }
-
-    // 정책: 모든 API 응답은 { success, data } 구조를 따른다
-    res.json({
-      success: true,
-      data: {
-        id: resultExpense.id,
-        deletedAt: resultExpense.deletedAt?.toISOString(),
-      },
-    });
+    return res.status(result.status).json(body);
   } catch (error) {
-    console.error('Error deleting expense:', error);
     sendInternalError(res, 'Failed to delete expense', error);
   }
 });

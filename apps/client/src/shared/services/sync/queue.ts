@@ -24,9 +24,8 @@ export async function addToSyncQueue(
   tableName: string,
   recordId: string,
   action: 'CREATE' | 'UPDATE' | 'DELETE',
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  payload: any,
-): Promise<string> {
+  payload: unknown,
+): Promise<void> {
   const queueItem: NewSyncQueueItem = {
     id: generateId(),
     tableName,
@@ -39,17 +38,13 @@ export async function addToSyncQueue(
   };
 
   await getDatabase().insert(syncQueue).values(queueItem);
-
-  console.log(`[SyncQueue] Sync queue added: ${action} ${tableName}/${recordId}`);
-
-  return queueItem.id;
 }
 
 /**
  * PENDING 상태 작업 조회
  *
  * 동기화 엔진이 서버로 Push할 작업 목록 조회
- * FIFO 순서 보장 (createdAt 기준 오름차순)
+ * 같은 저장 시각을 가진 요청도 SQLite에 추가된 순서대로 전송한다.
  *
  * @returns PENDING 상태의 sync_queue 항목 배열
  */

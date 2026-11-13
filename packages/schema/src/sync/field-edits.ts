@@ -11,13 +11,16 @@ export const editStamp = z
   })
   .strict();
 export type EditStamp = z.infer<typeof editStamp>;
+
 export const fieldEdits = z.record(editStamp);
 export type FieldEdits = z.infer<typeof fieldEdits>;
+
 const SCHEDULE_EDIT_GROUPS = {
   title: ['title'],
   scheduledAt: ['scheduledAt'],
   location: ['location', 'address', 'latitude', 'longitude'],
 } as const;
+
 const EXPENSE_EDIT_GROUPS = {
   title: ['title'],
   amount: ['amount', 'currency'],
@@ -67,9 +70,11 @@ export const compareEdits = (left: EditStamp, right: EditStamp): number => {
   if (timeDifference) {
     return timeDifference < 0 ? -1 : 1;
   }
+
   if (left.sequence !== right.sequence) {
     return left.sequence < right.sequence ? -1 : 1;
   }
+
   if (left.id === right.id) {
     return 0;
   }

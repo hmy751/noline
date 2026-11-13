@@ -8,6 +8,7 @@ import {
   serializedExpense,
   SCHEDULE_ID,
   TRIP_ID,
+  tripRow,
 } from '../fixtures/data-rows.js';
 import {
   dbInsertMock,
@@ -41,6 +42,7 @@ describe('Expense API 직렬화 계약', () => {
   });
 
   it('생성된 Expense를 API 날짜·boolean 표현으로 반환한다', async () => {
+    setSelectResults([tripRow], [{ id: SCHEDULE_ID, tripId: TRIP_ID, deletedAt: null }]);
     setInsertResult([expenseRow]);
 
     const response = await request(app)
@@ -73,6 +75,7 @@ describe('Expense API 직렬화 계약', () => {
   });
 
   it('수정된 Expense를 API 날짜·boolean 표현으로 반환한다', async () => {
+    setSelectResults([{ ...expenseRow, title: 'Before' }], [tripRow], [{ ...expenseRow, title: 'Before' }]);
     setUpdateResult([expenseRow]);
 
     const response = await request(app)
@@ -93,6 +96,7 @@ describe('경비 날짜 입력 계약 — 직접 요청과 기존 동기화 payl
     ['2026-10-02T01:00:00+09:00', '2026-10-01'],
   ])('%s는 생성·수정 모두 %s로 저장하고 반환한다', async (date, expected) => {
     const row = { ...expenseRow, date: new Date(`${expected}T00:00:00.000Z`) };
+    setSelectResults([tripRow], [expenseRow], [tripRow], [expenseRow]);
     setInsertResult([row]);
     setUpdateResult([row]);
     const created = await request(app).post('/api/expenses').send({

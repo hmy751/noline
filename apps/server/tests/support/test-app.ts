@@ -21,6 +21,7 @@ vi.mock('../../src/db/index.js', async () => {
     const query: Record<string, unknown> = {};
     query.from = vi.fn(() => query);
     query.where = vi.fn(() => query);
+    query.for = vi.fn(() => query);
     query.orderBy = vi.fn(async () => rows);
     query.limit = vi.fn(async () => rows);
     query.then = (onFulfilled: (value: unknown[]) => unknown, onRejected?: (reason: unknown) => unknown) =>
@@ -50,6 +51,7 @@ vi.mock('../../src/db/index.js', async () => {
     select: testState.select,
     insert: testState.insert,
     update: testState.update,
+    delete: vi.fn(() => ({ where: vi.fn(async () => []) })),
     execute: vi.fn(async () => [{ oldest: '100', upper: '110', time: new Date().toISOString() }]),
     transaction: async (callback: (tx: unknown) => unknown) => callback(mockDb),
   };

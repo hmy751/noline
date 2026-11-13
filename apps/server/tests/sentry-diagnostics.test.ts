@@ -9,7 +9,7 @@ import type { AddressInfo } from 'node:net';
 import { gunzipSync } from 'node:zlib';
 import * as Sentry from '@sentry/node';
 import { initializeServerDiagnostics, reportStartupFailure, sanitizeServerError } from '../src/services/sentry.js';
-import { dbUpdateMock, loadTestApp, resetDbMock } from './support/test-app.js';
+import { dbSelectMock, loadTestApp, resetDbMock } from './support/test-app.js';
 
 const envelopes: string[] = [];
 const receiver = createServer((req, res) => {
@@ -50,7 +50,7 @@ it('격리된 수신기에 서버 500은 오류로, 계정·원본을 구별할 
     'sentry.release': 'PRIVATE_TAG_RELEASE',
     'sentry.environment': 'PRIVATE_TAG_ENVIRONMENT',
   });
-  dbUpdateMock.mockImplementationOnce(() => {
+  dbSelectMock.mockImplementationOnce(() => {
     throw new Error('PRIVATE_SQL_TEST');
   });
   await request(app)
