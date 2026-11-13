@@ -30,6 +30,7 @@ export const rememberServerRecordInTransaction = async <Table extends ServerTabl
     record: { ...server },
     deletedAt: null,
   };
+
   await getDatabase().insert(serverRecords).values(authoritative).onConflictDoUpdate({
     target: serverRecords.key,
     set: authoritative,
@@ -54,6 +55,7 @@ export const rememberConfirmedDeletionInTransaction = async (
     record: null,
     deletedAt,
   };
+
   await getDatabase()
     .insert(serverRecords)
     .values(record)

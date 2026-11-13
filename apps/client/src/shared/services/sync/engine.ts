@@ -17,8 +17,6 @@ import {
   runDatabaseOperation,
   syncQueue,
   trips as localTrips,
-  schedules as localSchedules,
-  expenses as localExpenses,
 } from '@/shared/db';
 import { reportSyncSignal, type SyncRun } from '@/shared/diagnostics/sentry';
 import { cancelAndInvalidateQueries } from '@/shared/lib/query-refresh';
@@ -41,6 +39,7 @@ import { reconcileServerRecord, reconcileRecordInTransaction } from './reconcile
 import { applyConfirmedDeletionInTransaction } from './confirmed-deletion';
 import { rememberConfirmedDeletionInTransaction } from './server-state';
 import { getPullCursor, setPullCheckpointInTransaction } from './storage';
+import { SYNC_TABLES } from './sync-tables';
 
 /** sync-owned table의 endpoint는 여기서 관리하고 HTTP method는 action으로 결정한다. */
 const SYNC_PUSH_ENDPOINTS = {
@@ -50,7 +49,6 @@ const SYNC_PUSH_ENDPOINTS = {
 } as const;
 
 type SyncTable = keyof typeof SYNC_PUSH_ENDPOINTS;
-const LOCAL_TABLES = { trips: localTrips, schedules: localSchedules, expenses: localExpenses };
 const RESPONSE_ENTITIES = { trips: tripEntity, schedules: scheduleEntity, expenses: expenseEntity };
 type SyncAction = 'CREATE' | 'UPDATE' | 'DELETE';
 
@@ -66,10 +64,10 @@ function isSyncTable(tableName: string): tableName is SyncTable {
 }
 
 /** 변경 이전에 시작한 조회 결과를 버리고, 구독 중인 Query의 갱신을 요청한다. */
-async function refreshSyncQueries(): Promise<void> {
+const refreshSyncQueries = async (): Promise<void> => {
   const filters = { predicate: ({ queryKey }: Query) => ['trip', 'schedule', 'expense'].includes(String(queryKey[0])) };
   await cancelAndInvalidateQueries(queryClient, filters);
-}
+};
 
 const pushTaskToServer = async (
   tableName: SyncTable,
@@ -359,6 +357,7 @@ const applyPushResponse = async (
   if (!result || typeof result !== 'object' || !('success' in result) || result.success !== true) {
     throw new Error('동기화 응답이 유효하지 않습니다');
   }
+
   if (task.action !== 'DELETE') {
     const row = 'data' in result ? result.data : undefined;
     const parsed = RESPONSE_ENTITIES[tableName].parse(row);
@@ -379,8 +378,9 @@ const applyPushResponse = async (
 
   await runDatabaseTransaction(async () => {
     requireLocalUserId(taskOwnerId);
+
     const db = getDatabase();
-    const entityTable = LOCAL_TABLES[tableName];
+    const entityTable = SYNC_TABLES[tableName];
     const original = await db.select().from(entityTable).where(eq(entityTable.id, task.recordId)).get();
 
     if (original && original.userId !== taskOwnerId) {
@@ -401,6 +401,7 @@ const applyPushResponse = async (
       // 이전 앱의 요청에 부모 ID가 없어도, 서버가 확인한 자기 기록의 삭제는 보존한다.
       await rememberConfirmedDeletionInTransaction(tableName, task.recordId, null, deletion.deletedAt);
     }
+
     await db.delete(syncQueue).where(eq(syncQueue.id, task.id));
   });
 };

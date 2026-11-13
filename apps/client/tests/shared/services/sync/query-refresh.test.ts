@@ -110,7 +110,9 @@ it.each([
       .fn<() => Promise<string>>()
       .mockImplementationOnce(() => oldRead.promise)
       .mockImplementation(async () => serverValue);
-    if (cached) mockClient.setQueryData(queryKey, '캐시', { updatedAt: Date.now() - 6 * 60 * 1000 });
+    if (cached) {
+      mockClient.setQueryData(queryKey, '캐시', { updatedAt: Date.now() - 6 * 60 * 1000 });
+    }
     observe(read, queryKey);
     jest.mocked(api.put).mockImplementationOnce(async () => {
       serverValue = 'push 이후 값';
@@ -119,6 +121,7 @@ it.each([
     await syncData();
     expect(api.get).not.toHaveBeenCalled();
     expect(mockClient.getQueryData(queryKey)).toBe('push 이후 값');
+
     oldRead.resolve('push 이전 늦은 값');
     await oldRead.promise;
     expect(mockClient.getQueryData(queryKey)).toBe('push 이후 값');
@@ -164,6 +167,7 @@ it('갱신 GET가 끝나지 않아도 sync는 완료된다', async () => {
   await syncData();
   expect(mockClient.getQueryState(key)?.fetchStatus).toBe('fetching');
   expect(mockClient.getQueryData(key)).toBe('기존 내용');
+
   read.resolve('갱신된 내용');
   await read.promise;
 });
@@ -182,6 +186,7 @@ it('활성 구독이 없으면 캐시를 무효화만 하고 나중 구독할 �
   mockClient.setQueryData(key, '이전 값');
   await syncData();
   expect(mockClient.getQueryState(key)?.isInvalidated).toBe(true);
+
   const observer = observe(async () => '새 값');
   await observer.refetch();
   expect(mockClient.getQueryData(key)).toBe('새 값');
