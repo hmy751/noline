@@ -1,6 +1,6 @@
-import { sql, and, eq, ne } from 'drizzle-orm';
+import { sql, and, eq, ne, inArray } from 'drizzle-orm';
 
-import { getDatabase, runDatabaseOperation } from '@/shared/db';
+import { getDatabase, runDatabaseOperation, legacySyncHolds, schedules, expenses } from '@/shared/db';
 import { type NewSyncQueueItem, syncQueue, type SyncQueueItem } from '@/shared/db/schema';
 import { getCurrentISOString } from '@/shared/db/utils';
 import { quarantineOrphanedTasks } from '@/shared/services/auth/local-account';
@@ -289,3 +289,49 @@ export async function hasPendingTasksForTrip(tripId: string): Promise<boolean> {
   const tasks = await getPendingTasksForTrip(tripId);
   return tasks.length > 0;
 }
+
+/** 전송 또는 사용자 복구가 끝나지 않아 기기 사본을 보존해야 하는지 확인한다. */
+export const hasUnresolvedTripChanges = async (tripId: string): Promise<boolean> => {
+  return runDatabaseOperation(() => hasUnresolvedTripChangesInTransaction(tripId));
+};
+
+/** 정리 판단과 쓰기를 같은 transaction에 묶을 때 사용한다. */
+export const hasUnresolvedTripChangesInTransaction = async (tripId: string): Promise<boolean> => {
+  const tasks = await getDatabase()
+    .select()
+    .from(syncQueue)
+    .where(inArray(syncQueue.status, ['PENDING', 'FAILED', 'IN_PROGRESS']))
+    .orderBy(sql`rowid`)
+    .all();
+  const childIds = new Set(
+    [
+      ...(await getDatabase().select({ id: schedules.id }).from(schedules).where(eq(schedules.tripId, tripId)).all()),
+      ...(await getDatabase().select({ id: expenses.id }).from(expenses).where(eq(expenses.tripId, tripId)).all()),
+    ].map((row) => row.id),
+  );
+  const holds = await getDatabase().select().from(legacySyncHolds).where(eq(legacySyncHolds.tripId, tripId)).all();
+  // 보류 입력은 전송을 막지 않지만 기기 사본 정리 전에는 미해결 입력으로 보호한다.
+  const hasRelatedTasks = tasks.some((task) => {
+    if (task.tableName === 'trips' && task.recordId === tripId) {
+      return true;
+    }
+
+    // 부분 수정에는 tripId가 없을 수 있어 기기 원본의 귀속도 확인한다.
+    if (task.tableName === 'schedules' || task.tableName === 'expenses') {
+      if (childIds.has(task.recordId)) {
+        return true;
+      }
+
+      try {
+        const payload: unknown = JSON.parse(task.payload);
+        return !!payload && typeof payload === 'object' && 'tripId' in payload && payload.tripId === tripId;
+      } catch {
+        return false;
+      }
+    }
+
+    return false;
+  });
+
+  return holds.length > 0 || hasRelatedTasks;
+};

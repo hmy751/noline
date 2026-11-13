@@ -1,6 +1,6 @@
 import { and, eq, isNotNull, lt, ne, notExists, sql } from 'drizzle-orm';
 
-import { expenses, getDatabase, schedules, syncQueue, tripActivations } from '@/shared/db';
+import { expenses, getDatabase, schedules, syncQueue, tripActivations, legacySyncHolds, serverRecords } from '@/shared/db';
 import { getCurrentISOString, withTransaction } from '@/shared/db/utils';
 import { SOFT_DELETE_VACUUM_DAYS } from '@/shared/lib/lifecycle';
 import { queryClient } from '@/shared/lib/queryClient';
@@ -8,7 +8,7 @@ import { generateId } from '@/shared/services/id/ulid';
 import { requireLocalUserId } from '@/shared/store/auth';
 import { cleanupOfflineMapForTrip } from '@/shared/services/offline-map';
 
-import { hasPendingTasksForTrip } from './queue';
+import { hasUnresolvedTripChanges, hasUnresolvedTripChangesInTransaction } from './queue';
 import { releaseServerRecordBodiesInTransaction } from './server-state';
 
 let activeCleanup: Promise<number> | null = null;
@@ -132,8 +132,8 @@ export const clearTripCopiesInTransaction = async (tripId: string, now: string):
 async function processCleanupForTrip(tripId: string): Promise<void> {
   const now = getCurrentISOString();
 
-  // sync_queue에 PENDING 작업이 있는지 확인
-  const hasPending = await hasPendingTasksForTrip(tripId);
+  // 미전송 작업·보류 입력을 보호한다.
+  const hasPending = await hasUnresolvedTripChanges(tripId);
 
   if (hasPending) {
     console.log(`[Cleanup] Trip ${tripId} still has pending sync tasks - skipping cleanup`);
@@ -143,11 +143,20 @@ async function processCleanupForTrip(tripId: string): Promise<void> {
   // 모든 작업이 동기화 완료됨 → Soft delete 실행
   console.log(`[Cleanup] All sync tasks completed for trip ${tripId} - executing cleanup`);
 
-  await withTransaction(async () => {
+  const cleaned = await withTransaction(async () => {
+    if (await hasUnresolvedTripChangesInTransaction(tripId)) {
+      return false;
+    }
+
     await clearTripCopiesInTransaction(tripId, now);
 
     console.log(`[Cleanup] Local data soft-deleted for trip: ${tripId}`);
+    return true;
   });
+
+  if (!cleaned) {
+    return;
+  }
 
   // 오프라인 지도 삭제 (트랜잭션 외부)
   try {
@@ -220,6 +229,18 @@ export const vacuumDeletedRecords = async (): Promise<{ schedules: number; expen
           lt(table.deletedAt, thresholdISO),
           notExists(
             getDatabase()
+              .select({ id: legacySyncHolds.id })
+              .from(legacySyncHolds)
+              .where(
+                and(
+                  eq(legacySyncHolds.tableName, tableName),
+                  eq(legacySyncHolds.recordId, table.id),
+                  eq(legacySyncHolds.userId, table.userId),
+                ),
+              ),
+          ),
+          notExists(
+            getDatabase()
               .select({ id: syncQueue.id })
               .from(syncQueue)
               .where(
@@ -231,9 +252,27 @@ export const vacuumDeletedRecords = async (): Promise<{ schedules: number; expen
               ),
           ),
         );
-        const records = await getDatabase().select({ id: table.id }).from(table).where(canDelete).all();
+        const records = await getDatabase()
+          .select({ id: table.id, userId: table.userId, tripId: table.tripId })
+          .from(table)
+          .where(canDelete)
+          .all();
 
         if (records.length > 0) {
+          for (const record of records) {
+            await getDatabase()
+              .update(serverRecords)
+              .set({ record: null })
+              .where(
+                and(
+                  eq(serverRecords.tableName, tableName),
+                  eq(serverRecords.recordId, record.id),
+                  eq(serverRecords.userId, record.userId),
+                  eq(serverRecords.tripId, record.tripId),
+                ),
+              );
+          }
+
           await getDatabase().delete(table).where(canDelete);
         }
 

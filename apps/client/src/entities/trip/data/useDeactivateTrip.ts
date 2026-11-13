@@ -9,14 +9,14 @@ import { expenseQueryKeys } from '@/entities/expense/data/keys';
 import { routeQueryKeys } from '@/entities/route/data/keys';
 import { clearTripCopiesInTransaction } from '@/shared/services/sync/cleanup-job';
 import { cleanupOfflineMapForTrip } from '@/shared/services/offline-map';
-import { hasPendingTasksForTrip, getPendingTasksForTrip } from '@/shared/services/sync/queue';
+import { hasUnresolvedTripChangesInTransaction } from '@/shared/services/sync/queue';
 import { cancelAndInvalidateQueries } from '@/shared/lib/query-refresh';
 
 /**
  * 여행 비활성화 Mutation Hook
  *
  * - tripActivations 레코드 업데이트 (isActivated = false)
- * - sync_queue 체크: PENDING 항목이 있으면 cleanup 지연 (cleanupPending = true)
+ * - sync_queue 체크: 미해결 입력이 있으면 cleanup 지연 (cleanupPending = true)
  * - Soft delete 패턴: 로컬 데이터를 deletedAt으로 마킹 (Hard delete 없음)
  * - Background job에서 cleanup 완료 (sync 완료 후)
  * - 오프라인 지도 삭제
@@ -49,32 +49,29 @@ export const useDeactivateTrip = () => {
         return { tripId, alreadyDeactivated: true };
       }
 
-      // sync_queue 체크: PENDING 작업이 있는지 확인
-      const hasPending = await hasPendingTasksForTrip(tripId);
-
-      if (hasPending && cleanupData) {
-        const pendingTasks = await getPendingTasksForTrip(tripId);
-        console.log(`[TripActivation] Sync queue has ${pendingTasks.length} pending tasks - deferring cleanup`);
-      }
+      // 정리 판단도 쓰기와 같은 transaction에서 확정한다.
+      let hasPending = false;
 
       // 트랜잭션: 로컬 DB 업데이트
       let cleanupExecuted = false;
 
       await withTransaction(async () => {
+        hasPending = await hasUnresolvedTripChangesInTransaction(tripId);
+
         // 활성화 레코드 업데이트 (tripActivations만 사용)
         await getDatabase()
           .update(tripActivations)
           .set({
             isActivated: false,
             deactivatedAt: now,
-            // PENDING 작업이 있으면 cleanup 지연, 없으면 즉시 실행
+            // 미전송 작업·보류 입력이 있으면 cleanup 지연, 없으면 즉시 실행
             cleanupPending: cleanupData && hasPending,
             updatedAt: now,
           })
           .where(eq(tripActivations.tripId, tripId));
 
         // 데이터 정리 (선택적)
-        // PENDING 작업이 없으면 즉시 Soft delete 실행
+        // 미해결 입력이 없으면 즉시 Soft delete 실행
         if (cleanupData && !hasPending) {
           await clearTripCopiesInTransaction(tripId, now);
 

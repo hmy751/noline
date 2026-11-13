@@ -2,13 +2,16 @@ import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals
 import * as cleanupService from '@/shared/services/sync/cleanup-job';
 import { processPendingCleanups } from '@/shared/services/sync/cleanup-job';
 import { performLogout, performDeleteAccount } from '@/shared/services/auth/logout-service';
-import { getDatabase, resetDatabase } from '@/shared/db';
+import { getDatabase, resetDatabase, tripActivations } from '@/shared/db';
 import { clearSyncQueue, getSyncQueueStats } from '@/shared/services/sync/queue';
 import { queryClient } from '@/shared/lib/queryClient';
 import { useAuthStore } from '@/shared/store/auth';
 import { useTripStore } from '@/shared/store/useTripStore';
 
 jest.mock('@/shared/db', () => ({
+  legacySyncHolds: { id: 'id' },
+  legacyHoldAcks: { id: 'id' },
+  runDatabaseOperation: (op: () => unknown) => op(),
   getDatabase: jest.fn(),
   resetDatabase: jest.fn(),
   withDatabaseTransactionsPaused: async (operation: () => Promise<unknown>) => operation(),
@@ -23,7 +26,8 @@ jest.mock('@/shared/db/utils', () => ({
   getCurrentISOString: () => 'now',
 }));
 jest.mock('@/shared/services/sync/queue', () => ({
-  hasPendingTasksForTrip: jest.fn(async () => false),
+  hasUnresolvedTripChanges: jest.fn(async () => false),
+  hasUnresolvedTripChangesInTransaction: jest.fn(async () => false),
   clearSyncQueue: jest.fn(),
   getSyncQueueStats: jest.fn(),
 }));
@@ -66,7 +70,12 @@ beforeEach(() => {
   useTripStore.setState({ selectedTripId: 'previous-user-trip' });
   findPendingCleanups.mockReset().mockResolvedValue([]);
   jest.mocked(getDatabase).mockReturnValue({
-    select: () => ({ from: () => ({ where: () => ({ all: findPendingCleanups }) }) }),
+    select: () => ({
+      from: (table: unknown) => ({
+        where: () => ({ all: table === tripActivations ? findPendingCleanups : () => [] }),
+        all: () => [],
+      }),
+    }),
   } as unknown as ReturnType<typeof getDatabase>);
   jest.mocked(getSyncQueueStats).mockResolvedValue({ pending: 0, inProgress: 0, failed: 0, quarantined: 0, total: 0 });
   jest.mocked(resetDatabase).mockReset().mockResolvedValue(undefined);

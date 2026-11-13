@@ -34,7 +34,8 @@ import { observeFieldEdits } from '@/shared/services/edit-stamp';
 import syncApi from '@/shared/services/sync/api';
 import { pullChanges } from '@/shared/services/sync/engine';
 import { getPullCursor, setPullCheckpointInTransaction } from '@/shared/services/sync/storage';
-import { forceCleanupTrip, vacuumDeletedRecords } from '@/shared/services/sync/cleanup-job';
+import { preserveLegacyHold, clearLegacyHold } from '@/shared/services/sync/legacy-holds';
+import { processPendingCleanups, forceCleanupTrip, vacuumDeletedRecords } from '@/shared/services/sync/cleanup-job';
 import { reconcileServerRecord } from '@/shared/services/sync/reconcile';
 import { applyConfirmedDeletionInTransaction } from '@/shared/services/sync/confirmed-deletion';
 import { AuthRequiredError, useAuthStore } from '@/shared/store/auth';
@@ -596,4 +597,110 @@ it('구버전의 판본 없는 여행 목록은 메타데이터 pull 판본과 �
     .mockResolvedValueOnce({ success: true, data: [TRIP] });
   await fetchAllTrips();
   expect(apiClient.get).toHaveBeenCalledTimes(1);
+});
+
+
+it('기기 사본 정리는 서버 원문도 지우고 같은 서버 판본으로 재활성화할 수 있다', async () => {
+  await reconcileServerRecord('schedules', SCHEDULE);
+  await reconcileServerRecord('expenses', EXPENSE);
+  await forceCleanupTrip(TRIP.id);
+  expect((await getDatabase().select().from(serverRecords).all()).every((state) => state.record === null)).toBe(true);
+
+  jest.mocked(apiClient.post<unknown, unknown>).mockResolvedValueOnce({
+    success: true,
+    data: { trips: [TRIP], schedules: [SCHEDULE], expenses: [EXPENSE] },
+  });
+  await activateTripForTest();
+  expect(await getSchedulesLocal(TRIP.id)).toHaveLength(1);
+  expect(await getExpensesByTripIdLocal(TRIP.id)).toHaveLength(1);
+});
+
+it('일반 비활성화의 즉시 정리도 서버 원문을 같이 버린다', async () => {
+  await reconcileServerRecord('schedules', SCHEDULE);
+  jest.mocked(apiClient.post<unknown, unknown>).mockResolvedValueOnce({
+    success: true,
+    data: { trips: [TRIP], schedules: [SCHEDULE], expenses: [EXPENSE] },
+  });
+  await activateTripForTest();
+  const deactivate = useDeactivateTrip() as unknown as {
+    mutationFn: (input: { tripId: string; cleanupData: boolean }) => Promise<unknown>;
+  };
+  jest.mocked(apiClient.post<unknown, unknown>).mockResolvedValueOnce({ success: true });
+  await deactivate.mutationFn({ tripId: TRIP.id, cleanupData: true });
+  expect((await getDatabase().select().from(serverRecords).all()).every((state) => state.record === null)).toBe(true);
+});
+
+it('사본 정리로 최신 원문이 없으면 오래된 활성화는 빈 데이터 성공 대신 재시도를 요구한다', async () => {
+  await reconcileServerRecord('schedules', { ...SCHEDULE, version: 5, title: '정리 전 최신 값' });
+  await forceCleanupTrip(TRIP.id);
+  jest.mocked(apiClient.post<unknown, unknown>).mockResolvedValueOnce({
+    success: true,
+    data: { trips: [TRIP], schedules: [SCHEDULE], expenses: [EXPENSE] },
+  });
+  await expect(activateTripForTest()).rejects.toThrow('최신 여행 데이터를 다시 받아야');
+  expect(await getDatabase().select().from(tripActivations).all()).toEqual([]);
+  expect(downloadOfflineMapInBackground).not.toHaveBeenCalled();
+});
+
+it.each(['PENDING', 'FAILED', 'IN_PROGRESS'] as const)(
+  '사본 정리는 tripId 없는 부분 수정이 %s이면 원본과 요청을 보존한다',
+  async (status) => {
+    await getDatabase().insert(tripActivations).values({
+      id: 'cleanup-protection', tripId: TRIP.id, userId: TRIP.userId,
+      isActivated: true, activatedAt: FIXTURE_TIME, expiresAt: FIXTURE_TIME, createdAt: FIXTURE_TIME, updatedAt: FIXTURE_TIME,
+    });
+    await enqueueTestTask('partial-update', { title: '아직 보내지 못한 제목' });
+    await getDatabase().update(syncQueue).set({ status }).where(eq(syncQueue.id, 'partial-update'));
+    const before = await getDatabase().select().from(syncQueue).all();
+    jest.mocked(apiClient.post<unknown, unknown>).mockResolvedValueOnce({ success: true });
+    const deactivate = useDeactivateTrip() as unknown as {
+      mutationFn: (input: { tripId: string; cleanupData: boolean }) => Promise<unknown>;
+    };
+
+    await deactivate.mutationFn({ tripId: TRIP.id, cleanupData: true });
+
+    expect(await getDatabase().select().from(tripActivations).get()).toMatchObject({
+      isActivated: false, cleanupPending: true,
+    });
+    expect(await getDatabase().select().from(expenses).get()).toMatchObject({ deletedAt: null });
+    expect(await getDatabase().select().from(syncQueue).all()).toEqual(before);
+  },
+);
+
+it('보류 입력은 비활성화 후 사본 정리를 미루고 사용자 확인 뒤 다음 정리가 진행된다', async () => {
+  await getDatabase().insert(tripActivations).values({
+    id: 'cleanup-protection', tripId: TRIP.id, userId: TRIP.userId,
+    isActivated: true, activatedAt: FIXTURE_TIME, expiresAt: FIXTURE_TIME, createdAt: FIXTURE_TIME, updatedAt: FIXTURE_TIME,
+  });
+  await preserveLegacyHold('expenses', EXPENSE.id, TRIP.id, { amount: '30' }, EXPENSE, 'held-input');
+  jest.mocked(apiClient.post<unknown, unknown>).mockResolvedValueOnce({ success: true });
+  const deactivate = useDeactivateTrip() as unknown as {
+    mutationFn: (input: { tripId: string; cleanupData: boolean }) => Promise<unknown>;
+  };
+  await deactivate.mutationFn({ tripId: TRIP.id, cleanupData: true });
+  await processPendingCleanups();
+  expect(await getDatabase().select().from(expenses).get()).toMatchObject({ deletedAt: null });
+  expect(await getDatabase().select().from(tripActivations).get()).toMatchObject({ cleanupPending: true });
+
+  await clearLegacyHold('held-input');
+  await processPendingCleanups();
+  expect(await getDatabase().select().from(expenses).get()).toMatchObject({ deletedAt: expect.any(String) });
+  expect(await getDatabase().select().from(tripActivations).get()).toMatchObject({ cleanupPending: false });
+});
+
+it('vacuum은 보류가 참조하는 원본을 남기고 해제 뒤 삭제할 때 서버 확인본의 본문도 비운다', async () => {
+  await reconcileServerRecord('expenses', EXPENSE);
+  await preserveLegacyHold('expenses', EXPENSE.id, TRIP.id, { amount: '30' }, EXPENSE, 'held-input');
+  await getDatabase().update(expenses).set({ deletedAt: '2020-01-01T00:00:00.000Z' });
+
+  await vacuumDeletedRecords();
+  expect(await getDatabase().select().from(expenses).get()).toBeDefined();
+  expect(await getDatabase().select().from(serverRecords).where(eq(serverRecords.recordId, EXPENSE.id)).get())
+    .toMatchObject({ record: expect.any(Object) });
+
+  await clearLegacyHold('held-input');
+  await vacuumDeletedRecords();
+  expect(await getDatabase().select().from(expenses).get()).toBeUndefined();
+  expect(await getDatabase().select().from(serverRecords).where(eq(serverRecords.recordId, EXPENSE.id)).get())
+    .toMatchObject({ record: null });
 });
