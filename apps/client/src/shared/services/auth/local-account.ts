@@ -1,11 +1,12 @@
-import { sql, eq, ne } from 'drizzle-orm';
+import { eq, ne, sql } from 'drizzle-orm';
 
-import { reportSyncSignal, type SyncRun } from '@/shared/diagnostics/sentry';
 import { deleteQueuePayloadSchema, syncActionEnum } from '@repo/schema/sync/sync-queue';
 
 import {
   expenses,
   getDatabase,
+  legacySyncHolds,
+  legacyHoldAcks,
   runDatabaseOperation,
   schedules,
   syncQueue,
@@ -13,24 +14,36 @@ import {
   tripActivations,
   trips,
 } from '@/shared/db';
+import { reportSyncSignal, type SyncRun } from '@/shared/diagnostics/sentry';
 
 type LocalAccount = 'empty' | 'same' | 'different' | 'unresolved';
 type QueueOwnership = { owner: string } | 'orphan' | 'invalid';
 
 const OWNED_TABLES = { trips, schedules, expenses };
 
-/** 메모리의 이전 사용자 유무와 무관하게 DB와 남아 있는 큐를 검사한다. */
+/**
+ * 메모리의 이전 사용자 유무와 무관하게 DB와 남아 있는 큐를 검사한다.
+ * 원본 없는 요청을 원문 그대로 영속 격리한 뒤 계정을 판단하며, 뒤의 판단 실패가 앞선 격리를 rollback하지 않는다.
+ */
 export const inspectLocalAccount = async (userId: string): Promise<LocalAccount> => {
   return runDatabaseOperation(async () => {
     let hasLocalData = false;
     let hasDifferentOwner = false;
 
-    for (const table of [...Object.values(OWNED_TABLES), tripActivations]) {
+    for (const table of [...Object.values(OWNED_TABLES), tripActivations, legacySyncHolds]) {
       const owners = await getDatabase().select({ userId: table.userId }).from(table).all();
 
       hasDifferentOwner ||= owners.some((owner) => owner.userId !== userId);
       hasLocalData ||= owners.length > 0;
     }
+
+    const pendingAcks = await getDatabase()
+      .select({ userId: legacyHoldAcks.userId })
+      .from(legacyHoldAcks)
+      .where(eq(legacyHoldAcks.acknowledged, false))
+      .all();
+    hasDifferentOwner ||= pendingAcks.some((ack) => ack.userId !== userId);
+    hasLocalData ||= pendingAcks.length > 0;
 
     const tasks = await getDatabase().select().from(syncQueue).all();
 

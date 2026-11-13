@@ -170,12 +170,14 @@ it('실제로 작성한 DELETE는 원본이 사라져도 삭제 당시 계정에
   await deleteScheduleLocal(orphan.recordId);
   expect((await db.select().from(schedules).get())?.deletedAt).toEqual(expect.any(String));
   // 기기 사본이 모두 사라져 큐만 남은 상태로 복원과 전송을 확인한다.
+
   await db.delete(schedules);
   await db.delete(tripActivations);
   await db.delete(trips);
 
   useAuthStore.setState({ status: 'signed-out', userId: null });
   await expect(completeLogin({ ...session, userId: 'other-account' })).rejects.toThrow();
+
   useAuthStore.setState({ status: 'signed-in', userId: 'other-account' });
   await expect(pushChanges()).rejects.toThrow();
   expect(api.delete).not.toHaveBeenCalled();
@@ -184,6 +186,7 @@ it('실제로 작성한 DELETE는 원본이 사라져도 삭제 당시 계정에
   useAuthStore.setState({ status: 'signed-out', userId: null });
   await expect(completeLogin(session)).resolves.toBeUndefined();
   expect(await inspectLocalAccount(session.userId)).toBe('same');
+
   await pushChanges();
   expect(api.delete).toHaveBeenCalledWith(`/api/schedules/${orphan.recordId}`);
   expect(await db.select().from(syncQueue).all()).toEqual([]);
@@ -236,30 +239,33 @@ it('원본이 pull로 되살아나도 재시도·중단 복구·상태 수정·�
     createdAt: now,
     updatedAt: now,
   });
-  jest.mocked(api.get).mockResolvedValue({
-    data: {
-      success: true,
+  jest
+    .mocked(api.get)
+    .mockResolvedValueOnce({ data: { success: true, data: [] } })
+    .mockResolvedValue({
       data: {
-        trips: [
-          {
-            ...trip,
-            id: '01ARZ3NDEKTSV4RRFFQ69G5FAX',
-            country: null,
-            baseCurrency: 'USD',
-            latitude: null,
-            longitude: null,
-            cityId: null,
-            timeZone: null,
-            deletedAt: null,
-            version: 1,
-          },
-        ],
-        schedules: [],
-        expenses: [],
-        serverTime: now,
+        success: true,
+        data: {
+          trips: [
+            {
+              ...trip,
+              id: '01ARZ3NDEKTSV4RRFFQ69G5FAX',
+              country: null,
+              baseCurrency: 'USD',
+              latitude: null,
+              longitude: null,
+              cityId: null,
+              timeZone: null,
+              deletedAt: null,
+              version: 1,
+            },
+          ],
+          schedules: [],
+          expenses: [],
+          serverTime: now,
+        },
       },
-    },
-  });
+    });
 
   await expect(syncData()).resolves.toBeUndefined();
   expect(api.get).toHaveBeenCalled();

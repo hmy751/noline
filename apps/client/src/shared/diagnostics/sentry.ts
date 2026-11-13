@@ -116,6 +116,12 @@ type Signal =
   | { kind: 'sync.login.blocked'; task: TaskFields; stage: 'invalid-ownership' }
   | { kind: 'sync.quarantined'; task: TaskFields; source: 'login' | 'push' }
   | {
+      kind: 'sync.push.resolved';
+      task: TaskFields;
+      stage: 'legacy-held' | 'entity-deleted' | 'trip-deleted';
+      hasWaiting?: boolean;
+    }
+  | {
       kind: 'sync.push.blocked' | 'sync.pull.blocked';
       stage: SyncFailure;
       task?: TaskFields;
@@ -160,7 +166,7 @@ export function reportSyncSignal(signal: Signal, run?: SyncRun): void {
 
     client.sdk.captureEvent({
       message: signal.kind,
-      level: signal.kind === 'sync.quarantined' ? 'info' : 'warning',
+      level: signal.kind === 'sync.quarantined' || signal.kind === 'sync.push.resolved' ? 'info' : 'warning',
       tags,
       contexts: run ? traceContext(client, run) : undefined,
       fingerprint: syncFingerprint(signal.kind, tags),

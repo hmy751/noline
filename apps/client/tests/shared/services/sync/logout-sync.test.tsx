@@ -26,6 +26,10 @@ jest.mock('@/shared/services/sync/cleanup-job', () => ({
   withPendingCleanupsPaused: jest.fn(async (operation: () => Promise<unknown>) => operation()),
 }));
 jest.mock('@/shared/db', () => ({
+  getDatabase: () => ({ select: () => ({ from: () => ({ all: () => [], where: () => ({ all: () => [] }) }) }) }),
+  legacySyncHolds: { id: 'id' },
+  legacyHoldAcks: { id: 'id' },
+  runDatabaseOperation: (op: () => unknown) => op(),
   resetDatabase: jest.fn(),
   isDatabaseReady: jest.fn(() => true),
   withDatabaseTransactionsPaused: async (operation: () => Promise<unknown>) => operation(),

@@ -1,10 +1,16 @@
 import type { Query } from '@tanstack/react-query';
-import axios from 'axios';
+import axios, { type AxiosError } from 'axios';
+import type { z } from 'zod';
 import { and, eq } from 'drizzle-orm';
 
 import { expenseEntity } from '@repo/schema/entities/expense';
 import { scheduleEntity } from '@repo/schema/entities/schedule';
 import { tripEntity } from '@repo/schema/entities/trip';
+import {
+  deletedMutationResponse,
+  legacyScheduleConflictResponse,
+  legacyExpenseConflictResponse,
+} from '@repo/schema/responses/mutation-conflict';
 import { deleteTripResponse } from '@repo/schema/responses/trip';
 import { deleteQueuePayloadSchema } from '@repo/schema/sync/sync-queue';
 import { syncPullResponseSchema } from '@repo/schema/sync/sync-status';
@@ -27,6 +33,7 @@ import { AuthRequiredError, requireLocalUserId, selectLocalUserId, useAuthStore 
 
 import syncApiClient from './api';
 import { processPendingCleanups } from './cleanup-job';
+import { preserveLegacyHoldInTransaction, synchronizeLegacyHolds } from './legacy-holds';
 import {
   getTaskById,
   getSyncableTasks,
@@ -166,6 +173,23 @@ export const pushChanges = async (run?: SyncRun): Promise<void> => {
 
         await applyPushResponse(task, task.tableName, taskOwnerId, payload, result);
       } catch (error) {
+        try {
+          if (stage === 'sending' && axios.isAxiosError<unknown>(error) && isSyncTable(task.tableName)) {
+            const resolution = await resolveRejectedMutation(task, task.tableName, error);
+
+            if (resolution) {
+              reportSyncSignal({ kind: 'sync.push.resolved', stage: resolution, task, hasWaiting }, run);
+              shouldRefreshQueries = true;
+              continue;
+            }
+          }
+        } catch (resolutionError) {
+          hasReportedBlock = true;
+          reportSyncSignal({ kind: 'sync.push.blocked', stage: 'local-after-response', task, hasWaiting }, run);
+          await updateTaskStatus(task.id, 'FAILED', task.retryCount + 1);
+          throw resolutionError;
+        }
+
         hasReportedBlock = true;
         reportSyncSignal({ kind: 'sync.push.blocked', ...failureDetails(error, stage), task, hasWaiting }, run);
 
@@ -232,6 +256,13 @@ export const pullChanges = async (run?: SyncRun): Promise<void> => {
         throw new AuthRequiredError();
       }
     };
+
+    await synchronizeLegacyHolds((nextStage) => {
+      stage = nextStage;
+    });
+
+    stage = 'local-before-send';
+    requirePullSession();
 
     const readActivePreparations = () =>
       getDatabase()
@@ -404,4 +435,134 @@ const applyPushResponse = async (
 
     await db.delete(syncQueue).where(eq(syncQueue.id, task.id));
   });
+};
+
+/** 서버가 확인한 보류·삭제만 FIFO에서 종결한다. 귀속이 확인되지 않으면 기존 실패 경로로 돌려보낸다. */
+const resolveRejectedMutation = async (
+  task: SyncQueueItem,
+  tableName: SyncTable,
+  error: AxiosError<unknown>,
+): Promise<'legacy-held' | 'trip-deleted' | 'entity-deleted' | null> => {
+  const response = error.response;
+  const body = response?.data;
+
+  if (!body || typeof body !== 'object' || !('data' in body) || !('code' in body)) {
+    return null;
+  }
+
+  const data = body.data;
+
+  if (!data || typeof data !== 'object' || !('id' in data) || data.id !== task.recordId) {
+    return null;
+  }
+
+  if (
+    response?.status === 409 &&
+    body.code === 'LEGACY_UPDATE_CONFLICT' &&
+    task.action === 'UPDATE' &&
+    'userId' in data &&
+    data.userId === requireLocalUserId()
+  ) {
+    const conflict = (tableName === 'schedules' ? legacyScheduleConflictResponse : legacyExpenseConflictResponse).parse(
+      body,
+    );
+    const current = conflict.data;
+    const serverHold = conflict.hold;
+
+    if (
+      serverHold &&
+      (serverHold.userId !== requireLocalUserId() ||
+        serverHold.recordId !== task.recordId ||
+        serverHold.tableName !== tableName ||
+        serverHold.tripId !== current.tripId)
+    ) {
+      throw new Error('보류 입력의 귀속이 일치하지 않습니다');
+    }
+
+    await runDatabaseTransaction(async () => {
+      await preserveLegacyHoldInTransaction(
+        tableName,
+        task.recordId,
+        current.tripId,
+        serverHold?.payload ?? JSON.parse(task.payload),
+        current,
+        serverHold?.id ?? conflict.recoveryId ?? task.id,
+        { serverBacked: !!serverHold },
+      );
+      await getDatabase().delete(syncQueue).where(eq(syncQueue.id, task.id));
+      await reconcileRecordInTransaction(tableName, current);
+    });
+    return 'legacy-held';
+  }
+
+  if (response?.status === 410 && (body.code === 'ENTITY_DELETED' || body.code === 'TRIP_DELETED')) {
+    // 삭제 맥락이 없는 거절은 그대로 남긴다. 인식한 응답의 엄격한 검증 실패는 아래 parse에서 구별한다.
+    if (
+      !('deletedAt' in data) ||
+      !data.deletedAt ||
+      !Number.isFinite(Date.parse(String(data.deletedAt))) ||
+      !('tripId' in data) ||
+      !data.tripId
+    ) {
+      return null;
+    }
+
+    const proof = deletedMutationResponse.parse(body).data;
+    return resolveConfirmedDeletion(task, tableName, proof, body.code === 'TRIP_DELETED');
+  }
+
+  return null;
+};
+
+/** 엄격히 검증한 삭제 증거의 귀속을 확인하고 요청 종결까지 반영한다. */
+const resolveConfirmedDeletion = async (
+  task: SyncQueueItem,
+  tableName: SyncTable,
+  proof: z.infer<typeof deletedMutationResponse>['data'],
+  isTripDeletion: boolean,
+): Promise<'trip-deleted' | 'entity-deleted' | null> => {
+  const ownedTrip = await getDatabase()
+    .select()
+    .from(localTrips)
+    .where(and(eq(localTrips.id, proof.tripId), eq(localTrips.userId, requireLocalUserId())))
+    .get();
+  const payload: unknown = JSON.parse(task.payload);
+  const sourceTable = SYNC_TABLES[tableName];
+  const source = await getDatabase().select().from(sourceTable).where(eq(sourceTable.id, task.recordId)).get();
+  const hasOwnedOriginal =
+    source?.userId === requireLocalUserId() &&
+    (tableName === 'trips' ? source.id === proof.tripId : 'tripId' in source && source.tripId === proof.tripId);
+  const hasOwnedDelete =
+    isTripDeletion &&
+    task.action === 'DELETE' &&
+    payload !== null &&
+    typeof payload === 'object' &&
+    'ownerVersion' in payload &&
+    payload.ownerVersion === 1 &&
+    'userId' in payload &&
+    payload.userId === requireLocalUserId();
+  const hasMatchingDelete =
+    hasOwnedDelete && (!('tripId' in payload) || !payload.tripId || payload.tripId === proof.tripId);
+
+  const canConfirmTripDeletion = (ownedTrip || hasOwnedDelete) && (hasOwnedOriginal || hasMatchingDelete);
+
+  if (isTripDeletion && !canConfirmTripDeletion) {
+    return null;
+  }
+
+  await runDatabaseTransaction(() =>
+    applyConfirmedDeletionInTransaction(
+      isTripDeletion ? 'trips' : tableName,
+      isTripDeletion ? proof.tripId : task.recordId,
+      proof.tripId,
+      proof.deletedAt,
+      { confirmedTaskId: task.id },
+    ),
+  );
+
+  if (await getTaskById(task.id)) {
+    throw new Error('요청의 삭제 귀속을 확인할 수 없습니다');
+  }
+
+  return isTripDeletion ? 'trip-deleted' : 'entity-deleted';
 };

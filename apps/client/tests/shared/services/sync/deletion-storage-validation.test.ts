@@ -1,5 +1,6 @@
 /** @jest-environment node */
 import { beforeEach, expect, it, jest } from '@jest/globals';
+import { AxiosError, AxiosHeaders } from 'axios';
 
 import {
   getDatabase,
@@ -13,7 +14,8 @@ import {
 } from '@/shared/db';
 import { reportSyncSignal } from '@/shared/diagnostics/sentry';
 import api from '@/shared/services/sync/api';
-
+import { pushChanges } from '@/shared/services/sync/engine';
+import { reconcileServerRecord } from '@/shared/services/sync/reconcile';
 import { applyConfirmedDeletionInTransaction } from '@/shared/services/sync/confirmed-deletion';
 import { useAuthStore } from '@/shared/store/auth';
 jest.mock('@/shared/services/sync/api', () => ({
@@ -160,6 +162,110 @@ it('여행 삭제도 CREATE의 손상 금액과 일정 좌표를 버리지 않�
   expect(retained.map((task) => task.id)).toEqual(['bad-expense', 'bad-schedule', 'bad-schedule-update']);
   expect(retained[0].payload).toBe(JSON.stringify(badExpense));
   expect(retained[1].payload).toBe(JSON.stringify(badSchedule));
+});
+
+it('삭제 수신 후 보존된 손상 입력은 전송 실패와 진단을 남긴다', async () => {
+  const payload = { amount: 'not-a-number', currency: 'USD', title: '전체 원문' };
+  await enqueueTestTask('invalid', 'expenses', EXPENSE.id, 'UPDATE', payload);
+  await reconcileServerRecord('expenses', { ...EXPENSE, deletedAt: FIXTURE_TIME });
+  jest.mocked(api.put).mockRejectedValueOnce(
+    new AxiosError(
+      'invalid numeric',
+      'ERR_BAD_RESPONSE',
+      undefined,
+      {},
+      {
+        status: 500,
+        data: { error: 'numeric input rejected' },
+        statusText: '',
+        headers: {},
+        config: { headers: new AxiosHeaders() },
+      },
+    ),
+  );
+  await expect(pushChanges()).rejects.toThrow();
+  expect(await getDatabase().select().from(syncQueue).get()).toMatchObject({
+    id: 'invalid',
+    payload: JSON.stringify(payload),
+    status: 'FAILED',
+    retryCount: 1,
+  });
+  expect(reportSyncSignal).toHaveBeenCalledWith(
+    expect.objectContaining({
+      kind: 'sync.push.blocked',
+      stage: 'server-rejected',
+      httpStatus: 500,
+    }),
+    undefined,
+  );
+});
+
+it('로컬에서 확신할 수 없는 유효한 옛 숫자는 자신의 410 확인만으로 종결하고 다른 손상 입력은 남긴다', async () => {
+  await enqueueTestTask('pg-only', 'expenses', EXPENSE.id, 'UPDATE', { amount: 'NaN', currency: 'USD' });
+  const bad = { amount: 'invalid', currency: 'USD' };
+  await enqueueTestTask('bad-next', 'expenses', EXPENSE.id, 'UPDATE', bad);
+  await reconcileServerRecord('trips', { ...TRIP, deletedAt: FIXTURE_TIME });
+  expect(await getDatabase().select().from(syncQueue).all()).toHaveLength(2);
+
+  jest
+    .mocked(api.put)
+    .mockRejectedValueOnce(
+      new AxiosError(
+        'gone',
+        'ERR_BAD_RESPONSE',
+        undefined,
+        {},
+        {
+          status: 410,
+          data: {
+            error: 'Gone',
+            code: 'TRIP_DELETED',
+            data: {
+              id: EXPENSE.id,
+              tripId: TRIP.id,
+              deletedAt: FIXTURE_TIME,
+            },
+          },
+          statusText: '',
+          headers: {},
+          config: { headers: new AxiosHeaders() },
+        },
+      ),
+    )
+    .mockRejectedValueOnce(
+      new AxiosError(
+        'invalid numeric',
+        'ERR_BAD_RESPONSE',
+        undefined,
+        {},
+        { status: 500, data: {}, statusText: '', headers: {}, config: { headers: new AxiosHeaders() } },
+      ),
+    );
+  await expect(pushChanges()).rejects.toThrow();
+  expect(await getDatabase().select().from(syncQueue).all()).toEqual([
+    expect.objectContaining({
+      id: 'bad-next',
+      payload: JSON.stringify(bad),
+      status: 'FAILED',
+      retryCount: 1,
+    }),
+  ]);
+  expect(api.put).toHaveBeenCalledTimes(2);
+  expect(reportSyncSignal).toHaveBeenCalledWith(
+    expect.objectContaining({
+      kind: 'sync.push.resolved',
+      stage: 'trip-deleted',
+    }),
+    undefined,
+  );
+  expect(reportSyncSignal).toHaveBeenCalledWith(
+    expect.objectContaining({
+      kind: 'sync.push.blocked',
+      stage: 'server-rejected',
+      httpStatus: 500,
+    }),
+    undefined,
+  );
 });
 
 it('여행 삭제 때 큐의 대상과 본문 ID가 다른 CREATE는 보존한다', async () => {

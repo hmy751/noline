@@ -64,6 +64,29 @@ it('DSN이 있을 때만 수집하고 시작·종료를 연결하며 원본·자
     {},
   );
   expect(JSON.stringify(filtered)).not.toContain('private');
+  reportSyncSignal(
+    {
+      kind: 'sync.push.resolved',
+      stage: 'legacy-held',
+      task: { tableName: 'expenses', action: 'UPDATE', retryCount: 0 },
+    },
+    run,
+  );
+  const resolved = sentry.captureEvent.mock.calls.at(-1)?.[0];
+  expect(resolved).toMatchObject({
+    message: 'sync.push.resolved',
+    level: 'info',
+    tags: { 'sync.stage': 'legacy-held' },
+  });
+  if (!resolved || resolved.type !== undefined) {
+    throw new Error('해결 신호는 transaction이 아닌 일반 이벤트여야 합니다');
+  }
+  expect(opts.beforeSend?.({ ...resolved, type: resolved.type }, {})).toMatchObject({
+    message: 'sync.push.resolved',
+    tags: { 'sync.stage': 'legacy-held' },
+    fingerprint: ['sync.push.resolved', 'legacy-held', 'expenses', 'UPDATE', ''],
+  });
+
   sentry.captureEvent.mockImplementation(() => {
     throw new Error('SDK failed');
   });

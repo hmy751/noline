@@ -3,6 +3,8 @@ import * as SecureStore from 'expo-secure-store';
 
 import { afterEach, beforeEach, expect, it } from '@jest/globals';
 
+import { eq } from 'drizzle-orm';
+
 import { compareEdits } from '@repo/schema/sync/field-edits';
 
 import { fetchUpdateExpense } from '@/entities/expense/api/expenses';
@@ -12,6 +14,7 @@ import { fetchUpdateSchedule } from '@/entities/schedule/api/schedules';
 import { updateScheduleLocal } from '@/entities/schedule/lib/schedule-local';
 import { ScheduleRepository } from '@/entities/schedule/repository/schedule-repository';
 import { useActivateTrip as getActivationOptions } from '@/entities/trip/data/useActivateTrip';
+import { APIError } from '@/shared/api/errors';
 import apiClient from '@/shared/api/fetcher';
 import {
   getDatabase,
@@ -22,8 +25,11 @@ import {
   trips,
   syncQueue,
   tripActivations,
+  legacySyncHolds,
 } from '@/shared/db';
-import { ConfirmedUpdateError } from '@/shared/services/edit-stamp/errors';
+import { ConfirmedDeletionError, ConfirmedUpdateError } from '@/shared/services/edit-stamp/errors';
+import { handleDirectUpdateFailure } from '@/shared/services/sync/direct-update-failure';
+import { preserveLegacyHold } from '@/shared/services/sync/legacy-holds';
 import { withTripOperation } from '@/shared/services/offline-prep/trip-operation';
 import { AuthRequiredError, useAuthStore } from '@/shared/store/auth';
 import { useNetworkStore } from '@/shared/store/network';
@@ -368,4 +374,67 @@ it('does not call an HTTP rejection or invalid response a confirmed update', asy
   const malformed = await fetchUpdateSchedule(SCHEDULE.id, { edit, title: 'new' }).catch((error: unknown) => error);
   expect(malformed).not.toBeInstanceOf(ConfirmedUpdateError);
   expect(malformed).toMatchObject({ name: 'ZodError' });
+});
+
+it.each(['ENTITY_DELETED', 'TRIP_DELETED'] as const)(
+  '직접 재저장 %s 확정 뒤 보류 정리와 삭제 반영을 마쳐 APIError 호환 오류로 전달한다',
+  async (code) => {
+    await preserveLegacyHold('expenses', EXPENSE.id, TRIP.id, { amount: '30' }, EXPENSE, 'recovery');
+    const source = new APIError('gone', 410, code, {
+      error: 'Gone',
+      code,
+      data: { id: EXPENSE.id, tripId: TRIP.id, deletedAt: FIXTURE_TIME },
+    });
+    const failure = await handleDirectUpdateFailure(source, 'expenses', EXPENSE.id, TRIP.id, { amount: '30' }).catch(
+      (error: unknown) => error,
+    );
+    expect(failure).toBeInstanceOf(ConfirmedDeletionError);
+    expect(failure).toBeInstanceOf(APIError);
+    expect(failure).toMatchObject({ status: 410, code });
+    expect(await getDatabase().select().from(legacySyncHolds).all()).toEqual([]);
+    expect(await getDatabase().select().from(expenses).get()).toMatchObject({ deletedAt: FIXTURE_TIME });
+  },
+);
+
+it.each(['malformed', 'wrong-trip', 'wrong-id', 'wrong-code', 'invalid-date'] as const)(
+  '%s 삭제 응답은 확정 오류로 바꾸거나 이전 보류를 정리하지 않는다',
+  async (kind) => {
+    await preserveLegacyHold('expenses', EXPENSE.id, TRIP.id, { amount: '30' }, EXPENSE, 'recovery');
+    const data =
+      kind === 'malformed'
+        ? {}
+        : {
+            error: 'Gone',
+            code: kind === 'wrong-code' ? 'TRIP_DELETED' : 'ENTITY_DELETED',
+            data: {
+              id: kind === 'wrong-id' ? SCHEDULE.id : EXPENSE.id,
+              tripId: kind === 'wrong-trip' ? SCHEDULE.id : TRIP.id,
+              deletedAt: kind === 'invalid-date' ? '2026-11-10T00:00:00+25:00' : FIXTURE_TIME,
+            },
+          };
+    const source = new APIError('unconfirmed', 410, 'ENTITY_DELETED', data);
+    await expect(handleDirectUpdateFailure(source, 'expenses', EXPENSE.id, TRIP.id, { amount: '30' })).rejects.toBe(
+      source,
+    );
+    expect(await getDatabase().select().from(legacySyncHolds).all()).toHaveLength(1);
+    expect(await getDatabase().select().from(expenses).get()).toMatchObject({ deletedAt: null });
+  },
+);
+
+it('기기 원본 귀속 불일치로 삭제 반영을 거절하면 보류를 유지하고 확정 삭제로 알리지 않는다', async () => {
+  await preserveLegacyHold('expenses', EXPENSE.id, TRIP.id, { amount: '30' }, EXPENSE, 'recovery');
+  await getDatabase()
+    .insert(trips)
+    .values({ ...TRIP, id: SCHEDULE.id });
+  await getDatabase().update(expenses).set({ tripId: SCHEDULE.id }).where(eq(expenses.id, EXPENSE.id));
+  const source = new APIError('unconfirmed ownership', 410, 'ENTITY_DELETED', {
+    error: 'Gone',
+    code: 'ENTITY_DELETED',
+    data: { id: EXPENSE.id, tripId: TRIP.id, deletedAt: FIXTURE_TIME },
+  });
+  await expect(handleDirectUpdateFailure(source, 'expenses', EXPENSE.id, TRIP.id, { amount: '30' })).rejects.toBe(
+    source,
+  );
+  expect(await getDatabase().select().from(legacySyncHolds).all()).toHaveLength(1);
+  expect(await getDatabase().select().from(expenses).get()).toMatchObject({ deletedAt: null });
 });

@@ -1,4 +1,8 @@
 /** @jest-environment node */
+jest.mock('@/shared/services/sync/legacy-holds', () => ({
+  ...jest.requireActual<typeof import('@/shared/services/sync/legacy-holds')>('@/shared/services/sync/legacy-holds'),
+  synchronizeLegacyHolds: async () => undefined,
+}));
 import { beforeEach, afterEach, expect, it, jest } from '@jest/globals';
 import { eq, sql } from 'drizzle-orm';
 import { QueryClient } from '@tanstack/react-query';

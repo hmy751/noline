@@ -7,6 +7,7 @@ import schedulesRouter from './schedules.js';
 import expensesRouter from './expenses.js';
 import placesRouter from './places.js';
 import syncRouter from './sync.js';
+import legacyHoldsRouter from './legacy-holds.js';
 
 const router = Router();
 
@@ -44,6 +45,7 @@ router.use('/expenses', expensesRouter);
 router.use('/places', placesRouter);
 
 // Sync routes (Pull/Push)
+router.use('/sync/legacy-holds', legacyHoldsRouter);
 router.use('/sync', syncRouter);
 
 export default router;

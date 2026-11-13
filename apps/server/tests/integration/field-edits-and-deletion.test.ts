@@ -319,7 +319,7 @@ it('여행 삭제와 생성이 겹쳐도 삭제 뒤 살아 있는 자식이 남�
   expect(Number(row.alive)).toBe(0);
 });
 
-describe('구버전 직접 요청의 서버 원문 보존', () => {
+describe('구버전 직접 요청의 서버 보존과 복구 API', () => {
   const rawLegacy = {
     amount: '30',
     currency: 'USD',
@@ -353,8 +353,40 @@ describe('구버전 직접 요청의 서버 원문 보존', () => {
     expect(replay.body.recoveryId).toBe(first.body.recoveryId);
     expect(first.body.data).toMatchObject({ amount: '25.00', category: 'food', date: '2026-09-20' });
 
+    const list = await request(app).get('/api/sync/legacy-holds').expect(200);
+    expect(list.body.data).toHaveLength(1);
+    expect(list.body.data[0]).toMatchObject({ id: first.body.recoveryId, payload: rawLegacy });
     const [{ count }] = await sql`SELECT count(*)::int AS count FROM legacy_update_holds WHERE user_id = ${USER_A}`;
     expect(count).toBe(1);
+  });
+
+  it('다른 기기에서 새 값이 채택되면 목록의 현재 값도 갱신하고 다른 사용자는 읽거나 확인할 수 없다', async () => {
+    const conflict = await updateExpense(rawLegacy).expect(409);
+    await updateExpense({ amount: '40', currency: 'USD', edit: edit(15) }).expect(200);
+    const list = await request(app).get('/api/sync/legacy-holds').expect(200);
+    expect(list.body.data[0].current.amount).toBe('40.00');
+
+    authState.userId = USER_B;
+    expect((await request(app).get('/api/sync/legacy-holds').expect(200)).body.data).toEqual([]);
+
+    await request(app).delete(`/api/sync/legacy-holds/${conflict.body.recoveryId}`).expect(200);
+    authState.userId = USER_A;
+    expect((await request(app).get('/api/sync/legacy-holds').expect(200)).body.data).toHaveLength(1);
+  });
+
+  it('확인만으로는 보류가 남고 명시적 확인 API는 재실행해도 성공하며 이후 같은 새 입력은 다시 보존한다', async () => {
+    const conflict = await updateExpense(rawLegacy).expect(409);
+    await request(app).get('/api/sync/legacy-holds').expect(200);
+    expect((await request(app).get('/api/sync/legacy-holds')).body.data).toHaveLength(1);
+
+    const path = `/api/sync/legacy-holds/${conflict.body.recoveryId}`;
+    await request(app).delete(path).expect(200);
+    await request(app).delete(path).expect(200);
+    expect((await request(app).get('/api/sync/legacy-holds')).body.data).toEqual([]);
+
+    const fresh = await updateExpense(rawLegacy).expect(409);
+    expect(fresh.body.recoveryId).not.toBe(conflict.body.recoveryId);
+    expect(fresh.body.hold.payload).toEqual(rawLegacy);
   });
 
   it('잘못된 payload·다른 사용자·명시적 새 편집은 구버전 보류를 만들지 않는다', async () => {
@@ -366,4 +398,78 @@ describe('구버전 직접 요청의 서버 원문 보존', () => {
     const [{ count }] = await sql`SELECT count(*)::int AS count FROM legacy_update_holds`;
     expect(count).toBe(0);
   });
+
+  it('동일 충돌이 동시에 와도 보류 하나를 만들고 각 원래 입력이 다르면 별도 보존한다', async () => {
+    const results = await Promise.all([updateExpense(rawLegacy).expect(409), updateExpense(rawLegacy).expect(409)]);
+    expect(results[0].body.recoveryId).toBe(results[1].body.recoveryId);
+
+    await updateExpense({ ...rawLegacy, category: 'other' }).expect(409);
+    expect((await request(app).get('/api/sync/legacy-holds')).body.data).toHaveLength(2);
+  });
+
+  it('일정·경비 자체 또는 여행 삭제가 확인되면 그 범위의 서버 보류도 정리한다', async () => {
+    await updateSchedule({ title: 'Server title', edit: edit(12) }).expect(200);
+    await updateSchedule({ title: 'Old title' }).expect(409);
+    await updateExpense(rawLegacy).expect(409);
+    expect((await request(app).get('/api/sync/legacy-holds')).body.data).toHaveLength(2);
+
+    await request(app).delete(`/api/schedules/${SCHEDULE_ID}`).expect(200);
+    const afterSchedule = await request(app).get('/api/sync/legacy-holds').expect(200);
+    expect(afterSchedule.body.data.map((held: { tableName: string }) => held.tableName)).toEqual(['expenses']);
+
+    await request(app).delete(`/api/trips/${TRIP_A}`).expect(200);
+    expect((await request(app).get('/api/sync/legacy-holds')).body.data).toEqual([]);
+    const [{ count }] = await sql`SELECT count(*)::int AS count FROM legacy_update_holds`;
+    expect(count).toBe(0);
+  });
+
+  it('경비 삭제는 해당 경비 보류만 정리한다', async () => {
+    await updateExpense(rawLegacy).expect(409);
+    await request(app).delete(`/api/expenses/${EXPENSE_ID}`).expect(200);
+    expect((await request(app).get('/api/sync/legacy-holds')).body.data).toEqual([]);
+  });
+});
+
+it('손상된 금액·저장 범위 밖 값은 현재·삭제 행 모두 성공/보류로 종결하지 않는다', async () => {
+  await request(app).post('/api/schedules').send(scheduleBody()).expect(201);
+  await request(app)
+    .post('/api/expenses')
+    .send(expenseBody({ amount: '20', currency: 'USD' }))
+    .expect(201);
+  await updateExpense({ amount: '25', currency: 'USD', edit: edit(12) }).expect(200);
+  for (const body of [
+    { amount: 'broken' },
+    { amount: '100000000' },
+    { currency: 'TOO-LONG' },
+    { title: 'x'.repeat(201) },
+  ]) {
+    await updateExpense(body).expect(500);
+  }
+  await updateSchedule({ latitude: 1000 }).expect(500);
+  expect((await request(app).get('/api/sync/legacy-holds')).body.data).toEqual([]);
+
+  await request(app).delete(`/api/expenses/${EXPENSE_ID}`).expect(200);
+  await updateExpense({ amount: 'broken' }).expect(500);
+  await request(app).delete(`/api/trips/${TRIP_A}`).expect(200);
+  await updateExpense({ amount: 'broken' }).expect(500);
+  await updateSchedule({ latitude: 1000 }).expect(500);
+});
+
+it('기존 PostgreSQL 숫자 표기와 반올림 수용은 유지하고 빈 새 편집은 거절한다', async () => {
+  await request(app).post('/api/schedules').send(scheduleBody()).expect(201);
+  await request(app)
+    .post('/api/expenses')
+    .send(expenseBody({ amount: '20', currency: 'USD' }))
+    .expect(201);
+  const exponent = await updateExpense({ amount: '2.5e1', currency: 'USD', edit: edit(12) }).expect(200);
+  expect(exponent.body.data.amount).toBe('25.00');
+
+  const rounded = await updateExpense({ amount: '25.001', currency: 'USD', edit: edit(13) }).expect(200);
+  expect(rounded.body.data.amount).toBe('25.00');
+
+  await updateExpense({ edit: edit(14) }).expect(400);
+  await updateExpense({ unexpected: 'ignored', edit: edit(14) }).expect(400);
+  await updateSchedule({ edit: edit(14) }).expect(400);
+  await updateExpense({}).expect(200);
+  await updateSchedule({}).expect(200);
 });

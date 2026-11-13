@@ -38,6 +38,9 @@ export const legacyUpdateHold = z
     }
   });
 
+export const legacyHoldsResponse = z.object({ success: z.literal(true), data: z.array(legacyUpdateHold) });
+export const ackLegacyHoldResponse = z.object({ success: z.literal(true), data: z.object({ id: z.string().ulid() }) });
+
 const LEGACY_RECOVERY_FIELDS = {
   recoveryId: z.string().ulid().optional(),
   hold: legacyUpdateHold.optional(),

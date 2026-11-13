@@ -1,11 +1,14 @@
 import { createExpenseRequest, updateExpenseRequest } from '@repo/schema/requests/expense';
 
 import { prepareEdit } from '@/shared/services/edit-stamp';
+import { handleDirectUpdateFailure } from '@/shared/services/sync/direct-update-failure';
 import { routeChildQuery, routeChildMutation } from '@/shared/services/offline-prep/router';
+import { confirmRemoteChildDeletion } from '@/shared/services/sync/direct-deletion';
+import { requireLocalUserId, useAuthStore } from '@/shared/store/auth';
 
 import * as ExpenseApi from '../api/expenses';
 import * as ExpenseLocal from '../lib/expense-local';
-import type { Expense, CreateExpenseRequest, UpdateExpenseRequest } from '../model';
+import type { Expense, CreateExpenseRequest, UpdateExpenseRequest, DeleteExpenseResponse } from '../model';
 
 /**
  * Expense Repository
@@ -66,7 +69,13 @@ export const ExpenseRepository = {
       tripId,
       {
         local: (request) => ExpenseLocal.updateExpenseLocal(id, request),
-        remote: (input) => ExpenseApi.fetchUpdateExpense(id, input),
+        remote: async (request) => {
+          try {
+            return await ExpenseApi.fetchUpdateExpense(id, request);
+          } catch (error) {
+            return handleDirectUpdateFailure(error, 'expenses', id, tripId, request);
+          }
+        },
       },
       preparedRequest,
     );
@@ -76,10 +85,18 @@ export const ExpenseRepository = {
    * 경비 삭제 (Soft Delete)
    * - 화면이 이미 알고 있는 tripId로 로컬 선조회 없이 라우팅
    */
-  delete: async (id: string, tripId: string): Promise<{ id: string; deletedAt: string }> => {
+  delete: async (id: string, tripId: string): Promise<DeleteExpenseResponse['data']> => {
     return await routeChildMutation(tripId, {
       local: () => ExpenseLocal.deleteExpenseLocal(id),
-      remote: () => ExpenseApi.fetchDeleteExpense(id),
+      remote: async () => {
+        const sessionId = useAuthStore.getState().sessionId;
+        const userId = requireLocalUserId();
+        const proof = await ExpenseApi.fetchDeleteExpense(id);
+
+        await confirmRemoteChildDeletion('expenses', id, tripId, proof, sessionId, userId);
+
+        return proof;
+      },
     });
   },
 };

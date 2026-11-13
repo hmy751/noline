@@ -1,3 +1,8 @@
+jest.mock('@/shared/services/sync/legacy-holds', () => ({
+  ...jest.requireActual<typeof import('@/shared/services/sync/legacy-holds')>('@/shared/services/sync/legacy-holds'),
+  synchronizeLegacyHolds: async () => undefined,
+}));
+jest.mock('@/features/sync-recovery/LegacyUpdateRecovery', () => ({ LegacyUpdateRecovery: () => null }));
 import React from 'react';
 import { Alert } from 'react-native';
 import { afterEach, beforeEach, expect, it, jest } from '@jest/globals';

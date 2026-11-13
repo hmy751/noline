@@ -1,3 +1,4 @@
+import { LegacyUpdateRecovery } from '@/features/sync-recovery/LegacyUpdateRecovery';
 import { TripTimeZoneNotice } from '@/features/trip/TripTimeZoneNotice';
 import { EditTripDrawer } from '@/features/trip/update-trip';
 import { getTimeZoneDateRange } from '@/shared/lib/datetime';
@@ -181,6 +182,7 @@ export default function ExpensesScreen() {
 
       {/* Current Trip Selector - Sticky */}
       <TripSelector className='border-b border-card-border bg-background px-md py-sm' />
+      <LegacyUpdateRecovery table='expenses' tripId={selectedTripId} />
 
       {view.kind === 'ready' && view.refreshFailed && (
         <ExpenseRefreshError retry={access.canFetch ? onRefresh : undefined} />

@@ -1,4 +1,8 @@
 /** @jest-environment node */
+jest.mock('@/shared/services/sync/legacy-holds', () => ({
+  ...jest.requireActual<object>('@/shared/services/sync/legacy-holds'),
+  synchronizeLegacyHolds: async () => undefined,
+}));
 import { beforeEach, expect, it, jest } from '@jest/globals';
 import { eq, sql } from 'drizzle-orm';
 import { getExpensesByTripIdLocal } from '@/entities/expense/lib/expense-local';
@@ -6,6 +10,8 @@ import { getSchedulesLocal } from '@/entities/schedule/lib/schedule-local';
 import { useDeactivateTrip } from '@/entities/trip/data/useDeactivateTrip';
 import { useActivateTrip as getActivationOptions } from '@/entities/trip/data/useActivateTrip';
 import { refreshTripListLocal } from '@/entities/trip/lib/trip-local';
+import { ExpenseRepository } from '@/entities/expense/repository/expense-repository';
+import { ScheduleRepository } from '@/entities/schedule/repository/schedule-repository';
 import apiClient from '@/shared/api/fetcher';
 import {
   getDatabase,
@@ -496,3 +502,33 @@ it.each(['live', 'deleted'] as const)('활성화 반영 중 세션이 바뀌면 
   expect(downloadOfflineMapInBackground).not.toHaveBeenCalled();
   expect(downloadRoutesForSchedules).not.toHaveBeenCalled();
 });
+
+it.each(['schedules', 'expenses'] as const)(
+  '비활성 %s DELETE 뒤 활성화는 남은 기기 사본을 노출하지 않는다',
+  async (tableName) => {
+    const response = createDeferred<unknown>();
+    const requested = createDeferred<void>();
+    const row = tableName === 'schedules' ? SCHEDULE : EXPENSE;
+    const repository = tableName === 'schedules' ? ScheduleRepository : ExpenseRepository;
+    jest.mocked(apiClient.delete<unknown, unknown>).mockImplementationOnce(async () => {
+      requested.resolve();
+      return await response.promise;
+    });
+    const mutation = repository.delete(row.id, TRIP.id);
+    await requested.promise;
+    jest.mocked(apiClient.post<unknown, unknown>).mockResolvedValueOnce({
+      success: true,
+      data: {
+        trips: [TRIP],
+        schedules: tableName === 'schedules' ? [] : [SCHEDULE],
+        expenses: tableName === 'expenses' ? [] : [{ ...EXPENSE, scheduleId: null }],
+      },
+    });
+    const activation = activateTripForTest();
+    response.resolve({ success: true, data: { id: row.id, deletedAt: FIXTURE_TIME } });
+    await mutation;
+    await activation;
+    const readRecords = tableName === 'schedules' ? getSchedulesLocal : getExpensesByTripIdLocal;
+    expect(await readRecords(TRIP.id)).toEqual([]);
+  },
+);

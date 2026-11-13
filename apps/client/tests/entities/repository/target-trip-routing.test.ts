@@ -1,3 +1,4 @@
+jest.mock('@/shared/services/sync/direct-deletion', () => ({ confirmRemoteChildDeletion: async () => undefined }));
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 import { ExpenseRepository } from '@/entities/expense/repository/expense-repository';

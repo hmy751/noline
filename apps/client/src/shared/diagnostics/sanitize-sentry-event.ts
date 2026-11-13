@@ -1,12 +1,12 @@
 import type { Event } from '@sentry/react-native';
 
-const syncMessages = new Set(['sync.quarantined', 'sync.push.blocked', 'sync.pull.blocked', 'sync.login.blocked']);
+const syncMessages = new Set(['sync.quarantined', 'sync.push.blocked', 'sync.pull.blocked', 'sync.login.blocked', 'sync.push.resolved']);
 
 // SDK scope에 다른 값이 붙었더라도 허용한 진단 어휘만 기기 밖으로 보낸다.
 const tagValues: Record<string, RegExp> = {
   'sync.reason': /^(app-startup|conditions-ready|manual|periodic)$/,
   'sync.stage':
-    /^(local-before-send|response-unconfirmed|server-rejected|local-after-response|auth-blocked|auth-refresh-failed|invalid-ownership)$/,
+    /^(local-before-send|response-unconfirmed|server-rejected|local-after-response|auth-blocked|auth-refresh-failed|invalid-ownership|legacy-held|entity-deleted|trip-deleted)$/,
   'sync.table': /^(trips|schedules|expenses|unknown)$/,
   'sync.action': /^(CREATE|UPDATE|DELETE|unknown)$/,
   'sync.http_status': /^[1-5][0-9]{2}$/,

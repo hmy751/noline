@@ -1,11 +1,14 @@
 import { createScheduleRequest, updateScheduleRequest } from '@repo/schema/requests/schedule';
 
 import { prepareEdit } from '@/shared/services/edit-stamp';
+import { handleDirectUpdateFailure } from '@/shared/services/sync/direct-update-failure';
 import { routeChildQuery, routeChildMutation } from '@/shared/services/offline-prep/router';
+import { confirmRemoteChildDeletion } from '@/shared/services/sync/direct-deletion';
+import { requireLocalUserId, useAuthStore } from '@/shared/store/auth';
 
 import * as ScheduleApi from '../api/schedules';
 import * as ScheduleLocal from '../lib/schedule-local';
-import type { Schedule, CreateScheduleRequest, UpdateScheduleRequest } from '../model';
+import type { Schedule, CreateScheduleRequest, UpdateScheduleRequest, DeleteScheduleResponse } from '../model';
 
 /**
  * Schedule Repository
@@ -67,7 +70,13 @@ export const ScheduleRepository = {
       tripId,
       {
         local: (input) => ScheduleLocal.updateScheduleLocal(id, input),
-        remote: (input) => ScheduleApi.fetchUpdateSchedule(id, input),
+        remote: async (input) => {
+          try {
+            return await ScheduleApi.fetchUpdateSchedule(id, input);
+          } catch (error) {
+            return handleDirectUpdateFailure(error, 'schedules', id, tripId, input);
+          }
+        },
       },
       preparedRequest,
     );
@@ -77,10 +86,18 @@ export const ScheduleRepository = {
    * 일정 삭제 (Soft Delete)
    * - 화면이 이미 알고 있는 tripId로 로컬 선조회 없이 라우팅
    */
-  delete: async (id: string, tripId: string): Promise<{ id: string; deletedAt: string }> => {
+  delete: async (id: string, tripId: string): Promise<DeleteScheduleResponse['data']> => {
     return await routeChildMutation(tripId, {
       local: () => ScheduleLocal.deleteScheduleLocal(id),
-      remote: () => ScheduleApi.fetchDeleteSchedule(id),
+      remote: async () => {
+        const sessionId = useAuthStore.getState().sessionId;
+        const userId = requireLocalUserId();
+        const proof = await ScheduleApi.fetchDeleteSchedule(id);
+
+        await confirmRemoteChildDeletion('schedules', id, tripId, proof, sessionId, userId);
+
+        return proof;
+      },
     });
   },
 };

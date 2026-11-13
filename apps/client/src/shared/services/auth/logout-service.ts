@@ -1,4 +1,6 @@
-import { resetDatabase } from '@/shared/db';
+import { eq } from 'drizzle-orm';
+
+import { getDatabase, legacySyncHolds, legacyHoldAcks, resetDatabase, runDatabaseOperation } from '@/shared/db';
 import { queryClient } from '@/shared/lib/queryClient';
 import { getSyncQueueStats } from '@/shared/services/sync/queue';
 import { useAuthStore } from '@/shared/store/auth';
@@ -30,14 +32,25 @@ export interface LogoutResult {
 export const checkPendingSync = async (): Promise<{
   hasPending: boolean;
   pendingCount: number;
-  failedCount: number;
 }> => {
   const stats = await getSyncQueueStats();
 
+  const recoveryCount = await runDatabaseOperation(() => {
+    const db = getDatabase();
+    const holds = db.select({ id: legacySyncHolds.id }).from(legacySyncHolds).all();
+    const pendingAcks = db
+      .select({ id: legacyHoldAcks.id })
+      .from(legacyHoldAcks)
+      .where(eq(legacyHoldAcks.acknowledged, false))
+      .all();
+
+    return holds.length + pendingAcks.length;
+  });
+  const pendingCount = stats.total + recoveryCount;
+
   return {
-    hasPending: stats.total > 0,
-    pendingCount: stats.total,
-    failedCount: stats.failed,
+    hasPending: pendingCount > 0,
+    pendingCount,
   };
 };
 
@@ -148,6 +161,7 @@ export async function forceDeleteAccount(): Promise<LogoutResult> {
 /** 로그아웃과 회원 탈퇴가 공유하는 로컬 세션 종료 순서. */
 async function clearLocalSession() {
   await resetDatabase();
+
   try {
     await useAuthStore.getState().clearSession();
   } finally {

@@ -1,3 +1,4 @@
+jest.mock('@/features/sync-recovery/LegacyUpdateRecovery', () => ({ LegacyUpdateRecovery: () => null }));
 import React from 'react';
 import { afterEach, beforeEach, expect, it, jest } from '@jest/globals';
 import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react-native';

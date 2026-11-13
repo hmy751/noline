@@ -1,3 +1,4 @@
+import { LegacyUpdateRecovery } from '@/features/sync-recovery/LegacyUpdateRecovery';
 import { TripTimeZoneNotice } from '@/features/trip/TripTimeZoneNotice';
 import { EditTripDrawer } from '@/features/trip/update-trip';
 import { PolicyErrorDisplay } from '@/shared/components/ErrorBoundary';
@@ -253,6 +254,7 @@ export default function ScheduleScreen() {
 
       {/* Current Trip Selector - Sticky */}
       <TripSelector className='border-b border-card-border bg-background px-md py-sm' />
+      <LegacyUpdateRecovery table='schedules' tripId={selectedTripId} />
 
       {selectedTrip && <TripTimeZoneNotice timeZone={selectedTrip.timeZone} onRepair={() => setIsTripEditOpen(true)} />}
       {isTripEditOpen && <EditTripDrawer isOpen onClose={() => setIsTripEditOpen(false)} trip={selectedTrip ?? null} />}

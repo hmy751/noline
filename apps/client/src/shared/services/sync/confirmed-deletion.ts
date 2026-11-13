@@ -68,10 +68,12 @@ export const applyConfirmedDeletionInTransaction = async (
   }
 
   await rememberConfirmedDeletionInTransaction(tableName, recordId, tripId, deletedAt);
+
   const targets = new Set([`${tableName}:${recordId}`]);
 
   if (tableName === 'trips') {
     await releaseServerRecordBodiesInTransaction(tripId);
+
     for (const [name, child] of [
       ['schedules', schedules],
       ['expenses', expenses],
@@ -94,16 +96,51 @@ export const applyConfirmedDeletionInTransaction = async (
 
     await db.delete(tripActivations).where(and(eq(tripActivations.tripId, tripId), eq(tripActivations.userId, userId)));
   }
+
   await db
     .update(table)
     .set({ deletedAt })
     .where(and(eq(table.id, recordId), eq(table.userId, userId)));
+
   if (tableName === 'schedules') {
     await db
       .update(expenses)
       .set({ scheduleId: null })
       .where(and(eq(expenses.scheduleId, recordId), eq(expenses.userId, userId)));
   }
+
+  await clearRelatedQueueTasksInTransaction(
+    { tableName, tripId, userId, targets },
+    { confirmedTaskId, completedTaskId },
+  );
+
+  const holds = await db.select().from(legacySyncHolds).where(eq(legacySyncHolds.userId, userId)).all();
+
+  for (const hold of holds) {
+    if (targets.has(`${hold.tableName}:${hold.recordId}`) || (tableName === 'trips' && hold.tripId === tripId)) {
+      await clearLegacyHoldInTransaction(hold.id);
+    }
+  }
+
+  return true;
+};
+
+/** 삭제 범위에 속하고 귀속·저장 가능성이 확인된 요청만 정리한다. */
+const clearRelatedQueueTasksInTransaction = async (
+  {
+    tableName,
+    tripId,
+    userId,
+    targets,
+  }: {
+    tableName: SyncTableName;
+    tripId: string;
+    userId: string;
+    targets: Set<string>;
+  },
+  { confirmedTaskId, completedTaskId }: DeletionTaskContext,
+): Promise<void> => {
+  const db = getDatabase();
   const tasks = await db.select().from(syncQueue).all();
 
   for (const task of tasks) {
@@ -123,6 +160,7 @@ export const applyConfirmedDeletionInTransaction = async (
     } catch {
       continue;
     }
+
     const savedDelete = task.action === 'DELETE' ? deleteQueuePayloadSchema.safeParse(payload) : undefined;
     const isOwnedDelete = !!savedDelete?.success && savedDelete.data.userId === userId;
     const isOwnedTripDelete =
@@ -136,6 +174,7 @@ export const applyConfirmedDeletionInTransaction = async (
       continue;
     }
     // 개별 CREATE는 POST 재전송의 같은 ID·여행 검증과 200 현재 행을 받은 뒤 종결한다.
+
     if (tableName !== 'trips' && task.action === 'CREATE') {
       continue;
     }
@@ -160,6 +199,7 @@ export const applyConfirmedDeletionInTransaction = async (
         continue;
       }
     }
+
     if (task.action === 'DELETE') {
       const isLegacyDelete =
         payload === null ||
@@ -176,6 +216,7 @@ export const applyConfirmedDeletionInTransaction = async (
       if (!hasOwnedOriginal || !isRecord(payload)) {
         continue;
       }
+
       if (!isValidDiscardedMutation(task.tableName, task.action, payload, task.id === confirmedTaskId)) {
         continue;
       }
@@ -183,16 +224,6 @@ export const applyConfirmedDeletionInTransaction = async (
 
     await db.delete(syncQueue).where(eq(syncQueue.id, task.id));
   }
-
-  const holds = await db.select().from(legacySyncHolds).where(eq(legacySyncHolds.userId, userId)).all();
-
-  for (const hold of holds) {
-    if (targets.has(`${hold.tableName}:${hold.recordId}`) || (tableName === 'trips' && hold.tripId === tripId)) {
-      await clearLegacyHoldInTransaction(hold.id);
-    }
-  }
-
-  return true;
 };
 
 /** 일괄 삭제는 다른 요청의 저장 가능성을 증명하지 않는다. 해당 요청이 받은 410만 서버 검사를 대신한다. */
