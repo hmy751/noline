@@ -1,0 +1,1485 @@
+{
+  "perspective": 3,
+  "question": "이름·타입·결과가 실제 의미를 드러내는가",
+  "scope_count": 128,
+  "read_count": 128,
+  "unread_count": 0,
+  "product_or_test_edits": false,
+  "tests_executed": false,
+  "coverage": [
+    {
+      "path": "apps/client/src/entities/expense/api/expenses.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-57",
+      "reviewed_functions_and_judgment": "fetch list/create/update/delete의 반환 entity와 observeFieldEdits 후 완료·ConfirmedUpdateError 범위를 확인했다. fetch라는 기존 원격 함수명은 현재 convention이라 유지한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "67c54672d7554195b250a8e763dc8bd041006aa3500d5abc40b6072fd30e871c",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/entities/expense/data/useCreateExpense.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-49",
+      "reviewed_functions_and_judgment": "create mutation 입력과 onSuccess Query 갱신 요청 완료 범위를 확인했다. 실제 HTTP 성공과 화면 렌더링 완료를 혼동하는 별도 result는 없다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "55be7d4d322c3e06b43e9e38c15d26d3231bf583c3e523d3304bc41b24f368dc",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/entities/expense/data/useDeleteExpense.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-29",
+      "reviewed_functions_and_judgment": "delete의 id/tripId 입력과 최소 삭제 결과·query invalidation을 확인했다. Soft Delete 명칭을 유지한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "5d6502f341bacccba43ae3c396ef722788fda5f6ca5146b917e608928d85654d",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/entities/expense/data/useUpdateExpense.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-26",
+      "reviewed_functions_and_judgment": "UpdateExpenseInput과 onSettled의 성공/실패 공통 갱신을 확인했다. isPending은 mutation 진행, form isSubmitting과 동일 개념으로 통합하지 않는다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "48a1910ca53713c19fdf80be6ad89d1e751c82373a2b66f44fc2950362ad885d",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/entities/expense/lib/expense-local.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-207",
+      "reviewed_functions_and_judgment": "모든 Local 조회·toExpense/date parse·준비된 UPDATE·행/queue 원자성과 delete 반환을 읽었다. getExpenseRowById가 변환 전 원본임이 분명하다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "5cf40f73465141a6889bb300e72f55fc26408e012ac0608c4e58a67f88336f87",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/entities/expense/repository/expense-repository.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-102",
+      "reviewed_functions_and_judgment": "전체 조회/생성/수정/삭제 및 Router callback을 읽었다. preparedRequest는 실제 Promise이므로 준비 상태가 드러나는 지역 개명이 유리하다.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-01"
+      ],
+      "sha256": "f797fe95d08a9964a797d2b581698a49d76f26966bcf12d25a5d9997615cc966",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/entities/route/data/useAutoDownloadRoutes.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-13",
+      "reviewed_functions_and_judgment": "useAutoDownloadRoutes의 mutationFn과 반환 연결을 확인했다. production caller는 route 결과 숫자를 사용하지 않으므로 결과 의미 개명 비용이 좁다.",
+      "status": "유지",
+      "finding_ids": [
+        "M3-06"
+      ],
+      "sha256": "a19d1c7e4bfcb4ccce09de866e1d48c556ab79b481d06c36b5dca1128ea68b35",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/entities/schedule/api/schedules.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-58",
+      "reviewed_functions_and_judgment": "fetchSchedules/detail/create/update/delete와 strict 응답 확인·표식 관측·예외 반환 범위를 읽었다. 원격 응답/기기 후속 실패 구별 유지.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "10d7619f8ff06297b7316d163e58d0e48dd6362aa3be4ce7d96fb1b7a96e0966",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/entities/schedule/data/useCreateSchedule.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-53",
+      "reviewed_functions_and_judgment": "create mutation과 schedule/count/routes Query 갱신을 확인했다. 경로 준비가 별도 흐름이라는 가까운 설명을 유지한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "afb6bd6682276fe0f54a0824648fc9ce389b9f42488fa2fa284b928d9e8c9474",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/entities/schedule/data/useDeleteSchedule.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-38",
+      "reviewed_functions_and_judgment": "delete mutation과 expense 연결/route 조회 invalidation 범위를 읽었다. hook 이름과 효과가 맞는다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "59d2b3f1973b299c31886e3c4a787f98f7a96b9322dd66301266f6ba1a70a7c5",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/entities/schedule/data/useUpdateSchedule.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-32",
+      "reviewed_functions_and_judgment": "UpdateScheduleInput과 onSettled(savedSchedule) 성공 때만 route 갱신하는 구별을 확인했다. savedSchedule은 실제 성공 entity 또는 undefined이므로 유지한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "7850315b79a813c7eab6da3970d21f48d40ff9e2c84bfa5a18deb16fd2aac004",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/entities/schedule/lib/schedule-local.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-188",
+      "reviewed_functions_and_judgment": "모든 Schedule Local 조회·count·toSchedule·create/update/delete를 읽었다. 시각 문자열과 좌표 저장 변환·준비 입력 타입이 역할을 드러낸다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "645f28d11449f256420e860f695ad2b6b33790aea16e41ec8d75a5bbb3a86620",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/entities/schedule/repository/schedule-repository.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-103",
+      "reviewed_functions_and_judgment": "모든 repository 조회/생성/수정/삭제를 읽었다. 준비 Promise 변수 개선 외 input/request의 국소 차이는 추적 부담이 작다.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-01"
+      ],
+      "sha256": "0b5eeb52d7abab29cdba941d2d132001c2c9e001f25603da1a1049048b8f2f80",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/entities/trip/api/trips.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-45",
+      "reviewed_functions_and_judgment": "fetchAllTrips의 구버전 version fallback과 create/update/delete 반환을 읽었다. GetAll response envelope와 단건 data 반환이 타입에 드러난다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "235d8fe06c8f129e53852ca309a59872ff236727aaaf117a29b251f36e2c514e",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/entities/trip/data/useActivateTrip.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-190",
+      "reviewed_functions_and_judgment": "활성화의 전체 session/소유자/판본 반영·준비 ID·이미 활성 분기와 background 다운로드·result를 읽었다. 반환은 tripId/alreadyActivated이며 목록/지도 준비 완료가 아니다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "eb145418221adcaf05edb7e52a0fcda9f1e185bf156fe583ae5d82ca23abb082",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/entities/trip/data/useDeactivateTrip.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-99",
+      "reviewed_functions_and_judgment": "비활성화의 cleanupData 요청·cleanupExecuted/cleanupPending 결과와 best-effort 지도/서버 알림을 읽었다. 결과의 두 bool은 독립 상태를 잘 구별한다.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-04"
+      ],
+      "sha256": "d0877c4873a330757474fc14dbc32d1245490edabe87b66344bc1eff26697c8b",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/entities/trip/lib/trip-local.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-321",
+      "reviewed_functions_and_judgment": "전체 Trip Local 읽기/보호 scope/capture/refresh/update/delete/accept mutation/deletion을 읽었다. hasLocalTrips만 보호 Local 의미로 좁히는 편이 정확하다.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-07"
+      ],
+      "sha256": "a5e12a799b123429787b96b6fc45f5d67ac057555b83d0e5eeb4b46fa27c9c17",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/entities/trip/repository/trip-repository.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-74",
+      "reviewed_functions_and_judgment": "TripListResult.source와 전체 repository를 읽었다. source 분류용 flag 이름만 정확히 하면 충분하고 source enum은 유지한다.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-07"
+      ],
+      "sha256": "f029864871aeb9e3a747eb6661d6f030cf30ba0169c29fd977bf5257f0980487",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/features/expense/expense-form/ExpenseSubmitActions.tsx",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-50",
+      "reviewed_functions_and_judgment": "ExpenseSubmitActions의 policy/error 문자열·isPending/isCancelDisabled default와 callback을 읽었다. 상태와 출력 문구를 타입으로 이미 구별한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "5f20e45dca22477960d01c3015db57005ea72bf2bffd1cf2191d15c3b6cdc8f3",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/features/expense/expense-form/submit-error.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-14",
+      "reviewed_functions_and_judgment": "expenseSubmitError의 unknown 입력·안전한 메시지 반환과 ConfirmedUpdateError 예외 구별을 읽었다. 함수명은 변환 반환을 충분히 표현한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "d3922ab516f2a5b6a4a21940f3ec59ecee433309597ecb78cc6fe5633ca8090a",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/features/expense/update-expense/UpdateExpenseDrawer.tsx",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-379",
+      "reviewed_functions_and_judgment": "전체 expense edit props/snapshot/form/isMounted·handleSave/close·필드·submit actions를 읽었다. patch가 grouped 결과인 점은 helper명 개선으로 해결한다.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-02"
+      ],
+      "sha256": "7154ba1e7b320b7466e46c05b97a8345d382c44d8eaf82be70e77835eb941cdf",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/features/schedule/create-schedule/useSubmitSchedule.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-55",
+      "reviewed_functions_and_judgment": "useSubmitSchedule의 timeZone guard·요청 접수·route 준비/onSuccess·submitError 결과를 읽었다. submit을 Promise 저장완료로 바꾸거나 onSuccess 완료를 넓히지 않는다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "deed268a8ed5b2d70ce22176987aa0b604f0dc2a0faae9b17e771b91a4976317",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/features/schedule/update-schedule/UpdateScheduleDrawer.tsx",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-370",
+      "reviewed_functions_and_judgment": "전체 schedule form props/snapshot/date/time/location·group patch·isSubmitting/isMounted·route 후처리·Drawer를 읽었다. date/time과 scheduledAt 구별은 유지한다.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-02"
+      ],
+      "sha256": "e03792f65c9c81fcf948bacd416a921d90e6ccbae1dade3456a44d3a6b2793cb",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/features/sync-recovery/LegacyUpdateRecovery.tsx",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-300",
+      "reviewed_functions_and_judgment": "보류 목록/선택/current load·groups/savedFields·save/dismiss/keep-current·두 confirmed 오류·렌더링을 읽었다. 현재 구조에서 값·문구·진행 상태는 구별된다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "12d51206d0b48e0fa08123743ef71cb20ccb7a7ef293e7fcc91e176cc4483e30",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/screens/ExpensesScreen.tsx",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-351",
+      "reviewed_functions_and_judgment": "ExpensesScreen의 query view·refresh·currency/date groups·selectedExpense/menu/edit/delete·props 변환 전체를 읽었다. 화면 derived 이름이 실제 역할과 맞는다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "7a18c782d97be0be618b8124f87a71d28693cbb1584b3af7a5eb8762b987b76d",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/screens/ScheduleScreen.tsx",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-336",
+      "reviewed_functions_and_judgment": "ScheduleScreen의 view mode·mapSelection·group view model·menu/edit/delete·Drawer props와 query 상태 전체를 읽었다. 서로 다른 입력 표현을 domain schema로 억지 통합하지 않는다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "519f4ee563e62cfe237e8070175e5a89a14772aea76c196539e24fc167d9a64f",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/components/Map/MapboxScheduleMapView.tsx",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-341",
+      "reviewed_functions_and_judgment": "Mapbox 스타일·좌표 정리·saved vs straight segment·routeSummary·camera·marker·profile 렌더링 전체를 읽었다. 새 결과 명칭 수정이 필요한 연결은 없다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "705faa3f069cca662d775976a25af553e6bda30a82a51048bc38fe3eb2bcdba9",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/db/index.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-330",
+      "reviewed_functions_and_judgment": "DB lifecycle·serialize/pause·transaction BEGIN/COMMIT/ROLLBACK·모든 SQL과 migration/reset을 읽었다. runDatabaseOperation은 transaction과 구별되며 가까운 계약 유지.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "9a020899cf4d93813dbaed801bfb55c7b8f9616c3e19f17448fb5a9d0a85173d",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/db/migrations/field-edits.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-35",
+      "reviewed_functions_and_judgment": "field_edits·legacy tables·server_backed/acknowledged migration의 반복 실행·값 보존 SQL을 읽었다. migration 이름을 유지한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "c45c0ebcd4456de288fd2cbe606593158f6bfc5e8b7a841b877a1e9e8a07c8a2",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/db/migrations/route-inputs.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-12",
+      "reviewed_functions_and_judgment": "coordinates_key nullable 추가와 기존 provenance 추측 금지 계약 전체를 읽었다. 입력 출처라는 이름이 실제 값 의미와 맞는다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "af005c24ba0b1b62cbea259a82b3e8872bb236807a469ea428fce40ddcea91f3",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/db/migrations/server-records.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-12",
+      "reviewed_functions_and_judgment": "server_records 생성 SQL과 최초 관측부터 보관한다는 계약을 읽었다. confirmed server evidence와 Local row를 혼동하지 않는다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "47e361e6bbeb19412291fd17ad383c150dd408d8835483a3aeae4c26efb02ae3",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/db/schema.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-326",
+      "reviewed_functions_and_judgment": "모든 SQLite entity·sync queue·metadata·route·activation·holds/acks/serverRecords 필드와 infer 타입을 읽었다. wire/DB 필드 개명 없이 schema 설명 개선과 hold 가짜 task만 따로 제안한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "68614e02e3d890554bc444614b2a9f48b692eb73bfbf638873e514426ac4f991",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/db/utils.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-21",
+      "reviewed_functions_and_judgment": "withTransaction wrapper·getCurrentISOString·dateToISOString 전체를 읽었다. 문자열 입력은 검증/정규화하지 않는 기존 제한을 주석이 정확히 말하므로 불필요 개명은 보류한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "0fa9b561190fdb363ecda1a04a60f7db63aa1f1395858d086784d3cda879b26d",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/diagnostics/sanitize-sentry-event.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-115",
+      "reviewed_functions_and_judgment": "sanitizeSentryEvent의 message/tag allowlist·trace/frame/bundleName·민감값 제거 전체를 읽었다. 실제 허용 대상과 타입/이름의 역할이 일치한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "7b2740e0b3cb441a82c327b2c009aa80e21b1a753557fb4f2c2e98e59db33d25",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/diagnostics/sentry.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-199",
+      "reviewed_functions_and_judgment": "Sentry init·SyncRun/SyncFailure/Signal union·start/finish/report/capture 전체를 읽었다. stage와 source·result 구별은 유지하고 새 오류명 통합은 하지 않는다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "6d8c84f87f59dd374995737f62512c17da82906ea64c288a187c8341f505c89f",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/lib/edit-fields.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-68",
+      "reviewed_functions_and_judgment": "editable groups·editedMarks generic raw mark 보존·changedFields overload와 숫자 동등성 전체를 읽었다. changedFields 반환은 changed group patch 의미를 드러내는 개명 후보.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-02"
+      ],
+      "sha256": "acd140c22cb714d68be2ebb3cccc6ff531912c5e536b294cdc40e1acc50b0cf7",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/services/auth/local-account.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-162",
+      "reviewed_functions_and_judgment": "inspectLocalAccount·QueueOwnership·inspectAndQuarantine/getQueueOwner·격리 FIFO 전체를 읽었다. empty/same/different/unresolved와 owner/orphan/invalid가 실제 결과를 구별한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "8941466c6d453206eae96655ad7ba427534afabd31b1fda8f08408a08c4f3454",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/services/auth/logout-service.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-173",
+      "reviewed_functions_and_judgment": "checkPendingSync·LogoutResult·perform/force logout/delete·clearLocalSession 전체를 읽었다. pendingCount는 큐+보류+ACK이고 failedCount는 실제 stats.failed이므로 engine property와 구별해 유지한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "f795f1c229b190e9d8a38e409b4bc7624eab1f322e340cbbc49eded0ace2f149",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/services/directions/route-downloader.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-235",
+      "reviewed_functions_and_judgment": "download/refresh/readCurrentSegments/pruneCache와 타입·세션 대기·profiles 전체를 읽었다. downloaded 반환은 실제 새 캐시 삽입 수이므로 결과 의미 개명 후보.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-06"
+      ],
+      "sha256": "751c3458dd515dc611e02cb928b9d1d89991caac013d467ef23bbe51eb8a117e",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/services/directions/route-plan.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-138",
+      "reviewed_functions_and_judgment": "ScheduleCoordinates/RouteSegment·coordinate normalize/sort/build·identity/matcher 전체를 읽었다. 좌표 입력과 구간/provenance가 분명하고 불필요 타입 분리는 보류한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "2c8f101bb177d3598a8784f74d864f07222863d1b881751a3d177d39e597d96f",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/services/edit-stamp/errors.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-17",
+      "reviewed_functions_and_judgment": "ConfirmedUpdateError/ConfirmedDeletionError의 상속·cause/code·사용자 메시지 전체를 읽었다. 서버 처리 확인 뒤 준비 실패와 삭제 Local반영 완료를 구별하는 이름 유지.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "b91a5c9ba6a8cbc7e3bb40c3e99d65c1a45cc7b316c2b75ee474036746e8db1f",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/services/edit-stamp/index.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-97",
+      "reviewed_functions_and_judgment": "PreparedEdit·edit clock serial/observed/persist/allocate/prepare 전체를 읽었다. 필수 edit·제출시각 준비·재사용 계약이 명확하다. 지역 read helper의 부수효과는 현재 주석과 전이로 유지 가능하다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "960e376edc1404daf1eeb89259679edd75ac07b752787c75835224e231234b12",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/services/offline-prep/router.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-133",
+      "reviewed_functions_and_judgment": "RouteOperations와 모든 query/creation/mutation overload·preparation success union·session 재검사 전체를 읽었다. preparation Promise와 callback 완료 input 구별을 유지한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "2323d6e1273ebc2de541169865ff21897593c02e75622b3ba0eff8dc0212b78b",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/services/offline-prep/trip-operation.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-33",
+      "reviewed_functions_and_judgment": "withTripOperation의 사용자+trip 직렬화 key·세션 앞뒤 검사·finally 정리를 읽었다. Promise 결과는 실제 operation 완료이며 이름/타입을 유지한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "a72719b62117d4e2d14abdc0142821de1fb7470d5e7b4baf9751c273be99785c",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/services/sync/api.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-84",
+      "reviewed_functions_and_judgment": "sync Axios config·auth refresh failure 우회·5xx backoff·raw rejection·endpoints 전체를 읽었다. retryCount와 serverRetryCount 구별은 유지한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "1e09bc54e6bebb488df9a21d70d52cbf4eaaf5cff77cc19f2ea774cde15006da",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/services/sync/cleanup-job.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-244",
+      "reviewed_functions_and_judgment": "process/run/pause cleanup·copy cleanup·force/vacuum 전체를 읽었다. processedCount가 건너뛴 정상 반환도 포함하는 점과 pending 존재 여부 입력 타입을 후보로 보고했다.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-04",
+        "M3-05"
+      ],
+      "sha256": "af85b412134b494f9a1d3c6871cc304d1092d3a7aa57153eaa3efcffc12649b6",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/services/sync/confirmed-deletion.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-224",
+      "reviewed_functions_and_judgment": "confirmed deletion context·대상 확장·소유/원본/입력 검증·task/hold 정리·isValidDiscardedMutation 전체를 읽었다. boolean 반환은 실제 반영 허용 여부이며 confirmed/completed task 구별을 유지한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "cd97a4f313fdc709f911dff8bb95c4f77a622c76711859449fc956a205f6fd34",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/services/sync/direct-deletion.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-29",
+      "reviewed_functions_and_judgment": "confirmRemoteChildDeletion의 proof/schema 타입·session/user·target id·transaction을 읽었다. void 반환은 이미 삭제 증거 반영 완료 범위를 설명한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "092466aeb7a44cff26e6d381fcd07cb488175037ab4c73c259cef1e79d30be86",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/services/sync/direct-update-failure.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-77",
+      "reviewed_functions_and_judgment": "직접 실패의 legacy conflict parse/보관과 deletion proof/apply·항상 throw를 읽었다. Promise<never>가 반환 불가를 드러내며 긴 throw 개명은 실익이 작다.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-08",
+        "M3-13"
+      ],
+      "sha256": "2c18800ffee3e48ae6162c53322f4fea71e103fdc5e8767d0cb7c1d9a65099c2",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/services/sync/engine.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-541",
+      "reviewed_functions_and_judgment": "push/pull/syncData·applyPushResponse/resolveRejectedMutation/failureDetails 전체를 읽었다. SyncIncompleteError.failedCount를 실제 blockedCount 의미로 정확히 하는 국소 후보가 있다.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-08",
+        "M3-10",
+        "M3-13"
+      ],
+      "sha256": "3e433ba4a0e8d451337a38f31b9f29836ae1396e0bfa161afbb186fff5505a62",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/services/sync/legacy-holds.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-307",
+      "reviewed_functions_and_judgment": "list/clear/preserve/subscribe/signature/synchronize 전체를 읽었다. preserve의 비저장 row 반환과 serverBacked boolean 의미를 후보로 두고 ACK의 두 상태는 유지한다.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-08",
+        "M3-13"
+      ],
+      "sha256": "13353be7ec5b56fdbd1c2b50a7fdb62b3c15c9b006a3712593f13b412ff4ac37",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/services/sync/queue.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-296",
+      "reviewed_functions_and_judgment": "queue add/read/status/retry/stats/trip pending 전체를 읽었다. trip 반환이 복구 hold를 HELD SyncQueueItem으로 합성하는 계약을 실제 boolean 소비에 맞출 후보로 보고했다.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-04"
+      ],
+      "sha256": "58b9204036eafa51d318f1e119ef025f5e596dedbedd34a6f93acf8c6b051945",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/services/sync/reconcile.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-346",
+      "reviewed_functions_and_judgment": "prepare/accept/persist/decide/apply/ACK/project/write 전체를 읽었다. preserve/keep-local과 예외 차이를 유지한다. LocalRecord raw projection 정직성은 더 큰 타입/bridge 비용 때문에 자동 수정 후보로 삼지 않는다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "31418305d64366b3023c71e09665a446b6260e20763e73883a7f31a5922237b2",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/services/sync/server-state.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-72",
+      "reviewed_functions_and_judgment": "serverRecordKey/read/remember server/remember deletion/release bodies 전체를 읽었다. 서버 확인본과 version없는 삭제증거·record null을 구별하는 타입/이름을 유지한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "7a479d497555eaaac69f3d1b8f5b3253c642d1a034f7448e676483188d2a26b6",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/services/sync/storage.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-68",
+      "reviewed_functions_and_judgment": "serialize scope/getPullCursor/setPullCheckpoint 전체를 읽었다. 읽기 cursor와 본문과 같은 transaction의 checkpoint가 분명하고 serverTime은 표시 시각이다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "b22d99e10c9f9c412b727b9b7fdf90375769243883121347e5067f6e61f0d52c",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/src/shared/services/sync/sync-tables.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-5",
+      "reviewed_functions_and_judgment": "SYNC_TABLES/isSyncTable mapping 전체를 읽었다. DB table과 sync table 이름의 공유가 실제 책임에 맞는다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "03d9cdf282ecc9f029d832bb8cb8b125a933a36259431bd1d293b82f57bf40f9",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/application/trip-list-refresh.test.tsx",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-156",
+      "reviewed_functions_and_judgment": "trip-list-refresh의 두 소비자·연결/인증 전환·늦은 응답·cache 공유·unmount 전부를 읽었다. hasLocalTrips mock은 보호 Local 의미 개명 시 함께 맞춘다.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-07"
+      ],
+      "sha256": "2cfac1ae2c5b8258ced2656acf3df419fc945314ee7658195df176448a8e787c",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/entities/expense/api/expenses.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-175",
+      "reviewed_functions_and_judgment": "expense remote API의 fixture·각 HTTP·validation·날짜 변환·raw network·delete assertion 전체를 읽었다. 반환/검증 완료명은 실제 검사와 맞는다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "9995d6291c74a7abfa1abe99b78d83de04d7e88b5f52e9be87044f7a55371fcf",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/entities/repository/target-trip-routing.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-198",
+      "reviewed_functions_and_judgment": "repository 모든 routing 케이스·normalized date/time·잘못된 입력의 no-call assertion을 읽었다. 준비 Promise 변경은 기대값/순서를 유지한 지역 개명이어야 한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "1171c56b54e2c5f0a9dfb0900e5cb8e5783e67412e9db637607dfe0e4beb23af",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/entities/temporal-local-contracts.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-655",
+      "reviewed_functions_and_judgment": "SQLite adapter·Trip timezone/expiry·Expense read/update/delete·Schedule time·pull/activation invalid envelope·trigger rollback 전 사례를 읽었다. 날짜 표현과 실제 row vs returned entity를 구별한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "eb75d8093f1ebf2f67d1633242c17c33dfa02eba0476ca86fdf60503e8c035a8",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/entities/trip/data/useGetTrips.test.tsx",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-50",
+      "reviewed_functions_and_judgment": "useGetTrips local/remote/mixed source 전달 케이스·wrapper·mock 전체를 읽었다. hasLocalTrips mock만 실제 의미 property로 맞추면 된다.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-07"
+      ],
+      "sha256": "2408ee56ac915819159be7be6d6d93e532a3fead4e3402c41ab3cb1240a82880",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/entities/trip/trip-lifecycle.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-337",
+      "reviewed_functions_and_judgment": "trip lifecycle의 remote create/list/update/delete·active/pending parent 보호·source/abort/fallback 전부를 읽었다. source는 저장물리위치만 뜻하지 않는다는 근거를 확인했다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "19e04163c588f44440e978368ef765345588085c63aa4f3ded5ec76894f64412",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/entities/update-query-refresh.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-192",
+      "reviewed_functions_and_judgment": "MutationObserver/QueryObserver 기반 create/update/delete와 늦은 GET·refresh 실패·route query 조건 전부를 읽었다. 후처리 완료와 실제 재조회 완료를 구별하는 test 이름 유지.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "fdc20c39813e3acda1ed95181d52888fa62af2da812e099dc617c81043cf0aaa",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/features/edit/legacy-recovery.test.tsx",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-188",
+      "reviewed_functions_and_judgment": "LegacyUpdateRecovery 대역·선택 그룹 저장/close/keep current·confirmed update/deletion·raw APIError 전 사례를 읽었다. confirmed 예외의 서로 다른 의미를 보존하는 근거.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "46fc431d862a5ff346d25ec4dae2935dc8ea300d43d99fb1610ba581e82dc5b1",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/features/edit/offline-values.test.tsx",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-915",
+      "reviewed_functions_and_judgment": "offline-values의 전체 mock·실제 resolver gate·순차 userEvent·무변경/그룹·form lifetime·additional input·picker·late success/failure 전부를 읽었다. 첫 두 제목이 실제 저장 생략보다 큰 결과를 말하는 후보.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-12"
+      ],
+      "sha256": "885172955104cca88d943d0dd567f3bee6740379dd67e19dfa47d142f0b9c455",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/features/edit/update-save-lifetime.test.tsx",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-384",
+      "reviewed_functions_and_judgment": "실제 Drawer와 real mutation·submit/close·failed validation/retry·confirmed update·외부 prop lifetime·route preparation 전체를 읽었다. native 동작 검증으로 과장하지 않는 제목/주석 유지.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "f1862dcc923ca31f19a2c93a778aac43bc2086384c93910004330f97b186843e",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/screens/auth-policy.test.tsx",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-380",
+      "reviewed_functions_and_judgment": "auth-policy의 세 화면 캐시 가림·activation 조회 상태·unknown/retry/store 시간·override·헤더 버튼 전체를 읽었다. query/표시/실연결 상태명이 검사 기대와 맞는다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "ab84a2927b03c2f0d0eed94ea2f12bcd1940e42bfa4b3fd5c25d6afd71bf6c05",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/screens/expense-recovery.test.tsx",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-294",
+      "reviewed_functions_and_judgment": "expense-recovery의 list/detail stale/fresh/cache·error/absence·linked query·trip switch·override/active/DST 전부를 읽었다. pending helper 반환 promise/resolve/reject 의미가 명확하다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "c66759ed7086fd522a9a002819434f3c43669872e3073d7f130cc1a8460a4331",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/screens/read-query-consumers.test.tsx",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-512",
+      "reviewed_functions_and_judgment": "read-query-consumers의 detail/home/form consumer·캐시/제한/조회실패/날짜 navigation/경로 미구독·제목 저장 전체를 읽었다. setup cached discriminator는 실제 역할을 드러낸다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "f9bdb2124087253f172dad159b48e67b7c207bc2a400ed51436d5d8a4da9323f",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/screens/schedule-recovery.test.tsx",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-664",
+      "reviewed_functions_and_judgment": "schedule-recovery의 mocks·Screen/폼/목록/지도 소비·draft·stale/error/late query·pull·map selection 전부를 읽었다. 저장 진행과 조회 진행 이름이 분리돼 있다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "e0ac158122c4a939fb14afd605416e370c1dce673a4fb1fa1d5f8c37b6f01dc8",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/screens/update-place-search.test.tsx",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-198",
+      "reviewed_functions_and_judgment": "update-place-search의 cache/detail 좌표0·legacy fallback·연결 제한·닫힌 검색/debounce 전부를 읽었다. candidate/detail/source 이름의 역할이 실제 payload와 맞는다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "4626fefa245fe08d0317ec6c83a03ab6bf5f14c06bb8a90edbe19135d6877299",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/shared/components/map-route-freshness.test.tsx",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-128",
+      "reviewed_functions_and_judgment": "map-route-freshness 전체 native renderer 대역·route provenance/profile/adjacency·geometry/style assertion을 읽었다. 제목은 실렌더링 보장이 아닌 넘기는 계약에 맞춰져 있다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "41987c58fdbfe3ffcf712e5f444d91943e78c17c658d41ce8aa8a6b17d97948e",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/shared/db/field-edits-migration.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-28",
+      "reviewed_functions_and_judgment": "field edits migration adapter와 두 번 실행·row/queue 보존·hold table 검사 전체를 읽었다. migration 완료 범위의 제목 유지.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "c91b551d4fa20c62a6a3e72f11e47a5cf3653ed39eb5735ead7a735cf9849570",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/shared/db/transaction-serialization.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-137",
+      "reviewed_functions_and_judgment": "transaction serialization의 실제 SQLite adapter·실패 transaction과 reconcile·queue write rollback 전부를 읽었다. started/released 두 gate가 서로 다른 상태를 정확히 드러낸다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "d7779e8bdb3d5ffaf6be1eae724d88ed6beddfb1f54870446736fbee0da9ff25",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/shared/diagnostics/sentry.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-147",
+      "reviewed_functions_and_judgment": "Sentry init/send/run/resolved/privacy/fingerprint/Hermes bundle 전부를 읽었다. run/result/source/stage 역할이 assertion에서 이어진다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "4f481c88bf3807965118ad0e3ef393745d3d989d85ab67d2637c3907da616bdd",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/shared/lib/edit-fields.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-48",
+      "reviewed_functions_and_judgment": "changedFields/editedMarks의 atomic group·숫자동등·null clears·raw marks 보존 전체를 읽었다. 함수명 개명 후보의 실제 반환 의미 근거.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-02"
+      ],
+      "sha256": "5cf848f96bee6638c45ac970bd9192d123d4633b51783e6663d604e6275aa8a4",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/shared/lib/edit-fields.types.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-21",
+      "reviewed_functions_and_judgment": "변경 helper table/필드/input/return 오탈자 reject 타입검사 전체를 읽었다. overload는 단순 Record로 완화하지 않는다.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-02"
+      ],
+      "sha256": "d7b9dec7f20594d701912b6b1d6c6dfa88bfc5edbe48401238a0e89ef8fc2491",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/shared/services/auth/local-access.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-263",
+      "reviewed_functions_and_judgment": "local-access의 auth/active owner scope·create/update/delete·FIFO/recover·queue owner·stamp failure 전부를 읽었다. 상태와 실패 횟수 의미가 분명하다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "73efc4aa3ad872acfa1bfe091c5d79b561e543ae7c26f3dbce29cd02a5c3043b",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/shared/services/auth/orphaned-queue.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-576",
+      "reviewed_functions_and_judgment": "orphaned-queue의 전체 계정 복원·격리/DELETE evidence·raw 오류·FIFO·vacuum·source resurrection 전부를 읽었다. QUARANTINED를 pending/legacy hold와 합치지 않는다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "5a881caa87b20e18b2d1db76a54d40c9ec1dd231425edd262cc7acf7bbf216c4",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/shared/services/directions/route-cache.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-460",
+      "reviewed_functions_and_judgment": "route-cache의 전체 Local fixture·9 profiles·재사용/좌표/시간·동시성/stale/세션·deactivate·prune rollback·all fail 전부를 읽었다. downloaded가 삽입 수라는 근거를 확인했다.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-06"
+      ],
+      "sha256": "118b4ce22db36ea76b9d60c1951999394b80a13291a74f9dc150b7e48a07a150",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/shared/services/directions/route-inputs-migration.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-30",
+      "reviewed_functions_and_judgment": "route-input migration 반복 실행·legacy geometry/payload 보존·nullable 출처와 column count 전부를 읽었다. adapter는 named row를 반환한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "1ab444fc59489c224f1f8dc51fec2002ce27a40b08afb02f96194f8ffed696e5",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/shared/services/edit-stamp.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-66",
+      "reviewed_functions_and_judgment": "edit-stamp의 backward clock·concurrent allocation·storage read/write fail·관측 순서 전부를 읽었다. 시계 증가와 편집 전체 비교의 차이 유지.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "ffe15d4bf4457dc081f388c8fa8ecb88256a132302580a1782bbcddea0577355",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/shared/services/edit-stamp.types.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-16",
+      "reviewed_functions_and_judgment": "네 하위 Local/API가 edit 없는 요청을 거부하는 compile-only 검사 전체를 읽었다. PreparedEdit 필수 입력의 실제 경계다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "97479c26782a92b26836327ae409d147fc8fffbd30e2a1c117c4b914238a7da9",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/shared/services/offline-prep/trip-operation.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-64",
+      "reviewed_functions_and_judgment": "trip-operation의 같은/다른 여행 직렬화·실패 뒤 재개·세션/계정 변경 전부를 읽었다. 완료 Promise와 entered gate를 혼동하지 않는다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "6812eda1238ccb5f026d93d529574993031adc26d4e040475e58f01b0a36e09f",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/shared/services/sync/auth-result.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-54",
+      "reviewed_functions_and_judgment": "auth-result의 mock FIFO·auth rejection·PENDING 보존·executeSync 완료 금지 assertion 전체를 읽었다. status completed/skipped 범위 구별 유지.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "e71ac3d54557f3c30c577e423156d674ffc205085485556cdf64caab2ea1a536",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/shared/services/sync/blocked-diagnostics.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-166",
+      "reviewed_functions_and_judgment": "blocked-diagnostics의 실제 Axios adapter·refresh failure/404·cache failure stage 전부를 읽었다. 실패 분류가 어떤 요청인지 지키는 명칭 유지.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "5cbbf9b13cb5a54f8d9d2a8abb4697247c393d0b538716b7830866a317117491",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/shared/services/sync/cleanup-lifecycle.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-184",
+      "reviewed_functions_and_judgment": "cleanup-lifecycle의 공유Promise·pause observer·logout/delete/reset·cache invalidation 전부를 읽었다. 내부 transaction mock이 정리 완료를 입증하지 않는 범위 설명이 정확하다.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-04",
+        "M3-05"
+      ],
+      "sha256": "8221f16573437c2e65ebfdc73d107a8c9bd53aa65add71c76c23bf68c9669dfc",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/shared/services/sync/deletion-storage-validation.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-306",
+      "reviewed_functions_and_judgment": "deletion-storage-validation의 raw invalid/rounding/exponent/NUL/year·410 자기 요청·contradictory DELETE 전부를 읽었다. canConfirm의 보수적 의미를 뒷받침한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "e5f088564ce8b108ff91ef49b0576d69372d6ed4d05779e1694f569b4932a07d",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/shared/services/sync/logout-sync.test.tsx",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-321",
+      "reviewed_functions_and_judgment": "logout-sync의 provider·실행 종료 gate·서버/DB/인증 실패·pending/force·status skipped reason 전부를 읽었다. 실행 종료와 동기화 성공을 타입·assertion에서 구별한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "95330916e8a296e2438d691d7cb6530208c867c46c6a0dd4ca7b7f2a1ead4ac5",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/shared/services/sync/query-refresh.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-208",
+      "reviewed_functions_and_judgment": "query-refresh의 실제 QueryObserver·push 일부 성공/후속실패·무효화/미완료 GET·구독없는 캐시 전부를 읽었다. 완료 범위를 정확히 검사한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "f53f4424937712d9c1334ae9e4bc0022439c34114747179a77d36570650bcbdf",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/shared/services/sync/queue-ownership.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-52",
+      "reviewed_functions_and_judgment": "queue-ownership의 다른/불명 소유자·전송/status write 미호출 assertion과 전체 mocks를 읽었다. null은 확인불가 결과다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "8ae5e519067b57995fd3804b3a25b18b622e81686d8d2b9c06cc9e9312b513f6",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/shared/services/sync/reconciliation.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-1056",
+      "reviewed_functions_and_judgment": "reconciliation 1056행 전체의 fixture/helpers·pending projection·ACK·3종 write rollback·FIFO·deletion·hold/acks/replay·double Local failure 전부를 읽었다. 새 이름보다 정상 보존/실패 result 구별을 유지한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "502c32c39ea0559543b0915c74e0d2cd3213382bc8389f4b826006b0eaea580c",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/shared/services/sync/response-freshness.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-735",
+      "reviewed_functions_and_judgment": "response-freshness 735행 전체의 server version·delete proof·activation/list/direct 경합·scope/preparation/session/checkpoint·late deletion 전부를 읽었다. activation result 정확한 fixture를 비교 근거로 썼다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "079470b435d5a62ca7c0bceb8ca7ea0ece879ad5a5ba2ff294a73114e7b906f9",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/shared/services/sync/retry.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-207",
+      "reviewed_functions_and_judgment": "retry 전체의 failed FIFO·recover order·after prior send local read failure·raw datetime·stage cases 전부를 읽었다. SyncIncompleteError는 status FAILED만의 집계가 아니다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "60b42726b2eda3f3196708ebe47e2d5fd97f794ff0ac53f854db5ed57dd330d7",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/client/tests/shared/services/sync/save-submission.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-472",
+      "reviewed_functions_and_judgment": "save-submission 전체의 persistence gate·same marks·session·incomplete group·confirmed update/deletion·raw rejection 전부를 읽었다. activation helper 결과 타입만 현재 구현과 달라 후보.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-11"
+      ],
+      "sha256": "c5b39cc8654552eb215f9801f9915d15c9e102332d6aefa2e58da9824cb3ead0",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/server/sql/20261110-field-edits.sql",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-19",
+      "reviewed_functions_and_judgment": "SQL 전체 transaction·field edits 빈 시작·holds payload/current/hash unique index를 읽었다. 기존 값을 새 표식으로 추정하지 않는 의미가 명확하다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "1d9d16cf2da6bea6fa01f59d11bf1e8307af0a98720210cf3b6f47742d36acf0",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/server/src/db/schema.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-191",
+      "reviewed_functions_and_judgment": "전체 PostgreSQL users/tokens/trips/schedules/expenses/holds와 infer types를 읽었다. DB Date/decimal/hasReceipt integer는 API entity와 동일 표현이 아님을 확인했다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "6969aa5c5b3090e48de181116641abf43c4af3d14bc80a1bf0330e22973d8fd9",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/server/src/routes/expenses.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-170",
+      "reviewed_functions_and_judgment": "Expense GET/list/single/create/update/delete 전체의 request parsing·serializer·MutationResult/body validation을 읽었다. naming/type 새 추상화 이득은 작다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "52057cb2a298828e5fa320d65d7b7fdfb0fa14631a1a095c486643cebd52f493",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/server/src/routes/index.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-50",
+      "reviewed_functions_and_judgment": "모든 route mount·health/info·sync/legacy-holds 우선 연결을 읽었다. route 변수 이름은 실제 역할을 드러낸다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "328443da4de4033cfdcd524d5333466436f07160e30039eaea7cd0b71c58b94a",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/server/src/routes/legacy-holds.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-37",
+      "reviewed_functions_and_judgment": "GET refresh/list·DELETE ACK와 ULID parse·schema response 전체를 읽었다. list 서비스의 쓰기 효과 개명 시 import/call만 함께 변경한다.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-09"
+      ],
+      "sha256": "b89684f38b35b2335204e58952f2b94a1c8202ce5124d2f53dfbaf507b3b2aff",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/server/src/routes/schedules.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-146",
+      "reviewed_functions_and_judgment": "Schedule 모든 route의 input parse·serializer·response validation·ownership/query 조건을 읽었다. API 결과 타입을 임의로 좁히거나 wire 개명하지 않는다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "2c22f1f792e0d978b16c00815b86c7d8ccbdfc1118346dd926235b02062c5ab6",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/server/src/routes/sync.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-190",
+      "reviewed_functions_and_judgment": "pull의 query/cursor/XID boundary·repeatable-read snapshot·serializer·501 push 전체를 읽었다. boundary old/upper 지역명은 주석+같은 scope로 추적 가능해 필수 개명은 보류한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "bf79e8f8c965c36d8dd7d3365ba1a65913665f9d62cfdc9322772e8ca21703b3",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/server/src/routes/trips.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-475",
+      "reviewed_functions_and_judgment": "Trip 모든 GET/create/update/delete/sublist/activate/deactivate route 전체를 읽었다. activation 응답은 data 입수이며 server deactivate는 acknowledgment라는 설명 유지.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "1c37e878261e916b55b3ac6004cf97c906aebdac62873b45d3915c1cc4debfc4",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/server/src/services/entity-mutations.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-555",
+      "reviewed_functions_and_judgment": "mutation 전체 helper/mergeEdit/create/update/delete child+trip를 읽었다. changed가 값 diff 아닌 writesNeeded이며 같은 값 새 stamp 보존을 이름으로 드러낼 후보.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-03"
+      ],
+      "sha256": "97e73e81ee631deef9ba31be16bcdc4193576f3dd07cabee5a9fb56c1d4946d9",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/server/src/services/legacy-update-holds.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-172",
+      "reviewed_functions_and_judgment": "canonicalJson·serialize/preserve·list current/삭제 cleanup·ACK 전체를 읽었다. list는 쓰기 효과가 있는 refresh라는 이름으로 보완할 후보.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-09"
+      ],
+      "sha256": "cb54069f6455ad77dd152f5f68663f6f676989661ca2d110d15ebe7df9722a36",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/server/tests/integration/deletion-storage-validation.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-180",
+      "reviewed_functions_and_judgment": "PG deletion-storage-validation 전체 seed/auth/HTTP·live/deleted storage 거절·numeric/Unicode/padding 전부를 읽었다. storage 가능성·업무좌표 유효성을 함부로 같은 것으로 개명하지 않는다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "62ed3acce60d8d49465b406baaf0d2ca8d7364aced198e6b0e2dfcf369e84adc",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/server/tests/integration/field-edits-and-deletion.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-458",
+      "reviewed_functions_and_judgment": "PG field edits/deletion 전체 seed/요청 helper·동률/legacy/group/동시 lock·relation·holds API·numeric 전부를 읽었다. merge requiresWrite 의미 보존의 실제 근거.",
+      "status": "유지",
+      "finding_ids": [
+        "M3-03"
+      ],
+      "sha256": "f710a44cef9a9de38c0d8c683562eb0a6725d0ff42320df1f63d72ba5c4f15f0",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/server/tests/integration/pull-cursor.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-79",
+      "reviewed_functions_and_judgment": "PG pull-cursor 두 XID 타이밍·테이블 lock/wait·old updatedAt create/update/delete·next cursor 전부를 읽었다. nextCursor가 다음 안전 하한임을 검증하는 이름 유지.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "9bc30030183602668c0b35235c7ff1e62c217f97439aaa0d1f1ca79ae1940e74",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/server/tests/integration/schedules.access-boundary.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-205",
+      "reviewed_functions_and_judgment": "PG schedule access 전체 cross-owner/deleted fixtures·parent auth·list·activation·actual update 전부를 읽었다. 사용자/부모/softdelete 구별 이름을 유지한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "63f76eeb3c41929dd6f54c734ed024c4ef9fc7bbc839b8ddbb479a7f1d1ccc85",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/server/tests/routes/expenses.response-contract.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-143",
+      "reviewed_functions_and_judgment": "Expense response-contract의 fixture loader·API list/create/detail/update·datetime compat·invalid date 전부를 읽었다. row와 serialized 값 표현을 구별한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "35710768689e755405072e0a7b0095868daa23f9a5ea6a6bb217adb64a0f5aba",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/server/tests/routes/replay.idempotency.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-187",
+      "reviewed_functions_and_judgment": "replay.idempotency 전체 Schedule/Expense CREATE ID conflict·delete replay와 stored first deletedAt 전부를 읽었다. replay 명칭이 실제 멱등 응답 의미와 맞는다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "60005fca64524c7e5f483b96333c1cfe668a85992bd1c2d70d8dca8b26495378",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/server/tests/routes/schedules.response-contract.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-326",
+      "reviewed_functions_and_judgment": "Schedule response-contract 전체 기본 CRUD·trip child list·activation/pull response·invalid datetime 전부를 읽었다. DB Date/API ISO 및 deletion wrapper를 구별한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "efb426c1147c7645add3b64faa73603ac5f501d8bc5f44f1a43f2b49ea7ee532",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/server/tests/routes/trips.response-contract.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-91",
+      "reviewed_functions_and_judgment": "Trip response-contract의 list/version fields·create/update와 다섯 시간 표현 assertion 전체를 읽었다. nullable deletedAt도 명시해 반환 범위가 정확하다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "a2e20e340a5e4f13487c4626fc43ce897cc9af8e19fb8f887451bfb647607ce9",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/server/tests/sentry-diagnostics.test.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-150",
+      "reviewed_functions_and_judgment": "server Sentry 수신기·실제 envelope·민감 scope/stack/startup/child process 전부를 읽었다. 테스트 이름이 관찰한 실제 수집/종료 범위를 드러낸다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "d6a31d04557984e10972f1c9dd6f50b7fd27a16001af8ff262c0bf242babd63c",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/server/tests/support/test-app.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-111",
+      "reviewed_functions_and_judgment": "공유 hoisted db/auth mocks·thenable query·transaction callback·load/reset/set result 전부를 읽었다. SELECT 호출순 결과 대역이라는 제한을 이름/설명이 정확히 말한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "a96cadcdd502b1aad7d9b067b1db1558128da243500415916872dfd364a2a92d",
+      "matches_manifest": true
+    },
+    {
+      "path": "apps/server/vitest.integration.config.ts",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-17",
+      "reviewed_functions_and_judgment": "integration include·serial file 실행·timeout/env 전체를 읽었다. fileParallelism=false는 DB fixture 독립성의 실행 설정으로 유지한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "c9b37fd9bca69d7e1adfb7909bcca51d9f6a03b68f673855cfbf652a8091efc8",
+      "matches_manifest": true
+    },
+    {
+      "path": "packages/schema/package.json",
+      "category": "tests-and-config",
+      "read": "full",
+      "read_lines": "1-197",
+      "reviewed_functions_and_judgment": "package entry/typesVersions/exports/scripts/dependencies 전체를 읽었다. 새 field-edits/storage/conflict 경로의 공개 노출이 정확하고 개명 제안은 없다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "08b3908ba2df6386843446e1aad1b75c86e33099e668e45a20bbc4f8ec35a1aa",
+      "matches_manifest": true
+    },
+    {
+      "path": "packages/schema/src/entities/expense.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-40",
+      "reviewed_functions_and_judgment": "expenseDate와 Expense entity 전체를 읽었다. API/date-only/boolean 표현이므로 DB와1:1이라는 주석만 정확히 제한할 후보.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-14"
+      ],
+      "sha256": "b97dfef10ac6f16236163256a10021a2ed7c52c7f483a0e46997af0e5e1caf2d",
+      "matches_manifest": true
+    },
+    {
+      "path": "packages/schema/src/entities/schedule.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-34",
+      "reviewed_functions_and_judgment": "Schedule entity 전체를 읽었다. 공유 ISO 표현과 DB Date 표현을 구별하도록 1:1 설명만 보완할 후보.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-14"
+      ],
+      "sha256": "ed9f52a9ff31470a2c0ebd239750fbf5ce0bf2762e96fe6a204b6785da26a817",
+      "matches_manifest": true
+    },
+    {
+      "path": "packages/schema/src/index.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-47",
+      "reviewed_functions_and_judgment": "전체 package index exports와 category 설명을 읽었다. domain/API와 DB 표현을 같은 것처럼 말하는 설명만 보완할 후보.",
+      "status": "후보",
+      "finding_ids": [
+        "M3-14"
+      ],
+      "sha256": "0727259bc5f2b4eaa48db9a9c22254f29f12f1a724a0c53df85f989341a413f4",
+      "matches_manifest": true
+    },
+    {
+      "path": "packages/schema/src/requests/expense.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-67",
+      "reviewed_functions_and_judgment": "Expense request의 legacy datetime→UTC date·create defaults·update partial/edit/group validator 전체를 읽었다. expenseDateInput 명칭은 입력과 반환 date 표현 차이를 이미 설명한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "7b8f80a3e3b77c7dd7d2133a428d17e9643cff8c8b3627189ad28764612fdc0e",
+      "matches_manifest": true
+    },
+    {
+      "path": "packages/schema/src/requests/schedule.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-60",
+      "reviewed_functions_and_judgment": "Schedule request의 create/update·number coord 입력·immutable fields·edit/group validator 전체를 읽었다. 공유 response string 좌표와 request number 좌표 차이는 의도적이다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "ea88e8cd21c589affb4818122504ce484503d5a30f1cbebcebf2b98c554945fb",
+      "matches_manifest": true
+    },
+    {
+      "path": "packages/schema/src/responses/mutation-conflict.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-60",
+      "reviewed_functions_and_judgment": "deleted/legacy hold conflict/ack schemas 전체와 hold ownership refinement를 읽었다. code/id/tripId/owner의 wire 이름을 임의로 바꾸지 않는다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "29e6f708a877d04ac746f85c424f3bc16db18d35876ac3d58e2ca0a8c08f3a0f",
+      "matches_manifest": true
+    },
+    {
+      "path": "packages/schema/src/sync/field-edits.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-78",
+      "reviewed_functions_and_judgment": "EditStamp·FieldEdits·두 그룹·edited groups validator·compareEdits 전체를 읽었다. group amount/location과 fixed id tie-break의 의미가 명료하다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "3343c081d8ca8e6d0a8c3f4258b38a069e1afc979ec30ba057f0b80d5f1d1d4b",
+      "matches_manifest": true
+    },
+    {
+      "path": "packages/schema/src/sync/storage-input.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-137",
+      "reviewed_functions_and_judgment": "전체 text/surrogate/recursive strings/date/numeric precision·conservative local confirmation을 읽었다. false는 invalid 판정 아닌 서버 개별 확인 필요이므로 canConfirm 명칭 유지.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "24908d4f806e6aa2c5e14cb8fb85ce31a111d2bf7f9e5ff291feff83e8490738",
+      "matches_manifest": true
+    },
+    {
+      "path": "packages/schema/src/sync/sync-status.ts",
+      "category": "production",
+      "read": "full",
+      "read_lines": "1-64",
+      "reviewed_functions_and_judgment": "모든 pull query/data/response·cursor validation·future push schema를 읽었다. nextCursor/serverTime/legacy lastSyncedAt의 역할 구별을 유지한다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "fb187e4aca376e948f7a4ed7f4b5ad555ff7b1a492b268624bde6e82cf05a418",
+      "matches_manifest": true
+    },
+    {
+      "path": "packages/ui/src/components/Drawer.tsx",
+      "category": "adjacent-shared-ui",
+      "read": "full",
+      "read_lines": "1-146",
+      "reviewed_functions_and_judgment": "Drawer 전체 props/animation/modal/backdrop/sheet/scroll/overlay/header/footer를 읽었다. 인접 공유 UI의 onClose 표준 callback 개명은 이번 자동 변경범위에 포함하지 않는다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "b09e7b74cc5753ba4a149687ca097a9f87c1f60400134ebc5e520c7a20210b30",
+      "matches_manifest": true
+    },
+    {
+      "path": "packages/ui/src/components/Pressable.tsx",
+      "category": "adjacent-shared-ui",
+      "read": "full",
+      "read_lines": "1-83",
+      "reviewed_functions_and_judgment": "Pressable 전체 cva/props/ref/variant-size maps/function children/string Text 렌더링을 읽었다. domain 없는 primitive 상태/표현 이름을 유지하고 인접 변경을 건드리지 않는다.",
+      "status": "유지",
+      "finding_ids": [],
+      "sha256": "77e36e9e012aa9fabd4c4e30c1ab6b51281dfacd0c5636cec09601035a46e8c4",
+      "matches_manifest": true
+    }
+  ]
+}

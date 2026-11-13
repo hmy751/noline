@@ -1,0 +1,1436 @@
+[
+  {
+    "path": "apps/client/src/entities/expense/api/expenses.ts",
+    "read": "full",
+    "lines": 57,
+    "judgment": "목록·생성·수정 응답 해석과 표식 관찰, 함수 사이 경계 확인; 두 목록 함수 사이 빈 줄 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V7"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "67c54672d7554195b250a8e763dc8bd041006aa3500d5abc40b6072fd30e871c"
+  },
+  {
+    "path": "apps/client/src/entities/expense/data/useCreateExpense.ts",
+    "read": "full",
+    "lines": 49,
+    "judgment": "생성 뒤 3개 조회 invalidate의 조건부 배열 인자가 각 묶음으로 분리됨; 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "55be7d4d322c3e06b43e9e38c15d26d3231bf583c3e523d3304bc41b24f368dc"
+  },
+  {
+    "path": "apps/client/src/entities/expense/data/useDeleteExpense.ts",
+    "read": "full",
+    "lines": 29,
+    "judgment": "삭제 mutation/onSuccess/onError의 시각적 분리 적절; 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "5d6502f341bacccba43ae3c396ef722788fda5f6ca5146b917e608928d85654d"
+  },
+  {
+    "path": "apps/client/src/entities/expense/data/useUpdateExpense.ts",
+    "read": "full",
+    "lines": 26,
+    "judgment": "입력 타입·mutation·settled·오류 블록 분리 적절; 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "48a1910ca53713c19fdf80be6ad89d1e751c82373a2b66f44fc2950362ad885d"
+  },
+  {
+    "path": "apps/client/src/entities/expense/lib/expense-local.ts",
+    "read": "full",
+    "lines": 207,
+    "judgment": "조회/생성/수정/삭제 전체; create transaction 검사-쓰기-큐-반환 경계 빈 줄 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V2"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "5cf40f73465141a6889bb300e72f55fc26408e012ac0608c4e58a67f88336f87"
+  },
+  {
+    "path": "apps/client/src/entities/expense/repository/expense-repository.ts",
+    "read": "full",
+    "lines": 102,
+    "judgment": "생성 parse 다음 routing 사이 경계 후보; update 여러줄 인자와 직접실패 catch는 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "f797fe95d08a9964a797d2b581698a49d76f26966bcf12d25a5d9997615cc966"
+  },
+  {
+    "path": "apps/client/src/entities/route/data/useAutoDownloadRoutes.ts",
+    "read": "full",
+    "lines": 13,
+    "judgment": "짧은 mutation 옵션 구분 적절; 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "a19d1c7e4bfcb4ccce09de866e1d48c556ab79b481d06c36b5dca1128ea68b35"
+  },
+  {
+    "path": "apps/client/src/entities/schedule/api/schedules.ts",
+    "read": "full",
+    "lines": 58,
+    "judgment": "단건/생성/수정의 응답-표식-반환 경계; create/단건의 반환 앞 빈 줄 선택 후보",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "10d7619f8ff06297b7316d163e58d0e48dd6362aa3be4ce7d96fb1b7a96e0966"
+  },
+  {
+    "path": "apps/client/src/entities/schedule/data/useCreateSchedule.ts",
+    "read": "full",
+    "lines": 53,
+    "judgment": "생성 invalidate 배열과 callback 분리 적절; 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "afb6bd6682276fe0f54a0824648fc9ce389b9f42488fa2fa284b928d9e8c9474"
+  },
+  {
+    "path": "apps/client/src/entities/schedule/data/useDeleteSchedule.ts",
+    "read": "full",
+    "lines": 38,
+    "judgment": "삭제 invalidate 항목별 개행·주석 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "59d2b3f1973b299c31886e3c4a787f98f7a96b9322dd66301266f6ba1a70a7c5"
+  },
+  {
+    "path": "apps/client/src/entities/schedule/data/useUpdateSchedule.ts",
+    "read": "full",
+    "lines": 32,
+    "judgment": "update 결과에 따른 routes invalidation 분리 명료; 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "7850315b79a813c7eab6da3970d21f48d40ff9e2c84bfa5a18deb16fd2aac004"
+  },
+  {
+    "path": "apps/client/src/entities/schedule/lib/schedule-local.ts",
+    "read": "full",
+    "lines": 188,
+    "judgment": "전체 조회/생성/수정/삭제 읽음; 생성 transaction 단계와 반환 앞 경계 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V2"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "645f28d11449f256420e860f695ad2b6b33790aea16e41ec8d75a5bbb3a86620"
+  },
+  {
+    "path": "apps/client/src/entities/schedule/repository/schedule-repository.ts",
+    "read": "full",
+    "lines": 103,
+    "judgment": "생성 parse/routing 경계; update preparation/라우팅 개행 적절",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "0b5eeb52d7abab29cdba941d2d132001c2c9e001f25603da1a1049048b8f2f80"
+  },
+  {
+    "path": "apps/client/src/entities/trip/api/trips.ts",
+    "read": "full",
+    "lines": 45,
+    "judgment": "목록 fallback·3개 mutation; parse-HTTP-반환 한 구간 유지 가능",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "235d8fe06c8f129e53852ca309a59872ff236727aaaf117a29b251f36e2c514e"
+  },
+  {
+    "path": "apps/client/src/entities/trip/data/useActivateTrip.ts",
+    "read": "full",
+    "lines": 190,
+    "judgment": "활성화 최초/기존/삭제/null결과와 background 후처리 읽음; 핵심 분기·transaction 간격 적절",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "eb145418221adcaf05edb7e52a0fcda9f1e185bf156fe583ae5d82ca23abb082"
+  },
+  {
+    "path": "apps/client/src/entities/trip/data/useDeactivateTrip.ts",
+    "read": "full",
+    "lines": 99,
+    "judgment": "비활성화 queue검사/상태쓰기/cleanup/알림 전체; 블록 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "d0877c4873a330757474fc14dbc32d1245490edabe87b66344bc1eff26697c8b"
+  },
+  {
+    "path": "apps/client/src/entities/trip/lib/trip-local.ts",
+    "read": "full",
+    "lines": 321,
+    "judgment": "목록 보호·서버목록 반영·mutation·삭제 전체; 단문 if 중괄호 생략과 결과 검사 밀집 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V1",
+      "V4",
+      "V7"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "a5e12a799b123429787b96b6fc45f5d67ac057555b83d0e5eeb4b46fa27c9c17"
+  },
+  {
+    "path": "apps/client/src/entities/trip/repository/trip-repository.ts",
+    "read": "full",
+    "lines": 74,
+    "judgment": "조회/생성/수정/삭제 routing 전체; parse 다음 return 및 await 다음 return 경계 후보",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "f029864871aeb9e3a747eb6661d6f030cf30ba0169c29fd977bf5257f0980487"
+  },
+  {
+    "path": "apps/client/src/features/expense/expense-form/ExpenseSubmitActions.tsx",
+    "read": "full",
+    "lines": 50,
+    "judgment": "제한/오류/저장/취소의 JSX 구간 구별 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "5f20e45dca22477960d01c3015db57005ea72bf2bffd1cf2191d15c3b6cdc8f3"
+  },
+  {
+    "path": "apps/client/src/features/expense/expense-form/submit-error.ts",
+    "read": "full",
+    "lines": 14,
+    "judgment": "네 오류 종류를 한 OR 조건으로 묶은 삼항; 한 의미라 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "d3922ab516f2a5b6a4a21940f3ec59ecee433309597ecb78cc6fe5633ca8090a"
+  },
+  {
+    "path": "apps/client/src/features/expense/update-expense/UpdateExpenseDrawer.tsx",
+    "read": "full",
+    "lines": 379,
+    "judgment": "편집 회차·RHF·제출·late guard·JSX 모두; submitError 초기화-패치준비 경계와 effect setup/cleanup 경계 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V7"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "7154ba1e7b320b7466e46c05b97a8345d382c44d8eaf82be70e77835eb941cdf"
+  },
+  {
+    "path": "apps/client/src/features/schedule/create-schedule/useSubmitSchedule.ts",
+    "read": "full",
+    "lines": 55,
+    "judgment": "생성 제출/결과표시 전체; 단문 guard 중괄호와 검사-준비-실행-반환 경계 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V1",
+      "V7"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "deed268a8ed5b2d70ce22176987aa0b604f0dc2a0faae9b17e771b91a4976317"
+  },
+  {
+    "path": "apps/client/src/features/schedule/update-schedule/UpdateScheduleDrawer.tsx",
+    "read": "full",
+    "lines": 370,
+    "judgment": "폼 수명·장소/시간 patch·submit·JSX 전체; effect setup/cleanup 경계 외 주요 구간 유지",
+    "status": "candidate",
+    "finding_ids": [
+      "V7"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "e03792f65c9c81fcf948bacd416a921d90e6ccbae1dade3456a44d3a6b2793cb"
+  },
+  {
+    "path": "apps/client/src/features/sync-recovery/LegacyUpdateRecovery.tsx",
+    "read": "full",
+    "lines": 300,
+    "judgment": "보류 목록·선택수명·복구 저장·삭제/확인 결과·JSX 전체; 초기화-guard와 patch 선언-루프, 좌표변환-저장 경계 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V7"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "12d51206d0b48e0fa08123743ef71cb20ccb7a7ef293e7fcc91e176cc4483e30"
+  },
+  {
+    "path": "apps/client/src/screens/ExpensesScreen.tsx",
+    "read": "full",
+    "lines": 351,
+    "judgment": "조회표시/날짜·통화그룹/메뉴/삭제/전체 JSX 읽음; refresh guard·메뉴 guard-실행 간격 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V1",
+      "V7"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "7a18c782d97be0be618b8124f87a71d28693cbb1584b3af7a5eb8762b987b76d"
+  },
+  {
+    "path": "apps/client/src/screens/ScheduleScreen.tsx",
+    "read": "full",
+    "lines": 336,
+    "judgment": "조회표시/날짜그룹/지도선택/메뉴/삭제/전체 JSX 읽음; refresh guard·메뉴 guard-실행 간격 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V1",
+      "V7"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "519f4ee563e62cfe237e8070175e5a89a14772aea76c196539e24fc167d9a64f"
+  },
+  {
+    "path": "apps/client/src/shared/components/Map/MapboxScheduleMapView.tsx",
+    "read": "full",
+    "lines": 341,
+    "judgment": "전 styles·routeSegments·summary·camera·효과·JSX; 주요 계산 단계/분기 구분 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "705faa3f069cca662d775976a25af553e6bda30a82a51048bc38fe3eb2bcdba9"
+  },
+  {
+    "path": "apps/client/src/shared/db/index.ts",
+    "read": "full",
+    "lines": 330,
+    "judgment": "DB 직렬화/transaction/전체 SQL초기화/reset; BEGIN-try/guard-return 등 의미경계 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V2"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "9a020899cf4d93813dbaed801bfb55c7b8f9616c3e19f17448fb5a9d0a85173d"
+  },
+  {
+    "path": "apps/client/src/shared/db/migrations/field-edits.ts",
+    "read": "full",
+    "lines": 35,
+    "judgment": "field_edits와 holds/acks migration 전체; 한 줄 다중 SQL 필드와 생성/보완 경계 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V5"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "c45c0ebcd4456de288fd2cbe606593158f6bfc5e8b7a841b877a1e9e8a07c8a2"
+  },
+  {
+    "path": "apps/client/src/shared/db/migrations/route-inputs.ts",
+    "read": "full",
+    "lines": 12,
+    "judgment": "기존 columns 조회-조건검사 경계 후보",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "af005c24ba0b1b62cbea259a82b3e8872bb236807a469ea428fce40ddcea91f3"
+  },
+  {
+    "path": "apps/client/src/shared/db/migrations/server-records.ts",
+    "read": "full",
+    "lines": 12,
+    "judgment": "server_records CREATE의 다중컬럼 줄 묶음 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V5"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "47e361e6bbeb19412291fd17ad383c150dd408d8835483a3aeae4c26efb02ae3"
+  },
+  {
+    "path": "apps/client/src/shared/db/schema.ts",
+    "read": "full",
+    "lines": 326,
+    "judgment": "전체 sqlite table/types; field단위 줄은 명료하고 장식 구분선은 기존 탐색 역할 유지 가능",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "68614e02e3d890554bc444614b2a9f48b692eb73bfbf638873e514426ac4f991"
+  },
+  {
+    "path": "apps/client/src/shared/db/utils.ts",
+    "read": "full",
+    "lines": 21,
+    "judgment": "withTransaction·datetime 변환; 두 guard 및 최종 반환 경계 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V7"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "0fa9b561190fdb363ecda1a04a60f7db63aa1f1395858d086784d3cda879b26d"
+  },
+  {
+    "path": "apps/client/src/shared/diagnostics/sanitize-sentry-event.ts",
+    "read": "full",
+    "lines": 115,
+    "judgment": "전체 sanitizer·화이트리스트·trace·stack·bundleName; 긴 허용 정규식은 원자 패턴 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "7b2740e0b3cb441a82c327b2c009aa80e21b1a753557fb4f2c2e98e59db33d25"
+  },
+  {
+    "path": "apps/client/src/shared/diagnostics/sentry.ts",
+    "read": "full",
+    "lines": 199,
+    "judgment": "SDK설정/진단수명/신호분류·capture·trace 전체; 독립 tags 조건·내부 stage 검사 경계 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V7"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "6d8c84f87f59dd374995737f62512c17da82906ea64c288a187c8341f505c89f"
+  },
+  {
+    "path": "apps/client/src/shared/lib/edit-fields.ts",
+    "read": "full",
+    "lines": 68,
+    "judgment": "editedMarks·changedFields overload·그룹 계산 전체; 선언과 검사·결과 개행 적절",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "acd140c22cb714d68be2ebb3cccc6ff531912c5e536b294cdc40e1acc50b0cf7"
+  },
+  {
+    "path": "apps/client/src/shared/services/auth/local-account.ts",
+    "read": "full",
+    "lines": 162,
+    "judgment": "계정/queue 귀속·격리 전체; DB조회 뒤 판단집계·배열 준비 경계 후보",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "8941466c6d453206eae96655ad7ba427534afabd31b1fda8f08408a08c4f3454"
+  },
+  {
+    "path": "apps/client/src/shared/services/auth/logout-service.ts",
+    "read": "full",
+    "lines": 173,
+    "judgment": "미전송 확인·logout/delete·local clear 전체; transaction 종료와 auth finally 경계 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V2"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "f795f1c229b190e9d8a38e409b4bc7624eab1f322e340cbbc49eded0ace2f149"
+  },
+  {
+    "path": "apps/client/src/shared/services/directions/route-downloader.ts",
+    "read": "full",
+    "lines": 235,
+    "judgment": "download 직렬화·최초읽기·profile 요청·최종쓰기·캐시정리 전체; session확인-조회 및 directions-후보준비 경계 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V7"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "751c3458dd515dc611e02cb928b9d1d89991caac013d467ef23bbe51eb8a117e"
+  },
+  {
+    "path": "apps/client/src/shared/services/directions/route-plan.ts",
+    "read": "full",
+    "lines": 138,
+    "judgment": "좌표·시간순 정렬·segment·cache 선택 전체; guard간 빈줄/정렬준비-실행 경계 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V4"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "2c8f101bb177d3598a8784f74d864f07222863d1b881751a3d177d39e597d96f"
+  },
+  {
+    "path": "apps/client/src/shared/services/edit-stamp/errors.ts",
+    "read": "full",
+    "lines": 17,
+    "judgment": "두 확인 오류 생성자 전체; 연속 super/name은 한 초기화 구간 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "b91a5c9ba6a8cbc7e3bb40c3e99d65c1a45cc7b316c2b75ee474036746e8db1f"
+  },
+  {
+    "path": "apps/client/src/shared/services/edit-stamp/index.ts",
+    "read": "full",
+    "lines": 97,
+    "judgment": "표식 직렬화/관찰/발급/준비 전체; 번호계산-검사·표식준비-영속화-반환 경계 후보",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "960e376edc1404daf1eeb89259679edd75ac07b752787c75835224e231234b12"
+  },
+  {
+    "path": "apps/client/src/shared/services/offline-prep/router.ts",
+    "read": "full",
+    "lines": 133,
+    "judgment": "4 router와 overload/준비 전체; 무중괄호 guards 및 조건결과-remote/local 실행 경계 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V1",
+      "V2"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "2323d6e1273ebc2de541169865ff21897593c02e75622b3ba0eff8dc0212b78b"
+  },
+  {
+    "path": "apps/client/src/shared/services/offline-prep/trip-operation.ts",
+    "read": "full",
+    "lines": 33,
+    "judgment": "trip 작업순서/세션/cleanup 전체; session검사-실행-재검사·map등록-try 경계 후보",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "a72719b62117d4e2d14abdc0142821de1fb7470d5e7b4baf9751c273be99785c"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/api.ts",
+    "read": "full",
+    "lines": 84,
+    "judgment": "axios 요청과 retry 인터셉터·endpoint 전체; retry count-대기계산-대기-재호출 경계 후보",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "1e09bc54e6bebb488df9a21d70d52cbf4eaaf5cff77cc19f2ea774cde15006da"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/cleanup-job.ts",
+    "read": "full",
+    "lines": 244,
+    "judgment": "정리 직렬화/중단/사본숨김/진공 전체; 단계별 선언-검사-효과 경계 다수 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V2"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "af85b412134b494f9a1d3c6871cc304d1092d3a7aa57153eaa3efcffc12649b6"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/confirmed-deletion.ts",
+    "read": "full",
+    "lines": 224,
+    "judgment": "삭제증거/귀속검사/자식숨김/큐별폐기/hold정리 전체; 효과 묶음과 JSON검사 뒤 다음준비 개행 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V2",
+      "V4"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "cd97a4f313fdc709f911dff8bb95c4f77a622c76711859449fc956a205f6fd34"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/direct-deletion.ts",
+    "read": "full",
+    "lines": 29,
+    "judgment": "직접삭제의 세션과 id 확인·적용 전체; 두 검사 사이 빈줄 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V2"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "092466aeb7a44cff26e6d381fcd07cb488175037ab4c73c259cef1e79d30be86"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/direct-update-failure.ts",
+    "read": "full",
+    "lines": 77,
+    "judgment": "직접실패의409/410 검증과 보류/삭제 전체; 독립 오류분기 사이 빈줄 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V2",
+      "V4"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "2c18800ffee3e48ae6162c53322f4fea71e103fdc5e8767d0cb7c1d9a65099c2"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/engine.ts",
+    "read": "full",
+    "lines": 541,
+    "judgment": "push/pull/applyPushResponse/resolveRejectedMutation/failureDetails 전체; 핵심 단계 연결 유지, catch뒤/독립분기/준비→검사 경계 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V2",
+      "V4"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "3e433ba4a0e8d451337a38f31b9f29836ae1396e0bfa161afbb186fff5505a62"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/legacy-holds.ts",
+    "read": "full",
+    "lines": 307,
+    "judgment": "보류 CRUD/구독/정렬JSON/원격수신·acks 전체; 저장·검사·반환 밀집과 수신단계 사이 빈줄 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V2"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "13353be7ec5b56fdbd1c2b50a7fdb62b3c15c9b006a3712593f13b412ff4ac37"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/queue.ts",
+    "read": "full",
+    "lines": 296,
+    "judgment": "queue 추가/FIFO/복구/status/통계/여행귀속 전체; 마지막 여행범위 계산·try/guard 구간 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V2"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "58b9204036eafa51d318f1e119ef025f5e596dedbedd34a6f93acf8c6b051945"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/reconcile.ts",
+    "read": "full",
+    "lines": 346,
+    "judgment": "reconciliation 준비→수락→표시→ACK 전체와 각 helper 읽음; 이미 의미에 맞는 빈줄/조건/인자로 유지",
+    "status": "candidate",
+    "finding_ids": [
+      "V4"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "31418305d64366b3023c71e09665a446b6260e20763e73883a7f31a5922237b2"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/server-state.ts",
+    "read": "full",
+    "lines": 72,
+    "judgment": "서버확인본·삭제증거·본문해제 전체; 준비객체 뒤 DB쓰기 앞 빈줄 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V2"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "7a479d497555eaaac69f3d1b8f5b3253c642d1a034f7448e676483188d2a26b6"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/storage.ts",
+    "read": "full",
+    "lines": 68,
+    "judgment": "cursor 해석과 checkpoint동일transaction 전체; 구간·조건·여러줄 인자 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "b22d99e10c9f9c412b727b9b7fdf90375769243883121347e5067f6e61f0d52c"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/sync-tables.ts",
+    "read": "full",
+    "lines": 5,
+    "judgment": "상수 테이블과 type guard 전체; 5줄 밀도 적절 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "03d9cdf282ecc9f029d832bb8cb8b125a933a36259431bd1d293b82f57bf40f9"
+  },
+  {
+    "path": "apps/client/tests/application/trip-list-refresh.test.tsx",
+    "read": "full",
+    "lines": 156,
+    "judgment": "네트워크/인증 전환·중복소비자·unmount 전체; 사건변경 사이 test phase 개행 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V6"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "2cfac1ae2c5b8258ced2656acf3df419fc945314ee7658195df176448a8e787c"
+  },
+  {
+    "path": "apps/client/tests/entities/expense/api/expenses.test.ts",
+    "read": "full",
+    "lines": 175,
+    "judgment": "여행/일정 경비조회·요청/응답계약 전체; 일부 날짜 each/mock-실행-assert 경계 후보",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "9995d6291c74a7abfa1abe99b78d83de04d7e88b5f52e9be87044f7a55371fcf"
+  },
+  {
+    "path": "apps/client/tests/entities/repository/target-trip-routing.test.ts",
+    "read": "full",
+    "lines": 198,
+    "judgment": "Local/Remote분기·날짜·시점 계약 전체; 후반 each 사례 밀집/인접테스트 구간 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V7"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "1171c56b54e2c5f0a9dfb0900e5cb8e5783e67412e9db637607dfe0e4beb23af"
+  },
+  {
+    "path": "apps/client/tests/entities/temporal-local-contracts.test.ts",
+    "read": "full",
+    "lines": 655,
+    "judgment": "SQLite adapter/fixture·날짜/시점/활성화/rollback 전부; 무중괄호 fixture조작과 test phase 개행 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V1",
+      "V6"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "eb75d8093f1ebf2f67d1633242c17c33dfa02eba0476ca86fdf60503e8c035a8"
+  },
+  {
+    "path": "apps/client/tests/entities/trip/data/useGetTrips.test.tsx",
+    "read": "full",
+    "lines": 50,
+    "judgment": "출처 local/remote/mixed 전체; setup-render-await-assert 구간 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "2408ee56ac915819159be7be6d6d93e532a3fead4e3402c41ab3cb1240a82880"
+  },
+  {
+    "path": "apps/client/tests/entities/trip/trip-lifecycle.test.ts",
+    "read": "full",
+    "lines": 337,
+    "judgment": "SQLite adapter·목록/변경/오프라인/귀속/큐보호 전부; 다줄 if-else 중괄호 생략과 단계혼재 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V1",
+      "V6",
+      "V7"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "19e04163c588f44440e978368ef765345588085c63aa4f3ded5ec76894f64412"
+  },
+  {
+    "path": "apps/client/tests/entities/update-query-refresh.test.ts",
+    "read": "full",
+    "lines": 192,
+    "judgment": "query observer의 지연GET교체/실패격리/성공후처리 전부; 순차 old/new 완료 단계 구분 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V6"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "fdc20c39813e3acda1ed95181d52888fa62af2da812e099dc617c81043cf0aaa"
+  },
+  {
+    "path": "apps/client/tests/features/edit/legacy-recovery.test.tsx",
+    "read": "full",
+    "lines": 188,
+    "judgment": "보류닫기/선택저장/실패·삭제결과 복구 전부; 동작과 assert 묶음 사이 빈줄 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V6"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "46fc431d862a5ff346d25ec4dae2935dc8ea300d43d99fb1610ba581e82dc5b1"
+  },
+  {
+    "path": "apps/client/tests/features/edit/offline-values.test.tsx",
+    "read": "full",
+    "lines": 915,
+    "judgment": "전체 915행 mock/policy/날짜·시점/회차/추가입력/late resolver 읽음; 단문 fixture guard와 전환·assert 경계 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V1",
+      "V6"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "885172955104cca88d943d0dd567f3bee6740379dd67e19dfa47d142f0b9c455"
+  },
+  {
+    "path": "apps/client/tests/features/edit/update-save-lifetime.test.tsx",
+    "read": "full",
+    "lines": 384,
+    "judgment": "실제 mutation·Drawer닫기·재저장·과거폼·경로준비 전체; 사건별 phase 경계 일부 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V6"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "f1862dcc923ca31f19a2c93a778aac43bc2086384c93910004330f97b186843e"
+  },
+  {
+    "path": "apps/client/tests/screens/auth-policy.test.tsx",
+    "read": "full",
+    "lines": 380,
+    "judgment": "세화면 인증/네트워크/unknown 재확인 전체; fixture guard 중괄호와 9초→10초/재시도 phase 구분 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V1",
+      "V6"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "ab84a2927b03c2f0d0eed94ea2f12bcd1940e42bfa4b3fd5c25d6afd71bf6c05"
+  },
+  {
+    "path": "apps/client/tests/screens/expense-recovery.test.tsx",
+    "read": "full",
+    "lines": 294,
+    "judgment": "목록/상세 캐시·재시도·다른여행·DST 전체; setup if body 중괄호와 test phase 구분 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V1",
+      "V6"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "c66759ed7086fd522a9a002819434f3c43669872e3073d7f130cc1a8460a4331"
+  },
+  {
+    "path": "apps/client/tests/screens/read-query-consumers.test.tsx",
+    "read": "full",
+    "lines": 512,
+    "judgment": "상세/홈/작성 보조조회 전체 512행; 함수/테스트 사이 빈줄 부재 및 사건 phase 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V1",
+      "V6",
+      "V7"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "f9bdb2124087253f172dad159b48e67b7c207bc2a400ed51436d5d8a4da9323f"
+  },
+  {
+    "path": "apps/client/tests/screens/schedule-recovery.test.tsx",
+    "read": "full",
+    "lines": 664,
+    "judgment": "일정 Screen·수정폼·캐시·pull·지도선택 전체664행; setup 다줄 조건 중괄호와 phase 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V1",
+      "V6"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "e0ac158122c4a939fb14afd605416e370c1dce673a4fb1fa1d5f8c37b6f01dc8"
+  },
+  {
+    "path": "apps/client/tests/screens/update-place-search.test.tsx",
+    "read": "full",
+    "lines": 198,
+    "judgment": "상세좌표/legacy선택/단절/닫힌검색 전체; 각 이벤트/assert 묶음의 시각경계 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V6"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "4626fefa245fe08d0317ec6c83a03ab6bf5f14c06bb8a90edbe19135d6877299"
+  },
+  {
+    "path": "apps/client/tests/shared/components/map-route-freshness.test.tsx",
+    "read": "full",
+    "lines": 128,
+    "judgment": "지도 geometry/profile/인접/legacy캐시 전체; 좌표 배열은 세로 배치 적절, 장소이동·profile변경 phase 빈줄 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V6"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "41987c58fdbfe3ffcf712e5f444d91943e78c17c658d41ce8aa8a6b17d97948e"
+  },
+  {
+    "path": "apps/client/tests/shared/db/field-edits-migration.test.ts",
+    "read": "full",
+    "lines": 28,
+    "judgment": "반복 migration·원본큐보존 전체; 한 템플릿의 다중 SQL문과 setup-실행-검사-닫기 밀집 후보",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "c91b551d4fa20c62a6a3e72f11e47a5cf3653ed39eb5735ead7a735cf9849570"
+  },
+  {
+    "path": "apps/client/tests/shared/db/transaction-serialization.test.ts",
+    "read": "full",
+    "lines": 137,
+    "judgment": "직렬화 rollback/실제SQLite queue원자성 전체; adapter guard-반환 및 main실행-DB확인 경계 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V6"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "d7779e8bdb3d5ffaf6be1eae724d88ed6beddfb1f54870446736fbee0da9ff25"
+  },
+  {
+    "path": "apps/client/tests/shared/diagnostics/sentry.test.ts",
+    "read": "full",
+    "lines": 147,
+    "judgment": "전체 SDK설정/trace/민감값 필터·Hermes 검사; 첫 긴 사례의 서로다른 사건 경계 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V6"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "4f481c88bf3807965118ad0e3ef393745d3d989d85ab67d2637c3907da616bdd"
+  },
+  {
+    "path": "apps/client/tests/shared/lib/edit-fields.test.ts",
+    "read": "full",
+    "lines": 48,
+    "judgment": "순수 changedFields와 group/null/raw mark 전체; 인자 순서·그룹 비교 세로배치 적절 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "5cf848f96bee6638c45ac970bd9192d123d4633b51783e6663d604e6275aa8a4"
+  },
+  {
+    "path": "apps/client/tests/shared/lib/edit-fields.types.ts",
+    "read": "full",
+    "lines": 21,
+    "judgment": "타입계약/오탈자/좌표 입력 반환 전체; 각 ts-expect-error 인접 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "d7b9dec7f20594d701912b6b1d6c6dfa88bfc5edbe48401238a0e89ef8fc2491"
+  },
+  {
+    "path": "apps/client/tests/shared/services/auth/local-access.test.ts",
+    "read": "full",
+    "lines": 263,
+    "judgment": "접근귀속·reauth·Local mutation·queue FIFO/표식 실패 전체; query후 조건·실행후 assert 경계 후보",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "73efc4aa3ad872acfa1bfe091c5d79b561e543ae7c26f3dbce29cd02a5c3043b"
+  },
+  {
+    "path": "apps/client/tests/shared/services/auth/orphaned-queue.test.ts",
+    "read": "full",
+    "lines": 576,
+    "judgment": "격리·계정복원·재전송·vacuum·원본부활 전부576행; 대체로 사례의 큰 단계 나눔 유지, 복수행동 사이 국소 개행 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V6"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "5a881caa87b20e18b2d1db76a54d40c9ec1dd231425edd262cc7acf7bbf216c4"
+  },
+  {
+    "path": "apps/client/tests/shared/services/directions/route-cache.test.ts",
+    "read": "full",
+    "lines": 460,
+    "judgment": "실제SQLite 경로cache 재사용/시간변경/실패/세션/삭제/정리rollback 전체460행; 무중괄호 for와 반복실행 사이 phase 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V1",
+      "V6"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "118b4ce22db36ea76b9d60c1951999394b80a13291a74f9dc150b7e48a07a150"
+  },
+  {
+    "path": "apps/client/tests/shared/services/directions/route-inputs-migration.test.ts",
+    "read": "full",
+    "lines": 30,
+    "judgment": "nullable 좌표출처 migration 반복안전 전체; setup-adapter-실행-검사 경계 후보",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "1ab444fc59489c224f1f8dc51fec2002ce27a40b08afb02f96194f8ffed696e5"
+  },
+  {
+    "path": "apps/client/tests/shared/services/edit-stamp.test.ts",
+    "read": "full",
+    "lines": 66,
+    "judgment": "관찰·발급 동시순서/저장실패/대기후관찰 전체; import/mock/setup/test 사이와 실행-기대 구간 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V6"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "ffe15d4bf4457dc081f388c8fa8ecb88256a132302580a1782bbcddea0577355"
+  },
+  {
+    "path": "apps/client/tests/shared/services/edit-stamp.types.ts",
+    "read": "full",
+    "lines": 16,
+    "judgment": "prepared 타입경계 전체; ts-expect-error와 호출 인접 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "97479c26782a92b26836327ae409d147fc8fffbd30e2a1c117c4b914238a7da9"
+  },
+  {
+    "path": "apps/client/tests/shared/services/offline-prep/trip-operation.test.ts",
+    "read": "full",
+    "lines": 64,
+    "judgment": "여행작업 직렬화/실패후재개/대기중세션 전체; deferred 준비/첫대기/다른여행/해제/검사 단계 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V6"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "6812eda1238ccb5f026d93d529574993031adc26d4e040475e58f01b0a36e09f"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/auth-result.test.ts",
+    "read": "full",
+    "lines": 54,
+    "judgment": "인증거부 pending 결과 전체; setup→execute→assert 경계 후보",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "e71ac3d54557f3c30c577e423156d674ffc205085485556cdf64caab2ea1a536"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/blocked-diagnostics.test.ts",
+    "read": "full",
+    "lines": 166,
+    "judgment": "실제 Axios adapter 토큰교환·404·cache실패분류 전체; 각 test 주요구간 이미 분리 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "5cbbf9b13cb5a54f8d9d2a8abb4697247c393d0b538716b7830866a317117491"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/cleanup-lifecycle.test.ts",
+    "read": "full",
+    "lines": 184,
+    "judgment": "cleanup 공유/세션종료/실패/DB reset 전체; 대기·해제·결과 단계 대부분 분리 유지",
+    "status": "candidate",
+    "finding_ids": [
+      "V6"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "8221f16573437c2e65ebfdc73d107a8c9bd53aa65add71c76c23bf68c9669dfc"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/deletion-storage-validation.test.ts",
+    "read": "full",
+    "lines": 306,
+    "judgment": "저장가능성·삭제후 손상보호·410/500·모순귀속 전체306행; enqueue-삭제수신-조회검사 경계 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V6"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "e5f088564ce8b108ff91ef49b0576d69372d6ed4d05779e1694f569b4932a07d"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/logout-sync.test.tsx",
+    "read": "full",
+    "lines": 321,
+    "judgment": "SyncProvider·로그아웃/탈퇴·auth실패/DB실패/실행대기 전체321행; 여러 act 사건 경계 잘 나뉘어 유지",
+    "status": "candidate",
+    "finding_ids": [
+      "V6"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "95330916e8a296e2438d691d7cb6530208c867c46c6a0dd4ca7b7f2a1ead4ac5"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/query-refresh.test.ts",
+    "read": "full",
+    "lines": 208,
+    "judgment": "push뒤 cache갱신/지연GET/부분실패/pull실패/미구독 전체; cached 단문 if와 setup→sync→assert 경계 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V1",
+      "V6"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "f53f4424937712d9c1334ae9e4bc0022439c34114747179a77d36570650bcbdf"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/queue-ownership.test.ts",
+    "read": "full",
+    "lines": 52,
+    "judgment": "귀속확인 거절 전체; setup→실행→assert→restore 구간 후보",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "8ae5e519067b57995fd3804b3a25b18b622e81686d8d2b9c06cc9e9312b513f6"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/reconciliation.test.ts",
+    "read": "full",
+    "lines": 1056,
+    "judgment": "reconciliation 전1056행: pending투영/ACK/rollback/FIFO/삭제증거/legacy전수; 긴 경우 여러 사건 재구성 필요한 phase 개행 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V6"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "502c32c39ea0559543b0915c74e0d2cd3213382bc8389f4b826006b0eaea580c"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/response-freshness.test.ts",
+    "read": "full",
+    "lines": 735,
+    "judgment": "freshness 전735행: 서버판본/active·direct 양순서/cleanup/cursor/session/삭제; 사건전환·인접test 구간 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V6",
+      "V7"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "079470b435d5a62ca7c0bceb8ca7ea0ece879ad5a5ba2ff294a73114e7b906f9"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/retry.test.ts",
+    "read": "full",
+    "lines": 207,
+    "judgment": "FIFO 재전송/중단회복/상태실패·계약·진단 전체207행; 과거mock chain 들여쓰기 일관성·phase 경계 후보",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "60b42726b2eda3f3196708ebe47e2d5fd97f794ff0ac53f854db5ed57dd330d7"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/save-submission.test.ts",
+    "read": "full",
+    "lines": 472,
+    "judgment": "표식 준비/라우팅대기/저장실패·직접삭제 검증 전체472행; 복수 저장경계와 결과별 구간 후보",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "c5b39cc8654552eb215f9801f9915d15c9e102332d6aefa2e58da9824cb3ead0"
+  },
+  {
+    "path": "apps/server/sql/20261110-field-edits.sql",
+    "read": "full",
+    "lines": 19,
+    "judgment": "SQL ALTER/hold table/index 전19행; DDL끼리 빈줄 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V5"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "1d9d16cf2da6bea6fa01f59d11bf1e8307af0a98720210cf3b6f47742d36acf0"
+  },
+  {
+    "path": "apps/server/src/db/schema.ts",
+    "read": "full",
+    "lines": 191,
+    "judgment": "전 PostgreSQL schema·fieldEdits·legacy 보류 유일성 전체; 필드/그룹 구간 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "6969aa5c5b3090e48de181116641abf43c4af3d14bc80a1bf0330e22973d8fd9"
+  },
+  {
+    "path": "apps/server/src/routes/expenses.ts",
+    "read": "full",
+    "lines": 170,
+    "judgment": "조회/생성/단건/수정/삭제 전체; 검증·실행·응답 단계의 줄바꿈 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "52057cb2a298828e5fa320d65d7b7fdfb0fa14631a1a095c486643cebd52f493"
+  },
+  {
+    "path": "apps/server/src/routes/index.ts",
+    "read": "full",
+    "lines": 50,
+    "judgment": "health/info·router mount 전체; 경로별 구분 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "328443da4de4033cfdcd524d5333466436f07160e30039eaea7cd0b71c58b94a"
+  },
+  {
+    "path": "apps/server/src/routes/legacy-holds.ts",
+    "read": "full",
+    "lines": 37,
+    "judgment": "보류 목록/ACK route 전체; await-응답 개행 선택 후보",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "b89684f38b35b2335204e58952f2b94a1c8202ce5124d2f53dfbaf507b3b2aff"
+  },
+  {
+    "path": "apps/server/src/routes/schedules.ts",
+    "read": "full",
+    "lines": 146,
+    "judgment": "일정 CRUD 전체; conditions 선언-검사 사이 빈줄 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V3"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "2c22f1f792e0d978b16c00815b86c7d8ccbdfc1118346dd926235b02062c5ab6"
+  },
+  {
+    "path": "apps/server/src/routes/sync.ts",
+    "read": "full",
+    "lines": 190,
+    "judgment": "pull snapshot/XID·세 조회·response·501push 전체; 병렬 의미의 세 큰 query 시각분리 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V3"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "bf79e8f8c965c36d8dd7d3365ba1a65913665f9d62cfdc9322772e8ca21703b3"
+  },
+  {
+    "path": "apps/server/src/routes/trips.ts",
+    "read": "full",
+    "lines": 475,
+    "judgment": "Trip CRUD/활성화/하위목록/비활성 전체475행; 단문 if와 날짜검사/직렬화 묶음 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V1"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "1c37e878261e916b55b3ac6004cf97c906aebdac62873b45d3915c1cc4debfc4"
+  },
+  {
+    "path": "apps/server/src/services/entity-mutations.ts",
+    "read": "full",
+    "lines": 555,
+    "judgment": "서버 저장검사/소유잠금/동등값·merge/생성·변경·삭제 전체555행; 준비-검사-쓰기와 자식후처리 경계 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V3"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "97e73e81ee631deef9ba31be16bcdc4193576f3dd07cabee5a9fb56c1d4946d9"
+  },
+  {
+    "path": "apps/server/src/services/legacy-update-holds.ts",
+    "read": "full",
+    "lines": 172,
+    "judgment": "canonicalJSON·보류보존/조회/ACK 전체; 마지막 parent lock→delete 및 guard 경계 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V3"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "cb54069f6455ad77dd152f5f68663f6f676989661ca2d110d15ebe7df9722a36"
+  },
+  {
+    "path": "apps/server/tests/integration/deletion-storage-validation.test.ts",
+    "read": "full",
+    "lines": 180,
+    "judgment": "PostgreSQL text/date/numeric·Unicode·삭제상태전체; 사건별 phase 개행 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V6",
+      "V7"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "62ed3acce60d8d49465b406baaf0d2ca8d7364aced198e6b0e2dfcf369e84adc"
+  },
+  {
+    "path": "apps/server/tests/integration/field-edits-and-deletion.test.ts",
+    "read": "full",
+    "lines": 458,
+    "judgment": "PG field edits/재전송/동시수정/삭제/legacy 복구 전체458행; 시나리오내 전환·assert 구간 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V6"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "f710a44cef9a9de38c0d8c683562eb0a6725d0ff42320df1f63d72ba5c4f15f0"
+  },
+  {
+    "path": "apps/server/tests/integration/pull-cursor.test.ts",
+    "read": "full",
+    "lines": 79,
+    "judgment": "PG 잠금 주입·XID·다음cursor전체; setup/query helper·wait→쓰기·결과 단계 구분 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V6"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "9bc30030183602668c0b35235c7ff1e62c217f97439aaa0d1f1ca79ae1940e74"
+  },
+  {
+    "path": "apps/server/tests/integration/schedules.access-boundary.test.ts",
+    "read": "full",
+    "lines": 205,
+    "judgment": "PG 부모/자식 소유권·soft delete 전체205행; 전체 setup-실행-확인 큰구간 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "63f76eeb3c41929dd6f54c734ed024c4ef9fc7bbc839b8ddbb479a7f1d1ccc85"
+  },
+  {
+    "path": "apps/server/tests/routes/expenses.response-contract.test.ts",
+    "read": "full",
+    "lines": 143,
+    "judgment": "mock API 날짜/boolean·날짜호환 전체143행; 후반 date each 준비-실행-assert 경계 후보",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "35710768689e755405072e0a7b0095868daa23f9a5ea6a6bb217adb64a0f5aba"
+  },
+  {
+    "path": "apps/server/tests/routes/replay.idempotency.test.ts",
+    "read": "full",
+    "lines": 187,
+    "judgment": "CREATE/DELETE 재전송 API mock전체187행; 사례별 setup-요청-assert 구간 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "60005fca64524c7e5f483b96333c1cfe668a85992bd1c2d70d8dca8b26495378"
+  },
+  {
+    "path": "apps/server/tests/routes/schedules.response-contract.test.ts",
+    "read": "full",
+    "lines": 326,
+    "judgment": "일정기본/연관API/잘못된시각/pull전체326행; 끝의 standalone 사례만 phase 간격 후보",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "efb426c1147c7645add3b64faa73603ac5f501d8bc5f44f1a43f2b49ea7ee532"
+  },
+  {
+    "path": "apps/server/tests/routes/trips.response-contract.test.ts",
+    "read": "full",
+    "lines": 91,
+    "judgment": "여행 목록·생성·수정 직렬화 전체91행; setup/요청/assert 구간 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "a2e20e340a5e4f13487c4626fc43ce897cc9af8e19fb8f887451bfb647607ce9"
+  },
+  {
+    "path": "apps/server/tests/sentry-diagnostics.test.ts",
+    "read": "full",
+    "lines": 150,
+    "judgment": "실제 Sentry receiver/500/404/민감값필터/startup 전체150행; 오류사건·수신확인 단계 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "d6a31d04557984e10972f1c9dd6f50b7fd27a16001af8ff262c0bf242babd63c"
+  },
+  {
+    "path": "apps/server/tests/support/test-app.ts",
+    "read": "full",
+    "lines": 111,
+    "judgment": "DB/auth mock hoist·chain·app load/reset/setup 전111행; 선언-결과 반환 경계 국소후보",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "a96cadcdd502b1aad7d9b067b1db1558128da243500415916872dfd364a2a92d"
+  },
+  {
+    "path": "apps/server/vitest.integration.config.ts",
+    "read": "full",
+    "lines": 17,
+    "judgment": "integration 설정17행; 설정그룹 개행 적절 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "c9b37fd9bca69d7e1adfb7909bcca51d9f6a03b68f673855cfbf652a8091efc8"
+  },
+  {
+    "path": "packages/schema/package.json",
+    "read": "full",
+    "lines": 197,
+    "judgment": "schema package exports/typesVersions197행 전부; 생성자별 매핑 일정하여 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "08b3908ba2df6386843446e1aad1b75c86e33099e668e45a20bbc4f8ec35a1aa"
+  },
+  {
+    "path": "packages/schema/src/entities/expense.ts",
+    "read": "full",
+    "lines": 40,
+    "judgment": "expense entity/date40행; metadata/business 구분 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "b97dfef10ac6f16236163256a10021a2ed7c52c7f483a0e46997af0e5e1caf2d"
+  },
+  {
+    "path": "packages/schema/src/entities/schedule.ts",
+    "read": "full",
+    "lines": 34,
+    "judgment": "schedule entity34행; metadata/business 구분 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "ed9f52a9ff31470a2c0ebd239750fbf5ce0bf2762e96fe6a204b6785da26a817"
+  },
+  {
+    "path": "packages/schema/src/index.ts",
+    "read": "full",
+    "lines": 47,
+    "judgment": "schema 전체export47행; sync export만 중간 빈줄 제거 선택후보",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "0727259bc5f2b4eaa48db9a9c22254f29f12f1a724a0c53df85f989341a413f4"
+  },
+  {
+    "path": "packages/schema/src/requests/expense.ts",
+    "read": "full",
+    "lines": 67,
+    "judgment": "expense 생성/수정·날짜호환67행; pick/extend/partial 의미구간 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "7b8f80a3e3b77c7dd7d2133a428d17e9643cff8c8b3627189ad28764612fdc0e"
+  },
+  {
+    "path": "packages/schema/src/requests/schedule.ts",
+    "read": "full",
+    "lines": 60,
+    "judgment": "schedule 생성/수정60행; pick/partial/extend 의미구간 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "ea88e8cd21c589affb4818122504ce484503d5a30f1cbebcebf2b98c554945fb"
+  },
+  {
+    "path": "packages/schema/src/responses/mutation-conflict.ts",
+    "read": "full",
+    "lines": 60,
+    "judgment": "삭제증거/legacy hold·목록ACK/conflict60행; 인접 선언들 구간 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V5"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "29e6f708a877d04ac746f85c424f3bc16db18d35876ac3d58e2ca0a8c08f3a0f"
+  },
+  {
+    "path": "packages/schema/src/sync/field-edits.ts",
+    "read": "full",
+    "lines": 78,
+    "judgment": "editStamp·그룹검증·정렬78행; 타입/값/그룹 경계와 비교guard 구간 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V5"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "3343c081d8ca8e6d0a8c3f4258b38a069e1afc979ec30ba057f0b80d5f1d1d4b"
+  },
+  {
+    "path": "packages/schema/src/sync/storage-input.ts",
+    "read": "full",
+    "lines": 137,
+    "judgment": "문자/날짜/numeric 저장가능성137행; 독립 guard 사이 빈줄 후보",
+    "status": "candidate",
+    "finding_ids": [
+      "V5"
+    ],
+    "final_decision": "표현 변경 후보만 있음. 동작 결함·정책 변경 제안이 아니다.",
+    "sha256": "24908d4f806e6aa2c5e14cb8fb85ce31a111d2bf7f9e5ff291feff83e8490738"
+  },
+  {
+    "path": "packages/schema/src/sync/sync-status.ts",
+    "read": "full",
+    "lines": 64,
+    "judgment": "pull query/data/response·futurepush64행; 소유 schema 단위 구분 유지",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "fb187e4aca376e948f7a4ed7f4b5ad555ff7b1a492b268624bde6e82cf05a418"
+  },
+  {
+    "path": "packages/ui/src/components/Drawer.tsx",
+    "read": "full",
+    "lines": 146,
+    "judgment": "인접공유UI: 애니메이션/Modal닫기/backdrop/scroll/헤더/푸터146행; 역할구간 형식 적절 유지, 자동수정 대상 제외",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "b09e7b74cc5753ba4a149687ca097a9f87c1f60400134ebc5e520c7a20210b30"
+  },
+  {
+    "path": "packages/ui/src/components/Pressable.tsx",
+    "read": "full",
+    "lines": 83,
+    "judgment": "인접공유UI: variants·props·render disabled/children83행; 긴 cva 인자 외 본문 구간 명료, 자동수정 대상 제외",
+    "status": "keep",
+    "finding_ids": [],
+    "final_decision": "현재 형식을 유지한다. 본문에서 확인한 초기의 작은 간격 후보는 실익이 작아 채택 제안에서 제외했다.",
+    "sha256": "77e36e9e012aa9fabd4c4e30c1ab6b51281dfacd0c5636cec09601035a46e8c4"
+  }
+]

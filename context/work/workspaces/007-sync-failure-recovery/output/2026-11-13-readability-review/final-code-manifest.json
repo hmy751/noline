@@ -1,0 +1,342 @@
+[
+  {
+    "path": "apps/client/src/entities/expense/api/expenses.ts",
+    "sha256": "d2cc06e34949c808cd43a56e5c40bff1562592f3abe681f4b5d5c7a16f884e33"
+  },
+  {
+    "path": "apps/client/src/entities/expense/lib/expense-local.ts",
+    "sha256": "d3a446cc99cc194da5fd292570a4fe58332e2a3437629cf9d5084f5e466e0024"
+  },
+  {
+    "path": "apps/client/src/entities/expense/repository/expense-repository.ts",
+    "sha256": "378d47efd3ad28ce869af48bec7e157cce8a954ed642baa295f92fce40116a0b"
+  },
+  {
+    "path": "apps/client/src/entities/schedule/lib/schedule-local.ts",
+    "sha256": "f159dbb17aa064fa1d2e0f466c59c4eb3760f981265420ba3adfd691eaab448f"
+  },
+  {
+    "path": "apps/client/src/entities/schedule/repository/schedule-repository.ts",
+    "sha256": "f3d79e7ec5ddbc6f9aa5ad574b827f0fe532592ec353f3624c719667f39964f5"
+  },
+  {
+    "path": "apps/client/src/entities/trip/data/useActivateTrip.ts",
+    "sha256": "4738235445862f5c90d8d95dba76ca4d0ac3b7e64fd3045ccc7d9760b39ad9f7"
+  },
+  {
+    "path": "apps/client/src/entities/trip/data/useDeactivateTrip.ts",
+    "sha256": "89f37e6d6fd282701f7e546a8de9eb40b5f51343280d5d9ef6777086f439c34d"
+  },
+  {
+    "path": "apps/client/src/entities/trip/lib/trip-local.ts",
+    "sha256": "93c29ef757400275080f088299874255e806d9331bdd02e5fb4c282c78f3881d"
+  },
+  {
+    "path": "apps/client/src/entities/trip/repository/trip-repository.ts",
+    "sha256": "d64bd316c6ba0ce711017dc2d6ff747055e2f2837df8b31de750b01c42c0aa28"
+  },
+  {
+    "path": "apps/client/src/features/expense/update-expense/UpdateExpenseDrawer.tsx",
+    "sha256": "a85c63a3a266c2e92c95d425a4560ed8876b67db27e58c974abe451595ef92ed"
+  },
+  {
+    "path": "apps/client/src/features/schedule/create-schedule/useSubmitSchedule.ts",
+    "sha256": "0147b1a60edf4e8a1994b97c3dfd89300376e367ba14d8faac3d7c28671845cb"
+  },
+  {
+    "path": "apps/client/src/features/schedule/update-schedule/UpdateScheduleDrawer.tsx",
+    "sha256": "05b9e541442d48ae2284c60afc3ae7ed8e68d5c8ad71a77c6d9870d6e38ce541"
+  },
+  {
+    "path": "apps/client/src/features/sync-recovery/LegacyUpdateRecovery.tsx",
+    "sha256": "42845f6fba0acdf980ae1a493ea175d45436f936716f16397a767c351a9a949e"
+  },
+  {
+    "path": "apps/client/src/screens/ExpensesScreen.tsx",
+    "sha256": "3cae880497f5b271f0d078ad2cd05a93372485d0f3c1129a6bdec0749b3fb413"
+  },
+  {
+    "path": "apps/client/src/screens/ScheduleScreen.tsx",
+    "sha256": "a41c314e51378ca8899c89be97c1d51e1d18243c93c6078d8dd05299361db5ec"
+  },
+  {
+    "path": "apps/client/src/shared/components/Map/MapboxScheduleMapView.tsx",
+    "sha256": "d1e507a88d13c9b1360ee917b91ecb60983acf8ef5bb7ba603e8d9df4f4867c5"
+  },
+  {
+    "path": "apps/client/src/shared/db/index.ts",
+    "sha256": "3143dba85893addc6b897a87ba010eac0cbc10513bc1fcce2778732bc7f6d097"
+  },
+  {
+    "path": "apps/client/src/shared/db/migrations/field-edits.ts",
+    "sha256": "d58f19d32e2073ed007f53a642bbd732ffb98f20ba779dbe7d6a7dac14d074f7"
+  },
+  {
+    "path": "apps/client/src/shared/db/migrations/server-records.ts",
+    "sha256": "ef8254e7668e1356854c67a644a14c7d10dc2051b3bb411878b0d91e7adcc8f8"
+  },
+  {
+    "path": "apps/client/src/shared/db/utils.ts",
+    "sha256": "b635900ff028c8095b6a1c18899e2c7689122c8a9812f411876e7d7fe7764bed"
+  },
+  {
+    "path": "apps/client/src/shared/diagnostics/sentry.ts",
+    "sha256": "0c234029f6c5de4d0a1c170f792d2cf3e248662bcf0f2aac3e3323068caa2bd2"
+  },
+  {
+    "path": "apps/client/src/shared/lib/edit-fields.ts",
+    "sha256": "03326221de6d46a649fbc844090785a696094f3e51b6feb74e78730b28007eb9"
+  },
+  {
+    "path": "apps/client/src/shared/services/auth/local-account.ts",
+    "sha256": "af657bcf2733ea65051c981dc1d1382a9626f7d094a2e03eebee174e70b0a110"
+  },
+  {
+    "path": "apps/client/src/shared/services/auth/logout-service.ts",
+    "sha256": "e752e3766d9bb5a7b49cfd0bb7024a386a831507342ae79305ff5a1654633002"
+  },
+  {
+    "path": "apps/client/src/shared/services/directions/route-downloader.ts",
+    "sha256": "2818bb00a8f21de72f68ee90b55a9505c722d1f69e86119f3f68907bec90da84"
+  },
+  {
+    "path": "apps/client/src/shared/services/edit-stamp/index.ts",
+    "sha256": "d5e632ef10299ec337a4e9438a007d11a5e0a3e7ef1c133e25daeb31c6b27f67"
+  },
+  {
+    "path": "apps/client/src/shared/services/offline-prep/router.ts",
+    "sha256": "9a22a067ec89d0a1083507722d91d943f56ee45676662dc5120ff4a86f723551"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/cleanup-job.ts",
+    "sha256": "b4153fde9549b68dcf69d85bce6bd744db825275667548c656b9c0095beebda7"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/confirmed-deletion.ts",
+    "sha256": "1ce8ff41a10019a58cf5cdebce6ca59ab5a8a185e8070e2a5958c7b16e889106"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/direct-deletion.ts",
+    "sha256": "005d35033289538f26295c2c1ba09789fc5b320add8bf975c7e2507a073d8b06"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/direct-update-failure.ts",
+    "sha256": "2d3f400ee2d77c8e965cc717269f3d3c7233e02e9407bff3f17585e09e63fe20"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/engine.ts",
+    "sha256": "7a4678d0e28c539dceaf382b2001c82240f12d6551868694fb4d15ecd13ac5a0"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/legacy-holds.ts",
+    "sha256": "067aaeb3c986de193a003e2e724dfd72e95f199f652043cfebd07d2fd048ab98"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/queue.ts",
+    "sha256": "083124b8c96046b5cffe800098bd149234b96cc2be66e501a2a59fa212290b68"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/server-state.ts",
+    "sha256": "8a222cd009e18142b9ce724a624bc21de0268feb2357ecc75260ddef46a73708"
+  },
+  {
+    "path": "apps/client/tests/application/trip-list-refresh.test.tsx",
+    "sha256": "34928ec2fa55d0233af4d0c77c17afe667569696519309b1122d795f61c730d5"
+  },
+  {
+    "path": "apps/client/tests/entities/repository/target-trip-routing.test.ts",
+    "sha256": "ac3238ce59d7533376deb07602e98b76fae94f86dfd65d2d50894e669cca3484"
+  },
+  {
+    "path": "apps/client/tests/entities/temporal-local-contracts.test.ts",
+    "sha256": "a0dcdacca670ebc535a5144ee2393bd04f0b2cfa9d7869f9a9aa40bbdbd80fd2"
+  },
+  {
+    "path": "apps/client/tests/entities/trip/data/useGetTrips.test.tsx",
+    "sha256": "39981cb447927be02235738db57363f457aa1d3ba38b688748c07db07c5e7d90"
+  },
+  {
+    "path": "apps/client/tests/entities/trip/trip-lifecycle.test.ts",
+    "sha256": "cbd533c93004bf640e18e2702a0c585552cacbebc882a722d962469a9a52353d"
+  },
+  {
+    "path": "apps/client/tests/entities/update-query-refresh.test.ts",
+    "sha256": "1824e80ec424fd48d109332d8032c35ea1bd8d4708da9c6b99df36acc8f0e124"
+  },
+  {
+    "path": "apps/client/tests/features/edit/legacy-recovery.test.tsx",
+    "sha256": "b93738ca6a893879f65bd2350d8b092caffb01326d7b2bdb191d8b9548195997"
+  },
+  {
+    "path": "apps/client/tests/features/edit/offline-values.test.tsx",
+    "sha256": "f6ed0d1ba46e5a6325db5f3fad61c42b0a63d5588362cb56e12ff0defcdae09c"
+  },
+  {
+    "path": "apps/client/tests/features/edit/update-save-lifetime.test.tsx",
+    "sha256": "4ba89aa3827b06345983f498d5dbddb7c1a4af8b53dcce6ebac6649c75b1a6c1"
+  },
+  {
+    "path": "apps/client/tests/screens/auth-policy.test.tsx",
+    "sha256": "2b6413c1f73cd7e598a05285e8d7b9b86474cedef695185148a1cc4bbe904317"
+  },
+  {
+    "path": "apps/client/tests/screens/expense-recovery.test.tsx",
+    "sha256": "085c05a3f5b125e73d30e197b1783ce344100fda490a12c3cc8591f8acf576dd"
+  },
+  {
+    "path": "apps/client/tests/screens/read-query-consumers.test.tsx",
+    "sha256": "43e1ac3d42eb7ec34c7c7f812dce61fbf299f40956588f06ff20137318fc585c"
+  },
+  {
+    "path": "apps/client/tests/screens/schedule-recovery.test.tsx",
+    "sha256": "f67730a7ff8b940127d11fd0875aa2caa17b0ed3d2528fc944d5ec5e0a9e41ae"
+  },
+  {
+    "path": "apps/client/tests/screens/update-place-search.test.tsx",
+    "sha256": "a38f378d024f100476b19f5da51c81297fbbcd37c6fb04fa38059d2188e9ddd1"
+  },
+  {
+    "path": "apps/client/tests/shared/components/map-route-freshness.test.tsx",
+    "sha256": "94dc3f7ad26633ffd8f7d3c5588610064ca2ff55b85da346d443a3de6a3f21c8"
+  },
+  {
+    "path": "apps/client/tests/shared/db/transaction-serialization.test.ts",
+    "sha256": "0c6c9c92de6309b922e00849669dc4a07e5b82101c4cd297fe42fe80759e85ed"
+  },
+  {
+    "path": "apps/client/tests/shared/diagnostics/sentry.test.ts",
+    "sha256": "c4feb4d3a8193fe6a03caf819c72f8e061d1ace62e1bfee40014d823b5e12bdf"
+  },
+  {
+    "path": "apps/client/tests/shared/lib/edit-fields.test.ts",
+    "sha256": "b1fbd78f3eaa0c76407831bef9f62cdbeabb696602e9954669b18f8a71e338ef"
+  },
+  {
+    "path": "apps/client/tests/shared/lib/edit-fields.types.ts",
+    "sha256": "813d69cb9df04ddbcde1da6f761630ecaf29cb91bd260de652102d91c8e15491"
+  },
+  {
+    "path": "apps/client/tests/shared/services/auth/orphaned-queue.test.ts",
+    "sha256": "d1427c1bd0681d291aa9606f6416c431c2f4da649c4170db5174637c76e24472"
+  },
+  {
+    "path": "apps/client/tests/shared/services/directions/route-cache.test.ts",
+    "sha256": "db2176d367824b47d7e887fa1bd20a893f8a5cae87d907c860ca9e569297e1b9"
+  },
+  {
+    "path": "apps/client/tests/shared/services/edit-stamp.test.ts",
+    "sha256": "1ff5676deed449c04d8a5054189cbf8c90cf1a413501261e7e6f8802c1a1cb60"
+  },
+  {
+    "path": "apps/client/tests/shared/services/offline-prep/trip-operation.test.ts",
+    "sha256": "6d21d877bd6ba0bf7393f976862ca55fb17cba100794c797ab9a15363a803f06"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/cleanup-lifecycle.test.ts",
+    "sha256": "2e7504deb950ffda640920ce3f14a03584cd727aa2ce5d95173e5056ec3e7a24"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/deletion-storage-validation.test.ts",
+    "sha256": "e0906412528d28dc1dbcf23a01866cf4fe48e1591453717964726881a14f1250"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/logout-sync.test.tsx",
+    "sha256": "6b834b09e673bf3e87beca18d2cc462d8d1f1a44b3a17d0cd4b0cf427ed8a23b"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/query-refresh.test.ts",
+    "sha256": "c243b8900fe85e3884dbaad14c166216c143d388fdd790e1a890a90eacac591c"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/queue-ownership.test.ts",
+    "sha256": "69c32fb7d5f4c7b48881de9bca31b8182c484d5d1fa5d110192f34a1ced76a86"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/reconciliation.test.ts",
+    "sha256": "06d71491c4e9b96c07d8d2f362bee5d0a77683aa58a56cf84400844998f6c327"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/response-freshness.test.ts",
+    "sha256": "3379303e4c18a133ca4b1fc4e271f693fae6c4a099136b6fc0c41b8218160fa9"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/save-submission.test.ts",
+    "sha256": "c68d77f2a2267033470e9707f654635627f58b1b61e7c7f783d4618df60281e0"
+  },
+  {
+    "path": "apps/server/sql/20261110-field-edits.sql",
+    "sha256": "70dc2b71f06bbafe46dda6fb38f6281a6edb295b289993546ab4b7c70aaedf7e"
+  },
+  {
+    "path": "apps/server/src/routes/legacy-holds.ts",
+    "sha256": "b91fd68483f6bf86704ca10bbadbaad6dccff8e15eef210c0d7c780138d012a1"
+  },
+  {
+    "path": "apps/server/src/routes/schedules.ts",
+    "sha256": "fb6f6710b0e113cfa73f1fce5d1737baec9625e6f8f23642d564e64e07be3021"
+  },
+  {
+    "path": "apps/server/src/routes/sync.ts",
+    "sha256": "7ad91d08338eca669ee5cf39833b13d71adea786595f657c5833202c82ab0256"
+  },
+  {
+    "path": "apps/server/src/routes/trips.ts",
+    "sha256": "ee333572ca10be6dd6e71462daf20bea601ff570bd76b5352f7060cd6e4b3ec2"
+  },
+  {
+    "path": "apps/server/src/services/entity-mutations.ts",
+    "sha256": "5704b1ea00a9444fce686929f03f4b5dc43835b2f282ca5764f0aa7a93a773b7"
+  },
+  {
+    "path": "apps/server/src/services/legacy-update-holds.ts",
+    "sha256": "56d56a1eff245d25a0e5c9978197faef1603276f5b043ed692e72503bdb27820"
+  },
+  {
+    "path": "apps/server/tests/integration/deletion-storage-validation.test.ts",
+    "sha256": "19c72e6cb6a25c8f1507eb9db2e3a7422d168ca343952a6486df72a4bb791040"
+  },
+  {
+    "path": "apps/server/tests/integration/field-edits-and-deletion.test.ts",
+    "sha256": "3ea32a79146256d453e95d2297f9d8cca00c560a46083e415aa3d1a8f25599f1"
+  },
+  {
+    "path": "apps/server/tests/integration/pull-cursor.test.ts",
+    "sha256": "ea159895a10a9edb2de1061a0ea0c7f5f12db4ffcaabbcfa9ee216d34024037b"
+  },
+  {
+    "path": "apps/server/tests/routes/replay.idempotency.test.ts",
+    "sha256": "6f7cb9f2b3c952ec64cb54cdf7499158913625957ed0279bf9389d82af4192f7"
+  },
+  {
+    "path": "apps/server/tests/routes/schedules.response-contract.test.ts",
+    "sha256": "d256af8313b1a95d367e7e53e9cb8ae49af17ba6e4c096469f65dd2e01b4ca81"
+  },
+  {
+    "path": "packages/schema/src/entities/expense.ts",
+    "sha256": "7a7bba1e236257bac4dc5e012f2174b824af4045ff508993d698e6b3d8a4350a"
+  },
+  {
+    "path": "packages/schema/src/entities/schedule.ts",
+    "sha256": "67a27d452c9ca52d37aa591f5fbcb095a2d755be37818e4da50a1d38ff2a8326"
+  },
+  {
+    "path": "packages/schema/src/index.ts",
+    "sha256": "f9f3fefd323cb8507190154403db74f19e4887355fdcda05632abd6204327733"
+  },
+  {
+    "path": "packages/schema/src/responses/mutation-conflict.ts",
+    "sha256": "d2af53ee6e8e00bca9396a36cc48a5e4f3fd3417295db50fdf725b77e44c0b2c"
+  },
+  {
+    "path": "packages/schema/src/sync/field-edits.ts",
+    "sha256": "e95987fd15f4a92370c16cf27288e2e585f6db9754f72102a1e71c54a6e93c48"
+  },
+  {
+    "path": "packages/schema/src/sync/storage-input.ts",
+    "sha256": "0b2f68487891e98e461d129ba8bf6b512545514a464ebad7c8e4ab2708977518"
+  },
+  {
+    "path": "apps/server/tests/fixtures/data-rows.ts",
+    "sha256": "fd61fe940775289c11b905d94af2288779d8ed28bf25581add33ad46502bb135"
+  }
+]

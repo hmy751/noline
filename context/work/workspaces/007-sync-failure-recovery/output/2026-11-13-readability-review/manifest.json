@@ -1,0 +1,770 @@
+[
+  {
+    "path": "apps/client/src/entities/expense/api/expenses.ts",
+    "category": "production",
+    "lines": 57,
+    "sha256": "67c54672d7554195b250a8e763dc8bd041006aa3500d5abc40b6072fd30e871c"
+  },
+  {
+    "path": "apps/client/src/entities/expense/data/useCreateExpense.ts",
+    "category": "production",
+    "lines": 49,
+    "sha256": "55be7d4d322c3e06b43e9e38c15d26d3231bf583c3e523d3304bc41b24f368dc"
+  },
+  {
+    "path": "apps/client/src/entities/expense/data/useDeleteExpense.ts",
+    "category": "production",
+    "lines": 29,
+    "sha256": "5d6502f341bacccba43ae3c396ef722788fda5f6ca5146b917e608928d85654d"
+  },
+  {
+    "path": "apps/client/src/entities/expense/data/useUpdateExpense.ts",
+    "category": "production",
+    "lines": 26,
+    "sha256": "48a1910ca53713c19fdf80be6ad89d1e751c82373a2b66f44fc2950362ad885d"
+  },
+  {
+    "path": "apps/client/src/entities/expense/lib/expense-local.ts",
+    "category": "production",
+    "lines": 207,
+    "sha256": "5cf40f73465141a6889bb300e72f55fc26408e012ac0608c4e58a67f88336f87"
+  },
+  {
+    "path": "apps/client/src/entities/expense/repository/expense-repository.ts",
+    "category": "production",
+    "lines": 102,
+    "sha256": "f797fe95d08a9964a797d2b581698a49d76f26966bcf12d25a5d9997615cc966"
+  },
+  {
+    "path": "apps/client/src/entities/route/data/useAutoDownloadRoutes.ts",
+    "category": "production",
+    "lines": 13,
+    "sha256": "a19d1c7e4bfcb4ccce09de866e1d48c556ab79b481d06c36b5dca1128ea68b35"
+  },
+  {
+    "path": "apps/client/src/entities/schedule/api/schedules.ts",
+    "category": "production",
+    "lines": 58,
+    "sha256": "10d7619f8ff06297b7316d163e58d0e48dd6362aa3be4ce7d96fb1b7a96e0966"
+  },
+  {
+    "path": "apps/client/src/entities/schedule/data/useCreateSchedule.ts",
+    "category": "production",
+    "lines": 53,
+    "sha256": "afb6bd6682276fe0f54a0824648fc9ce389b9f42488fa2fa284b928d9e8c9474"
+  },
+  {
+    "path": "apps/client/src/entities/schedule/data/useDeleteSchedule.ts",
+    "category": "production",
+    "lines": 38,
+    "sha256": "59d2b3f1973b299c31886e3c4a787f98f7a96b9322dd66301266f6ba1a70a7c5"
+  },
+  {
+    "path": "apps/client/src/entities/schedule/data/useUpdateSchedule.ts",
+    "category": "production",
+    "lines": 32,
+    "sha256": "7850315b79a813c7eab6da3970d21f48d40ff9e2c84bfa5a18deb16fd2aac004"
+  },
+  {
+    "path": "apps/client/src/entities/schedule/lib/schedule-local.ts",
+    "category": "production",
+    "lines": 188,
+    "sha256": "645f28d11449f256420e860f695ad2b6b33790aea16e41ec8d75a5bbb3a86620"
+  },
+  {
+    "path": "apps/client/src/entities/schedule/repository/schedule-repository.ts",
+    "category": "production",
+    "lines": 103,
+    "sha256": "0b5eeb52d7abab29cdba941d2d132001c2c9e001f25603da1a1049048b8f2f80"
+  },
+  {
+    "path": "apps/client/src/entities/trip/api/trips.ts",
+    "category": "production",
+    "lines": 45,
+    "sha256": "235d8fe06c8f129e53852ca309a59872ff236727aaaf117a29b251f36e2c514e"
+  },
+  {
+    "path": "apps/client/src/entities/trip/data/useActivateTrip.ts",
+    "category": "production",
+    "lines": 190,
+    "sha256": "eb145418221adcaf05edb7e52a0fcda9f1e185bf156fe583ae5d82ca23abb082"
+  },
+  {
+    "path": "apps/client/src/entities/trip/data/useDeactivateTrip.ts",
+    "category": "production",
+    "lines": 99,
+    "sha256": "d0877c4873a330757474fc14dbc32d1245490edabe87b66344bc1eff26697c8b"
+  },
+  {
+    "path": "apps/client/src/entities/trip/lib/trip-local.ts",
+    "category": "production",
+    "lines": 321,
+    "sha256": "a5e12a799b123429787b96b6fc45f5d67ac057555b83d0e5eeb4b46fa27c9c17"
+  },
+  {
+    "path": "apps/client/src/entities/trip/repository/trip-repository.ts",
+    "category": "production",
+    "lines": 74,
+    "sha256": "f029864871aeb9e3a747eb6661d6f030cf30ba0169c29fd977bf5257f0980487"
+  },
+  {
+    "path": "apps/client/src/features/expense/expense-form/ExpenseSubmitActions.tsx",
+    "category": "production",
+    "lines": 50,
+    "sha256": "5f20e45dca22477960d01c3015db57005ea72bf2bffd1cf2191d15c3b6cdc8f3"
+  },
+  {
+    "path": "apps/client/src/features/expense/expense-form/submit-error.ts",
+    "category": "production",
+    "lines": 14,
+    "sha256": "d3922ab516f2a5b6a4a21940f3ec59ecee433309597ecb78cc6fe5633ca8090a"
+  },
+  {
+    "path": "apps/client/src/features/expense/update-expense/UpdateExpenseDrawer.tsx",
+    "category": "production",
+    "lines": 379,
+    "sha256": "7154ba1e7b320b7466e46c05b97a8345d382c44d8eaf82be70e77835eb941cdf"
+  },
+  {
+    "path": "apps/client/src/features/schedule/create-schedule/useSubmitSchedule.ts",
+    "category": "production",
+    "lines": 55,
+    "sha256": "deed268a8ed5b2d70ce22176987aa0b604f0dc2a0faae9b17e771b91a4976317"
+  },
+  {
+    "path": "apps/client/src/features/schedule/update-schedule/UpdateScheduleDrawer.tsx",
+    "category": "production",
+    "lines": 370,
+    "sha256": "e03792f65c9c81fcf948bacd416a921d90e6ccbae1dade3456a44d3a6b2793cb"
+  },
+  {
+    "path": "apps/client/src/features/sync-recovery/LegacyUpdateRecovery.tsx",
+    "category": "production",
+    "lines": 300,
+    "sha256": "12d51206d0b48e0fa08123743ef71cb20ccb7a7ef293e7fcc91e176cc4483e30"
+  },
+  {
+    "path": "apps/client/src/screens/ExpensesScreen.tsx",
+    "category": "production",
+    "lines": 351,
+    "sha256": "7a18c782d97be0be618b8124f87a71d28693cbb1584b3af7a5eb8762b987b76d"
+  },
+  {
+    "path": "apps/client/src/screens/ScheduleScreen.tsx",
+    "category": "production",
+    "lines": 336,
+    "sha256": "519f4ee563e62cfe237e8070175e5a89a14772aea76c196539e24fc167d9a64f"
+  },
+  {
+    "path": "apps/client/src/shared/components/Map/MapboxScheduleMapView.tsx",
+    "category": "production",
+    "lines": 341,
+    "sha256": "705faa3f069cca662d775976a25af553e6bda30a82a51048bc38fe3eb2bcdba9"
+  },
+  {
+    "path": "apps/client/src/shared/db/index.ts",
+    "category": "production",
+    "lines": 330,
+    "sha256": "9a020899cf4d93813dbaed801bfb55c7b8f9616c3e19f17448fb5a9d0a85173d"
+  },
+  {
+    "path": "apps/client/src/shared/db/migrations/field-edits.ts",
+    "category": "production",
+    "lines": 35,
+    "sha256": "c45c0ebcd4456de288fd2cbe606593158f6bfc5e8b7a841b877a1e9e8a07c8a2"
+  },
+  {
+    "path": "apps/client/src/shared/db/migrations/route-inputs.ts",
+    "category": "production",
+    "lines": 12,
+    "sha256": "af005c24ba0b1b62cbea259a82b3e8872bb236807a469ea428fce40ddcea91f3"
+  },
+  {
+    "path": "apps/client/src/shared/db/migrations/server-records.ts",
+    "category": "production",
+    "lines": 12,
+    "sha256": "47e361e6bbeb19412291fd17ad383c150dd408d8835483a3aeae4c26efb02ae3"
+  },
+  {
+    "path": "apps/client/src/shared/db/schema.ts",
+    "category": "production",
+    "lines": 326,
+    "sha256": "68614e02e3d890554bc444614b2a9f48b692eb73bfbf638873e514426ac4f991"
+  },
+  {
+    "path": "apps/client/src/shared/db/utils.ts",
+    "category": "production",
+    "lines": 21,
+    "sha256": "0fa9b561190fdb363ecda1a04a60f7db63aa1f1395858d086784d3cda879b26d"
+  },
+  {
+    "path": "apps/client/src/shared/diagnostics/sanitize-sentry-event.ts",
+    "category": "production",
+    "lines": 115,
+    "sha256": "7b2740e0b3cb441a82c327b2c009aa80e21b1a753557fb4f2c2e98e59db33d25"
+  },
+  {
+    "path": "apps/client/src/shared/diagnostics/sentry.ts",
+    "category": "production",
+    "lines": 199,
+    "sha256": "6d8c84f87f59dd374995737f62512c17da82906ea64c288a187c8341f505c89f"
+  },
+  {
+    "path": "apps/client/src/shared/lib/edit-fields.ts",
+    "category": "production",
+    "lines": 68,
+    "sha256": "acd140c22cb714d68be2ebb3cccc6ff531912c5e536b294cdc40e1acc50b0cf7"
+  },
+  {
+    "path": "apps/client/src/shared/services/auth/local-account.ts",
+    "category": "production",
+    "lines": 162,
+    "sha256": "8941466c6d453206eae96655ad7ba427534afabd31b1fda8f08408a08c4f3454"
+  },
+  {
+    "path": "apps/client/src/shared/services/auth/logout-service.ts",
+    "category": "production",
+    "lines": 173,
+    "sha256": "f795f1c229b190e9d8a38e409b4bc7624eab1f322e340cbbc49eded0ace2f149"
+  },
+  {
+    "path": "apps/client/src/shared/services/directions/route-downloader.ts",
+    "category": "production",
+    "lines": 235,
+    "sha256": "751c3458dd515dc611e02cb928b9d1d89991caac013d467ef23bbe51eb8a117e"
+  },
+  {
+    "path": "apps/client/src/shared/services/directions/route-plan.ts",
+    "category": "production",
+    "lines": 138,
+    "sha256": "2c8f101bb177d3598a8784f74d864f07222863d1b881751a3d177d39e597d96f"
+  },
+  {
+    "path": "apps/client/src/shared/services/edit-stamp/errors.ts",
+    "category": "production",
+    "lines": 17,
+    "sha256": "b91a5c9ba6a8cbc7e3bb40c3e99d65c1a45cc7b316c2b75ee474036746e8db1f"
+  },
+  {
+    "path": "apps/client/src/shared/services/edit-stamp/index.ts",
+    "category": "production",
+    "lines": 97,
+    "sha256": "960e376edc1404daf1eeb89259679edd75ac07b752787c75835224e231234b12"
+  },
+  {
+    "path": "apps/client/src/shared/services/offline-prep/router.ts",
+    "category": "production",
+    "lines": 133,
+    "sha256": "2323d6e1273ebc2de541169865ff21897593c02e75622b3ba0eff8dc0212b78b"
+  },
+  {
+    "path": "apps/client/src/shared/services/offline-prep/trip-operation.ts",
+    "category": "production",
+    "lines": 33,
+    "sha256": "a72719b62117d4e2d14abdc0142821de1fb7470d5e7b4baf9751c273be99785c"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/api.ts",
+    "category": "production",
+    "lines": 84,
+    "sha256": "1e09bc54e6bebb488df9a21d70d52cbf4eaaf5cff77cc19f2ea774cde15006da"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/cleanup-job.ts",
+    "category": "production",
+    "lines": 244,
+    "sha256": "af85b412134b494f9a1d3c6871cc304d1092d3a7aa57153eaa3efcffc12649b6"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/confirmed-deletion.ts",
+    "category": "production",
+    "lines": 224,
+    "sha256": "cd97a4f313fdc709f911dff8bb95c4f77a622c76711859449fc956a205f6fd34"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/direct-deletion.ts",
+    "category": "production",
+    "lines": 29,
+    "sha256": "092466aeb7a44cff26e6d381fcd07cb488175037ab4c73c259cef1e79d30be86"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/direct-update-failure.ts",
+    "category": "production",
+    "lines": 77,
+    "sha256": "2c18800ffee3e48ae6162c53322f4fea71e103fdc5e8767d0cb7c1d9a65099c2"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/engine.ts",
+    "category": "production",
+    "lines": 541,
+    "sha256": "3e433ba4a0e8d451337a38f31b9f29836ae1396e0bfa161afbb186fff5505a62"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/legacy-holds.ts",
+    "category": "production",
+    "lines": 307,
+    "sha256": "13353be7ec5b56fdbd1c2b50a7fdb62b3c15c9b006a3712593f13b412ff4ac37"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/queue.ts",
+    "category": "production",
+    "lines": 296,
+    "sha256": "58b9204036eafa51d318f1e119ef025f5e596dedbedd34a6f93acf8c6b051945"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/reconcile.ts",
+    "category": "production",
+    "lines": 346,
+    "sha256": "31418305d64366b3023c71e09665a446b6260e20763e73883a7f31a5922237b2"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/server-state.ts",
+    "category": "production",
+    "lines": 72,
+    "sha256": "7a479d497555eaaac69f3d1b8f5b3253c642d1a034f7448e676483188d2a26b6"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/storage.ts",
+    "category": "production",
+    "lines": 68,
+    "sha256": "b22d99e10c9f9c412b727b9b7fdf90375769243883121347e5067f6e61f0d52c"
+  },
+  {
+    "path": "apps/client/src/shared/services/sync/sync-tables.ts",
+    "category": "production",
+    "lines": 5,
+    "sha256": "03d9cdf282ecc9f029d832bb8cb8b125a933a36259431bd1d293b82f57bf40f9"
+  },
+  {
+    "path": "apps/client/tests/application/trip-list-refresh.test.tsx",
+    "category": "tests-and-config",
+    "lines": 156,
+    "sha256": "2cfac1ae2c5b8258ced2656acf3df419fc945314ee7658195df176448a8e787c"
+  },
+  {
+    "path": "apps/client/tests/entities/expense/api/expenses.test.ts",
+    "category": "tests-and-config",
+    "lines": 175,
+    "sha256": "9995d6291c74a7abfa1abe99b78d83de04d7e88b5f52e9be87044f7a55371fcf"
+  },
+  {
+    "path": "apps/client/tests/entities/repository/target-trip-routing.test.ts",
+    "category": "tests-and-config",
+    "lines": 198,
+    "sha256": "1171c56b54e2c5f0a9dfb0900e5cb8e5783e67412e9db637607dfe0e4beb23af"
+  },
+  {
+    "path": "apps/client/tests/entities/temporal-local-contracts.test.ts",
+    "category": "tests-and-config",
+    "lines": 655,
+    "sha256": "eb75d8093f1ebf2f67d1633242c17c33dfa02eba0476ca86fdf60503e8c035a8"
+  },
+  {
+    "path": "apps/client/tests/entities/trip/data/useGetTrips.test.tsx",
+    "category": "tests-and-config",
+    "lines": 50,
+    "sha256": "2408ee56ac915819159be7be6d6d93e532a3fead4e3402c41ab3cb1240a82880"
+  },
+  {
+    "path": "apps/client/tests/entities/trip/trip-lifecycle.test.ts",
+    "category": "tests-and-config",
+    "lines": 337,
+    "sha256": "19e04163c588f44440e978368ef765345588085c63aa4f3ded5ec76894f64412"
+  },
+  {
+    "path": "apps/client/tests/entities/update-query-refresh.test.ts",
+    "category": "tests-and-config",
+    "lines": 192,
+    "sha256": "fdc20c39813e3acda1ed95181d52888fa62af2da812e099dc617c81043cf0aaa"
+  },
+  {
+    "path": "apps/client/tests/features/edit/legacy-recovery.test.tsx",
+    "category": "tests-and-config",
+    "lines": 188,
+    "sha256": "46fc431d862a5ff346d25ec4dae2935dc8ea300d43d99fb1610ba581e82dc5b1"
+  },
+  {
+    "path": "apps/client/tests/features/edit/offline-values.test.tsx",
+    "category": "tests-and-config",
+    "lines": 915,
+    "sha256": "885172955104cca88d943d0dd567f3bee6740379dd67e19dfa47d142f0b9c455"
+  },
+  {
+    "path": "apps/client/tests/features/edit/update-save-lifetime.test.tsx",
+    "category": "tests-and-config",
+    "lines": 384,
+    "sha256": "f1862dcc923ca31f19a2c93a778aac43bc2086384c93910004330f97b186843e"
+  },
+  {
+    "path": "apps/client/tests/screens/auth-policy.test.tsx",
+    "category": "tests-and-config",
+    "lines": 380,
+    "sha256": "ab84a2927b03c2f0d0eed94ea2f12bcd1940e42bfa4b3fd5c25d6afd71bf6c05"
+  },
+  {
+    "path": "apps/client/tests/screens/expense-recovery.test.tsx",
+    "category": "tests-and-config",
+    "lines": 294,
+    "sha256": "c66759ed7086fd522a9a002819434f3c43669872e3073d7f130cc1a8460a4331"
+  },
+  {
+    "path": "apps/client/tests/screens/read-query-consumers.test.tsx",
+    "category": "tests-and-config",
+    "lines": 512,
+    "sha256": "f9bdb2124087253f172dad159b48e67b7c207bc2a400ed51436d5d8a4da9323f"
+  },
+  {
+    "path": "apps/client/tests/screens/schedule-recovery.test.tsx",
+    "category": "tests-and-config",
+    "lines": 664,
+    "sha256": "e0ac158122c4a939fb14afd605416e370c1dce673a4fb1fa1d5f8c37b6f01dc8"
+  },
+  {
+    "path": "apps/client/tests/screens/update-place-search.test.tsx",
+    "category": "tests-and-config",
+    "lines": 198,
+    "sha256": "4626fefa245fe08d0317ec6c83a03ab6bf5f14c06bb8a90edbe19135d6877299"
+  },
+  {
+    "path": "apps/client/tests/shared/components/map-route-freshness.test.tsx",
+    "category": "tests-and-config",
+    "lines": 128,
+    "sha256": "41987c58fdbfe3ffcf712e5f444d91943e78c17c658d41ce8aa8a6b17d97948e"
+  },
+  {
+    "path": "apps/client/tests/shared/db/field-edits-migration.test.ts",
+    "category": "tests-and-config",
+    "lines": 28,
+    "sha256": "c91b551d4fa20c62a6a3e72f11e47a5cf3653ed39eb5735ead7a735cf9849570"
+  },
+  {
+    "path": "apps/client/tests/shared/db/transaction-serialization.test.ts",
+    "category": "tests-and-config",
+    "lines": 137,
+    "sha256": "d7779e8bdb3d5ffaf6be1eae724d88ed6beddfb1f54870446736fbee0da9ff25"
+  },
+  {
+    "path": "apps/client/tests/shared/diagnostics/sentry.test.ts",
+    "category": "tests-and-config",
+    "lines": 147,
+    "sha256": "4f481c88bf3807965118ad0e3ef393745d3d989d85ab67d2637c3907da616bdd"
+  },
+  {
+    "path": "apps/client/tests/shared/lib/edit-fields.test.ts",
+    "category": "tests-and-config",
+    "lines": 48,
+    "sha256": "5cf848f96bee6638c45ac970bd9192d123d4633b51783e6663d604e6275aa8a4"
+  },
+  {
+    "path": "apps/client/tests/shared/lib/edit-fields.types.ts",
+    "category": "tests-and-config",
+    "lines": 21,
+    "sha256": "d7b9dec7f20594d701912b6b1d6c6dfa88bfc5edbe48401238a0e89ef8fc2491"
+  },
+  {
+    "path": "apps/client/tests/shared/services/auth/local-access.test.ts",
+    "category": "tests-and-config",
+    "lines": 263,
+    "sha256": "73efc4aa3ad872acfa1bfe091c5d79b561e543ae7c26f3dbce29cd02a5c3043b"
+  },
+  {
+    "path": "apps/client/tests/shared/services/auth/orphaned-queue.test.ts",
+    "category": "tests-and-config",
+    "lines": 576,
+    "sha256": "5a881caa87b20e18b2d1db76a54d40c9ec1dd231425edd262cc7acf7bbf216c4"
+  },
+  {
+    "path": "apps/client/tests/shared/services/directions/route-cache.test.ts",
+    "category": "tests-and-config",
+    "lines": 460,
+    "sha256": "118b4ce22db36ea76b9d60c1951999394b80a13291a74f9dc150b7e48a07a150"
+  },
+  {
+    "path": "apps/client/tests/shared/services/directions/route-inputs-migration.test.ts",
+    "category": "tests-and-config",
+    "lines": 30,
+    "sha256": "1ab444fc59489c224f1f8dc51fec2002ce27a40b08afb02f96194f8ffed696e5"
+  },
+  {
+    "path": "apps/client/tests/shared/services/edit-stamp.test.ts",
+    "category": "tests-and-config",
+    "lines": 66,
+    "sha256": "ffe15d4bf4457dc081f388c8fa8ecb88256a132302580a1782bbcddea0577355"
+  },
+  {
+    "path": "apps/client/tests/shared/services/edit-stamp.types.ts",
+    "category": "tests-and-config",
+    "lines": 16,
+    "sha256": "97479c26782a92b26836327ae409d147fc8fffbd30e2a1c117c4b914238a7da9"
+  },
+  {
+    "path": "apps/client/tests/shared/services/offline-prep/trip-operation.test.ts",
+    "category": "tests-and-config",
+    "lines": 64,
+    "sha256": "6812eda1238ccb5f026d93d529574993031adc26d4e040475e58f01b0a36e09f"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/auth-result.test.ts",
+    "category": "tests-and-config",
+    "lines": 54,
+    "sha256": "e71ac3d54557f3c30c577e423156d674ffc205085485556cdf64caab2ea1a536"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/blocked-diagnostics.test.ts",
+    "category": "tests-and-config",
+    "lines": 166,
+    "sha256": "5cbbf9b13cb5a54f8d9d2a8abb4697247c393d0b538716b7830866a317117491"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/cleanup-lifecycle.test.ts",
+    "category": "tests-and-config",
+    "lines": 184,
+    "sha256": "8221f16573437c2e65ebfdc73d107a8c9bd53aa65add71c76c23bf68c9669dfc"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/deletion-storage-validation.test.ts",
+    "category": "tests-and-config",
+    "lines": 306,
+    "sha256": "e5f088564ce8b108ff91ef49b0576d69372d6ed4d05779e1694f569b4932a07d"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/logout-sync.test.tsx",
+    "category": "tests-and-config",
+    "lines": 321,
+    "sha256": "95330916e8a296e2438d691d7cb6530208c867c46c6a0dd4ca7b7f2a1ead4ac5"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/query-refresh.test.ts",
+    "category": "tests-and-config",
+    "lines": 208,
+    "sha256": "f53f4424937712d9c1334ae9e4bc0022439c34114747179a77d36570650bcbdf"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/queue-ownership.test.ts",
+    "category": "tests-and-config",
+    "lines": 52,
+    "sha256": "8ae5e519067b57995fd3804b3a25b18b622e81686d8d2b9c06cc9e9312b513f6"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/reconciliation.test.ts",
+    "category": "tests-and-config",
+    "lines": 1056,
+    "sha256": "502c32c39ea0559543b0915c74e0d2cd3213382bc8389f4b826006b0eaea580c"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/response-freshness.test.ts",
+    "category": "tests-and-config",
+    "lines": 735,
+    "sha256": "079470b435d5a62ca7c0bceb8ca7ea0ece879ad5a5ba2ff294a73114e7b906f9"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/retry.test.ts",
+    "category": "tests-and-config",
+    "lines": 207,
+    "sha256": "60b42726b2eda3f3196708ebe47e2d5fd97f794ff0ac53f854db5ed57dd330d7"
+  },
+  {
+    "path": "apps/client/tests/shared/services/sync/save-submission.test.ts",
+    "category": "tests-and-config",
+    "lines": 472,
+    "sha256": "c5b39cc8654552eb215f9801f9915d15c9e102332d6aefa2e58da9824cb3ead0"
+  },
+  {
+    "path": "apps/server/sql/20261110-field-edits.sql",
+    "category": "production",
+    "lines": 19,
+    "sha256": "1d9d16cf2da6bea6fa01f59d11bf1e8307af0a98720210cf3b6f47742d36acf0"
+  },
+  {
+    "path": "apps/server/src/db/schema.ts",
+    "category": "production",
+    "lines": 191,
+    "sha256": "6969aa5c5b3090e48de181116641abf43c4af3d14bc80a1bf0330e22973d8fd9"
+  },
+  {
+    "path": "apps/server/src/routes/expenses.ts",
+    "category": "production",
+    "lines": 170,
+    "sha256": "52057cb2a298828e5fa320d65d7b7fdfb0fa14631a1a095c486643cebd52f493"
+  },
+  {
+    "path": "apps/server/src/routes/index.ts",
+    "category": "production",
+    "lines": 50,
+    "sha256": "328443da4de4033cfdcd524d5333466436f07160e30039eaea7cd0b71c58b94a"
+  },
+  {
+    "path": "apps/server/src/routes/legacy-holds.ts",
+    "category": "production",
+    "lines": 37,
+    "sha256": "b89684f38b35b2335204e58952f2b94a1c8202ce5124d2f53dfbaf507b3b2aff"
+  },
+  {
+    "path": "apps/server/src/routes/schedules.ts",
+    "category": "production",
+    "lines": 146,
+    "sha256": "2c22f1f792e0d978b16c00815b86c7d8ccbdfc1118346dd926235b02062c5ab6"
+  },
+  {
+    "path": "apps/server/src/routes/sync.ts",
+    "category": "production",
+    "lines": 190,
+    "sha256": "bf79e8f8c965c36d8dd7d3365ba1a65913665f9d62cfdc9322772e8ca21703b3"
+  },
+  {
+    "path": "apps/server/src/routes/trips.ts",
+    "category": "production",
+    "lines": 475,
+    "sha256": "1c37e878261e916b55b3ac6004cf97c906aebdac62873b45d3915c1cc4debfc4"
+  },
+  {
+    "path": "apps/server/src/services/entity-mutations.ts",
+    "category": "production",
+    "lines": 555,
+    "sha256": "97e73e81ee631deef9ba31be16bcdc4193576f3dd07cabee5a9fb56c1d4946d9"
+  },
+  {
+    "path": "apps/server/src/services/legacy-update-holds.ts",
+    "category": "production",
+    "lines": 172,
+    "sha256": "cb54069f6455ad77dd152f5f68663f6f676989661ca2d110d15ebe7df9722a36"
+  },
+  {
+    "path": "apps/server/tests/integration/deletion-storage-validation.test.ts",
+    "category": "tests-and-config",
+    "lines": 180,
+    "sha256": "62ed3acce60d8d49465b406baaf0d2ca8d7364aced198e6b0e2dfcf369e84adc"
+  },
+  {
+    "path": "apps/server/tests/integration/field-edits-and-deletion.test.ts",
+    "category": "tests-and-config",
+    "lines": 458,
+    "sha256": "f710a44cef9a9de38c0d8c683562eb0a6725d0ff42320df1f63d72ba5c4f15f0"
+  },
+  {
+    "path": "apps/server/tests/integration/pull-cursor.test.ts",
+    "category": "tests-and-config",
+    "lines": 79,
+    "sha256": "9bc30030183602668c0b35235c7ff1e62c217f97439aaa0d1f1ca79ae1940e74"
+  },
+  {
+    "path": "apps/server/tests/integration/schedules.access-boundary.test.ts",
+    "category": "tests-and-config",
+    "lines": 205,
+    "sha256": "63f76eeb3c41929dd6f54c734ed024c4ef9fc7bbc839b8ddbb479a7f1d1ccc85"
+  },
+  {
+    "path": "apps/server/tests/routes/expenses.response-contract.test.ts",
+    "category": "tests-and-config",
+    "lines": 143,
+    "sha256": "35710768689e755405072e0a7b0095868daa23f9a5ea6a6bb217adb64a0f5aba"
+  },
+  {
+    "path": "apps/server/tests/routes/replay.idempotency.test.ts",
+    "category": "tests-and-config",
+    "lines": 187,
+    "sha256": "60005fca64524c7e5f483b96333c1cfe668a85992bd1c2d70d8dca8b26495378"
+  },
+  {
+    "path": "apps/server/tests/routes/schedules.response-contract.test.ts",
+    "category": "tests-and-config",
+    "lines": 326,
+    "sha256": "efb426c1147c7645add3b64faa73603ac5f501d8bc5f44f1a43f2b49ea7ee532"
+  },
+  {
+    "path": "apps/server/tests/routes/trips.response-contract.test.ts",
+    "category": "tests-and-config",
+    "lines": 91,
+    "sha256": "a2e20e340a5e4f13487c4626fc43ce897cc9af8e19fb8f887451bfb647607ce9"
+  },
+  {
+    "path": "apps/server/tests/sentry-diagnostics.test.ts",
+    "category": "tests-and-config",
+    "lines": 150,
+    "sha256": "d6a31d04557984e10972f1c9dd6f50b7fd27a16001af8ff262c0bf242babd63c"
+  },
+  {
+    "path": "apps/server/tests/support/test-app.ts",
+    "category": "tests-and-config",
+    "lines": 111,
+    "sha256": "a96cadcdd502b1aad7d9b067b1db1558128da243500415916872dfd364a2a92d"
+  },
+  {
+    "path": "apps/server/vitest.integration.config.ts",
+    "category": "tests-and-config",
+    "lines": 17,
+    "sha256": "c9b37fd9bca69d7e1adfb7909bcca51d9f6a03b68f673855cfbf652a8091efc8"
+  },
+  {
+    "path": "packages/schema/package.json",
+    "category": "tests-and-config",
+    "lines": 197,
+    "sha256": "08b3908ba2df6386843446e1aad1b75c86e33099e668e45a20bbc4f8ec35a1aa"
+  },
+  {
+    "path": "packages/schema/src/entities/expense.ts",
+    "category": "production",
+    "lines": 40,
+    "sha256": "b97dfef10ac6f16236163256a10021a2ed7c52c7f483a0e46997af0e5e1caf2d"
+  },
+  {
+    "path": "packages/schema/src/entities/schedule.ts",
+    "category": "production",
+    "lines": 34,
+    "sha256": "ed9f52a9ff31470a2c0ebd239750fbf5ce0bf2762e96fe6a204b6785da26a817"
+  },
+  {
+    "path": "packages/schema/src/index.ts",
+    "category": "production",
+    "lines": 47,
+    "sha256": "0727259bc5f2b4eaa48db9a9c22254f29f12f1a724a0c53df85f989341a413f4"
+  },
+  {
+    "path": "packages/schema/src/requests/expense.ts",
+    "category": "production",
+    "lines": 67,
+    "sha256": "7b8f80a3e3b77c7dd7d2133a428d17e9643cff8c8b3627189ad28764612fdc0e"
+  },
+  {
+    "path": "packages/schema/src/requests/schedule.ts",
+    "category": "production",
+    "lines": 60,
+    "sha256": "ea88e8cd21c589affb4818122504ce484503d5a30f1cbebcebf2b98c554945fb"
+  },
+  {
+    "path": "packages/schema/src/responses/mutation-conflict.ts",
+    "category": "production",
+    "lines": 60,
+    "sha256": "29e6f708a877d04ac746f85c424f3bc16db18d35876ac3d58e2ca0a8c08f3a0f"
+  },
+  {
+    "path": "packages/schema/src/sync/field-edits.ts",
+    "category": "production",
+    "lines": 78,
+    "sha256": "3343c081d8ca8e6d0a8c3f4258b38a069e1afc979ec30ba057f0b80d5f1d1d4b"
+  },
+  {
+    "path": "packages/schema/src/sync/storage-input.ts",
+    "category": "production",
+    "lines": 137,
+    "sha256": "24908d4f806e6aa2c5e14cb8fb85ce31a111d2bf7f9e5ff291feff83e8490738"
+  },
+  {
+    "path": "packages/schema/src/sync/sync-status.ts",
+    "category": "production",
+    "lines": 64,
+    "sha256": "fb187e4aca376e948f7a4ed7f4b5ad555ff7b1a492b268624bde6e82cf05a418"
+  },
+  {
+    "path": "packages/ui/src/components/Drawer.tsx",
+    "category": "adjacent-shared-ui",
+    "lines": 146,
+    "sha256": "b09e7b74cc5753ba4a149687ca097a9f87c1f60400134ebc5e520c7a20210b30"
+  },
+  {
+    "path": "packages/ui/src/components/Pressable.tsx",
+    "category": "adjacent-shared-ui",
+    "lines": 83,
+    "sha256": "77e36e9e012aa9fabd4c4e30c1ab6b51281dfacd0c5636cec09601035a46e8c4"
+  }
+]

@@ -1,8 +1,12 @@
 # 산출물과 읽을 이유
 
-최신 제품 커밋은 **44d2a5ef**, 이번 문서 커밋 전 기록 기준은 **945922fe**다. [3단계 보완](../records/2026-11-13-08-stage-three-consumer-and-expression-rereview.md)과 [4〜7단계 순차 보완·마지막 연결 회귀](../records/2026-11-13-09-stages-four-through-seven-sequential-rereview.md)를 완료했다. 이번 4〜7단계 추가 delta는 제품6·검사2의 8파일이며 3단계 당시6파일과 겹치므로 합산하지 않는다. 자세한 변경 위치와 이유는 단계별 기록을 따른다.
+현재 제품 커밋은4단계 **e994171c**, 관련 기록은 **09169262**까지다.3단계는941e8557/904202f9이며5〜7단계 후속 코드와 앞선 단계의 가독성 정리 잔여분, 다른 작업 변경이 각각 작업 트리에 남아 있다. [후속 참고16](../records/2026-11-13-16-explanation-and-review-continuity.md)과 [재개 안내](../recover.md)에서5단계 설명의 출발점·읽을 이유를 확인한다. 이번에는 전수 검토 기록·아래 자료도 새 후속 기록과 함께 보존하며 제품 커밋·배포와 구별한다.
 
-최종 client 연결 검사20묶음309개가 통과했다. 서버는 4단계 이후 변경이 없어 당시39·독립 PostgreSQL22의 근거를 재사용한다. 앞선 전체902·서버73·PG50과 이번 수치는 판본·범위가 다르다. [완료 판단 정정](../records/2026-11-13-07-review-depth-and-completion-correction.md)과 과거 기록은 보존한다. 사용자는 후속 기록·안내만 선별 커밋하도록 요청했다. 제품 코드는 미커밋이며 사용자 최종 수락·제품 선별 커밋·배포는 별도다.
+이번 코드 표현 정리의 산출물은 [여섯 관점 검토·구현·검증 자료](2026-11-13-readability-review/README.md)에 있다. 시작128파일에 대한 여섯 읽기 보고·coverage·manifest와 Main 판단, 실제85파일의 최종 manifest·구현 보고·독립 검증을 구별해 보존했다. [최종 판단 기록](../records/2026-11-13-13-full-readability-review-and-refinement.md)은 요청 정정·채택 이유와 완료 범위를 설명한다. 최종 client505·server73, 기존 타입7·lint 경고39/오류0과 독립 검증의 필수 수정0을 Main이 채택했다. 이 결과는 당시 판본의 검증 근거다. 현재 단계별 커밋 상태는 위 안내를 따르며 배포는 별도다.
+
+아래 단계별 보완 당시 제품 기준은44d2a5ef, 기록 기준은945922fe였다. [3단계 보완](../records/2026-11-13-08-stage-three-consumer-and-expression-rereview.md)과 [4〜7단계 순차 보완·마지막 연결 회귀](../records/2026-11-13-09-stages-four-through-seven-sequential-rereview.md)를 완료했다. 이번 4〜7단계 추가 delta는 제품6·검사2의 8파일이며 3단계 당시6파일과 겹치므로 합산하지 않는다. 자세한 변경 위치와 이유는 단계별 기록을 따른다.
+
+최종 client 연결 검사20묶음309개가 통과했다. 서버는 4단계 이후 변경이 없어 당시39·독립 PostgreSQL22의 근거를 재사용한다. 앞선 전체902·서버73·PG50과 이번 수치는 판본·범위가 다르다. [완료 판단 정정](../records/2026-11-13-07-review-depth-and-completion-correction.md)과 과거 기록은 보존한다. 당시 후속 기록·안내만 먼저 커밋했고 제품은 미커밋이었다. 현재3·4단계 분리 커밋은 위 안내를 따르며 사용자 최종 수락·배포는 별도다.
 
 | 산출물 | 상태 | 언제 읽는가 |
 | --- | --- | --- |
@@ -39,14 +43,14 @@
 
 선행 저장 UI 후속은 [제출값 저장 성공 후 닫기와 UI 간결화](../records/2026-11-12-07-success-close-and-mounted-guard.md)다. 사용자가 추가 입력 보존 대신 성공 후 닫기를 선택했고 성공 reset·일정 기준 재설정은 제거했다. 초기 snapshot·isMounted 수명 보호는 유지한다. 관련 두 묶음 41개가 Main·독립 실행에서 각각 통과했다. 네이티브 수정창·수락·커밋·push·배포는 미실행이다.
 
-최신 후속은 [일정 경로 범위·캐시 정리](../records/2026-11-12-08-route-preparation-scope-and-cache.md)다. [공통 downloader](../../../../../apps/client/src/shared/services/directions/route-downloader.ts)·[구간/캐시 matcher](../../../../../apps/client/src/shared/services/directions/route-plan.ts)·[migration](../../../../../apps/client/src/shared/db/migrations/route-inputs.ts)·[지도 표시](../../../../../apps/client/src/shared/components/Map/MapboxScheduleMapView.tsx)를 함께 본다. 이번 한정 구현·검토·독립 검증은 완료했다. 전체 client 877개 이후 추가한 두 실패 주입은 engine/migration 20개에서 확인했고 전체 879 재실행은 아니다. native Mapbox/live Directions는 미실행이다.
+당시 경로 후속은 [일정 경로 범위·캐시 정리](../records/2026-11-12-08-route-preparation-scope-and-cache.md)다. [공통 downloader](../../../../../apps/client/src/shared/services/directions/route-downloader.ts)·[구간/캐시 matcher](../../../../../apps/client/src/shared/services/directions/route-plan.ts)·[migration](../../../../../apps/client/src/shared/db/migrations/route-inputs.ts)·[지도 표시](../../../../../apps/client/src/shared/components/Map/MapboxScheduleMapView.tsx)를 함께 본다. 이번 한정 구현·검토·독립 검증은 완료했다. 전체 client 877개 이후 추가한 두 실패 주입은 engine/migration 20개에서 확인했고 전체 879 재실행은 아니다. native Mapbox/live Directions는 미실행이다.
 
 경로 두 파일은 후속 표현 정리로 보조 함수 배치와 `isSameRouteSegment` 비교만 간결화했다. 관련 3묶음 24개가 통과했고 lint 오류/경고는 0, 기존 타입 오류 7개는 동일하다. 조회·캐시·세션·트랜잭션 동작과 위 미확인 범위는 유지하며 전체 검사를 다시 실행한 결과는 아니다.
 
-최신 저장 경계는 [Repository 단일 준비와 Local/API 내부 입력](../records/2026-11-12-09-route-commit-and-save-boundaries.md)을 따른다. [PreparedEdit](../../../../../apps/client/src/shared/services/edit-stamp/index.ts)·[직접 수정 실패 처리](../../../../../apps/client/src/shared/services/sync/direct-update-failure.ts)와 CRUD 네 data 훅을 본다. 전체 892개와 관련 독립36개로 한정 수정·검증을 마쳤으며 이번 변경은 미커밋이다. 두 수치를 합산하지 않으며 lint 오류/경고 0·기존 타입7을 구별한다. 경로 분리 커밋 a527e977(코드/테스트15·분리판726)은 별도이며 push는 하지 않았다.
+당시 저장 경계 정리는 [Repository 단일 준비와 Local/API 내부 입력](../records/2026-11-12-09-route-commit-and-save-boundaries.md)을 따른다. [PreparedEdit](../../../../../apps/client/src/shared/services/edit-stamp/index.ts)·[직접 수정 실패 처리](../../../../../apps/client/src/shared/services/sync/direct-update-failure.ts)와 CRUD 네 data 훅을 본다. 전체 892개와 관련 독립36개로 한정 수정·검증을 마쳤으며 그 시점에는 미커밋이었다. 두 수치를 합산하지 않으며 lint 오류/경고 0·기존 타입7을 구별한다. 경로 분리 커밋 a527e977(코드/테스트15·분리판726)은 별도이며 push는 하지 않았다.
 
 1단계 클라이언트 저장은 **8f94af5c**로 분리 커밋했다([53파일의 범위·분리판 검사](../records/2026-11-12-10-stage-one-isolated-commit.md)). 앞선 저장 경계 전체 판에서 직접 실패/구버전·삭제·응답/pull 조합은 제외해 미커밋으로 유지했다. 이 분리판 client789·독립37·기존 서버73은 전체 workingtree892·독립36과 구별한다. push·배포는 하지 않았다.
 
 앞선 [007 Ticket 09](../current/memory/tickets/09-staged-code-review-and-refinement.md)는 [선언적 수신 흐름 재구성](../records/2026-11-13-01-declarative-reconcile-flow.md)의 수정·검토·검증을 완료했다. 실제 수정 대상은 [reconcile.ts](../../../../../apps/client/src/shared/services/sync/reconcile.ts)이며 서버 판단·저장, Local 판단·반영, ACK의 범위를 본문에 드러내고 개행을 정리한다. 최신 자기검사 158개·독립 9개, Airbnb 기반 변경 lint·빈 줄 추가 규칙 오류/경고 0, 기존 타입 오류 7개의 전후 일치를 확인했다. 이번 harness는 아직 재실행하지 않았고 native 등 미확인은 남는다. 첫 [책임 분리](../records/2026-11-12-14-reconcile-refinement-and-preserved-behavior.md)의 158개·독립 3개와 이번 실행을 구별한다. 이 정리 당시 제품 변경은 미커밋이었고, 이후 2단계는 44d2a5ef로 분리 커밋했다. 3단계·스킬 수정·009 완료·사용자 수락은 별도다.
 
-사용자는 10171행에서 미검토 코드 작업부는 커밋하지 않고 기록·티켓·재개 안내 등 문서만 선별 커밋하도록 승인했다. 마지막 제품 코드 기준은 44d2a5ef이며 1단계 기준은 8f94af5c(경로 부모 a527e977)다. 새 세션은 실제 HEAD와 diff를 재확인하되 후속 3〜7단계 제품 코드는 검토 후로 남기고 일괄 stage·commit하지 않는다. 문서 커밋의 hash를 제품 코드 검증 기준으로 대신 사용하지 않는다.
+이전 문서 전용 커밋 승인은 당시 범위였다. 이후1〜4단계 제품은 각각 승인받아 분리 커밋했다. 현재 남은5〜7단계 후속과 앞선 단계의 가독성 정리 잔여분, 다른 작업 변경을 구별하고 일괄 stage·commit하지 않는다. 단계별 실제 포함·검사 근거는 [3단계 분리14](../records/2026-11-13-14-stage-three-isolated-commit.md)와 [4단계 분리15](../records/2026-11-13-15-stage-four-isolated-commit.md)를 따른다.
