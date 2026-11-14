@@ -13,6 +13,7 @@
 - [007-sync-failure-recovery](007-sync-failure-recovery/README.md) — 007 — 동기화 실패가 큐를 영구히 막지 않게 하기
 - [008-exception-notice-rules](008-exception-notice-rules/README.md) — 008 — 앱의 예외 안내를 상황별 규칙으로 정리하기
 - [009-development-review-improvement](009-development-review-improvement/README.md) — 1단계의 검토·판단 경험을 대조하고 필요한 수행·스킬 개선을 선택한다 (실행 준비)
+- [010-readme-improvement](010-readme-improvement/README.md) — 010 — 루트 README를 Project context와 코드에 맞춰 다시 쓰기 (반영 완료, 게시 뒤 확인 남음)
 
 사용자가 지정한 Workspace가 이 기본 선택보다 우선한다. 일반 재개는 [Work 지침](../AGENTS.md)을 따르며, 기본 선택 변경·현재 요청의 대상·host 세션 상태는 [생성·전환](CREATE-AND-TRANSITION.md)에서 구별한다.
 
