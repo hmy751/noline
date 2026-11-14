@@ -30,7 +30,7 @@ Trip `startDate`·`endDate`는 ISO datetime 저장·전송 계약을 유지한�
 
 Schedule 생성·수정 폼은 여행 도시 시간대의 `YYYY-MM-DD`와 `HH:mm`을 보관한다. 공유 폼 검사와 [datetime helper](../../../apps/client/src/shared/lib/datetime.ts)가 달력 구성요소를 현지 시각으로 해석하고, submit 때 UTC ISO 문자열을 만든다. UTC 자정에서 현지 시간을 붙이면 UTC보다 느린 시간대에서 전날로 이동하므로 그 방식은 사용하지 않는다. DST(계절에 따른 시간대 전환)로 존재하지 않는 시각은 다음 시각으로 보정하지 않고 폼 오류로 보여주며 초안은 유지한다. 반복되는 시각의 새 입력은 두 시점 중 앞선 시점을 선택한다. 별도의 중복 시각 선택 UI는 두지 않으며, 기존 일정의 시각을 편집하지 않았다면 원본 시점을 그대로 보존한다.
 
-수정은 최종 날짜·시간이 처음 연 폼 값과 다른 경우에만 `scheduledAt`을 포함한다. 되돌린 입력이나 제목·장소만 바꾸는 수정은 원래 offset·초·밀리초와 DST 중복 시각의 원본을 보존한다. 폼을 열 때의 날짜·시간과 해석할 시간대를 함께 고정하므로 편집 중 조회 결과가 갱신돼도 초안의 해석 기준이 바뀌지 않는다. 미확정 상태에서 연 폼은 시간대 확인 후 다시 열어 날짜·시간을 편집한다. 저장 성공 후에는 비교 기준을 저장한 폼 값으로 갱신한다. 경비 생성으로 이동할 때는 오래된 navigation 시각 대신 현재 조회한 일정의 현지 날짜를 기본값으로 넘긴다.
+수정은 최종 날짜·시간이 처음 연 폼 값과 다른 경우에만 `scheduledAt`을 포함한다. 되돌린 입력이나 제목·장소만 바꾸는 수정은 원래 offset·초·밀리초와 DST 중복 시각의 원본을 보존한다. 폼을 열 때의 날짜·시간과 해석할 시간대를 함께 고정하므로 편집 중 조회 결과가 갱신돼도 초안의 해석 기준이 바뀌지 않는다. 미확정 상태에서 연 폼은 시간대 확인 후 다시 열어 날짜·시간을 편집한다. 저장에 성공하면 폼을 닫는다. 다시 열 때 저장된 일정과 그때의 여행 시간대로 새 비교 기준을 잡는다. 경비 생성으로 이동할 때는 오래된 navigation 시각 대신 현재 조회한 일정의 현지 날짜를 기본값으로 넘긴다.
 
 Schedule·Trip Repository는 Expense와 같이 공유 생성·수정 요청을 검사한 뒤 Activation Router로 전달한다. Local Schedule은 scheduledAt의 표현을 유지하며 목록·단건·mutation 결과를 반환할 때 그 필드의 시점 계약을 검사한다. 이 반환 변환은 createdAt·updatedAt·deletedAt까지 entity 전체를 검사하는 경계가 아니다. 결과 검사 실패는 commit 전에 행·큐를 함께 롤백하고, 존재·접근 확인을 시각 검사와 분리해 잘못된 기존 행도 시각 교정이나 삭제가 가능하다. 목록은 SQLite TEXT 순서 대신 실제 시점으로 정렬해 offset이 다른 값도 순서가 맞는다.
 
@@ -54,9 +54,9 @@ PostgreSQL Schedule row는 `Date` 값을 사용하고 API Schedule entity는 tim
 
 ## 서버 데이터 입수와 여행 날짜 범위
 
-Trip activation은 `activateTripResponse`, sync pull은 `syncPullResponseSchema`로 전체 envelope와 Trip·Schedule·Expense를 검사한 뒤 첫 Local 쓰기를 시작한다. Pull의 `serverTime`도 이 단계에 포함하므로 잘못된 시각을 기준으로 checkpoint를 전진시키지 않는다. Sync schema는 HTTP JSON 계약으로 entity의 문자열 시각을 요구하며 DB Date 객체나 필수 Trip 날짜의 null·누락을 허용하지 않는다. 서버 serializer가 DB Date를 문자열로 바꾸는 책임과 client 입수 경계의 검사를 구별한다. 소유권 검사는 유지한다. 이는 입수 검사이며 pull 전체 저장의 원자성이나 다른 동기화 실패 정책까지 새로 보장하는 변경은 아니다.
+Trip activation은 `activateTripResponse`, sync pull은 `syncPullResponseSchema`로 전체 envelope와 Trip·Schedule·Expense를 검사한 뒤 첫 Local 쓰기를 시작한다. pull 응답의 서버 시각(`serverTime`)이 잘못되면 응답을 반영하지 않는다. 새 앱이 조회 위치를 전진시킬 때 이 시각은 마지막 수신 시각으로 저장하고, 다음 변경 조회에는 같은 계정·활성 여행 범위에서 받은 `nextCursor`를 사용한다. Sync schema는 HTTP JSON 계약으로 entity의 문자열 시각을 요구하며 DB Date 객체나 필수 Trip 날짜의 null·누락을 허용하지 않는다. 서버 serializer가 DB Date를 문자열로 바꾸는 책임과 client 입수 경계의 검사를 구별한다. 소유권 검사는 유지한다. 이는 입수 검사이며 pull 전체 저장의 원자성이나 다른 동기화 실패 정책까지 새로 보장하는 변경은 아니다.
 
-서버 sync pull은 `lastSyncedAt`을 공유 query schema로 검사한 뒤 SQL 비교 시각을 만든다. Z와 유효한 offset을 모두 수용하고, timezone이 없거나 해석 불가능한 값은 조회 전에 400 응답으로 거절한다.
+구버전 앱이 cursor 없이 `lastSyncedAt`을 보내면 서버는 공유 query schema로 검사한 뒤 SQL 비교 시각을 만든다. Z와 유효한 offset을 모두 수용하고, timezone이 없거나 해석 불가능한 값은 조회 전에 400 응답으로 거절한다.
 
 홈·여행 목록의 기간 표시, 일정·경비의 날짜 구간과 일정 묶기, 폼 초기값은 같은 여행 시간대를 사용한다. 주요 여행 선택의 진행 중 → 미래 → 과거 우선순위는 유지하되, 오늘과 기간은 각 여행의 도시 날짜로 비교한다.
 

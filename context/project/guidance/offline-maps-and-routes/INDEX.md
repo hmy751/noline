@@ -19,7 +19,7 @@
 | 상태·표시 | 현재 의미와 사용 한계 |
 | --- | --- |
 | `dataDownloaded=true`, `syncStatus='COMPLETED'` | 활성화의 데이터 입수 결과다. 지도 파일·경로의 완료를 표현하지 않는다. |
-| `mapDownloaded=true` | 현재 download helper가 기록하는 flag다. 기존 DB 행이나 등록된 pack을 재사용할 때 native 완료를 확인하지 않아 실제 tile 준비와 어긋날 수 있다. |
+| `mapDownloaded=true` | 여행이 도시 지도를 보유했다는 표시다. 기존 DB 행이 있어도 Mapbox에 같은 이름의 pack이 등록됐는지 확인한다. 등록 뒤 전체 타일 다운로드가 끝나기 전에 표시가 켜질 수 있다. |
 | `ready` 상세 배지 | [metadata 판정](../../../../apps/client/src/shared/services/offline-prep/metadata.ts)이 mapDownloaded를 읽은 결과다. route coverage나 실제 pack 상태를 조회하지 않는다. |
 | 저장 route 행 | 특정 일정 ID 쌍과 이동수단의 계산 결과다. 현재 좌표·순서에 적합한지 별도 확인이 필요하다. |
 
@@ -39,4 +39,4 @@
 
 준비·재시도·삭제를 바꾸면 데이터만 성공, 지도만 실패, 일부 경로 누락, 완료 전 앱 종료, 재활성화와 같은 조건에서 표시와 실제 자원이 맞는지 확인한다. 단위 테스트의 mock pack 등록·DB 저장은 실제 tile 다운로드나 비행기 모드의 재실행을 입증하지 않는다. Native SDK·style·zoom 또는 pack 수명을 바꾸면 대상 플랫폼에서 준비 완료 후 연결 차단·앱 재시작·지역 이동을 확인할 필요가 있다.
 
-현재 설명은 2026-10-31의 client 소스와 설치된 SDK 소스를 대조한 범위다. 실제 기기에서 지도 준비·실패 복구·정리 후 공간 회수까지 확인한 지원 선언은 아니다. 변경 시 source와 실제 실행의 차이를 다시 대조한다. 구성과 선택 이유는 [주제 안내](README.md)에서 찾는다.
+iOS 시뮬레이터에서 A의 미전송 큐가 빈 상태를 만든 뒤 사본 정리를 실행했을 때, 같은 도시의 B는 지도를 보유했고 Mapbox 연결을 끈 일정 화면에 도로와 마커가 표시됐다. 마지막 보유 여행이 반납하는 시험에서는 native pack 목록에서 해당 파일이 사라졌다. 이 시험은 개발 앱과 native Mapbox를 사용했다. 물리 iPhone의 비행기 모드와 출시 설치본에서 같은 결과가 나오는지는 별도로 확인해야 한다. [공유 지도 확인 기록](../../../work/workspaces/003-bug-investigation-and-fixes/records/2026-11-14-01-reactivation-and-shared-city-map-fixes.md#자동-검사와-실제-native-지도-확인)

@@ -26,7 +26,7 @@
 
 | 정리 경로 | 현재 수행과 남는 차이 |
 | --- | --- |
-| [여행별 cleanup](../../../../apps/client/src/shared/services/offline-map/cleanup.ts) | A가 지도를 보유한 경우에만 A의 표시를 내린다. 같은 도시의 B가 보유 중이면 파일과 도시 행을 유지하고, 마지막 보유 여행이 반납하면 등록된 파일과 도시 행을 지운다. |
+| [여행별 cleanup](../../../../apps/client/src/shared/services/offline-map/cleanup.ts) | A의 사본 정리 뒤 같은 준비 ID가 여전히 비활성이고 정리 예약이 해제됐는지 확인한다. A가 지도를 보유 중이면 A의 표시만 내린다. 같은 도시의 B가 보유 중이면 파일을 유지한다. 마지막 반납 때 도시 행과 pack 이름이 남아 있으면 native 목록에서 해당 파일을 찾아 삭제한 뒤 도시 행을 지운다. 만료로 도시 행이 먼저 사라졌으면 파일이 남을 수 있고, native 삭제가 실패하면 공유 수 0인 도시 행과 파일이 남을 수 있다. |
 | 같은 모듈의 만료 정리 | 여행 종료 후 현지 날짜로 7일의 유예 기간이 지나면, 해당 도시에서 삭제되지 않은 미만료 여행을 센다. 남아 있으면 그 수를 도시 행에 기록하고, 0이면 도시 행만 지운다. 두 경우 모두 여행별 보유 표시와 Mapbox 파일은 그대로 둔다. |
 | [디버그 지도 삭제](../../../../apps/client/src/features/debug/ui/DebugScreen.tsx) | native pack과 offlineCities를 지우지만 활성화 mapDownloaded는 초기화하지 않는다. 배지가 남을 수 있다. |
 

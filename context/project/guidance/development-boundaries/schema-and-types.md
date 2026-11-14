@@ -34,6 +34,8 @@ const request = createExpenseRequest.parse(input); // input은 경계에서 받�
 
 예를 들어 Expense amount는 공유 계약에서 string이고 서버 DB는 decimal이다. Expense date는 공유 entity/응답에서 `YYYY-MM-DD`이며 서버 저장은 timestamp다. 옛 datetime 요청의 호환 변환도 남아 있다. schema 주석의 “DB와 1:1”을 모든 메모리·전송 표현이 동일하다는 보장으로 읽지 않는다. [날짜와 시각](../../common/date-and-time.md), [통화와 금액](../../common/currency.md)이 필드 의미와 호환을 소유한다.
 
+일정·경비의 항목별 편집 표식 `field_edits`는 PostgreSQL의 JSONB 열이고 기존 행의 기본값은 빈 객체다. 운영 검증에서 실제 편집 후 JSON 문자열로 저장된 행도 관찰했다. 당시 Drizzle 경로는 이를 읽고 다른 항목의 표식을 합쳐 다시 저장했다. SQL에서 직접 키를 조회하거나 색인을 추가할 때는 기존 행과 새로 편집한 행의 실제 JSON 자료형을 확인한다. [DB 선언](../../../../apps/server/src/db/schema.ts) · [운영 관찰과 재저장 검증](../../../work/workspaces/007-sync-failure-recovery/records/2026-11-14-06-production-release-in-progress.md)
+
 [Expense API](../../../../apps/client/src/entities/expense/api/expenses.ts)는 request parse 후 HTTP를 호출하고 response를 parse해 data를 반환한다. [서버 Expense route](../../../../apps/server/src/routes/expenses.ts)는 request·직렬화 응답을 검증한다. 이 직접 대조는 모든 API·sync payload가 같은 강도로 검증된다는 뜻은 아니다. 현재 sync push schema의 payload는 `z.any()`이므로 그 선언만으로 entity별 입력이 검증된다고 말할 수 없다. 실제 처리·오류 계약은 [API 가이드](../api-contracts.md)와 [데이터 수명](../data-lifecycle/INDEX.md)을 따른다.
 
 ## 타입으로 알고 있는 것과 확인한 것을 구별한다

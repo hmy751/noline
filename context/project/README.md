@@ -13,14 +13,15 @@
 - 코드의 계층·재사용·UI 책임·TypeScript와 공유 schema를 바꿀 때: [구조·UI·schema 개발 기준](guidance/development-boundaries/INDEX.md). 일반 기준과 실제 의존 예외를 구별한다.
 - 앱 준비·재인증·로그아웃을 바꾸거나 로컬 데이터 보존과 실행 종료 순서를 확인할 때: [앱 실행·세션·데이터 보존](current/app-runtime/INDEX.md)
 - Router·여행 목록·선택·네트워크 관측·일정/경비 조회·홈 표시·연결 복구를 바꿀 때: [네트워크·조회·화면 복구](guidance/travel-access/INDEX.md). 이 주제의 현재 계약은 Project 본문이 소유한다.
-- Local 저장·queue·push/pull·활성화·비활성화·cleanup을 바꿀 때: [데이터 저장·동기화·정리](guidance/data-lifecycle/INDEX.md). 미전송 보호 계약과 여행별 구현 공백을 함께 확인한다.
+- Local 저장·queue·push/pull·활성화·비활성화·cleanup을 바꿀 때: [데이터 저장·동기화·정리](guidance/data-lifecycle/INDEX.md). 큐를 재시도·격리·종결할 근거와 여행별 사본 정리 조건을 확인한다.
+- 일정·경비의 수정 항목을 추가하거나, 재연결 뒤 어느 값이 남고 옛 입력은 어떻게 복구되는지 판단할 때: [여러 기기의 편집과 응답 반영](guidance/data-lifecycle/edit-reconciliation.md)
 - 지도 pack 준비·공유·정리와 일정 변경 뒤 경로 계산·표시를 바꿀 때: [오프라인 지도·경로](guidance/offline-maps-and-routes/INDEX.md). 실제 완료와 현재 준비 공백을 구별한다.
 - 일정·경비의 초안, 장소 채택, 선택창과 저장 요청을 바꿀 때: [작성 초안·장소·날짜 입력](guidance/writing-and-input/INDEX.md). 날짜·통화·API 계약은 각 본문과 연결한다.
 - 여행 생성의 GeoNames 요청·도시 선별·실패 반환을 바꿀 때: [도시 검색의 현재 경계](current/city-search.md)
 - 프로필의 SQLite·Mapbox 저장 용량 집계와 refresh를 바꿀 때: [저장 용량 집계의 현재 경계](current/storage-statistics.md)
 - request·response schema, serializer, repository·query·인증 전송과 접근 경계를 변경할 때: [API 계약과 변경 가이드](guidance/api-contracts.md)
 - server 오류 응답·client 변환·표시·재시도를 바꿀 때: [오류 전달과 공개 응답](guidance/error-handling.md). 기존 기준과 현재 미충족을 구별한다.
-- 기존 동작을 유지하는 코드 가독성 리팩터링을 계획·구현·검증할 때: [동작을 보존하는 코드 리팩터링](guidance/behavior-preserving-refactoring.md)
+- 기능 수정·리팩터링에서 기존 구현과 테스트 중 무엇을 보존할지 판단할 때: [동작을 보존하는 코드 리팩터링](guidance/behavior-preserving-refactoring.md)
 - 설명·논의에서 주장과 실제 근거의 관계를 다룰 때: [공통 설명과 근거 기준](../../.agents/skills/shared/explanation-and-evidence-criteria.md)의 적용 조건
 - Selective Local-First와 선택적 오프라인 준비를 선택한 이유가 필요할 때: [선택 근거](decisions/0001-selective-local-first.md)
 - 제품 지식·규칙·위험을 주제별 본문에 통합한 이유를 재검토할 때: [주제별 Owner 선택](decisions/0002-topic-ownership.md)

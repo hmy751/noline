@@ -16,7 +16,7 @@ Entity를 추가하거나 바꾸면 [schema 기준](development-boundaries/schem
 
 [여행 접근과 화면 복구](travel-access/INDEX.md)는 네트워크 관측·Policy·조회 실행·캐시 표시·작성 중 입력 보존을 연결한다. 화면이나 조회를 바꿀 때 실제 조건·사용자 장면·실패 후 남는 값을 확인한다.
 
-[데이터 저장·동기화·정리](data-lifecycle/INDEX.md)는 Local mutation·queue·push/pull·활성화·cleanup을 바꿀 때 읽는다. 보존 계약과 실제 상태 판정·완료 범위의 차이, 계정 종료와의 관계를 설명한다. 동기화 불일치를 조사하면 본문의 [조사 출발점](data-lifecycle/INDEX.md#불일치를-조사할-때-같은-대상과-변경을-대조한다)에서 같은 계정·Entity·변경을 기준으로 증상에 해당하는 경계를 대조한다.
+[데이터 저장·동기화·정리](data-lifecycle/INDEX.md)는 Local mutation·queue·push/pull·활성화·cleanup을 바꿀 때 읽는다. 보존 계약과 실제 상태 판정·완료 범위의 차이, 계정 종료와의 관계를 설명한다. 수정 항목을 추가하거나 늦은 응답을 처리할 때는 [일정·경비의 편집과 응답 반영](data-lifecycle/edit-reconciliation.md)에서 제출할 값·서버 판정·기기에 남는 값·옛 입력 선택을 한 사례로 대조한다. 동기화 불일치를 조사하면 본문의 [조사 출발점](data-lifecycle/INDEX.md#불일치를-조사할-때-같은-대상과-변경을-대조한다)에서 같은 계정·Entity·변경을 기준으로 증상에 해당하는 경계를 대조한다.
 
 [오프라인 지도·경로](offline-maps-and-routes/INDEX.md)는 준비 결과·native pack과 metadata·일정 변경 뒤 경로의 관계를 설명한다. 다운로드·재사용·정리·표시를 바꿀 때 실제 자원과 완료 근거를 확인한다.
 

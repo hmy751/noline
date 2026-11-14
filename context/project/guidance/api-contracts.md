@@ -45,19 +45,23 @@ Schedule은 생성·전체 목록·단건·수정·Trip 하위 목록·Trip acti
 
 ## 큐 작업 재전송에는 이미 반영된 결과로 응답한다
 
-앱의 sync queue는 응답을 받지 못한 요청을 다음 sync에서 같은 ID·payload로 다시 보낸다. 401 갱신 뒤의 재전송과 구별해 큐 작업 재전송이라 부른다. 서버는 같은 사용자의 이미 반영된 변경을 오류로 거절하지 않고 처음과 같은 결과로 응답한다. 그렇지 않으면 성공한 변경이 앱에서는 실패로 남아 뒤 작업까지 막는다. 이 계약은 서버만 바꿔도 이미 설치된 앱에 적용된다. 기존 앱은 2xx로 완료를 판단하고, 새 앱은 응답 본문까지 확인해 기기 반영과 요청 종결을 연결한다.
+앱의 sync queue는 응답을 받지 못한 요청을 다음 sync에서 같은 ID·payload로 다시 보낸다. 401 갱신 뒤의 재전송과 구별해 큐 작업 재전송이라 부른다. 같은 사용자·여행의 생성 재전송은 기존 행의 현재 값을, 이미 처리한 삭제는 첫 삭제 시각을 반환한다. 이렇게 해야 응답을 잃은 성공 작업이 뒤의 전송을 막지 않는다. 이 생성·삭제 응답은 이미 설치된 앱에도 적용된다. 기존 앱은 2xx로 완료를 판단하고, 새 앱은 응답 본문까지 확인해 기기 반영과 요청 종결을 연결한다.
 
 | 요청 | 응답 |
 | --- | --- |
-| Schedule·Expense 생성: 같은 사용자·같은 Trip에 같은 ID가 이미 있음 | 200과 기존 행. 새 행을 만들거나 요청 body로 덮어쓰지 않는다. 기존 행이 soft-deleted면 되살리지 않고 삭제된 행을 반환한다. 처음 생성은 201이다. |
+| Schedule·Expense 생성: 살아 있는 자기 여행에 같은 ID가 이미 있음 | 200과 기존 행. 새 행을 만들거나 요청 body로 덮어쓰지 않는다. 기존 행이 soft-deleted면 되살리지 않고 삭제된 행을 반환한다. 처음 생성은 201이다. |
 | Schedule·Expense 생성: 같은 ID가 다른 사용자 또는 같은 사용자의 다른 Trip에 있음 | 409 `{ error: 'Conflict', message: '<Entity> ID is already in use' }`. 다른 사용자의 소유 여부는 구별해 알리지 않는다. |
-| Schedule·Expense 삭제: 이미 삭제된 자기 행 | 200과 처음 삭제 시각. 행과 version을 다시 바꾸지 않는다. |
+| Schedule·Expense 삭제: 살아 있는 자기 여행에서 이미 삭제한 행 | 200과 처음 삭제 시각. 행과 version을 다시 바꾸지 않는다. |
 | Schedule·Expense 삭제: 다른 사용자 행 또는 없는 행 | 404. 다른 사용자가 이미 삭제한 행도 같다. |
 | Trip 삭제 재전송 | 200과 처음 삭제 시각. 첫 삭제는 그 여행의 자기 일정·경비 삭제와 한 transaction에서 확정한다. |
 
 생성은 먼저 부모 여행의 소유·삭제 여부를 확인한 뒤 ID 충돌 시 같은 여행의 자기 행을 반환한다. 일정·경비에 같은 생성 요청이 동시에 와도 행은 하나이고 응답은 201과 200이다. 일정 삭제는 살아 있는 같은 여행 경비의 연결을 풀며 삭제 뒤 도착한 연결 요청도 같은 일정의 삭제가 확인되면 빈 연결로 반영한다.
 
-일정·경비 UPDATE는 직접 PUT과 큐에서 같은 항목별 표식을 사용한다. 표식 없는 요청이 표시된 서버 값과 충돌하면 409 `LEGACY_UPDATE_CONFLICT`로 요청 전체를 보류한다. 인증된 사용자가 원래 요청을 찾아 복구하고 정리하는 절차는 [동기화 수명](data-lifecycle/INDEX.md)에 있다. 삭제 응답과 404의 구별, 최초 생성·재전송 계약은 [PostgreSQL 통합 검사](../../../apps/server/tests/integration/field-edits-and-deletion.test.ts)에서 확인한다.
+일정·경비 UPDATE는 직접 PUT과 큐에서 같은 항목별 표식을 사용한다. 30 USD 요청의 응답을 잃은 사이 더 뒤의 편집으로 35 USD가 됐다면, 같은 표식의 30 USD를 다시 보냈을 때 서버는 35 USD인 현재 행을 성공 응답으로 돌려준다. [서버 판정과 재전송 사례](../../work/workspaces/007-sync-failure-recovery/records/2026-11-13-15-stage-four-isolated-commit.md)
+
+표식 없는 요청의 값이 이미 편집 표식이 있는 서버 항목과 다르면 409 `LEGACY_UPDATE_CONFLICT`로 요청 전체를 보류한다. 새 앱이 보내는 표식을 서버가 이해하고 옛 앱의 충돌 입력도 보존할 수 있도록, DB 구조를 먼저 적용하고 두 형식을 받는 서버를 배포한 다음 새 앱을 배포한다. [서버 적용 순서](../../../apps/server/README.md#항목별-편집-표식의-db-적용) · [보류 입력의 복구와 해제](data-lifecycle/edit-reconciliation.md#구버전-요청에서-편집-의도를-가릴-수-없으면-원문을-사용자에게-돌려준다)
+
+삭제 응답과 404의 구별, 최초 생성·재전송 계약은 [PostgreSQL 통합 검사](../../../apps/server/tests/integration/field-edits-and-deletion.test.ts)에서 확인한다.
 
 ## Expense·Trip과 Local 입수의 실제 적용 범위를 구별한다
 
@@ -67,13 +71,15 @@ HTTP interceptor에서 변환된 APIError와 API 함수가 응답 parse 도중 �
 
 [일정·경비 쓰기](../../../apps/server/src/services/entity-mutations.ts)는 검증한 요청으로 부모 여행을 잠그고, 연결 일정이 같은 여행·사용자에 속하는지 확인한다. Trip 수정은 여전히 선행 ownership 조회 뒤 ID로 변경한다. 자식 쓰기의 보장을 Trip 수정에 확대하지 않는다.
 
-생성·수정 body와 sync pull의 lastSyncedAt은 공유 schema를 검사하지만 대부분의 목록 query·path ID는 직접 사용한다. “요청을 검사한다”는 기준과 모든 입력 경계가 이미 검사된 상태는 다르다.
+생성·수정 body와 sync pull의 cursor·구버전 lastSyncedAt은 공유 schema를 검사하지만 대부분의 목록 query·path ID는 직접 사용한다. “요청을 검사한다”는 기준과 모든 입력 경계가 이미 검사된 상태는 다르다.
 
 Expense `date`의 공유 입력 정규화·date-only 계약·기존 datetime 호환과 저장 경계는 [날짜와 시각](../common/date-and-time.md), 통화 분리·금액 정밀도는 [통화와 금액](../common/currency.md)에서 판단한다.
 
 Expense·Schedule Local 조회와 mutation 반환도 날짜·시점 계약을 검사한다. 내부 행의 존재·소유권 확인은 반환 검사와 분리하며, mutation 결과 검사 실패는 commit 전에 행·큐를 함께 롤백한다. 세 entity Repository의 생성·수정 요청 검사는 Local/Remote 분기 전에 동일한 공유 schema를 적용한다. 일정·경비의 새 수정은 Repository에서 표식까지 준비하고, Local·API는 `edit`이 필수인 내부 입력 `PreparedEdit`를 받는다. 이 타입은 표식의 존재를 요구하며 실제 그룹 검증과 표식 발급은 `prepareEdit`가 수행한다. 하위 함수는 표식을 새로 발급하지 않고, API의 전송 전 request 검증은 유지한다. 구버전 전송 호환을 위한 공유 schema의 선택적 `edit`과 이 내부 계약을 구별한다.
 
-Activation은 `activateTripResponse`, sync pull은 `syncPullResponseSchema`로 envelope와 세 entity를 첫 Local 쓰기 전에 검사한다. Pull checkpoint인 `serverTime`도 포함한다. Sync schema에서 DB Date 객체나 필수 Trip 날짜의 null 허용을 제거해 일반 API entity와 같은 JSON 계약을 사용한다. 검사 뒤 소유권 확인을 유지하며, 입수 검사를 pull 전체 transaction이나 DB 오류 처리의 재설계로 확대하지 않는다. 서버 pull의 `lastSyncedAt`도 query schema로 검사한 뒤 SQL 비교에 사용한다.
+Repository는 수정 접수 시 표식 준비를 시작하고, 준비 완료를 기다리기 전에 같은 여행의 실행 순서에 등록한다. 그래야 표식을 기기에 쓰는 동안 뒤에 접수한 작업이 앞지르지 않는다. 자기 차례에 준비 결과를 기다리고 계정·세션과 여행 활성 여부를 확인해 Local 또는 API 한 경로로 실행한다. [여행 작업 등록과 실행](../../../apps/client/src/shared/services/offline-prep/router.ts)
+
+Activation은 `activateTripResponse`, sync pull은 `syncPullResponseSchema`로 envelope와 세 entity를 첫 Local 쓰기 전에 검사한다. pull 응답에서는 서버 시각 `serverTime`과 다음 변경 조회의 시작점 `nextCursor`(있는 경우)도 검증한다. Sync schema에서 DB Date 객체나 필수 Trip 날짜의 null 허용을 제거해 일반 API entity와 같은 JSON 계약을 사용한다. 검사 뒤 계정과 요청 여행 범위를 확인한다. 대기 중 준비 상태가 바뀌어도 유효한 본문은 반영할 수 있다. 다음 cursor까지 기록하는 조건은 [데이터와 다음 조회 위치](data-lifecycle/INDEX.md#이번-응답에서-반영할-데이터와-다음-조회-위치)를 따른다. 서버는 cursor 없이 `lastSyncedAt`을 보낸 구버전 요청에는 검증된 시각으로 변경을 조회한다.
 
 ## Data Entity를 바꿀 때 repository와 query key 경계를 유지한다
 

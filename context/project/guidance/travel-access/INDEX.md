@@ -93,17 +93,21 @@ Local session이 없으면 로그인 안내를 먼저 적용한다. 여행 활�
 | 기존 여행·일정·경비 변경 | `routeChildMutation`이 대상 활성 여부로 Local/Remote를 고른다. Local 변경의 transaction·queue 기록은 각 datasource의 책임이다. |
 | 계정 전체 여행 목록 | `routeTripQuery`가 실제 온라인·서버 인증 상태에서 서버 전체 목록을 조회한다. 연결·인증 제한 중에는 활성 여행이 있어야 Local 목록을 새로 제공한다. |
 
+비활성 여행의 직접 수정 응답도 서버 판본을 대조한다. 앱은 응답의 세션·계정·여행 ID를 확인하고 SQLite에 반영한 뒤 현재 여행을 읽어 반환한다. 늦게 도착한 성공 응답보다 최신 정보가 이미 있으면 그 값을 사용하고, 여행이 삭제 상태이면 삭제된 여행임을 알린다. [직접 수정 응답 처리](../../../../apps/client/src/entities/trip/lib/trip-local.ts)
+
 온라인으로 감지돼도 API의 네트워크 오류·시간 초과·5xx가 발생하면 같은 세션의 활성 여행이 있을 때 Local 목록으로 fallback한다. 인증·응답 계약·미분류 오류나 Local 반영 실패를 숨기는 fallback은 하지 않는다. 이미 성공한 서버 변경을 후속 목록 조회 실패 때문에 실패한 변경으로 되돌려 보고하지 않는다.
 
 새 sync-owned entity는 UI 연결 전에 repository에서 Router와 Local/Remote 책임을 정한다. Hook·화면이 DB/API를 직접 선택하면 활성 여행의 미전송 기록과 서버 사본이 갈라질 수 있다. 변경 전후에는 활성·비활성 × 실제 online·offline, unknown과 Debug override, 계정 세션을 함께 확인한다. 계정 전체 목록과 새 여행 생성은 위의 별도 분기를 유지한다. Data/Service 소유 경계를 바꾸려면 관련 제품 결정도 함께 재판단하며, 외부 서비스 호출을 편의상 sync queue에 넣지 않는다.
 
 ### 목록 반영과 화면 선택을 구별한다
 
-[TripRepository](../../../../apps/client/src/entities/trip/repository/trip-repository.ts)는 서버 목록을 [Local datasource](../../../../apps/client/src/entities/trip/lib/trip-local.ts)의 한 transaction에서 반영한다. 활성 여행과 전송할 변경이 남아 있는 여행은 로컬 값을 보존한다. 대기·진행·실패 중인 여행 요청은 recordId로, 일정·경비 요청은 기기에 남아 있는 자식 행의 tripId로 보호할 여행을 찾는다. 보호 대상인 여행의 미전송 삭제도 서버 목록으로 되살리지 않는다. 나머지 비활성 사본은 갱신하고 서버에서 사라졌으면 soft delete한다. 이 반영은 큐를 추가하거나 삭제하지 않는다. 이전 세션·취소된 Query 응답도 반영하지 않는다.
+[TripRepository](../../../../apps/client/src/entities/trip/repository/trip-repository.ts)는 서버 목록을 [Local datasource](../../../../apps/client/src/entities/trip/lib/trip-local.ts)의 한 transaction에서 반영한다. [구버전 서버 목록](../../../../apps/client/src/entities/trip/api/trips.ts)에 판본이 빠진 여행이 있으면 pull로 여행 메타데이터를 다시 받는다. 응답에 들어온 여행은 각각 서버 판본을 대조하고 남은 기기 변경을 보존해 반영한다. 서버가 [자기 여행의 삭제를 명시적으로 확인](../data-lifecycle/INDEX.md#전송을-계속하거나-입력을-종결할-근거를-확인한다)하면, 귀속과 유효성을 확인한 자식의 미전송 요청도 정리할 수 있다. 이전 세션이나 취소된 조회의 응답은 반영하지 않는다.
+
+서버 목록에 빠진 여행을 숨길 때는 활성 여행과 전송할 변경이 남은 여행을 보호한다. 대기·진행·실패 중인 여행 요청은 recordId로, 일정·경비 요청은 기기에 남아 있는 자식 행의 tripId로 보호할 여행을 찾는다. 보호 대상인 여행의 미전송 삭제도 서버 목록으로 되살리지 않는다. 보호 대상 밖의 비활성 사본도 조회 시작 뒤 기기에 생겼거나 행의 값이 달라졌으면 남긴다. 조회 시작 때와 같은 사본만 목록에서 숨긴다(기기 Trip 행에 삭제 표시). 목록에서 빠졌다는 이유로 기기 사본을 숨기는 이 단계에서는 큐를 그대로 둔다.
 
 격리 기록만 남은 비활성 여행은 이 보호에서 빠진다. 격리한 삭제 요청이 서버에 전달되지 않았다면 서버 목록에 있는 여행이 다시 보일 수 있다. 목록 갱신 뒤에도 [격리된 요청](../data-lifecycle/INDEX.md#push를-바꾸면-전송-상태와-두-종류의-재시도를-구별한다)은 전송에서 제외된다.
 
-결과의 `remote`는 보존할 로컬 여행 없이 서버 목록을 반영한 출처, `mixed`는 로컬 보존 여행이 섞인 출처, `local`은 서버 접근 제한 중 로컬 목록을 읽은 출처다. Local 목록은 서버의 최신 상태를 보장하지 않는다. 서버에서 사라진 활성 여행의 폐기·충돌 해결은 별도의 열린 판단이다.
+결과의 `remote`는 보존할 로컬 여행 없이 서버 목록을 반영한 출처, `mixed`는 로컬 보존 여행이 섞인 출처, `local`은 서버 접근 제한 중 로컬 목록을 읽은 출처다. Local 목록은 서버의 최신 상태를 보장하지 않는다.
 
 [useTripSelection](../../../../apps/client/src/entities/trip/data/useTripSelection.ts)은 성공한 조회가 갱신 중이 아닐 때 선택을 조정한다. 선택한 여행이 결과에 있으면 유지한다. 선택이 있는데 결과에 없을 때에는 실제 online이고 출처가 remote/mixed여야 기본 여행 또는 첫 여행으로 바꾸며, 목록이 비면 선택을 해제한다. local·실패·미완료 결과만으로 서버 삭제를 판단하지 않는다. 처음부터 선택이 없으면 성공한 목록에서 기본 여행을 고를 수 있다.
 

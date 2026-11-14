@@ -18,7 +18,9 @@
 
 Trip·Schedule·Expense의 data hook은 repository를 호출하고 repository의 Activation Router가 local/remote 구현을 고른다. Trip 자체 query와 child entity query는 활성 판단 단위가 다르므로 실제 변경에서는 [여행 접근·Router 기준](../guidance/travel-access/INDEX.md#router와-계정-전체-여행-목록의-계약)을 확인한다. 활성화된 여행은 SQLite와 queue를 사용하고, Sync Engine은 queue에 남은 변경을 서버로 보낸다. Router의 데이터 위치 선택과 Sync Engine의 동기화 수행은 다른 책임이다.
 
-실제 sync source는 [engine](../../../apps/client/src/shared/services/sync/engine.ts), [queue](../../../apps/client/src/shared/services/sync/queue.ts), [cleanup job](../../../apps/client/src/shared/services/sync/cleanup-job.ts)에서 찾는다. 저장·전송·정리의 계약과 현재 구현 차이는 [데이터 수명 가이드](../guidance/data-lifecycle/INDEX.md)가 설명한다. 비활성화 정리는 현재 PENDING 중심이라 FAILED·IN_PROGRESS와 귀속 불명 작업 보호가 부족하며 로그아웃·vacuum의 보호와 다르다. 지도·검색·길찾기는 [Policy 설명](../guidance/travel-access/INDEX.md)을 따르며 Data Router를 확대 적용하지 않는다.
+여러 기기의 수정이 겹칠 때는 저장 위치와 최종 값을 정하는 주체가 다르다. [공유 schema](../../../packages/schema/src/sync/field-edits.ts)가 함께 고치는 필드를 정의하고 [서버 mutation](../../../apps/server/src/services/entity-mutations.ts)이 각 묶음의 편집을 채택한다. 기기의 [전송 엔진](../../../apps/client/src/shared/services/sync/engine.ts)은 응답이 어느 요청에 대한 것인지 알고, [수신 코드](../../../apps/client/src/shared/services/sync/reconcile.ts)는 확인한 서버 본문과 남은 요청을 합쳐 SQLite에서 읽을 값을 만든다. 화면은 갱신된 조회로 그 값을 읽는다. [일정·경비 편집의 전 과정](../guidance/data-lifecycle/edit-reconciliation.md)
+
+여행 사본 정리, 오래된 삭제 행의 물리 정리, 계정 종료는 지울 대상이 달라 각각 보호해야 할 기록도 다르다. [데이터 수명 가이드](../guidance/data-lifecycle/INDEX.md#사용자-삭제와-기기-사본-정리를-구별한다)에서 세 범위를 비교한다. 지도·검색·길찾기는 [Policy 설명](../guidance/travel-access/INDEX.md)을 따르며 Data Router를 확대 적용하지 않는다.
 
 ## 앱 준비와 세션 수명
 
