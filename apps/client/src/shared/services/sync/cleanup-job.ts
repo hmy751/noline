@@ -16,7 +16,7 @@ import { generateId } from '@/shared/services/id/ulid';
 import { cleanupOfflineMapForTrip } from '@/shared/services/offline-map';
 import { requireLocalUserId } from '@/shared/store/auth';
 
-import { hasUnresolvedTripChanges, hasUnresolvedTripChangesInTransaction } from './queue';
+import { hasUnresolvedTripChangesInTransaction } from './queue';
 import { releaseServerRecordBodiesInTransaction } from './server-state';
 
 let activeCleanup: Promise<number> | null = null;
@@ -83,7 +83,7 @@ async function runPendingCleanups(): Promise<number> {
 
     for (const activation of pendingCleanups) {
       try {
-        await processCleanupForTrip(activation.tripId);
+        await processCleanupForTrip(activation);
         handledTripCount++;
       } catch (error) {
         console.error(`[Cleanup] Failed to process cleanup for trip ${activation.tripId}:`, error);
@@ -126,12 +126,36 @@ export const clearTripCopiesInTransaction = async (tripId: string, now: string):
     .where(and(eq(tripActivations.tripId, tripId), eq(tripActivations.userId, userId)));
 };
 
-const processCleanupForTrip = async (tripId: string): Promise<void> => {
-  if (await hasUnresolvedTripChanges(tripId)) {
-    return;
-  }
+type CleanupReservation = Pick<typeof tripActivations.$inferSelect, 'id' | 'tripId' | 'userId'>;
 
+const processCleanupForTrip = async ({ id, tripId, userId }: CleanupReservation): Promise<void> => {
   const cleaned = await withTransaction(async () => {
+    if (userId !== requireLocalUserId()) {
+      return false;
+    }
+
+    const db = getDatabase();
+    const reservation = and(
+      eq(tripActivations.id, id),
+      eq(tripActivations.tripId, tripId),
+      eq(tripActivations.userId, userId),
+      eq(tripActivations.cleanupPending, true),
+    );
+    const current = await db
+      .select({ isActivated: tripActivations.isActivated })
+      .from(tripActivations)
+      .where(reservation)
+      .get();
+    if (!current) {
+      return false;
+    }
+
+    // 구버전이 활성 여행에 남긴 예약은 사본을 보존하고 표시만 지운다.
+    if (current.isActivated) {
+      await db.update(tripActivations).set({ cleanupPending: false }).where(reservation);
+      return false;
+    }
+
     if (await hasUnresolvedTripChangesInTransaction(tripId)) {
       return false;
     }
