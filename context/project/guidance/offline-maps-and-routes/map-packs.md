@@ -6,11 +6,11 @@
 
 현재 진입은 [여행 활성화](../../../../apps/client/src/entities/trip/data/useActivateTrip.ts)이며 첫 일정 생성이 아니다. [다운로드 helper](../../../../apps/client/src/shared/services/offline-map/download.ts)는 Trip의 cityId·destination·좌표를 읽고 도시별 `offline_city_${cityId}` 이름을 사용한다. 도시 중심에서 위도·경도 각각 ±0.09도의 사각 범위, Streets v11, zoom 10–16을 요청한다. 코드의 radiusKm=10이라는 이름을 정확한 반경 10km 원형 보장으로 설명하지 않는다. 실제 거리와 필요한 일정 범위는 위도·zoom·이동 지역에 따라 달라진다.
 
-처리는 세 갈래다. offlineCities 행이 있으면 referenceCount를 올리고 mapDownloaded를 기록한다. 행이 없고 같은 이름의 native pack이 있으면 그 pack을 재사용한다. 둘 다 없으면 createPack을 요청한 뒤 등록된 pack을 찾아 metadata와 flag를 기록한다. 앞의 두 재사용 경로와 새 등록 경로 모두 실제 다운로드 완료를 판정하는 조건이 없다.
+도시 ID로 만든 이름으로 Mapbox에 등록된 pack을 확인한다. 있으면 재사용하고, 없으면 새로 등록한다. 이전 설치의 SQLite에 도시 행만 남았을 때도 같은 확인을 거친다. 시작한 세션·여행·준비 ID가 여전히 유효하면 여행의 보유 표시와 도시의 공유 수를 한 transaction에 기록한다.
 
-설치된 SDK의 iOS 구현은 로딩을 시작한 뒤 createPack을 반환하고, 진행·완료 이벤트는 나중에 전달한다. 현재 helper의 `await createPack`과 getPacks 조회는 tile 완료 대기가 아니다. progress callback은 syncProgress를 갱신하지만 mapDownloaded 기록을 완료 이벤트에 묶지 않는다. 오류 callback에서 throw하는 것도 외부 요청 Promise가 실패 결과를 받는다는 보장은 아니다. 실패·재시도를 손볼 때는 등록, 진행, 완료, 실패를 각각 어떤 호출자가 관측하는지 확인한다.
+설치된 SDK의 iOS 구현은 로딩을 시작한 뒤 createPack을 반환하고, 진행·완료 이벤트는 나중에 전달한다. 현재 helper의 `await createPack`과 getPacks 조회는 tile 완료 대기가 아니다. progress callback은 syncProgress를 갱신하지만 mapDownloaded 기록을 완료 이벤트에 묶지 않는다. 진행·오류 이벤트와 실제 완료 여부는 별도로 확인한다.
 
-기존 metadata의 재사용에는 pack 존재 확인이 없고, 기존 pack의 재사용에는 완료 확인이 없다. 같은 여행의 반복 요청을 한 번으로 합치거나 여행별 획득 관계를 기록하는 구조도 없다. 재활성화는 지도 helper를 재호출하지 않으므로 현재 활성화 버튼을 범용 지도 복구 기능으로 안내하지 않는다.
+해제 후 다시 활성화하면 지도 준비가 시작된다. 이미 활성인 여행에 다시 활성화 요청을 보내는 경로에서는 기존대로 경로 준비만 호출한다.
 
 ## 저장 위치를 바꾸면 두 저장소의 불일치 복구를 함께 설계한다
 
@@ -22,12 +22,12 @@
 
 ## 공유 지도를 정리할 때 참조 수와 파일 삭제를 따로 확인한다
 
-도시별 공유는 같은 도시의 여행마다 파일을 중복 다운로드하지 않으려는 선택이다. 현재 referenceCount는 여행별 소유 관계 테이블에서 도출되지 않는다. 다운로드 재사용은 호출마다 증가시키고, 여행별 cleanup은 감소시키며, 만료 reconcile은 같은 도시의 만료되지 않은 비삭제 여행 수로 다시 계산한다. 활성화·실제 획득 여부까지 같은 의미로 세는 값이 아니므로 정확한 소유 여행 수로 간주하지 않는다.
+같은 도시의 획득과 반납은 [도시별 작업 순서](../../../../apps/client/src/shared/services/offline-map/city-sharing.ts)를 따르며 마지막 Mapbox 삭제가 끝난 뒤 다음 획득을 시작한다. 지도를 획득하거나 반납할 때는 그 도시에 `mapDownloaded` 표시가 있는 여행을 센다. 만료 정리는 같은 숫자를 미만료 여행 수로 덮어쓸 수 있어, 반납할 때 저장된 숫자에서 1을 빼면 B가 보유한 지도까지 지울 수 있다.
 
 | 정리 경로 | 현재 수행과 남는 차이 |
 | --- | --- |
-| [여행별 cleanup](../../../../apps/client/src/shared/services/offline-map/cleanup.ts) | 저장 count를 1 줄이고 남으면 metadata를 갱신한다. 0 이하면 native pack 삭제 후 metadata를 지운다. 오류는 로그로 흡수하며 mapDownloaded는 초기화하지 않는다. |
-| 같은 모듈의 만료 reconcile | 해당 도시의 만료되지 않은 비삭제 여행 수를 센다. 0이면 metadata만 삭제하고 native pack은 남긴다. 날짜 없는 여행 등은 만료로 계산되지 않을 수 있다. |
+| [여행별 cleanup](../../../../apps/client/src/shared/services/offline-map/cleanup.ts) | A가 지도를 보유한 경우에만 A의 표시를 내린다. 같은 도시의 B가 보유 중이면 파일과 도시 행을 유지하고, 마지막 보유 여행이 반납하면 등록된 파일과 도시 행을 지운다. |
+| 같은 모듈의 만료 정리 | 여행 종료 후 현지 날짜로 7일의 유예 기간이 지나면, 해당 도시에서 삭제되지 않은 미만료 여행을 센다. 남아 있으면 그 수를 도시 행에 기록하고, 0이면 도시 행만 지운다. 두 경우 모두 여행별 보유 표시와 Mapbox 파일은 그대로 둔다. |
 | [디버그 지도 삭제](../../../../apps/client/src/features/debug/ui/DebugScreen.tsx) | native pack과 offlineCities를 지우지만 활성화 mapDownloaded는 초기화하지 않는다. 배지가 남을 수 있다. |
 
 만료 정리는 앱의 [cleanup hook](../../../../apps/client/src/shared/services/offline-map/useOfflineMapCleanup.ts)이 지연 호출하며, hook 해제는 아직 시작하지 않은 타이머만 취소한다. 이미 시작한 작업의 세션 종료 합류 여부는 [앱 실행 수명](../../current/app-runtime/INDEX.md)과 함께 확인한다. 현재 파일 회수가 만료 시각에 자동으로 끝난다고 안내하지 않는다.

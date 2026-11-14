@@ -1,28 +1,21 @@
-/**
- * 오프라인 지도 다운로드 헬퍼 함수
- *
- * React Hook을 사용할 수 없는 컨텍스트(mutation callback 등)에서
- * 백그라운드로 지도 다운로드를 시작하기 위한 유틸리티
- */
-
 import MapboxGL from '@rnmapbox/maps';
-import { eq } from 'drizzle-orm';
-import { getDatabase, offlineCities, trips, tripActivations } from '@/shared/db';
-import type { NewOfflineCity } from '@/shared/db/schema';
+import { and, eq, isNull } from 'drizzle-orm';
+
+import { getDatabase, offlineCities, runDatabaseTransaction, trips, tripActivations } from '@/shared/db';
 import { queryClient } from '@/shared/lib/queryClient';
+import { useAuthStore } from '@/shared/store/auth';
 
-/**
- * 백그라운드로 오프라인 지도 다운로드 시작
- *
- * @param tripId - 여행 ID
- * @returns Promise<void>
- */
+import { countCityMapHolders, withCityMapOperation } from './city-sharing';
+
+/** 활성 여행이 도시 지도를 확보한다. 같은 준비의 재시도는 보유 여행 수를 늘리지 않는다. */
 export async function downloadOfflineMapInBackground(tripId: string): Promise<void> {
-  console.log(`[OfflineMapDownload] Starting background map download for trip: ${tripId}`);
+  const { sessionId, userId } = useAuthStore.getState();
+  if (!userId || !sessionId) return;
 
-  // Trip의 cityId, destination, coordinates 조회
-  const trip = await getDatabase()
+  const db = getDatabase();
+  const trip = db
     .select({
+      preparationId: tripActivations.id,
       cityId: trips.cityId,
       destination: trips.destination,
       latitude: trips.latitude,
@@ -30,170 +23,116 @@ export async function downloadOfflineMapInBackground(tripId: string): Promise<vo
       country: trips.country,
     })
     .from(trips)
-    .where(eq(trips.id, tripId))
+    .innerJoin(tripActivations, eq(tripActivations.tripId, trips.id))
+    .where(
+      and(
+        eq(trips.id, tripId),
+        eq(trips.userId, userId),
+        eq(tripActivations.isActivated, true),
+        isNull(trips.deletedAt),
+      ),
+    )
     .get();
+  if (!trip) return;
+  const { cityId, latitude, longitude } = trip;
+  if (!cityId || !latitude || !longitude) throw new Error('Trip에 도시 정보가 없습니다.');
 
-  if (!trip?.cityId || !trip.latitude || !trip.longitude) {
-    throw new Error('Trip에 도시 정보가 없습니다.');
-  }
+  const preparation = and(
+    eq(tripActivations.id, trip.preparationId),
+    eq(tripActivations.tripId, tripId),
+    eq(tripActivations.userId, userId),
+    eq(tripActivations.isActivated, true),
+  );
+  const isCurrent = () =>
+    useAuthStore.getState().sessionId === sessionId &&
+    !!db
+      .select({ id: trips.id })
+      .from(tripActivations)
+      .innerJoin(trips, eq(tripActivations.tripId, trips.id))
+      .where(and(preparation, eq(trips.cityId, cityId), isNull(trips.deletedAt)))
+      .get();
 
-  // 이미 다운로드된 지도가 있는지 확인
-  const existingCity = await getDatabase()
-    .select()
-    .from(offlineCities)
-    .where(eq(offlineCities.cityId, trip.cityId))
-    .get();
-
-  if (existingCity) {
-    // 이미 있으면 referenceCount만 증가
-    await getDatabase()
-      .update(offlineCities)
-      .set({
-        referenceCount: existingCity.referenceCount + 1,
-        updatedAt: new Date().toISOString(),
-      })
-      .where(eq(offlineCities.cityId, trip.cityId))
-      .run();
-
-    // mapDownloaded 플래그 업데이트
-    await getDatabase()
-      .update(tripActivations)
-      .set({
-        mapDownloaded: true,
-        updatedAt: new Date().toISOString(),
-      })
-      .where(eq(tripActivations.tripId, tripId))
-      .run();
-
-    console.log(
-      `[OfflineMapDownload] Reusing existing offline map: ${trip.cityId} (ref count: ${existingCity.referenceCount + 1})`,
-    );
-    return;
-  }
-
-  // 새로 다운로드
-  const regionName = `offline_city_${trip.cityId}`;
-  const centerLat = parseFloat(trip.latitude);
-  const centerLng = parseFloat(trip.longitude);
-  const radiusKm = 10;
-
-  // 10km 반경을 위도/경도 차이로 변환 (대략 0.09도 ≈ 10km)
-  const latDelta = 0.09;
-  const lngDelta = 0.09;
-
-  // Mapbox bounds 형식: [[west, south], [east, north]]
-  const bounds: [[number, number], [number, number]] = [
-    [centerLng - lngDelta, centerLat - latDelta], // southwest
-    [centerLng + lngDelta, centerLat + latDelta], // northeast
-  ];
-
-  const styleURL = 'mapbox://styles/mapbox/streets-v11';
-  const minZoom = 10;
-  const maxZoom = 16;
-
-  // 먼저 기존 팩이 네이티브에 있는지 확인
-  const existingPacks = await MapboxGL.offlineManager.getPacks();
-  let pack = existingPacks.find((p) => p.name === regionName);
-
-  if (!pack) {
-    // 없으면 새로 다운로드
-    let lastUpdatedProgress = 0;
-
-    const progressListener = async (offlineRegion: any, status: any) => {
-      const percentage = Math.round(status.percentage);
-      console.log('[OfflineMapDownload] Download progress:', {
-        percentage,
-        completedTileCount: status.completedTileCount,
-      });
-
-      // 10% 단위로 DB 업데이트 (너무 잦은 업데이트 방지)
-      if (percentage >= lastUpdatedProgress + 10 || percentage === 100) {
-        lastUpdatedProgress = percentage;
-        try {
-          await getDatabase()
-            .update(tripActivations)
-            .set({
-              syncProgress: percentage,
-              updatedAt: new Date().toISOString(),
-            })
-            .where(eq(tripActivations.tripId, tripId))
-            .run();
-
-          // UI 갱신 요청
-          queryClient.invalidateQueries({ queryKey: ['trip'] });
-        } catch (e) {
-          console.error('[OfflineMapDownload] Failed to update progress:', e);
-        }
-      }
-    };
-
-    const errorListener = (offlineRegion: any, error: any) => {
-      console.error('[OfflineMapDownload] Download error:', error);
-      throw new Error(`오프라인 지도 다운로드 실패: ${error.message}`);
-    };
-
-    // Mapbox 오프라인 팩 다운로드
-    await MapboxGL.offlineManager.createPack(
-      {
-        name: regionName,
-        styleURL,
-        bounds,
-        minZoom,
-        maxZoom,
-      },
-      progressListener,
-      errorListener,
-    );
-
-    // 다운로드 완료 후 다시 조회
-    const packs = await MapboxGL.offlineManager.getPacks();
-    pack = packs.find((p) => p.name === regionName);
-
+  await withCityMapOperation(cityId, async () => {
+    if (!isCurrent()) return;
+    const regionName = `offline_city_${cityId}`;
+    const styleURL = 'mapbox://styles/mapbox/streets-v11';
+    const minZoom = 10;
+    const maxZoom = 16;
+    const findPack = async () => (await MapboxGL.offlineManager.getPacks()).find((pack) => pack.name === regionName);
+    let pack = await findPack();
+    const needsPack = !pack;
     if (!pack) {
-      throw new Error('다운로드된 오프라인 팩을 찾을 수 없습니다.');
+      if (!isCurrent()) return;
+      const lat = parseFloat(latitude);
+      const lng = parseFloat(longitude);
+      const bounds: [[number, number], [number, number]] = [
+        [lng - 0.09, lat - 0.09],
+        [lng + 0.09, lat + 0.09],
+      ];
+      let lastProgress = 0;
+      await MapboxGL.offlineManager.createPack(
+        { name: regionName, styleURL, bounds, minZoom, maxZoom },
+        async (_region, status) => {
+          const percentage = Math.round(status.percentage);
+          if (percentage < lastProgress + 10 && percentage !== 100) return;
+          lastProgress = percentage;
+          try {
+            await runDatabaseTransaction(async () => {
+              if (isCurrent()) {
+                db.update(tripActivations)
+                  .set({ syncProgress: percentage, updatedAt: new Date().toISOString() })
+                  .where(preparation)
+                  .run();
+              }
+            });
+            queryClient.invalidateQueries({ queryKey: ['trip'] });
+          } catch (error) {
+            console.error('[OfflineMapDownload] Failed to update progress:', error);
+          }
+        },
+        (_region, error) => console.error('[OfflineMapDownload] Mapbox download failed:', error),
+      );
+      pack = await findPack();
+      if (!pack) throw new Error('다운로드된 오프라인 팩을 찾을 수 없습니다.');
     }
 
-    console.log('[OfflineMapDownload] New offline pack created:', regionName);
-  } else {
-    console.log('[OfflineMapDownload] Reusing existing offline pack:', regionName);
-  }
+    const sizeBytes = 'size' in pack && typeof pack.size === 'number' ? pack.size : 0;
+    const tileCount = 'tileCount' in pack && typeof pack.tileCount === 'number' ? pack.tileCount : null;
+    const registered = await runDatabaseTransaction(async () => {
+      if (!isCurrent()) return false;
+      const now = new Date().toISOString();
+      db.update(tripActivations).set({ mapDownloaded: true, updatedAt: now }).where(preparation).run();
+      const referenceCount = countCityMapHolders(cityId);
+      db.insert(offlineCities)
+        .values({
+          cityId,
+          cityName: trip.destination,
+          country: trip.country,
+          centerLatitude: latitude,
+          centerLongitude: longitude,
+          radiusKm: 10,
+          downloadedAt: now,
+          sizeBytes,
+          tileCount,
+          referenceCount,
+          mapboxRegionName: regionName,
+          styleUrl: styleURL,
+          minZoom,
+          maxZoom,
+          createdAt: now,
+          updatedAt: now,
+        })
+        .onConflictDoUpdate({ target: offlineCities.cityId, set: { referenceCount, updatedAt: now } })
+        .run();
+      return true;
+    });
 
-  // DB에 저장
-  const now = new Date().toISOString();
-  const newOfflineCity: NewOfflineCity = {
-    cityId: trip.cityId,
-    cityName: trip.destination,
-    country: trip.country ?? null,
-    centerLatitude: trip.latitude,
-    centerLongitude: trip.longitude,
-    radiusKm,
-    downloadedAt: now,
-    sizeBytes: pack?.size ?? 0,
-    tileCount: pack?.tileCount ?? null,
-    referenceCount: 1,
-    mapboxRegionName: regionName,
-    styleUrl: styleURL,
-    minZoom,
-    maxZoom,
-    createdAt: now,
-    updatedAt: now,
-  };
-
-  await getDatabase().insert(offlineCities).values(newOfflineCity).run();
-
-  // mapDownloaded 플래그 업데이트
-  await getDatabase()
-    .update(tripActivations)
-    .set({
-      mapDownloaded: true,
-      updatedAt: now,
-    })
-    .where(eq(tripActivations.tripId, tripId))
-    .run();
-
-  // ✅ UI 갱신 요청 (활성화 상태 및 오프라인 지도 목록)
-  queryClient.invalidateQueries({ queryKey: ['trip'] });
-  queryClient.invalidateQueries({ queryKey: ['offline-city'] });
-
-  console.log(`[OfflineMapDownload] Offline map download completed for trip: ${tripId}`);
+    if (!registered && needsPack && countCityMapHolders(cityId) === 0) {
+      await MapboxGL.offlineManager.deletePack(regionName);
+    }
+    if (registered) {
+      queryClient.invalidateQueries({ queryKey: ['trip'] });
+      queryClient.invalidateQueries({ queryKey: ['offline-city'] });
+    }
+  });
 }

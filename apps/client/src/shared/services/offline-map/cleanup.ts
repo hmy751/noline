@@ -5,11 +5,13 @@
 
 import MapboxGL from '@rnmapbox/maps';
 import { eq, and, isNull } from 'drizzle-orm';
-import { getDatabase } from '@/shared/db';
+import { getDatabase, runDatabaseTransaction, tripActivations } from '@/shared/db';
 import { trips, offlineCities } from '@/shared/db/schema';
 import { queryClient } from '@/shared/lib/queryClient';
 import { offlineCityKeys } from '@/entities/offline-city/data/keys';
 import { isTripExpired } from '@/shared/lib/lifecycle';
+
+import { countCityMapHolders, withCityMapOperation } from './city-sharing';
 
 /** 종료 유예 기간이 지난 여행의 도시 참조를 다시 계산한다. */
 export async function cleanupExpiredOfflineMaps(): Promise<void> {
@@ -60,89 +62,64 @@ export async function cleanupExpiredOfflineMaps(): Promise<void> {
   }
 }
 
-/**
- * 특정 여행의 오프라인 지도 즉시 정리
- * (여행 비활성화시 사용)
- *
- * @param tripId - 여행 ID
- * @returns Promise<void>
- */
-export async function cleanupOfflineMapForTrip(tripId: string): Promise<void> {
-  console.log(`[OfflineMapCleanup] Starting offline map cleanup for trip: ${tripId}`);
+/** 마지막 보유 여행이 반납했을 때 도시 파일과 등록 정보를 정리한다. */
+async function removeUnclaimedPack(cityId: number): Promise<void> {
+  const db = getDatabase();
+  const city = db.select().from(offlineCities).where(eq(offlineCities.cityId, cityId)).get();
+  if (!city || city.referenceCount !== 0 || countCityMapHolders(cityId) !== 0) return;
 
-  // Trip의 cityId 조회
-  const trip = await getDatabase()
-    .select({
-      cityId: trips.cityId,
-    })
+  if (city.mapboxRegionName) {
+    const packs = await MapboxGL.offlineManager.getPacks();
+    if (packs.some((pack) => pack.name === city.mapboxRegionName)) {
+      await MapboxGL.offlineManager.deletePack(city.mapboxRegionName);
+    }
+  }
+  await runDatabaseTransaction(async () => {
+    db.delete(offlineCities)
+      .where(and(eq(offlineCities.cityId, cityId), eq(offlineCities.referenceCount, 0)))
+      .run();
+  });
+}
+
+/** 비활성화한 여행의 지도 보유 표시만 반납한다. 같은 도시의 다른 여행은 그대로 둔다. */
+export async function cleanupOfflineMapForTrip(tripId: string): Promise<void> {
+  const db = getDatabase();
+  const trip = db
+    .select({ cityId: trips.cityId, preparationId: tripActivations.id })
     .from(trips)
+    .innerJoin(tripActivations, eq(tripActivations.tripId, trips.id))
     .where(eq(trips.id, tripId))
     .get();
-
-  if (!trip?.cityId) {
-    console.log(`[OfflineMapCleanup] Trip has no cityId, skipping map cleanup: ${tripId}`);
-    return;
-  }
-
-  // offlineCities에서 해당 도시 조회
-  const offlineCity = await getDatabase()
-    .select()
-    .from(offlineCities)
-    .where(eq(offlineCities.cityId, trip.cityId))
-    .get();
-
-  if (!offlineCity) {
-    console.log(`[OfflineMapCleanup] No offline map found for city: ${trip.cityId}`);
-    return;
-  }
-
-  // 참조 카운트 감소
-  const newReferenceCount = offlineCity.referenceCount - 1;
-
-  if (newReferenceCount > 0) {
-    // 아직 다른 여행이 참조 중 - 카운트만 감소
-    await getDatabase()
-      .update(offlineCities)
-      .set({
-        referenceCount: newReferenceCount,
-        updatedAt: new Date().toISOString(),
-      })
-      .where(eq(offlineCities.cityId, trip.cityId))
-      .run();
-
-    console.log(
-      `[OfflineMapCleanup] Offline map reference count decreased: ${trip.cityId} (${offlineCity.referenceCount} -> ${newReferenceCount})`,
-    );
-    return;
-  }
-
-  // 참조 카운트가 0이 되면 완전 삭제
-  try {
-    // Mapbox 네이티브 팩 삭제
-    const regionName = offlineCity.mapboxRegionName;
-    if (regionName) {
-      const existingPacks = await MapboxGL.offlineManager.getPacks();
-      const pack = existingPacks.find((p) => p.name === regionName);
-
-      if (pack) {
-        await MapboxGL.offlineManager.deletePack(regionName);
-        console.log(`[OfflineMapCleanup] Deleted Mapbox native pack: ${regionName}`);
-      } else {
-        console.log(`[OfflineMapCleanup] Mapbox pack not found (may already be deleted): ${regionName}`);
-      }
+  if (!trip?.cityId) return;
+  const cityId = trip.cityId;
+  await withCityMapOperation(cityId, async () => {
+    const released = await runDatabaseTransaction(async () => {
+      const preparation = and(
+        eq(tripActivations.id, trip.preparationId),
+        eq(tripActivations.tripId, tripId),
+        eq(tripActivations.isActivated, false),
+        eq(tripActivations.cleanupPending, false),
+      );
+      const activation = db
+        .select({ held: tripActivations.mapDownloaded })
+        .from(tripActivations)
+        .innerJoin(trips, eq(trips.id, tripActivations.tripId))
+        .where(and(preparation, eq(trips.cityId, cityId)))
+        .get();
+      if (!activation?.held) return false;
+      const now = new Date().toISOString();
+      db.update(tripActivations).set({ mapDownloaded: false, updatedAt: now }).where(preparation).run();
+      db.update(offlineCities)
+        .set({ referenceCount: countCityMapHolders(cityId), updatedAt: now })
+        .where(eq(offlineCities.cityId, cityId))
+        .run();
+      return true;
+    });
+    if (released) {
+      await removeUnclaimedPack(cityId);
+      queryClient.invalidateQueries({ queryKey: offlineCityKeys.all() });
     }
-
-    // DB에서 삭제
-    await getDatabase().delete(offlineCities).where(eq(offlineCities.cityId, trip.cityId)).run();
-
-    // 캐시 재조회 요청
-    queryClient.invalidateQueries({ queryKey: offlineCityKeys.all() });
-
-    console.log(`[OfflineMapCleanup] Offline map completely removed: ${trip.cityId}`);
-  } catch (error) {
-    console.error(`[OfflineMapCleanup] Failed to delete offline map:`, error);
-    // 에러가 나도 계속 진행 (이미 삭제되었거나 다른 이유로 실패할 수 있음)
-  }
+  });
 }
 
 /**
