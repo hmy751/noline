@@ -26,6 +26,10 @@ Noline은 여행 중 연결이 끊겨도 일정과 경비를 기록할 수 있�
   - [2. 오프라인에서 저장한 변경을 서버까지 전달한다](#2-오프라인에서-저장한-변경을-서버까지-전달한다)
   - [3. 여러 기기의 편집은 항목 단위로 맞춘다](#3-여러-기기의-편집은-항목-단위로-맞춘다)
   - [4. 아직 보내지 못한 변경은 지우지 않는다](#4-아직-보내지-못한-변경은-지우지-않는다)
+- [UI State: 불안정한 연결에서 화면이 지키는 것](#ui-state-불안정한-연결에서-화면이-지키는-것)
+  - [사용자에게 지키는 세 가지](#사용자에게-지키는-세-가지)
+  - [한 가지만 아는 훅을 조합해 화면 상태 하나를 만든다](#한-가지만-아는-훅을-조합해-화면-상태-하나를-만든다)
+  - [늦게 도착한 응답이 최신 상태를 덮지 않게 한다](#늦게-도착한-응답이-최신-상태를-덮지-않게-한다)
 - [Tech Stack & Structure](#tech-stack--structure)
 - [Quick Start](#quick-start)
 - [현재 한계](#현재-한계)
@@ -231,6 +235,86 @@ const EXPENSE_EDIT_GROUPS = {
 
 정리 조건과 한계는 [여행 사본 정리](context/project/guidance/data-lifecycle/INDEX.md#여행을-정리할-때-모든-미전송-상태와-현재-활성-여부를-확인한다), 세션과 계정 종료의 흐름은 [앱 실행·세션·데이터 보존](context/project/current/app-runtime/INDEX.md)에 있습니다.
 
+## UI State: 불안정한 연결에서 화면이 지키는 것
+
+연결이 불안정할 때 사용자가 가장 곤란한 순간은 화면을 믿을 수 없을 때입니다. 0원이 정말 0원인지, 쓰던 내용이 남아 있는지, 왜 막혔는지 알 수 없는 순간입니다. 그래서 Noline의 화면은 세 가지를 지킵니다. 모르는 것을 없다고 보여 주지 않고, 쓰던 입력을 지우지 않고, 막혔으면 이유를 그 자리에서 알립니다.
+
+이 판단을 화면마다 따로 쓰면 화면 수만큼 조건이 흩어지고 서로 어긋납니다. 그래서 한 가지만 아는 훅을 조합해 한곳에서 판단하고, 화면은 그 결과만 받아 그립니다.
+
+### 사용자에게 지키는 세 가지
+
+**모르는 것을 없다고 보여 주지 않는다**
+
+- 조회에 실패했을 때 빈 목록이나 0원으로 그리지 않습니다. 0원은 조회에 성공했을 때만 보입니다.
+- 갱신만 실패하면 보던 내용을 지우지 않고, 그 자리에 "갱신하지 못했어요. 이전 내용을 표시하고 있어요"를 덧붙입니다.
+- 홈의 여행 카드는 일정과 경비를 따로 판정합니다. 경비 조회가 실패해도 일정 수는 그대로 보입니다.
+- 연결 여부를 아직 모를 때 오프라인으로 단정하지 않습니다. "확인 중"으로 표시하고, 10초가 지나도 알 수 없으면 "확인 불가"로 바꿉니다.
+
+**쓰던 입력을 지우지 않는다**
+
+- 작성 도중 연결이 바뀌어도 폼을 다른 화면으로 바꾸지 않습니다. 장소 검색이나 저장처럼 지금 실행할 수 없는 영역에만 안내를 붙입니다.
+- 연결이 돌아와도 자동으로 제출하지 않고, 저장에 실패하면 입력을 그대로 둡니다.
+- 일정 수정 화면은 아직 이 기준을 지키지 못합니다. 수정이 제한되면 입력 영역 전체가 안내로 바뀝니다.
+
+**막힌 이유를 그 자리에서 알린다**
+
+- 볼 수 없는 영역에는 내용 대신 이유를 보여 줍니다. 할 수 있는 일이 있으면 "다시 확인"이나 "다시 불러오기" 버튼을 함께 둡니다.
+- 활성화하지 않은 여행은 연결이 끊기면 내용을 가리지만 캐시는 지우지 않습니다. 연결이 돌아오면 기다리지 않고 바로 다시 보입니다.
+
+### 한 가지만 아는 훅을 조합해 화면 상태 하나를 만든다
+
+위 기준은 화면이 아니라 훅에서 정해집니다. 화면이 경비 목록을 읽을 때 부르는 훅은 세 줄입니다.
+
+```ts
+// apps/client/src/features/expense/read-expenses/useTripExpensesReadQuery.ts
+export function useTripExpensesReadQuery(tripId: string | null | undefined, options: TripReadOptions = {}) {
+  const access = useTripReadAccess(tripId, 'expense', options);                 // ① 지금 볼 수 있는가
+  const query = useGetTripExpenses(tripId ?? '', { enabled: access.canFetch }); // ② 데이터를 가져온다
+  return usePolicyReadQuery(query, access);                                     // ③ 화면에 보여 줄 상태로 바꾼다
+}
+```
+
+| 훅 | 아는 것 | 모르는 것 |
+| --- | --- | --- |
+| ① `useTripReadAccess` | 연결 상태, 로그인 상태, 여행 활성 여부. 이를 합쳐 지금 볼 수 있는지와 막힌 이유를 정한다 | 데이터를 어떻게 가져오는지 |
+| ② `useGetTripExpenses` | 캐시 키와 조회 함수 | 지금 볼 수 있는 상황인지 |
+| ③ `usePolicyReadQuery` | ①과 ②의 결과를 화면 상태 하나로 바꾸는 순서 | 그 데이터가 일정인지 경비인지 |
+
+서로의 일을 모르기 때문에 일정과 경비가 같은 조합을 그대로 쓰고, 조건이 바뀌어도 ① 한 곳만 고칩니다.
+
+③이 돌려주는 화면 상태는 여섯 가지입니다. 내용(`data`)은 `ready`에만 있어서, 화면은 내용을 그리기 전에 지금이 어떤 상태인지부터 가려야 합니다. 조회 실패와 0원이 같은 화면이 될 수 없는 이유입니다.
+
+```ts
+// apps/client/src/shared/services/policy-query/usePolicyReadQuery.ts
+export type ReadQueryView<T> =
+  | { kind: 'unselected' }
+  | { kind: 'idle' }
+  | { kind: 'blocked'; policy: OperationPolicy }         // 지금은 볼 수 없음 (이유 포함)
+  | { kind: 'loading' }
+  | { kind: 'error' }                                    // 처음 조회가 실패
+  | { kind: 'ready'; data: T; refreshFailed: boolean };  // 내용 있음 (+ 갱신 실패 여부)
+```
+
+재조회 함수도 같은 조건을 거칩니다. 원본 `refetch`는 화면에 넘기지 않고, 볼 수 없는 상황이면 요청을 보내지 않고 막힌 이유를 돌려주는 함수만 넘깁니다.
+
+### 늦게 도착한 응답이 최신 상태를 덮지 않게 한다
+
+비동기 요청은 보낸 순서대로 돌아오지 않습니다. 화면이 믿을 만하려면 옛 응답이 새 상태를 덮지 않아야 합니다.
+
+여행을 활성화하면 일정을 읽는 곳이 서버에서 기기로 바뀝니다. 전환 직전에 서버로 보낸 조회가 전환 뒤에 도착하면, 방금 기기에 받아 둔 데이터를 옛 응답이 덮습니다. 캐시를 무효화하는 것만으로는 막을 수 없습니다. 진행 중인 요청이 있으면 새 조회가 그 요청을 그대로 이어받기 때문입니다. 그래서 먼저 취소하고 무효화합니다.
+
+```ts
+// apps/client/src/shared/lib/query-refresh.ts (오류 처리 생략)
+export async function cancelAndInvalidateQueries(client: QueryClient, filters: QueryFilters): Promise<void> {
+  await client.cancelQueries(filters);   // 전환 전에 시작한 조회를 버린다
+  client.invalidateQueries(filters);     // 그다음 새로 읽는다
+}
+```
+
+연결 확인도 같습니다. "다시 확인"을 누르고 응답을 기다리는 사이에 기기가 더 새로운 연결 상태를 알려 오면, 뒤늦게 도착한 확인 결과는 버립니다.
+
+표시 상태를 고르는 순서는 [네트워크·조회·화면 복구](context/project/guidance/travel-access/INDEX.md#조회-실행과-화면-표시를-구별한다), 작성 중 입력의 기준은 [작성·입력](context/project/guidance/writing-and-input/INDEX.md)에 있습니다. 상태 판정은 [조회 상태 테스트](apps/client/tests/shared/services/policy-query/read-query.test.tsx)로, 화면이 그대로 그리는지는 [화면 테스트](apps/client/tests/screens/read-query-consumers.test.tsx)로, 연결 관측은 [Network Store 테스트](apps/client/tests/shared/store/network.test.ts)로 확인합니다.
+
 ## Tech Stack & Structure
 
 | 영역 | 현재 구성 |
@@ -292,7 +376,7 @@ pnpm client ios
 
 - iOS만 배포하고 검증합니다. Android 설정은 있지만 같은 수준으로 지원하지 않습니다.
 - 활성 표시는 일정과 경비를 기기로 받아 왔다는 뜻입니다. 지도와 경로는 그 뒤에 따로 준비되며, 오프라인 지도는 내려받은 도시의 범위 안에서만 보입니다.
-- 일정 수정 화면은 수정이 제한되면 입력 영역 전체를 제한 안내로 바꿉니다. 작성 중인 입력은 남기고 실행할 수 없는 부분만 막는 것이 목표입니다.
+- 일정 수정 화면은 수정이 제한되면 입력 영역 전체를 제한 안내로 바꿉니다. [쓰던 입력을 지우지 않는다](#사용자에게-지키는-세-가지)는 기준을 아직 지키지 못합니다.
 
 ---
 
