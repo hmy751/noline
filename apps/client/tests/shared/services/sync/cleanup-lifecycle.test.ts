@@ -27,7 +27,6 @@ jest.mock('@/shared/db/utils', () => ({
   getCurrentISOString: () => 'now',
 }));
 jest.mock('@/shared/services/sync/queue', () => ({
-  hasUnresolvedTripChanges: jest.fn(async () => false),
   hasUnresolvedTripChangesInTransaction: jest.fn(async () => false),
   clearSyncQueue: jest.fn(),
   getSyncQueueStats: jest.fn(),
@@ -37,13 +36,14 @@ jest.mock('@/shared/services/auth/auth-api', () => ({ logout: jest.fn(), deleteA
 jest.mock('@/shared/services/sync/engine', () => ({ syncData: jest.fn() }));
 jest.mock('@/shared/store/auth', () => {
   const clearSession = jest.fn();
-  return { useAuthStore: { getState: () => ({ clearSession }) } };
+  return { requireLocalUserId: () => 'user-1', useAuthStore: { getState: () => ({ clearSession }) } };
 });
 jest.mock('@/shared/lib/queryClient', () => ({
   queryClient: { invalidateQueries: jest.fn(async () => undefined), clear: jest.fn() },
 }));
 
-const findPendingCleanups = jest.fn<() => Promise<{ tripId: string }[]>>();
+type Reservation = { tripId: string; id: string; userId: string };
+const findPendingCleanups = jest.fn<() => Promise<Reservation[]>>();
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
@@ -91,7 +91,7 @@ afterEach(() => {
 
 describe('pending cleanup의 공유 실행과 로그아웃 조율', () => {
   it('startup과 sync의 동시 호출은 같은 작업의 완료를 함께 기다린다', async () => {
-    const work = deferred<{ tripId: string }[]>();
+    const work = deferred<Reservation[]>();
     findPendingCleanups.mockReturnValue(work.promise);
     const startup = processPendingCleanups();
     const sync = processPendingCleanups();
@@ -105,7 +105,7 @@ describe('pending cleanup의 공유 실행과 로그아웃 조율', () => {
   });
 
   it('실제 처리 뒤 캐시 갱신은 공통 실행에서 한 번만 수행한다', async () => {
-    findPendingCleanups.mockResolvedValue([{ tripId: 'trip-1' }]);
+    findPendingCleanups.mockResolvedValue([{ tripId: 'trip-1', id: 'prep-1', userId: 'user-1' }]);
 
     await Promise.all([processPendingCleanups(), processPendingCleanups()]);
 
@@ -127,7 +127,7 @@ describe('pending cleanup의 공유 실행과 로그아웃 조율', () => {
     ['로그아웃', performLogout],
     ['회원 탈퇴', performDeleteAccount],
   ])('%s은 실행 중 cleanup을 기다리고 DB reset 중 새로운 cleanup을 막는다', async (_label, endSession) => {
-    const work = deferred<{ tripId: string }[]>();
+    const work = deferred<Reservation[]>();
     findPendingCleanups.mockReturnValueOnce(work.promise);
     const paused = observeCleanupPause();
     const cleanup = processPendingCleanups();

@@ -106,13 +106,13 @@ Pull·활성화·push 응답은 같은 행을 받으면 남은 큐의 수정 항
 
 [비활성화 hook](../../../../apps/client/src/entities/trip/data/useDeactivateTrip.ts)은 현재 Local 여행·활성 상태와 여행별 pending을 읽고, transaction에서 isActivated=false와 deactivatedAt을 기록한다. 기본값인 `cleanupData=false`면 child 사본을 남긴다. true이면 pending이 있다고 판정할 때 cleanupPending을 남기고, 없다고 판정하면 일정·경비를 soft delete한다. 즉시 정리 때만 지도도 정리한다. 서버 비활성화 알림은 best-effort로 실패해도 Local 상태를 되돌리지 않는다.
 
-현재의 공백은 호출 경로별로 다음과 같다.
+여행별 정리 판단과 남은 제약은 다음과 같다.
 
 | 경계 | 현재 동작과 부족한 보호 |
 | --- | --- |
 | 여행별 queue 조회 | PENDING·FAILED·IN_PROGRESS와 보류 입력을 확인한다. 자식의 부분 UPDATE는 로컬 원본의 여행 귀속도 사용한다. |
-| 검사와 쓰기 | 예약 조회 이후 실제 정리 transaction 안에서 미전송 입력을 다시 확인한다. |
-| 재활성화 | 신규 활성 레코드는 cleanupPending=false지만 기존 레코드의 재활성화 update에는 그 해제가 없다. pending cleanup도 isActivated를 다시 검사하지 않아 재활성 데이터에 옛 예약을 적용할 수 있다. |
+| 검사와 쓰기 | 실제 정리 transaction에서 계정·여행·준비 ID가 예약과 일치하는지 확인한다. 비활성 상태이며 미전송 입력이 해소된 경우에 사본을 정리한다. |
+| 재활성화 | 오프라인 준비를 다시 확정하면서 이전 예약을 취소한다. 이전 버전이 활성 여행에 남긴 예약도 정리 작업에서 취소한다. 같은 여행의 해제·사본 정리는 지도 정리가 끝날 때까지 새 활성화와 순서대로 실행된다. |
 | 처리 수·부분 실패 | pending 때문에 건너뛴 여행도 반환 처리 수에 포함될 수 있다. 지도 실패·vacuum 실패는 무시될 수 있어 반환 수를 실제 삭제·전체 정리 성공 수로 쓰지 않는다. |
 
 pending cleanup은 앱 준비 후 hook과 push 뒤 경로에서 요청하며 하나의 진행 중 실행을 공유한다. 그러나 이 공유는 여행별 보존 판정을 보완하지 않는다. `forceCleanupTrip`은 queue 확인을 건너뛰는 별도 위험 경로이며 일반 cleanup의 안전한 대체재가 아니다. 함수 존재를 사용자의 폐기 승인이나 계정 종료의 force와 같은 절차로 보지 않는다.

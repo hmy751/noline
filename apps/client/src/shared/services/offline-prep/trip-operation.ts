@@ -2,7 +2,7 @@ import { AuthRequiredError, requireLocalUserId, useAuthStore } from '@/shared/st
 
 const pendingTripOperations = new Map<string, Promise<unknown>>();
 
-/** 활성화의 전체 입수와 같은 여행의 저장을 순서대로 실행한다. 대기 뒤 Router가 출처를 다시 고른다. */
+/** 같은 여행의 활성화·비활성화·사본 정리·저장을 순서대로 실행한다. 대기 뒤 Router가 출처를 다시 고른다. */
 export const withTripOperation = async <T>(tripId: string, operation: () => Promise<T>): Promise<T> => {
   const userId = requireLocalUserId();
   const sessionId = useAuthStore.getState().sessionId;
