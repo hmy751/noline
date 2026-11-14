@@ -1,5 +1,7 @@
 # 발견한 버그 확인·수정 재개
 
+**현재는003-04·003-05의 한정 수정과 build16 심사 접수를 마친 상태다.** 먼저 [현재 상태](current/state/index.md)와 [수정 기록](records/2026-11-14-01-reactivation-and-shared-city-map-fixes.md)을 읽는다. 사본 예약·재활성화 문제는 [Ticket04](current/memory/tickets/04-activation-data-lifecycle.md), 공유 지도·만료 복원·native 확인은 [Ticket05](current/memory/tickets/05-offline-map-readiness.md)에서 범위를 고른다. 심사 결과를 잇는 요청이면 [007 배포 기록](../007-sync-failure-recovery/records/2026-11-14-08-build-16-release-and-review-submission.md)을 읽는다. 접수는 완료했으나 승인·공개는 아직 확인하지 않았다. 아래 007 단계별 재개 안내는 선행 이력이다.
+
 다음 세션은 [007 Ticket 09](../007-sync-failure-recovery/current/memory/tickets/09-staged-code-review-and-refinement.md)에서 시작한다. **2단계부터 실제 코드 확인→필요 수정/정리→독립 리뷰·검증→사용자 코드 설명**을 한 단계씩 이어간다. 선행 high 완료는 유지하되 이 후속 개별 검토는 미착수다. [판단 과정과 열린 종합](../007-sync-failure-recovery/records/2026-11-12-11-stage-one-judgment-and-next-tickets.md) 및 중앙 원문으로 마지막 아쉬움·잠정 감사 해석을 복원하고 승인된 규칙으로 답습하지 않는다. 009 루프 개선과 독립 착수하며 기다리지 않는다.
 
 마지막 제품 코드 기준 8f94af5c(경로 부모 a527e977)와 2〜7단계/다른 작업의 dirty 내용을 구별한다. 전체 reset·복사본 덮어쓰기·일괄 stage하지 않는다. 단계 번호는 설명 구획이며 고정 실행 순서가 아니다. 남은 native 확인·push·배포는 별도다.

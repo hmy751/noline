@@ -1,6 +1,8 @@
 # 현재 제품 산출물
 
-[Ticket 12](../current/memory/tickets/12-pull-consistency.md)는 007-07과 공동 개발·검증 완료 · 배포 별도이다. 전체 Work 완료를 뜻하지 않는다.
+최신 한정 산출물은 [재활성화·공유지도 수정 기록](../records/2026-11-14-01-reactivation-and-shared-city-map-fixes.md)에 있다. f5cb9564의 예약 취소/삭제 직전 확인과 c8004d6e의 공유지도5파일이 빌드 16에 포함됐다. 실제native pack·B 오프라인 도로/마커 관찰과 마지막 반납 삭제는 본문에 값으로 보존했다. 화면은 [B의 오프라인 지도](B-offline-map.jpg), 원시 JSON은 기록의 임시경로를 따른다. 전체 920개·예약 6개 성공이며 물리 iPhone·실제 서버 재전송은 구별한다.
+
+[Ticket 12](../current/memory/tickets/12-pull-consistency.md)는 007-07과 공동 개발·검증 완료이며 이후 코드는 build 16 배포판에 포함됐다. 전체 통합 사용 검증과 구별한다. 전체 Work 완료를 뜻하지 않는다.
 
 | 산출물 | 읽을 이유 |
 | --- | --- |

@@ -1,6 +1,8 @@
 # 007 — 다음 설명과 작업을 이어가기
 
-**사용자가 요청한 Work007 관련 남은 코드 정리66파일을 f4faf7f3로 커밋했다.** [남은 코드 정리 기록](records/2026-11-14-05-remaining-code-refinement-commit.md)에서 범위와 검사·커밋 결과를 본다. client25묶음370개·server5묶음46개와 server 타입 검사가 통과했고, 격리 환경의 client 타입 오류8개는 동일 환경의 HEAD baseline 출력과 같아 추가 오류가 없었다. 미사용 반환·중복 검증·이름 정리를 포함하며 Object.hasOwn은 상속 키 거절 경계 강화다. UI008·다른 문서·서버 통합 검사 환경·.pnpm-store는 제외한다. 앞선 여행 목록fffab93d·사본 정리 보호6caa8846는 유지하며 전체 Work 완료·배포와 구별한다.
+**현재는 1.1.2(16) Apple 심사 대기 접수까지 완료했다.** [현재 상태](current/state/index.md)와 [build 16 배포 기록](records/2026-11-14-08-build-16-release-and-review-submission.md)을 먼저 읽어 승인·실제 공개와 구별한다. 수정 내용을 묻는 경우 [003 수정 기록](../003-bug-investigation-and-fixes/records/2026-11-14-01-reactivation-and-shared-city-map-fixes.md)에서 f5cb9564·c8004d6e의 한정 범위, 기존 만료 정책 복원, native 시뮬레이터와 물리기기 미확인을 확인한다. 이전 build 15·철회판·단계별 미커밋 상태는 과거 이력이며 아래 안내는 코드 설명·선별 커밋 맥락을 다시 볼 때 선택한다.
+
+**사용자가 요청한 Work007 관련 남은 코드 정리66파일을 f4faf7f3로 커밋했다.** [남은 코드 정리 기록](records/2026-11-14-05-remaining-code-refinement-commit.md)에서 범위와 검사·커밋 결과를 본다. client25묶음 370개·server5묶음46개와 server 타입 검사가 통과했고, 격리 환경의 client 타입 오류8개는 동일 환경의 HEAD baseline 출력과 같아 추가 오류가 없었다. 미사용 반환·중복 검증·이름 정리를 포함하며 Object.hasOwn은 상속 키 거절 경계 강화다. UI008·다른 문서·서버 통합 검사 환경·.pnpm-store는 제외한다. 앞선 여행 목록fffab93d·사본 정리 보호6caa8846는 유지하며 전체 Work 완료·배포와 구별한다.
 
 먼저 [Ticket09](current/memory/tickets/09-staged-code-review-and-refinement.md)에서 수행 범위와 현재 상태를, [후속 설명·판단 참고](records/2026-11-13-16-explanation-and-review-continuity.md)에서 이번까지 이해한 것과 설명·검토·커밋 시 참고할 조건을 읽는다. 기존 [1단계 실행 합의](records/2026-11-12-12-workflow-application-agreement.md)와 [2단계 판단의 적용](records/2026-11-13-05-stage-three-pull-review.md#기존-워크플로에-더해-적용한-판단)은 유지한다. 스킬을 바꾸거나 여섯 검토자 전수조사·매번 퀴즈 같은 새 고정 절차를 도입한 것이 아니다.
 

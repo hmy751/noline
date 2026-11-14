@@ -17,3 +17,6 @@
 - [분석 보존 검증](2026-09-10-05-analysis-preservation-validation.md): 원문 일치·링크 외 본문 일치와 원래 경로 없는 재진입 확인.
 
 후속 분석·결정·실행 기록은 이 디렉터리에 날짜별로 남긴다. 원문·변경하지 않은 snapshot은 [source](../source/index.md), 현재 기준과 진행은 [current](../current/memory/index.md)가 소유한다.
+
+
+- [2026-11-14 — 재활성화 정리 예약과 같은 도시 지도 수정·검증](2026-11-14-01-reactivation-and-shared-city-map-fixes.md): 철회판과 f5cb9564 재구현, c8004d6e의 필요한 공유지도 책임, 만료정책 복원·920개 검사·native B 지도 보존·마지막 반납 삭제를 구별한다. 빌드 16 접수는007기록으로 연결한다.

@@ -1,5 +1,15 @@
 # 현재 상태와 다음 행동
 
+**003-04 정리 예약 수정 f5cb9564와 003-05 도시 공유 지도 수정 c8004d6e를 완료했고, 두 수정이 포함된 1.1.2(16)이 Apple 심사 대기로 접수됐다.** [수정 기록](../../records/2026-11-14-01-reactivation-and-shared-city-map-fixes.md)과 [Ticket04](../memory/tickets/04-activation-data-lifecycle.md)·[Ticket05](../memory/tickets/05-offline-map-readiness.md)에서 이번에 고친 한정 범위를 읽는다. [007 배포 기록](../../../007-sync-failure-recovery/records/2026-11-14-08-build-16-release-and-review-submission.md)이 접수·자동 공개 설정을 소유한다. 심사 승인·실제 공개는 아직 확인하지 않았다.
+
+재활성화 때 옛 예약을 취소하고 정리 직전 현재 예약·활성 상태를 재확인한다. 지도를 반납하는 A의 보유 표시만 바꾸고 B가 보유한 공유 파일은 남긴다. 만료 처리는 원래대로 도시 DB 등록만 갱신·삭제하며 지도 파일·여행 보유 표시는 바꾸지 않는다. 전체 920개·별도 예약 6개와 native Mapbox 시뮬레이터의 B 오프라인 도로/마커 표시·마지막 반납 pack 삭제를 확인했다. 실제 서버 재전송 시점은 시험 데이터로 대신했고 물리 iPhone의 빌드 16 지도 확인은 미실행이다.
+
+이전 4b743e0f는 dbb5902e로 철회한 판본이며 해당 917개·독립 106개를 현재판 결과로 쓰지 않는다. 미커밋 008 UI와 타 작업은 보존했고 배포에서 제외했다. 현재 배포 요청은 접수 확인까지 마쳤지만 003 전체·Ticket 04/05의 모든 UX·정책 검증 완료는 아니다. 다음 출시 확인에서는 심사 결과와 실제 공개를 구별한다.
+
+## 선행 검토·단계별 커밋 이력
+
+아래 ‘다음 작업’, 미착수·미커밋·미배포는 당시 상태이며 위 최신 결과를 대신하지 않는다.
+
 다른 세션의 다음 작업은 **[007 Ticket 09의 2〜7단계 후속 코드 검토·정리](../../../007-sync-failure-recovery/current/memory/tickets/09-staged-code-review-and-refinement.md)**다. 선행 high 검토·수정·검증 완료와 원래 두 Ticket 정책은 유지하며, 이후 1단계처럼 코드 설명·질문을 연결한 후속 개별 검토는 아직 미착수다. 2단계 실제 수신 경로부터 확인한다. [009 루프 개선](../../../009-development-review-improvement/current/memory/tickets/01-stage-one-review-and-judgment-loop.md)은 별도 Ticket이며 서로 착수를 기다리지 않는다. 마지막 종합에도 사용자 아쉬움이 남았고 새 스킬·판단 규칙은 아직 채택하지 않았다. 사용자는 10171행에서 미검토 코드 작업부는 커밋하지 않고 기록·티켓·재개 안내 등 문서만 선별 커밋하도록 승인했다. 마지막 제품 코드 기준은 8f94af5c(경로 부모 a527e977)이며 이후 문서 전용 커밋으로 현재 HEAD는 달라질 수 있다. 새 세션은 실제 HEAD와 diff를 재확인하되 후속 2〜7단계 제품 코드는 검토 후로 남기고 일괄 stage·commit하지 않는다.
 
 현재는 **클라이언트 저장 1단계 분리 커밋 8f94af5c 완료** 상태다. 경로 커밋 a527e977 위에 제품/검사51·기록/색인2의 53파일을 커밋했다. [분리 범위와 검사](../../../007-sync-failure-recovery/records/2026-11-12-10-stage-one-isolated-commit.md)의 client789·독립37·기존 서버73/타입·schema build가 근거이며, 전체 workingtree892·독립36과 다른 판본이다. 후속 2〜7단계·direct-update-failure/구버전·삭제·응답/pull은 작업 폴더에 미커밋으로 보존한다. 앞선 코드 커밋은 다시 쓰지 않는다. 최신 요청은 문서만 별도 커밋하도록 허용한 것이며 후속 제품 코드는 확인 전 미커밋으로 보존한다. push·배포·기존 native 확인은 미실행이다.

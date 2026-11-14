@@ -1,5 +1,7 @@
 # 05. 서버 배포와 1.1.0 build 13 출시
 
+이 Ticket의 원래 범위는 1.1.0(13) 출시 이력이다. **현재 배포는 1.1.2(16)·Apple WAITING_FOR_REVIEW 접수 완료**이며 [build 16 배포 기록](../../../records/2026-11-14-08-build-16-release-and-review-submission.md)과 [현재상태](../../state/index.md)를 읽는다. 이전세대의 완료조건·수치는 아래 당시 기록으로 보존한다.
+
 ## 맡은 결과와 범위
 
 1단계 결과를 운영에 싣는다. 서버 수정(Ticket 01)을 Render에 배포하고, 앱 수정(Ticket 02)을 넣은 1.1.0 build 13을 TestFlight에서 확인한다. 그 뒤 사용자가 1.1.0을 build 13으로 심사에 제출할 수 있게 준비한다.
