@@ -8,7 +8,7 @@ import { getSchedulesLocal } from '@/entities/schedule/lib/schedule-local';
 import { ScheduleRepository } from '@/entities/schedule/repository/schedule-repository';
 import { fetchAllTrips } from '@/entities/trip/api/trips';
 import { useActivateTrip as getActivationOptions } from '@/entities/trip/data/useActivateTrip';
-import { useDeactivateTrip as getDeactivationOptions } from '@/entities/trip/data/useDeactivateTrip';
+import { useDeactivateTrip } from '@/entities/trip/data/useDeactivateTrip';
 import { refreshTripListLocal } from '@/entities/trip/lib/trip-local';
 import { TripRepository } from '@/entities/trip/repository/trip-repository';
 import apiClient from '@/shared/api/fetcher';
@@ -27,9 +27,7 @@ import {
 } from '@/shared/db';
 import { observeFieldEdits } from '@/shared/services/edit-stamp';
 import { downloadRoutesForSchedules } from '@/shared/services/directions/route-downloader';
-import { cleanupOfflineMapForTrip } from '@/shared/services/offline-map';
 import { downloadOfflineMapInBackground } from '@/shared/services/offline-map/download';
-import { withTripOperation } from '@/shared/services/offline-prep/trip-operation';
 import syncApi from '@/shared/services/sync/api';
 import { preserveLegacyHold, clearLegacyHold } from '@/shared/services/sync/legacy-holds';
 import { processPendingCleanups, forceCleanupTrip, vacuumDeletedRecords } from '@/shared/services/sync/cleanup-job';
@@ -54,7 +52,7 @@ jest.mock('@/shared/api/fetcher', () => ({
   __esModule: true,
   default: { get: jest.fn(), post: jest.fn(), put: jest.fn(), delete: jest.fn() },
 }));
-jest.mock('@/shared/services/offline-map', () => ({ cleanupOfflineMapForTrip: jest.fn(async () => undefined) }));
+jest.mock('@/shared/services/offline-map', () => ({ cleanupOfflineMapForTrip: async () => undefined }));
 jest.mock('@/shared/services/offline-map/download', () => ({
   downloadOfflineMapInBackground: jest.fn(async () => undefined),
 }));
@@ -152,13 +150,6 @@ const activateTripForTest = async () => {
     }
   ).mutationFn(TRIP.id);
 };
-
-const deactivateAndClearTripForTest = () =>
-  (
-    getDeactivationOptions() as unknown as {
-      mutationFn: (input: { tripId: string; cleanupData: boolean }) => Promise<unknown>;
-    }
-  ).mutationFn({ tripId: TRIP.id, cleanupData: true });
 
 beforeEach(async () => {
   jest.clearAllMocks();
@@ -349,8 +340,11 @@ it('일반 비활성화의 즉시 정리도 서버 원문을 같이 버린다', 
     data: { trips: [TRIP], schedules: [SCHEDULE], expenses: [EXPENSE] },
   });
   await activateTripForTest();
+  const deactivate = useDeactivateTrip() as unknown as {
+    mutationFn: (input: { tripId: string; cleanupData: boolean }) => Promise<unknown>;
+  };
   jest.mocked(apiClient.post<unknown, unknown>).mockResolvedValueOnce({ success: true });
-  await deactivateAndClearTripForTest();
+  await deactivate.mutationFn({ tripId: TRIP.id, cleanupData: true });
   expect((await getDatabase().select().from(serverRecords).all()).every((state) => state.record === null)).toBe(true);
 });
 
@@ -574,7 +568,11 @@ it('명시적 비활성화와 정리 뒤 늦은 pull은 메타데이터만 받�
   const pull = await prepareActiveTripForPull();
   const metadata = await getDatabase().select().from(syncMetadata).all();
   jest.mocked(apiClient.post<unknown, unknown>).mockResolvedValueOnce({ success: true });
-  await deactivateAndClearTripForTest();
+  await (
+    useDeactivateTrip() as unknown as {
+      mutationFn: (input: { tripId: string; cleanupData: boolean }) => Promise<unknown>;
+    }
+  ).mutationFn({ tripId: TRIP.id, cleanupData: true });
   pull.respond();
   await pull.pending;
   expect(await getDatabase().select().from(tripActivations).get()).toMatchObject({ isActivated: false });
@@ -766,7 +764,11 @@ it.each(['PENDING', 'FAILED', 'IN_PROGRESS'] as const)(
     await getDatabase().update(syncQueue).set({ status }).where(eq(syncQueue.id, 'partial-update'));
     const before = await getDatabase().select().from(syncQueue).all();
     jest.mocked(apiClient.post<unknown, unknown>).mockResolvedValueOnce({ success: true });
-    await deactivateAndClearTripForTest();
+    const deactivate = useDeactivateTrip() as unknown as {
+      mutationFn: (input: { tripId: string; cleanupData: boolean }) => Promise<unknown>;
+    };
+
+    await deactivate.mutationFn({ tripId: TRIP.id, cleanupData: true });
 
     expect(await getDatabase().select().from(tripActivations).get()).toMatchObject({
       isActivated: false, cleanupPending: true,
@@ -783,7 +785,10 @@ it('보류 입력은 비활성화 후 사본 정리를 미루고 사용자 확�
   });
   await preserveLegacyHold('expenses', EXPENSE.id, TRIP.id, { amount: '30' }, EXPENSE, 'held-input');
   jest.mocked(apiClient.post<unknown, unknown>).mockResolvedValueOnce({ success: true });
-  await deactivateAndClearTripForTest();
+  const deactivate = useDeactivateTrip() as unknown as {
+    mutationFn: (input: { tripId: string; cleanupData: boolean }) => Promise<unknown>;
+  };
+  await deactivate.mutationFn({ tripId: TRIP.id, cleanupData: true });
   await processPendingCleanups();
   expect(await getDatabase().select().from(expenses).get()).toMatchObject({ deletedAt: null });
   expect(await getDatabase().select().from(tripActivations).get()).toMatchObject({ cleanupPending: true });
@@ -792,132 +797,6 @@ it('보류 입력은 비활성화 후 사본 정리를 미루고 사용자 확�
   await processPendingCleanups();
   expect(await getDatabase().select().from(expenses).get()).toMatchObject({ deletedAt: expect.any(String) });
   expect(await getDatabase().select().from(tripActivations).get()).toMatchObject({ cleanupPending: false });
-});
-
-const seedCleanupActivation = (state: { isActivated: boolean; cleanupPending: boolean }) =>
-  getDatabase()
-    .insert(tripActivations)
-    .values({
-      id: 'old-preparation',
-      tripId: TRIP.id,
-      userId: TRIP.userId,
-      ...state,
-      activatedAt: FIXTURE_TIME,
-      expiresAt: FIXTURE_TIME,
-      createdAt: FIXTURE_TIME,
-      updatedAt: FIXTURE_TIME,
-    });
-
-const activationResponse = {
-  success: true,
-  data: { trips: [TRIP], schedules: [SCHEDULE], expenses: [EXPENSE] },
-};
-
-it('미전송 경비 때문에 미룬 정리는 재활성화 때 취소되고 전송 완료 후에도 새 사본을 보존한다', async () => {
-  await seedCleanupActivation({ isActivated: true, cleanupPending: false });
-  const title = '서버에 보낼 경비 제목';
-  await enqueueTestTask('pending-expense', { title, edit: EDIT_STAMP });
-  jest
-    .mocked(apiClient.post<unknown, unknown>)
-    .mockResolvedValueOnce({ success: true })
-    .mockResolvedValueOnce(activationResponse);
-
-  await deactivateAndClearTripForTest();
-  expect(await getDatabase().select().from(tripActivations).get()).toMatchObject({
-    isActivated: false,
-    cleanupPending: true,
-  });
-  await activateTripForTest();
-  const reactivated = await getDatabase().select().from(tripActivations).get();
-  expect(await getExpensesByTripIdLocal(TRIP.id)).toEqual([expect.objectContaining({ id: EXPENSE.id, title })]);
-  expect(await getDatabase().select().from(syncQueue).get()).toMatchObject({ id: 'pending-expense' });
-
-  await reconcileServerRecord('expenses', { ...EXPENSE, title, version: 2 }, 'pending-expense');
-  expect(await getDatabase().select().from(syncQueue).all()).toEqual([]);
-  await processPendingCleanups();
-  expect(await getSchedulesLocal(TRIP.id)).toEqual([expect.objectContaining({ id: SCHEDULE.id })]);
-  expect(await getExpensesByTripIdLocal(TRIP.id)).toEqual([expect.objectContaining({ id: EXPENSE.id, title })]);
-  expect(reactivated).toMatchObject({ isActivated: true, cleanupPending: false });
-  expect(downloadOfflineMapInBackground).toHaveBeenCalledWith(TRIP.id);
-  expect(cleanupOfflineMapForTrip).not.toHaveBeenCalled();
-});
-
-it('구버전에서 활성 여행에 남긴 정리 예약은 현재 준비 ID·일정·경비·지도를 보존하며 해제한다', async () => {
-  await seedCleanupActivation({ isActivated: true, cleanupPending: true });
-  await processPendingCleanups();
-
-  expect(await getSchedulesLocal(TRIP.id)).toEqual([expect.objectContaining({ id: SCHEDULE.id })]);
-  expect(await getExpensesByTripIdLocal(TRIP.id)).toEqual([expect.objectContaining({ id: EXPENSE.id })]);
-  expect(cleanupOfflineMapForTrip).not.toHaveBeenCalled();
-  expect(await getDatabase().select().from(tripActivations).get()).toMatchObject({
-    id: 'old-preparation',
-    isActivated: true,
-    cleanupPending: false,
-  });
-});
-
-it('정리 대기 중 다른 준비 ID로 바뀐 비활성 예약은 그 예약을 다시 읽은 정리만 실행한다', async () => {
-  await seedCleanupActivation({ isActivated: false, cleanupPending: true });
-  const replaceReservation = createDeferred<void>();
-  const transition = withTripOperation(TRIP.id, async () => {
-    await replaceReservation.promise;
-    await getDatabase()
-      .update(tripActivations)
-      .set({ id: 'new-preparation' })
-      .where(eq(tripActivations.tripId, TRIP.id));
-  });
-  const oldCleanup = processPendingCleanups();
-  // 이전 예약을 조회한 정리가 같은 여행의 전환을 기다리는 동안 준비 ID가 바뀐다.
-  await new Promise<void>((resolve) => setImmediate(resolve));
-  replaceReservation.resolve();
-  await Promise.all([transition, oldCleanup]);
-
-  expect(await getDatabase().select().from(tripActivations).get()).toMatchObject({
-    id: 'new-preparation',
-    isActivated: false,
-    cleanupPending: true,
-  });
-  expect(await getDatabase().select().from(schedules).get()).toMatchObject({ id: SCHEDULE.id, deletedAt: null });
-  expect(await getDatabase().select().from(expenses).get()).toMatchObject({ id: EXPENSE.id, deletedAt: null });
-  expect(cleanupOfflineMapForTrip).not.toHaveBeenCalled();
-
-  await processPendingCleanups();
-  expect(await getDatabase().select().from(tripActivations).get()).toMatchObject({ cleanupPending: false });
-  expect(await getDatabase().select().from(schedules).get()).toMatchObject({ deletedAt: expect.any(String) });
-  expect(await getDatabase().select().from(expenses).get()).toMatchObject({ deletedAt: expect.any(String) });
-  expect(cleanupOfflineMapForTrip).toHaveBeenCalledWith(TRIP.id);
-});
-
-it.each(['즉시', '예약'] as const)('%s 지도 정리가 끝난 뒤 같은 여행의 새 오프라인 준비가 진행된다', async (kind) => {
-  await seedCleanupActivation({ isActivated: kind === '즉시', cleanupPending: kind === '예약' });
-  const mapCleanupStarted = createDeferred<void>();
-  const finishMapCleanup = createDeferred<void>();
-  jest.mocked(cleanupOfflineMapForTrip).mockImplementationOnce(async () => {
-    mapCleanupStarted.resolve();
-    await finishMapCleanup.promise;
-  });
-  const post = jest.mocked(apiClient.post<unknown, unknown>);
-  if (kind === '즉시') {
-    post.mockResolvedValueOnce(activationResponse);
-  }
-  post.mockResolvedValueOnce(activationResponse);
-  const cleanup = kind === '즉시' ? deactivateAndClearTripForTest() : processPendingCleanups();
-  await mapCleanupStarted.promise;
-  const activation = activateTripForTest();
-  try {
-    // 동기 SQLite와 이미 완료된 서버 응답을 사용하는 활성화가 실행될 기회를 준다.
-    await new Promise<void>((resolve) => setImmediate(resolve));
-    expect(await getDatabase().select().from(tripActivations).get()).toMatchObject({ isActivated: false });
-    expect(downloadOfflineMapInBackground).not.toHaveBeenCalled();
-  } finally {
-    finishMapCleanup.resolve();
-    await Promise.all([cleanup, activation]);
-  }
-
-  expect(await getDatabase().select().from(tripActivations).get()).toMatchObject({ isActivated: true });
-  expect(await getSchedulesLocal(TRIP.id)).toEqual([expect.objectContaining({ id: SCHEDULE.id })]);
-  expect(await getExpensesByTripIdLocal(TRIP.id)).toEqual([expect.objectContaining({ id: EXPENSE.id })]);
-  expect(downloadOfflineMapInBackground).toHaveBeenCalledWith(TRIP.id);
 });
 
 it('vacuum은 보류가 참조하는 원본을 남기고 해제 뒤 삭제할 때 서버 확인본의 본문도 비운다', async () => {

@@ -9,7 +9,6 @@ import { getDatabase, trips, tripActivations } from '@/shared/db';
 import { withTransaction, getCurrentISOString } from '@/shared/db/utils';
 import { cancelAndInvalidateQueries } from '@/shared/lib/query-refresh';
 import { cleanupOfflineMapForTrip } from '@/shared/services/offline-map';
-import { withTripOperation } from '@/shared/services/offline-prep/trip-operation';
 import { clearTripCopiesInTransaction } from '@/shared/services/sync/cleanup-job';
 import { hasUnresolvedTripChangesInTransaction } from '@/shared/services/sync/queue';
 
@@ -20,67 +19,66 @@ export const useDeactivateTrip = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ tripId, cleanupData = false }: { tripId: string; cleanupData?: boolean }) =>
-      withTripOperation(tripId, async () => {
-        const now = getCurrentISOString();
+    mutationFn: async ({ tripId, cleanupData = false }: { tripId: string; cleanupData?: boolean }) => {
+      const now = getCurrentISOString();
 
-        const trip = await getDatabase().select().from(trips).where(eq(trips.id, tripId)).get();
+      const trip = await getDatabase().select().from(trips).where(eq(trips.id, tripId)).get();
 
-        if (!trip) {
-          throw new Error(`Trip not found: ${tripId}`);
+      if (!trip) {
+        throw new Error(`Trip not found: ${tripId}`);
+      }
+
+      const existingActivation = await getDatabase()
+        .select()
+        .from(tripActivations)
+        .where(eq(tripActivations.tripId, tripId))
+        .get();
+
+      if (!existingActivation?.isActivated) {
+        return { tripId, alreadyDeactivated: true };
+      }
+
+      const cleanupExecuted = await withTransaction(async () => {
+        const hasPendingTasks = await hasUnresolvedTripChangesInTransaction(tripId);
+        const shouldDeferCleanup = cleanupData && hasPendingTasks;
+        const shouldClearCopies = cleanupData && !hasPendingTasks;
+
+        await getDatabase()
+          .update(tripActivations)
+          .set({
+            isActivated: false,
+            deactivatedAt: now,
+            cleanupPending: shouldDeferCleanup,
+            updatedAt: now,
+          })
+          .where(eq(tripActivations.tripId, tripId));
+
+        if (shouldClearCopies) {
+          await clearTripCopiesInTransaction(tripId, now);
         }
 
-        const existingActivation = await getDatabase()
-          .select()
-          .from(tripActivations)
-          .where(eq(tripActivations.tripId, tripId))
-          .get();
+        return shouldClearCopies;
+      });
 
-        if (!existingActivation?.isActivated) {
-          return { tripId, alreadyDeactivated: true };
-        }
-
-        const cleanupExecuted = await withTransaction(async () => {
-          const hasPendingTasks = await hasUnresolvedTripChangesInTransaction(tripId);
-          const shouldDeferCleanup = cleanupData && hasPendingTasks;
-          const shouldClearCopies = cleanupData && !hasPendingTasks;
-
-          await getDatabase()
-            .update(tripActivations)
-            .set({
-              isActivated: false,
-              deactivatedAt: now,
-              cleanupPending: shouldDeferCleanup,
-              updatedAt: now,
-            })
-            .where(eq(tripActivations.tripId, tripId));
-
-          if (shouldClearCopies) {
-            await clearTripCopiesInTransaction(tripId, now);
-          }
-
-          return shouldClearCopies;
-        });
-
-        if (cleanupExecuted) {
-          try {
-            await cleanupOfflineMapForTrip(tripId);
-          } catch (error) {
-            console.error(`[TripActivation] Failed to cleanup offline map (ignored):`, error);
-          }
-        }
-
+      if (cleanupExecuted) {
         try {
-          await apiClient.post(`/api/trips/${tripId}/deactivate`);
+          await cleanupOfflineMapForTrip(tripId);
         } catch (error) {
-          console.warn(`[TripActivation] Failed to notify deactivation to server (ignored):`, error);
+          console.error(`[TripActivation] Failed to cleanup offline map (ignored):`, error);
         }
+      }
 
-        return {
-          tripId,
-          alreadyDeactivated: false,
-        };
-      }),
+      try {
+        await apiClient.post(`/api/trips/${tripId}/deactivate`);
+      } catch (error) {
+        console.warn(`[TripActivation] Failed to notify deactivation to server (ignored):`, error);
+      }
+
+      return {
+        tripId,
+        alreadyDeactivated: false,
+      };
+    },
     onSuccess: async (deactivation) => {
       await cancelAndInvalidateQueries(queryClient, { queryKey: tripQueryKeys.base });
 

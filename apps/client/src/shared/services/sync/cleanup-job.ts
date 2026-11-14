@@ -14,10 +14,9 @@ import { SOFT_DELETE_VACUUM_DAYS } from '@/shared/lib/lifecycle';
 import { queryClient } from '@/shared/lib/queryClient';
 import { generateId } from '@/shared/services/id/ulid';
 import { cleanupOfflineMapForTrip } from '@/shared/services/offline-map';
-import { withTripOperation } from '@/shared/services/offline-prep/trip-operation';
 import { requireLocalUserId } from '@/shared/store/auth';
 
-import { hasUnresolvedTripChangesInTransaction } from './queue';
+import { hasUnresolvedTripChanges, hasUnresolvedTripChangesInTransaction } from './queue';
 import { releaseServerRecordBodiesInTransaction } from './server-state';
 
 let activeCleanup: Promise<number> | null = null;
@@ -84,8 +83,7 @@ async function runPendingCleanups(): Promise<number> {
 
     for (const activation of pendingCleanups) {
       try {
-        // 지도 정리가 끝날 때까지 같은 여행의 새 활성화와 겹치지 않게 한다.
-        await withTripOperation(activation.tripId, () => processCleanupForTrip(activation));
+        await processCleanupForTrip(activation.tripId);
         handledTripCount++;
       } catch (error) {
         console.error(`[Cleanup] Failed to process cleanup for trip ${activation.tripId}:`, error);
@@ -128,36 +126,12 @@ export const clearTripCopiesInTransaction = async (tripId: string, now: string):
     .where(and(eq(tripActivations.tripId, tripId), eq(tripActivations.userId, userId)));
 };
 
-type CleanupCandidate = Pick<typeof tripActivations.$inferSelect, 'id' | 'tripId' | 'userId'>;
-
-const processCleanupForTrip = async ({ id, tripId, userId }: CleanupCandidate): Promise<void> => {
-  if (userId !== requireLocalUserId()) {
+const processCleanupForTrip = async (tripId: string): Promise<void> => {
+  if (await hasUnresolvedTripChanges(tripId)) {
     return;
   }
 
   const cleaned = await withTransaction(async () => {
-    const db = getDatabase();
-    const reservation = and(
-      eq(tripActivations.id, id),
-      eq(tripActivations.tripId, tripId),
-      eq(tripActivations.userId, userId),
-      eq(tripActivations.cleanupPending, true),
-    );
-    const current = await db
-      .select({ isActivated: tripActivations.isActivated })
-      .from(tripActivations)
-      .where(reservation)
-      .get();
-    if (!current) {
-      return false;
-    }
-
-    // 이전 버전에서 활성 상태로 남은 예약은 사본을 그대로 두고 취소한다.
-    if (current.isActivated) {
-      await db.update(tripActivations).set({ cleanupPending: false }).where(reservation);
-      return false;
-    }
-
     if (await hasUnresolvedTripChangesInTransaction(tripId)) {
       return false;
     }

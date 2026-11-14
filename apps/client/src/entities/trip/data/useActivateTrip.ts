@@ -168,7 +168,6 @@ const applyActivationResponse = (
       lastSyncAt: now,
       syncProgress: 100,
       dataDownloaded: true,
-      cleanupPending: false,
       updatedAt: now,
     } as const;
 
@@ -179,6 +178,7 @@ const applyActivationResponse = (
         tripId,
         userId,
         mapDownloaded: false,
+        cleanupPending: false,
         createdAt: now,
       })
       .onConflictDoUpdate({ target: tripActivations.tripId, set: preparation });

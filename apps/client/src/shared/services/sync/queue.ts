@@ -209,6 +209,11 @@ export const getSyncQueueStats = async (): Promise<{
   };
 };
 
+/** 전송 또는 사용자 복구가 끝나지 않아 기기 사본을 보존해야 하는지 확인한다. */
+export const hasUnresolvedTripChanges = async (tripId: string): Promise<boolean> => {
+  return runDatabaseOperation(() => hasUnresolvedTripChangesInTransaction(tripId));
+};
+
 /** 정리 판단과 쓰기를 같은 transaction에 묶을 때 사용한다. */
 export const hasUnresolvedTripChangesInTransaction = async (tripId: string): Promise<boolean> => {
   const tasks = await getDatabase()
