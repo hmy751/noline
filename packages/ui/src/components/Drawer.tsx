@@ -10,6 +10,8 @@ import {
   ScrollView,
   Animated,
   Dimensions,
+  StyleSheet,
+  useWindowDimensions,
 } from 'react-native';
 import { cn } from '../lib/utils';
 
@@ -40,6 +42,7 @@ export type DrawerProps = {
  */
 export const Drawer = ({ isOpen, onClose, children, title, showHandle = true, childrenOverlay }: DrawerProps) => {
   const slideAnim = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
+  const { height: windowHeight } = useWindowDimensions();
 
   useEffect(() => {
     if (isOpen) {
@@ -63,36 +66,41 @@ export const Drawer = ({ isOpen, onClose, children, title, showHandle = true, ch
   return (
     <Modal visible={isOpen} transparent animationType='fade' onRequestClose={onClose} statusBarTranslucent>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-        <TouchableWithoutFeedback onPress={onClose} accessible={false}>
-          <View className='flex-1 justify-end bg-black/50'>
-            {/* 컨테이너가 내부 입력·버튼을 하나의 접근성 요소로 합치지 않게 한다. */}
-            <TouchableWithoutFeedback accessible={false}>
-              <Animated.View
-                className='bg-card rounded-t-2xl max-h-[90vh]'
-                style={{ transform: [{ translateY: slideAnim }] }}
-              >
-                {/* Handle */}
-                {showHandle && (
-                  <View className='items-center py-2xs'>
-                    <View className='w-10 h-1 rounded-full bg-border' />
-                  </View>
-                )}
+        <View className='flex-1 justify-end bg-black/50'>
+          {/* 배경 터치로 닫기. 시트의 조상이 아니라 형제로 두어 ScrollView의 스크롤 제스처를 가로채지 않게 한다. */}
+          <TouchableWithoutFeedback onPress={onClose} accessible={false}>
+            <View style={StyleSheet.absoluteFill} />
+          </TouchableWithoutFeedback>
 
-                {/* Header */}
-                {title && (
-                  <View className='px-sm pt-xs pb-sm border-b border-card-border'>
-                    <Text className='text-title-large text-foreground'>{title}</Text>
-                  </View>
-                )}
+          <Animated.View
+            className='bg-card rounded-t-2xl'
+            style={{ maxHeight: windowHeight * 0.9, transform: [{ translateY: slideAnim }] }}
+          >
+            {/* Handle */}
+            {showHandle && (
+              <View className='items-center py-2xs'>
+                <View className='w-10 h-1 rounded-full bg-border' />
+              </View>
+            )}
 
-                {/* Content */}
-                <ScrollView className='px-sm pt-lg pb-md' showsVerticalScrollIndicator={false} bounces={false}>
-                  {children}
-                </ScrollView>
-              </Animated.View>
-            </TouchableWithoutFeedback>
-          </View>
-        </TouchableWithoutFeedback>
+            {/* Header */}
+            {title && (
+              <View className='px-sm pt-xs pb-sm border-b border-card-border'>
+                <Text className='text-title-large text-foreground'>{title}</Text>
+              </View>
+            )}
+
+            {/* Content: 시트 높이 제한 안에서 남은 공간만 차지하고, 패딩은 스크롤되는 콘텐츠 안쪽에 둔다. */}
+            <ScrollView
+              style={{ flexShrink: 1 }}
+              contentContainerClassName='px-sm pt-lg pb-md'
+              showsVerticalScrollIndicator={false}
+              bounces={false}
+            >
+              {children}
+            </ScrollView>
+          </Animated.View>
+        </View>
 
         {/* Overlay for children (e.g., DatePicker) - KeyboardAvoidingView를 기준으로 화면 중앙 정렬 */}
         {childrenOverlay}

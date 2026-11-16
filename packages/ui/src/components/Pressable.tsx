@@ -4,7 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/utils';
 
 const pressableVariants = cva(
-  'inline-flex items-center justify-center rounded-md font-medium transition-colors active:opacity-80',
+  'inline-flex items-center justify-center rounded-md font-medium active:opacity-80',
   {
     variants: {
       variant: {
