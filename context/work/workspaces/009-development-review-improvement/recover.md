@@ -1,6 +1,8 @@
 # 009 — 다음 세션에서 이어갈 개선 루프
 
-사용자가 요청한 것은 1단계에서 드러난 판단·검토·설명의 개선이다. “기술스택”은 따로 추가할 검토 항목이 아니라 코드 선택을 충분히 깊게 대조하지 못했던 사례로 지적됐다. 다만 현재 요약에도 아쉬움이 남아 있으므로 이 해석부터 원문으로 확인한다.
+**007에서 뽑은 Personal 후보를 구체화하러 왔다면 [Ticket 02](current/memory/tickets/02-personal-judgment-candidates-from-work-007.md)에서 시작한다.** 이미 좋다고 한 ‘간결화할 때 보존할 동작을 구체적으로 잡는 점’을 어떤 변경까지 적용하고 싶은지 묻는 것이 첫 행동이다. 같은 사례에서 검토 방식 자체를 개선할지 묻는다면 01도 함께 본다. 티켓에 후보별 원문·코드·열린 질문이 있다.
+
+Ticket 01에서 사용자가 요청한 것은 1단계에서 드러난 판단·검토·설명의 개선이다. “기술스택”은 따로 추가할 검토 항목이 아니라 코드 선택을 충분히 깊게 대조하지 못했던 사례로 지적됐다. 다만 현재 요약에도 아쉬움이 남아 있으므로 이 해석부터 원문으로 확인한다.
 
 먼저 [현재 상태](current/state/index.md)와 [Ticket 01](current/memory/tickets/01-stage-one-review-and-judgment-loop.md)을 읽어 맡은 결과와 권한을 잡고, [최근 정정·분리 요청 원문](../007-sync-failure-recovery/source/2026-11-12-stage-one-review-dialogue.md) 및 [사례별 판단 과정 기록](../007-sync-failure-recovery/records/2026-11-12-11-stage-one-judgment-and-next-tickets.md)으로 요약과 실제 발화의 차이를 대조한다. 새 세션 준비 정보는 [인계 자료](output/handoff.md)에 있다.
 

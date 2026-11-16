@@ -6,6 +6,8 @@
 
 제품 2~7단계는 [007 Ticket 09](../../../../007-sync-failure-recovery/current/memory/tickets/09-staged-code-review-and-refinement.md)가 맡는다. 두 티켓은 독립적으로 시작할 수 있고, 이 티켓은 제품 정책 변경이나 그 코드 검토를 대신하지 않는다.
 
+성공 뒤 폼이 닫히는데 테스트에서 계속 열렸던 사례는 [Ticket 02의 후보 4](02-personal-judgment-candidates-from-work-007.md)에서도 다룬다. 01에서는 이 차이를 왜 다시 요청한 뒤에야 확인했는지 살피고 사용자가 선택한 검토 개선을 적용·확인한다. 02에서 이 사례를 다른 작업에 가져갈 조건을 논의하면 그 답을 참고할 수 있다. 개인 판단의 적용 범위와 실제 검토 방식의 변경 여부는 각각의 사용자 선택으로 남긴다.
+
 ## 실행 맥락과 접근
 
 [최근 정정과 두 티켓 요청의 원문](../../../../007-sync-failure-recovery/source/2026-11-12-stage-one-review-dialogue.md)에서 '기술스택은 결국 니가 좀 더 디테일하게 못봤다는 것'이라는 정정과 마지막 아쉬움을 먼저 확인한다. [1단계 사례와 판단 변화](../../../../007-sync-failure-recovery/records/2026-11-12-11-stage-one-judgment-and-next-tickets.md)는 근거 접근점이며 확정된 원인 분석이 아니다. 이전 세션의 self-check도 별도 감사자의 해석으로 대조한다.
