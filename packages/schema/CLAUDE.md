@@ -64,7 +64,7 @@ pnpm schema build
 pnpm harness:check
 ```
 
-schema 변경이 API route나 client data hook까지 닿으면 `pnpm server typecheck`, `pnpm server build`, `pnpm client test:typecheck`와 관련 client/server 테스트도 고려한다. `build`는 schema 빌드·선언 생성을 확인하며 실제 payload의 런타임 검증을 대신하지 않는다.
+schema 변경이 API route나 client data hook까지 닿으면 `pnpm run server typecheck`, `pnpm run server build`, `pnpm client test:typecheck`와 관련 client/server 테스트도 고려한다. `build`는 schema 빌드·선언 생성을 확인하며 실제 payload의 런타임 검증을 대신하지 않는다.
 
 ## Update Rule
 

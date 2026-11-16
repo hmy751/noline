@@ -78,7 +78,7 @@ pnpm client test:typecheck
 pnpm harness:check
 ```
 
-`test`는 `tests/`의 Jest 검사를, `test:typecheck`는 client tsconfig 범위의 타입 검사를 실행한다. 관련 검사만 고를 때는 Jest의 파일 경로·필터를 사용한다. 범위가 schema/server까지 번지면 `pnpm schema build`, `pnpm server typecheck`, `pnpm server build`도 함께 고려한다. 명령 안내는 현재 검사 통과를 뜻하지 않는다.
+`test`는 `tests/`의 Jest 검사를, `test:typecheck`는 client tsconfig 범위의 타입 검사를 실행한다. 관련 검사만 고를 때는 Jest의 파일 경로·필터를 사용한다. 범위가 schema/server까지 번지면 `pnpm schema build`, `pnpm run server typecheck`, `pnpm run server build`도 함께 고려한다. 명령 안내는 현재 검사 통과를 뜻하지 않는다.
 
 ## Update Rule
 

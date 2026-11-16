@@ -59,18 +59,18 @@ apps/server/src/
 ## Commands
 
 ```bash
-pnpm server dev
-pnpm server typecheck
-pnpm server build
-pnpm server test
-pnpm server test:integration
-pnpm server db:generate
-pnpm server db:push
-pnpm server db:studio
+pnpm run server dev
+pnpm run server typecheck
+pnpm run server build
+pnpm run server test
+pnpm run server test:integration
+pnpm run server db:generate
+pnpm run server db:push
+pnpm run server db:studio
 pnpm harness:check
 ```
 
-`test`는 PostgreSQL integration을 제외한 Vitest 검사를 실행한다. `test:integration`은 Docker와 Compose가 필요하며 별도 테스트 DB를 띄워 현재 schema를 적용하고 검사 뒤 테스트 DB·volume을 정리한다. 서버 실행·환경과 DB 도구의 사용 조건은 [서버 안내](README.md)를 따른다. 명령 안내는 현재 검사 통과를 뜻하지 않는다.
+루트의 `server` 단축 스크립트는 pnpm 내장 `pnpm server` 명령과 이름이 겹치므로 `run`을 붙여 실행한다. `test`는 PostgreSQL integration을 제외한 Vitest 검사를 실행한다. `test:integration`은 Docker와 Compose가 필요하며 별도 테스트 DB를 띄워 현재 schema를 적용하고 검사 뒤 테스트 DB·volume을 정리한다. 서버 실행·환경과 DB 도구의 사용 조건은 [서버 안내](README.md)를 따른다. 명령 안내는 현재 검사 통과를 뜻하지 않는다.
 
 ## Update Rule
 

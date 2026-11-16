@@ -4,24 +4,24 @@ Express 4·TypeScript ESM·Drizzle/PostgreSQL 기반 API 서버다. 처음 로�
 
 ## 실행과 검사
 
-아래 명령은 저장소 루트 기준이다. 먼저 의존성과 공유 schema, 개발 DB를 준비한다.
+아래 명령은 저장소 루트 기준이다. 먼저 의존성과 공유 schema, 개발 DB를 준비한다. 루트의 `server` 단축 스크립트는 pnpm 내장 명령 `pnpm server`(store server 관리)와 이름이 겹치므로 반드시 `pnpm run server ...`로 실행한다. `pnpm server dev`처럼 `run`을 빼면 `ERR_PNPM_INVALID_SERVER_COMMAND`로 실패한다.
 
 ```bash
-pnpm server dev
-pnpm server typecheck
-pnpm server build
+pnpm run server dev
+pnpm run server typecheck
+pnpm run server build
 ```
 
-`dev`는 `NODE_ENV=development tsx watch src/index.ts`, `build`는 Node20 대상의 tsup 빌드다. 공유 schema가 바뀌면 `pnpm schema build`를 먼저 실행한다. production 실행은 빌드 뒤 `pnpm server start`이고 `NODE_ENV=production node dist/index.js`를 실행한다. native 앱·OAuth·실제 DB 연결 성공은 타입/빌드 성공과 별도로 확인한다.
+`dev`는 `NODE_ENV=development tsx watch src/index.ts`, `build`는 Node20 대상의 tsup 빌드다. 공유 schema가 바뀌면 `pnpm schema build`를 먼저 실행한다. production 실행은 빌드 뒤 `pnpm run server start`이고 `NODE_ENV=production node dist/index.js`를 실행한다. native 앱·OAuth·실제 DB 연결 성공은 타입/빌드 성공과 별도로 확인한다.
 
 | 명령 | 실제 영향 |
 | --- | --- |
-| `pnpm server test` | Vitest 검사. 테스트별 의존 환경은 검사 설정에서 확인한다. |
-| `pnpm server test:integration` | 전용 Compose project의 PostgreSQL14 test DB(55432)에 현 schema를 적용하고 검사 뒤 test volume을 제거한다. 로컬 개발 DB의 읽기 검사와 다르다. |
-| `pnpm server db:generate` | `drizzle-kit generate:pg`로 schema SQL 파일 생성. DB 적용은 하지 않는다. |
-| `pnpm server db:push` | `drizzle-kit push:pg`로 대상 DB를 현재 Drizzle schema에 맞춘다. 변경 내용을 확인해야 한다. |
-| `pnpm server db:studio` | 설정한 DB를 탐색·수정할 수 있는 Drizzle Studio. |
-| `pnpm server docker:up/down/logs` | workspace Compose 조작. 스크립트가 `/usr/local/bin/docker`를 고정하므로 설치 경로가 다르면 PATH의 `docker compose`를 직접 사용한다. |
+| `pnpm run server test` | Vitest 검사. 테스트별 의존 환경은 검사 설정에서 확인한다. |
+| `pnpm run server test:integration` | 전용 Compose project의 PostgreSQL14 test DB(55432)에 현 schema를 적용하고 검사 뒤 test volume을 제거한다. 로컬 개발 DB의 읽기 검사와 다르다. |
+| `pnpm run server db:generate` | `drizzle-kit generate:pg`로 schema SQL 파일 생성. DB 적용은 하지 않는다. |
+| `pnpm run server db:push` | `drizzle-kit push:pg`로 대상 DB를 현재 Drizzle schema에 맞춘다. 변경 내용을 확인해야 한다. |
+| `pnpm run server db:studio` | 설정한 DB를 탐색·수정할 수 있는 Drizzle Studio. |
+| `pnpm run server docker:up/down/logs` | workspace Compose 조작. 스크립트가 `/usr/local/bin/docker`를 고정하므로 설치 경로가 다르면 PATH의 `docker compose`를 직접 사용한다. |
 
 `test:integration`의 Docker 경로는 `DOCKER_BIN`으로 바꿀 수 있다. 스크립트·실행 디렉터리는 [package.json](package.json), [integration runner](scripts/run-integration-tests.mjs)에서 확인한다.
 
@@ -52,13 +52,13 @@ pnpm server build
 
 ## DB 준비와 변경
 
-[Compose](docker-compose.yml)는 PostgreSQL14, 컨테이너 `noline-postgres`, 포트5432, DB `noline_dev`와 지속 volume을 준비한다. 테이블 초기화 SQL이나 migration을 자동 실행하지 않는다. 따라서 새 로컬 DB에는 `pnpm server db:push`가 필요하다. 컨테이너 down/up은 volume을 유지하며 schema 재생성 방법이 아니다.
+[Compose](docker-compose.yml)는 PostgreSQL14, 컨테이너 `noline-postgres`, 포트5432, DB `noline_dev`와 지속 volume을 준비한다. 테이블 초기화 SQL이나 migration을 자동 실행하지 않는다. 따라서 새 로컬 DB에는 `pnpm run server db:push`가 필요하다. 컨테이너 down/up은 volume을 유지하며 schema 재생성 방법이 아니다.
 
-현재 DB shape의 원천은 [src/db/schema.ts](src/db/schema.ts)다. OAuth users·refresh_tokens와 Trip/Schedule/Expense를 정의한다. 상세 필드를 README에 복제하지 않는다. 예전 password 기반 users, schedules의 startTime/endTime/order/memo, expenses의 isSynced 설명은 현재 shape가 아니다. shared 입출력 계약은 [packages/schema](../../packages/schema/)와 대조한다.
+현재 DB shape의 원천은 [src/db/schema.ts](src/db/schema.ts)다. OAuth users·refresh_tokens, Trip/Schedule/Expense와 구버전 충돌 입력을 보관하는 legacy_update_holds를 정의한다. 상세 필드를 README에 복제하지 않는다. 예전 password 기반 users, schedules의 startTime/endTime/order/memo, expenses의 isSynced 설명은 현재 shape가 아니다. shared 입출력 계약은 [packages/schema](../../packages/schema/)와 대조한다.
 
-`drizzle.config.ts`는 현재 실행 디렉터리에서 `.env.development` 또는 `.env.production`을 찾는다. 루트의 `pnpm server ...` alias 또는 `apps/server`에서 실행하면 workspace 경로를 사용한다. 로컬 `drizzle/`은 ignore 대상이고 과거 생성물이 남아 있어도 최신 migration 체인으로 간주하지 않는다. 현재 package script에는 일반 `db:migrate` runner가 없다. 운영 schema 적용은 필요한 DDL·기존 데이터 영향·백업·적용 순서를 별도로 준비해야 하며 `db:generate`만으로 적용이 끝나지 않는다.
+`drizzle.config.ts`는 현재 실행 디렉터리에서 `.env.development` 또는 `.env.production`을 찾는다. 루트의 `pnpm run server ...` alias 또는 `apps/server`에서 실행하면 workspace 경로를 사용한다. 로컬 `drizzle/`은 ignore 대상이고 과거 생성물이 남아 있어도 최신 migration 체인으로 간주하지 않는다. 현재 package script에는 일반 `db:migrate` runner가 없다. 운영 schema 적용은 필요한 DDL·기존 데이터 영향·백업·적용 순서를 별도로 준비해야 하며 `db:generate`만으로 적용이 끝나지 않는다.
 
-[DB 스크립트 안내](scripts/README.md)는 기존 DB 열 추가와 과거 변환·물리삭제 스크립트를 구별한다. 현재 OAuth 로그인에서 사용자를 생성하므로 과거 테스트 유저 seed를 새 환경 준비에 사용하지 않는다.
+[DB 스크립트 안내](scripts/README.md)는 기존 DB 열 추가와 과거 변환·물리삭제 스크립트를 구별한다. 항목별 편집 표식 변경 이전에 만든 DB는 [아래 DDL](#항목별-편집-표식의-db-적용)이 필요하다. 현재 OAuth 로그인에서 사용자를 생성하므로 과거 테스트 유저 seed를 새 환경 준비에 사용하지 않는다.
 
 ## 라우트와 인증을 찾는 위치
 
@@ -80,6 +80,12 @@ Trip/Schedule/Expense·sync와 인증이 필요한 계정 route는 Bearer access
 ## 항목별 편집 표식의 DB 적용
 
 일정·경비 UPDATE의 항목별 충돌 처리 서버를 배포하기 전에 [DDL](sql/20261110-field-edits.sql)을 대상 DB에 먼저 적용한다. `apps/server`에서 대상 연결을 `DATABASE_URL`로 지정하고 `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f sql/20261110-field-edits.sql`로 실행한다. SQL은 두 테이블에 `field_edits jsonb NOT NULL DEFAULT '{}'`와 구버전 충돌 입력의 `legacy_update_holds` 테이블을 한 트랜잭션으로 추가하며 재실행할 수 있다. 기존 값과 날짜는 유지하고 과거 편집 표식은 만들지 않는다.
+
+로컬 개발 DB도 같다. 2026-11-13 이전에 만든 Compose DB에는 이 열과 테이블이 없어서, 현재 서버가 일정·경비를 다룰 때 column·relation 없음 오류가 날 수 있다. `apps/server`에서 다음을 한 번 실행한다. 이 명령은 DB를 변경한다. 현재 schema로 새로 `db:push`한 DB에는 이미 포함돼 있으므로 필요 없다.
+
+```bash
+docker exec -i noline-postgres psql -U postgres -d noline_dev -v ON_ERROR_STOP=1 < sql/20261110-field-edits.sql
+```
 
 유효한 구버전 UPDATE가 충돌하면 서버는 본문 전체를 소유자별로 저장한 뒤 409를 반환한다. 같은 소유자·기록·동일 본문은 확인 전까지 한 보류로 합치며 객체 키 순서는 무시한다. 원래 timezone 표현과 추가 필드는 복구를 위해 남기되 권한·변경 판단에는 검증한 필드만 사용한다. 본문을 진단 로그에 남기지 않는다.
 
