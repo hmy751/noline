@@ -1,10 +1,14 @@
 # DB 스크립트의 적용 조건
 
-새 로컬 DB는 [개발 시작](../../../START_GUIDE.md)의 Compose와 `pnpm server db:push`로 준비한다. 이 폴더의 SQL을 모두 실행하는 초기화 절차는 없다. 이 안내는 각 SQL의 용도·전제·영향을 소유하며 schema의 현재 shape는 [서버 schema](../src/db/schema.ts)가 소유한다.
+새 로컬 DB는 [개발 시작](../../../START_GUIDE.md)의 Compose와 `pnpm run server db:push`로 준비한다. 이 폴더의 SQL을 모두 실행하는 초기화 절차는 없다. 이 안내는 각 SQL의 용도·전제·영향을 소유하며 schema의 현재 shape는 [서버 schema](../src/db/schema.ts)가 소유한다.
 
 기존 DB 변경은 대상 환경·현재 열/타입·보존할 데이터를 확인해 필요한 DDL만 적용한다. PostgreSQL 변경과 client SQLite 준비는 별도다. SQLite 열 추가는 client 앱 초기화가 맡는다. 제품의 저장·동기화·정리는 [Project 데이터 수명](../../../context/project/guidance/data-lifecycle/INDEX.md)을 따른다.
 
 ## 현재 변경에 사용할 수 있는 열 추가
+
+### `../sql/20261110-field-edits.sql` (다른 폴더)
+
+일정·경비의 `field_edits` 열과 `legacy_update_holds` 테이블을 추가하는 배포용 DDL이다. 2026-11-13 이전에 만든 DB에 필요하고, 현재 schema로 새로 push한 DB에는 이미 포함돼 있다. 적용 순서와 로컬 Compose DB에 적용하는 명령은 [서버 안내의 항목별 편집 표식 절](../README.md#항목별-편집-표식의-db-적용)이 소유한다.
 
 ### `add-trip-time-zone.sql`
 

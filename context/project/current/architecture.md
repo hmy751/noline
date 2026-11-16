@@ -36,7 +36,7 @@ Auth Store는 현재 계정과 인증 수단을 관리한다. 재인증이 필�
 
 제품 변경은 해당 app/package guide에서 검증을 선택한다. Client는 Expo/React Native용 Jest에서 hook·API 계약을 실행하고, server는 Vitest 단위 검사와 Supertest route 계약 검사, 별도 PostgreSQL integration 경계를 갖는다. 이 기반의 존재는 client/server 전체가 테스트됐다는 뜻이 아니다. Native module mock은 실기기를, DB/auth mock은 실제 PostgreSQL·JWT를 대신하지 않으므로 [동작 보존 리팩터링](../guidance/behavior-preserving-refactoring.md)과 [API 변경 가이드](../guidance/api-contracts.md)에서 영향에 맞는 경계를 고른다.
 
-`pnpm schema build`, `pnpm server typecheck`, `pnpm server build`는 package 수준 확인이며 iOS 실기기나 외부 서비스 acceptance를 대신하지 않는다. `pnpm harness:check`는 AI 지침의 bridge·링크·expected surface·whitespace를 확인한다. 제품 동작은 해당 app/package에서 별도로 검사한다.
+`pnpm schema build`, `pnpm run server typecheck`, `pnpm run server build`는 package 수준 확인이며 iOS 실기기나 외부 서비스 acceptance를 대신하지 않는다. `pnpm harness:check`는 AI 지침의 bridge·링크·expected surface·whitespace를 확인한다. 제품 동작은 해당 app/package에서 별도로 검사한다.
 
 Root [Context Harness](../../README.md)는 Project layer와 Workspace Spec·Ticket·state를 연결한다. Noline의 공통 스킬 원본은 `.agents/skills/`에 있으며 Codex가 직접 발견하고 Claude는 `.claude/skills` symlink로 같은 원본을 읽는다. 새 세션은 Workspace의 재개 안내를 읽고 필요할 때 기록 담당자를 호출한다.
 

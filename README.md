@@ -359,10 +359,10 @@ pnpm install
 docker compose -f apps/server/docker-compose.yml up -d
 
 # 새 로컬 DB에 현 schema를 적용한다.
-pnpm server db:push
+pnpm run server db:push
 
 # API 서버
-pnpm server dev
+pnpm run server dev
 
 # 최초 iOS native 개발 빌드
 pnpm client ios
