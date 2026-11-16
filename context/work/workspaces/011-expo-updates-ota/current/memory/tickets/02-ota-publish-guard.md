@@ -28,6 +28,10 @@
 - **장치의 형태:** 발행 스크립트, Claude·Codex hook, git hook을 어떻게 배치할지 정한다. 후보 비교와 현재 hook 상태는 [제약·설계](../spec/05-constraints-design-assumptions.md#방지-장치-hook-등--계획만-있음)에 있다.
 - **사람의 우회 방지:** 사람이 터미널에서 `eas update`를 직접 칠 때도 막을지 정한다.
 
+## 따를 방향
+
+장치는 특정 SDK 버전에 묶이지 않게 만든다. 검사는 경로 diff와 fingerprint처럼 SDK가 바뀌어도 그대로 쓰는 기준에 기댄다. SDK 업그레이드를 [Work 012](../../../../012-expo-sdk-upgrade/README.md)로 나누자는 추천에 함께 들어 있던 방향이며, 사용자는 분리에 동의했다. 구체 방식은 장치를 설계할 때 확정한다. 업그레이드 릴리스의 버그를 심사 없이 고치려면 OTA와 이 장치가 012 뒤에도 그대로 이어져야 하기 때문이다. 이유는 [분리 기록](../../../records/2026-11-16-02-scoping-check-and-sdk-split.md)에 있다.
+
 ## 완료 조건
 
 [완료 판단](../spec/04-quality-and-completion.md)의 6을 확인한다. 막히는 경우와 통과하는 경우를 각각 실행한 결과를 records에 남긴다. hook을 바꾸면 `pnpm harness:check`를 실행한다.

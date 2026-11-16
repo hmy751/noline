@@ -16,7 +16,7 @@ OTA 번들은 특정 네이티브 층을 전제로 만들어진다. 빌드와 �
 | `appVersion` | 앱 버전을 그대로 쓴다. 네이티브를 바꾸고 버전을 올리지 않으면 막지 못한다. |
 | `fingerprint` | 네이티브 의존성·설정을 해시로 계산한다. 네이티브가 바뀌면 자동으로 다른 값이 된다. |
 
-**추천은 `fingerprint`다.** 네이티브 모듈(Mapbox·Sentry·SQLite)이 많은 앱이라 사람이 버전 올리기를 잊는 위험을 없애는 편이 낫다. 사용자가 이 방향에 동의("그래 좋아")했지만 실제 설치·빌드에서 SDK 51과의 호환은 확인하지 않았다.
+**추천은 `fingerprint`다.** 네이티브 모듈(Mapbox·Sentry·SQLite)이 많은 앱이라 사람이 버전 올리기를 잊는 위험을 없애는 편이 낫다. 사용자가 이 방향에 동의("그래 좋아")했다. SDK 51 조합에서 이 정책을 쓸 수 있는지는 2026-11-16에 코드로 확인했다. 설치된 `@expo/config-plugins`(`build/utils/Updates.js`)에 `policy === 'fingerprint'` 처리가 있고, SDK 51용 `expo-updates` 0.25.28과 함께 `@expo/fingerprint` 0.10.3이 깔린다. 실제 빌드에서 fingerprint 값이 계산되고 runtime이 갈리는지는 아직 보지 않았다([완료 판단](04-quality-and-completion.md)의 4).
 
 ## 채널
 

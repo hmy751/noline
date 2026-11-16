@@ -18,9 +18,29 @@
 
 사용자 발화 발췌는 [사용자 방향 원문](user-direction.md)에 있다.
 
+### 두 번째 세션: 착수 전 파악과 SDK 분리
+
+같은 날의 다음 세션이다. 원문은 `/Users/hammyeong-yeon/.claude/projects/-Users-hammyeong-yeon-Desktop-10-work-noline/58e63789-a699-43ac-8a5c-5540ab654366.jsonl`이고, 이 Work에 반영한 범위는 4–560행이다. 접근 조건과 읽는 방법은 위 원문과 같다. 이 범위의 기록은 [파악·분리 기록](../records/2026-11-16-02-scoping-check-and-sdk-split.md)이다.
+
+| 행 | 내용 | 읽을 이유 |
+| --- | --- | --- |
+| 4 | "011 워크스페이스 파악하고 진행하자" | 출발점 |
+| 117–138 | 브랜치 생성과 패키지 설치. `npx expo install` 실패(`ERR_PNPM_PUBLIC_HOIST_PATTERN_DIFF`)와 `pnpm --filter` 설치 | 설치 명령과 SDK 51 버전 조합의 출처 |
+| 140 | 작업 중 도착한 사용자 메시지 "바로 시작하지말고 파악만 해봐"(대기 메시지 첨부 형태라 일반 사용자 턴이 아니다. `파악만`으로 검색한다) | 구현을 멈추고 되돌린 정정의 원문 |
+| 151–171 | 변경 확인, fingerprint 지원 확인(159–160), 되돌리기와 브랜치 삭제 | 저장소에 변경이 남지 않았다는 근거 |
+| 181–199 | dev-client 의존성, 루트에 깔린 버전, `npm view`로 본 `expo-updates` 0.25.28의 요구 버전 | dev-client 충돌의 근거 |
+| 208 | 파악 결과 정리 | 충돌·plugin 적용·preview 앱 정체성의 원래 설명 |
+| 213 | SDK·라이브러리 업그레이드도 맡을지 묻는 사용자 질문 | 분석을 요청한 범위 |
+| 467–468 | `npx expo install --check` 결과(어긋남 10개) | 현황 |
+| 492–523 | Apple 공지·EAS 이미지·Expo SDK 문서 확인 | 2027년 4월 조건과 UIScene·New Architecture·최소 iOS의 출처 |
+| 555 | 버전 분석과 012 분리 추천(과거 사례, 외부 조건, 나누는 이유와 비용, 011 조정, 012 뼈대) | 분리 판단의 원래 문안 |
+| 560 | "그래 분리해서 진행하자 더 버전에 대해 자세한건 012에서 더 논의한다고 기록해주고" | 분리 결정의 원문 |
+
+Main이 이 세션에서 다른 세션 원문 두 개도 읽었다. 2026-11-02 세션(SDK 업그레이드를 "이번 배포 뒤 별도 작업으로" 미룬 대목, CLI 원문 `a3669485-d435-43dd-9b82-a2891a7e403e.jsonl`)과 이 Work의 첫 원문(`da74d77c…`)이다. 내용은 555의 정리와 위 기록에 옮겼다.
+
 ## 코드 판본
 
-논의 시점의 판본은 main `6adfbb2a`다(1.1.3 빌드는 `4c0df47b`). 확인한 파일은 다음과 같다.
+논의 시점의 판본은 main `6adfbb2a`다(1.1.3 빌드는 `4c0df47b`). 두 번째 세션의 파악은 main `08ff4c27`에서 했고, 아래 파일 내용은 그때도 같았다. 확인한 파일은 다음과 같다.
 - `apps/client/app.config.js`: `runtimeVersion`·`updates` 없음, version 1.1.3, buildNumber 17
 - `apps/client/eas.json`: 프로필 development·preview·production, channel 없음
 - `apps/client/package.json`: `expo` ~51.0.21, `expo-dev-client` ^6.0.20, `expo-updates`·`expo-build-properties` 없음
@@ -31,4 +51,6 @@
 
 - EAS 빌드 `87ad94bf-f72f-43df-b1ca-9213d776f89d`: 1.1.3(17), gitCommitHash `4c0df47b…`
 - EAS submit `a98756d8-3fd3-4154-8924-19331cff792b`
-- App Store Connect: 2026-11-16 20시경 "iOS 1.1.3 심사 대기 중"을 화면으로 확인
+- App Store Connect: 2026-11-16 20시경 "iOS 1.1.3 심사 대기 중"을 화면으로 확인. 두 번째 세션에서 Gmail로 심사 결과를 찾으려 했지만 커넥터 연결이 끊겨 확인하지 못했다.
+- Apple 공지 [App Store submissions now open](https://developer.apple.com/news/?id=k1mtkt1k)(2026-09-09): 2027년 4월부터 iOS 27 SDK 이상으로 빌드해야 업로드할 수 있다. 두 번째 세션에서 Main이 읽었다.
+- Expo 문서 [SDK 버전표](https://docs.expo.dev/versions/latest/)와 [EAS 빌드 이미지](https://docs.expo.dev/build-reference/infrastructure/): 2026-11-16 기준 최신 SDK 58, SDK 56–58 최소 iOS 16.4, `sdk-51` 별칭은 Xcode 15.4 이미지. 버전 상세는 012가 다룬다.
