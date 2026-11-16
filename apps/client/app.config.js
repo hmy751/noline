@@ -4,7 +4,7 @@ export default {
   name: IS_PROD ? 'Noline' : 'Noline (Dev)',
   slug: 'noline',
   main: 'index.js',
-  version: '1.1.2',
+  version: '1.1.3',
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'light',
@@ -49,7 +49,7 @@ export default {
   ios: {
     supportsTablet: false,
     bundleIdentifier: IS_PROD ? 'com.ham.noline' : 'com.noline.dev',
-    buildNumber: '16',
+    buildNumber: '17',
     usesAppleSignIn: true,
     config: {
       googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY,
