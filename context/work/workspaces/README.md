@@ -14,7 +14,7 @@
 - [008-exception-notice-rules](008-exception-notice-rules/README.md) — 008 — 앱의 예외 안내를 상황별 규칙으로 정리하기
 - [009-development-review-improvement](009-development-review-improvement/README.md) — 1단계의 검토·판단 경험을 대조하고 필요한 수행·스킬 개선을 선택한다 (실행 준비)
 - [010-readme-improvement](010-readme-improvement/README.md) — 010 — 루트 README를 Project context와 코드에 맞춰 다시 쓰기 (반영 완료, 게시 뒤 확인 남음)
-- [011-expo-updates-ota](011-expo-updates-ota/README.md) — 011 — expo-updates(OTA)를 도입해 JS 수정을 심사 없이 내보내기 (Ticket 01 진행 중, 실기기 OTA 확인 완료, 1.1.4 전)
+- [011-expo-updates-ota](011-expo-updates-ota/README.md) — 011 — expo-updates(OTA)를 도입해 JS 수정을 심사 없이 내보내기 (1.1.4 심사 대기 중, 방지 장치 완료, Ticket 03 남음)
 - [012-expo-sdk-upgrade](012-expo-sdk-upgrade/README.md) — 012 — Expo SDK를 올려 2027년 4월 Apple 빌드 요건을 맞추기 (생성, 버전 논의 전)
 
 사용자가 지정한 Workspace가 이 기본 선택보다 우선한다. 일반 재개는 [Work 지침](../AGENTS.md)을 따르며, 기본 선택 변경·현재 요청의 대상·host 세션 상태는 [생성·전환](CREATE-AND-TRANSITION.md)에서 구별한다.

@@ -1,6 +1,6 @@
 # 01 — expo-updates와 iOS 15를 넣고 1.1.4로 낸다
 
-**상태:** 진행 중 (2026-11-17). 단계 1–6을 진행했다. 판단 지점(단계 2)은 로컬과 EAS 모두에서 통과했다. 실기기(iPhone 14 Pro)에서 완료 판단 1–4를 확인했고, 5는 preview 쪽(번들 환경값과 OTA 소스맵)까지 확인했다. 남은 일은 production 쪽 확인과 1.1.4 출시(단계 7)다. 발행 절차는 Ticket 02의 `pnpm ota:publish`로 묶었다. 코드 변경은 브랜치 `feat/011-expo-updates`의 커밋 `3592a538`에 있다(main 병합 전).
+**상태:** 심사 대기 중 (2026-11-17). 단계 1–7을 진행했다. 1.1.4(빌드 18)를 main에서 빌드해 App Store 심사에 제출했고, 지금 "심사 대기 중"이다. 실기기(iPhone 14 Pro)에서 완료 판단 1–4를 확인했고, 5는 preview 쪽(번들 환경값과 OTA 소스맵)까지 확인했다. 남은 일은 셋이다. 심사 결과와 공개, ITMS-90068 메일 확인(완료 판단 7), 공개 뒤 production OTA 경로 확인(완료 판단 5의 남은 부분)이다. 코드는 main에 병합됐다(버전 커밋 `d160c7b5`).
 
 ## 할 일과 결과
 
@@ -31,22 +31,30 @@
    - 5는 preview 쪽까지 확인했다. 번들의 환경값을 셌고, 시험 업데이트 `8c8eb6e9…`에서 일부러 낸 오류가 Sentry에서 `src/screens/LoginScreen.tsx` 144:133으로 풀렸다(issue `7851900817`, environment preview). 시험 코드는 정리 업데이트 `f40c0676…`로 뺐다. 롤백 대신 재발행한 이유는 내장 번들에 운영용 Google client가 들어 있기 때문이다. production 채널 번들의 값과 소스맵은 남았다. 경위는 [소스맵 기록](../../../records/2026-11-17-04-commit-and-ota-sourcemap.md)에 있다.
    - 시험 앱의 Google 로그인은 처음에 "액세스 차단됨"이었다. preview 환경이 운영용 iOS client를 공유한 탓이었다. EAS 값을 나누고, 서버가 iOS client를 여러 개 받게 고쳐 운영에 배포하고, preview OTA(그룹 `a86d1596…`)를 낸 뒤 운영 앱과 시험 앱 모두 로그인된다. 상세는 [Google 로그인 기록](../../../records/2026-11-17-03-preview-google-login-fix.md)에 있다.
    - 상세와 빌드·업데이트 ID는 [실기기 확인 기록](../../../records/2026-11-17-02-preview-build-and-device-ota-check.md)에 있다.
-7. **1.1.4 출시.** 버전을 1.1.4, 빌드 번호를 18로 올리고 production 빌드 → `eas submit` → App Store Connect 정보 입력 → 심사 제출을 한다. 인증서 만료(2026-12-30) 전에 해야 한다.
+7. **1.1.4 출시. 심사 대기 중.**
+   - 사용자가 "로그인했어 main 병합하고 빌드 진행해"로 병합을 골랐다. 브랜치를 main에 fast-forward 병합하고 버전 커밋 `d160c7b5`(1.1.4, 빌드 18)를 push했다. 이전 릴리스와 같은 절차다.
+   - 깨끗한 재설치 뒤 production runtime은 `0367b72f…`였다. EAS production 빌드 `7033c2ba…`의 runtime도 같았다. 인증서·프로필은 2026-12-30까지 유효하다.
+   - `eas submit`(제출 `012b0d56…`)로 올렸다. 1.1.4 버전에 빌드 18과 업데이트 안내를 넣고, 자동 출시로 심사에 제출했다(2026-11-17 17시 36분경 "1.1.4 심사 대기 중").
+   - 업데이트 안내는 사용자 의견에 따라 iOS 최소 버전 줄을 뺐다. App Store 호환성 항목에 자동으로 표시되기 때문이다.
+   - ITMS-90068 메일은 Gmail 연결이 끊겨 확인하지 못했다. 사용자가 알린 "ready to test" 메일은 빌드 처리 알림이다.
+   - 상세는 [1.1.4 제출 기록](../../../records/2026-11-17-10-release-1-1-4-submission.md)에 있다.
 
 ## 완료 조건
 
-완료 판단 1–5와 7을 확인한다. 각 확인에 사용한 빌드 ID, 채널, 기기(시뮬레이터 또는 실기기)를 records에 남긴다. 판단 지점의 결과(로컬 Xcode 26.5 Release 빌드 성공, 패치 한 줄)는 [착수 기록](../../../records/2026-11-17-01-ticket01-build-gate-and-publish-env.md)에, EAS 빌드와 완료 판단 1–4·5 일부의 확인은 [실기기 확인 기록](../../../records/2026-11-17-02-preview-build-and-device-ota-check.md)에 남겼다.
+완료 판단 1–5와 7을 확인한다. 각 확인에 사용한 빌드 ID, 채널, 기기(시뮬레이터 또는 실기기)를 records에 남긴다. 판단 지점의 결과(로컬 Xcode 26.5 Release 빌드 성공, 패치 한 줄)는 [착수 기록](../../../records/2026-11-17-01-ticket01-build-gate-and-publish-env.md)에, EAS 빌드와 완료 판단 1–4·5 일부의 확인은 [실기기 확인 기록](../../../records/2026-11-17-02-preview-build-and-device-ota-check.md)에, 1.1.4 빌드·제출은 [1.1.4 제출 기록](../../../records/2026-11-17-10-release-1-1-4-submission.md)에 남겼다. 완료 판단 7은 심사 통과와 ITMS-90068 경고가 없다는 확인이 남았다.
 
 ## 진행 기록
 
 - 2026-11-16: 사용자 확인 전에 1의 두 패키지를 설치했다가 "바로 시작하지말고 파악만 해봐"라는 지시로 되돌렸다. 그동안 SDK 51 버전 조합과 fingerprint 지원을 확인했고 dev-client 충돌을 찾았다. 경위는 [파악·분리 기록](../../../records/2026-11-16-02-scoping-check-and-sdk-split.md)에 있다.
 - 2026-11-16–17: "일단 011 부터 하고 다되면 병합하자"로 착수했다. 1.1.3이 여전히 "심사 대기 중"인 것을 확인한 뒤 단계 1–4를 넣고, 판단 지점을 패치로 통과했고, 발행 환경을 정리했다. 경위와 근거는 [착수 기록](../../../records/2026-11-17-01-ticket01-build-gate-and-publish-env.md)에 있다.
 - 2026-11-17: 브랜치에 커밋했다(`cad1ec8f` main 병합, `3592a538`, `ba06e62a`, `bb459027`). Sentry 소스맵을 로컬 토큰 방식으로 정하고 preview에서 end-to-end로 확인했다. 경위는 [소스맵 기록](../../../records/2026-11-17-04-commit-and-ota-sourcemap.md)에 있다.
+- 2026-11-17: 1.1.4(빌드 18)를 main에 병합해 빌드하고 심사에 제출했다. 경위는 [1.1.4 제출 기록](../../../records/2026-11-17-10-release-1-1-4-submission.md)에 있다.
 - 2026-11-17: iPhone을 등록하고 preview 빌드를 만들어, runtime 불일치를 고친 뒤 실기기에서 완료 판단 1–4를 확인했다. 경위는 [실기기 확인 기록](../../../records/2026-11-17-02-preview-build-and-device-ota-check.md)에 있다.
 
 ## 주의
 
-- 1.1.3 심사 결과는 아직 모른다. 2026-11-16 밤 App Store Connect에서 "심사 대기 중"이었다. 거절되면 그 대응(Work 008)이 먼저다.
+- 1.1.3은 2026-11-17에 "배포 준비됨"(심사 통과, 자동 출시)이었다.
+- **runtime은 버전과 빌드 번호마다 다르다.** 이 구성의 fingerprint는 앱 버전과 iOS buildNumber를 포함한다(1.1.3/17 `54a96787…`, 1.1.3/18 `52e0c41b…`, 1.1.4/18 `92c898f2…`, 모두 preview). 그래서 OTA는 버전·빌드 번호가 같은 빌드에만 간다. 다음 버전을 낸 뒤 이전 버전 사용자에게 OTA를 보내려면 그 버전의 코드 트리에서 발행해야 한다. 기존 preview 빌드 `f610d9b5…`(1.1.3/17)는 이제 main과 맞지 않으므로, preview 시험에는 새 preview 빌드가 필요하다.
 - 네이티브 설정과 dev-client가 바뀌었으므로 로컬 개발 앱도 다시 빌드해야 한다(`pnpm client ios`). 지금 `apps/client/ios/`는 이번 Release 확인 때 `.env.production`으로 새로 prebuild한 것이다(운영 이름 `com.ham.noline`). 1월에 만든 이전 폴더는 세션 scratchpad로 옮겨 두었고 재부팅 등으로 지워질 수 있다. `ios/`는 gitignore 대상이며 로컬 폴더 유무는 fingerprint에 영향이 없었다.
 - 로컬에서 `pod install`이나 `expo run:ios`를 돌릴 때는 UTF-8 locale이 필요하다.
 - **알려진 제한:** preview 앱의 Apple 로그인은 서버의 `APPLE_CLIENT_ID`가 운영 번들이라 실패할 수 있다. 확인하지 않았고 이번 범위 밖이다.

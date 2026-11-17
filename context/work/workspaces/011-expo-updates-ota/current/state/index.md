@@ -1,76 +1,89 @@
 # 현재 상태와 다음 행동
 
-2026-11-17 오후 4시 50분경, 두 번째 세션에서 Ticket 02의 장치를 마치고 OTA 스크립트를 역할별로 다시 구성한 뒤 hook을 `.agents/hooks/`로 옮겨 커밋한 시점의 상태다.
+2026-11-17 오후 5시 40분경, 두 번째 세션에서 1.1.4(빌드 18)를 App Store 심사에 제출한 시점의 상태다.
 
-**지금까지:** 2026-11-16 1.1.3(빌드 17)을 심사에 낸 뒤 expo-updates 도입을 논의해 이 Work를 만들었다([Spec](../memory/index.md)). 두 번째 세션은 처음에 "파악만" 했고, 그 과정에서 SDK 업그레이드를 [Work 012](../../../012-expo-sdk-upgrade/README.md)로 나눴다([파악·분리 기록](../../records/2026-11-16-02-scoping-check-and-sdk-split.md)). 그 뒤 사용자가 "일단 011 부터 하고 다되면 병합하자"로 착수를 지시해 [Ticket 01](../memory/tickets/01-expo-updates-and-ios15-build.md)을 실행했다. 경위와 근거는 [착수 기록](../../records/2026-11-17-01-ticket01-build-gate-and-publish-env.md)과 [실기기 확인 기록](../../records/2026-11-17-02-preview-build-and-device-ota-check.md)에 있다.
+**지금 어디인가:** OTA를 넣은 1.1.4가 "심사 대기 중"이다. 실기기에서 OTA 받기·오프라인 시작·롤백·runtime 분리를 확인했다. 위험한 발행을 막는 장치(발행 스크립트와 hook)도 만들었다. 011 작업은 1.1.4를 위해 main에 병합됐다. 남은 큰일은 세 가지다. 심사 결과를 확인하고, 공개 뒤 production OTA 경로를 확인하고, Project에 반영(Ticket 03)하는 것이다.
 
-**Ticket 01에서 된 것:**
-- **설치·설정(단계 1·3·4):** `expo-updates`·`expo-build-properties`를 넣고 dev-client를 SDK 51용 4.0.29로 내렸다. `app.config.js`에 fingerprint runtime, `updates.url`, `fallbackToCacheTimeout: 0`, iOS 15.0을, `eas.json`의 preview·production에 `channel`과 `environment`를 넣었다.
-- **판단 지점 통과(단계 2):** 로컬 Xcode 26.5 Release 빌드에서 `expo-dev-menu` 5.0.23의 Swift 한 줄이 막았다. 이를 고치면 빌드되고 앱이 로그인 화면까지 뜬다. 막힘이 작아 012에 합치지 않았다. 사용자는 "됐으면 진행해 계속 012 는 다른데서 할거고"라고 답했다. 수정은 루트 `patches/`의 pnpm patch로 고정했고, 다시 설치한 뒤 같은 빌드로 확인했다. 012는 다른 세션에서 진행한다.
-- **발행 방법(단계 5):** fingerprint가 환경값에 따라 달라지므로, 발행은 `eas update --channel <채널> --environment <같은 이름>`으로 한다. 사용자 허락을 받아 비어 있던 EAS preview 환경을 채웠다. 공통 변수는 production과 함께 쓰고, preview 전용으로 `APP_VARIANT=development`와 Sentry 환경값을 두었다. Sentry 소스맵 방식은 뒤에 정했다(아래).
-- **preview 빌드와 실기기 확인(단계 6):** iPhone 14 Pro를 등록하고 preview 빌드를 만들었다. 첫 빌드는 runtime 불일치로 실패했다. 원인은 로컬 `node_modules`에 남은 예전 중첩 사본이었고, 깨끗이 다시 설치해 맞췄다. 두 번째 빌드 `f610d9b5…`(runtime `54a96787…`)으로 실기기에서 완료 판단 1–4를 사용자가 확인했다: 업데이트 받기, 오프라인 시작, 롤백, runtime 분리. 5는 preview 번들의 환경값만 확인했다. 이어서 Google client 수정 업데이트 `a86d1596…`를 발행했다(현재 최신 업데이트는 아래 Sentry 항목).
-- **preview 앱 Google 로그인 수정(이 Work 밖의 서버 변경 포함):** 시험 앱의 "액세스 차단됨"은 preview가 운영용 Google iOS client를 공유한 탓이었다. 사용자 지시("그럼 다 진행하자…", "그냥 니가 env확인해서 처리해주라…")에 따라 다음 순서로 고쳤다.
-  - EAS의 `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`를 환경별로 나눴다.
-  - 서버가 iOS client 목록을 받게 고쳐 main에 커밋했다(`99235878`). Render 배포가 Live가 됐다.
-  - Render의 `GOOGLE_IOS_CLIENT_ID`를 운영·개발 두 값으로 바꿨다. 순서가 중요했다. 값을 먼저 바꾸면 옛 코드에서 운영 로그인이 깨진다.
-  - 사용자가 운영 앱과 시험 앱 모두 로그인된다고 확인했다("둘 다 로그인 잘 돼").
-  - 경위는 [Google 로그인 기록](../../records/2026-11-17-03-preview-google-login-fix.md)에 있다.
+## 된 것
 
-- **커밋:** 011 작업을 브랜치에 커밋했다. 아래 브랜치와 커밋 절에 있다.
-- **Sentry 소스맵(단계 5·6):** 로컬 토큰 방식으로 정했다. 사용자 선택에 따라 `.env.development.local`의 토큰을 `apps/client/.env.production`(gitignore)에도 복사했다. 업로드 명령은 `eas update` 다음의 `expo-upload-sourcemaps.js dist`다. preview 시험 업데이트 `8c8eb6e9…`에서 낸 오류가 Sentry에서 `LoginScreen.tsx` 144:133으로 풀렸다. 시험 코드는 정리 업데이트 `f40c0676…`로 뺐고, 사용자가 "원래 문구로 돌아옴"을 확인했다. 그 뒤 발행 스크립트 시험으로 같은 내용의 `0a0a6db0…`를 냈다. 지금 preview 채널의 최신 업데이트는 이것이다(runtime `54a96787…`, 번들은 `f40c0676…`와 같다). 경위는 [소스맵 기록](../../records/2026-11-17-04-commit-and-ota-sourcemap.md)에 있다.
+경위와 근거는 각 기록에 있다. 여기서는 지금 판단에 필요한 결과만 둔다.
 
-**Ticket 02에서 된 것:**
-- **발행 스크립트:** `pnpm ota:publish <preview|production> --message "..."`를 만들었다(지금은 `apps/client/scripts/ota/`에 역할별로 나뉨, 루트 `package.json`). 순서는 사전 점검 → 깨끗한 재설치 → EAS 환경값 대조 → runtime 대조 → `eas update` → 소스맵 업로드다. 막혀야 할 경우가 막히는 것과 실제 preview 발행(그룹 `0a0a6db0…`)을 확인했고, 별도 검증도 거쳤다.
-- 실행 명령을 루트 `package.json`에 둔 이유가 있다. fingerprint가 `apps/client/package.json`의 scripts까지 해시에 넣기 때문이다. 그곳에 두자 runtime이 `6cfec56f…`로 바뀌었다. 경위는 [발행 스크립트 기록](../../records/2026-11-17-05-ota-publish-script.md)에 있다.
+**Ticket 01: 도입과 1.1.4**
+- **설치·설정:** `expo-updates`·`expo-build-properties`를 넣고 dev-client를 SDK 51용 4.0.29로 내렸다. `app.config.js`에 fingerprint runtime, `updates.url`, `fallbackToCacheTimeout: 0`, iOS 15.0을 넣었다. `eas.json`의 preview·production에는 `channel`과 `environment`를 넣었다.
+  - Xcode 26 판단 지점은 `expo-dev-menu` 한 줄을 pnpm patch로 고쳐 통과했다. 사용자는 "됐으면 진행해 계속 012 는 다른데서 할거고"라고 답했다.
+  - 경위: [착수 기록](../../records/2026-11-17-01-ticket01-build-gate-and-publish-env.md)
+- **발행 환경:** 발행은 채널과 같은 이름의 EAS environment로 한다. fingerprint가 환경값에 따라 달라지기 때문이다. EAS preview 환경을 채웠고, Google iOS client처럼 번들 ID에 묶인 값은 환경별로 나눴다.
+- **preview 실기기 확인:** iPhone 14 Pro에서 완료 판단 1–4를 사용자가 확인했다.
+  - 첫 빌드는 오래된 로컬 `node_modules` 때문에 runtime이 어긋나 실패했고, 깨끗이 다시 설치해 맞췄다.
+  - 기록: [실기기 확인](../../records/2026-11-17-02-preview-build-and-device-ota-check.md)
+- **preview 앱 Google 로그인:** preview가 운영용 iOS client를 공유해 막혔던 것을 고쳤다. 이 Work 밖의 서버 변경이 함께 들어갔다.
+  - 서버가 iOS client 목록을 받게 고쳐 `99235878`로 커밋했다.
+  - Render의 `GOOGLE_IOS_CLIENT_ID` 값도 바꿨다.
+  - 기록: [Google 로그인](../../records/2026-11-17-03-preview-google-login-fix.md)
+- **Sentry 소스맵:** 로컬 토큰으로 올린다(토큰은 gitignore 대상 `.env.production`). preview에서 OTA 번들 오류가 원래 소스 위치로 풀리는 것을 확인했다. 기록: [소스맵](../../records/2026-11-17-04-commit-and-ota-sourcemap.md)
+- **1.1.4(빌드 18) 제출:**
+  - 사용자가 "로그인했어 main 병합하고 빌드 진행해"로 병합을 골랐다. 원래 계획은 "011이 다 끝나면 병합"이었다.
+  - 브랜치를 main에 fast-forward하고 버전 커밋 `d160c7b5`를 push했다.
+  - production 빌드 `7033c2ba…`(runtime `0367b72f…`)를 만들어 올렸다.
+  - 업데이트 안내를 넣고 자동 출시로 심사에 제출했다. 1.1.3은 그 전에 "배포 준비됨"(통과·공개)이었다.
+  - 기록: [1.1.4 제출](../../records/2026-11-17-10-release-1-1-4-submission.md)
 
-- **방지 장치 나머지(`4c00153e`·`49fd28a3`):** 사용자는 "이제 다음 진행하자"라고만 했다. Main은 1.1.4보다 Ticket 02 나머지를 먼저 했다. Spec 05 순서가 장치를 앞에 두고, 바깥에 영향이 없는 로컬 작업이라는 이유였다. 이 순서는 Main의 판단이다.
-  - 발행 스크립트에 변경 검사를 넣었다. 기준 빌드 커밋 이후의 DB 경로·DDL은 거부하고, 서버 계약 경로는 `--server-checked`가 있어야 통과하며, 네이티브는 경고한다.
-  - `@env`·`process.env.EXPO_PUBLIC_*` 이름을 EAS 변수와 대조하게 했다.
-  - `eas update` 직접 실행을 막는 hook을 Claude·Codex에 등록했다.
-  - preview dry-run으로 막힘·통과 경우를 확인했고, 별도 검증을 두 번 받았다. Claude Code에서는 hook이 실제로 막았다.
-  - 규칙은 Main이 골랐다. 사용자는 설명을 듣고 그대로 두되 확정은 다른 context와 연결해 정하자고 했다. 경위는 [방지 장치 기록](../../records/2026-11-17-06-ota-guard-change-env-hook.md)과 [규칙 유지 기록](../../records/2026-11-17-09-keep-rules-and-link-project.md)에 있다.
-- **스크립트 재구성(`4c00153e`):** 사용자 요청("코드 퀄리티를 좀 더 깔끔하게… persoanl보고… 역할에 맞게… 위치")에 따라 발행 스크립트와 hook을 `apps/client/scripts/ota/` 아래 역할별 파일로 나눴다. Personal 기준으로 코드도 다듬었다. 규칙은 바꾸지 않았다. 같은 막힘·통과 결과, hook 동작, runtime `54a96787…`을 다시 확인했다. 경위는 [재구성 기록](../../records/2026-11-17-07-ota-script-reorganization.md)에 있다.
-- **hook 위치 이동(`49fd28a3`):** 사용자가 hook은 AI 하네스 관리 대상이라 앱 코드 아래에 있는 것이 아쉽다고 했다("…AI 관리 하네스 관점이고 그게 apps/client/scripts로 있는게 아쉼다는거지…"). 그래서 hook을 `.agents/hooks/`로 옮기고, `.agents/hooks/README.md`, 두 도구 설정, 루트 `CLAUDE.md`, harness 검사를 맞췄다. 새 위치에서도 hook이 실제로 막았다. 경위는 [hook 이동 기록](../../records/2026-11-17-08-hook-to-agents-hooks.md)에 있다.
+**Ticket 02: 방지 장치**
+- **발행 스크립트 `pnpm ota:publish`(`apps/client/scripts/ota/`):** 순서는 깨끗한 재설치 → 환경값 대조 → runtime 대조 → `eas update` → 소스맵 업로드다. OTA로 내면 안 되는 변경도 검사한다. DB 구조는 거부, 서버 계약은 `--server-checked` 확인, env 이름은 대조한다.
+- **hook `.agents/hooks/block-direct-eas-update.py`:** AI 도구가 `eas update`를 직접 치면 막는다. Claude에서는 확인했다.
+- **규칙:** 규칙은 Main이 골랐다. 사용자는 그대로 두고 확정은 다른 context와 연결해 정하자고 했다(Ticket 03으로 넘김).
+- 기록: [발행 스크립트](../../records/2026-11-17-05-ota-publish-script.md), [방지 장치](../../records/2026-11-17-06-ota-guard-change-env-hook.md), [재구성](../../records/2026-11-17-07-ota-script-reorganization.md), [hook 이동](../../records/2026-11-17-08-hook-to-agents-hooks.md), [규칙 유지](../../records/2026-11-17-09-keep-rules-and-link-project.md)
 
-**다음 행동:**
-1. Ticket 02를 마무리한다. 규칙은 현재대로 운영하고 확정은 Ticket 03으로 넘겼다.
-   - 가능하면 Codex에서 hook이 실제로 막는지 본다.
-2. 1.1.4(빌드 18)를 production으로 빌드해 심사에 낸다.
-   - 먼저 1.1.3 심사 상태를 확인한다.
-   - 인증서와 ad hoc 프로필이 2026-12-30에 만료되므로 그 전에 한다.
-   - production runtime은 깨끗한 설치 상태에서 다시 계산한다.
-   - `pnpm ota:publish production --dry-run`은 그 빌드가 생긴 뒤에 통과할 수 있다.
-   - 업로드 메일에 ITMS-90068이 다시 오지 않는지도 본다(완료 판단 7).
-3. production 번들의 환경값과 소스맵을 확인한다(완료 판단 5의 남은 부분).
-4. Project 반영(Ticket 03)을 한다. 011이 끝나면 브랜치를 main에 병합한다.
+## 새로 알게 된 운영 조건
 
-**아직 하지 않은 것:**
-- production 쪽 확인(완료 판단 5의 남은 부분), 1.1.4 출시
-- 방지 장치(Ticket 02)의 마무리: 규칙의 사용자 확인, Codex 확인, 커밋
-- Project 반영(Ticket 03): 반영 위치부터 미정. 서버의 Google iOS client 목록 설정, scripts가 runtime을 바꾼다는 점, 발행 절차가 후보로 더해졌다.
+- **runtime은 버전과 빌드 번호마다 다르다.** 이 구성의 fingerprint는 앱 버전과 iOS buildNumber를 포함한다.
+  - 1.1.4(18)의 production runtime은 `0367b72f…`, preview runtime은 `92c898f2…`다.
+  - OTA는 버전·빌드 번호가 같은 빌드에만 간다. 다음 버전을 낸 뒤 이전 버전 사용자에게 보내려면 그 버전의 코드 트리에서 발행해야 한다.
+  - 기존 preview 빌드 `f610d9b5…`(1.1.3/17)는 이제 main과 runtime이 다르다. preview 시험에는 새 preview 빌드가 필요하다.
+- runtime은 `apps/client/package.json`의 scripts와 환경값에도 영향을 받는다. 발행 전에는 깨끗한 재설치가 필요하다. 발행 스크립트가 이를 강제한다.
 
-**중요한 미확인:**
-- 1.1.3 심사 결과: 2026-11-16 밤 App Store Connect에서 아직 "심사 대기 중"이었다. 거절되면 Work 008의 대응이 먼저다.
-- preview 앱(`com.noline.dev`)의 Apple 로그인: 서버 `APPLE_CLIENT_ID`가 운영 번들이라 실패할 수 있다. 시도하지 않았고 이번 범위 밖이다. Google 로그인은 고쳤다(아래).
+## 다음 행동
+
+1. **1.1.4 심사 결과를 확인한다.** 통과하면 자동으로 공개된다. 거절되면 그 대응이 먼저다. ITMS-90068 경고 메일이 왔는지 사용자에게 확인한다(완료 판단 7). Gmail 커넥터 연결이 끊겨 Main이 보지 못했다.
+2. **공개 뒤 production OTA 경로를 확인한다.**
+   - `pnpm ota:publish production --dry-run`이 이제 통과해야 한다.
+   - 실제 production 발행으로 번들 환경값과 소스맵을 확인할지, 언제 할지 정한다(완료 판단 5의 남은 부분). 실제 사용자에게 가는 일이라 사용자의 결정이 필요하다.
+3. **Project 반영(Ticket 03)을 한다.** 방지 규칙의 확정과 Spec 02 "(규칙 후보)" 표시, 발행 절차, runtime 조건(버전·빌드 번호, scripts), 서버 Google 설정이 대상이다. 브랜치는 이미 main에 병합됐으므로 이 작업은 main 기준으로 이어 한다.
+4. **가능하면 Codex에서 hook이 실제로 막는지 본다.**
+
+## 중요한 미확인
+
+- 1.1.4 심사 결과, ITMS-90068 경고 여부
+- Render가 main push(`d160c7b5`)로 자동 배포를 돌렸는지. 서버 코드는 바뀌지 않았다.
+- Codex에서의 hook 동작
+- preview 앱(`com.noline.dev`)의 Apple 로그인. 서버 `APPLE_CLIENT_ID`가 운영 번들이라 실패할 수 있으며, 이번 범위 밖이다.
 - Expo 무료 플랜의 업데이트 한도, iOS 13–14 사용자 수
 
-**브랜치와 커밋:** 011 작업은 브랜치 `feat/011-expo-updates`에 커밋했다(2026-11-17). 이 브랜치는 012 분리 문서 커밋 `3895d44f` 위에 있고, 서버 수정이 든 main(`99235878`)을 병합한 뒤(`cad1ec8f`) 다음 커밋들을 올렸다. 브랜치는 아직 main에 병합하지 않았다(사용자 지시: 011이 끝나면 병합).
-- `3592a538` feat(client): expo-updates·dev-client 정렬·dev-menu patch·iOS 15.0·eas.json channel/environment
-- `ba06e62a` docs(context): 이 Work의 기록
-- `bb459027` docs(context): 이 Work 문서의 커밋 상태 서술을 고침
-- `ceb7a7b7` feat(client): 발행 스크립트 `pnpm ota:publish`
-- `24a3938b` docs(context): 소스맵 확인과 발행 스크립트 기록
-- `4c3c8858` docs(context): 정리된 이력에 맞춘 커밋 기록
-- `4c00153e` feat(client): 변경·환경 변수 검사, `apps/client/scripts/ota/`로 역할별 재구성
-- `49fd28a3` feat(harness): 공통 hook `.agents/hooks/block-direct-eas-update.py`, 두 도구 등록, 루트 `CLAUDE.md`, harness 검사
-- `6208cdd1` docs(context): 방지 장치·재구성·hook 이동 기록
-- 이 커밋 상태 갱신
+## 브랜치와 커밋
 
-사용자 요청으로 Work 기록의 토큰·식별자 세부를 줄이면서, push 전이던 이 브랜치의 이력에서도 그 값을 지웠다(2026-11-17). 그래서 앞선 기록에 `233e0a17`·`212040c2`로 적힌 커밋은 지금 `ba06e62a`·`bb459027`이다. 최종 파일 내용은 고치기 전과 같다.
+011 작업은 main에 들어갔다(2026-11-17).
+- `feat/011-expo-updates`를 main에 fast-forward 병합했다(main `92ca714d`).
+- 그 위에 버전 커밋 `d160c7b5` "chore(client): 1.1.4 빌드 18 배포 준비"를 올리고 origin에 push했다(`99235878..d160c7b5`).
+- 브랜치의 주요 커밋은 다음과 같다.
+  - `3592a538`: expo-updates 설정
+  - `ceb7a7b7`: 발행 스크립트
+  - `4c00153e`: 변경 검사·재구성
+  - `49fd28a3`: 공통 hook
+  - 그 밖은 Work 기록 커밋이다.
+- 앞선 기록의 `233e0a17`·`212040c2`는 이력 정리로 지금 `ba06e62a`·`bb459027`이다.
+- 이 상태 갱신과 [1.1.4 제출 기록](../../records/2026-11-17-10-release-1-1-4-submission.md)은 아직 커밋하지 않았다.
 
-EAS 환경 변수 변경은 저장소 밖의 Expo 계정에 이미 반영돼 있다. Render의 `GOOGLE_IOS_CLIENT_ID` 변경도 운영 서버에 반영돼 있다. Expo에는 이번 시험으로 preview 채널·브랜치와 시험 업데이트 세 개(그룹 `9889e7f4…`, `4c567056…`, `dee2e1d6…`), Google client 수정 업데이트 `a86d1596…`, 소스맵 시험 업데이트 `8c8eb6e9…`, 정리 업데이트 `f40c0676…`, 발행 스크립트 시험 업데이트 `0a0a6db0…`가 생겼고, Apple에는 등록 기기 1대와 ad hoc 프로필이 생겼다. runtime `63918ede…`의 시험 업데이트도 preview 브랜치에 남아 있지만, 그 runtime의 빌드가 없어 받을 기기는 없다. 시험용 코드 변경은 모두 되돌렸고, `dist/`는 gitignore 대상이다.
+저장소 밖에 반영된 것도 있다.
+- EAS 환경 변수
+- Render의 `GOOGLE_IOS_CLIENT_ID`
+- Expo preview 채널의 시험 업데이트(최신은 `0a0a6db0…`, runtime `54a96787…`)
+- Apple: 등록 기기 1대, ad hoc 프로필, App Store Connect의 1.1.4 버전과 제출
 
-**작업 트리 주의:** 다음 미커밋 수정은 이 Work와 무관하다. 011을 커밋할 때 함께 올리지 않는다.
+목록과 ID는 [output 색인](../../output/index.md)에 있다.
+
+## 작업 트리 주의
+
+다음 미커밋 수정은 이 Work와 무관하다. 011을 커밋할 때 함께 올리지 않는다.
 - `context/personal/experience/*` 4개
 - Work 006의 Ticket 14·state
 - `.pnpm-store/`, `.claude/worktrees/`(추적하지 않는 폴더)

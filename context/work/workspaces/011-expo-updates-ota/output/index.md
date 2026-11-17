@@ -4,7 +4,7 @@
 
 ## 2026-11-17 현재 있는 결과
 
-브랜치 `feat/011-expo-updates`의 커밋 `3592a538`에 있다(main 병합 전). 각 변경의 의미는 [Ticket 01](../current/memory/tickets/01-expo-updates-and-ios15-build.md)에 있다.
+main에 있다. 처음 커밋은 `3592a538`이고, 2026-11-17 1.1.4를 위해 브랜치를 main에 병합했다. 각 변경의 의미는 [Ticket 01](../current/memory/tickets/01-expo-updates-and-ios15-build.md)에 있다.
 - `apps/client/package.json`: `expo-updates`·`expo-build-properties` 추가, `expo-dev-client` `~4.0.29`
 - `apps/client/app.config.js`: fingerprint runtime, `updates`, iOS 15.0 plugin
 - `apps/client/eas.json`: preview·production의 `channel`과 `environment`
@@ -19,10 +19,12 @@ Ticket 02의 발행 스크립트는 처음에 `apps/client/scripts/ota-publish.m
 
 EAS와 Apple에는 시험 결과물이 있다. preview 빌드 `f610d9b5-3c04-46d5-b191-e50efac28247`(runtime `54a96787…`, 실패한 첫 빌드는 `8316db33…`), preview 채널의 시험 업데이트 세 개, Google client 수정 업데이트 `a86d1596…`, 소스맵 시험·정리 업데이트 `8c8eb6e9…`·`f40c0676…`, 발행 스크립트 시험 업데이트 `0a0a6db0…`, 등록 기기 1대와 ad hoc 프로필 AN57L8X528이다. ID와 의미는 [실기기 확인 기록](../records/2026-11-17-02-preview-build-and-device-ota-check.md)에 있다.
 
+1.1.4(빌드 18)의 결과는 다음과 같다. 버전 커밋은 main의 `d160c7b5`다. EAS production 빌드 `7033c2ba-0dc7-46e6-96cf-bfcc7044b881`(runtime `0367b72f…`)을 `eas submit` `012b0d56-7c0a-4f8b-a971-3e5c898b64f0`으로 올렸다. App Store Connect의 1.1.4 버전은 심사 대기 중이다. 내역은 [1.1.4 제출 기록](../records/2026-11-17-10-release-1-1-4-submission.md)에 있다.
+
 ## 아직 없는 결과
 
-- production EAS 빌드와 production 채널 업데이트
-- 1.1.4 빌드와 심사 제출
+- production 채널 업데이트(1.1.4 공개 뒤)
+- 1.1.4 심사 결과
 - Project 본문
 
 Sentry(조직 `hmy-k0`, 프로젝트 `noline-mobile`)에는 preview 업데이트 소스맵 두 벌(debug ID `1b61972b…`, `544fabb1…`)과 시험 issue `7851900817`이 있다. 로컬 `apps/client/.env.production`(gitignore)에는 업로드 토큰을 복사해 두었다. 내역은 [소스맵 기록](../records/2026-11-17-04-commit-and-ota-sourcemap.md)에 있다.
