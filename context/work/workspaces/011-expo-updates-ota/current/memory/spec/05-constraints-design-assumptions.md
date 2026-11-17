@@ -10,7 +10,7 @@
 
 ## 설계 방향과 현재 구현
 
-2026-11-17 현재 패키지·`app.config.js`·`eas.json`은 아래대로 들어가 있다(브랜치 `feat/011-expo-updates`, 미커밋). 결과와 경위는 [Ticket 01](../tickets/01-expo-updates-and-ios15-build.md)과 [착수 기록](../../../records/2026-11-17-01-ticket01-build-gate-and-publish-env.md)에 있다.
+2026-11-17 현재 패키지·`app.config.js`·`eas.json`은 아래대로 들어가 있다(브랜치 `feat/011-expo-updates`, `3592a538`로 커밋). 결과와 경위는 [Ticket 01](../tickets/01-expo-updates-and-ios15-build.md)과 [착수 기록](../../../records/2026-11-17-01-ticket01-build-gate-and-publish-env.md)에 있다.
 
 | 항목 | 방향 |
 | --- | --- |
@@ -40,7 +40,7 @@ SDK 51용 `expo-updates`와 `expo-dev-client` 4.0.29가 Xcode 26에서 빌드되
 - **AI 도구 hook `block-direct-eas-update.py`:** AI 하네스 관리 대상이라 Claude·Codex 공통 원본 자리인 `.agents/hooks/`에 둔다. 발행 스크립트가 바뀌거나 없어질 때 함께 볼 것은 `.agents/hooks/README.md`가 맡는다. Claude·Codex가 스크립트 없이 `eas update`를 치면 막고 스크립트를 안내한다. `.claude/settings.json`과 `.codex/hooks.json`에 등록했다. Claude Code에서는 실제로 막혔다. Codex에서는 확인하지 못했다.
 - **git hook이나 CI:** 두지 않았다. 현재 CI(`.github/workflows`)도 없다.
 
-AI 도구 hook만으로는 사람이 터미널에서 직접 실행하는 발행을 막지 못한다. 그래서 검사는 스크립트가 맡고 hook은 그 스크립트로 유도하는 보조로 구성했다. 이 구성과 스크립트가 쓰는 규칙은 Main이 구현하며 고른 것이고, 사용자가 확정하지 않았다. 변경 검사와 hook은 2026-11-17 기준 미커밋이다.
+AI 도구 hook만으로는 사람이 터미널에서 직접 실행하는 발행을 막지 못한다. 그래서 검사는 스크립트가 맡고 hook은 그 스크립트로 유도하는 보조로 구성했다. 이 구성과 스크립트가 쓰는 규칙은 Main이 구현하며 고른 것이고, 사용자가 확정하지 않았다. 변경 검사와 hook은 2026-11-17에 커밋했다(`4c00153e`, `49fd28a3`).
 
 어떤 형태든 장치는 특정 SDK 버전에 묶이지 않게 만든다. 검사는 경로 diff와 fingerprint처럼 SDK가 바뀌어도 그대로 쓰는 기준에 기댄다. 012의 업그레이드 뒤에도 이 장치를 이어 쓰기 위해서다.
 

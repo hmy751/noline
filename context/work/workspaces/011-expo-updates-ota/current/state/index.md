@@ -1,6 +1,6 @@
 # 현재 상태와 다음 행동
 
-2026-11-17 오후 4시 40분경, 두 번째 세션에서 Ticket 02의 장치를 마치고 OTA 스크립트를 역할별로 다시 구성한 뒤 hook을 `.agents/hooks/`로 옮긴 시점의 상태다.
+2026-11-17 오후 4시 50분경, 두 번째 세션에서 Ticket 02의 장치를 마치고 OTA 스크립트를 역할별로 다시 구성한 뒤 hook을 `.agents/hooks/`로 옮겨 커밋한 시점의 상태다.
 
 **지금까지:** 2026-11-16 1.1.3(빌드 17)을 심사에 낸 뒤 expo-updates 도입을 논의해 이 Work를 만들었다([Spec](../memory/index.md)). 두 번째 세션은 처음에 "파악만" 했고, 그 과정에서 SDK 업그레이드를 [Work 012](../../../012-expo-sdk-upgrade/README.md)로 나눴다([파악·분리 기록](../../records/2026-11-16-02-scoping-check-and-sdk-split.md)). 그 뒤 사용자가 "일단 011 부터 하고 다되면 병합하자"로 착수를 지시해 [Ticket 01](../memory/tickets/01-expo-updates-and-ios15-build.md)을 실행했다. 경위와 근거는 [착수 기록](../../records/2026-11-17-01-ticket01-build-gate-and-publish-env.md)과 [실기기 확인 기록](../../records/2026-11-17-02-preview-build-and-device-ota-check.md)에 있다.
 
@@ -23,19 +23,18 @@
 - **발행 스크립트:** `pnpm ota:publish <preview|production> --message "..."`를 만들었다(지금은 `apps/client/scripts/ota/`에 역할별로 나뉨, 루트 `package.json`). 순서는 사전 점검 → 깨끗한 재설치 → EAS 환경값 대조 → runtime 대조 → `eas update` → 소스맵 업로드다. 막혀야 할 경우가 막히는 것과 실제 preview 발행(그룹 `0a0a6db0…`)을 확인했고, 별도 검증도 거쳤다.
 - 실행 명령을 루트 `package.json`에 둔 이유가 있다. fingerprint가 `apps/client/package.json`의 scripts까지 해시에 넣기 때문이다. 그곳에 두자 runtime이 `6cfec56f…`로 바뀌었다. 경위는 [발행 스크립트 기록](../../records/2026-11-17-05-ota-publish-script.md)에 있다.
 
-- **방지 장치 나머지(미커밋):** 사용자는 "이제 다음 진행하자"라고만 했다. Main은 1.1.4보다 Ticket 02 나머지를 먼저 했다. Spec 05 순서가 장치를 앞에 두고, 바깥에 영향이 없는 로컬 작업이라는 이유였다. 이 순서는 Main의 판단이다.
+- **방지 장치 나머지(`4c00153e`·`49fd28a3`):** 사용자는 "이제 다음 진행하자"라고만 했다. Main은 1.1.4보다 Ticket 02 나머지를 먼저 했다. Spec 05 순서가 장치를 앞에 두고, 바깥에 영향이 없는 로컬 작업이라는 이유였다. 이 순서는 Main의 판단이다.
   - 발행 스크립트에 변경 검사를 넣었다. 기준 빌드 커밋 이후의 DB 경로·DDL은 거부하고, 서버 계약 경로는 `--server-checked`가 있어야 통과하며, 네이티브는 경고한다.
   - `@env`·`process.env.EXPO_PUBLIC_*` 이름을 EAS 변수와 대조하게 했다.
   - `eas update` 직접 실행을 막는 hook을 Claude·Codex에 등록했다.
   - preview dry-run으로 막힘·통과 경우를 확인했고, 별도 검증을 두 번 받았다. Claude Code에서는 hook이 실제로 막았다.
   - 규칙은 Main이 고른 것이라 사용자 확인 전이다. 경위는 [방지 장치 기록](../../records/2026-11-17-06-ota-guard-change-env-hook.md)에 있다.
-- **스크립트 재구성(미커밋):** 사용자 요청("코드 퀄리티를 좀 더 깔끔하게… persoanl보고… 역할에 맞게… 위치")에 따라 발행 스크립트와 hook을 `apps/client/scripts/ota/` 아래 역할별 파일로 나눴다. Personal 기준으로 코드도 다듬었다. 규칙은 바꾸지 않았다. 같은 막힘·통과 결과, hook 동작, runtime `54a96787…`을 다시 확인했다. 경위는 [재구성 기록](../../records/2026-11-17-07-ota-script-reorganization.md)에 있다.
-- **hook 위치 이동(미커밋):** 사용자가 hook은 AI 하네스 관리 대상이라 앱 코드 아래에 있는 것이 아쉽다고 했다("…AI 관리 하네스 관점이고 그게 apps/client/scripts로 있는게 아쉼다는거지…"). 그래서 hook을 `.agents/hooks/`로 옮기고, `.agents/hooks/README.md`, 두 도구 설정, 루트 `CLAUDE.md`, harness 검사를 맞췄다. 새 위치에서도 hook이 실제로 막았다. 경위는 [hook 이동 기록](../../records/2026-11-17-08-hook-to-agents-hooks.md)에 있다.
+- **스크립트 재구성(`4c00153e`):** 사용자 요청("코드 퀄리티를 좀 더 깔끔하게… persoanl보고… 역할에 맞게… 위치")에 따라 발행 스크립트와 hook을 `apps/client/scripts/ota/` 아래 역할별 파일로 나눴다. Personal 기준으로 코드도 다듬었다. 규칙은 바꾸지 않았다. 같은 막힘·통과 결과, hook 동작, runtime `54a96787…`을 다시 확인했다. 경위는 [재구성 기록](../../records/2026-11-17-07-ota-script-reorganization.md)에 있다.
+- **hook 위치 이동(`49fd28a3`):** 사용자가 hook은 AI 하네스 관리 대상이라 앱 코드 아래에 있는 것이 아쉽다고 했다("…AI 관리 하네스 관점이고 그게 apps/client/scripts로 있는게 아쉼다는거지…"). 그래서 hook을 `.agents/hooks/`로 옮기고, `.agents/hooks/README.md`, 두 도구 설정, 루트 `CLAUDE.md`, harness 검사를 맞췄다. 새 위치에서도 hook이 실제로 막았다. 경위는 [hook 이동 기록](../../records/2026-11-17-08-hook-to-agents-hooks.md)에 있다.
 
 **다음 행동:**
 1. Ticket 02를 마무리한다.
    - [Ticket 02](../memory/tickets/02-ota-publish-guard.md#규칙과-확정-상태)의 규칙을 사용자가 확인한다.
-   - 변경 검사와 hook을 커밋한다. 커밋은 사용자가 정한다. `apps/client/scripts/ota/`의 새 파일들과 `.agents/hooks/`는 추적되지 않았다. 루트 `package.json`·`.claude/settings.json`·`.codex/hooks.json`·루트 `CLAUDE.md`·`scripts/check-harness.mjs`와 함께 올려야 한다.
    - 가능하면 Codex에서 hook이 실제로 막는지 본다.
 2. 1.1.4(빌드 18)를 production으로 빌드해 심사에 낸다.
    - 먼저 1.1.3 심사 상태를 확인한다.
@@ -62,16 +61,15 @@
 - `bb459027` docs(context): 이 Work 문서의 커밋 상태 서술을 고침
 - `ceb7a7b7` feat(client): 발행 스크립트 `pnpm ota:publish`
 - `24a3938b` docs(context): 소스맵 확인과 발행 스크립트 기록
+- `4c3c8858` docs(context): 정리된 이력에 맞춘 커밋 기록
+- `4c00153e` feat(client): 변경·환경 변수 검사, `apps/client/scripts/ota/`로 역할별 재구성
+- `49fd28a3` feat(harness): 공통 hook `.agents/hooks/block-direct-eas-update.py`, 두 도구 등록, 루트 `CLAUDE.md`, harness 검사
+- `6208cdd1` docs(context): 방지 장치·재구성·hook 이동 기록
+- 이 커밋 상태 갱신
 
 사용자 요청으로 Work 기록의 토큰·식별자 세부를 줄이면서, push 전이던 이 브랜치의 이력에서도 그 값을 지웠다(2026-11-17). 그래서 앞선 기록에 `233e0a17`·`212040c2`로 적힌 커밋은 지금 `ba06e62a`·`bb459027`이다. 최종 파일 내용은 고치기 전과 같다.
 
 EAS 환경 변수 변경은 저장소 밖의 Expo 계정에 이미 반영돼 있다. Render의 `GOOGLE_IOS_CLIENT_ID` 변경도 운영 서버에 반영돼 있다. Expo에는 이번 시험으로 preview 채널·브랜치와 시험 업데이트 세 개(그룹 `9889e7f4…`, `4c567056…`, `dee2e1d6…`), Google client 수정 업데이트 `a86d1596…`, 소스맵 시험 업데이트 `8c8eb6e9…`, 정리 업데이트 `f40c0676…`, 발행 스크립트 시험 업데이트 `0a0a6db0…`가 생겼고, Apple에는 등록 기기 1대와 ad hoc 프로필이 생겼다. runtime `63918ede…`의 시험 업데이트도 preview 브랜치에 남아 있지만, 그 runtime의 빌드가 없어 받을 기기는 없다. 시험용 코드 변경은 모두 되돌렸고, `dist/`는 gitignore 대상이다.
-
-그 뒤의 미커밋 변경은 이 Work의 것이다.
-- `apps/client/scripts/ota/`: `publish.mjs`(이전 `ota-publish.mjs`에서 `git mv`), `config.mjs`, `rules.mjs`, `checks.mjs`, `eas.mjs`, `terminal.mjs`
-- `.agents/hooks/`: `block-direct-eas-update.py`, `README.md`
-- 루트 `package.json`의 `ota:publish` 경로, `.claude/settings.json`, `.codex/hooks.json`(새 hook 경로), 루트 `CLAUDE.md`(`.agents/hooks/` 안내), `scripts/check-harness.mjs`(hook 대상 파일 검사, `.agents/hooks` 허용)
-- 이 Work 문서(방지 장치·재구성·hook 이동 기록 등)
 
 **작업 트리 주의:** 다음 미커밋 수정은 이 Work와 무관하다. 011을 커밋할 때 함께 올리지 않는다.
 - `context/personal/experience/*` 4개

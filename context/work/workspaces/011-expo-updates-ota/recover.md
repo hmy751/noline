@@ -1,6 +1,6 @@
 # 011 — expo-updates 작업을 이어갈 때
 
-Ticket 01을 진행 중이다. 설치·설정이 들어갔고 Xcode 26 판단 지점은 pnpm patch로 통과했다. preview EAS 빌드를 만들어 실기기에서 OTA 받기·오프라인 시작·롤백·runtime 분리(완료 판단 1–4)를 확인했다. 발행은 채널과 같은 이름의 EAS environment로 하고, 깨끗이 설치한 상태에서 runtime을 대상 빌드와 맞춰야 한다. OTA 소스맵도 로컬 토큰 방식으로 정해 preview에서 end-to-end로 확인했다. OTA는 손으로 `eas update`를 치지 말고 Ticket 02의 `pnpm ota:publish`로 낸다. 이 스크립트(`apps/client/scripts/ota/`, 규칙은 `rules.mjs`)는 발행 절차와 OTA로 내면 안 되는 변경(DB 구조·서버 계약·env 이름)을 검사한다. AI 도구가 직접 치면 `.agents/hooks/`의 hook이 막는다. 검사 규칙은 Main이 고른 것이라 사용자 확인 전이다. 변경 검사와 hook은 아직 커밋하지 않았다. 남은 일은 그 확인과 커밋, 1.1.4 출시, production 쪽 확인, Project 반영이다. 앞선 코드와 기록은 브랜치 `feat/011-expo-updates`에 커밋했고(state의 커밋 목록 참고), main 병합은 011이 끝난 뒤 한다.
+Ticket 01을 진행 중이다. 설치·설정이 들어갔고 Xcode 26 판단 지점은 pnpm patch로 통과했다. preview EAS 빌드를 만들어 실기기에서 OTA 받기·오프라인 시작·롤백·runtime 분리(완료 판단 1–4)를 확인했다. 발행은 채널과 같은 이름의 EAS environment로 하고, 깨끗이 설치한 상태에서 runtime을 대상 빌드와 맞춰야 한다. OTA 소스맵도 로컬 토큰 방식으로 정해 preview에서 end-to-end로 확인했다. OTA는 손으로 `eas update`를 치지 말고 Ticket 02의 `pnpm ota:publish`로 낸다. 이 스크립트(`apps/client/scripts/ota/`, 규칙은 `rules.mjs`)는 발행 절차와 OTA로 내면 안 되는 변경(DB 구조·서버 계약·env 이름)을 검사한다. AI 도구가 직접 치면 `.agents/hooks/`의 hook이 막는다. 검사 규칙은 Main이 고른 것이라 사용자 확인 전이다. 변경 검사와 hook도 커밋했다. 남은 일은 그 확인, 1.1.4 출시, production 쪽 확인, Project 반영이다. 앞선 코드와 기록은 브랜치 `feat/011-expo-updates`에 커밋했고(state의 커밋 목록 참고), main 병합은 011이 끝난 뒤 한다.
 
 **먼저 읽는다.** 이것들이 빠지면 확인 전의 설정을 완료로 착각하거나, 조용히 전달되지 않는 발행을 하거나, 제품 약속을 깨는 업데이트를 내게 된다.
 - [현재 상태](current/state/index.md): 된 것, 다음 행동의 순서와 아직 정하지 않은 순서, 브랜치·커밋 상태와 커밋하면 안 되는 무관한 파일
