@@ -4,14 +4,14 @@
 
 ## 2026-11-17 현재 있는 결과
 
-브랜치 `feat/011-expo-updates`의 작업 트리에 있으며 아직 커밋하지 않았다. 각 변경의 의미는 [Ticket 01](../current/memory/tickets/01-expo-updates-and-ios15-build.md)에 있다.
+브랜치 `feat/011-expo-updates`의 커밋 `3592a538`에 있다(main 병합 전). 각 변경의 의미는 [Ticket 01](../current/memory/tickets/01-expo-updates-and-ios15-build.md)에 있다.
 - `apps/client/package.json`: `expo-updates`·`expo-build-properties` 추가, `expo-dev-client` `~4.0.29`
 - `apps/client/app.config.js`: fingerprint runtime, `updates`, iOS 15.0 plugin
 - `apps/client/eas.json`: preview·production의 `channel`과 `environment`
 - 루트 `patches/expo-dev-menu@5.0.23.patch`(새 파일)와 루트 `package.json`의 `pnpm.patchedDependencies`
 - `pnpm-lock.yaml`
 
-서버의 Google iOS client 목록 수정은 main 커밋 `99235878`에 있고 Render에 배포됐다. 같은 내용이 위 브랜치 작업 트리에도 미커밋으로 있다(`apps/server/README.md`, `src/config/index.ts`, `src/config/env-list.ts`, `src/routes/auth.ts`, `tests/config/env-list.test.ts`).
+서버의 Google iOS client 목록 수정은 main 커밋 `99235878`에 있고 Render에 배포됐다. 011 브랜치에는 main을 병합(`cad1ec8f`)해 같은 커밋으로 들어와 있다.
 
 저장소 밖의 결과도 있다. Expo 계정(프로젝트 `@myeongyeon/noline`)의 EAS 환경 변수다. preview 환경에 공통 변수를 연결하고 preview 전용 값 두 개를 만들었다. 이 변경은 이미 적용돼 있으며, 내역은 [착수 기록](../records/2026-11-17-01-ticket01-build-gate-and-publish-env.md)에 있다. 그 뒤 `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`를 환경별로 나눴다. 운영 서버(Render)의 `GOOGLE_IOS_CLIENT_ID`도 운영·개발 두 값으로 바꿨다. 내역은 [Google 로그인 기록](../records/2026-11-17-03-preview-google-login-fix.md)에 있다.
 

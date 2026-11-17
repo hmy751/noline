@@ -1,9 +1,9 @@
 # 011 — expo-updates 작업을 이어갈 때
 
-Ticket 01을 진행 중이다. 설치·설정이 들어갔고 Xcode 26 판단 지점은 pnpm patch로 통과했다. preview EAS 빌드를 만들어 실기기에서 OTA 받기·오프라인 시작·롤백·runtime 분리(완료 판단 1–4)를 확인했다. 발행은 채널과 같은 이름의 EAS environment로 하고, 깨끗이 설치한 상태에서 runtime을 대상 빌드와 맞춰야 한다. 남은 일은 Sentry 소스맵과 production 쪽 확인, 1.1.4 출시, 방지 장치, Project 반영이다. 코드 변경은 브랜치 `feat/011-expo-updates`에 있고 커밋하지 않았다.
+Ticket 01을 진행 중이다. 설치·설정이 들어갔고 Xcode 26 판단 지점은 pnpm patch로 통과했다. preview EAS 빌드를 만들어 실기기에서 OTA 받기·오프라인 시작·롤백·runtime 분리(완료 판단 1–4)를 확인했다. 발행은 채널과 같은 이름의 EAS environment로 하고, 깨끗이 설치한 상태에서 runtime을 대상 빌드와 맞춰야 한다. 남은 일은 Sentry 소스맵과 production 쪽 확인, 1.1.4 출시, 방지 장치, Project 반영이다. 코드 변경과 기록은 브랜치 `feat/011-expo-updates`에 커밋했고(`3592a538`, `233e0a17`), main 병합은 011이 끝난 뒤 한다.
 
 **먼저 읽는다.** 이것들이 빠지면 확인 전의 설정을 완료로 착각하거나, 조용히 전달되지 않는 발행을 하거나, 제품 약속을 깨는 업데이트를 내게 된다.
-- [현재 상태](current/state/index.md): 된 것, 다음 행동의 순서와 아직 정하지 않은 순서, 미커밋 파일과 커밋하면 안 되는 무관한 파일
+- [현재 상태](current/state/index.md): 된 것, 다음 행동의 순서와 아직 정하지 않은 순서, 브랜치·커밋 상태와 커밋하면 안 되는 무관한 파일
 - [Ticket 01](current/memory/tickets/01-expo-updates-and-ios15-build.md): 단계별 결과, 남은 단계 6·7, 패치와 로컬 `ios/`·locale 주의
 - [구별해야 할 사례](current/memory/spec/02-behavior-and-cases.md): OTA로 내면 안 되는 변경과 빌드와 다른 환경으로 하는 발행
 
@@ -24,4 +24,4 @@ Ticket 01을 진행 중이다. 설치·설정이 들어갔고 Xcode 26 판단 �
 | 사용자가 실제로 한 말이 문제일 때 | [사용자 방향 원문](source/user-direction.md)(첫 세션), 두 번째 세션 발화는 [source 색인](source/index.md)의 행 표와 각 기록의 인용 | 범위(hook, Project 반영, 012 분리), 착수·계속 결정의 원문 |
 | 릴리스 절차를 따라 할 때 | Work 007의 [빌드 16 기록](../007-sync-failure-recovery/records/2026-11-14-08-build-16-release-and-review-submission.md), Work 008의 [1.1.3 기록](../008-exception-notice-rules/records/2026-11-16-01-pressable-drawer-fixes.md) | Project에 릴리스 본문이 아직 없다 |
 
-**첫 행동:** `git status`와 브랜치를 확인한다. 위 미커밋 변경이 그대로인지, 이미 커밋·병합됐는지에 따라 다음 단계가 달라진다. 빌드나 발행을 하기 전에는 `node_modules`를 지우고 `pnpm install --frozen-lockfile`로 다시 설치한 뒤 runtime을 계산한다. 012가 다른 세션에서 먼저 진행돼 SDK나 dev-client가 바뀌었다면 패치와 runtime 값이 달라진다.
+**첫 행동:** `git status`와 브랜치를 확인한다. 011 브랜치가 이미 main에 병합됐는지에 따라 다음 단계가 달라진다. 빌드나 발행을 하기 전에는 `node_modules`를 지우고 `pnpm install --frozen-lockfile`로 다시 설치한 뒤 runtime을 계산한다. 012가 다른 세션에서 먼저 진행돼 SDK나 dev-client가 바뀌었다면 패치와 runtime 값이 달라진다.

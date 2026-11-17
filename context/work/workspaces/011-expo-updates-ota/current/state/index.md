@@ -34,12 +34,9 @@
 - preview 앱(`com.noline.dev`)의 Apple 로그인: 서버 `APPLE_CLIENT_ID`가 운영 번들이라 실패할 수 있다. 시도하지 않았고 이번 범위 밖이다. Google 로그인은 고쳤다(아래).
 - Expo 무료 플랜의 업데이트 한도, iOS 13–14 사용자 수
 
-**브랜치와 커밋:** 코드 변경은 브랜치 `feat/011-expo-updates`에 있고 아직 커밋하지 않았다. 이 브랜치는 012 분리 문서를 커밋한 `docs/012-sdk-upgrade-split`(`3895d44f`) 위에 있으며 두 브랜치 모두 main에 병합되지 않았다. main은 그사이 서버 수정 `99235878`로 한 커밋 올라갔다(`08ff4c27` 다음). 011의 미커밋 변경은 다음과 같다.
-- `apps/client/package.json`, `app.config.js`, `eas.json`
-- 루트 `package.json`(`pnpm.patchedDependencies`), `pnpm-lock.yaml`
-- 루트 `patches/expo-dev-menu@5.0.23.patch`(새 파일)
-- 서버 `apps/server/README.md`, `src/config/index.ts`, `src/routes/auth.ts`, 새 파일 `src/config/env-list.ts`·`tests/config/env-list.test.ts`. main의 `99235878`과 같은 내용이라 병합 때 겹친다.
-- 이 Work의 문서
+**브랜치와 커밋:** 011 작업은 브랜치 `feat/011-expo-updates`에 커밋했다(2026-11-17). 이 브랜치는 012 분리 문서 커밋 `3895d44f` 위에 있고, 서버 수정이 든 main(`99235878`)을 병합한 뒤(`cad1ec8f`) 다음 두 커밋을 올렸다. 브랜치는 아직 main에 병합하지 않았다(사용자 지시: 011이 끝나면 병합).
+- `3592a538` feat(client): expo-updates·dev-client 정렬·dev-menu patch·iOS 15.0·eas.json channel/environment
+- `233e0a17` docs(context): 이 Work의 기록
 
 EAS 환경 변수 변경은 저장소 밖의 Expo 계정에 이미 반영돼 있다. Render의 `GOOGLE_IOS_CLIENT_ID` 변경도 운영 서버에 반영돼 있다. Expo에는 이번 시험으로 preview 채널·브랜치와 시험 업데이트 세 개(그룹 `9889e7f4…`, `4c567056…`, `dee2e1d6…`), Google client 수정 업데이트 `a86d1596…`가 생겼고, Apple에는 등록 기기 1대와 ad hoc 프로필이 생겼다. runtime `63918ede…`의 시험 업데이트도 preview 브랜치에 남아 있지만, 그 runtime의 빌드가 없어 받을 기기는 없다. 시험용 코드 변경은 모두 되돌렸고, `dist/`는 gitignore 대상이다.
 
