@@ -1,6 +1,6 @@
 # 011 — expo-updates 작업을 이어갈 때
 
-Ticket 01을 진행 중이다. 설치·설정이 들어갔고 Xcode 26 판단 지점은 pnpm patch로 통과했다. preview EAS 빌드를 만들어 실기기에서 OTA 받기·오프라인 시작·롤백·runtime 분리(완료 판단 1–4)를 확인했다. 발행은 채널과 같은 이름의 EAS environment로 하고, 깨끗이 설치한 상태에서 runtime을 대상 빌드와 맞춰야 한다. 남은 일은 Sentry 소스맵과 production 쪽 확인, 1.1.4 출시, 방지 장치, Project 반영이다. 코드 변경과 기록은 브랜치 `feat/011-expo-updates`에 커밋했고(`3592a538`, `233e0a17`), main 병합은 011이 끝난 뒤 한다.
+Ticket 01을 진행 중이다. 설치·설정이 들어갔고 Xcode 26 판단 지점은 pnpm patch로 통과했다. preview EAS 빌드를 만들어 실기기에서 OTA 받기·오프라인 시작·롤백·runtime 분리(완료 판단 1–4)를 확인했다. 발행은 채널과 같은 이름의 EAS environment로 하고, 깨끗이 설치한 상태에서 runtime을 대상 빌드와 맞춰야 한다. OTA 소스맵도 로컬 토큰 방식으로 정해 preview에서 end-to-end로 확인했다. 발행 절차는 Ticket 02의 `pnpm ota:publish`로 묶었다(미커밋). OTA는 손으로 `eas update`를 치지 말고 이 스크립트로 낸다. 남은 일은 production 쪽 확인, 1.1.4 출시, Ticket 02의 나머지(경로 diff·hook), Project 반영이다. 코드 변경과 기록은 브랜치 `feat/011-expo-updates`에 커밋했고(`3592a538`, `233e0a17`), main 병합은 011이 끝난 뒤 한다.
 
 **먼저 읽는다.** 이것들이 빠지면 확인 전의 설정을 완료로 착각하거나, 조용히 전달되지 않는 발행을 하거나, 제품 약속을 깨는 업데이트를 내게 된다.
 - [현재 상태](current/state/index.md): 된 것, 다음 행동의 순서와 아직 정하지 않은 순서, 브랜치·커밋 상태와 커밋하면 안 되는 무관한 파일
@@ -13,6 +13,8 @@ Ticket 01을 진행 중이다. 설치·설정이 들어갔고 Xcode 26 판단 �
 | --- | --- | --- |
 | preview 빌드·OTA를 확인하거나 완료를 판단할 때 | [완료 판단](current/memory/spec/04-quality-and-completion.md), [개념](current/memory/spec/03-concepts-and-contracts.md)의 runtime version·채널 절 | 설정을 넣은 것만으로 확인을 대신하지 않는다. runtime이 환경값에 따라 달라진다 |
 | 업데이트를 발행하거나 빌드할 때, runtime이 어긋날 때, 완료 판단 1–5의 확인 근거가 필요할 때 | [실기기 확인 기록](records/2026-11-17-02-preview-build-and-device-ota-check.md) | 첫 빌드의 runtime 불일치와 원인(오래된 `node_modules`), 실기기 확인 절차와 사용한 빌드·업데이트 ID, Sentry 토큰 제약 |
+| OTA를 발행하거나 발행 스크립트를 고칠 때 | [발행 스크립트 기록](records/2026-11-17-05-ota-publish-script.md), [Ticket 02](current/memory/tickets/02-ota-publish-guard.md) | 스크립트의 단계·옵션·확인 결과, 명령을 루트 `package.json`에 둔 이유(fingerprint가 scripts를 해시에 넣음), 남은 검사 |
+| OTA 소스맵을 올리거나 Sentry 토큰 위치를 바꿀 때 | [소스맵 기록](records/2026-11-17-04-commit-and-ota-sourcemap.md) | 토큰 배치의 선택과 이유, 업로드 명령, 시험·정리 업데이트, Sentry에서 확인한 frame, 롤백 대신 재발행한 이유 |
 | EAS 환경 변수를 환경별로 나누거나, 서버·Render의 Google 로그인 설정을 바꿀 때 | [Google 로그인 기록](records/2026-11-17-03-preview-google-login-fix.md) | preview가 운영 client를 공유해 막힌 원인, 서버 iOS client 목록, 코드 배포 뒤 값 변경이라는 순서의 이유, Apple 로그인 제한 |
 | 발행 명령·EAS 환경을 다룰 때, 또는 판단 지점의 근거가 필요할 때 | [착수 기록](records/2026-11-17-01-ticket01-build-gate-and-publish-env.md) | 빌드 세 번의 경위, eas-cli 코드에서 읽은 environment 규칙, preview 환경에 연결한 변수, runtime 계산 명령과 값 |
 | 설계 방향과 가정을 다시 볼 때 | [제약·설계](current/memory/spec/05-constraints-design-assumptions.md) | 현재 구현 표, 판단 지점의 결과, SDK 51의 남은 기간, 남은 가정 |

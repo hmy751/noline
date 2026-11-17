@@ -20,6 +20,8 @@
 그래서 새 Owner를 만들지, 기존 본문에 합칠지부터 정해야 한다. 기존 본문 후보는 `current/app-runtime`과 `current/architecture.md`다. 이 판단은 [Project 관리 계약](../../../../../../project/MAINTENANCE.md)과 [구성 기준](../../../../../../project/REFERENCE/composition.md)을 읽고 [context-update](../../../../../../../.agents/skills/context-update/SKILL.md)로 수행한다.
 
 이 밖에 영향이 갈 수 있는 곳도 함께 확인한다.
+- runtime이 바뀌는 조건: fingerprint는 `apps/client/package.json`의 scripts까지 해시에 넣는다. 그래서 scripts만 바꿔도 OTA runtime이 바뀌고 새 빌드가 필요해진다. 발행 명령을 루트 `package.json`에 둔 이유이기도 하다. `apps/client` 가이드나 OTA 기준 본문에 남길지 확인한다. 근거는 [발행 스크립트 기록](../../../records/2026-11-17-05-ota-publish-script.md)에 있다.
+- 발행 절차: `pnpm ota:publish`의 사용법과 단계.
 - 서버의 Google 로그인 설정: 2026-11-17 서버가 `GOOGLE_IOS_CLIENT_ID`를 쉼표 목록으로 받게 바뀌었다(`99235878`). 운영과 preview 앱의 iOS client를 함께 허용하기 위해서다. 서버 README의 환경 변수 설명은 이미 고쳤다. API·인증 Project 본문에 반영할지 확인한다. 경위는 [Google 로그인 기록](../../../records/2026-11-17-03-preview-google-login-fix.md)에 있다.
 - `apps/client/CLAUDE.md`의 명령
 - [START_GUIDE](../../../../../../../START_GUIDE.md): 개발 앱을 다시 빌드해야 하는 조건

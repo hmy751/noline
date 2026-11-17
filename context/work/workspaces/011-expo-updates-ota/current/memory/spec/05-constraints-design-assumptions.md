@@ -18,7 +18,7 @@
 | 패치 | `expo-dev-menu` 5.0.23의 Swift 한 줄을 루트 `patches/expo-dev-menu@5.0.23.patch`로 고친다(`pnpm.patchedDependencies`). Xcode 26에서 컴파일되게 하는 임시 조치이며 012에서 dev-client가 올라가면 지운다 |
 | `app.config.js` | `runtimeVersion: { policy: 'fingerprint' }`, `updates.url`(EAS 프로젝트), `updates.fallbackToCacheTimeout: 0`, plugin `['expo-build-properties', { ios: { deploymentTarget: '15.0' } }]` |
 | `eas.json` | preview·production 프로필에 같은 이름의 `channel`과 `environment` |
-| 발행 | `eas update --channel <채널> --environment <같은 이름>`. 빌드와 같은 EAS 환경값으로 번들과 runtime을 만든다. EAS preview 환경은 production과 공통 변수를 함께 쓰고 `APP_VARIANT`·Sentry 환경값·Google iOS client ID만 따로 둔다. Sentry 소스맵 업로드를 어떻게 묶을지는 미정이다 |
+| 발행 | `eas update --channel <채널> --environment <같은 이름>`. 빌드와 같은 EAS 환경값으로 번들과 runtime을 만든다. EAS preview 환경은 production과 공통 변수를 함께 쓰고 `APP_VARIANT`·Sentry 환경값·Google iOS client ID만 따로 둔다. Sentry 소스맵은 발행 직후 로컬에서 `expo-upload-sourcemaps.js dist`로 올린다. 토큰은 로컬 `.env.production`(gitignore)에 둔다. preview에서 end-to-end로 확인했다 |
 | 순서 | 설치·dev-client 정렬 → Xcode 26 빌드 확인(아래 판단 지점) → 설정 → preview 빌드로 확인 → 방지 장치 → 1.1.4 스토어 빌드·심사 → Project 반영 |
 
 `apps/client/ios/`는 gitignore 대상이라 EAS 빌드가 매번 prebuild한다. 따라서 `app.config.js`에 넣은 `expo-build-properties` plugin이 EAS 빌드에 그대로 적용된다. preview 프로필은 `APP_VARIANT=development`라 개발용 앱 `com.noline.dev`로 빌드되며, preview 채널 확인도 이 앱에서 한다.
@@ -33,10 +33,10 @@ SDK 51용 `expo-updates`와 `expo-dev-client` 4.0.29가 Xcode 26에서 빌드되
 
 이 판단 지점은 SDK 업그레이드를 012로 나눈 추천에 함께 들어 있던 방향이다. 사용자는 분리에 동의했다. 세부 진행은 구현 때 확정한다. 이유는 [분리 기록](../../../records/2026-11-16-02-scoping-check-and-sdk-split.md)에 있다.
 
-## 방지 장치 (hook 등) — 계획만 있음
+## 방지 장치 (hook 등)
 
-사용자가 "hook같은걸로 뭔가 방지하게 하는 그런것도 할거"라고 했다. 형태는 정하지 않았다. 판단할 후보는 다음과 같다.
-- **발행 전용 스크립트:** 예를 들어 `pnpm client update:publish`. 마지막 스토어 빌드 커밋 이후의 diff를 검사한다. migrations·`db/index.ts`·`packages/schema`·네이티브 설정 변경이 있으면 거부하고, 환경값을 확인하고, Sentry 업로드까지 수행한다.
+사용자가 "hook같은걸로 뭔가 방지하게 하는 그런것도 할거"라고 했다. 2026-11-17에 발행 전용 스크립트 `pnpm ota:publish`를 만들었다(미커밋, [Ticket 02](../tickets/02-ota-publish-guard.md)). 지금은 발행 절차의 검사(재설치·환경값·runtime·소스맵)만 한다. 아래 후보 가운데 경로 diff 검사와 hook은 아직이다.
+- **발행 전용 스크립트:** 실행 명령은 루트 `package.json`에 둔다. `apps/client/package.json`의 scripts는 fingerprint에 들어가기 때문이다. 환경값 확인과 Sentry 업로드는 들어가 있다. 마지막 스토어 빌드 커밋 이후의 diff를 검사해 migrations·`db/index.ts`·`packages/schema`·네이티브 설정 변경을 거부하는 일이 남았다.
 - **AI 도구 hook:** Claude·Codex가 `eas update`를 직접 실행하려 할 때 위 검사를 거치게 막는다. 현재 `.claude/settings.json`에는 hook이 없다. `.claude/hooks/maintain.py`는 퇴역한 Work hook이 아무 일도 하지 않고 끝나게 하는 잔재다. `.codex/hooks.json`은 따로 있다.
 - **git hook이나 CI:** 현재 CI(`.github/workflows`)는 없다.
 
