@@ -1,4 +1,16 @@
 {
-  "description": "Work 기록은 record-work가 담당한다.",
-  "hooks": {}
+  "description": "Work 기록은 record-work가 담당한다. eas update 직접 실행은 발행 스크립트로 유도한다(Work 011).",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "H=\"$(git rev-parse --show-toplevel 2>/dev/null)/.agents/hooks/block-direct-eas-update.py\"; [ ! -f \"$H\" ] || python3 \"$H\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
 }

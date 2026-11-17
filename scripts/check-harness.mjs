@@ -186,7 +186,7 @@ function checkOnlyEntries(target, required, allowed = required) {
 
 function checkExecutionSurfaces() {
   checkSymlink('.claude/skills', '../.agents/skills');
-  checkOnlyEntries('.agents', ['skills']);
+  checkOnlyEntries('.agents', ['skills'], ['skills', 'hooks']);
   checkOnlyEntries('.agents/skills', [
     ...expectedSkills,
     'README.md',
@@ -276,8 +276,14 @@ function checkContextHarnessSurface() {
   for (const file of ['.codex/hooks.json', '.claude/settings.json']) {
     try {
       const config = JSON.parse(fs.readFileSync(path.join(root, file), 'utf8'));
-      if (/maintain\.py/.test(JSON.stringify(config.hooks))) {
+      const hooks = JSON.stringify(config.hooks);
+      if (/maintain\.py/.test(hooks)) {
         failures.push(`${file} still routes events to retired Work hooks`);
+      }
+      // hook 명령은 파일이 없으면 조용히 건너뛰므로, 가리키는 파일이 실제로 있는지 여기서 확인한다.
+      const repoPaths = /(?:\$CLAUDE_PROJECT_DIR|\$\(git rev-parse --show-toplevel[^)]*\))\/([^"'\s;\\]+)/g;
+      for (const [, target] of hooks.matchAll(repoPaths)) {
+        if (!exists(target)) failures.push(`${file} hook points to missing ${target}`);
       }
     } catch {
       failures.push(`${file} must be valid JSON`);

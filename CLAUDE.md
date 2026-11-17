@@ -59,9 +59,9 @@ noline/
 ├── apps/                # client·server
 ├── packages/            # schema·ui·eslint-config·typescript-config
 ├── context/             # Personal·Project·Work와 각 관리 계약
-├── .agents/skills/      # 공통 스킬 원본과 Codex 발견 경로
-├── .claude/             # settings.json·hooks/와 skills 연결
-├── .codex/              # Codex 설정과 lifecycle hook
+├── .agents/             # Claude·Codex 공통 원본: skills/(Codex 발견 경로)·hooks/
+├── .claude/             # settings.json(hook 등록)과 skills 연결
+├── .codex/              # Codex 설정과 hook 등록
 ├── _archive/            # 과거 원문·복구 근거
 └── CLAUDE.md            # 저장소 진입과 공통 규칙
 ```
@@ -78,7 +78,7 @@ pnpm harness:check
 ## 지침과 도구 연결을 관리한다
 
 - 루트 `CLAUDE.md`가 이 프로젝트 가이드의 원천이고 `AGENTS.md`는 이를 가리키는 Codex bridge다. 위 네 app/package도 같은 연결을 사용하며 bridge에 별도 본문을 만들지 않는다.
-- 도구별 연결은 같은 공통 본문을 가리키거나 host 차이만 적응한다. 연결 변경 시 원본·adapter·의도적인 차이와 양쪽 소비 경로를 확인한다. 스킬 원본·host 발견 경로는 [공통 스킬 연결](.agents/skills/README.md#도구-연결과-이식)에서 찾는다.
+- 도구별 연결은 같은 공통 본문을 가리키거나 host 차이만 적응한다. 연결 변경 시 원본·adapter·의도적인 차이와 양쪽 소비 경로를 확인한다. 스킬 원본·host 발견 경로는 [공통 스킬 연결](.agents/skills/README.md#도구-연결과-이식)에서, 공통 hook 원본과 등록은 [공통 hook](.agents/hooks/README.md)에서 찾는다.
 - 하위 가이드는 해당 경로의 구현 책임·위험 경계·명령과 필요한 Project 본문을 안내한다. 제품 상세·선택 이유는 Project의 대응 본문·형성 자료에, 실행 방식의 형성 이유는 해당 스킬·관리 본문 가까이에, 이번 작업의 선택·조사·검증은 Work에 둔다.
 - 역사 자료를 정리할 때 해당 Owner의 관리 계약과 실제 소비 경로를 확인한다. 당시 원문·기록과 현재 기준을 구별하며, archive의 옛 제품 자료를 현재 읽기의 필수 경로나 우회 Owner로 되살리지 않는다.
 
