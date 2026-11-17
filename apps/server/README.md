@@ -43,7 +43,7 @@ pnpm run server build
 | `HOST`, `PORT` | 기본 localhost, 3000. LAN 기기·배포에서는 접근 가능한 바인딩을 지정한다. |
 | `CORS_ORIGIN` | 기본 `http://localhost:8081`. 브라우저 client origin과 맞춘다. |
 | `JWT_ISSUER` | 기본 `noline-api`. 만료는 config의 access=1h, refresh=30d다. `JWT_EXPIRES_IN`은 읽지 않는다. |
-| `GOOGLE_WEB_CLIENT_ID`, `GOOGLE_IOS_CLIENT_ID` | Google ID token 검증 audience. client OAuth 등록과 맞춘다. `GOOGLE_CLIENT_ID`는 현재 config가 읽지 않는다. |
+| `GOOGLE_WEB_CLIENT_ID`, `GOOGLE_IOS_CLIENT_ID` | Google ID token 검증 audience. client OAuth 등록과 맞춘다. `GOOGLE_IOS_CLIENT_ID`는 쉼표로 여러 iOS client를 넣을 수 있다(운영 앱과 시험용 앱 `com.noline.dev`가 같은 서버를 쓸 때). `GOOGLE_CLIENT_ID`는 현재 config가 읽지 않는다. |
 | `APPLE_CLIENT_ID` | Apple identity token audience. 개발/production 앱 bundle과 맞춘다. |
 | `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY` | Apple code 교환·token revoke 설정. PEM의 `\n` 줄바꿈을 해석한다. |
 | `GOOGLE_PLACES_API_KEY`, `GOOGLE_GEO_DIRECTIONS_API_KEY` | 장소 검색·Google 경로 서비스. |

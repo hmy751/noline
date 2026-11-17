@@ -136,8 +136,8 @@ router.post('/google', async (req: Request, res: Response) => {
     // Google ID Token 검증
     let googleUser: GoogleUserInfo;
     try {
-      // 허용된 Client ID 목록 (Web + iOS)
-      const allowedAudiences = [config.googleOAuth.webClientId, config.googleOAuth.iosClientId].filter(
+      // 허용된 Client ID 목록 (Web + iOS 여러 개)
+      const allowedAudiences = [config.googleOAuth.webClientId, ...config.googleOAuth.iosClientIds].filter(
         Boolean,
       ) as string[];
 
