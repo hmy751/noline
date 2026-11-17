@@ -1,6 +1,6 @@
 # 02 — 위험한 OTA 발행을 막는 장치
 
-**상태:** 구현·확인 완료, 확정 전 (2026-11-17). 발행 스크립트 `pnpm ota:publish`와 직접 발행 hook을 만들었고, preview에서 막힘과 통과를 확인했다. 발행 스크립트에는 변경 검사와 env 이름 대조가 들어 있다. 남은 일은 둘이다. 구현에 쓴 규칙에 대한 사용자 확인과 Codex에서의 실제 동작 확인이다. 발행 스크립트의 기본 절차는 `ceb7a7b7`, 변경 검사·env 대조와 `apps/client/scripts/ota/`로의 역할별 재구성은 `4c00153e`, hook은 `49fd28a3`으로 커밋했다.
+**상태:** 구현·확인 완료, 규칙은 현재대로 유지 (2026-11-17). 발행 스크립트 `pnpm ota:publish`와 직접 발행 hook을 만들었고, preview에서 막힘과 통과를 확인했다. 발행 스크립트에는 변경 검사와 env 이름 대조가 들어 있다. 규칙은 사용자가 그대로 두기로 했고, 최종 확정은 [Ticket 03](03-project-context-reflection.md)에서 다른 Project context와 연결해 정한다. 이 Ticket에 남은 일은 Codex에서의 실제 동작 확인이다. 발행 스크립트의 기본 절차는 `ceb7a7b7`, 변경 검사·env 대조와 `apps/client/scripts/ota/`로의 역할별 재구성은 `4c00153e`, hook은 `49fd28a3`으로 커밋했다.
 
 사용자가 Work를 만들며 직접 요청한 범위다.
 
@@ -51,7 +51,7 @@ pnpm ota:publish <preview|production> --message "..." [--dry-run] [--skip-instal
 
 ## 규칙과 확정 상태
 
-아래 규칙은 Main이 구현하며 정했다. [Spec 02](../spec/02-behavior-and-cases.md)의 "규칙 후보"를 동작으로 옮긴 것이며, **사용자가 확인하지 않았다.** 바꾸면 `apps/client/scripts/ota/rules.mjs`의 `CHANGE_RULES`(SQL 규칙의 `SQLITE_DDL` 포함)와 이 표를 함께 고친다.
+아래 규칙은 Main이 구현하며 정했다. [Spec 02](../spec/02-behavior-and-cases.md)의 "규칙 후보"를 동작으로 옮긴 것이다. Main이 판단이 갈리는 세 곳(DB 규칙에 우회 없음, 넓은 서버 계약 범위, `--server-checked` 하나로 두 경우를 묶음)을 설명하고 유지를 추천하자, 사용자는 "그래 그대로 두자 다른 context와 같이 연결해서 뭔가 정하는게 좋을 것 같아"라고 답했다(2026-11-17). 그래서 **지금 규칙대로 운영하고, 확정은 Ticket 03에서 Project context와 연결해 정한다.** 경위는 [규칙 유지 기록](../../../records/2026-11-17-09-keep-rules-and-link-project.md)에 있다. 바꾸면 `apps/client/scripts/ota/rules.mjs`의 `CHANGE_RULES`(SQL 규칙의 `SQLITE_DDL` 포함)와 이 표를 함께 고친다.
 
 | 막아야 할 것 | 동작 | 규칙 |
 | --- | --- | --- |

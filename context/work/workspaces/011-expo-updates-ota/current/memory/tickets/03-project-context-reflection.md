@@ -12,6 +12,11 @@
 - 발행 절차: 채널, 환경값, Sentry, 롤백. 방지 장치의 위치와 우회 조건도 포함한다.
 - 오프라인 시작을 늦추지 않는 설정(`fallbackToCacheTimeout: 0`)이 제품 약속과 이어진다는 점.
 - runtime version 정책(fingerprint)과, 네이티브 변경은 스토어 빌드로만 나간다는 점.
+- **OTA 방지 규칙의 확정:** [Ticket 02](02-ota-publish-guard.md#규칙과-확정-상태)의 규칙(`apps/client/scripts/ota/rules.mjs`)은 사용자가 그대로 두되 "다른 context와 같이 연결해서" 정하자고 했다(2026-11-17). 그래서 이 Ticket에서 기존 Project 계약과 대조해 확정한다. 대조할 곳은 다음과 같다.
+  - 서버 계약: [API 계약](../../../../../../project/guidance/api-contracts.md)은 편집 표식 변경에서 "DB 구조 → 서버 → 새 앱" 배포 순서를 이미 정했다. `--server-checked`의 뜻과 계약 경로 범위를 이 순서와 맞춘다.
+  - 동기화·편집 병합: [저장·동기화 기준](../../../../../../project/guidance/data-lifecycle/INDEX.md)과 구버전 요청 처리. 앱이 먼저 바뀔 때 옛 서버·옛 앱과 어떻게 어긋나는지가 서버 계약 규칙의 근거다.
+  - 기기 DB migration: 이를 소유하는 Project 본문이 없다([앱 실행·세션](../../../../../../project/current/app-runtime/README.md)은 DB migration을 소유하지 않는다고 밝힌다). DB 규칙을 어디에 둘지 함께 정한다.
+  - 확정하면 Spec 02의 "(규칙 후보)" 표시와 `rules.mjs`가 같은 뜻인지 맞춘다.
 
 ## 반영할 위치 (미정)
 

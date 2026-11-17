@@ -28,13 +28,12 @@
   - `@env`·`process.env.EXPO_PUBLIC_*` 이름을 EAS 변수와 대조하게 했다.
   - `eas update` 직접 실행을 막는 hook을 Claude·Codex에 등록했다.
   - preview dry-run으로 막힘·통과 경우를 확인했고, 별도 검증을 두 번 받았다. Claude Code에서는 hook이 실제로 막았다.
-  - 규칙은 Main이 고른 것이라 사용자 확인 전이다. 경위는 [방지 장치 기록](../../records/2026-11-17-06-ota-guard-change-env-hook.md)에 있다.
+  - 규칙은 Main이 골랐다. 사용자는 설명을 듣고 그대로 두되 확정은 다른 context와 연결해 정하자고 했다. 경위는 [방지 장치 기록](../../records/2026-11-17-06-ota-guard-change-env-hook.md)과 [규칙 유지 기록](../../records/2026-11-17-09-keep-rules-and-link-project.md)에 있다.
 - **스크립트 재구성(`4c00153e`):** 사용자 요청("코드 퀄리티를 좀 더 깔끔하게… persoanl보고… 역할에 맞게… 위치")에 따라 발행 스크립트와 hook을 `apps/client/scripts/ota/` 아래 역할별 파일로 나눴다. Personal 기준으로 코드도 다듬었다. 규칙은 바꾸지 않았다. 같은 막힘·통과 결과, hook 동작, runtime `54a96787…`을 다시 확인했다. 경위는 [재구성 기록](../../records/2026-11-17-07-ota-script-reorganization.md)에 있다.
 - **hook 위치 이동(`49fd28a3`):** 사용자가 hook은 AI 하네스 관리 대상이라 앱 코드 아래에 있는 것이 아쉽다고 했다("…AI 관리 하네스 관점이고 그게 apps/client/scripts로 있는게 아쉼다는거지…"). 그래서 hook을 `.agents/hooks/`로 옮기고, `.agents/hooks/README.md`, 두 도구 설정, 루트 `CLAUDE.md`, harness 검사를 맞췄다. 새 위치에서도 hook이 실제로 막았다. 경위는 [hook 이동 기록](../../records/2026-11-17-08-hook-to-agents-hooks.md)에 있다.
 
 **다음 행동:**
-1. Ticket 02를 마무리한다.
-   - [Ticket 02](../memory/tickets/02-ota-publish-guard.md#규칙과-확정-상태)의 규칙을 사용자가 확인한다.
+1. Ticket 02를 마무리한다. 규칙은 현재대로 운영하고 확정은 Ticket 03으로 넘겼다.
    - 가능하면 Codex에서 hook이 실제로 막는지 본다.
 2. 1.1.4(빌드 18)를 production으로 빌드해 심사에 낸다.
    - 먼저 1.1.3 심사 상태를 확인한다.
