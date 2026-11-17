@@ -1,6 +1,6 @@
 # 02 — 위험한 OTA 발행을 막는 장치
 
-**상태:** 구현·확인 완료, 규칙은 현재대로 유지 (2026-11-17). 발행 스크립트 `pnpm ota:publish`와 직접 발행 hook을 만들었고, preview에서 막힘과 통과를 확인했다. 발행 스크립트에는 변경 검사와 env 이름 대조가 들어 있다. 규칙은 사용자가 그대로 두기로 했고, 최종 확정은 [Ticket 03](03-project-context-reflection.md)에서 다른 Project context와 연결해 정한다. 이 Ticket에 남은 일은 Codex에서의 실제 동작 확인이다. 발행 스크립트의 기본 절차는 `ceb7a7b7`, 변경 검사·env 대조와 `apps/client/scripts/ota/`로의 역할별 재구성은 `4c00153e`, hook은 `49fd28a3`으로 커밋했다.
+**상태:** 구현·확인 완료, 규칙은 현재대로 유지 (2026-11-17). 발행 스크립트 `pnpm ota:publish`와 직접 발행 hook을 만들었고, preview에서 막힘과 통과를 확인했다. 발행 스크립트에는 변경 검사와 env 이름 대조가 들어 있다. 규칙은 사용자가 그대로 두기로 했고, [Ticket 03](03-project-context-reflection.md)에서 Project 가이드와 연결해 확정했다. Codex에서의 실제 동작은 사용자가 확인을 넘기기로 해("훅은 넘기고") 확인하지 않은 상태로 둔다. 이 Ticket은 끝났다. 발행 스크립트의 기본 절차는 `ceb7a7b7`, 변경 검사·env 대조와 `apps/client/scripts/ota/`로의 역할별 재구성은 `4c00153e`, hook은 `49fd28a3`으로 커밋했다.
 
 사용자가 Work를 만들며 직접 요청한 범위다.
 
@@ -86,7 +86,7 @@ preview에서 `--dry-run --skip-install --allow-dirty`로 실행했다. 시험 �
 ## 남은 일
 
 - **규칙 확인:** 위 표의 규칙을 사용자가 확인한다. 특히 DB 규칙에 우회 플래그가 없는 점, 계약 경로의 범위, `--server-checked`의 뜻을 본다.
-- **Codex 확인:** Codex에서 hook이 실제로 막는지 본다. exit 2 처리와 페이로드 모양이 확인 대상이다.
+- **Codex 확인(하지 않기로 함):** Codex에서 hook이 실제로 막는지는 보지 않았다. 사용자가 넘기기로 했다. 나중에 확인한다면 exit 2 처리와 페이로드 모양을 본다.
 - **커밋(완료):** `4c00153e`(스크립트)와 `49fd28a3`(hook·등록·harness 검사)으로 함께 올렸다. hook 파일 없이 설정만 남으면 hook이 건너뛰어지는데, harness 검사가 이를 잡는다.
 - **놓아 둔 하위 결함:** 로컬 셸 export가 EAS 누락을 가리는 경우(하). 발행 뒤 실패 안내 두 경로는 실행으로 확인하지 못했다.
 - **EAS Workflows:** 서버에서 발행하는 안은 SECRET 토큰을 그대로 쓰고 로컬 `node_modules` 문제를 없애지만 준비 비용이 크다. 지금 구성으로 충분하지 않을 때 다시 본다.
@@ -97,4 +97,4 @@ preview에서 `--dry-run --skip-install --allow-dirty`로 실행했다. 시험 �
 
 ## 완료 조건
 
-[완료 판단](../spec/04-quality-and-completion.md)의 6을 확인한다. 막히는 경우와 통과하는 경우를 각각 실행한 결과를 records에 남긴다. hook을 바꾸면 `pnpm harness:check`를 실행한다. preview에서는 실행 결과가 생겼다. 사용자 확인과 Codex 확인이 남아 있다.
+[완료 판단](../spec/04-quality-and-completion.md)의 6을 확인한다. 막히는 경우와 통과하는 경우를 각각 실행한 결과를 records에 남긴다. hook을 바꾸면 `pnpm harness:check`를 실행한다. preview와 production dry-run에서 실행 결과가 생겼다. 규칙은 Ticket 03에서 확정했고, Codex 확인은 하지 않기로 했다.

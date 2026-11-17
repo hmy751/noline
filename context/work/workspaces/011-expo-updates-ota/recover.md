@@ -1,6 +1,6 @@
 # 011 — expo-updates 작업을 이어갈 때
 
-1.1.4(빌드 18)가 App Store "심사 대기 중"이다(2026-11-17). OTA 도입, preview 실기기 확인(완료 판단 1–4), 방지 장치, Project 반영(Ticket 03)이 끝났다. 011 작업은 main에 있다. 출시·OTA의 현재 기준은 Project의 [앱 변경을 사용자에게 내보낼 때의 기준](../../../project/guidance/app-release-and-ota.md)이 소유한다. 이 Work 문서는 그 기준이 만들어진 경위와 남은 확인을 맡는다. 남은 것은 바깥 결과의 확인이다. 심사 결과와 ITMS-90068, 첫 production OTA(dry-run은 통과), Codex hook을 확인해야 한다.
+1.1.4(빌드 18)가 App Store "심사 대기 중"이다(2026-11-17). OTA 도입, preview 실기기 확인(완료 판단 1–4), 방지 장치, Project 반영(Ticket 03)이 끝났다. 011 작업은 main에 있다. 출시·OTA의 현재 기준은 Project의 [앱 변경을 사용자에게 내보낼 때의 기준](../../../project/guidance/app-release-and-ota.md)이 소유한다. 이 Work 문서는 그 기준이 만들어진 경위와 남은 확인을 맡는다. 남은 것은 바깥 결과의 확인이다. 심사 결과와 ITMS-90068을 확인하면 이 Work를 닫는다. 첫 production OTA는 실제 수정이 생길 때 그 발행으로 확인하고(dry-run은 통과), Codex hook 확인은 하지 않기로 했다.
 
 **먼저 읽는다.** 이것들이 빠지면 확인 전의 설정을 완료로 착각하거나, 조용히 전달되지 않는 발행을 하거나, 제품 약속을 깨는 업데이트를 내게 된다.
 - [현재 상태](current/state/index.md): 된 것, 다음 행동의 순서와 아직 정하지 않은 순서, 브랜치·커밋 상태와 커밋하면 안 되는 무관한 파일
