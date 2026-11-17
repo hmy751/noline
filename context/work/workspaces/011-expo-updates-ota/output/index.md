@@ -1,9 +1,25 @@
 # 현재 산출물
 
-2026-11-16 현재 이 Work의 산출물은 없다. 구현을 시작하지 않았다. 두 번째 세션에서 사용자 확인 전에 설치한 패키지는 되돌렸고 브랜치 `feat/011-expo-updates`도 지웠다. 저장소에 남은 변경은 없다.
+이 Work가 별도 파일을 소유하지는 않는다. 결과는 저장소 코드와 외부 서비스에 있고, 여기서는 그 위치를 연결한다.
 
-결과가 생기면 실제 위치를 여기에 연결한다. 이 Work가 별도 파일을 소유하지는 않는다. 예정된 결과는 다음과 같다.
-- `apps/client/app.config.js`·`eas.json`·`package.json` 변경(dev-client 정렬 포함)
+## 2026-11-17 현재 있는 결과
+
+브랜치 `feat/011-expo-updates`의 작업 트리에 있으며 아직 커밋하지 않았다. 각 변경의 의미는 [Ticket 01](../current/memory/tickets/01-expo-updates-and-ios15-build.md)에 있다.
+- `apps/client/package.json`: `expo-updates`·`expo-build-properties` 추가, `expo-dev-client` `~4.0.29`
+- `apps/client/app.config.js`: fingerprint runtime, `updates`, iOS 15.0 plugin
+- `apps/client/eas.json`: preview·production의 `channel`과 `environment`
+- 루트 `patches/expo-dev-menu@5.0.23.patch`(새 파일)와 루트 `package.json`의 `pnpm.patchedDependencies`
+- `pnpm-lock.yaml`
+
+서버의 Google iOS client 목록 수정은 main 커밋 `99235878`에 있고 Render에 배포됐다. 같은 내용이 위 브랜치 작업 트리에도 미커밋으로 있다(`apps/server/README.md`, `src/config/index.ts`, `src/config/env-list.ts`, `src/routes/auth.ts`, `tests/config/env-list.test.ts`).
+
+저장소 밖의 결과도 있다. Expo 계정(프로젝트 `@myeongyeon/noline`)의 EAS 환경 변수다. preview 환경에 공통 변수를 연결하고 preview 전용 값 두 개를 만들었다. 이 변경은 이미 적용돼 있으며, 내역은 [착수 기록](../records/2026-11-17-01-ticket01-build-gate-and-publish-env.md)에 있다. 그 뒤 `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`를 환경별로 나눴다. 운영 서버(Render)의 `GOOGLE_IOS_CLIENT_ID`도 운영·개발 두 값으로 바꿨다. 내역은 [Google 로그인 기록](../records/2026-11-17-03-preview-google-login-fix.md)에 있다.
+
+EAS와 Apple에는 시험 결과물이 있다. preview 빌드 `f610d9b5-3c04-46d5-b191-e50efac28247`(runtime `54a96787…`, 실패한 첫 빌드는 `8316db33…`), preview 채널의 시험 업데이트 세 개와 Google client 수정 업데이트 `a86d1596…`, 등록 기기 1대와 ad hoc 프로필 AN57L8X528이다. ID와 의미는 [실기기 확인 기록](../records/2026-11-17-02-preview-build-and-device-ota-check.md)에 있다.
+
+## 아직 없는 결과
+
+- production EAS 빌드와 production 채널 업데이트
 - 발행 스크립트와 hook
 - 1.1.4 빌드와 심사 제출
 - Project 본문

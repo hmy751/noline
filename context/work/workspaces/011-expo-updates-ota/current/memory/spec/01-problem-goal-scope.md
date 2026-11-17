@@ -32,10 +32,10 @@
 
 포함한다.
 - `expo-updates` 설치(SDK 51에 맞는 버전)
-- `expo-updates`와 함께 쓰려고 `expo-dev-client`를 SDK 51용(~4.0.29)으로 맞추는 일. SDK 51에 들이는 정리는 여기까지다.
+- `expo-updates`와 함께 쓰려고 `expo-dev-client`를 SDK 51용(~4.0.29)으로 맞추는 일. 이 판이 Xcode 26에서 컴파일되도록 `expo-dev-menu` 한 줄을 pnpm patch로 고친 것도 포함한다(2026-11-17 판단 지점에서 추가, 012에서 지운다). SDK 51에 들이는 정리는 여기까지다.
 - `app.config.js`의 runtime version·updates 설정
 - `eas.json` 채널
-- 발행 절차: 환경값과 Sentry 소스맵 포함
+- 발행 절차: 환경값과 Sentry 소스맵 포함. 빌드와 발행이 같은 값을 쓰도록 EAS의 preview 환경을 채우는 일도 여기에 든다.
 - preview 빌드에서의 확인
 - 1.1.4 스토어 빌드와 심사 제출
 - OTA 방지 장치

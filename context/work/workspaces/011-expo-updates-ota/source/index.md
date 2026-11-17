@@ -20,7 +20,7 @@
 
 ### 두 번째 세션: 착수 전 파악과 SDK 분리
 
-같은 날의 다음 세션이다. 원문은 `/Users/hammyeong-yeon/.claude/projects/-Users-hammyeong-yeon-Desktop-10-work-noline/58e63789-a699-43ac-8a5c-5540ab654366.jsonl`이고, 이 Work에 반영한 범위는 4–560행이다. 접근 조건과 읽는 방법은 위 원문과 같다. 이 범위의 기록은 [파악·분리 기록](../records/2026-11-16-02-scoping-check-and-sdk-split.md)이다.
+같은 날의 다음 세션이다. 원문은 `/Users/hammyeong-yeon/.claude/projects/-Users-hammyeong-yeon-Desktop-10-work-noline/58e63789-a699-43ac-8a5c-5540ab654366.jsonl`이고, 이 Work에 반영한 범위는 4–560행과 839–3005행이다. 그 사이(561–838행)는 Work 012 생성과 커밋이라 012가 소유한다. 접근 조건과 읽는 방법은 위 원문과 같다. 이 범위의 기록은 [파악·분리 기록](../records/2026-11-16-02-scoping-check-and-sdk-split.md)이다.
 
 | 행 | 내용 | 읽을 이유 |
 | --- | --- | --- |
@@ -36,11 +36,53 @@
 | 555 | 버전 분석과 012 분리 추천(과거 사례, 외부 조건, 나누는 이유와 비용, 011 조정, 012 뼈대) | 분리 판단의 원래 문안 |
 | 560 | "그래 분리해서 진행하자 더 버전에 대해 자세한건 012에서 더 논의한다고 기록해주고" | 분리 결정의 원문 |
 
+같은 원문의 839–1611행은 Ticket 01을 실제로 실행한 구간이다(2026-11-16 21시 30분경–11-17 0시 30분경 KST). 기록은 [착수 기록](../records/2026-11-17-01-ticket01-build-gate-and-publish-env.md)이며, 그 기록의 괄호 숫자가 이 파일의 행이다. 1203행은 컨텍스트 압축 요약이라 원문이 아니다.
+
+| 행 | 내용 | 읽을 이유 |
+| --- | --- | --- |
+| 841 | "일단 011 부터 하고 다되면 병합하자" | 착수 지시의 원문 |
+| 848–875 | App Store Connect에서 1.1.3 "심사 대기 중" 확인 | 1.1.3 상태의 근거 |
+| 878–931, 1009–1010 | 설치, 설정 편집, prebuild 결과(`Podfile.lock`, `Expo.plist`) | 단계 1·3·4의 실제 결과 |
+| 947–948 | 환경값을 바꿔 계산한 runtime | fingerprint의 환경 의존 |
+| 988–1003, 1057–1140 | 빌드 실패 두 번(locale, `expo-dev-menu`)과 임시 수정 뒤 성공 | 판단 지점의 근거 |
+| 1151 | 판단 지점 결과와 패치 추천 | 선택지의 원래 문안 |
+| 1156–1254 | 설명 요청 네 번과 Main의 답 | 사용자가 선택 전에 배경을 물은 경위 |
+| 1259 | "됐으면 진행해 계속 012 는 다른데서 할거고" | 011 계속 결정의 원문 |
+| 1280–1309, 1333, 1401–1409 | pnpm patch 고정과 재빌드 | 패치의 근거 |
+| 1338–1364, 1418–1474 | EAS 환경 목록, eas-cli 코드 읽기, `ios/` 유무 비교 | 발행 방법의 근거 |
+| 1479–1480 | 시험 방식·실기기 질문과 사용자 답 | preview 환경을 채운 허락 |
+| 1492–1577 | 기기 목록 0대, EAS 환경 변경, `eas.json` environment, runtime 계산 | 단계 5의 실제 변경 |
+| 1611 | `eas device:create` 안내 | 기기 등록의 출발점 |
+
+1611–2268행은 기기 등록부터 실기기 OTA 확인까지다(2026-11-17 0시 55분경–1시 55분경 KST). 기록은 [실기기 확인 기록](../records/2026-11-17-02-preview-build-and-device-ota-check.md)이다.
+
+| 행 | 내용 | 읽을 이유 |
+| --- | --- | --- |
+| 1640–1720 | 기기 등록(Website 방식, 사용자 Apple 로그인), 등록 1대 | 기기와 등록 경위 |
+| 1748–1830 | 첫 preview 빌드 `8316db33…`과 "Runtime version mismatch" 로그 | 불일치의 원문 |
+| 1837–1913 | `fingerprint:compare`의 SDK 52 제한, 깨끗한 복사본 재현, 소스 비교, `node_modules` 재설치 | 원인과 해결의 근거 |
+| 1912–1974 | 두 번째 빌드 `f610d9b5…` FINISHED | EAS 빌드 성공 |
+| 1981–2047 | 앱 시작, crash log 확인, Google "액세스 차단됨" | 로그인 판단의 근거 |
+| 2048–2148 | 시험 업데이트 세 개 발행과 사용자 관찰 네 개 | 완료 판단 1–4 |
+| 2158–2176, 2235–2248 | 번들 환경값 계수와 `babel.config.js`·`@env` 이름 대조 | 완료 판단 5 일부와 Ticket 02 주의 |
+| 2197, 2211 | 결과 정리, Google 확인 방법 질문 | 남은 일과 이어질 질문 |
+
+2268–3005행은 preview 앱 Google 로그인의 원인 확인과 수정이다(2026-11-17 11시경–11시 50분경 KST). 기록은 [Google 로그인 기록](../records/2026-11-17-03-preview-google-login-fix.md)이다.
+
+| 행 | 내용 | 읽을 이유 |
+| --- | --- | --- |
+| 2272, 2301–2511 | 확인 방법 안내, Chrome 탭으로 OAuth 클라이언트 확인, 원인 | 원인의 근거 |
+| 2516–2557 | 표와 값으로 다시 한 설명 | 로그인 단계와 값의 연결 |
+| 2562, 2701 | "그럼 다 진행하자…", "그냥 니가 env확인해서 처리해주라…" | 수정·배포 지시의 원문 |
+| 2611–2696 | 서버 수정·테스트, EAS 분리, preview OTA `a86d1596…` | 수정 결과 |
+| 2808–2965 | 서버 커밋 `99235878` push와 배포, Render 값 변경·해시 대조 | 운영 변경의 근거 |
+| 2970–2985 | health 확인, "둘 다 로그인 잘 돼" | 확인 결과 |
+
 Main이 이 세션에서 다른 세션 원문 두 개도 읽었다. 2026-11-02 세션(SDK 업그레이드를 "이번 배포 뒤 별도 작업으로" 미룬 대목, CLI 원문 `a3669485-d435-43dd-9b82-a2891a7e403e.jsonl`)과 이 Work의 첫 원문(`da74d77c…`)이다. 내용은 555의 정리와 위 기록에 옮겼다.
 
 ## 코드 판본
 
-논의 시점의 판본은 main `6adfbb2a`다(1.1.3 빌드는 `4c0df47b`). 두 번째 세션의 파악은 main `08ff4c27`에서 했고, 아래 파일 내용은 그때도 같았다. 확인한 파일은 다음과 같다.
+논의 시점의 판본은 main `6adfbb2a`다(1.1.3 빌드는 `4c0df47b`). 두 번째 세션의 파악은 main `08ff4c27`에서 했고, 아래 파일 내용은 그때도 같았다. Ticket 01의 구현은 `3895d44f`(012 분리 문서 커밋) 위의 브랜치 `feat/011-expo-updates`에서 했으며 2026-11-17 현재 미커밋이다. 아래 목록은 구현 전 판본이다. 확인한 파일은 다음과 같다.
 - `apps/client/app.config.js`: `runtimeVersion`·`updates` 없음, version 1.1.3, buildNumber 17
 - `apps/client/eas.json`: 프로필 development·preview·production, channel 없음
 - `apps/client/package.json`: `expo` ~51.0.21, `expo-dev-client` ^6.0.20, `expo-updates`·`expo-build-properties` 없음
@@ -51,6 +93,6 @@ Main이 이 세션에서 다른 세션 원문 두 개도 읽었다. 2026-11-02 �
 
 - EAS 빌드 `87ad94bf-f72f-43df-b1ca-9213d776f89d`: 1.1.3(17), gitCommitHash `4c0df47b…`
 - EAS submit `a98756d8-3fd3-4154-8924-19331cff792b`
-- App Store Connect: 2026-11-16 20시경 "iOS 1.1.3 심사 대기 중"을 화면으로 확인. 두 번째 세션에서 Gmail로 심사 결과를 찾으려 했지만 커넥터 연결이 끊겨 확인하지 못했다.
+- App Store Connect: 2026-11-16 20시경 "iOS 1.1.3 심사 대기 중"을 화면으로 확인. 두 번째 세션에서 Gmail로 심사 결과를 찾으려 했지만 커넥터 연결이 끊겨 확인하지 못했다. 같은 세션 21시 30분경 App Store Connect 화면에서 다시 봤을 때도 "심사 대기 중"이었다(위 원문 848–875행).
 - Apple 공지 [App Store submissions now open](https://developer.apple.com/news/?id=k1mtkt1k)(2026-09-09): 2027년 4월부터 iOS 27 SDK 이상으로 빌드해야 업로드할 수 있다. 두 번째 세션에서 Main이 읽었다.
 - Expo 문서 [SDK 버전표](https://docs.expo.dev/versions/latest/)와 [EAS 빌드 이미지](https://docs.expo.dev/build-reference/infrastructure/): 2026-11-16 기준 최신 SDK 58, SDK 56–58 최소 iOS 16.4, `sdk-51` 별칭은 Xcode 15.4 이미지. 버전 상세는 012가 다룬다.

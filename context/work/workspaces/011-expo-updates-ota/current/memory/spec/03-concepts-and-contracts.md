@@ -16,11 +16,13 @@ OTA 번들은 특정 네이티브 층을 전제로 만들어진다. 빌드와 �
 | `appVersion` | 앱 버전을 그대로 쓴다. 네이티브를 바꾸고 버전을 올리지 않으면 막지 못한다. |
 | `fingerprint` | 네이티브 의존성·설정을 해시로 계산한다. 네이티브가 바뀌면 자동으로 다른 값이 된다. |
 
-**추천은 `fingerprint`다.** 네이티브 모듈(Mapbox·Sentry·SQLite)이 많은 앱이라 사람이 버전 올리기를 잊는 위험을 없애는 편이 낫다. 사용자가 이 방향에 동의("그래 좋아")했다. SDK 51 조합에서 이 정책을 쓸 수 있는지는 2026-11-16에 코드로 확인했다. 설치된 `@expo/config-plugins`(`build/utils/Updates.js`)에 `policy === 'fingerprint'` 처리가 있고, SDK 51용 `expo-updates` 0.25.28과 함께 `@expo/fingerprint` 0.10.3이 깔린다. 실제 빌드에서 fingerprint 값이 계산되고 runtime이 갈리는지는 아직 보지 않았다([완료 판단](04-quality-and-completion.md)의 4).
+**추천은 `fingerprint`다.** 네이티브 모듈(Mapbox·Sentry·SQLite)이 많은 앱이라 사람이 버전 올리기를 잊는 위험을 없애는 편이 낫다. 사용자가 이 방향에 동의("그래 좋아")했다. SDK 51 조합에서 이 정책을 쓸 수 있는지는 2026-11-16에 코드로 확인했다. 설치된 `@expo/config-plugins`(`build/utils/Updates.js`)에 `policy === 'fingerprint'` 처리가 있고, SDK 51용 `expo-updates` 0.25.28과 함께 `@expo/fingerprint` 0.10.3이 깔린다. 2026-11-16–17에는 로컬 Release 빌드에 `EXUpdates.bundle/fingerprint`가 들어가는 것을 확인했다. 2026-11-17 실기기 시험에서는 runtime이 다른 업데이트를 기존 preview 빌드가 받지 않는 것도 확인했다([완료 판단](04-quality-and-completion.md)의 4, [실기기 확인 기록](../../../records/2026-11-17-02-preview-build-and-device-ota-check.md)).
+
+fingerprint는 네이티브 의존성뿐 아니라 `app.config.js`가 환경변수로 만드는 설정도 해시에 넣는다. Sentry plugin 유무, Mapbox 토큰, Google Maps 키, `APP_VARIANT` 가운데 하나만 달라도 runtime이 달라졌다. 환경값이 같아도 로컬 `node_modules`에 예전 설치의 중첩 사본이 남아 있으면 config plugin 소스 경로가 달라져 runtime이 달라졌다. 그래서 발행 쪽 runtime은 깨끗이 설치한 상태에서 대상 빌드와 같은 EAS 환경값으로 계산해야 한다. 값이 다르면 업데이트가 아무 기기에도 가지 않고 오류도 나지 않는다. 확인 경위는 [착수 기록](../../../records/2026-11-17-01-ticket01-build-gate-and-publish-env.md)에 있다.
 
 ## 채널
 
-`eas.json`에는 development, preview, production 프로필이 있다. preview와 production 프로필에 같은 이름의 `channel`을 붙인다.
+`eas.json`에는 development, preview, production 프로필이 있다. preview와 production 프로필에 같은 이름의 `channel`과 EAS `environment`를 붙인다. 발행할 때도 채널과 같은 이름의 environment를 준다(`eas update --channel preview --environment preview`). 위 runtime 조건 때문이다.
 
 발행 순서는 이렇게 한다.
 1. preview 채널로 먼저 발행해 내부 기기에서 확인한다.
