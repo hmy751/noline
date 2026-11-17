@@ -32,7 +32,7 @@ Auth Store는 현재 계정과 인증 수단을 관리한다. 재인증이 필�
 
 ## 지원 경계와 확인 방법
 
-제품 문서는 iOS 중심 배포, 활성 여행의 오프라인 핵심 입력, 온라인 보강과 통화별 관리를 설명한다. Android 동등 지원, 외부 공급자·운영 DB 상태, 실제 네트워크 전환·동시 sync의 성공은 이 지도에 사용한 source 대조만으로 확인되지 않는다. 기능별 현재 여부는 해당 source와 실제 환경에서 다시 판정한다.
+client는 1.1.4(빌드 18)부터 스토어 빌드 외에 OTA로 JS 번들을 받을 수 있게 빌드했다(2026-11-17 심사 제출, production OTA는 아직 발행 전). 출시 경로와 runtime 조건은 [출시 기준](../guidance/app-release-and-ota.md)이 소유한다. 제품 문서는 iOS 중심 배포, 활성 여행의 오프라인 핵심 입력, 온라인 보강과 통화별 관리를 설명한다. Android 동등 지원, 외부 공급자·운영 DB 상태, 실제 네트워크 전환·동시 sync의 성공은 이 지도에 사용한 source 대조만으로 확인되지 않는다. 기능별 현재 여부는 해당 source와 실제 환경에서 다시 판정한다.
 
 제품 변경은 해당 app/package guide에서 검증을 선택한다. Client는 Expo/React Native용 Jest에서 hook·API 계약을 실행하고, server는 Vitest 단위 검사와 Supertest route 계약 검사, 별도 PostgreSQL integration 경계를 갖는다. 이 기반의 존재는 client/server 전체가 테스트됐다는 뜻이 아니다. Native module mock은 실기기를, DB/auth mock은 실제 PostgreSQL·JWT를 대신하지 않으므로 [동작 보존 리팩터링](../guidance/behavior-preserving-refactoring.md)과 [API 변경 가이드](../guidance/api-contracts.md)에서 영향에 맞는 경계를 고른다.
 

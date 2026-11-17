@@ -59,7 +59,7 @@ Schedule은 생성·전체 목록·단건·수정·Trip 하위 목록·Trip acti
 
 일정·경비 UPDATE는 직접 PUT과 큐에서 같은 항목별 표식을 사용한다. 30 USD 요청의 응답을 잃은 사이 더 뒤의 편집으로 35 USD가 됐다면, 같은 표식의 30 USD를 다시 보냈을 때 서버는 35 USD인 현재 행을 성공 응답으로 돌려준다. [서버 판정과 재전송 사례](../../work/workspaces/007-sync-failure-recovery/records/2026-11-13-15-stage-four-isolated-commit.md)
 
-표식 없는 요청의 값이 이미 편집 표식이 있는 서버 항목과 다르면 409 `LEGACY_UPDATE_CONFLICT`로 요청 전체를 보류한다. 새 앱이 보내는 표식을 서버가 이해하고 옛 앱의 충돌 입력도 보존할 수 있도록, DB 구조를 먼저 적용하고 두 형식을 받는 서버를 배포한 다음 새 앱을 배포한다. [서버 적용 순서](../../../apps/server/README.md#항목별-편집-표식의-db-적용) · [보류 입력의 복구와 해제](data-lifecycle/edit-reconciliation.md#구버전-요청에서-편집-의도를-가릴-수-없으면-원문을-사용자에게-돌려준다)
+표식 없는 요청의 값이 이미 편집 표식이 있는 서버 항목과 다르면 409 `LEGACY_UPDATE_CONFLICT`로 요청 전체를 보류한다. 새 앱이 보내는 표식을 서버가 이해하고 옛 앱의 충돌 입력도 보존할 수 있도록, DB 구조를 먼저 적용하고 두 형식을 받는 서버를 배포한 다음 새 앱을 배포한다. 새 앱은 스토어 빌드든 OTA든 이 순서를 따른다. OTA는 몇 시간 안에 기존 사용자에게 퍼지므로 발행 스크립트가 계약 경로 변경에 서버 확인을 요구한다([출시 기준](app-release-and-ota.md#ota로-내도-되는-변경을-구별한다)). [서버 적용 순서](../../../apps/server/README.md#항목별-편집-표식의-db-적용) · [보류 입력의 복구와 해제](data-lifecycle/edit-reconciliation.md#구버전-요청에서-편집-의도를-가릴-수-없으면-원문을-사용자에게-돌려준다)
 
 삭제 응답과 404의 구별, 최초 생성·재전송 계약은 [PostgreSQL 통합 검사](../../../apps/server/tests/integration/field-edits-and-deletion.test.ts)에서 확인한다.
 

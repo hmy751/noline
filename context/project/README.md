@@ -19,6 +19,7 @@
 - 일정·경비의 초안, 장소 채택, 선택창과 저장 요청을 바꿀 때: [작성 초안·장소·날짜 입력](guidance/writing-and-input/INDEX.md). 날짜·통화·API 계약은 각 본문과 연결한다.
 - 여행 생성의 GeoNames 요청·도시 선별·실패 반환을 바꿀 때: [도시 검색의 현재 경계](current/city-search.md)
 - 프로필의 SQLite·Mapbox 저장 용량 집계와 refresh를 바꿀 때: [저장 용량 집계의 현재 경계](current/storage-statistics.md)
+- client 변경을 스토어 빌드나 OTA로 내보내거나, 기기 DB 구조·서버 계약·환경 변수·네이티브 설정·앱 버전처럼 출시 경로를 바꾸는 변경을 할 때: [스토어 빌드와 OTA 출시 기준](guidance/app-release-and-ota.md). OTA로 낼 수 있는 변경과 runtime 조건, 발행·출시 절차를 확인한다.
 - request·response schema, serializer, repository·query·인증 전송과 접근 경계를 변경할 때: [API 계약과 변경 가이드](guidance/api-contracts.md)
 - server 오류 응답·client 변환·표시·재시도를 바꿀 때: [오류 전달과 공개 응답](guidance/error-handling.md). 기존 기준과 현재 미충족을 구별한다.
 - 기능 수정·리팩터링에서 기존 구현과 테스트 중 무엇을 보존할지 판단할 때: [동작을 보존하는 코드 리팩터링](guidance/behavior-preserving-refactoring.md)

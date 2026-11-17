@@ -265,7 +265,7 @@ pnpm harness:check
 
 Sentry 조직에 React Native용 앱 프로젝트와 Node.js용 서버 프로젝트를 만들고, 각 프로젝트의 Client Keys에서 DSN을 가져온다. 앱 빌드 환경의 `EXPO_PUBLIC_SENTRY_DSN`과 서버 실행 환경의 `SENTRY_DSN`에 각각 넣는다.
 
-앱의 `EXPO_PUBLIC_SENTRY_ENVIRONMENT`에는 검증 빌드와 운영 빌드를 구별하는 값(예: `staging`, `production`)을 넣는다. 앱 소스맵을 올리려면 빌드 환경에 `SENTRY_ORG`, 앱의 `SENTRY_PROJECT`, 비밀값 `SENTRY_AUTH_TOKEN`을 지정하고 새 네이티브 빌드를 만든다. 이미 로컬 iOS 프로젝트를 만든 뒤 조직·프로젝트를 설정했다면 `apps/client`에서 `pnpm exec expo prebuild --platform ios --no-install`로 다시 적용하고, Xcode의 “Bundle React Native code and images” 단계에 `sentry-xcode.sh`가 있는지 확인한다. 업로드 token은 빌드 서비스의 secret으로 관리한다.
+앱의 `EXPO_PUBLIC_SENTRY_ENVIRONMENT`에는 검증 빌드와 운영 빌드를 구별하는 값(예: `staging`, `production`)을 넣는다. 앱 소스맵을 올리려면 빌드 환경에 `SENTRY_ORG`, 앱의 `SENTRY_PROJECT`, 비밀값 `SENTRY_AUTH_TOKEN`을 지정하고 새 네이티브 빌드를 만든다. 이미 로컬 iOS 프로젝트를 만든 뒤 조직·프로젝트를 설정했다면 `apps/client`에서 `pnpm exec expo prebuild --platform ios --no-install`로 다시 적용하고, Xcode의 “Bundle React Native code and images” 단계에 `sentry-xcode.sh`가 있는지 확인한다. 업로드 token은 빌드 서비스의 secret으로 관리한다. 이 secret은 로컬에서 읽을 수 없으므로, OTA 업데이트(`pnpm ota:publish`)의 소스맵은 `apps/client/.env.production`(gitignore)의 `SENTRY_AUTH_TOKEN`으로 올린다. 같은 token을 `.env.development.local`에도 두었다면 바꿀 때 두 곳을 함께 고친다. 발행 기준은 [출시 기준](context/project/guidance/app-release-and-ota.md)에 있다.
 
 서버는 같은 빌드를 여러 환경에 배포할 때 실행 환경마다 `SENTRY_ENVIRONMENT`를 지정한다. 릴리스를 구별하려면 `SENTRY_RELEASE`에 배포 버전이나 커밋을 넣는다.
 
