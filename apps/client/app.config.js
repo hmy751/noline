@@ -10,8 +10,17 @@ export default {
   userInterfaceStyle: 'light',
   newArchEnabled: false,
   scheme: 'noline',
+  // OTA(expo-updates): 네이티브 층이 같은 빌드에만 업데이트가 가도록 fingerprint로 runtime을 정한다.
+  runtimeVersion: { policy: 'fingerprint' },
+  updates: {
+    url: 'https://u.expo.dev/6bb47585-f70f-4914-bc26-730f4b52f56c',
+    // 오프라인에서도 바로 열리도록 시작 시 업데이트 확인을 기다리지 않는다. 새 업데이트는 다음 실행에 적용된다.
+    fallbackToCacheTimeout: 0,
+  },
   plugins: [
     'expo-router',
+    // Apple ITMS-90068: 2027년 4월부터 최소 iOS 15.0. SDK 업그레이드(Work 012) 전까지의 임시 설정이다.
+    ['expo-build-properties', { ios: { deploymentTarget: '15.0' } }],
     ...(process.env.SENTRY_ORG && process.env.SENTRY_PROJECT
       ? [['@sentry/react-native/expo', { organization: process.env.SENTRY_ORG, project: process.env.SENTRY_PROJECT }]]
       : []),
