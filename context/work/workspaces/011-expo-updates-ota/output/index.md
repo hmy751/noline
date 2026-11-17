@@ -13,7 +13,7 @@
 
 서버의 Google iOS client 목록 수정은 main 커밋 `99235878`에 있고 Render에 배포됐다. 011 브랜치에는 main을 병합(`cad1ec8f`)해 같은 커밋으로 들어와 있다.
 
-Ticket 02의 발행 스크립트 `apps/client/scripts/ota-publish.mjs`와 루트 `package.json`의 `ota:publish`는 커밋 `ceb7a7b7`에 있다. 내역은 [발행 스크립트 기록](../records/2026-11-17-05-ota-publish-script.md)에 있다.
+Ticket 02의 발행 스크립트는 처음에 `apps/client/scripts/ota-publish.mjs`로 커밋됐다(`ceb7a7b7`, 루트 `package.json`의 `ota:publish`). 내역은 [발행 스크립트 기록](../records/2026-11-17-05-ota-publish-script.md)에 있다. 그 뒤의 변경은 아직 커밋하지 않았다. 변경 검사·env 이름 대조와 hook을 더했고, 스크립트는 `apps/client/scripts/ota/` 아래 역할별 파일로 옮겼다(`publish.mjs`, `rules.mjs`, `checks.mjs`, `eas.mjs`, `config.mjs`, `terminal.mjs`). hook은 `.agents/hooks/block-direct-eas-update.py`에 두고 `.agents/hooks/README.md`를 더했다. 그에 맞춰 경로 설정(`package.json`, `.claude/settings.json`, `.codex/hooks.json`), 루트 `CLAUDE.md`, `scripts/check-harness.mjs`를 고쳤다. 내역은 [방지 장치 기록](../records/2026-11-17-06-ota-guard-change-env-hook.md)과 [재구성 기록](../records/2026-11-17-07-ota-script-reorganization.md), [hook 이동 기록](../records/2026-11-17-08-hook-to-agents-hooks.md)에 있다.
 
 저장소 밖의 결과도 있다. Expo 계정(프로젝트 `@myeongyeon/noline`)의 EAS 환경 변수다. preview 환경에 공통 변수를 연결하고 preview 전용 값 두 개를 만들었다. 이 변경은 이미 적용돼 있으며, 내역은 [착수 기록](../records/2026-11-17-01-ticket01-build-gate-and-publish-env.md)에 있다. 그 뒤 `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`를 환경별로 나눴다. 운영 서버(Render)의 `GOOGLE_IOS_CLIENT_ID`도 운영·개발 두 값으로 바꿨다. 내역은 [Google 로그인 기록](../records/2026-11-17-03-preview-google-login-fix.md)에 있다.
 
@@ -22,7 +22,6 @@ EAS와 Apple에는 시험 결과물이 있다. preview 빌드 `f610d9b5-3c04-46d
 ## 아직 없는 결과
 
 - production EAS 빌드와 production 채널 업데이트
-- 방지 장치의 hook과 경로 diff 검사
 - 1.1.4 빌드와 심사 제출
 - Project 본문
 

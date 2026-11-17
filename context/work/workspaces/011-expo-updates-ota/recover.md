@@ -1,6 +1,6 @@
 # 011 — expo-updates 작업을 이어갈 때
 
-Ticket 01을 진행 중이다. 설치·설정이 들어갔고 Xcode 26 판단 지점은 pnpm patch로 통과했다. preview EAS 빌드를 만들어 실기기에서 OTA 받기·오프라인 시작·롤백·runtime 분리(완료 판단 1–4)를 확인했다. 발행은 채널과 같은 이름의 EAS environment로 하고, 깨끗이 설치한 상태에서 runtime을 대상 빌드와 맞춰야 한다. OTA 소스맵도 로컬 토큰 방식으로 정해 preview에서 end-to-end로 확인했다. 발행 절차는 Ticket 02의 `pnpm ota:publish`로 묶었다(미커밋). OTA는 손으로 `eas update`를 치지 말고 이 스크립트로 낸다. 남은 일은 production 쪽 확인, 1.1.4 출시, Ticket 02의 나머지(경로 diff·hook), Project 반영이다. 코드 변경과 기록은 브랜치 `feat/011-expo-updates`에 커밋했고(`3592a538`, `233e0a17`), main 병합은 011이 끝난 뒤 한다.
+Ticket 01을 진행 중이다. 설치·설정이 들어갔고 Xcode 26 판단 지점은 pnpm patch로 통과했다. preview EAS 빌드를 만들어 실기기에서 OTA 받기·오프라인 시작·롤백·runtime 분리(완료 판단 1–4)를 확인했다. 발행은 채널과 같은 이름의 EAS environment로 하고, 깨끗이 설치한 상태에서 runtime을 대상 빌드와 맞춰야 한다. OTA 소스맵도 로컬 토큰 방식으로 정해 preview에서 end-to-end로 확인했다. OTA는 손으로 `eas update`를 치지 말고 Ticket 02의 `pnpm ota:publish`로 낸다. 이 스크립트(`apps/client/scripts/ota/`, 규칙은 `rules.mjs`)는 발행 절차와 OTA로 내면 안 되는 변경(DB 구조·서버 계약·env 이름)을 검사한다. AI 도구가 직접 치면 `.agents/hooks/`의 hook이 막는다. 검사 규칙은 Main이 고른 것이라 사용자 확인 전이다. 변경 검사와 hook은 아직 커밋하지 않았다. 남은 일은 그 확인과 커밋, 1.1.4 출시, production 쪽 확인, Project 반영이다. 앞선 코드와 기록은 브랜치 `feat/011-expo-updates`에 커밋했고(state의 커밋 목록 참고), main 병합은 011이 끝난 뒤 한다.
 
 **먼저 읽는다.** 이것들이 빠지면 확인 전의 설정을 완료로 착각하거나, 조용히 전달되지 않는 발행을 하거나, 제품 약속을 깨는 업데이트를 내게 된다.
 - [현재 상태](current/state/index.md): 된 것, 다음 행동의 순서와 아직 정하지 않은 순서, 브랜치·커밋 상태와 커밋하면 안 되는 무관한 파일
@@ -18,7 +18,7 @@ Ticket 01을 진행 중이다. 설치·설정이 들어갔고 Xcode 26 판단 �
 | EAS 환경 변수를 환경별로 나누거나, 서버·Render의 Google 로그인 설정을 바꿀 때 | [Google 로그인 기록](records/2026-11-17-03-preview-google-login-fix.md) | preview가 운영 client를 공유해 막힌 원인, 서버 iOS client 목록, 코드 배포 뒤 값 변경이라는 순서의 이유, Apple 로그인 제한 |
 | 발행 명령·EAS 환경을 다룰 때, 또는 판단 지점의 근거가 필요할 때 | [착수 기록](records/2026-11-17-01-ticket01-build-gate-and-publish-env.md) | 빌드 세 번의 경위, eas-cli 코드에서 읽은 environment 규칙, preview 환경에 연결한 변수, runtime 계산 명령과 값 |
 | 설계 방향과 가정을 다시 볼 때 | [제약·설계](current/memory/spec/05-constraints-design-assumptions.md) | 현재 구현 표, 판단 지점의 결과, SDK 51의 남은 기간, 남은 가정 |
-| 방지 장치(hook)를 설계할 때 | [Ticket 02](current/memory/tickets/02-ota-publish-guard.md)와 Spec 05의 방지 장치 절 | 후보와 한계, 발행 환경 불일치 검사 후보, SDK 버전에 묶이지 않게 한다는 방향 |
+| 방지 장치의 규칙·hook을 바꾸거나 확인할 때 | [Ticket 02](current/memory/tickets/02-ota-publish-guard.md), [방지 장치 기록](records/2026-11-17-06-ota-guard-change-env-hook.md), 파일 위치·역할은 [재구성 기록](records/2026-11-17-07-ota-script-reorganization.md)과 [hook 이동 기록](records/2026-11-17-08-hook-to-agents-hooks.md), Spec 05의 방지 장치 절 | Main이 고른 규칙과 확정 상태, 막힘·통과 실행, 별도 검증, hook의 한계, SDK 버전에 묶이지 않게 한다는 방향 |
 | Project에 반영할 때 | [Ticket 03](current/memory/tickets/03-project-context-reflection.md), [선택한 Project 맥락](current/memory/project-context.md) | 반영 위치가 미정이고, 확정한 규칙만 옮긴다 |
 | dev-client 정렬이나 012 분리의 근거가 필요할 때 | [파악·분리 기록](records/2026-11-16-02-scoping-check-and-sdk-split.md) | dev-client 충돌의 근거, 나눈 이유와 받아들인 비용 |
 | SDK·라이브러리 버전 자체를 다룰 때 | [Work 012](../012-expo-sdk-upgrade/README.md) | 버전의 상세 논의는 012가 소유하며 다른 세션에서 진행한다. 011의 Spec에 끌어오지 않는다 |

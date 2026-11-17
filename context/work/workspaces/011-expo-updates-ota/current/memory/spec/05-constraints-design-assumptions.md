@@ -35,12 +35,12 @@ SDK 51용 `expo-updates`와 `expo-dev-client` 4.0.29가 Xcode 26에서 빌드되
 
 ## 방지 장치 (hook 등)
 
-사용자가 "hook같은걸로 뭔가 방지하게 하는 그런것도 할거"라고 했다. 2026-11-17에 발행 전용 스크립트 `pnpm ota:publish`를 만들었다(미커밋, [Ticket 02](../tickets/02-ota-publish-guard.md)). 지금은 발행 절차의 검사(재설치·환경값·runtime·소스맵)만 한다. 아래 후보 가운데 경로 diff 검사와 hook은 아직이다.
-- **발행 전용 스크립트:** 실행 명령은 루트 `package.json`에 둔다. `apps/client/package.json`의 scripts는 fingerprint에 들어가기 때문이다. 환경값 확인과 Sentry 업로드는 들어가 있다. 마지막 스토어 빌드 커밋 이후의 diff를 검사해 migrations·`db/index.ts`·`packages/schema`·네이티브 설정 변경을 거부하는 일이 남았다.
-- **AI 도구 hook:** Claude·Codex가 `eas update`를 직접 실행하려 할 때 위 검사를 거치게 막는다. 현재 `.claude/settings.json`에는 hook이 없다. `.claude/hooks/maintain.py`는 퇴역한 Work hook이 아무 일도 하지 않고 끝나게 하는 잔재다. `.codex/hooks.json`은 따로 있다.
-- **git hook이나 CI:** 현재 CI(`.github/workflows`)는 없다.
+사용자가 "hook같은걸로 뭔가 방지하게 하는 그런것도 할거"라고 했다. 2026-11-17 현재 구성은 다음과 같다. 상세 규칙과 확인 결과는 [Ticket 02](../tickets/02-ota-publish-guard.md)가 소유한다.
+- **발행 전용 스크립트 `pnpm ota:publish`(`apps/client/scripts/ota/`):** 검사를 맡는다. 규칙은 `rules.mjs`에 모여 있다. 발행 절차의 실수를 막는다(재설치, 환경값, runtime, 소스맵). OTA로 내면 안 되는 변경도 막는다. 기준 빌드 커밋 이후의 경로 diff와 DDL을 검사하고, env 이름을 대조한다. 실행 명령은 루트 `package.json`에 둔다. `apps/client/package.json`의 scripts가 fingerprint에 들어가기 때문이다.
+- **AI 도구 hook `block-direct-eas-update.py`:** AI 하네스 관리 대상이라 Claude·Codex 공통 원본 자리인 `.agents/hooks/`에 둔다. 발행 스크립트가 바뀌거나 없어질 때 함께 볼 것은 `.agents/hooks/README.md`가 맡는다. Claude·Codex가 스크립트 없이 `eas update`를 치면 막고 스크립트를 안내한다. `.claude/settings.json`과 `.codex/hooks.json`에 등록했다. Claude Code에서는 실제로 막혔다. Codex에서는 확인하지 못했다.
+- **git hook이나 CI:** 두지 않았다. 현재 CI(`.github/workflows`)도 없다.
 
-AI 도구 hook만으로는 사람이 터미널에서 직접 실행하는 발행을 막지 못한다. 그래서 검사 자체는 발행 스크립트가 맡고, hook은 그 스크립트로 유도하는 보조가 되는 구성이 유력하다. 이 판단은 아직 사용자와 확정하지 않았다.
+AI 도구 hook만으로는 사람이 터미널에서 직접 실행하는 발행을 막지 못한다. 그래서 검사는 스크립트가 맡고 hook은 그 스크립트로 유도하는 보조로 구성했다. 이 구성과 스크립트가 쓰는 규칙은 Main이 구현하며 고른 것이고, 사용자가 확정하지 않았다. 변경 검사와 hook은 2026-11-17 기준 미커밋이다.
 
 어떤 형태든 장치는 특정 SDK 버전에 묶이지 않게 만든다. 검사는 경로 diff와 fingerprint처럼 SDK가 바뀌어도 그대로 쓰는 기준에 기댄다. 012의 업그레이드 뒤에도 이 장치를 이어 쓰기 위해서다.
 
