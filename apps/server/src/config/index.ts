@@ -1,3 +1,4 @@
+import { parseCommaList } from './env-list.js';
 import { environment } from './environment.js';
 
 const config = {
@@ -32,7 +33,8 @@ const config = {
 
   googleOAuth: {
     webClientId: process.env.GOOGLE_WEB_CLIENT_ID,
-    iosClientId: process.env.GOOGLE_IOS_CLIENT_ID,
+    // 운영 앱과 시험용 앱은 번들 ID가 달라 Google iOS 클라이언트도 다르다. 쉼표로 여러 개를 허용한다.
+    iosClientIds: parseCommaList(process.env.GOOGLE_IOS_CLIENT_ID),
   },
 
   appleOAuth: {
