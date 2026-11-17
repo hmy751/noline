@@ -1,37 +1,61 @@
 # 03 — Project context에 반영
 
-**상태:** 실행 전 (2026-11-17). 01의 1.1.4 제출과 02의 장치 구현이 끝났다. 011 브랜치는 1.1.4를 위해 main에 병합됐고, 이 Ticket은 병합 뒤 문서 작업으로 이어 한다.
+**상태:** 반영 완료 (2026-11-17). 출시·OTA 기준을 새 Project guidance 문서에 옮기고 읽기 경로를 연결했다. 방지 규칙도 이 반영으로 확정했다. 독립 읽기 확인에서 나온 결함을 고쳤다. 커밋 여부는 Main이 정한다.
 
 사용자가 Work를 만들며 직접 요청한 범위다.
 
 > "나중에 잊지않게 context도 작업하고나서 알맞게 반영해야할거고"
 
-## 반영할 의미
+## 반영한 곳
 
-- OTA로 내도 되는 변경과 안 되는 변경, 그 이유. 01·02에서 실제로 확정한 규칙만 옮긴다. 논의 단계의 "규칙 후보"를 그대로 옮기지 않는다.
-- 발행 절차: 채널, 환경값, Sentry, 롤백. 방지 장치의 위치와 우회 조건도 포함한다.
-- 오프라인 시작을 늦추지 않는 설정(`fallbackToCacheTimeout: 0`)이 제품 약속과 이어진다는 점.
-- runtime version 정책(fingerprint)과, 네이티브 변경은 스토어 빌드로만 나간다는 점.
-- **OTA 방지 규칙의 확정:** [Ticket 02](02-ota-publish-guard.md#규칙과-확정-상태)의 규칙(`apps/client/scripts/ota/rules.mjs`)은 사용자가 그대로 두되 "다른 context와 같이 연결해서" 정하자고 했다(2026-11-17). 그래서 이 Ticket에서 기존 Project 계약과 대조해 확정한다. 대조할 곳은 다음과 같다.
-  - 서버 계약: [API 계약](../../../../../../project/guidance/api-contracts.md)은 편집 표식 변경에서 "DB 구조 → 서버 → 새 앱" 배포 순서를 이미 정했다. `--server-checked`의 뜻과 계약 경로 범위를 이 순서와 맞춘다.
-  - 동기화·편집 병합: [저장·동기화 기준](../../../../../../project/guidance/data-lifecycle/INDEX.md)과 구버전 요청 처리. 앱이 먼저 바뀔 때 옛 서버·옛 앱과 어떻게 어긋나는지가 서버 계약 규칙의 근거다.
-  - 기기 DB migration: 이를 소유하는 Project 본문이 없다([앱 실행·세션](../../../../../../project/current/app-runtime/README.md)은 DB migration을 소유하지 않는다고 밝힌다). DB 규칙을 어디에 둘지 함께 정한다.
-  - 확정하면 Spec 02의 "(규칙 후보)" 표시와 `rules.mjs`가 같은 뜻인지 맞춘다.
+출시를 소유하는 Project 본문이 없었다. 그래서 [Project 관리 계약](../../../../../../project/MAINTENANCE.md)과 [구성 기준](../../../../../../project/REFERENCE/composition.md)에 따라 새 guidance 문서를 만들었다. "변경이 어떻게 사용자에게 가는가"라는 작업 계약에 먼저 답하는 문서라 guidance에 두었다.
 
-## 반영할 위치 (미정)
+**새 본문:** [앱 변경을 사용자에게 내보낼 때의 기준](../../../../../../project/guidance/app-release-and-ota.md)
 
-2026-11-16 기준 Project에는 배포·릴리스를 소유하는 본문이 없다. `context/project`에서 `eas build`·`App Store`·`심사`를 검색하면 지도 형성 자료 한 곳만 나온다. 릴리스 절차는 지금 Work 007·008의 records에만 있다.
+| 반영할 의미 | 가이드의 위치 |
+| --- | --- |
+| 두 출시 경로와 runtime 조건: 버전·빌드 번호, scripts, 환경값, 네이티브. 이전 버전 대상 OTA는 지금 불가 | "runtime이 같은 빌드에만 OTA가 간다" |
+| 오프라인 시작을 늦추지 않는 설정과 제품 약속 | "앱 시작은 업데이트 확인을 기다리지 않는다" |
+| OTA 가능·불가 규칙(확정), DB 규칙의 위치 | "OTA로 내도 되는 변경을 구별한다" |
+| 서버 계약 변경의 배포 순서와 `--server-checked`의 뜻 | "계약을 바꾸면 서버를 먼저 배포한다" |
+| 발행 절차, Sentry 토큰, hook, 되돌리기 | "OTA는 발행 스크립트로만 낸다" |
+| 스토어 출시 절차, preview 시험 앱 | "스토어 빌드는 main에서 버전을 올려 낸다" |
+| 확인하지 못한 범위와 다시 볼 신호 | "현재 범위와 다시 확인할 것" |
 
-그래서 새 Owner를 만들지, 기존 본문에 합칠지부터 정해야 한다. 기존 본문 후보는 `current/app-runtime`과 `current/architecture.md`다. 이 판단은 [Project 관리 계약](../../../../../../project/MAINTENANCE.md)과 [구성 기준](../../../../../../project/REFERENCE/composition.md)을 읽고 [context-update](../../../../../../../.agents/skills/context-update/SKILL.md)로 수행한다.
+**읽기 경로로 연결한 곳**
+- Project README의 읽기 목록과 guidance 목록
+- API 계약: 편집 표식 배포 순서가 스토어·OTA 모두에 적용된다는 문장
+- 저장·동기화 기준 표: 기기 DB 구조 변경은 스토어 빌드로만
+- 구조 지도: 1.1.4(18)부터 OTA를 받음
+- `apps/client/CLAUDE.md`의 Start Here
+- `START_GUIDE.md`의 Sentry 절: OTA 소스맵 토큰 위치
 
-이 밖에 영향이 갈 수 있는 곳도 함께 확인한다.
-- runtime이 바뀌는 조건: fingerprint는 `apps/client/package.json`의 scripts까지 해시에 넣는다. 그래서 scripts만 바꿔도 OTA runtime이 바뀌고 새 빌드가 필요해진다. 발행 명령을 루트 `package.json`에 둔 이유이기도 하다. `apps/client` 가이드나 OTA 기준 본문에 남길지 확인한다. 근거는 [발행 스크립트 기록](../../../records/2026-11-17-05-ota-publish-script.md)에 있다.
-- runtime이 버전마다 다르다는 점: 이 구성(SDK 51, expo-updates 0.25)의 fingerprint는 앱 버전과 iOS buildNumber도 포함한다. 그래서 스토어 빌드마다 runtime이 다르고, OTA는 버전·빌드 번호가 같은 빌드에만 간다. 이전 버전 사용자에게 보낼 때는 그 버전의 코드 트리에서 발행해야 한다. 버전을 올린 뒤에는 preview 빌드도 새로 만들어야 한다. 근거는 [1.1.4 제출 기록](../../../records/2026-11-17-10-release-1-1-4-submission.md)에 있다.
-- 발행 절차: `pnpm ota:publish`의 사용법과 단계.
-- 서버의 Google 로그인 설정: 2026-11-17 서버가 `GOOGLE_IOS_CLIENT_ID`를 쉼표 목록으로 받게 바뀌었다(`99235878`). 운영과 preview 앱의 iOS client를 함께 허용하기 위해서다. 서버 README의 환경 변수 설명은 이미 고쳤다. API·인증 Project 본문에 반영할지 확인한다. 경위는 [Google 로그인 기록](../../../records/2026-11-17-03-preview-google-login-fix.md)에 있다.
-- `apps/client/CLAUDE.md`의 명령
-- [START_GUIDE](../../../../../../../START_GUIDE.md): 개발 앱을 다시 빌드해야 하는 조건
+## 규칙의 확정
+
+[Ticket 02](02-ota-publish-guard.md#규칙과-확정-상태)의 규칙을 사용자는 "그대로 두자 다른 context와 같이 연결해서 뭔가 정하는게 좋을 것 같아"라고 했다. 이번 반영에서 이 지시를 이렇게 수행했다.
+- 서버 계약 규칙과 `--server-checked`의 뜻은 [API 계약](../../../../../../project/guidance/api-contracts.md)의 "DB 구조 → 서버 → 새 앱" 순서와 같은 규칙으로 묶었다.
+- DB 규칙은 [저장·동기화 기준](../../../../../../project/guidance/data-lifecycle/INDEX.md)과 연결했다.
+- 가이드에는 채택된 규칙으로 적었다. Spec 02의 "(규칙 후보)" 표시도 확정으로 바꿨다.
+- 규칙의 실제 값은 `apps/client/scripts/ota/rules.mjs`가 소유한다. 가이드는 그 뜻과 이유를 소유한다.
+
+사용자가 항목별로 따로 승인하지는 않았다. "다른 context와 연결해 정한다"를 Main이 수행한 결과다.
+
+## 정정한 것
+
+앞서 "다음 버전을 낸 뒤에도 이전 버전 코드 트리에서 발행하면 이전 버전 사용자에게 OTA를 보낼 수 있다"고 적었다. 지금 스크립트에서는 틀린 말이다. 발행 스크립트는 그 채널 최신 빌드와 runtime이 같은 빌드만 대상으로 삼기 때문이다. 그래서 지금은 이전 버전 사용자에게만 OTA를 보내는 길이 없고, 그 사용자는 스토어 업데이트로 고친다. 필요해지면 대상 빌드 지정 기능을 검토한다. 가이드의 runtime 절과 현재 범위에 적었다.
+
+## 일부러 반영하지 않은 것
+
+- **서버의 Google iOS client 목록 설정:** [서버 README](../../../../../../../apps/server/README.md)의 환경 변수 설명에 두었다. 가이드의 preview 시험 앱 항목에서 언급만 한다. 별도 API·인증 본문은 만들지 않았다.
+- **decisions 문서:** 만들지 않았다. 형성 이유는 이 Work의 records가 맡는다.
+- **기기 migration 작성법:** 소유할 본문이 없다는 공백만 가이드에 밝혔다.
+
+## 확인
+
+- `pnpm harness:check`: 새 실패가 없다.
+- 독립 읽기 확인: 대표 작업 6개 가운데 3번은 부분, 4번은 틀림으로 나왔다. 4번의 원인이 위의 이전 버전 OTA 오류였다. 모두 고쳤다. 링크·앵커가 풀리고 비밀값이 없는 것도 확인했다.
+- 상세는 [Project 반영 기록](../../../records/2026-11-17-11-project-reflection.md)에 있다.
 
 ## 완료 조건
 
-[완료 판단](../spec/04-quality-and-completion.md)의 8을 확인한다. 반영한 본문, 읽기 경로, 갱신하지 않은 영향 범위를 records에 남긴다.
+[완료 판단](../spec/04-quality-and-completion.md)의 8을 확인한다. 반영한 본문, 읽기 경로, 갱신하지 않은 영향 범위를 records에 남긴다. 2026-11-17 반영과 독립 읽기 확인으로 충족했다.

@@ -2,7 +2,7 @@
 
 JS만 바뀐 수정을 App Store 심사 없이 사용자 앱에 보낼 수 있도록 `expo-updates`를 넣는 독립 Work다. 같은 스토어 빌드에 iOS 최소 버전을 15.0으로 올리는 설정(Apple 경고 ITMS-90068)도 함께 싣는다. 도입한 뒤에는 "OTA로 내도 되는 변경과 안 되는 변경"을 Project context에 남기고, 위험한 발행을 hook 같은 장치로 막는 것까지 이 Work의 범위다.
 
-**2026-11-17 현재 1.1.4(빌드 18)가 App Store 심사 대기 중이다.** `expo-updates`와 설정을 넣었다. preview 빌드로 실제 iPhone에서 OTA 받기·오프라인 시작·롤백·runtime 분리를 확인했다. 위험한 발행을 막는 발행 스크립트와 hook도 만들었다. 011 작업은 1.1.4를 위해 main에 병합하고, main에서 빌드해 제출했다. 남은 일은 심사 결과와 ITMS-90068 확인, 공개 뒤 production OTA 경로 확인, Project 반영(Ticket 03)이다. 1.1.3은 "배포 준비됨"(심사 통과·공개)이었다.
+**2026-11-17 현재 1.1.4(빌드 18)가 App Store 심사 대기 중이고, Project 반영(Ticket 03)까지 마쳤다.** `expo-updates`를 넣었고, preview 빌드로 실제 iPhone에서 OTA 받기·오프라인 시작·롤백·runtime 분리를 확인했다. 발행 스크립트와 hook도 만들었다. 출시·OTA 기준은 Project의 [앱 변경을 사용자에게 내보낼 때의 기준](../../../project/guidance/app-release-and-ota.md)으로 옮겼다. 남은 것은 심사 결과와 ITMS-90068 확인, 첫 production OTA, Codex hook 확인이다.
 
 Expo SDK·라이브러리 버전 업그레이드는 이 Work에서 하지 않는다. 같은 날 사용자와 별도 [Work 012](../012-expo-sdk-upgrade/README.md)로 나눴고, 버전의 상세 논의는 012가 맡는다. 012는 다른 세션에서 진행한다.
 
@@ -10,6 +10,6 @@ Expo SDK·라이브러리 버전 업그레이드는 이 Work에서 하지 않는
 - current: 목표·위험·완료 기준과 남은 Ticket
 - source: 논의가 나온 대화 원문과 Apple 메일의 접근점
 - output: 실제 결과 위치(코드 커밋, EAS 환경, Sentry)
-- records: 논의에서 고른 방향과 그 이유, 착수 전 파악과 SDK 업그레이드를 나눈 경위, Ticket 01 착수와 판단 지점·발행 환경, preview 빌드와 실기기 OTA 확인, preview 앱 Google 로그인 수정, 커밋과 OTA 소스맵 확인, OTA 발행 스크립트, 방지 장치 나머지, 스크립트 재구성, hook의 `.agents/hooks/` 이동, 규칙 유지, 1.1.4 제출
+- records: 논의에서 고른 방향과 그 이유, 착수 전 파악과 SDK 업그레이드를 나눈 경위, Ticket 01 착수와 판단 지점·발행 환경, preview 빌드와 실기기 OTA 확인, preview 앱 Google 로그인 수정, 커밋과 OTA 소스맵 확인, OTA 발행 스크립트, 방지 장치 나머지, 스크립트 재구성, hook의 `.agents/hooks/` 이동, 규칙 유지, 1.1.4 제출, Project 반영
 
 이 Work를 만들면서 기본 Workspace나 실제 채팅 연결은 바꾸지 않았다.

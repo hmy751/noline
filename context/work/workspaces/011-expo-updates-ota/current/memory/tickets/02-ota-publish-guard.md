@@ -76,7 +76,7 @@ pnpm ota:publish <preview|production> --message "..." [--dry-run] [--skip-instal
 preview에서 `--dry-run --skip-install --allow-dirty`로 실행했다. 시험 변경은 되돌렸다.
 - **통과:** 현재 트리, `db/utils.ts` 수정, `--server-checked`를 붙인 sync·places api 수정, 오류 타입만 가져오는 파일 수정.
 - **거부:** migration 수정·새 파일·추적 안 된 새 migration, `--server-checked`를 붙인 `db/index.ts` 수정, entity lib의 DDL 네 가지 형태, 플래그 없는 schema·sync·api·auth-api 수정, EAS에 없는 env 이름 두 종류, namespace `@env` import.
-- **production dry-run:** 빌드가 없어 멈춘다. 1.1.4가 있어야 한다.
+- **production dry-run:** 처음에는 빌드가 없어 멈췄다. 1.1.4 빌드 뒤 2026-11-17에 다시 실행해 통과했다. 최신 빌드 `7033c2ba…`(1.1.4/18)와 runtime `0367b72f…`가 같았고, 변경 검사는 `d160c7b5` 기준으로, env는 `APP_VARIANT=production`으로 통과했다. `--skip-install --allow-dirty`로 실행했고 발행은 하지 않았다([Project 반영 기록](../../../records/2026-11-17-11-project-reflection.md)).
 - **hook:** 페이로드 35가지가 의도대로 나왔다. 이 세션의 Claude Code에서 `eas update --help`가 실제로 막혔다. Codex의 실제 동작은 codex CLI가 없어 보지 못했다.
 - **별도 검증:** 두 번 받았다. 1차에서 찾은 빈틈(`bash -lc` 우회, 단일 빌드 기준점, 좁은 경로, hook 파일이 없을 때 전면 차단 등)은 모두 고쳤고, 2차가 이를 확인했다. 2차의 남은 지적(DDL 형태, auth·places 서비스)은 Main이 고친 뒤 재실행으로만 확인했다. 3차 검증은 없다.
 - 기본 절차의 발행 실행 결과(preview 그룹 `0a0a6db0…`)는 [발행 스크립트 기록](../../../records/2026-11-17-05-ota-publish-script.md)에 있다.

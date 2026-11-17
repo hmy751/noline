@@ -27,7 +27,7 @@ fingerprint는 네이티브 의존성뿐 아니라 `app.config.js`가 환경변�
 발행 순서는 이렇게 한다.
 1. preview 채널로 먼저 발행해 내부 기기에서 확인한다.
 2. 확인되면 production 채널로 낸다.
-3. 문제가 생기면 `eas update:rollback`으로 되돌린다.
+3. 문제가 생기면 되돌린다. 방법은 둘이다. 정상 커밋의 코드에서 `pnpm ota:publish`로 새로 발행하거나, `eas update:roll-back-to-embedded`로 설치된 빌드의 번들로 돌린다. `eas update:republish`는 발행 스크립트의 점검을 거치지 않아 쓰지 않는다. 기준은 [Project 가이드](../../../../../../project/guidance/app-release-and-ota.md#ota는-발행-스크립트로만-낸다)에 있다.
 
 ## 외부 조건
 

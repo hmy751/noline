@@ -1,6 +1,6 @@
 # 011 — expo-updates 작업을 이어갈 때
 
-1.1.4(빌드 18)가 App Store "심사 대기 중"이다(2026-11-17). OTA 도입, preview 실기기 확인(완료 판단 1–4), 방지 장치(발행 스크립트와 hook)는 끝났다. 011 작업은 1.1.4를 위해 main에 병합됐다. OTA는 손으로 `eas update`를 치지 말고 `pnpm ota:publish`(`apps/client/scripts/ota/`, 규칙은 `rules.mjs`)로 낸다. AI 도구가 직접 치면 `.agents/hooks/`의 hook이 막는다. runtime은 앱 버전과 빌드 번호마다 다르다. OTA는 같은 버전·빌드 번호의 스토어 빌드에만 가고, 발행 전에는 깨끗한 재설치가 필요하다. 남은 일은 심사 결과와 ITMS-90068 확인, 공개 뒤 production OTA 경로 확인, Project 반영(Ticket 03, 방지 규칙 확정 포함)이다.
+1.1.4(빌드 18)가 App Store "심사 대기 중"이다(2026-11-17). OTA 도입, preview 실기기 확인(완료 판단 1–4), 방지 장치, Project 반영(Ticket 03)이 끝났다. 011 작업은 main에 있다. 출시·OTA의 현재 기준은 Project의 [앱 변경을 사용자에게 내보낼 때의 기준](../../../project/guidance/app-release-and-ota.md)이 소유한다. 이 Work 문서는 그 기준이 만들어진 경위와 남은 확인을 맡는다. 남은 것은 바깥 결과의 확인이다. 심사 결과와 ITMS-90068, 첫 production OTA(dry-run은 통과), Codex hook을 확인해야 한다.
 
 **먼저 읽는다.** 이것들이 빠지면 확인 전의 설정을 완료로 착각하거나, 조용히 전달되지 않는 발행을 하거나, 제품 약속을 깨는 업데이트를 내게 된다.
 - [현재 상태](current/state/index.md): 된 것, 다음 행동의 순서와 아직 정하지 않은 순서, 브랜치·커밋 상태와 커밋하면 안 되는 무관한 파일
@@ -13,6 +13,8 @@
 | --- | --- | --- |
 | preview 빌드·OTA를 확인하거나 완료를 판단할 때 | [완료 판단](current/memory/spec/04-quality-and-completion.md), [개념](current/memory/spec/03-concepts-and-contracts.md)의 runtime version·채널 절 | 설정을 넣은 것만으로 확인을 대신하지 않는다. runtime이 환경값에 따라 달라진다 |
 | 업데이트를 발행하거나 빌드할 때, runtime이 어긋날 때, 완료 판단 1–5의 확인 근거가 필요할 때 | [실기기 확인 기록](records/2026-11-17-02-preview-build-and-device-ota-check.md) | 첫 빌드의 runtime 불일치와 원인(오래된 `node_modules`), 실기기 확인 절차와 사용한 빌드·업데이트 ID, Sentry 토큰 제약 |
+| 출시·OTA를 실제로 할 때(발행, 스토어 빌드, 되돌리기, 규칙) | [Project 가이드](../../../project/guidance/app-release-and-ota.md) | 현재 기준. Work 문서보다 먼저 본다 |
+| Project에 무엇을 왜 반영했는지, 이전 버전 OTA 정정이 필요할 때 | [Project 반영 기록](records/2026-11-17-11-project-reflection.md) | 반영 위치, 규칙 확정 경위, 독립 읽기 확인과 정정 |
 | 스토어 빌드를 내거나 버전을 올릴 때, 버전과 runtime의 관계가 필요할 때 | [1.1.4 제출 기록](records/2026-11-17-10-release-1-1-4-submission.md) | 병합·버전 커밋·빌드·제출 절차, 업데이트 안내 문구의 선택, fingerprint가 버전·빌드 번호를 포함한다는 발견 |
 | OTA를 발행하거나 발행 스크립트를 고칠 때 | [발행 스크립트 기록](records/2026-11-17-05-ota-publish-script.md), [Ticket 02](current/memory/tickets/02-ota-publish-guard.md) | 스크립트의 단계·옵션·확인 결과, 명령을 루트 `package.json`에 둔 이유(fingerprint가 scripts를 해시에 넣음), 남은 검사 |
 | OTA 소스맵을 올리거나 Sentry 토큰 위치를 바꿀 때 | [소스맵 기록](records/2026-11-17-04-commit-and-ota-sourcemap.md) | 토큰 배치의 선택과 이유, 업로드 명령, 시험·정리 업데이트, Sentry에서 확인한 frame, 롤백 대신 재발행한 이유 |

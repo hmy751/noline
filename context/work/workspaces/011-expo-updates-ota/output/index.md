@@ -21,10 +21,11 @@ EAS와 Apple에는 시험 결과물이 있다. preview 빌드 `f610d9b5-3c04-46d
 
 1.1.4(빌드 18)의 결과는 다음과 같다. 버전 커밋은 main의 `d160c7b5`다. EAS production 빌드 `7033c2ba-0dc7-46e6-96cf-bfcc7044b881`(runtime `0367b72f…`)을 `eas submit` `012b0d56-7c0a-4f8b-a971-3e5c898b64f0`으로 올렸다. App Store Connect의 1.1.4 버전은 심사 대기 중이다. 내역은 [1.1.4 제출 기록](../records/2026-11-17-10-release-1-1-4-submission.md)에 있다.
 
+Project 반영(Ticket 03)의 결과는 새 guidance [앱 변경을 사용자에게 내보낼 때의 기준](../../../../project/guidance/app-release-and-ota.md)이다. 함께 Project README·guidance 목록·API 계약·저장·동기화 기준·구조 지도, `apps/client/CLAUDE.md`, `START_GUIDE.md`의 연결 문장을 고쳤다(2026-11-17, 미커밋). 내역은 [Project 반영 기록](../records/2026-11-17-11-project-reflection.md)에 있다.
+
 ## 아직 없는 결과
 
 - production 채널 업데이트(1.1.4 공개 뒤)
 - 1.1.4 심사 결과
-- Project 본문
 
 Sentry(조직 `hmy-k0`, 프로젝트 `noline-mobile`)에는 preview 업데이트 소스맵 두 벌(debug ID `1b61972b…`, `544fabb1…`)과 시험 issue `7851900817`이 있다. 로컬 `apps/client/.env.production`(gitignore)에는 업로드 토큰을 복사해 두었다. 내역은 [소스맵 기록](../records/2026-11-17-04-commit-and-ota-sourcemap.md)에 있다.

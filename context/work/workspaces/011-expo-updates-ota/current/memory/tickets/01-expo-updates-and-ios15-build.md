@@ -54,7 +54,7 @@
 ## 주의
 
 - 1.1.3은 2026-11-17에 "배포 준비됨"(심사 통과, 자동 출시)이었다.
-- **runtime은 버전과 빌드 번호마다 다르다.** 이 구성의 fingerprint는 앱 버전과 iOS buildNumber를 포함한다(1.1.3/17 `54a96787…`, 1.1.3/18 `52e0c41b…`, 1.1.4/18 `92c898f2…`, 모두 preview). 그래서 OTA는 버전·빌드 번호가 같은 빌드에만 간다. 다음 버전을 낸 뒤 이전 버전 사용자에게 OTA를 보내려면 그 버전의 코드 트리에서 발행해야 한다. 기존 preview 빌드 `f610d9b5…`(1.1.3/17)는 이제 main과 맞지 않으므로, preview 시험에는 새 preview 빌드가 필요하다.
+- **runtime은 버전과 빌드 번호마다 다르다.** 이 구성의 fingerprint는 앱 버전과 iOS buildNumber를 포함한다(1.1.3/17 `54a96787…`, 1.1.3/18 `52e0c41b…`, 1.1.4/18 `92c898f2…`, 모두 preview). 그래서 OTA는 버전·빌드 번호가 같은 빌드에만 간다. 발행 스크립트는 그 채널 최신 빌드와 같은 runtime에만 발행하므로, 다음 버전 빌드가 생기면 이전 버전 사용자에게만 OTA를 보낼 길은 없다. 그 사용자는 스토어 업데이트로 고친다. 앞서 "이전 버전 코드 트리에서 발행하면 된다"고 적은 것은 틀렸다([Project 반영 기록](../../../records/2026-11-17-11-project-reflection.md)). 기존 preview 빌드 `f610d9b5…`(1.1.3/17)는 이제 main과 맞지 않으므로, preview 시험에는 새 preview 빌드가 필요하다.
 - 네이티브 설정과 dev-client가 바뀌었으므로 로컬 개발 앱도 다시 빌드해야 한다(`pnpm client ios`). 지금 `apps/client/ios/`는 이번 Release 확인 때 `.env.production`으로 새로 prebuild한 것이다(운영 이름 `com.ham.noline`). 1월에 만든 이전 폴더는 세션 scratchpad로 옮겨 두었고 재부팅 등으로 지워질 수 있다. `ios/`는 gitignore 대상이며 로컬 폴더 유무는 fingerprint에 영향이 없었다.
 - 로컬에서 `pod install`이나 `expo run:ios`를 돌릴 때는 UTF-8 locale이 필요하다.
 - **알려진 제한:** preview 앱의 Apple 로그인은 서버의 `APPLE_CLIENT_ID`가 운영 번들이라 실패할 수 있다. 확인하지 않았고 이번 범위 밖이다.
