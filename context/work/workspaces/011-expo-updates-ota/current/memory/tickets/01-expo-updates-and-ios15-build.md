@@ -41,7 +41,7 @@
 
 - 2026-11-16: 사용자 확인 전에 1의 두 패키지를 설치했다가 "바로 시작하지말고 파악만 해봐"라는 지시로 되돌렸다. 그동안 SDK 51 버전 조합과 fingerprint 지원을 확인했고 dev-client 충돌을 찾았다. 경위는 [파악·분리 기록](../../../records/2026-11-16-02-scoping-check-and-sdk-split.md)에 있다.
 - 2026-11-16–17: "일단 011 부터 하고 다되면 병합하자"로 착수했다. 1.1.3이 여전히 "심사 대기 중"인 것을 확인한 뒤 단계 1–4를 넣고, 판단 지점을 패치로 통과했고, 발행 환경을 정리했다. 경위와 근거는 [착수 기록](../../../records/2026-11-17-01-ticket01-build-gate-and-publish-env.md)에 있다.
-- 2026-11-17: 브랜치에 커밋했다(`cad1ec8f` main 병합, `3592a538`, `233e0a17`, `212040c2`). Sentry 소스맵을 로컬 토큰 방식으로 정하고 preview에서 end-to-end로 확인했다. 경위는 [소스맵 기록](../../../records/2026-11-17-04-commit-and-ota-sourcemap.md)에 있다.
+- 2026-11-17: 브랜치에 커밋했다(`cad1ec8f` main 병합, `3592a538`, `ba06e62a`, `bb459027`). Sentry 소스맵을 로컬 토큰 방식으로 정하고 preview에서 end-to-end로 확인했다. 경위는 [소스맵 기록](../../../records/2026-11-17-04-commit-and-ota-sourcemap.md)에 있다.
 - 2026-11-17: iPhone을 등록하고 preview 빌드를 만들어, runtime 불일치를 고친 뒤 실기기에서 완료 판단 1–4를 확인했다. 경위는 [실기기 확인 기록](../../../records/2026-11-17-02-preview-build-and-device-ota-check.md)에 있다.
 
 ## 주의

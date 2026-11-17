@@ -14,8 +14,8 @@ Main은 브랜치 `feat/011-expo-updates`에 다음을 올렸다(3033–3102). p
 | --- | --- |
 | `cad1ec8f` | main 병합. main에 먼저 낸 서버 수정 `99235878`을 가져왔다. 작업 트리에 있던 같은 내용의 서버 사본은 지우고 이 병합으로 대신했다 |
 | `3592a538` | feat(client): expo-updates 설정, dev-client 정렬, dev-menu patch, iOS 15.0, `eas.json`의 channel·environment |
-| `233e0a17` | docs(context): Work 011 기록 |
-| `212040c2` | docs(context): Work 011 문서의 "미커밋" 서술을 커밋 상태로 고침 |
+| `233e0a17`(이력 정리 뒤 `ba06e62a`) | docs(context): Work 011 기록 |
+| `212040c2`(이력 정리 뒤 `bb459027`) | docs(context): Work 011 문서의 "미커밋" 서술을 커밋 상태로 고침 |
 
 무관한 미커밋 파일은 그대로 두었다. `context/personal/experience/*`, Work 006 문서 두 개, `.pnpm-store/`다.
 

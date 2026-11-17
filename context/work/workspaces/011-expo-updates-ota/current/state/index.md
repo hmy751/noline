@@ -20,15 +20,14 @@
 - **Sentry 소스맵(단계 5·6):** 로컬 토큰 방식으로 정했다. 사용자 선택에 따라 `.env.development.local`의 토큰을 `apps/client/.env.production`(gitignore)에도 복사했다. 업로드 명령은 `eas update` 다음의 `expo-upload-sourcemaps.js dist`다. preview 시험 업데이트 `8c8eb6e9…`에서 낸 오류가 Sentry에서 `LoginScreen.tsx` 144:133으로 풀렸다. 시험 코드는 정리 업데이트 `f40c0676…`로 뺐고, 사용자가 "원래 문구로 돌아옴"을 확인했다. 그 뒤 발행 스크립트 시험으로 같은 내용의 `0a0a6db0…`를 냈다. 지금 preview 채널의 최신 업데이트는 이것이다(runtime `54a96787…`, 번들은 `f40c0676…`와 같다). 경위는 [소스맵 기록](../../records/2026-11-17-04-commit-and-ota-sourcemap.md)에 있다.
 
 **Ticket 02에서 된 것:**
-- **발행 스크립트(미커밋):** `pnpm ota:publish <preview|production> --message "..."`를 만들었다(`apps/client/scripts/ota-publish.mjs`, 루트 `package.json`). 순서는 사전 점검 → 깨끗한 재설치 → EAS 환경값 대조 → runtime 대조 → `eas update` → 소스맵 업로드다. 막혀야 할 경우가 막히는 것과 실제 preview 발행(그룹 `0a0a6db0…`)을 확인했고, 별도 검증도 거쳤다.
+- **발행 스크립트:** `pnpm ota:publish <preview|production> --message "..."`를 만들었다(`apps/client/scripts/ota-publish.mjs`, 루트 `package.json`). 순서는 사전 점검 → 깨끗한 재설치 → EAS 환경값 대조 → runtime 대조 → `eas update` → 소스맵 업로드다. 막혀야 할 경우가 막히는 것과 실제 preview 발행(그룹 `0a0a6db0…`)을 확인했고, 별도 검증도 거쳤다.
 - 실행 명령을 루트 `package.json`에 둔 이유가 있다. fingerprint가 `apps/client/package.json`의 scripts까지 해시에 넣기 때문이다. 그곳에 두자 runtime이 `6cfec56f…`로 바뀌었다. 경위는 [발행 스크립트 기록](../../records/2026-11-17-05-ota-publish-script.md)에 있다.
 
 **다음 행동:** 남은 일은 아래와 같다. 1.1.4와 방지 장치 나머지 사이의 순서는 아직 정하지 않았다.
-1. 발행 스크립트를 커밋한다. 커밋 시점은 아직 정하지 않았다.
-2. 1.1.4(빌드 18)를 production으로 빌드해 심사에 낸다. 인증서와 ad hoc 프로필이 2026-12-30에 만료되므로 그 전에 한다. production runtime은 다시 설치한 뒤 계산하지 않았다. 빌드 전에 깨끗한 설치 상태에서 다시 계산한다. `pnpm ota:publish production --dry-run`은 그 빌드가 생긴 뒤에 통과할 수 있다. 업로드 메일에 ITMS-90068이 다시 오지 않는지도 본다(완료 판단 7).
-3. production 번들의 환경값과 소스맵을 확인한다(완료 판단 5의 남은 부분).
-4. Ticket 02의 나머지를 정한다: 마지막 스토어 빌드 커밋과의 경로 diff 검사, 서버 계약 변경의 통과 방법, `@env` 이름과 EAS 변수 대조, 스크립트 밖의 `eas update`를 막는 hook.
-5. Project 반영(Ticket 03)을 한다. 011이 끝나면 브랜치를 main에 병합한다.
+1. 1.1.4(빌드 18)를 production으로 빌드해 심사에 낸다. 인증서와 ad hoc 프로필이 2026-12-30에 만료되므로 그 전에 한다. production runtime은 다시 설치한 뒤 계산하지 않았다. 빌드 전에 깨끗한 설치 상태에서 다시 계산한다. `pnpm ota:publish production --dry-run`은 그 빌드가 생긴 뒤에 통과할 수 있다. 업로드 메일에 ITMS-90068이 다시 오지 않는지도 본다(완료 판단 7).
+2. production 번들의 환경값과 소스맵을 확인한다(완료 판단 5의 남은 부분).
+3. Ticket 02의 나머지를 정한다: 마지막 스토어 빌드 커밋과의 경로 diff 검사, 서버 계약 변경의 통과 방법, `@env` 이름과 EAS 변수 대조, 스크립트 밖의 `eas update`를 막는 hook.
+4. Project 반영(Ticket 03)을 한다. 011이 끝나면 브랜치를 main에 병합한다.
 
 [Spec 05](../memory/spec/05-constraints-design-assumptions.md)의 순서는 방지 장치를 1.1.4 스토어 빌드보다 앞에 둔다. Main이 앞서 밝힌 다음 행동은 OTA 확인 뒤 바로 1.1.4였다. 1.1.4 자체는 OTA 발행이 아니어서 장치 없이도 낼 수 있다. 다만 장치 전에 production 채널로 OTA를 발행하지 않는다는 조건이 필요한지 함께 정해야 한다.
 
@@ -42,12 +41,14 @@
 - preview 앱(`com.noline.dev`)의 Apple 로그인: 서버 `APPLE_CLIENT_ID`가 운영 번들이라 실패할 수 있다. 시도하지 않았고 이번 범위 밖이다. Google 로그인은 고쳤다(아래).
 - Expo 무료 플랜의 업데이트 한도, iOS 13–14 사용자 수
 
-**브랜치와 커밋:** 011 작업은 브랜치 `feat/011-expo-updates`에 커밋했다(2026-11-17). 이 브랜치는 012 분리 문서 커밋 `3895d44f` 위에 있고, 서버 수정이 든 main(`99235878`)을 병합한 뒤(`cad1ec8f`) 다음 두 커밋을 올렸다. 브랜치는 아직 main에 병합하지 않았다(사용자 지시: 011이 끝나면 병합).
+**브랜치와 커밋:** 011 작업은 브랜치 `feat/011-expo-updates`에 커밋했다(2026-11-17). 이 브랜치는 012 분리 문서 커밋 `3895d44f` 위에 있고, 서버 수정이 든 main(`99235878`)을 병합한 뒤(`cad1ec8f`) 다음 커밋들을 올렸다. 브랜치는 아직 main에 병합하지 않았다(사용자 지시: 011이 끝나면 병합).
 - `3592a538` feat(client): expo-updates·dev-client 정렬·dev-menu patch·iOS 15.0·eas.json channel/environment
-- `233e0a17` docs(context): 이 Work의 기록
-- `212040c2` docs(context): 이 Work 문서의 커밋 상태 서술을 고침
+- `ba06e62a` docs(context): 이 Work의 기록
+- `bb459027` docs(context): 이 Work 문서의 커밋 상태 서술을 고침
+- `ceb7a7b7` feat(client): 발행 스크립트 `pnpm ota:publish`
+- `24a3938b` docs(context): 소스맵 확인과 발행 스크립트 기록
 
-그 뒤의 변경은 아직 커밋하지 않았다. Work 문서 갱신(소스맵·발행 스크립트 기록 등), `apps/client/scripts/ota-publish.mjs`(새 파일), 루트 `package.json`의 `ota:publish`다.
+사용자 요청으로 Work 기록의 토큰·식별자 세부를 줄이면서, push 전이던 이 브랜치의 이력에서도 그 값을 지웠다(2026-11-17). 그래서 앞선 기록에 `233e0a17`·`212040c2`로 적힌 커밋은 지금 `ba06e62a`·`bb459027`이다. 최종 파일 내용은 고치기 전과 같다.
 
 EAS 환경 변수 변경은 저장소 밖의 Expo 계정에 이미 반영돼 있다. Render의 `GOOGLE_IOS_CLIENT_ID` 변경도 운영 서버에 반영돼 있다. Expo에는 이번 시험으로 preview 채널·브랜치와 시험 업데이트 세 개(그룹 `9889e7f4…`, `4c567056…`, `dee2e1d6…`), Google client 수정 업데이트 `a86d1596…`, 소스맵 시험 업데이트 `8c8eb6e9…`, 정리 업데이트 `f40c0676…`, 발행 스크립트 시험 업데이트 `0a0a6db0…`가 생겼고, Apple에는 등록 기기 1대와 ad hoc 프로필이 생겼다. runtime `63918ede…`의 시험 업데이트도 preview 브랜치에 남아 있지만, 그 runtime의 빌드가 없어 받을 기기는 없다. 시험용 코드 변경은 모두 되돌렸고, `dist/`는 gitignore 대상이다.
 

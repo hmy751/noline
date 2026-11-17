@@ -13,7 +13,7 @@
 
 서버의 Google iOS client 목록 수정은 main 커밋 `99235878`에 있고 Render에 배포됐다. 011 브랜치에는 main을 병합(`cad1ec8f`)해 같은 커밋으로 들어와 있다.
 
-Ticket 02의 발행 스크립트 `apps/client/scripts/ota-publish.mjs`와 루트 `package.json`의 `ota:publish`는 아직 커밋하지 않았다. 내역은 [발행 스크립트 기록](../records/2026-11-17-05-ota-publish-script.md)에 있다.
+Ticket 02의 발행 스크립트 `apps/client/scripts/ota-publish.mjs`와 루트 `package.json`의 `ota:publish`는 커밋 `ceb7a7b7`에 있다. 내역은 [발행 스크립트 기록](../records/2026-11-17-05-ota-publish-script.md)에 있다.
 
 저장소 밖의 결과도 있다. Expo 계정(프로젝트 `@myeongyeon/noline`)의 EAS 환경 변수다. preview 환경에 공통 변수를 연결하고 preview 전용 값 두 개를 만들었다. 이 변경은 이미 적용돼 있으며, 내역은 [착수 기록](../records/2026-11-17-01-ticket01-build-gate-and-publish-env.md)에 있다. 그 뒤 `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`를 환경별로 나눴다. 운영 서버(Render)의 `GOOGLE_IOS_CLIENT_ID`도 운영·개발 두 값으로 바꿨다. 내역은 [Google 로그인 기록](../records/2026-11-17-03-preview-google-login-fix.md)에 있다.
 
