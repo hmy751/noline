@@ -11,6 +11,7 @@
     "server": "pnpm --filter @apps/server",
     "schema": "pnpm --filter @repo/schema",
     "harness:check": "node scripts/check-harness.mjs",
+    "client:expo-check": "pnpm --filter @apps/client exec expo install --check",
     "ota:publish": "node apps/client/scripts/ota/publish.mjs",
     "lint": "pnpm -r --no-bail run lint",
     "format": "prettier --write ."
@@ -26,5 +27,8 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "engines": {
+    "node": ">=24"
+  }
 }
