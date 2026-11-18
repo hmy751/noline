@@ -1,6 +1,6 @@
 # 현재 상태와 다음 행동
 
-2026-11-18 기준 상태다. 범위·대상 SDK·출시 2번을 정했고, 라이브러리 호환 점검과 지도 문제를 반영해 Ticket을 5개로 다시 짜 확정했다. **2026-11-18 Ticket 01을 시작했다.** 검사 기준선, `release/1.1`(원격, 빌드·OTA 확인), Node 24 설정 변경(미커밋 브랜치), 설치 절차 확정까지 했고, Railway 설정도 사용자 확인으로 지웠다(미커밋). 남은 01의 일은 Node 24 서버 배포와 실기기 점검이다. 02와 SDK 업그레이드는 시작하지 않았다.
+2026-11-18 기준 상태다. 범위·대상 SDK·출시 2번을 정했고, 라이브러리 호환 점검과 지도 문제를 반영해 Ticket을 5개로 다시 짜 확정했다. **2026-11-18 Ticket 01을 시작했다.** 검사 기준선, `release/1.1`(원격, 빌드·OTA 확인), Node 24 설정 변경과 Railway 설정 삭제(로컬 브랜치 `chore/012-node24`의 `7413b343`에 커밋, push·main 병합 전), 설치 절차 확정까지 했다. 남은 01의 일은 Node 24 서버 배포와 실기기 점검이다. 02와 SDK 업그레이드는 시작하지 않았다.
 
 **이 Work가 생긴 경위:** 2026-11-16 Work 011을 재개하던 중 사용자가 SDK·라이브러리 업그레이드를 함께 맡을지 물었고, Main의 분석과 추천에 따라 별도 Work로 나눴다. 사용자는 "그래 분리해서 진행하자 더 버전에 대해 자세한건 012에서 더 논의한다고 기록해주고"라고 답했다. 분석과 선택 이유는 [분리 기록](../../records/2026-11-16-01-separation-from-011-and-version-analysis.md)에 있다.
 
@@ -53,13 +53,13 @@
 - **Ticket 02의 첫 단계가 채워졌다.** 기기의 preview 앱이 1.1.4 빌드 `30c46ce2`다. 02는 이 앱에 데이터와 오프라인 지도를 넣는 것부터 한다.
 - **기준선을 남겼다.** client test·server 전부·schema build는 통과하고, client lint(11 errors)·client typecheck(6 errors)·ui lint(25 errors)는 기존 실패다. 업그레이드 단계는 이 수치와 비교한다. 서버·schema는 Node 20에서도 결과가 같았다. 경로 가이드의 `pnpm client test --runInBand`는 pnpm 9.6.0에서 실패해 `pnpm --filter @apps/client run test --runInBand`로 실행했다.
 - **설치 절차를 확정했다.** `npx expo install`의 실패 원인은 npx가 `.npmrc` 값을 환경변수로 넘기는 것이었다. `apps/client`에서 `pnpm exec expo install <패키지>`로 넣는다(공통 규칙 3).
-- **Node 24 설정을 바꿨지만 커밋하지 않았다.** 브랜치 `chore/012-node24`에 `.nvmrc`·`render.yaml`·tsup target·`@types/node`·`START_GUIDE.md` 변경이 있고, 변경 뒤 검사 결과가 기준선과 같다. Node 24 폴더에 pnpm 9.6.0·eas-cli 16.28.0을 설치했다. `eas.json`은 의도대로 20.18.1이다. 사용자가 Railway를 쓰지 않는다고 해("안 써, 지워") `nixpacks.toml`·`railway.json`도 같은 브랜치에서 지웠다(stage 안 함).
+- **Node 24 설정을 바꿔 로컬 브랜치에 커밋했다.** 사용자의 "커밋해줘"로 `7413b343`(설정 변경과 Railway 파일 삭제)과 이 Work 문서의 `4c83ef5f`를 만들었다. push·main 병합 전이다. 브랜치 `chore/012-node24`에 `.nvmrc`·`render.yaml`·tsup target·`@types/node`·`START_GUIDE.md` 변경이 있고, 변경 뒤 검사 결과가 기준선과 같다. Node 24 폴더에 pnpm 9.6.0·eas-cli 16.28.0을 설치했다. `eas.json`은 의도대로 20.18.1이다. 사용자가 Railway를 쓰지 않는다고 해("안 써, 지워") `nixpacks.toml`·`railway.json`도 같은 브랜치에서 지웠다(`7413b343`에 포함).
 
 ## 남은 일과 다음 행동
 
 **아직 하지 않은 것:**
 - Ticket 01의 남은 일. 모두 사용자 확인 뒤 한다
-  - `chore/012-node24`의 커밋·main 병합·push. Render가 자동 배포해 운영 서버에 바로 닿으므로 이전 배포로 되돌리는 방법을 먼저 확인하고, 배포 뒤 로그와 운영 앱으로 확인한다
+  - `chore/012-node24`의 main 병합·push. Render가 자동 배포해 운영 서버에 바로 닿으므로 이전 배포로 되돌리는 방법을 먼저 확인하고, 배포 뒤 로그와 운영 앱으로 확인한다
   - 1.1.4 실기기 점검표 실행(사용자 기기, 운영 앱/preview 선택)
 - 02 실행
 - 04·05의 업데이트 확인 방식 결정(Ticket 04)
@@ -80,7 +80,7 @@
 
 **다음 행동:** Ticket 01의 남은 일을 사용자 확인으로 잇는다. 먼저 Render 되돌리는 방법 확인 뒤 Node 24 병합 시점을 사용자에게 묻는다. `release/1.1`이 원격에 있어 012 변경을 main에 병합하기 전의 조건은 갖췄다. 02는 01과 병행할 수 있고, 이미 설치된 1.1.4 preview 앱(`30c46ce2`)에 데이터와 오프라인 지도를 넣는 것부터 한다. 발행 스크립트의 재설치 뒤 watchman 문제를 스크립트·Project 출시 기준에 반영할지도 Main이 판단한다. 경로 가이드의 client test 명령 오류와 설치 절차를 지속 문서에 둘지는 Main이 Project·가이드 쪽에서 판단한다.
 
-**작업 트리 주의:** main 작업 트리는 지금 브랜치 `chore/012-node24`로 전환돼 있다. 다음 미커밋 수정은 이 Work와 무관한데 브랜치 전환으로 함께 따라왔다. Node 24 변경이나 이 Work의 문서를 커밋할 때 함께 올리지 않는다.
+**작업 트리 주의:** main 작업 트리는 지금 브랜치 `chore/012-node24`로 전환돼 있다. 다음 미커밋 수정은 이 Work와 무관한데 브랜치 전환으로 함께 따라왔다. `7413b343`·`4c83ef5f`에는 넣지 않았고 작업 트리에 그대로 있다. 이후 이 Work의 커밋에도 함께 올리지 않는다.
 - `context/personal/experience/*` 4개
 - Work 006의 Ticket 14·state
 

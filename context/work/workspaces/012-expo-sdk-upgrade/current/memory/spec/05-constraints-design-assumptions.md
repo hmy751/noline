@@ -15,7 +15,7 @@
 - **인증서:** 배포 인증서·프로비저닝 프로필이 2026-12-30에 만료되고, Apple Developer 멤버십 갱신은 2026-12-18이다. 이 Work의 스토어 빌드는 그 뒤가 될 가능성이 높아 갱신이 먼저다.
 - **기존 릴리스 절차:** EAS production 빌드 → `eas submit` → App Store Connect 입력 → 심사. 2026-11-17부터 Project의 [앱 변경을 사용자에게 내보낼 때의 기준](../../../../../../project/guidance/app-release-and-ota.md)이 스토어 빌드 절차와 runtime(fingerprint) 조건을 소유한다. 업그레이드 빌드는 runtime이 바뀌므로 SDK 51 빌드로 가던 OTA를 받지 않는다.
 - **설치 방식:** Expo가 고른 버전만 넣는다. `pnpm add`로 npm 최신을 받은 것이 반복된 버전 혼선의 공통 원인이었다. 절차는 `apps/client`에서 `pnpm exec expo install <패키지>`다(2026-11-18 Ticket 01에서 확정). `npx expo install`은 npx(npm 11)가 프로젝트 `.npmrc` 값을 `npm_config_public_hoist_pattern=*` 환경변수로 넘겨 내부 `pnpm add`가 `ERR_PNPM_PUBLIC_HOIST_PATTERN_DIFF`로 실패한다(Work 011의 실패 원인). 설치 명령을 `npx`로 감싸면 같은 이유로 pnpm이 `node_modules` 전체 재설치를 물을 수 있어 쓰지 않는다. 확인은 `CI=1` 비대화형 실행으로 했다. 근거는 [Ticket 01 진행 기록](../../../records/2026-11-18-02-ticket01-baseline-node24-and-expo-install.md#npx-expo-install-실패의-원인)에 있다.
-- **로컬 도구는 Node 버전 폴더마다 따로 있다:** nvm은 Node마다 전역 도구를 따로 둔다. 2026-11-17에는 pnpm 9.6.0과 eas-cli가 Node v20.18.1 폴더에만 있었고, 2026-11-18 Ticket 01에서 Node 24.16.0 폴더에도 `npm i -g pnpm@9.6.0 eas-cli@16.28.0`으로 설치했다. 그 방법은 `START_GUIDE.md`(브랜치 `chore/012-node24`, 미커밋)에 적었다. 새 Node로 바꿀 때마다 같은 준비가 필요하다.
+- **로컬 도구는 Node 버전 폴더마다 따로 있다:** nvm은 Node마다 전역 도구를 따로 둔다. 2026-11-17에는 pnpm 9.6.0과 eas-cli가 Node v20.18.1 폴더에만 있었고, 2026-11-18 Ticket 01에서 Node 24.16.0 폴더에도 `npm i -g pnpm@9.6.0 eas-cli@16.28.0`으로 설치했다. 그 방법은 `START_GUIDE.md`(로컬 브랜치 `chore/012-node24`의 커밋 `7413b343`, main 병합 전)에 적었다. 새 Node로 바꿀 때마다 같은 준비가 필요하다.
 
 ## 버전: 현재와 이후 (2026-11-17)
 
@@ -43,7 +43,7 @@
 
 Node가 네 곳에 따로 적혀 있고 로컬만 24로 돌고 있었다. 어긋나도 막는 장치(`engines`)가 없다.
 
-2026-11-18 Ticket 01이 브랜치 `chore/012-node24`에서 `.nvmrc`(24.16.0)·`render.yaml`(24)·`@types/node`(^24.19.2)와 표에 없던 `apps/server/tsup.config.ts` target(`node20` → `node24`)을 바꿨다. 아직 커밋·main 병합 전이라 위 "현재" 값이 main의 상태다. 같은 브랜치에서 사용자의 "안 써, 지워"에 따라 `nixpacks.toml`·`railway.json`도 삭제했다. `eas.json`은 03, `engines`는 03이다. 현재 상태는 [Ticket 01](../tickets/01-preparation-baseline-and-node24.md#현재-상태와-실제-결과)에 있다. eas-cli는 2026-11-02 세션에서도 27.x 상향을 권했지만 그대로다.
+2026-11-18 Ticket 01이 브랜치 `chore/012-node24`에서 `.nvmrc`(24.16.0)·`render.yaml`(24)·`@types/node`(^24.19.2)와 표에 없던 `apps/server/tsup.config.ts` target(`node20` → `node24`)을 바꿨다. 로컬 커밋 `7413b343`으로 남겼고 push·main 병합 전이라 위 "현재" 값이 main의 상태다. 같은 브랜치에서 사용자의 "안 써, 지워"에 따라 `nixpacks.toml`·`railway.json`도 삭제했다. `eas.json`은 03, `engines`는 03이다. 현재 상태는 [Ticket 01](../tickets/01-preparation-baseline-and-node24.md#현재-상태와-실제-결과)에 있다. eas-cli는 2026-11-02 세션에서도 27.x 상향을 권했지만 그대로다.
 
 ### iOS 빌드
 

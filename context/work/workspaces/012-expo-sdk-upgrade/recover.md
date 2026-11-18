@@ -1,6 +1,6 @@
 # 012 — SDK 업그레이드를 이어갈 때
 
-2026-11-17 버전 설정을 전수 조사했고, 서버 Node를 범위에 넣었다. 대상 SDK 58, 핫픽스는 `release/1.1`, 최소 iOS 16.4는 정했다. 출시는 2번(1.2.0 = SDK 54 + New Architecture, 1.3.0 = SDK 58·iOS 27)이고, Ticket 5개로 확정해 문서를 만들었다. 구현 전에 기기 DB와 오프라인 지도가 남는지 먼저 판정하고(02, DB가 남지 않으면 멈춤), SDK는 한 버전씩 올린다. 2026-11-18 Ticket 01을 시작해 기준선·`release/1.1`(원격, 빌드·OTA 확인)·Node 24 설정 변경(미커밋 브랜치 `chore/012-node24`)·설치 절차(`pnpm exec expo install`)까지 했고, 01의 남은 일은 사용자 확인이 필요한 서버 배포와 실기기 점검이다. 02는 시작 전이지만 기기에 1.1.4 preview 앱이 설치돼 있다. 버전이 어긋나면 앱이 깨지는 일이라 단계마다 원인을 가르고 확인할 수 있는 순서가 핵심이다. 마감이 있다는 점을 놓치지 않는다.
+2026-11-17 버전 설정을 전수 조사했고, 서버 Node를 범위에 넣었다. 대상 SDK 58, 핫픽스는 `release/1.1`, 최소 iOS 16.4는 정했다. 출시는 2번(1.2.0 = SDK 54 + New Architecture, 1.3.0 = SDK 58·iOS 27)이고, Ticket 5개로 확정해 문서를 만들었다. 구현 전에 기기 DB와 오프라인 지도가 남는지 먼저 판정하고(02, DB가 남지 않으면 멈춤), SDK는 한 버전씩 올린다. 2026-11-18 Ticket 01을 시작해 기준선·`release/1.1`(원격, 빌드·OTA 확인)·Node 24 설정 변경(로컬 브랜치 `chore/012-node24`의 `7413b343`에 커밋, push·main 병합 전)·설치 절차(`pnpm exec expo install`)까지 했고, 01의 남은 일은 사용자 확인이 필요한 서버 배포와 실기기 점검이다. 02는 시작 전이지만 기기에 1.1.4 preview 앱이 설치돼 있다. 버전이 어긋나면 앱이 깨지는 일이라 단계마다 원인을 가르고 확인할 수 있는 순서가 핵심이다. 마감이 있다는 점을 놓치지 않는다.
 
 **먼저 읽는다.** 이 둘이 빠지면 마감·순서를 잘못 잡거나, 이미 고정한 버전을 실수로 되돌린다.
 - [현재 상태](current/state/index.md): 011 조건의 현재, 채택한 결정과 아직 정하지 않은 것, 중요한 미확인, 다음 행동
@@ -23,4 +23,4 @@
 | Project 본문이 필요할 때 | [선택한 Project 맥락](current/memory/project-context.md) | SQLite·지도·앱 시작 순서처럼 업그레이드에 깨지기 쉬운 계약 |
 | 스토어 빌드를 내거나 OTA를 다시 확인할 때 | Project의 [앱 변경을 사용자에게 내보낼 때의 기준](../../../project/guidance/app-release-and-ota.md), [`release/1.1` 빌드·OTA 확인 기록](records/2026-11-18-03-release-1-1-build-and-ota-check.md) | 스토어 빌드 절차와 runtime 조건. `release/1.1`에서 발행할 때의 worktree 준비, production 빌드를 새로 만들지 않은 이유, 재설치 뒤 Metro가 `@repo/ui`를 못 찾을 때의 watchman 초기화. expo-updates 설정의 경위는 Work 011의 [재개 안내](../011-expo-updates-ota/recover.md) |
 
-**첫 행동:** 작업 트리의 현재 브랜치와 `chore/012-node24`와 worktree `.claude/worktrees/012-release-1.1`이 아직 있는지, Node 24 변경이 커밋·병합됐는지 먼저 확인한다(이 Work와 무관한 미커밋 수정도 같은 트리에 있다). 그다음 [Ticket 01](current/memory/tickets/01-preparation-baseline-and-node24.md)의 남은 일을 사용자 확인으로 잇고, [02](current/memory/tickets/02-data-preservation-check-and-targets.md)를 시작한다. 1.1.4 심사 결과도 확인한다. 버전을 확정하기 전에는 Expo 최신 SDK와 Apple 요건도 다시 본다.
+**첫 행동:** 작업 트리의 현재 브랜치와 `chore/012-node24`와 worktree `.claude/worktrees/012-release-1.1`이 아직 있는지, Node 24 커밋 `7413b343`이 push·main 병합됐는지 먼저 확인한다(이 Work와 무관한 미커밋 수정도 같은 트리에 있다). 그다음 [Ticket 01](current/memory/tickets/01-preparation-baseline-and-node24.md)의 남은 일을 사용자 확인으로 잇고, [02](current/memory/tickets/02-data-preservation-check-and-targets.md)를 시작한다. 1.1.4 심사 결과도 확인한다. 버전을 확정하기 전에는 Expo 최신 SDK와 Apple 요건도 다시 본다.
