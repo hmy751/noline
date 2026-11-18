@@ -7,5 +7,5 @@
 - 서버 Node 변경: `render.yaml`, `nixpacks.toml` 정리, `@types/node`, `START_GUIDE.md`의 Node 안내와 Render 배포
 - 저장소 의존성 선언 정리: root `package.json`의 react, `packages/ui`·`packages/eslint-config`
 - 업그레이드 스토어 빌드와 심사 제출(1.2.0, 1.3.0 두 번)
-- 1.1.x 핫픽스용 `release/1.1` 브랜치
+- 1.2.0 출시 전까지의 1.1.x 핫픽스용 `release/1.1` 브랜치
 - 설치·확인 방법(재발 방지)의 위치

@@ -20,7 +20,7 @@
 2. **매 단계 같은 확인을 한다.** 기준선 대비 검사(client lint·test·typecheck, server typecheck·build·test·integration, schema build, ui lint)와 실기기 점검표(오프라인 시작, 활성 여행 조회·변경, 동기화, Google·Apple 로그인, 오프라인 지도, 경로 표시).
 3. **Expo가 고른 버전만 넣는다.** 기본은 `npx expo install`이다. `apps/client`에서 이 명령이 `ERR_PNPM_PUBLIC_HOIST_PATTERN_DIFF`로 실패한 이력이 있어(Work 011) 01에서 원인을 고치거나 대체 절차를 확정한다. 대체 절차 제안은 `npx expo install --check`로 Expo가 고른 버전을 얻어 루트에서 `pnpm --filter @apps/client add <패키지>@<그 버전>`으로 넣고 단계 끝에 `--check` 통과를 확인하는 것이다(확인 전). SDK 단계마다 `expo install --check`를 통과하거나 차이마다 이유를 남긴다. 일부러 벗어난 버전(SDK 54 Legacy 단계의 reanimated 3.19.x)은 `expo.install.exclude`와 이유로 남긴다.
 4. **출시하는 단계마다 기존 사용자 업데이트를 확인한다.** 이전 빌드에 데이터·미전송 변경·오프라인 지도를 넣고 새 빌드를 덮어 설치한다. 02는 preview 번들 ID(`com.noline.dev`)로 한다(확정한 02의 방법). 04·05에서 preview 앱으로 할지 다른 방식으로 할지는 아직 Main 기본값(preview 앱)이며 04에서 정한다.
-5. **출시마다 release 브랜치를 만든다.** 1.1.4에서 `release/1.1`, 1.2.0에서 `release/1.2`를 만들어 핫픽스는 그 브랜치에서 낸다. 업그레이드는 Ticket마다 main에 병합한다. OTA는 채널의 최신 빌드와 runtime이 같을 때만 발행되므로, 새 버전 빌드가 production에 생기면 이전 release 브랜치의 핫픽스는 스토어 빌드로만 낸다(Project 출시 기준의 기존 정책).
+5. **출시마다 release 브랜치를 만든다.** 1.1.4에서 `release/1.1`, 1.2.0에서 `release/1.2`를 만들어 핫픽스는 그 브랜치에서 낸다. 업그레이드는 Ticket마다 main에 병합한다. release 브랜치는 다음 버전이 출시되기 전까지만 쓴다. OTA는 채널의 최신 빌드와 runtime이 같을 때만 발행되고, App Store는 이미 승인된 버전보다 높은 버전만 받으므로(Main의 지식, Apple 문서 재확인 전), 1.2.0이 나간 뒤 1.1.x 사용자는 1.2.x로 업데이트해야 고칠 수 있다. `release/1.1`은 012 변경을 main에 병합하기 전에 가장 먼저 만든다.
 6. **출시 뒤 1주일 관찰한다.** 1.2.0 뒤 1주일 동안 Sentry에 새 크래시가 없어야 1.3.0을 낸다.
 
 확인 기기는 iOS 27.2.1 iPhone 14 Pro 실기기 1대(사용자 답의 Main 해석)와 시뮬레이터(최소 iOS 16.4 포함)다.

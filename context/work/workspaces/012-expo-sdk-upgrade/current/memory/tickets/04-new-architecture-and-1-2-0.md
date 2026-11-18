@@ -34,7 +34,7 @@ Spec과의 연결: [완료 판단](../spec/04-quality-and-completion.md)의 3(�
 
 화면의 "준비됨" 배지는 실제 pack이 아니라 `mapDownloaded`만 본다([Project 지도 기준](../../../../../../project/guidance/offline-maps-and-routes/INDEX.md)). 지도 대응을 고칠 때는 이 Project 본문과 [map-packs](../../../../../../project/guidance/offline-maps-and-routes/map-packs.md)의 공유·반납 규칙을 처음부터 읽는다.
 
-**출시.** [출시 기준](../../../../../../project/guidance/app-release-and-ota.md)의 스토어 빌드 절차를 따른다. 버전은 1.2.0이다. 출시하면서 `release/1.2`를 만든다. production 채널에 1.2.0 빌드가 생기면 `release/1.1`의 OTA는 더 이상 발행되지 않는다. Project 출시 기준의 기존 정책대로, 그 뒤 1.1.x 사용자는 스토어 업데이트로 고치고 1.2.0 사용자의 핫픽스는 `release/1.2`의 OTA로 낸다([01](01-preparation-baseline-and-node24.md)).
+**출시.** [출시 기준](../../../../../../project/guidance/app-release-and-ota.md)의 스토어 빌드 절차를 따른다. 버전은 1.2.0이다. 출시하면서 `release/1.2`를 만든다. production 채널에 1.2.0 빌드가 생기면 `release/1.1`의 OTA는 더 이상 발행되지 않는다. 1.2.0이 승인된 뒤에는 App Store 버전 규칙상 1.1.x 스토어 빌드도 낼 수 없으므로, 1.1.x 사용자는 1.2.x로 업데이트해야 고칠 수 있다. 1.2.0 사용자의 핫픽스는 `release/1.2`에서 낸다([01](01-preparation-baseline-and-node24.md)). 그래서 1.2.0 출시 전에 1.1.x로 꼭 내야 할 수정이 남아 있는지 확인한다.
 
 **기존 사용자 업데이트 확인.** 02에서 먼저 확인했고 여기서 실제 출시 빌드로 다시 확인한다. 어느 앱에서 확인할지는 아직 정하지 않았다. Main 기본값은 운영 데이터를 지키려고 preview 앱(`com.noline.dev`)에서 이전 빌드에 데이터를 넣고 새 빌드를 덮어 설치하는 것이다. 사용자가 이 기본값을 따로 확인하지는 않았다.
 
