@@ -84,6 +84,8 @@ Node가 네 곳에 따로 적혀 있고 로컬만 24로 돌고 있었다. 어긋
 | splash-screen·safe-area-context·screens·svg·netinfo·@types/react | SDK 54용이 섞여 있음 | 업그레이드하면서 정리 |
 | jest / jest-expo | 29.7 / 51.0.4 | SDK에 맞춤 |
 
+2026-11-18 Ticket 03의 SDK 54 단계(`feat/012-sdk54`, main 병합 전)에서 실제로 들어간 값: rnmapbox ~10.1.45, expo-sqlite ~16.0.10 + drizzle-orm ~0.45.4(client만, 서버 0.29.5), expo-router ~6.0.24, reanimated ~3.19.5(exclude)·nativewind ^4.2.7, react-native-maps 1.20.1, Sentry ~7.2.0, React 19.1.0, TS ~5.9.3. `packages/ui`는 react·react-native·reanimated를 peer로 바꿨고 root react는 지웠다. 위 표의 "현재"는 main의 SDK 51 값이다. 단계별 결과는 [Ticket 03](../tickets/03-sdk54-legacy.md#현재-상태와-실제-결과)에 있다.
+
 ### 공유 패키지와 저장소 설정
 
 | 요소 | 현재 | 이후 | 구분 |
