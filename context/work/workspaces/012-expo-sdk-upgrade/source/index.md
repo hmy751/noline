@@ -54,3 +54,7 @@ Node 상향과 서버 포함을 판단하며 Main이 읽었다. 판단과 확인
 ## 2026-11-18 Ticket 02 판정 원자료
 
 [판정 원자료](ticket-02-verification-2026-11-18.md): 판정용 앱이 iPhone에서 읽은 DB(표별 행 수, `sync_queue`), 지도 pack(v11·Legacy API), 저장 공간 값과 덮어 설치 전 1.1.4의 기준값, 지도 화면 확인, RNTL 14 확인 조합. scratchpad의 원래 보고서에서 개인 식별자를 빼고 옮겼다. 04·05에서 출시 빌드 덮어 설치 결과와 비교할 때 읽는다.
+
+[판정용 앱 소스](verify-02-app/): 위 판정에 쓴 앱의 `App.tsx`·`app.config.js`·`eas.json`·`package.json`이다. 원래 세션 scratchpad에 있어 재부팅하면 사라질 수 있어 옮겼다. 빌드 91의 상태(bounds 파싱 수정 포함)이며 `.env`(Mapbox 토큰)와 `node_modules`는 옮기지 않았다. 다시 만들려면 `npx create-expo-app --template expo-template-blank-typescript@sdk-54`로 빈 앱을 만들고 이 파일을 덮은 뒤 `npm install`, `.env`에 `EXPO_PUBLIC_MAPBOX_PUBLIC_ACCESS_TOKEN`·`MAPBOX_SECRET_ACCESS_TOKEN`을 넣고 `EAS_NO_VCS=1 EXPO_NO_CAPABILITY_SYNC=1 eas build --platform ios --profile verify02`로 빌드한다. 04에서 rnmapbox를 10.3.18과 다른 버전으로 쓰면 이 앱의 버전만 바꿔 같은 판정을 다시 한다.
+
+[RNTL 14 확인](rntl14-check/): 테스트 도구 판정에 쓴 `package.json`(jest-expo 54·RNTL 14.1·test-renderer 1.3)과 최소 테스트 `sample.test.tsx`다. 05에서 테스트 도구를 옮길 때 출발점으로 쓴다.
