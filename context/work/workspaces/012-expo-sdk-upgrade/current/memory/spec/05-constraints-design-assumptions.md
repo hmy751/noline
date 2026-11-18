@@ -31,7 +31,7 @@
 | 요소 | 현재 | 이후 | 구분 |
 | --- | --- | --- | --- |
 | `.nvmrc` | 20.18.1 | 24.x | 필수 |
-| `render.yaml` `NODE_VERSION` | 20 | 24로 바꿨지만 실제 서비스가 쓰지 않음(2026-11-18 확인). 운영 서버의 Node는 `.nvmrc`가 정한다 | 정리 대상(Project 판단) |
+| `render.yaml` `NODE_VERSION` | 20 | 파일 삭제(2026-11-18). 어떤 Render 서비스·Blueprint에도 연결되지 않은 파일이었다. 운영 서버의 Node는 `.nvmrc`가 정한다 | 정리됨 |
 | `eas.json` `base.node` (앱 클라우드 빌드) | 20.18.1 | 24.x, SDK를 올리는 첫 단계에서 | 필수 |
 | `nixpacks.toml`·`railway.json` (Railway) | `nodejs_20` | 삭제(2026-11-18 사용자가 Railway 미사용 확인) | 정리 |
 | 로컬 실제 실행 | v24.16.0 | 24.x | — |
@@ -43,7 +43,7 @@
 
 Node가 네 곳에 따로 적혀 있고 로컬만 24로 돌고 있었다. 어긋나도 막는 장치(`engines`)가 없다.
 
-2026-11-18 Ticket 01이 브랜치 `chore/012-node24`에서 `.nvmrc`(24.16.0)·`render.yaml`(24)·`@types/node`(^24.19.2)와 표에 없던 `apps/server/tsup.config.ts` target(`node20` → `node24`)을 바꿨다. `7413b343`으로 커밋해 main(`c60224ee`)에 병합·push했고, Render가 Node 24.16.0으로 배포했다. 위 "현재" 열은 2026-11-17 조사 값이다. 같은 브랜치에서 사용자의 "안 써, 지워"에 따라 `nixpacks.toml`·`railway.json`도 삭제했다. `eas.json`은 03, `engines`는 03이다. 현재 상태는 [Ticket 01](../tickets/01-preparation-baseline-and-node24.md#현재-상태와-실제-결과)에 있다. eas-cli는 2026-11-02 세션에서도 27.x 상향을 권했지만 그대로다.
+2026-11-18 Ticket 01이 브랜치 `chore/012-node24`에서 `.nvmrc`(24.16.0)·`render.yaml`(24)·`@types/node`(^24.19.2)와 표에 없던 `apps/server/tsup.config.ts` target(`node20` → `node24`)을 바꿨다. `7413b343`으로 커밋해 main(`c60224ee`)에 병합·push했고, Render가 Node 24.16.0으로 배포했다. 뒤에 `render.yaml`은 실제 배포에 쓰이지 않는 파일이라 지웠다([삭제 기록](../../../records/2026-11-18-05-render-yaml-removal.md)). 위 "현재" 열은 2026-11-17 조사 값이다. 같은 브랜치에서 사용자의 "안 써, 지워"에 따라 `nixpacks.toml`·`railway.json`도 삭제했다. `eas.json`은 03, `engines`는 03이다. 현재 상태는 [Ticket 01](../tickets/01-preparation-baseline-and-node24.md#현재-상태와-실제-결과)에 있다. eas-cli는 2026-11-02 세션에서도 27.x 상향을 권했지만 그대로다.
 
 ### iOS 빌드
 

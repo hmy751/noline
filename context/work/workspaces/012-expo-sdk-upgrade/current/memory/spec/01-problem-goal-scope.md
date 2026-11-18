@@ -41,7 +41,7 @@ Main이 과거 기록·현재 의존성·외부 요건을 대조한 결과는 �
 - 그에 따라 필요한 New Architecture 전환(SDK 55부터 필수)
 - 함께 올려야 하는 라이브러리: expo-router, @rnmapbox/maps, react-native-maps, expo-sqlite·drizzle-orm, reanimated·nativewind, Sentry, safe-area-context 등
 - 도구: Node(`.nvmrc`, EAS `base.node`), eas-cli, EAS 빌드 이미지
-- 서버의 Node와 그에 따른 도구: `render.yaml`의 Node, `nixpacks.toml` 정리, `@types/node`, 서버의 tsx·tsup·vitest·drizzle-kit이 새 Node에서 동작하는지 확인
+- 서버의 Node와 그에 따른 도구: `render.yaml`의 Node(2026-11-18 확인 결과 실제 서비스는 `.nvmrc`를 따라 `render.yaml`은 삭제), `nixpacks.toml` 정리, `@types/node`, 서버의 tsx·tsup·vitest·drizzle-kit이 새 Node에서 동작하는지 확인
 - 필수 변경을 따라 바뀌는 저장소 설정: root의 react 선언, `packages/ui`·`packages/eslint-config`의 react·RN 선언, TypeScript 선언 통일, `START_GUIDE.md`의 Node 안내
 - 최소 iOS를 16.4로 올리는 변경과 그 영향 확인(16.4 수용은 2026-11-17 결정)
 - 업그레이드한 스토어 빌드와 심사 제출 2번: 1.2.0 = SDK 54 + New Architecture, 1.3.0 = SDK 58·iOS 27(2026-11-17 채택)

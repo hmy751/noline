@@ -49,7 +49,7 @@ Spec과의 연결: [완료 판단](../spec/04-quality-and-completion.md)의 8(�
   - 이것은 012가 새로 정할 판단이 아니다. Project [출시 기준](../../../../../../project/guidance/app-release-and-ota.md#runtime이-같은-빌드에만-ota가-간다)이 이미 "이전 버전 사용자에게만 OTA를 보내는 경로가 없고, 그 사용자에게는 스토어 업데이트로 고친다"는 운영 정책을 정해 두었고 012는 이를 따른다. 이전 버전 사용자에게 OTA를 보내야 할 필요가 생기면 발행 대상 빌드를 지정하도록 스크립트를 넓히는 일이며, 그 정책 변경은 Project 쪽 판단이다.
 
 **4. Node 24.** 로컬은 이미 v24.16.0으로 돌고 있다. 바꿀 곳은 [전수 조사](../../../records/2026-11-17-01-version-inventory-and-server-scope.md)와 [버전 표](../spec/05-constraints-design-assumptions.md#node와-도구-앱서버-공통)에 있다.
-- `.nvmrc` 20.18.1 → 24.x, `render.yaml` `NODE_VERSION` 20 → 24
+- `.nvmrc` 20.18.1 → 24.x, `render.yaml` `NODE_VERSION` 20 → 24 (`render.yaml`은 실제 서비스가 쓰지 않아 뒤에 삭제)
 - `@types/node` ^20 → ^24(root·server·ui)
 - `nixpacks.toml`(Railway): 지금 쓰는지 확인하고, 안 쓰면 지우고 쓰면 `nodejs_24`로
 - `START_GUIDE.md`의 "Node.js 20" 안내. 아래 pnpm·eas-cli 준비 방법도 함께 적는다.
@@ -58,7 +58,7 @@ Spec과의 연결: [완료 판단](../spec/04-quality-and-completion.md)의 8(�
 
 Render는 루트에서 `pnpm install`을 실행해 client 의존성까지 Node 24로 설치한다. 지금은 SDK 51 의존성이라 문제를 예상하지 않지만 배포 로그로 확인한다. drizzle-kit 0.20 등 오래된 서버 도구의 Node 24 동작은 미확인이다.
 
-**운영 서버 배포 주의.** Node 24 서버 배포는 1.1.4 사용자가 지금 쓰는 운영 서버에 바로 적용된다. worktree와 상관없이 실제 사용자에게 닿는 유일한 변경이다. Render는 main에 push하면 자동 배포되므로 병합·push는 사용자 확인 뒤에 한다. 2026-11-18 확인으로 자동 배포는 `render.yaml`이 아니라 대시보드 설정(Auto-Deploy On Commit)에서 온다. 배포 전에 Render에서 이전 배포로 되돌리는 방법을 확인하고, 배포 뒤 운영 앱으로 확인한다(Main 판단).
+**운영 서버 배포 주의.** Node 24 서버 배포는 1.1.4 사용자가 지금 쓰는 운영 서버에 바로 적용된다. worktree와 상관없이 실제 사용자에게 닿는 유일한 변경이다. Render는 main에 push하면 자동 배포되므로 병합·push는 사용자 확인 뒤에 한다. 2026-11-18 확인으로 자동 배포는 대시보드 설정(Auto-Deploy On Commit)에서 오고, 쓰이지 않던 `render.yaml`은 지웠다. 배포 전에 Render에서 이전 배포로 되돌리는 방법을 확인하고, 배포 뒤 운영 앱으로 확인한다(Main 판단).
 
 **5. `npx expo install` 실패의 원인 찾기 또는 대체 절차.** 011에서 `apps/client`의 `npx expo install`이 `ERR_PNPM_PUBLIC_HOIST_PATTERN_DIFF`로 실패해 루트의 `pnpm --filter @apps/client add`로 설치했다([011 Ticket 01](../../../../011-expo-updates-ota/current/memory/tickets/01-expo-updates-and-ios15-build.md)). 2026-11-17에는 루트와 `apps/client`의 pnpm 설정이 같아 원인을 설명하지 못했다.
 - **2026-11-18 원인 확정:** npx(npm 11)가 프로젝트 `.npmrc` 값을 `npm_config_public_hoist_pattern=*` 등의 환경변수로 하위 프로세스에 넘기고, `expo install` 안의 `pnpm add`가 이를 기존 modules 디렉터리의 설정과 다르다고 판단한다. `pnpm exec`는 이 환경변수를 넘기지 않는다.
@@ -73,7 +73,7 @@ Render는 루트에서 `pnpm install`을 실행해 client 의존성까지 Node 2
 - `release/1.1`이 원격에 있고, 그 브랜치에서 만든 빌드 ID와 preview 채널 OTA 수신 결과가 남아 있다. `release/1.1`은 1.2.0 출시 전까지만 쓰며, 그 뒤 1.1.x 사용자는 1.2.x로 업데이트해야 고칠 수 있다는 운영 조건이 적혀 있다.
 - 서버 검사 네 가지와 schema build가 Node 24에서 기준선과 같거나 더 낫다.
 - Render 배포 로그에 Node 24가 쓰였고, 배포 뒤 운영 앱에서 로그인·여행 조회·동기화가 된다. 이전 배포로 되돌리는 방법을 확인해 적었다.
-- `.nvmrc`·`render.yaml`이 같은 24를 가리키고 nixpacks가 정리돼 있다. EAS `base.node`는 아직 20.18.1이다(의도).
+- `.nvmrc`·`render.yaml`이 같은 24를 가리키고 nixpacks가 정리돼 있다. EAS `base.node`는 아직 20.18.1이다(의도). (2026-11-18: 운영 Node는 `.nvmrc`가 정해 `render.yaml`은 삭제했으므로 `.nvmrc` 24와 nixpacks 정리로 판정한다.)
 - `nvm use`로 Node 24를 쓴 새 셸에서 `pnpm -v`가 9.6.0, `eas --version`이 동작하고, 그 준비 방법이 `START_GUIDE.md`에 있다.
 - `npx expo install`이 `apps/client`에서 동작하거나, 대체 절차가 확정돼 tickets/index의 공통 규칙 3과 [제약](../spec/05-constraints-design-assumptions.md)에 반영돼 있다.
 
@@ -89,6 +89,6 @@ Render는 루트에서 `pnpm install`을 실행해 client 의존성까지 Node 2
 | 4 Node 24 | **완료.** main에 병합·push했고 Render가 Node 24.16.0으로 배포했으며, 운영 앱에서 동작을 확인했다. 사용자의 "커밋해줘"로 `7413b343`(아래 변경 전부와 두 Railway 파일 삭제)에 커밋했고, 이 Work의 문서는 `4c83ef5f`로 따로 커밋했다. `.nvmrc` 24.16.0, `render.yaml` `NODE_VERSION` 24, `apps/server/tsup.config.ts` target `node24`, `@types/node` ^24.19.2(root·server·ui, lockfile은 `@types/node`만 바뀜), `START_GUIDE.md`의 Node 24·도구 준비·확인 범위. 변경 뒤 Node 24 재실행 결과가 기준선과 같고 server build target이 node24다. Node 24 폴더에 pnpm 9.6.0·eas-cli 16.28.0을 `npm i -g`로 설치했고, 새 셸의 `nvm use` 뒤 둘 다 Node 24 폴더를 가리킨다. `eas.json` `base.node` 20.18.1은 의도대로 유지(03). Main이 "Railway를 아직 쓰나요?"라고 묻자 사용자가 "안 써, 지워"라고 답해, 같은 브랜치에서 `nixpacks.toml`과 `railway.json`(NIXPACKS 빌더, 2025-12-30 `ce6342c3`에서 추가)을 삭제했다(`7413b343`에 포함). context/work·_archive 밖에 두 파일을 참조하는 곳은 없다. 되돌리기는 사용자가 "니가 확인해"로 Main에게 맡겼고, Main이 Render 문서와 대시보드에서 확인했다: Deploys의 이전 성공 배포에 Rollback이 있고(1.1.4 시점 `d160c7b` 포함), Rollback하면 자동 배포가 꺼져 다시 켜야 한다. 대시보드의 실제 서비스(`noline`)는 `render.yaml`과 이름·빌드·시작 명령이 달라 `render.yaml`을 쓰지 않고, `NODE_VERSION`이 없어 Node는 `.nvmrc`가 정한다. 그래서 `render.yaml`의 24 변경은 배포에 영향이 없다. 사용자의 "병합·push 해줘"로 main을 `c60224ee`로 fast-forward해 push했고, 배포 `dep-dbum5fajnfac73bo70b0`가 `Using Node.js version 24.16.0 via …/.nvmrc`, tsup `Target: node24`로 Live가 됐다. `/api/health`가 HTTP 200. 경위는 [Render 확인·배포 기록](../../../records/2026-11-18-04-render-check-and-node24-deploy.md)에 있다. 배포 약 10분 뒤(2026-11-18T08:43Z) health도 다시 200이었다. Main이 "운영 앱(1.1.4)에서 로그인, 여행 조회, 동기화가 되는지" 봐 달라고 하고 "운영 앱에서 로그인·여행 조회·동기화가 잘 되나요?"라고 묻자 사용자가 "잘 돼"라고 답했다. 사용자가 앱 버전을 따로 말하지는 않았고, 항목별 결과도 하나의 답으로 받았다 | — |
 | 5 설치 절차 | **확정.** 실패 원인은 npx(npm 11)가 `.npmrc` 값을 `npm_config_public_hoist_pattern=*` 환경변수로 넘기는 것이다. `apps/client`에서 `pnpm exec expo install <패키지>`가 동작한다. 공통 규칙 3과 Spec 05에 반영했다 | 대화형 셸 실행은 확인 전. 지속 규칙의 위치(가이드·Project)는 미정 |
 
-완료 조건 대비: 기준선과 `--check` 출력, 서버·schema의 Node 24 결과, 새 셸의 pnpm·eas와 START_GUIDE, 설치 절차는 충족 근거가 있다. Node 설정·START_GUIDE는 main(`c60224ee`)에 있다. Render 배포 로그에 Node 24.16.0이 쓰였고 되돌리는 방법(대시보드 Rollback)을 확인해 적었다. `.nvmrc`는 24이고 nixpacks는 정리됐다. `render.yaml`도 24지만 실제 서비스가 쓰지 않는 파일이다. `release/1.1`은 원격에 있고 그 브랜치의 빌드 ID와 OTA 수신 결과가 있다(production 빌드는 같은 커밋의 기존 빌드와 dry-run으로 대체). 배포 뒤 운영 앱의 로그인·여행 조회·동기화도 사용자가 확인했다("잘 돼"). 남은 것은 점검표 6항목 실행이다.
+완료 조건 대비: 기준선과 `--check` 출력, 서버·schema의 Node 24 결과, 새 셸의 pnpm·eas와 START_GUIDE, 설치 절차는 충족 근거가 있다. Node 설정·START_GUIDE는 main(`c60224ee`)에 있다. Render 배포 로그에 Node 24.16.0이 쓰였고 되돌리는 방법(대시보드 Rollback)을 확인해 적었다. `.nvmrc`는 24이고 nixpacks는 정리됐다. 실제 서비스가 쓰지 않던 `render.yaml`은 지웠다([삭제 기록](../../../records/2026-11-18-05-render-yaml-removal.md)). `release/1.1`은 원격에 있고 그 브랜치의 빌드 ID와 OTA 수신 결과가 있다(production 빌드는 같은 커밋의 기존 빌드와 dry-run으로 대체). 배포 뒤 운영 앱의 로그인·여행 조회·동기화도 사용자가 확인했다("잘 돼"). 남은 것은 점검표 6항목 실행이다.
 
 `pnpm harness:check`는 Work 001·002·005 records의 깨진 링크 64건으로 실패한다. 이번 변경과 무관한 기존 상태다.

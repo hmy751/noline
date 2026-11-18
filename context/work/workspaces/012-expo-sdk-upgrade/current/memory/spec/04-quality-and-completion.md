@@ -11,7 +11,7 @@
 7. **OTA:** 011의 expo-updates가 새 빌드에서 업데이트 받기·업데이트를 기다리지 않는 시작·롤백을 다시 통과한다. 새 빌드의 fingerprint가 SDK 51 빌드와 달라 이전 업데이트를 받지 않는다.
 8. **기존 검사:** client lint·test·typecheck와 server test·integration·typecheck·build가 업그레이드 전과 같은 수준 이상이다(업그레이드 전 기준선을 먼저 기록한다).
 9. **재발 방지:** 설치·확인 방법이 다음 작업자가 찾을 위치에 남아 있다.
-10. **Node 정합:** `.nvmrc`·EAS `base.node`·`render.yaml`이 같은 목표 Node를 가리키고 `nixpacks.toml`은 정리돼 있다. 서버가 그 Node로 Render에 배포돼 앱의 API·동기화가 동작한다.
+10. **Node 정합:** `.nvmrc`·EAS `base.node`·`render.yaml`이 같은 목표 Node를 가리키고 `nixpacks.toml`은 정리돼 있다. 서버가 그 Node로 Render에 배포돼 앱의 API·동기화가 동작한다. (2026-11-18: 운영 Render 서비스는 대시보드 설정으로 배포되고 Node를 `.nvmrc`로 정해, 쓰이지 않던 `render.yaml`과 `nixpacks.toml`은 지웠다. 이 기준은 `.nvmrc`와 EAS `base.node`의 일치, Render 배포 로그의 Node로 확인한다.)
 11. **의존성 중복 없음:** 설치 결과에 React·React Native가 한 버전씩만 있다(root·`packages/ui`·eslint-config 선언 정리).
 
 10·11은 2026-11-17 서버 Node를 범위에 넣으며 더한 항목이다.
