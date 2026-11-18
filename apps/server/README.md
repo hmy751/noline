@@ -12,7 +12,7 @@ pnpm run server typecheck
 pnpm run server build
 ```
 
-`dev`는 `NODE_ENV=development tsx watch src/index.ts`, `build`는 Node20 대상의 tsup 빌드다. 공유 schema가 바뀌면 `pnpm schema build`를 먼저 실행한다. production 실행은 빌드 뒤 `pnpm run server start`이고 `NODE_ENV=production node dist/index.js`를 실행한다. native 앱·OAuth·실제 DB 연결 성공은 타입/빌드 성공과 별도로 확인한다.
+`dev`는 `NODE_ENV=development tsx watch src/index.ts`, `build`는 Node24 대상의 tsup 빌드다. 공유 schema가 바뀌면 `pnpm schema build`를 먼저 실행한다. production 실행은 빌드 뒤 `pnpm run server start`이고 `NODE_ENV=production node dist/index.js`를 실행한다. native 앱·OAuth·실제 DB 연결 성공은 타입/빌드 성공과 별도로 확인한다.
 
 | 명령 | 실제 영향 |
 | --- | --- |
@@ -95,8 +95,19 @@ docker exec -i noline-postgres psql -U postgres -d noline_dev -v ON_ERROR_STOP=1
 
 ## 배포 전 확인
 
-[render.yaml](../../render.yaml)은 의존성/schema/server build와 `apps/server`에서 production start를 정의한다. production 환경값은 실제 호스팅 환경의 프로세스 환경으로 주입한다. 위의 bundle 경로 차이가 해결되기 전에는 workspace의 `.env.production` 자동 로드에 의존하지 않는다. 이 설정 파일의 존재만으로 배포·DB migration 완료를 판단하지 않는다.
+운영 서버는 Render Web Service `noline`이다. **설정의 원천은 Render 대시보드이며 저장소에 배포 설정 파일은 없다.** Blueprint로 연결돼 있지 않으므로, 저장소에 `render.yaml`을 두어도 배포에 반영되지 않는다. 배포 방식을 바꾸려면 대시보드에서 바꾸고 이 절을 함께 고친다.
 
-현재 파일에는 `HOST`가 없는데 서버 기본은 localhost이며, `GOOGLE_CLIENT_ID` 선언은 config가 읽는 두 변수명과 다르다. 실제 대시보드의 override는 이 문서에서 확인하지 않았다. 외부에서 닿는 host/port와 OAuth audience를 배포 대상에서 확인해야 한다. 스키마 변경을 포함하면 DB DDL → 서버 → client 순서와 구버전 호환을 검토한다.
+| 항목 | 대시보드 값 |
+| --- | --- |
+| 배포 대상 | `main` 브랜치, Auto-Deploy "On Commit". main에 push하면 서버 코드가 그대로여도 다시 배포된다. |
+| Node 버전 | 대시보드에 `NODE_VERSION`이 없어서 저장소 루트의 `.nvmrc`를 따른다. Render의 우선순위는 대시보드 `NODE_VERSION` > `.node-version` > `.nvmrc` > `engines`다. |
+| Build Command | `NODE_ENV=development pnpm install && pnpm --filter @repo/schema build && pnpm --filter @apps/server build`. 루트에서 설치하므로 client 의존성도 함께 설치된다. |
+| Start Command | `pnpm --filter @apps/server start` |
+| 환경 변수 | `NODE_ENV`, `HOST`, `PORT`, `DATABASE_URL`, `JWT_SECRET`, `JWT_ISSUER`, `JWT_EXPIRES_IN`, `CORS_ORIGIN`, `GOOGLE_WEB_CLIENT_ID`, `GOOGLE_IOS_CLIENT_ID`, `GOOGLE_PLACES_API_KEY`, `GOOGLE_GEO_DIRECTIONS_API_KEY`, `APPLE_CLIENT_ID`, `APPLE_TEAM_ID`, `APPLE_KEY_ID`, `APPLE_PRIVATE_KEY`, `SENTRY_DSN`, `SENTRY_ENVIRONMENT`, `SENTRY_RELEASE`. 값은 대시보드에만 있다. |
+| 인스턴스 | 무료. 한동안 요청이 없으면 잠들어 첫 요청이 50초 넘게 걸릴 수 있다. |
 
-서버·DB·외부 서비스 설정을 바꾸는 책임자가 실행 절차와 이 안내를 함께 갱신한다. 2026-10-31 정적 대조 범위이며 새 설치·production 실행 검증 기록은 아니다.
+production 환경값은 위 대시보드 환경 변수로 주입한다. 위의 bundle 경로 차이가 해결되기 전에는 workspace의 `.env.production` 자동 로드에 의존하지 않는다. 배포가 끝났는지는 대시보드의 Deploys에서 해당 커밋이 Live인지로 확인하며, 설정만으로 배포·DB migration 완료를 판단하지 않는다. 스키마 변경을 포함하면 DB DDL → 서버 → client 순서와 구버전 호환을 검토한다.
+
+**되돌리기:** Deploys에서 이전 성공 배포의 Rollback을 누르면 그 배포의 빌드 결과물과 환경 변수로 다시 배포된다. 대시보드에서 Rollback하면 Auto-Deploy가 꺼지므로 원인을 고친 뒤 Settings에서 다시 켠다. 플랜에 따라 남는 빌드 수가 정해져 있어 오래된 배포로는 돌아가지 못할 수 있다.
+
+서버·DB·외부 서비스 설정을 바꾸는 책임자가 대시보드와 이 안내를 함께 갱신한다. 위 표는 2026-11-18 대시보드를 읽어 확인한 값이며, 같은 날 Node 24.16.0 배포와 health 응답을 확인했다.

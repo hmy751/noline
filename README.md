@@ -323,7 +323,7 @@ export async function cancelAndInvalidateQueries(client: QueryClient, filters: Q
 | UI·입력 | NativeWind, React Hook Form, Zod, 공유 UI primitives |
 | Local 저장 | Expo SQLite, Drizzle, `sync_queue` |
 | 지도·검색 | native Mapbox(오프라인 지도)·Mapbox Directions, Google Maps·Places, GeoNames |
-| Server | Node 20, Express 4, TypeScript ESM, Drizzle, PostgreSQL, tsx/tsup |
+| Server | Node 24, Express 4, TypeScript ESM, Drizzle, PostgreSQL, tsx/tsup |
 | 인증 | Google·Apple OAuth, JWT access(1시간)·refresh(30일) token |
 | 계약·workspace | `@repo/schema` Zod 계약, pnpm 9.6.0 workspaces |
 | 테스트·진단 | Jest(client), Vitest·Supertest·PostgreSQL integration(server), Sentry |

@@ -64,7 +64,7 @@ OTA를 받는 첫 빌드는 1.1.4(빌드 18)다. 1.1.3 이하 사용자는 스�
 
 앱이 보내는 요청이나 기대하는 응답이 바뀌면, 서버가 새 형식을 받게 된 뒤에 앱을 낸다. 필요하면 DB 구조를 먼저 적용한다. 이 순서는 스토어 빌드와 OTA 모두에 적용된다. 앱을 낸 뒤에도 옛 앱 사용자가 남으므로, 서버는 옛 형식과 새 형식을 함께 받아야 한다. 편집 표식을 도입할 때 이 순서를 따른 사례가 [API 계약](api-contracts.md#큐-작업-재전송에는-이미-반영된-결과로-응답한다)에 있다. 서버가 옛 요청을 어떻게 보류하고 기기가 어떻게 복구하는지는 [편집과 응답 반영](data-lifecycle/edit-reconciliation.md)에 있다.
 
-서버는 main에 push하면 [render.yaml](../../../render.yaml)의 `autoDeploy`로 배포된다. 자동 배포가 실제로 어느 브랜치에서 일어나는지는 Render 대시보드 설정에 따른다. 앱을 내기 전에 Render에서 그 커밋의 배포가 Live인지 확인한다. OTA라면 그 확인을 거친 뒤 `--server-checked`를 붙인다.
+서버는 main에 push하면 Render 대시보드의 Auto-Deploy 설정으로 배포된다. 저장소에는 배포 설정 파일이 없고, 배포 대상·명령·Node 버전의 결정은 [서버 안내의 배포 절](../../../apps/server/README.md#배포-전-확인)에 있다. 앱을 내기 전에 Render에서 그 커밋의 배포가 Live인지 확인한다. OTA라면 그 확인을 거친 뒤 `--server-checked`를 붙인다.
 
 ## OTA는 발행 스크립트로만 낸다
 
@@ -94,7 +94,7 @@ pnpm ota:publish production --message "..." --confirm-production
 
 ## 스토어 빌드는 main에서 버전을 올려 낸다
 
-1. main에서 `apps/client/app.config.js`의 `version`과 `ios.buildNumber`만 올린 커밋을 만들고 push한다. main push는 [Render](../../../render.yaml)의 자동 배포 대상이다. 서버 코드가 그대로면 같은 서버가 다시 배포된다.
+1. main에서 `apps/client/app.config.js`의 `version`과 `ios.buildNumber`만 올린 커밋을 만들고 push한다. main push는 [Render](../../../apps/server/README.md#배포-전-확인)의 자동 배포 대상이다. 서버 코드가 그대로면 같은 서버가 다시 배포된다.
 2. 깨끗이 설치하고(`node_modules` 삭제 뒤 `pnpm install --frozen-lockfile`) production runtime을 계산해 둔다. `apps/client`에서 `EXPO_NO_DOTENV=1 eas env:exec production 'npx expo-updates runtimeversion:resolve --platform ios' --non-interactive`로 계산하며, 빌드 결과의 runtime과 같아야 한다.
 3. `eas build --platform ios --profile production`으로 빌드한다. 빌드 이미지는 `eas.json`에 고정돼 있다. 배포 인증서와 프로필은 EAS가 관리한다. 2026-11-17 빌드 때 EAS는 만료일을 2026-12-30으로 보고했으니, 그 뒤 빌드는 먼저 갱신해야 한다.
 4. `eas submit --platform ios --profile production --id <빌드 ID>`로 App Store Connect에 올린다. 처리 완료 메일 외에 경고 메일이 오는지 본다. 1.1.3 업로드 때는 iOS 최소 버전 관련 경고(ITMS-90068)가 왔다.
