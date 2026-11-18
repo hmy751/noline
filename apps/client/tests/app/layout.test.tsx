@@ -123,9 +123,11 @@ beforeEach(() => {
     push: jest.fn(),
     navigate: jest.fn(),
     dismiss: jest.fn(),
+    dismissTo: jest.fn(),
     dismissAll: jest.fn(),
     canDismiss: jest.fn(() => false),
     setParams: jest.fn(),
+    reload: jest.fn(),
   });
   jest.mocked(useSegments).mockReturnValue(['(tabs)']);
   jest.spyOn(queryClient, 'invalidateQueries').mockResolvedValue(undefined);

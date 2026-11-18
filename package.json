@@ -15,9 +15,6 @@
     "lint": "pnpm -r --no-bail run lint",
     "format": "prettier --write ."
   },
-  "dependencies": {
-    "react": "^18.2.0"
-  },
   "devDependencies": {
     "@types/node": "^24.19.2",
     "prettier": "^3.6.2",
@@ -29,10 +26,5 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ],
-  "pnpm": {
-    "patchedDependencies": {
-      "expo-dev-menu@5.0.23": "patches/expo-dev-menu@5.0.23.patch"
-    }
-  }
+  ]
 }
