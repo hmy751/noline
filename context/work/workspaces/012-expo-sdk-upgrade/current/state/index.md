@@ -1,6 +1,6 @@
 # 현재 상태와 다음 행동
 
-2026-11-18 기준 상태다. 범위·대상 SDK·출시 2번을 정했고, 라이브러리 호환 점검과 지도 문제를 반영해 Ticket을 5개로 다시 짜 확정했다. **2026-11-18 Ticket 01을 시작했다.** 검사 기준선, `release/1.1`(원격, 빌드·OTA 확인), Node 24 설정 변경과 Railway 설정 삭제(`7413b343`), 설치 절차 확정까지 했고, main에 병합·push해 운영 서버가 Node 24.16.0으로 배포됐다. 01에 남은 일은 운영 앱 확인과 실기기 점검이다. 남은 01의 일은 Node 24 서버 배포와 실기기 점검이다. 02와 SDK 업그레이드는 시작하지 않았다.
+2026-11-18 기준 상태다. 범위·대상 SDK·출시 2번을 정했고, 라이브러리 호환 점검과 지도 문제를 반영해 Ticket을 5개로 다시 짜 확정했다. **2026-11-18 Ticket 01을 시작했다.** 검사 기준선, `release/1.1`(원격, 빌드·OTA 확인), Node 24 설정 변경과 Railway 설정 삭제(`7413b343`), 설치 절차 확정까지 했고, main에 병합·push해 운영 서버가 Node 24.16.0으로 배포됐다. 운영 앱에서도 로그인·여행 조회·동기화가 된다는 사용자 확인("잘 돼")을 받았다. 01에 남은 일은 실기기 점검표와 1.1.4 심사 결과다. 02와 SDK 업그레이드는 시작하지 않았다.
 
 **이 Work가 생긴 경위:** 2026-11-16 Work 011을 재개하던 중 사용자가 SDK·라이브러리 업그레이드를 함께 맡을지 물었고, Main의 분석과 추천에 따라 별도 Work로 나눴다. 사용자는 "그래 분리해서 진행하자 더 버전에 대해 자세한건 012에서 더 논의한다고 기록해주고"라고 답했다. 분석과 선택 이유는 [분리 기록](../../records/2026-11-16-01-separation-from-011-and-version-analysis.md)에 있다.
 
@@ -50,7 +50,7 @@
 사용자가 "01 시작"이라고 해 Main이 이 세션의 main 작업 트리에서 진행했다. 이 구간에 다른 사용자 선택은 없고, 아래 선택은 Main이 실행하며 정했다. 결과 표는 [Ticket 01](../memory/tickets/01-preparation-baseline-and-node24.md#현재-상태와-실제-결과), 과정은 [진행 기록](../../records/2026-11-18-02-ticket01-baseline-node24-and-expo-install.md), 수치는 [기준선 원자료](../../source/ticket-01-baseline-2026-11-18.md)에 있다.
 - **`release/1.1`을 원격에 올렸다.** 1.1.4 빌드 18의 `gitCommitHash`가 `d160c7b5`임을 EAS에서 확인하고 그 커밋에서 만들었다. 그 뒤 main 커밋은 문서뿐이다. Main이 "원격에 push할까요?"라고 묻고 사용자가 "push 해줘"라고 답해 push했다. 원격 `release/1.1`은 `d160c7b5`이고 로컬이 추적한다. main push가 아니라 Render 자동 배포와 무관하다.
 - **`release/1.1`의 빌드·OTA를 확인했다.** 사용자의 "빌드·OTA 진행"에 따라 worktree `.claude/worktrees/012-release-1.1`에서 preview 빌드 `30c46ce2`(1.1.4/18)를 만들어 iPhone에 덮어 설치했고, 시험 업데이트 수신("붙어 보여")과 깨끗한 코드로의 복구("원래대로 돌아왔어")를 확인했다. production 빌드는 Main 판단으로 새로 만들지 않고, 같은 커밋의 1.1.4 빌드 `7033c2ba`와 production dry-run의 runtime 일치로 대신했다. 복구 발행 중 Metro가 `@repo/ui`를 찾지 못해 두 번 실패했고 watchman 초기화로 풀렸다. 경위는 [빌드·OTA 확인 기록](../../records/2026-11-18-03-release-1-1-build-and-ota-check.md)에 있다.
-- **Node 24를 운영에 배포했다.** 사용자가 되돌리기 확인을 "니가 확인해"로 맡겨 Main이 Render 문서·대시보드를 읽었다(설정 변경 없음). 이전 배포마다 Rollback이 있어 되돌릴 수 있다. 사용자의 "병합·push 해줘"로 main을 `c60224ee`로 올려 push했고, 배포 `dep-dbum5fajnfac73bo70b0`가 `.nvmrc`의 Node 24.16.0으로 Live가 됐으며 `/api/health`가 200이다.
+- **Node 24를 운영에 배포했다.** 사용자가 되돌리기 확인을 "니가 확인해"로 맡겨 Main이 Render 문서·대시보드를 읽었다(설정 변경 없음). 이전 배포마다 Rollback이 있어 되돌릴 수 있다. 사용자의 "병합·push 해줘"로 main을 `c60224ee`로 올려 push했고, 배포 `dep-dbum5fajnfac73bo70b0`가 `.nvmrc`의 Node 24.16.0으로 Live가 됐으며 `/api/health`가 200이고 약 10분 뒤(08:43Z)에도 200이었다. Main이 "운영 앱에서 로그인·여행 조회·동기화가 잘 되나요?"라고 묻자 사용자가 "잘 돼"라고 답했다(직전 안내는 "운영 앱(1.1.4)").
 - **새 사실: 운영 서버는 `render.yaml`을 쓰지 않는다.** 대시보드의 서비스 `noline`은 `render.yaml`(`noline-server`)과 이름·빌드·시작 명령이 다르고 `NODE_VERSION`이 없다. 실제 Node는 `.nvmrc`가, 자동 배포는 대시보드의 Auto-Deploy On Commit(main)이 정한다. Project 출시 기준과 서버 README의 `render.yaml` 서술은 실제와 다르다. 경위는 [Render 확인·배포 기록](../../records/2026-11-18-04-render-check-and-node24-deploy.md)에 있다.
 - **Ticket 02의 첫 단계가 채워졌다.** 기기의 preview 앱이 1.1.4 빌드 `30c46ce2`다. 02는 이 앱에 데이터와 오프라인 지도를 넣는 것부터 한다.
 - **기준선을 남겼다.** client test·server 전부·schema build는 통과하고, client lint(11 errors)·client typecheck(6 errors)·ui lint(25 errors)는 기존 실패다. 업그레이드 단계는 이 수치와 비교한다. 서버·schema는 Node 20에서도 결과가 같았다. 경로 가이드의 `pnpm client test --runInBand`는 pnpm 9.6.0에서 실패해 `pnpm --filter @apps/client run test --runInBand`로 실행했다.
@@ -61,8 +61,8 @@
 
 **아직 하지 않은 것:**
 - Ticket 01의 남은 일. 모두 사용자 확인 뒤 한다
-  - 운영 앱에서 로그인·여행 조회·동기화 확인(사용자 기기). 문제가 있으면 Render 대시보드의 이전 배포 Rollback으로 되돌린다(자동 배포가 꺼지므로 다시 켠다)
-  - 1.1.4 실기기 점검표 실행(사용자 기기, 운영 앱/preview 선택)
+  - 1.1.4 실기기 점검표 6항목 실행(사용자 기기, 운영 앱/preview 선택)
+  - 1.1.4 심사 결과 확인
 - 02 실행
 - 04·05의 업데이트 확인 방식 결정(Ticket 04)
 - ESLint 9는 SDK 58이 요구할 때만 넣는다는 Main 기본값의 확인
@@ -73,7 +73,7 @@
 - RNTL 14와 jest-expo 54의 동작(02)
 - nativewind의 SDK 58·RN 0.88 지원, @rn-primitives·react-native-calendars의 React 19·New Architecture 공식 지원
 - 2025-11 Mapbox 실패의 원인(커밋에 기록 없음)
-- SDK 51 앱의 Node 24 EAS 빌드, `tsx`(dev 서버)의 Node 24 동작. Render 배포는 2026-11-18 Node 24.16.0으로 Live·health 200을 확인했고 운영 앱 확인만 남았다
+- SDK 51 앱의 Node 24 EAS 빌드, `tsx`(dev 서버)의 Node 24 동작. Render 배포는 2026-11-18 Node 24.16.0으로 Live·health 200과 운영 앱 동작을 확인했다
 - 병합 전 운영의 실제 Node 버전(`.nvmrc`의 20.18.1로 추정, 무료 플랜 로그 범위 때문에 로그 줄은 못 찾음)
 - Render의 실제 PostgreSQL 버전
 - 이미 설치된 SDK 51 빌드가 iOS 27에서 동작하는지(01의 1.1.4 실기기 점검이 근거가 된다)
@@ -81,9 +81,9 @@
 - 1.1.4 심사 결과
 - 대화형 셸에서의 `pnpm exec expo install` 동작(확인은 `CI=1` 비대화형으로 했다)
 
-**다음 행동:** Ticket 01의 남은 일인 운영 앱 확인과 실기기 점검표를 사용자 기기로 한다. `render.yaml`과 실제 Render 서비스가 다르다는 발견을 Project 출시 기준·서버 README에 어떻게 반영할지는 Main이 판단한다. `release/1.1`이 원격에 있어 012 변경을 main에 병합하기 전의 조건은 갖췄다. 02는 01과 병행할 수 있고, 이미 설치된 1.1.4 preview 앱(`30c46ce2`)에 데이터와 오프라인 지도를 넣는 것부터 한다. 발행 스크립트의 재설치 뒤 watchman 문제를 스크립트·Project 출시 기준에 반영할지도 Main이 판단한다. 경로 가이드의 client test 명령 오류와 설치 절차를 지속 문서에 둘지는 Main이 Project·가이드 쪽에서 판단한다.
+**다음 행동:** Ticket 01의 남은 일인 실기기 점검표 6항목을 사용자 기기로 하고, 1.1.4 심사 결과를 확인한다. 운영 서버에 문제가 보이면 Render 대시보드의 이전 배포 Rollback으로 되돌린다(자동 배포가 꺼지므로 다시 켠다). `render.yaml`과 실제 Render 서비스가 다르다는 발견을 Project 출시 기준·서버 README에 어떻게 반영할지는 Main이 판단한다. 02는 01과 병행할 수 있고, 이미 설치된 1.1.4 preview 앱(`30c46ce2`)에 데이터와 오프라인 지도를 넣는 것부터 한다. 발행 스크립트의 재설치 뒤 watchman 문제를 스크립트·Project 출시 기준에 반영할지도 Main이 판단한다. 경로 가이드의 client test 명령 오류와 설치 절차를 지속 문서에 둘지는 Main이 Project·가이드 쪽에서 판단한다.
 
-**작업 트리 주의:** main 작업 트리는 다시 main 브랜치이고 `chore/012-node24`와 같은 커밋(`c60224ee`)이다. 다음 미커밋 수정은 이 Work와 무관한데 브랜치 전환으로 함께 따라왔다. `7413b343`·`4c83ef5f`에는 넣지 않았고 작업 트리에 그대로 있다. 이후 이 Work의 커밋에도 함께 올리지 않는다.
+**작업 트리 주의:** main 작업 트리는 다시 main 브랜치다. 운영 배포는 `c60224ee`이고, 그 뒤 이 Work의 기록 커밋 `1174c5c1`은 로컬에만 있다(origin보다 1개 앞섬). main push는 Render 재배포를 일으키므로 Main이 일부러 push하지 않았다. 이후 기록 커밋도 push할 때 서버 재배포가 함께 일어난다는 점을 감안한다. 다음 미커밋 수정은 이 Work와 무관한데 브랜치 전환으로 함께 따라왔다. `7413b343`·`4c83ef5f`에는 넣지 않았고 작업 트리에 그대로 있다. 이후 이 Work의 커밋에도 함께 올리지 않는다.
 - `context/personal/experience/*` 4개
 - Work 006의 Ticket 14·state
 
