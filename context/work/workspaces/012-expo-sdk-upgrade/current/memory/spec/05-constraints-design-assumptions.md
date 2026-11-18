@@ -73,7 +73,7 @@ Node가 네 곳에 따로 적혀 있고 로컬만 24로 돌고 있었다. 어긋
 
 | 라이브러리 | 현재(실제 설치) | 확인할 점 |
 | --- | --- | --- |
-| ★ @rnmapbox/maps | 10.1.33 | Legacy 10.1.4x(native v10) → New Arch 10.3.x(native v11) → ≥10.3.10. 오프라인 pack이 v11에서 남는지 미확인 |
+| ★ @rnmapbox/maps | 10.1.33 | Legacy 10.1.4x(native v10) → New Arch 10.3.x(native v11) → ≥10.3.10. 2026-11-18 02 판정: 10.3.18(native v11)이 1.1.4의 pack을 그대로 씀(기기 1대·도시 하나) |
 | ★ expo-sqlite / drizzle-orm | 14.0.6 / 0.30.10 | 16 → 58, drizzle ≥0.36.2(0.30의 타입이 사라진 `expo-sqlite/next`를 참조). DB 파일 경로 유지 미확인 |
 | ★ expo-router | 3.5.24 | 사용 파일 21개, SDK 58의 navigation core 재작성 |
 | ★ reanimated / nativewind | 3.10.1 / 4.2.1 | reanimated Legacy 3.19.x → New Arch 4.1.1 + worklets → 4.7.1. nativewind ≥4.2.2, SDK 58 지원 미확인 |
@@ -140,7 +140,7 @@ root의 react 선언은 반드시 정리한다. `.npmrc`가 `node-linker=hoisted
 - Render의 실제 PostgreSQL 버전은 확인하지 않았다. Railway는 2026-11-18 사용자가 쓰지 않는다고 확인해 설정 파일을 지웠다(2025-12-30 추가, Render 설정은 2026-02-01). PostgreSQL 14의 지원 종료 시점은 Main이 출처 없이 말한 것이다.
 - root `package.json`에 react가 왜 있는지 확인하지 못했다.
 - SDK 51 / RN 0.74로 iOS 27 SDK 빌드를 맞추는 것은 사실상 어렵다고 판단했다. 배포 대상은 고칠 수 있지만(011이 15.0으로 올렸다) UIScene 전환은 네이티브 패치가 필요하다. 실제로 시도하지는 않았다.
-- 2026-11-17 [호환 조사](../../../source/library-compatibility-2026-11-17.md)에서도 확인하지 못한 것: Mapbox v10 오프라인 pack의 v11 보존, expo-sqlite 상향 뒤 DB 파일 경로, nativewind의 SDK 58 지원, @rn-primitives·react-native-calendars의 React 19·New Architecture 공식 지원. 앞의 둘은 Ticket 02에서 실기기로 판정한다. SDK 55–57 건너뛰기는 Expo가 한 버전씩 권장해 건너뛰지 않기로 했다.
+- 2026-11-17 [호환 조사](../../../source/library-compatibility-2026-11-17.md)에서도 확인하지 못한 것: Mapbox v10 오프라인 pack의 v11 보존, expo-sqlite 상향 뒤 DB 파일 경로, nativewind의 SDK 58 지원, @rn-primitives·react-native-calendars의 React 19·New Architecture 공식 지원. 앞의 둘은 2026-11-18 Ticket 02에서 실기기로 판정해 둘 다 남았다(SDK 54·New Architecture·expo-sqlite 16·rnmapbox 10.3.18, 기기 1대·도시 하나). 뒤의 둘은 npm peer에 제한이 없다는 것만 봤고 03·04 빌드에서 확인한다. SDK 55–57 건너뛰기는 Expo가 한 버전씩 권장해 건너뛰지 않기로 했다.
 - iOS 15.x–16.3 사용자 수는 확인하지 않고 최소 iOS 16.4를 수용했다.
 - 이미 설치된 SDK 51 빌드가 iOS 27 기기에서 그대로 동작한다는 것은 Apple 문서 해석이고 실기기로 확인하지 않았다. iOS 27.2.1 iPhone 14 Pro로 확인할 수 있게 됐고, Ticket 01의 1.1.4 점검이 그 근거가 된다.
 - Expo가 Xcode 26.2 이미지를 언제까지 제공할지는 문서에 명시가 없다.

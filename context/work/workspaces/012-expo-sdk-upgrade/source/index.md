@@ -50,3 +50,7 @@ Node 상향과 서버 포함을 판단하며 Main이 읽었다. 판단과 확인
 ## 2026-11-18 Ticket 01 검사 기준선
 
 [기준선 원자료](ticket-01-baseline-2026-11-18.md): Main이 Ticket 01에서 직접 실행한 검사의 명령·통과/실패 수·실패 이름(Node 24, 변경 전과 Node 24 설정 변경 뒤), 서버·schema의 Node 20 비교, `expo install --check` 출력 9줄, 1.1.4 빌드의 `gitCommitHash`. 원래 로그는 세션 scratchpad에만 있어 비교에 필요한 최소한을 옮겼다. 이후 단계의 검사 결과를 비교하거나 `--check` 변화를 볼 때 읽는다.
+
+## 2026-11-18 Ticket 02 판정 원자료
+
+[판정 원자료](ticket-02-verification-2026-11-18.md): 판정용 앱이 iPhone에서 읽은 DB(표별 행 수, `sync_queue`), 지도 pack(v11·Legacy API), 저장 공간 값과 덮어 설치 전 1.1.4의 기준값, 지도 화면 확인, RNTL 14 확인 조합. scratchpad의 원래 보고서에서 개인 식별자를 빼고 옮겼다. 04·05에서 출시 빌드 덮어 설치 결과와 비교할 때 읽는다.
