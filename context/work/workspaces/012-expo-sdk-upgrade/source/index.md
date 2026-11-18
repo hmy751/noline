@@ -23,3 +23,26 @@ archive(`_archive/`)에는 SDK 업그레이드 계획이 없다. "React Native 0
 | [Expo SDK 55 changelog](https://expo.dev/changelog/sdk-55) | Legacy Architecture 지원 종료(SDK 54가 마지막), RN 0.83 |
 | [Expo SDK 58 changelog](https://expo.dev/changelog/sdk-58) | 2026-10-15 출시, RN 0.88, iOS 27 SDK·SceneDelegate, Node 22.13+ |
 | [Expo New Architecture 안내](https://docs.expo.dev/guides/new-architecture) | SDK 55 이상은 New Architecture를 끌 수 없음 |
+
+### 2026-11-17에 추가로 읽은 자료
+
+Node 상향과 서버 포함을 판단하며 Main이 읽었다. 판단과 확인 한계는 [전수 조사 기록](../records/2026-11-17-01-version-inventory-and-server-scope.md)에 있다.
+
+| 자료 | 이 Work에서 쓴 내용 |
+| --- | --- |
+| [Expo SDK 58 버전 문서](https://docs.expo.dev/versions/v58.0.0) | React 19.3.0, RN 0.88, 최소 Node 22.13, 최소 iOS 16.4+, Xcode 26.4+ |
+| [Expo SDK 58 changelog](https://expo.dev/changelog/sdk-58) (다시 읽음) | Node 22.13+·24.3+·26+ 지원, 홀수 미지원. RN 0.87부터 Strict TypeScript API 기본. expo-router navigation core 재작성. prebuild의 `SceneDelegate.swift` 생성. expo-sqlite libSQL 제거 |
+| [Node.js — Evolving the Node.js Release Schedule](https://nodejs.org/en/blog/announcements/evolving-the-nodejs-release-schedule) | 26이 옛 짝·홀 방식의 마지막 릴리스, 27부터 매년 4월 출시. 20·22·24·26의 지원 종료일은 웹 검색 요약(endoflife.date 인용 포함)에서 함께 읽었다 |
+| [devx — Node.js 26 LTS](https://www.devx.com/coding/nodejs-26-lts-new-features-release-date/) | Node 26 일정의 보조 출처 |
+| [buildmvpfast — Expo SDK 58 breaking changes](https://www.buildmvpfast.com/blog/expo-sdk-58-ios-27-react-native-088-breaking-changes-2026) | 처음 Node 24.3·26 하한을 본 제3자 블로그. 뒤에 공식 changelog로 확인해 이 자료에 의존하지 않는다 |
+| [EAS 빌드 인프라](https://docs.expo.dev/build-reference/infrastructure/) | SDK 58 빌드의 EAS 기본 Node는 문서에서 찾지 못했다 |
+
+저장소 설정값(`package.json`·lockfile·`eas.json`·`render.yaml`·`nixpacks.toml`·docker-compose·`START_GUIDE.md`)은 원문을 따로 옮기지 않았다. 2026-11-17 값은 [제약·현재 설계·가정](../current/memory/spec/05-constraints-design-assumptions.md)의 표에 있고, 실제 파일이 원천이다.
+
+## 2026-11-17 라이브러리 호환 점검
+
+[라이브러리 호환 조사](library-compatibility-2026-11-17.md): reanimated를 계기로 사용자가 요청한 점검의 결과다. 라이브러리마다 SDK 54 Legacy 단계, New Architecture 단계, SDK 58의 목표 버전과 근거, 함께 움직여야 하는 묶음, 이 앱이 뒤처진 지금의 기본값, 미확인 항목, 외부 출처와 확인 주체를 담는다. 라이브러리 버전을 정하거나 올릴 때 읽는다.
+
+[Expo bundledNativeModules 사본](expo-bundled-native-modules/): Expo가 SDK별로 정한 버전 목록 원본이다. 조사 서브가 2026-11-17 받은 expo@54.0.38·58.0.26의 파일을 그대로 옮겼다. `npx expo install`이 고를 버전을 다시 대조할 때 쓴다.
+
+2026-11-17에 Main이 [Expo SDK 업그레이드 안내](https://docs.expo.dev/workflow/upgrading-expo-sdk-walkthrough/)에서 "We recommend upgrading SDK versions incrementally, one at a time."를 확인했다. SDK를 한 버전씩 올리기로 한 근거다.

@@ -10,6 +10,7 @@
 | [지도 준비·공유·경로 표시](../../../../../project/guidance/offline-maps-and-routes/INDEX.md) | 오프라인 지도 pack과 저장 경로. Mapbox를 New Architecture로 옮길 때 확인할 동작이다 |
 | [UI 책임](../../../../../project/guidance/development-boundaries/ui.md) | `packages/ui`와 client의 경계. nativewind·reanimated를 올릴 때 영향 범위를 볼 때 읽는다 |
 | [오류 전달](../../../../../project/guidance/error-handling.md) | Sentry 연결과 신호 해석. Sentry SDK를 올릴 때 읽는다 |
+| [앱 변경을 사용자에게 내보낼 때의 기준](../../../../../project/guidance/app-release-and-ota.md) | 스토어 빌드 절차와 OTA의 runtime(fingerprint) 조건. 업그레이드 빌드를 내거나 OTA를 다시 확인할 때 읽는다. "1.1.4부터 최소 iOS 15.0"처럼 업그레이드 뒤 바뀔 사실이 들어 있다 |
 | [현재 구조](../../../../../project/current/architecture.md) | 코드 영역과 검사 기반. 업그레이드 뒤 Project에 남길 지원 사실의 후보 위치다 |
 
-Project에는 Expo SDK·React Native 버전이나 빌드 도구를 소유하는 본문이 없다. 버전 사실은 루트 README와 `apps/client/package.json`에 있다. 업그레이드 뒤 무엇을 Project에 남길지는 [Project 관리 계약](../../../../../project/MAINTENANCE.md)으로 판단하며, Work 011 Ticket 03(릴리스·OTA 반영 위치)과 겹치므로 함께 본다.
+Project에는 Expo SDK·React Native·Node 버전이나 빌드 도구를 소유하는 본문이 없다. 버전 사실은 루트 README·`START_GUIDE.md`와 각 `package.json`·`eas.json`·`render.yaml`에 있다. 출시 절차와 OTA 조건은 Work 011이 2026-11-17 Project guidance로 옮겼다(위 표). 업그레이드 뒤 무엇을 Project에 남길지는 [Project 관리 계약](../../../../../project/MAINTENANCE.md)으로 판단하며, 이 guidance의 최소 iOS·runtime 서술도 함께 갱신 대상이 된다.

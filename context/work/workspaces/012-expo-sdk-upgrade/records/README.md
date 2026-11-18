@@ -3,3 +3,9 @@
 현재 기준은 [Spec](../current/memory/index.md)이, 현재 상황은 [state](../current/state/index.md)가 소유한다. 이 색인은 그 기준이 어떻게 정해졌는지 다시 확인할 기록을 묶는다.
 
 - [2026-11-16 — 011에서 분리한 이유와 버전 분석](2026-11-16-01-separation-from-011-and-version-analysis.md): 과거 버전 문제의 패턴, 현재 의존성 상태, Apple·Expo 요건이 판단을 바꾼 지점, 011과 합치지 않고 나눈 이유와 받아들인 비용, 대상 SDK·단계 추천과 아직 정하지 않은 점. 분리나 추천을 다시 볼 때 읽는다.
+- [2026-11-17 — 버전 설정 전수 조사와 서버 Node를 범위에 넣은 이유](2026-11-17-01-version-inventory-and-server-scope.md): 011 병합으로 바뀐 전제, 저장소 전체 버전 설정에서 드러난 문제(Node 네 곳·React 중복 위험), Node 지원 기간과 SDK 58 공식 요건, 서버를 Node와 도구까지만 넣은 이유, Node 22·24·26 비교와 진행 순서 추천. 범위·Node·순서를 다시 볼 때 읽는다.
+- [2026-11-17 — Ticket 구성 초안과 출시·브랜치·최소 iOS·기기 결정](2026-11-17-02-ticket-composition-and-release-decisions.md): 첫 Ticket 구성안 8개와 공통 규칙, 그 바탕이 된 저장소 사실, 사용자가 고른 중간 단계 각각 출시·`release/1.1`·최소 iOS 16.4·테스트 기기와 다른 선택지, 기기 답의 해석, 7개 수정안. Ticket을 만들거나 출시 방식을 다시 볼 때 읽는다.
+- [2026-11-17 — 스토어 출시를 3번에서 2번으로 줄이는 안](2026-11-17-03-release-count-reduction.md): 7개 구성과 Main 기본값(preview 앱 업데이트 확인, 1주일 관찰, 버전 번호), 사용자의 "더 줄일수 있음 줄이고"와 버전·심사 횟수 혼동, 변경 단계와 출시 횟수를 나눈 2회안과 Ticket 4개, 1회 출시를 버린 이유. 출시 횟수를 다시 볼 때 읽는다.
+- [2026-11-17 — 2회 출시안 채택과 라이브러리 호환 점검](2026-11-17-04-release-plan-adopted-and-library-check.md): "그래 좋아"로 채택한 범위와 Main 기본값으로 남은 것의 구분, reanimated 이력과 점검 요청, 점검이 단계별 계획에 준 영향(Legacy 단계의 reanimated 3.19, New Architecture 단계의 Mapbox v11, SDK 58의 테스트 도구), 이미 어긋난 것. 채택 범위나 단계별 위험을 다시 볼 때 읽는다.
+- [2026-11-17 — Ticket 5개로 재구성하고 지도 데이터 대응을 정했다](2026-11-17-05-ticket-restructure-and-map-data-plan.md): 4개 구성의 문제 세 가지와 Expo의 한 버전씩 권장, Mapbox v11과 "준비됨"인데 빈 지도가 되는 위험, 사용자의 지도 대응안 원문과 다듬은 결과, 최종 구성의 보완 세 가지와 일정, preview 앱 확인의 확정 범위. Ticket 구성이나 지도 대응을 다시 볼 때 읽는다.
+- [2026-11-17 — Ticket 검토에서 드러난 것의 처리](2026-11-17-06-review-findings-handling.md): 1.2.0 뒤 1.1.x OTA 불가가 기존 Project 정책으로 해소된 이유, `npx expo install` 실패를 01로 옮기고 대체 절차를 제안한 근거, pnpm·eas-cli가 Node 20 폴더에만 있다는 발견. 핫픽스 경로나 설치 절차를 다시 볼 때 읽는다.
