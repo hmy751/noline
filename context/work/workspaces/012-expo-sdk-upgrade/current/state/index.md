@@ -1,6 +1,6 @@
 # 현재 상태와 다음 행동
 
-2026-11-18 기준 상태다. 범위·대상 SDK·출시 2번을 정했고, 라이브러리 호환 점검과 지도 문제를 반영해 Ticket을 5개로 다시 짜 확정했다. **2026-11-18 Ticket 02 판정을 마쳤다.** 기기 DB·오프라인 지도가 업데이트 뒤 남아 03으로 갈 수 있고, 04의 지도 대응은 필요 없다. **2026-11-18 Ticket 01을 시작했다.** 검사 기준선, `release/1.1`(원격, 빌드·OTA 확인), Node 24 설정 변경과 Railway 설정 삭제(`7413b343`), 설치 절차 확정까지 했고, main에 병합·push해 운영 서버가 Node 24.16.0으로 배포됐다. 운영 앱에서도 로그인·여행 조회·동기화가 된다는 사용자 확인("잘 돼")을 받았다. 01에 남은 일은 실기기 점검표와 1.1.4 심사 결과다. SDK 업그레이드(03)는 시작하지 않았다.
+2026-11-18 기준 상태다. 범위·대상 SDK·출시 2번을 정했고, 라이브러리 호환 점검과 지도 문제를 반영해 Ticket을 5개로 다시 짜 확정했다. **2026-11-18 Ticket 02 판정을 마쳤다.** 기기 DB·오프라인 지도가 업데이트 뒤 남아 03으로 갈 수 있고, 04의 지도 대응은 필요 없다. **2026-11-18 Ticket 01을 시작했다.** 검사 기준선, `release/1.1`(원격, 빌드·OTA 확인), Node 24 설정 변경과 Railway 설정 삭제(`7413b343`), 설치 절차 확정까지 했고, main에 병합·push해 운영 서버가 Node 24.16.0으로 배포됐다. 운영 앱에서도 로그인·여행 조회·동기화가 된다는 사용자 확인("잘 돼")을 받았다. 01에 남은 일은 실기기 점검표와 1.1.4 심사 결과다. **같은 날 Ticket 03을 시작해 SDK 52·53을 작업 브랜치 `feat/012-sdk54`에 커밋했다(main 무변경).** 다음은 SDK 54다.
 
 **이 Work가 생긴 경위:** 2026-11-16 Work 011을 재개하던 중 사용자가 SDK·라이브러리 업그레이드를 함께 맡을지 물었고, Main의 분석과 추천에 따라 별도 Work로 나눴다. 사용자는 "그래 분리해서 진행하자 더 버전에 대해 자세한건 012에서 더 논의한다고 기록해주고"라고 답했다. 분석과 선택 이유는 [분리 기록](../../records/2026-11-16-01-separation-from-011-and-version-analysis.md)에 있다.
 
@@ -66,6 +66,13 @@
 - **진행 방식:** 시뮬레이터로 하자는 사용자 제안에 Main이 시도했지만 1.1.4 Release 빌드가 운영 번들(`com.ham.noline`)로 설치됐고, 사용자가 실기기 쪽이 빠른지 묻자 Main이 실기기를 권해 중단했다("그럼 중지하고 하던대로 하자"). 운영 번들 앱은 시뮬레이터에 남아 있다. 이어 사용자의 `/device-access-setup` 요청으로 Main이 USB로 iPhone을 직접 조작했다(2026-11-06 DeviceKit 인스턴스 재사용). 로그인과 비행기 모드는 사용자가 했고, Main은 시스템 설정이라 비행기 모드를 바꾸지 않았다. Main이 실수로 1.1.4 앱을 한 번 종료했지만 데이터 준비 뒤라 영향은 없었다.
 - **별도 발견:** 1.1.4의 `offline_cities`가 0행이다. 1.1.4가 행을 쓰지 않은 기존 문제 후보로 보며(원인 미확인), 어디서 다룰지 정하지 않았다.
 
+## 2026-11-18 Ticket 03 진행 (SDK 52·53)
+
+사용자의 "03 시작"으로 worktree `.claude/worktrees/012-sdk54`, 브랜치 `feat/012-sdk54`(main `ff51ecd9`에서 분기, push 안 함)에서 진행했다. 결과는 [Ticket 03](../memory/tickets/03-sdk54-legacy.md#현재-상태와-실제-결과), 과정은 [진행 기록](../../records/2026-11-18-07-ticket03-sdk52-53.md)에 있다.
+- SDK 52(`8bfe21e1`)와 53(`668d4e73`) 모두 client test 920 통과, typecheck는 기준선 6 → 52에서 6, 53에서 5다. lint·server·schema는 기준선과 같고, 시뮬레이터 Release 빌드가 0 errors다.
+- Ticket이 54에 둔 dev-menu patch 삭제, ui peer 전환·root react 삭제, drizzle-orm 0.45.4는 52에서 막혀 앞당겼다. React 19는 53에서 들어왔다. 최소 iOS는 52에서 15.1이 됐다.
+- 새 임시 처리: Xcode 26 fmt consteval 우회 plugin(SDK 54 이상에서 없이 빌드되면 삭제), Jest `doNotFake: ['queueMicrotask']`.
+
 ## 남은 일과 다음 행동
 
 **아직 하지 않은 것:**
@@ -91,7 +98,7 @@
 - 1.1.4 심사 결과
 - 대화형 셸에서의 `pnpm exec expo install` 동작(확인은 `CI=1` 비대화형으로 했다)
 
-**다음 행동:** 02 판정으로 03(SDK 51→54, Legacy)을 시작할 수 있다. iPhone의 Noline Dev 자리에는 판정용 앱(빌드 91)이 있고 미전송 시험 경비가 DB에 남아 있다(판정용 앱은 동기화하지 않아 온라인이어도 보내지 않는다). 1.1.4 preview(`30c46ce2`)를 다시 설치하고 온라인이 되면 그 경비가 서버로 간다. Ticket 01의 실기기 점검표는 시험 앱 대신 운영 앱(App Store Noline)이 1.1.4로 업데이트된 뒤 그 앱으로 실행한다(Main 판단: 시험 앱 재설치가 필요 없고 preview에서 실패할 수 있는 Apple 로그인도 확인된다). 기기 조작이 다시 필요하면 DeviceKit 제어 서버를 `~/Documents/Codex/2026-11-06/new-chat/work/` 에서 `xcodebuild test-without-building -xctestrun iphone-control/build/Build/Products/devicekit-ios_iphoneos26.5-arm64.xctestrun -destination id=<UDID> -only-testing:devicekit-iosUITests/DeviceKitUITests/testRunAutomation -collect-test-diagnostics never`로 띄운다("Server is ready" 확인 뒤 `iphone-control/node_modules/.bin/mobilecli`로 관찰·터치). Ticket 01에 남은 것은 실기기 점검표 6항목과 1.1.4 심사 결과다. 운영 서버에 문제가 보이면 Render 대시보드의 이전 배포 Rollback으로 되돌린다(자동 배포가 꺼지므로 다시 켠다). 발행 스크립트의 재설치 뒤 watchman 문제를 스크립트·Project 출시 기준에 반영할지도 Main이 판단한다. 경로 가이드의 client test 명령 오류와 설치 절차를 지속 문서에 둘지는 Main이 Project·가이드 쪽에서 판단한다.
+**다음 행동:** Ticket 03의 SDK 54 단계를 `feat/012-sdk54`에서 잇는다. 54에서 fmt 우회 plugin 없이 빌드되는지 본다. iPhone의 Noline Dev 자리에는 판정용 앱(빌드 91)이 있고 미전송 시험 경비가 DB에 남아 있다(판정용 앱은 동기화하지 않아 온라인이어도 보내지 않는다). 1.1.4 preview(`30c46ce2`)를 다시 설치하고 온라인이 되면 그 경비가 서버로 간다. Ticket 01의 실기기 점검표는 시험 앱 대신 운영 앱(App Store Noline)이 1.1.4로 업데이트된 뒤 그 앱으로 실행한다(Main 판단: 시험 앱 재설치가 필요 없고 preview에서 실패할 수 있는 Apple 로그인도 확인된다). 기기 조작이 다시 필요하면 DeviceKit 제어 서버를 `~/Documents/Codex/2026-11-06/new-chat/work/` 에서 `xcodebuild test-without-building -xctestrun iphone-control/build/Build/Products/devicekit-ios_iphoneos26.5-arm64.xctestrun -destination id=<UDID> -only-testing:devicekit-iosUITests/DeviceKitUITests/testRunAutomation -collect-test-diagnostics never`로 띄운다("Server is ready" 확인 뒤 `iphone-control/node_modules/.bin/mobilecli`로 관찰·터치). Ticket 01에 남은 것은 실기기 점검표 6항목과 1.1.4 심사 결과다. 운영 서버에 문제가 보이면 Render 대시보드의 이전 배포 Rollback으로 되돌린다(자동 배포가 꺼지므로 다시 켠다). 발행 스크립트의 재설치 뒤 watchman 문제를 스크립트·Project 출시 기준에 반영할지도 Main이 판단한다. 경로 가이드의 client test 명령 오류와 설치 절차를 지속 문서에 둘지는 Main이 Project·가이드 쪽에서 판단한다.
 
 **작업 트리 주의:** main 작업 트리는 다시 main 브랜치다. Node 24 첫 운영 배포는 `c60224ee`다. 그 뒤의 기록·정정 커밋 `1174c5c1`, `e10c8c4f`, `a22873b1`, `b38729b4`는 사용자의 "push 해줘"로 2026-11-18 push했고, Render가 `b38729b`로 다시 배포해 Live가 됐다(health 200, 08:58Z). main push는 문서 변경이어도 Render 재배포를 일으킨다. 이 문장을 고친 기록 커밋은 그 뒤에 만들어 push 전일 수 있다. 다음 미커밋 수정은 이 Work와 무관한데 브랜치 전환으로 함께 따라왔다. `7413b343`·`4c83ef5f`에는 넣지 않았고 작업 트리에 그대로 있다. 이후 이 Work의 커밋에도 함께 올리지 않는다.
 - `context/personal/experience/*` 4개

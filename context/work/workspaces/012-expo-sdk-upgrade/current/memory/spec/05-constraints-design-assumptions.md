@@ -51,7 +51,7 @@ Node가 네 곳에 따로 적혀 있고 로컬만 24로 돌고 있었다. 어긋
 | --- | --- | --- | --- |
 | EAS iOS 이미지 | `macos-sequoia-15.6-xcode-26.2` 고정 | Xcode 27 이미지 | 필수 |
 | 앱 시작 구조 | AppDelegate만 | SceneDelegate(SDK 58 prebuild가 생성) | 필수 |
-| 최소 iOS | 15.0(011이 1.1.4에 넣음) | 16.4(2026-11-17 수용) | 연동 |
+| 최소 iOS | 15.0(011이 1.1.4에 넣음) | 16.4(2026-11-17 수용). 2026-11-18 SDK 52에서 expo-build-properties 0.13 요구로 15.1을 거친다 | 연동 |
 | `expo-dev-menu@5.0.23` pnpm patch | 있음(011의 Xcode 26 대응) | 삭제 | 연동 |
 
 이미지는 2026-11-02 `latest`(Xcode 27.1 RC)에서 Pod 배포 대상 13.4 때문에 실패해 고정했다(`f3007396`).
