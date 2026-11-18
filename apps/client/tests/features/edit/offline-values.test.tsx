@@ -231,7 +231,11 @@ it('수정 제한 안내가 나타났다 사라져도 작성 중인 값과 일�
   if (!Array.isArray(buttons)) {
     throw new Error('제목 변경 확인 버튼이 없습니다');
   }
-  act(() => buttons.find((button) => button.text === '확인')?.onPress?.('작성 중 제목'));
+  act(() =>
+    (buttons.find((button) => button.text === '확인')?.onPress as ((value?: string) => void) | undefined)?.(
+      '작성 중 제목',
+    ),
+  );
   act(() => useAuthStore.setState({ status: 'signed-out' }));
   expect(view.getByText('작성 중 제목')).toBeTruthy();
   expect(view.getByText('저장')).toBeTruthy();
@@ -275,7 +279,11 @@ it('경비 수정의 재확인 전후에도 작성 중인 값과 일정 연결�
   if (!Array.isArray(buttons)) {
     throw new Error('제목 변경 확인 버튼이 없습니다');
   }
-  act(() => buttons.find((button) => button.text === '확인')?.onPress?.('재확인 중 보존할 제목'));
+  act(() =>
+    (buttons.find((button) => button.text === '확인')?.onPress as ((value?: string) => void) | undefined)?.(
+      '재확인 중 보존할 제목',
+    ),
+  );
   const listener = jest.mocked(NetInfo.addEventListener).mock.calls.at(-1)?.[0];
   if (!listener) {
     throw new Error('네트워크 구독이 없습니다');
@@ -754,7 +762,9 @@ it('열린 경비의 배경 조회가 초안과 비교 기준을 바꾸지 않�
   if (!Array.isArray(buttons)) {
     throw new Error('금액 변경 확인 버튼이 없습니다');
   }
-  act(() => buttons.find((button) => button.text === '확인')?.onPress?.('25'));
+  act(() =>
+    (buttons.find((button) => button.text === '확인')?.onPress as ((value?: string) => void) | undefined)?.('25'),
+  );
   view.rerender(<UpdateExpenseDrawer isOpen onClose={jest.fn()} expenseData={{ ...expense, amount: '30.00' }} />);
   expect(view.getByText('25')).toBeTruthy();
 

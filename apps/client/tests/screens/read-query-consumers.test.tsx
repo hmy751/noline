@@ -525,7 +525,11 @@ it('일정 제목만 저장하면 성공 후에도 경로 준비를 요청하지
   if (!Array.isArray(buttons)) {
     throw new Error('제목 입력 버튼이 필요합니다');
   }
-  act(() => buttons.find((button) => button.text === '확인')?.onPress?.('바꾼 일정'));
+  act(() =>
+    (buttons.find((button) => button.text === '확인')?.onPress as ((value?: string) => void) | undefined)?.(
+      '바꾼 일정',
+    ),
+  );
   fireEvent.press(view.getByText('저장'));
   await waitFor(() => expect(Alert.alert).toHaveBeenCalledWith('성공', '일정이 수정되었습니다.'));
   expect(mockSaveSchedule.mock.calls[0][0]).toMatchObject({ data: { title: '바꾼 일정' } });

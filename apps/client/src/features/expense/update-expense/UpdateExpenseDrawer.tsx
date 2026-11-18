@@ -170,7 +170,7 @@ const ExpenseEditForm = ({ expenseData: currentExpense, onClose }: ExpenseEditFo
                         { text: '취소', style: 'cancel' },
                         {
                           text: '확인',
-                          onPress: (text) => {
+                          onPress: (text?: string) => {
                             if (text) {
                               onChange(text);
                             }
@@ -205,7 +205,7 @@ const ExpenseEditForm = ({ expenseData: currentExpense, onClose }: ExpenseEditFo
                           { text: '취소', style: 'cancel' },
                           {
                             text: '확인',
-                            onPress: (text) => {
+                            onPress: (text?: string) => {
                               if (text) {
                                 onChange(text);
                               }

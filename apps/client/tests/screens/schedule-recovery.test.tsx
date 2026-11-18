@@ -327,7 +327,11 @@ it('화면에서 수정 중인 제목과 날짜는 연결 제한·복귀와 조�
   if (!Array.isArray(buttons)) {
     throw new Error('제목 변경 확인 버튼이 없습니다');
   }
-  act(() => buttons.find((button) => button.text === '확인')?.onPress?.('작성 중 제목'));
+  act(() =>
+    (buttons.find((button) => button.text === '확인')?.onPress as ((value?: string) => void) | undefined)?.(
+      '작성 중 제목',
+    ),
+  );
   fireEvent.press(view.getAllByText('2026-09-21')[1]);
   fireEvent.press(view.getByText('작성 날짜 선택'));
 

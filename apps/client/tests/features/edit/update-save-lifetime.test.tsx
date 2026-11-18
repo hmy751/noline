@@ -254,7 +254,11 @@ it('검증 실패 뒤 입력을 보완해 사용자 재저장이 가능하다', 
   if (!Array.isArray(buttons)) {
     throw new Error('제목 변경 확인 버튼이 없습니다');
   }
-  act(() => buttons.find((button) => button.text === '확인')?.onPress?.('보완한 일정'));
+  act(() =>
+    (buttons.find((button) => button.text === '확인')?.onPress as ((value?: string) => void) | undefined)?.(
+      '보완한 일정',
+    ),
+  );
   await user.press(view.getByText('저장'));
   expect(saveSchedule).toHaveBeenCalledTimes(1);
   expect(onClose).toHaveBeenCalledTimes(1);
@@ -384,7 +388,9 @@ it('제목만 저장하면 경로 준비를 요청하지 않고 성공 후 닫�
   if (!Array.isArray(buttons)) {
     throw new Error('제목 확인 버튼이 없습니다');
   }
-  act(() => buttons.find((button) => button.text === '확인')?.onPress?.('새 제목'));
+  act(() =>
+    (buttons.find((button) => button.text === '확인')?.onPress as ((value?: string) => void) | undefined)?.('새 제목'),
+  );
   await user.press(view.getByText('저장'));
   expect(saveSchedule).toHaveBeenCalledTimes(1);
   expect(saveSchedule).toHaveBeenCalledWith(expect.objectContaining({ data: { title: '새 제목' } }));
