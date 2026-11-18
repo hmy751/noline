@@ -14,8 +14,8 @@
 - **서버 배포는 client 의존성까지 설치한다:** `render.yaml`의 빌드 명령이 루트에서 `pnpm install`을 실행한다. client를 SDK 58로 올리기 전에 서버 Node가 SDK 58이 지원하는 버전이어야 서버 배포가 깨지지 않는다.
 - **인증서:** 배포 인증서·프로비저닝 프로필이 2026-12-30에 만료되고, Apple Developer 멤버십 갱신은 2026-12-18이다. 이 Work의 스토어 빌드는 그 뒤가 될 가능성이 높아 갱신이 먼저다.
 - **기존 릴리스 절차:** EAS production 빌드 → `eas submit` → App Store Connect 입력 → 심사. 2026-11-17부터 Project의 [앱 변경을 사용자에게 내보낼 때의 기준](../../../../../../project/guidance/app-release-and-ota.md)이 스토어 빌드 절차와 runtime(fingerprint) 조건을 소유한다. 업그레이드 빌드는 runtime이 바뀌므로 SDK 51 빌드로 가던 OTA를 받지 않는다.
-- **설치 방식:** Expo가 고른 버전만 넣는다. `pnpm add`로 npm 최신을 받은 것이 반복된 버전 혼선의 공통 원인이었다. 기본은 `npx expo install`이지만 `apps/client`에서 `ERR_PNPM_PUBLIC_HOIST_PATTERN_DIFF`로 실패한 이력이 있다(Work 011). 루트와 `apps/client`의 pnpm hoist 설정이 같아 원인은 미확인이다(2026-11-17 Main 확인). Ticket 01에서 고치거나, `npx expo install --check`로 얻은 버전을 루트의 `pnpm --filter @apps/client add <패키지>@<버전>`으로 넣고 `--check`로 확인하는 대체 절차(확인 전)를 확정한다.
-- **로컬 도구가 Node 20 폴더에 있다:** pnpm 9.6.0과 eas-cli는 nvm의 Node v20.18.1 폴더에만 설치돼 있고, Node 24 셸에서 PATH로 쓰고 있다(2026-11-17 Main 확인). `.nvmrc`를 24로 바꾸면 빠질 수 있어 Ticket 01에서 Node 24 쪽에 준비한다.
+- **설치 방식:** Expo가 고른 버전만 넣는다. `pnpm add`로 npm 최신을 받은 것이 반복된 버전 혼선의 공통 원인이었다. 절차는 `apps/client`에서 `pnpm exec expo install <패키지>`다(2026-11-18 Ticket 01에서 확정). `npx expo install`은 npx(npm 11)가 프로젝트 `.npmrc` 값을 `npm_config_public_hoist_pattern=*` 환경변수로 넘겨 내부 `pnpm add`가 `ERR_PNPM_PUBLIC_HOIST_PATTERN_DIFF`로 실패한다(Work 011의 실패 원인). 설치 명령을 `npx`로 감싸면 같은 이유로 pnpm이 `node_modules` 전체 재설치를 물을 수 있어 쓰지 않는다. 확인은 `CI=1` 비대화형 실행으로 했다. 근거는 [Ticket 01 진행 기록](../../../records/2026-11-18-02-ticket01-baseline-node24-and-expo-install.md#npx-expo-install-실패의-원인)에 있다.
+- **로컬 도구는 Node 버전 폴더마다 따로 있다:** nvm은 Node마다 전역 도구를 따로 둔다. 2026-11-17에는 pnpm 9.6.0과 eas-cli가 Node v20.18.1 폴더에만 있었고, 2026-11-18 Ticket 01에서 Node 24.16.0 폴더에도 `npm i -g pnpm@9.6.0 eas-cli@16.28.0`으로 설치했다. 그 방법은 `START_GUIDE.md`(브랜치 `chore/012-node24`, 미커밋)에 적었다. 새 Node로 바꿀 때마다 같은 준비가 필요하다.
 
 ## 버전: 현재와 이후 (2026-11-17)
 
@@ -33,7 +33,7 @@
 | `.nvmrc` | 20.18.1 | 24.x | 필수 |
 | `render.yaml` `NODE_VERSION` (운영 서버) | 20 | 24 | 필수 |
 | `eas.json` `base.node` (앱 클라우드 빌드) | 20.18.1 | 24.x, SDK를 올리는 첫 단계에서 | 필수 |
-| `nixpacks.toml` (Railway) | `nodejs_20` | 쓰지 않으면 삭제, 쓰면 24 | 사용 여부 확인 필요 |
+| `nixpacks.toml`·`railway.json` (Railway) | `nodejs_20` | 삭제(2026-11-18 사용자가 Railway 미사용 확인) | 정리 |
 | 로컬 실제 실행 | v24.16.0 | 24.x | — |
 | `@types/node` (root·server·ui) | ^20 | ^24 | 연동 |
 | `START_GUIDE.md`의 Node 안내 | "Node.js 20" | 24 | 연동 |
@@ -41,7 +41,9 @@
 | pnpm (`packageManager`, `eas.json`) | 9.6.0 | 유지 | — |
 | eas-cli | 로컬 16.28.0, `eas.json` 요구 `>= 5.0.0` | 최신과 요구 버전 상향 | 연동 |
 
-Node가 네 곳에 따로 적혀 있고 로컬만 24로 돌고 있었다. 어긋나도 막는 장치(`engines`)가 없다. eas-cli는 2026-11-02 세션에서도 27.x 상향을 권했지만 그대로다.
+Node가 네 곳에 따로 적혀 있고 로컬만 24로 돌고 있었다. 어긋나도 막는 장치(`engines`)가 없다.
+
+2026-11-18 Ticket 01이 브랜치 `chore/012-node24`에서 `.nvmrc`(24.16.0)·`render.yaml`(24)·`@types/node`(^24.19.2)와 표에 없던 `apps/server/tsup.config.ts` target(`node20` → `node24`)을 바꿨다. 아직 커밋·main 병합 전이라 위 "현재" 값이 main의 상태다. 같은 브랜치에서 사용자의 "안 써, 지워"에 따라 `nixpacks.toml`·`railway.json`도 삭제했다. `eas.json`은 03, `engines`는 03이다. 현재 상태는 [Ticket 01](../tickets/01-preparation-baseline-and-node24.md#현재-상태와-실제-결과)에 있다. eas-cli는 2026-11-02 세션에서도 27.x 상향을 권했지만 그대로다.
 
 ### iOS 빌드
 
@@ -134,8 +136,8 @@ root의 react 선언은 반드시 정리한다. `.npmrc`가 `node-linker=hoisted
 ## 가정과 확인하지 못한 것
 
 - SDK 51 앱을 EAS에서 Node 24로 빌드할 수 있는지 확인하지 않았다.
-- 서버의 Node 24 test·배포와 tsx·tsup·vitest·drizzle-kit 0.20의 Node 24 동작은 확인하지 않았다. Node 26에서 오래된 도구가 더 깨지기 쉽다는 것도 시험하지 않은 판단이다.
-- `nixpacks.toml`(Railway)을 지금 쓰는지, Render의 실제 PostgreSQL 버전은 확인하지 않았다. PostgreSQL 14의 지원 종료 시점은 Main이 출처 없이 말한 것이다.
+- 서버의 Node 24 검사는 2026-11-18 로컬에서 확인했다. typecheck·build(tsup)·test(vitest)·integration(drizzle-kit 0.20.18 `push:pg` 포함)이 Node 20과 같은 결과로 통과했다. Render 배포와 `tsx`(dev 서버)의 Node 24 동작은 아직 확인하지 않았다. Node 26에서 오래된 도구가 더 깨지기 쉽다는 것은 시험하지 않은 판단이다.
+- Render의 실제 PostgreSQL 버전은 확인하지 않았다. Railway는 2026-11-18 사용자가 쓰지 않는다고 확인해 설정 파일을 지웠다(2025-12-30 추가, Render 설정은 2026-02-01). PostgreSQL 14의 지원 종료 시점은 Main이 출처 없이 말한 것이다.
 - root `package.json`에 react가 왜 있는지 확인하지 못했다.
 - SDK 51 / RN 0.74로 iOS 27 SDK 빌드를 맞추는 것은 사실상 어렵다고 판단했다. 배포 대상은 고칠 수 있지만(011이 15.0으로 올렸다) UIScene 전환은 네이티브 패치가 필요하다. 실제로 시도하지는 않았다.
 - 2026-11-17 [호환 조사](../../../source/library-compatibility-2026-11-17.md)에서도 확인하지 못한 것: Mapbox v10 오프라인 pack의 v11 보존, expo-sqlite 상향 뒤 DB 파일 경로, nativewind의 SDK 58 지원, @rn-primitives·react-native-calendars의 React 19·New Architecture 공식 지원. 앞의 둘은 Ticket 02에서 실기기로 판정한다. SDK 55–57 건너뛰기는 Expo가 한 버전씩 권장해 건너뛰지 않기로 했다.

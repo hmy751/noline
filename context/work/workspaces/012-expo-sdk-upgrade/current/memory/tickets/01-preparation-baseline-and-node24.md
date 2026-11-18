@@ -1,6 +1,6 @@
 # 01 — 준비: 검사 기준선, 실기기 점검표, `release/1.1`, Node 24
 
-**상태:** 시작 전 (2026-11-17 확정). 바로 실행할 Ticket이다. 일정은 11월(02와 같은 달)이다.
+**상태:** 진행 중 (2026-11-18 시작). 기준선, `release/1.1`(원격, 빌드·OTA 확인), Node 24 설정 변경(미커밋), 설치 절차 확정까지 했다. Railway 설정도 지웠다(미커밋). 남은 일은 Node 24 서버 배포와 실기기 점검표다. 결과는 아래 [현재 상태와 실제 결과](#현재-상태와-실제-결과)에 있다. 일정은 11월(02와 같은 달)이다.
 
 ## 맡은 결과와 범위
 
@@ -23,11 +23,11 @@ Spec과의 연결: [완료 판단](../spec/04-quality-and-completion.md)의 8(�
 **순서: `release/1.1`을 가장 먼저 만든다.** 1.1.4에 OTA를 보내거나 반려 뒤 다시 제출하려면 1.1.4와 같은 상태의 코드가 필요하다. 그래서 `release/1.1`을 만들기 전에는 012의 어떤 변경도 main에 병합하지 않는다. 이미 제출·승인된 스토어 빌드는 업로드한 바이너리라 브랜치나 worktree 분리의 영향을 받지 않는다. 버전과 빌드 번호는 `app.config.js`에서 브랜치마다 따로 올리며, `release/1.1`은 1.1.x, main은 1.2.0으로 구분한다(Main 판단, 2026-11-18).
 
 **1. 검사 기준선.** 각 경로 가이드의 명령을 그대로 실행하고 통과·실패 수와 실패 이름을 남긴다. 실패가 있어도 지금 고치지 않고 기준선으로 기록한다.
-- client: `pnpm client lint`, `pnpm client test --runInBand`, `pnpm client test:typecheck`
+- client: `pnpm client lint`, `pnpm --filter @apps/client run test --runInBand`, `pnpm client test:typecheck`. 경로 가이드의 `pnpm client test --runInBand`는 pnpm 9.6.0에서 `Unknown option: 'runInBand'`로 실패한다(2026-11-18 확인).
 - server: `pnpm run server typecheck`, `pnpm run server build`, `pnpm run server test`, `pnpm run server test:integration`(docker의 postgres 필요)
 - schema: `pnpm schema build`(test·typecheck script는 없다)
 - ui: `pnpm --filter @repo/ui lint`(이 패키지에는 lint만 있다)
-- 함께 남길 것: `npx expo install --check`의 현재 출력(SDK 51 기준 어긋남 목록). 03 이후의 `--check`와 비교한다.
+- 함께 남길 것: `expo install --check`의 현재 출력(SDK 51 기준 어긋남 목록). 03 이후의 `--check`와 비교한다.
 
 **2. 실기기 점검표.** 매 단계 같은 항목을 같은 순서로 본다. 확정 구성의 공통 규칙에서 정한 항목이다.
 
@@ -42,9 +42,9 @@ Spec과의 연결: [완료 판단](../spec/04-quality-and-completion.md)의 8(�
 
 실행 기기는 iPhone 14 Pro 실기기 1대(iOS 27.2.1로 해석)다. 운영 앱(1.1.4)에서 실행할지 preview 앱에서 실행할지 정해 결과에 적는다. preview 앱의 Apple 로그인은 서버의 `APPLE_CLIENT_ID`가 운영 번들이라 실패할 수 있다(011에서 알려진 제한, 미확인). 이 점검은 1.1.4(SDK 51 빌드)가 iOS 27에서 동작하는지에 대한 실기기 근거도 된다([개념과 계약](../spec/03-concepts-and-contracts.md)의 가정).
 
-**3. `release/1.1`.** 1.1.4로 출시한 코드에서 브랜치를 만든다. 기준 커밋은 1.1.4 버전 커밋 `d160c7b5`가 후보이며, 실제로 빌드에 쓴 커밋인지 확인하고 정한다. 그 브랜치에서 다음을 확인한다.
+**3. `release/1.1`.** 1.1.4로 출시한 코드에서 브랜치를 만든다. 기준 커밋은 1.1.4 버전 커밋 `d160c7b5`다. 2026-11-18 1.1.4 빌드 18의 `gitCommitHash`가 이 커밋임을 EAS에서 확인하고 로컬 브랜치를 만들었다. 그 브랜치에서 다음을 확인한다.
 - **핫픽스 빌드:** production 프로필로 빌드가 만들어지는지. 스토어 제출까지 할 필요는 없다.
-- **OTA:** `pnpm ota:publish`로 preview 채널에 발행해 기기가 받는지. 발행 스크립트는 채널의 **최신 빌드와 runtime이 같을 때만** 발행한다. 그래서 `release/1.1`의 OTA는 production 채널에 1.2.0 빌드가 생기기 전까지만 유효하다.
+- **OTA:** `pnpm ota:publish`로 preview 채널에 발행해 기기가 받는지. (2026-11-18 결과와 production 빌드를 대체한 근거는 아래 결과 표 3번과 [빌드·OTA 확인 기록](../../../records/2026-11-18-03-release-1-1-build-and-ota-check.md)) 발행 스크립트는 채널의 **최신 빌드와 runtime이 같을 때만** 발행한다. 그래서 `release/1.1`의 OTA는 production 채널에 1.2.0 빌드가 생기기 전까지만 유효하다.
   - **1.2.0이 승인·출시된 뒤에는 1.1.x 스토어 빌드도 낼 수 없다.** App Store는 새로 제출하는 버전 번호가 이미 승인된 버전보다 높아야 한다(Main의 지식, 이번 대화에서 Apple 문서로 다시 확인하지 않음). 그래서 1.2.0 뒤 1.1.x 사용자를 고치는 길은 1.2.x로 업데이트하게 하는 것뿐이고, 1.2.0 사용자의 핫픽스는 `release/1.2`에서 낸다. `release/1.1`의 쓰임새는 1.2.0 출시 전까지의 1.1.4 심사 반려 시 재제출, 1.1.5 핫픽스, 1.1.4 runtime으로의 OTA다. 2026-11-17에 "1.2.0 뒤 1.1.x는 스토어 빌드로만"이라고 적었던 것은 틀렸다([정정 기록](../../../records/2026-11-18-01-release-branch-correction-and-worktree.md)).
   - 이것은 012가 새로 정할 판단이 아니다. Project [출시 기준](../../../../../../project/guidance/app-release-and-ota.md#runtime이-같은-빌드에만-ota가-간다)이 이미 "이전 버전 사용자에게만 OTA를 보내는 경로가 없고, 그 사용자에게는 스토어 업데이트로 고친다"는 운영 정책을 정해 두었고 012는 이를 따른다. 이전 버전 사용자에게 OTA를 보내야 할 필요가 생기면 발행 대상 빌드를 지정하도록 스크립트를 넓히는 일이며, 그 정책 변경은 Project 쪽 판단이다.
 
@@ -54,17 +54,17 @@ Spec과의 연결: [완료 판단](../spec/04-quality-and-completion.md)의 8(�
 - `nixpacks.toml`(Railway): 지금 쓰는지 확인하고, 안 쓰면 지우고 쓰면 `nodejs_24`로
 - `START_GUIDE.md`의 "Node.js 20" 안내. 아래 pnpm·eas-cli 준비 방법도 함께 적는다.
 - `engines`는 03에서 넣는다(확정 구성의 배치).
-- **pnpm·eas-cli 준비.** 2026-11-17 Main 확인으로, pnpm 9.6.0은 nvm의 Node v20.18.1 폴더에만 설치돼 있다(`which -a pnpm` → `~/.nvm/versions/node/v20.18.1/bin/pnpm` 하나). 지금 셸은 Node v24.16.0인데 PATH 덕에 v20 폴더의 pnpm과 eas-cli 16.28.0을 쓰고 있다. `.nvmrc`를 24로 바꾸고 `nvm use`를 하면 둘이 PATH에서 빠질 수 있다. 그래서 Node 24 쪽에 pnpm 9.6.0(corepack 또는 전역 설치)과 eas-cli를 준비하고, 그 방법을 `START_GUIDE.md`에 적는다. 어느 방식으로 할지는 실행하며 정한다.
+- **pnpm·eas-cli 준비.** 2026-11-17 Main 확인으로, pnpm 9.6.0은 nvm의 Node v20.18.1 폴더에만 설치돼 있다(`which -a pnpm` → `~/.nvm/versions/node/v20.18.1/bin/pnpm` 하나). 지금 셸은 Node v24.16.0인데 PATH 덕에 v20 폴더의 pnpm과 eas-cli 16.28.0을 쓰고 있다. `.nvmrc`를 24로 바꾸고 `nvm use`를 하면 둘이 PATH에서 빠질 수 있다. 그래서 Node 24 쪽에 pnpm 9.6.0(corepack 또는 전역 설치)과 eas-cli를 준비하고, 그 방법을 `START_GUIDE.md`에 적는다. 2026-11-18 Node 24 폴더에 `npm i -g pnpm@9.6.0 eas-cli@16.28.0`으로 설치하는 방식을 택했다.
 
 Render는 루트에서 `pnpm install`을 실행해 client 의존성까지 Node 24로 설치한다. 지금은 SDK 51 의존성이라 문제를 예상하지 않지만 배포 로그로 확인한다. drizzle-kit 0.20 등 오래된 서버 도구의 Node 24 동작은 미확인이다.
 
 **운영 서버 배포 주의.** Node 24 서버 배포는 1.1.4 사용자가 지금 쓰는 운영 서버에 바로 적용된다. worktree와 상관없이 실제 사용자에게 닿는 유일한 변경이다. Render는 main에 push하면 자동 배포되므로(`render.yaml`의 `autoDeploy: true`) 병합·push는 사용자 확인 뒤에 한다. 배포 전에 Render에서 이전 배포로 되돌리는 방법을 확인하고, 배포 뒤 운영 앱으로 확인한다(Main 판단).
 
-**5. `npx expo install` 실패의 원인 찾기 또는 대체 절차.** 011에서 `apps/client`의 `npx expo install`이 `ERR_PNPM_PUBLIC_HOIST_PATTERN_DIFF`로 실패해 루트의 `pnpm --filter @apps/client add`로 설치했다([011 Ticket 01](../../../../011-expo-updates-ota/current/memory/tickets/01-expo-updates-and-ios15-build.md)). 2026-11-17 Main이 읽기 전용으로 본 바로는 루트와 `apps/client` 모두 `pnpm config get public-hoist-pattern`이 `*`, node-linker가 `hoisted`로 같고, `node_modules/.modules.yaml`의 hoist 설정도 `*`다. 설정 차이로는 설명되지 않아 원인은 미확인이다.
-- 버리는 브랜치에서 재현해 원인을 찾고 고친다.
-- 못 고치면 대체 절차를 확정한다. Main 제안(확인 전): `npx expo install --check`로 Expo가 고른 버전을 얻고, 저장소 루트에서 `pnpm --filter @apps/client add <패키지>@<그 버전>`으로 설치한 뒤, 단계 끝에 `npx expo install --check` 통과를 확인한다. 공통 규칙 3의 의도인 "Expo가 고른 버전만 넣는다"는 이 절차로도 지켜진다.
+**5. `npx expo install` 실패의 원인 찾기 또는 대체 절차.** 011에서 `apps/client`의 `npx expo install`이 `ERR_PNPM_PUBLIC_HOIST_PATTERN_DIFF`로 실패해 루트의 `pnpm --filter @apps/client add`로 설치했다([011 Ticket 01](../../../../011-expo-updates-ota/current/memory/tickets/01-expo-updates-and-ios15-build.md)). 2026-11-17에는 루트와 `apps/client`의 pnpm 설정이 같아 원인을 설명하지 못했다.
+- **2026-11-18 원인 확정:** npx(npm 11)가 프로젝트 `.npmrc` 값을 `npm_config_public_hoist_pattern=*` 등의 환경변수로 하위 프로세스에 넘기고, `expo install` 안의 `pnpm add`가 이를 기존 modules 디렉터리의 설정과 다르다고 판단한다. `pnpm exec`는 이 환경변수를 넘기지 않는다.
+- **절차:** `apps/client`에서 `pnpm exec expo install <패키지>`. 2026-11-17의 대체 절차 제안(`--check`로 버전을 얻어 루트에서 `pnpm --filter @apps/client add`)은 쓰지 않는다. 설치 명령을 `npx`로 감싸면 같은 환경변수 때문에 pnpm이 `node_modules` 전체 재설치를 물을 수 있다.
 
-**실행하며 정할 것:** 점검표를 운영 앱에서 돌릴지 preview에서 돌릴지, `release/1.1`의 정확한 기준 커밋, nixpacks 삭제 여부, pnpm·eas-cli 준비 방식, `expo install` 원인 수정 또는 대체 절차.
+**실행하며 정할 것:** 점검표를 운영 앱에서 돌릴지 preview에서 돌릴지. nixpacks는 2026-11-18 사용자가 Railway를 쓰지 않는다고 해 지웠다. 기준 커밋(`d160c7b5`), pnpm·eas-cli 준비 방식(Node 24 폴더에 `npm i -g`), 설치 절차(`pnpm exec expo install`)는 2026-11-18에 정했다.
 
 ## 완료 조건과 확인 방법
 
@@ -79,4 +79,16 @@ Render는 루트에서 `pnpm install`을 실행해 client 의존성까지 Node 2
 
 ## 현재 상태와 실제 결과
 
-시작 전. 실제 결과는 진행하며 채운다.
+2026-11-18 이 세션의 main 작업 트리에서 시작했다(worktree 카드로 시작하지 않음). 사용자는 "01 시작"만 지시했고, 아래 선택은 Main이 실행하며 정했다. 과정과 근거는 [Ticket 01 진행 기록](../../../records/2026-11-18-02-ticket01-baseline-node24-and-expo-install.md), 수치와 실패 이름은 [기준선 원자료](../../../source/ticket-01-baseline-2026-11-18.md)에 있다.
+
+| 맡은 결과 | 현재 | 남은 것 |
+| --- | --- | --- |
+| 1 검사 기준선 | **완료.** Node 24, commit `26c1fecf`. client test 78 suites/920 통과, client lint 11 errors·254 warnings, client typecheck 6 errors, server typecheck·build 통과, server test 89·integration 50 통과, schema build 통과, ui lint 25 errors·7 warnings. 실패는 기존 상태로 고치지 않았다. `expo install --check`는 9개 어긋남(2026-11-16의 10개에서 dev-client 빠짐). 서버·schema는 Node 20에서도 같은 결과 | — |
+| 2 실기기 점검표 | 점검표는 정해져 있다 | 1.1.4에서 실행(사용자 기기). 운영 앱/preview 선택 |
+| 3 `release/1.1` | **완료(production 빌드는 대체 근거).** 1.1.4 빌드 18(`7033c2ba-0dc7-46e6-96cf-bfcc7044b881`)의 `gitCommitHash`가 `d160c7b5`임을 확인하고 그 커밋에서 만들어 사용자의 "push 해줘"로 원격에 올렸다(`origin/release/1.1` = `d160c7b5`, main push가 아니라 Render 배포와 무관). 사용자의 "빌드·OTA 진행"에 따라 worktree `.claude/worktrees/012-release-1.1`(Node 20.18.1)에서 확인했다. preview 빌드 `30c46ce2-39f7-450d-9c1c-bce9b4f2dff6`(1.1.4/18, `d160c7b5`, runtime `92c898f2…`)를 iPhone에 덮어 설치했고, 시험 문구 업데이트(그룹 `dedf8fc0-46ae-4ac8-8f68-2d9e98e51c59`)를 기기가 받았다("붙어 보여"). 깨끗한 코드로 다시 발행(그룹 `0272f0e0-c752-4a36-b502-26c900986079`)해 원래 문구로 돌아왔다("원래대로 돌아왔어"). production 빌드는 Main 판단으로 새로 만들지 않았다. 같은 커밋의 `7033c2ba`가 이미 성공했고, 새 빌드가 채널의 최신 빌드가 되면 1.1.4로 가는 OTA 대상이 바뀔 수 있어서다. 대신 production dry-run에서 로컬 runtime `0367b72f…`가 `7033c2ba`와 같음을 확인했다. Main이 사용자에게 알렸고 사용자는 이의 없이 진행했다 | production 프로필의 새 빌드 성공은 직접 확인하지 않음(대체 근거). worktree를 지울지 미정 |
+| 4 Node 24 | **브랜치 `chore/012-node24`에서 변경, 커밋 안 함.** `.nvmrc` 24.16.0, `render.yaml` `NODE_VERSION` 24, `apps/server/tsup.config.ts` target `node24`, `@types/node` ^24.19.2(root·server·ui, lockfile은 `@types/node`만 바뀜), `START_GUIDE.md`의 Node 24·도구 준비·확인 범위. 변경 뒤 Node 24 재실행 결과가 기준선과 같고 server build target이 node24다. Node 24 폴더에 pnpm 9.6.0·eas-cli 16.28.0을 `npm i -g`로 설치했고, 새 셸의 `nvm use` 뒤 둘 다 Node 24 폴더를 가리킨다. `eas.json` `base.node` 20.18.1은 의도대로 유지(03). Main이 "Railway를 아직 쓰나요?"라고 묻자 사용자가 "안 써, 지워"라고 답해, 같은 브랜치에서 `nixpacks.toml`과 `railway.json`(NIXPACKS 빌더, 2025-12-30 `ce6342c3`에서 추가)을 삭제했다(stage 안 함). context/work·_archive 밖에 두 파일을 참조하는 곳은 없다 | main 병합·push = Render 자동 배포라 되돌리는 방법을 먼저 확인하고 사용자 확인 뒤. 배포 로그와 운영 앱 확인 |
+| 5 설치 절차 | **확정.** 실패 원인은 npx(npm 11)가 `.npmrc` 값을 `npm_config_public_hoist_pattern=*` 환경변수로 넘기는 것이다. `apps/client`에서 `pnpm exec expo install <패키지>`가 동작한다. 공통 규칙 3과 Spec 05에 반영했다 | 대화형 셸 실행은 확인 전. 지속 규칙의 위치(가이드·Project)는 미정 |
+
+완료 조건 대비: 기준선과 `--check` 출력, 서버·schema의 Node 24 결과, 새 셸의 pnpm·eas와 START_GUIDE, 설치 절차는 충족 근거가 있다. 다만 START_GUIDE·Node 설정 변경은 아직 미커밋 브랜치에만 있다. `release/1.1`은 원격에 있고 그 브랜치의 빌드 ID와 OTA 수신 결과가 있다(production 빌드는 같은 커밋의 기존 빌드와 dry-run으로 대체). 점검표 실행, nixpacks는 정리했다(미커밋). 점검표 실행, Render 배포와 되돌리는 방법은 남았다.
+
+`pnpm harness:check`는 Work 001·002·005 records의 깨진 링크 64건으로 실패한다. 이번 변경과 무관한 기존 상태다.

@@ -1,6 +1,6 @@
 # 현재 상태와 다음 행동
 
-2026-11-18 기준 상태다. 범위·대상 SDK·출시 2번을 정했고, 라이브러리 호환 점검과 지도 문제를 반영해 Ticket을 5개로 다시 짜 확정했다. Ticket 문서 01–05를 만들었다. 구현·빌드는 아직 시작하지 않았고, 01과 02를 바로 시작할 수 있다.
+2026-11-18 기준 상태다. 범위·대상 SDK·출시 2번을 정했고, 라이브러리 호환 점검과 지도 문제를 반영해 Ticket을 5개로 다시 짜 확정했다. **2026-11-18 Ticket 01을 시작했다.** 검사 기준선, `release/1.1`(원격, 빌드·OTA 확인), Node 24 설정 변경(미커밋 브랜치), 설치 절차 확정까지 했고, Railway 설정도 사용자 확인으로 지웠다(미커밋). 남은 01의 일은 Node 24 서버 배포와 실기기 점검이다. 02와 SDK 업그레이드는 시작하지 않았다.
 
 **이 Work가 생긴 경위:** 2026-11-16 Work 011을 재개하던 중 사용자가 SDK·라이브러리 업그레이드를 함께 맡을지 물었고, Main의 분석과 추천에 따라 별도 Work로 나눴다. 사용자는 "그래 분리해서 진행하자 더 버전에 대해 자세한건 012에서 더 논의한다고 기록해주고"라고 답했다. 분석과 선택 이유는 [분리 기록](../../records/2026-11-16-01-separation-from-011-and-version-analysis.md)에 있다.
 
@@ -41,33 +41,49 @@
 
 **1.2.0 뒤 1.1.x 핫픽스.** 1.2.0이 나가면 1.1.x 사용자는 1.2.x로 업데이트해야 고칠 수 있다. production에 1.2.0 빌드가 생기면 `release/1.1`의 OTA가 발행되지 않고, App Store는 이미 승인된 버전보다 높은 버전만 받아 1.1.x 스토어 빌드도 낼 수 없기 때문이다(버전 규칙은 Main의 지식이며 Apple 문서로 다시 확인하지 않았다). 이전 버전 사용자는 스토어 업데이트로 고친다는 Project [출시 기준](../../../../../project/guidance/app-release-and-ota.md#runtime이-같은-빌드에만-ota가-간다)의 기존 정책과 같은 결론이다. `release/1.1`은 1.2.0 출시 전까지 1.1.4 반려 시 재제출, 1.1.5 핫픽스, 1.1.4 OTA에 쓴다. 2026-11-17에 "1.1.x는 스토어 빌드로만"이라고 적은 것은 틀렸다. 경위는 [검토 발견 처리 기록](../../records/2026-11-17-06-review-findings-handling.md)과 [정정 기록](../../records/2026-11-18-01-release-branch-correction-and-worktree.md)에 있다.
 
-**worktree 병렬 진행과 이미 나간 빌드(2026-11-18, Main 판단).** 이미 제출·승인된 스토어 빌드는 업로드한 바이너리라 브랜치나 worktree 분리의 영향을 받지 않는다. 꼬일 수 있는 것은 이미 나간 버전에 나중에 더 보낼 때다. `release/1.1`을 Ticket 01에서 가장 먼저 만들고 그 전에는 012 변경을 main에 병합하지 않는다. 잘못된 빌드로 OTA가 가는 일은 발행 스크립트의 runtime 대조가 막는다. 버전·빌드 번호는 브랜치마다 따로 올린다. 실제 사용자에게 바로 닿는 것은 Ticket 01의 Node 24 서버 배포뿐이라, 되돌리는 방법을 확인하고 배포 뒤 운영 앱으로 본다. worktree로 나눠도 함께 쓰는 자원(실기기와 preview 앱, EAS preview 채널, lockfile, 운영 서버, Metro 포트, `node_modules`)은 조율해야 한다. Main이 Ticket 01을 worktree 세션에서 시작하는 카드를 올려 두었다(사용자 시작 전).
+**worktree 병렬 진행과 이미 나간 빌드(2026-11-18, Main 판단).** 이미 제출·승인된 스토어 빌드는 업로드한 바이너리라 브랜치나 worktree 분리의 영향을 받지 않는다. 꼬일 수 있는 것은 이미 나간 버전에 나중에 더 보낼 때다. `release/1.1`을 Ticket 01에서 가장 먼저 만들고 그 전에는 012 변경을 main에 병합하지 않는다. 잘못된 빌드로 OTA가 가는 일은 발행 스크립트의 runtime 대조가 막는다. 버전·빌드 번호는 브랜치마다 따로 올린다. 실제 사용자에게 바로 닿는 것은 Ticket 01의 Node 24 서버 배포뿐이라, 되돌리는 방법을 확인하고 배포 뒤 운영 앱으로 본다. worktree로 나눠도 함께 쓰는 자원(실기기와 preview 앱, EAS preview 채널, lockfile, 운영 서버, Metro 포트, `node_modules`)은 조율해야 한다. Main이 Ticket 01을 worktree 세션에서 시작하는 카드를 올려 두었지만, 01은 뒤에 다른 세션의 main 작업 트리에서 시작했다(아래). 카드가 남아 있는지는 확인하지 않았다.
 
 **업데이트 확인에 쓰는 앱.** 02의 검증은 preview 번들 ID(`com.noline.dev`)로 한다. 확정한 02 구성에 들어 있어 채택으로 본다. 04·05에서 출시 빌드로 다시 확인할 때 preview 앱을 쓸지는 원문에서 정하지 않았고, Main 기본값으로 남아 Ticket 04에서 정한다.
 
+## 2026-11-18 Ticket 01 진행
+
+사용자가 "01 시작"이라고 해 Main이 이 세션의 main 작업 트리에서 진행했다. 이 구간에 다른 사용자 선택은 없고, 아래 선택은 Main이 실행하며 정했다. 결과 표는 [Ticket 01](../memory/tickets/01-preparation-baseline-and-node24.md#현재-상태와-실제-결과), 과정은 [진행 기록](../../records/2026-11-18-02-ticket01-baseline-node24-and-expo-install.md), 수치는 [기준선 원자료](../../source/ticket-01-baseline-2026-11-18.md)에 있다.
+- **`release/1.1`을 원격에 올렸다.** 1.1.4 빌드 18의 `gitCommitHash`가 `d160c7b5`임을 EAS에서 확인하고 그 커밋에서 만들었다. 그 뒤 main 커밋은 문서뿐이다. Main이 "원격에 push할까요?"라고 묻고 사용자가 "push 해줘"라고 답해 push했다. 원격 `release/1.1`은 `d160c7b5`이고 로컬이 추적한다. main push가 아니라 Render 자동 배포와 무관하다.
+- **`release/1.1`의 빌드·OTA를 확인했다.** 사용자의 "빌드·OTA 진행"에 따라 worktree `.claude/worktrees/012-release-1.1`에서 preview 빌드 `30c46ce2`(1.1.4/18)를 만들어 iPhone에 덮어 설치했고, 시험 업데이트 수신("붙어 보여")과 깨끗한 코드로의 복구("원래대로 돌아왔어")를 확인했다. production 빌드는 Main 판단으로 새로 만들지 않고, 같은 커밋의 1.1.4 빌드 `7033c2ba`와 production dry-run의 runtime 일치로 대신했다. 복구 발행 중 Metro가 `@repo/ui`를 찾지 못해 두 번 실패했고 watchman 초기화로 풀렸다. 경위는 [빌드·OTA 확인 기록](../../records/2026-11-18-03-release-1-1-build-and-ota-check.md)에 있다.
+- **Ticket 02의 첫 단계가 채워졌다.** 기기의 preview 앱이 1.1.4 빌드 `30c46ce2`다. 02는 이 앱에 데이터와 오프라인 지도를 넣는 것부터 한다.
+- **기준선을 남겼다.** client test·server 전부·schema build는 통과하고, client lint(11 errors)·client typecheck(6 errors)·ui lint(25 errors)는 기존 실패다. 업그레이드 단계는 이 수치와 비교한다. 서버·schema는 Node 20에서도 결과가 같았다. 경로 가이드의 `pnpm client test --runInBand`는 pnpm 9.6.0에서 실패해 `pnpm --filter @apps/client run test --runInBand`로 실행했다.
+- **설치 절차를 확정했다.** `npx expo install`의 실패 원인은 npx가 `.npmrc` 값을 환경변수로 넘기는 것이었다. `apps/client`에서 `pnpm exec expo install <패키지>`로 넣는다(공통 규칙 3).
+- **Node 24 설정을 바꿨지만 커밋하지 않았다.** 브랜치 `chore/012-node24`에 `.nvmrc`·`render.yaml`·tsup target·`@types/node`·`START_GUIDE.md` 변경이 있고, 변경 뒤 검사 결과가 기준선과 같다. Node 24 폴더에 pnpm 9.6.0·eas-cli 16.28.0을 설치했다. `eas.json`은 의도대로 20.18.1이다. 사용자가 Railway를 쓰지 않는다고 해("안 써, 지워") `nixpacks.toml`·`railway.json`도 같은 브랜치에서 지웠다(stage 안 함).
+
+## 남은 일과 다음 행동
+
 **아직 하지 않은 것:**
-- 01·02 실행(바로 시작 가능)
-- `npx expo install` 실패의 원인 수정 또는 대체 절차 확정(01). 루트와 `apps/client`의 pnpm hoist 설정이 같아 원인은 미확인이다
-- Node 24 쪽 pnpm 9.6.0·eas-cli 준비(01). 지금은 nvm의 Node 20 폴더에만 있다
+- Ticket 01의 남은 일. 모두 사용자 확인 뒤 한다
+  - `chore/012-node24`의 커밋·main 병합·push. Render가 자동 배포해 운영 서버에 바로 닿으므로 이전 배포로 되돌리는 방법을 먼저 확인하고, 배포 뒤 로그와 운영 앱으로 확인한다
+  - 1.1.4 실기기 점검표 실행(사용자 기기, 운영 앱/preview 선택)
+- 02 실행
 - 04·05의 업데이트 확인 방식 결정(Ticket 04)
 - ESLint 9는 SDK 58이 요구할 때만 넣는다는 Main 기본값의 확인
-- 구현·빌드·검증 전부
+- SDK 업그레이드 구현·빌드·검증 전부
 
 **중요한 미확인:**
 - Mapbox v10에서 받은 오프라인 pack이 v11 빌드에서 남는지, expo-sqlite를 올린 뒤 기기 DB 파일 경로가 그대로인지(02에서 판정)
 - RNTL 14와 jest-expo 54의 동작(02)
 - nativewind의 SDK 58·RN 0.88 지원, @rn-primitives·react-native-calendars의 React 19·New Architecture 공식 지원
 - 2025-11 Mapbox 실패의 원인(커밋에 기록 없음)
-- SDK 51 앱의 Node 24 EAS 빌드, 서버 도구(tsx·tsup·vitest·drizzle-kit 0.20)의 Node 24 동작
-- `nixpacks.toml`(Railway) 사용 여부, Render의 실제 PostgreSQL 버전
+- SDK 51 앱의 Node 24 EAS 빌드, Render의 Node 24 배포와 `tsx`(dev 서버). tsup·vitest·drizzle-kit 0.20은 2026-11-18 로컬 Node 24 검사에서 동작했다
+- Render의 실제 PostgreSQL 버전
 - 이미 설치된 SDK 51 빌드가 iOS 27에서 동작하는지(01의 1.1.4 실기기 점검이 근거가 된다)
 - Apple 요건의 정확한 날짜(4월로만 공지)
-- 업그레이드 전 기준선(01에서 기록)
+- 1.1.4 심사 결과
+- 대화형 셸에서의 `pnpm exec expo install` 동작(확인은 `CI=1` 비대화형으로 했다)
 
-**다음 행동:** Ticket 01과 02를 시작한다. 02는 1.1.4 preview를 새로 빌드해 데이터와 오프라인 지도를 넣는 것부터 한다. 기존 preview 빌드는 1.1.3이라 쓸 수 없다.
+**다음 행동:** Ticket 01의 남은 일을 사용자 확인으로 잇는다. 먼저 Render 되돌리는 방법 확인 뒤 Node 24 병합 시점을 사용자에게 묻는다. `release/1.1`이 원격에 있어 012 변경을 main에 병합하기 전의 조건은 갖췄다. 02는 01과 병행할 수 있고, 이미 설치된 1.1.4 preview 앱(`30c46ce2`)에 데이터와 오프라인 지도를 넣는 것부터 한다. 발행 스크립트의 재설치 뒤 watchman 문제를 스크립트·Project 출시 기준에 반영할지도 Main이 판단한다. 경로 가이드의 client test 명령 오류와 설치 절차를 지속 문서에 둘지는 Main이 Project·가이드 쪽에서 판단한다.
 
-**작업 트리 주의:** 다음 미커밋 수정은 이 Work와 무관하다. 이 Work의 문서를 커밋할 때 함께 올리지 않는다.
+**작업 트리 주의:** main 작업 트리는 지금 브랜치 `chore/012-node24`로 전환돼 있다. 다음 미커밋 수정은 이 Work와 무관한데 브랜치 전환으로 함께 따라왔다. Node 24 변경이나 이 Work의 문서를 커밋할 때 함께 올리지 않는다.
 - `context/personal/experience/*` 4개
 - Work 006의 Ticket 14·state
+
+worktree `.claude/worktrees/012-release-1.1`(`release/1.1`, env 파일 3개 복사, `node_modules` 설치됨)은 핫픽스·Ticket 02에 다시 쓰려고 남겨 두었다. 지울지는 정하지 않았다.
 
 기본 Workspace와 host 세션 선택은 바꾸지 않았다.
