@@ -10,7 +10,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: NODE_VERSION
-        value: 20
+        value: 24
       - key: HOST
         value: 0.0.0.0 # 서버 기본값은 localhost라 외부 접속에는 필요
       - key: DATABASE_URL

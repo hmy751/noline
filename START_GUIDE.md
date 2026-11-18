@@ -15,7 +15,7 @@
 
 ## 준비할 도구
 
-- **Node.js 20과 pnpm 9.6.0**: 저장소의 `.nvmrc`는 20.18.1이다. nvm을 쓰면 저장소 루트에서 `nvm use`로 맞춘다.
+- **Node.js 24와 pnpm 9.6.0**: 저장소의 `.nvmrc`는 24.16.0이다. nvm을 쓰면 저장소 루트에서 `nvm use`로 맞춘다. nvm은 Node 버전마다 전역 도구를 따로 두므로, 그 Node에 pnpm이 없으면 `npm i -g pnpm@9.6.0`으로 설치한다. 스토어 빌드·OTA 발행에 쓰는 eas-cli도 같은 Node에 `npm i -g eas-cli`로 설치한다. `which -a pnpm`이 다른 Node 버전 폴더를 가리키면 Node를 바꿨을 때 PATH에서 빠질 수 있다.
 - **Docker Desktop**(Compose 포함): 로컬 PostgreSQL 14를 띄운다.
 - **macOS, Xcode, iOS simulator runtime, CocoaPods**: simulator runtime이 없으면 Xcode의 Settings > Components에서 설치한다. 최소 지원 버전은 정하지 않았다. 확인한 환경은 Xcode 26.5·CocoaPods 1.16.2다.
 - **외부 서비스 값**: [외부 서비스 값과 필요한 시점](#외부-서비스-값과-필요한-시점)을 본다.
@@ -286,5 +286,7 @@ Sentry 조직에 React Native용 앱 프로젝트와 Node.js용 서버 프로젝
 이 문서는 로컬 시작 절차를 맡는다. 서버 환경·라우트·배포 전제는 [서버 안내](apps/server/README.md), 개별 SQL의 적용 조건은 [DB 스크립트 안내](apps/server/scripts/README.md), 제품 동작과 구현 차이는 [Project context](context/project/README.md)가 맡는다.
 
 2026-11-16에 새로 clone한 저장소에서 Node 20.18.1·pnpm 9.6.0·Xcode 26.5·CocoaPods 1.16.2로 이 절차를 실행했다. 확인한 것은 설치와 schema 빌드, 빈 PostgreSQL 14 DB의 `db:push`, 서버 시작과 health 응답, 새 iOS simulator에서 `pnpm client ios`의 빌드·설치와 로그인 화면 표시까지다. DB는 기존 개발 DB와 겹치지 않게 같은 설정의 별도 컨테이너·포트를 썼고, 클라이언트에는 외부 서비스 값을 모두 채운 환경 파일을 썼다. 실제 Google·Apple 로그인, Android, 외부 값 일부가 없는 실행, 패키지·CocoaPods 캐시가 없는 Mac의 첫 설치는 확인하지 않았다.
+
+2026-11-18 Node 기준을 24.16.0으로 올렸다. 이때 기존 저장소에서 서버 typecheck·build·test·integration과 schema build를 Node 20과 24로 각각 실행해 같은 결과를 얻었고, client test는 Node 24에서 통과했다. 새 clone에서 이 절차 전체를 Node 24로 다시 실행하지는 않았다.
 
 설정이나 실행 스크립트를 바꾸는 사람이 이 문서와 서버·SQL 안내를 함께 고친다.
