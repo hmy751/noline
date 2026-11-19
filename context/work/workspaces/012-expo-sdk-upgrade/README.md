@@ -10,6 +10,6 @@ Noline 앱은 Expo SDK 51 / React Native 0.74.5로 만들어져 있다. 2027년 
 - current: 목표·마감·지킬 조건·열린 판단과 현재 상태, Ticket 01–05. 버전의 현재와 이후 표는 Spec 05에 있다
 - source: 과거 버전 문제 사례의 원문 발췌, 의존성 점검 결과, 외부 요건의 출처, 라이브러리 호환 조사와 Expo의 SDK별 버전 목록, Ticket 01의 검사 기준선, Ticket 02의 판정 원자료
 - output: 실제 결과 위치(원격 `release/1.1`과 그 preview 빌드·OTA, worktree, main에 들어간 Node 24 변경과 Render 배포, 03 작업 브랜치)
-- records: 011에서 분리한 이유와 버전 분석, 버전 전수 조사와 서버 Node를 넣은 이유, Ticket 구성 초안과 출시·브랜치·최소 iOS·기기 결정, 출시를 2번으로 줄인 경위와 채택, 라이브러리 호환 점검, Ticket 5개 재구성과 지도 대응 결정, Ticket 검토에서 드러난 OTA 제한·설치 절차·로컬 도구 처리, release 브랜치 서술 정정과 worktree 분리의 영향, Ticket 01의 기준 커밋·기준선·`expo install` 실패 원인·Node 24 변경, `release/1.1` 빌드·OTA 확인과 production 빌드를 생략한 판단, Render 되돌리기 확인과 서비스가 `render.yaml`을 쓰지 않는다는 발견, Ticket 02 실기기 판정의 과정과 결과, Ticket 03의 SDK 52·53·54 진행과 계획에서 달라진 것, EAS·iPad 실기기 확인, Ticket 04 코드 작업과 독립 검증 결과
+- records: 011에서 분리한 이유와 버전 분석, 버전 전수 조사와 서버 Node를 넣은 이유, Ticket 구성 초안과 출시·브랜치·최소 iOS·기기 결정, 출시를 2번으로 줄인 경위와 채택, 라이브러리 호환 점검, Ticket 5개 재구성과 지도 대응 결정, Ticket 검토에서 드러난 OTA 제한·설치 절차·로컬 도구 처리, release 브랜치 서술 정정과 worktree 분리의 영향, Ticket 01의 기준 커밋·기준선·`expo install` 실패 원인·Node 24 변경, `release/1.1` 빌드·OTA 확인과 production 빌드를 생략한 판단, Render 되돌리기 확인과 서비스가 `render.yaml`을 쓰지 않는다는 발견, Ticket 02 실기기 판정의 과정과 결과, Ticket 03의 SDK 52·53·54 진행과 계획에서 달라진 것, EAS·iPad 실기기 확인, Ticket 04 코드 작업과 독립 검증 결과, `createPack` 완료 시점 문제를 Work 008로 넘긴 결정
 
 이 Work를 만들면서 기본 Workspace나 실제 채팅 연결은 바꾸지 않았다.

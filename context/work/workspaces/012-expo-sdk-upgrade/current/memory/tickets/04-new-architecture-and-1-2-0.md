@@ -51,7 +51,7 @@ Spec과의 연결: [완료 판단](../spec/04-quality-and-completion.md)의 3(�
 ## 완료 조건과 확인 방법
 
 - New Architecture preview 빌드에서 실기기 점검표 6항목이 기준선과 같다. 특히 Mapbox 지도·오프라인 pack·경로 표시, reanimated를 쓰는 `MyLocationButton`, nativewind 스타일 화면을 실기기로 본다.
-- 이전 빌드(1.1.4)에 데이터와 지도를 넣은 상태에서 1.2.0 빌드를 덮어 설치해 데이터가 보존된다. 지도는 남거나, 대응이 들어갔다면 첫 실행에서 "다시 받기 필요"로 바뀌고 안내가 뜨며 활성 여행에서 다시 받을 수 있다. "준비됨"인데 빈 지도가 없다.
+- 이전 빌드(1.1.4)에 데이터와 지도를 넣은 상태에서 1.2.0 빌드를 덮어 설치해 데이터가 보존된다. 지도는 남거나, 대응이 들어갔다면 첫 실행에서 "다시 받기 필요"로 바뀌고 안내가 뜨며 활성 여행에서 다시 받을 수 있다. "준비됨"인데 빈 지도가 없다. 이 조건은 SDK 업그레이드가 지도에 주는 영향(스타일·pack 호환, 옛 pack 처리)을 본다. 업그레이드 전부터 있던 "다운로드가 끝나기 전에 준비됨이 켜지는" 문제는 Work 008이 맡는다(아래 (a), 2026-11-19 사용자 결정).
 - 1.2.0 빌드에서 OTA 받기, 업데이트를 기다리지 않는 시작, 롤백이 된다. 1.1.4 빌드와 runtime이 달라 이전 업데이트를 받지 않는다.
 - 업로드 메일에 경고가 없고 심사를 통과했다. `release/1.2`가 있다.
 - 출시 뒤 1주일의 Sentry 관찰 결과가 남아 있다. 새 크래시가 있으면 05 출시 전에 처리한다.
@@ -73,9 +73,9 @@ Spec과의 연결: [완료 판단](../spec/04-quality-and-completion.md)의 3(�
 
 **아직 확인하지 않은 것:** 비행기 모드의 오프라인 지도, 실기기, 1.1.4 위 덮어 설치(기기 빌드 필요). 03에서 넘긴 확인(EAS 빌드 실기기 설치, EAS Node 24 로그, Apple 로그인, iPhone 덮어 설치)도 남아 있다.
 
-**열린 판단: 기존 문제 (이번 변경으로 생긴 것 아님, 처리하지 않음)**
-- **(a) `createPack`이 다운로드 시작 직후 resolve한다**(Main이 `RNMBXOfflineModule.swift`를 직접 확인). 그래서 `download.ts`가 다운로드 완료 전에 `mapDownloaded = true`를 기록할 수 있다. 위 완료 조건 "'준비됨'인데 빈 지도가 없다"와 직접 닿는다. 테스트 mock은 완료 뒤 resolve로 모델링돼 가려졌다. **이 Ticket에서 고칠지 사용자 결정이 필요하다.**
-- (b) `download.ts`가 `'size'`·`'tileCount' in pack`으로 읽는 값이 늘 0·null로 저장된다.
-- (c) `requiredResourceCount = 0`인 진행 이벤트에서 NaN이 날 수 있다(저우선).
+**함께 찾은 기존 문제 (이번 변경으로 생긴 것 아님, 012에서 처리하지 않음)**
+- **(a) `createPack`이 다운로드 시작 직후 resolve한다**(Main이 `RNMBXOfflineModule.swift`를 직접 확인). 그래서 `download.ts`가 다운로드 완료 전에 `mapDownloaded = true`를 기록할 수 있다. 테스트 mock은 완료 뒤 resolve로 모델링돼 가려졌다. **2026-11-19 결정: 012에서는 고치지 않고 [Work 008](../../../../008-exception-notice-rules/README.md)(예외 안내 규칙)로 넘긴다.** 사용자는 다른 Ticket에 이미 기록돼 있으면 012에서는 넘어가자고 했다. Main은 처음에 이 문제를 기록한 곳으로 [003 Ticket 05](../../../../003-bug-investigation-and-fixes/current/memory/tickets/05-offline-map-readiness.md)를 확인했다(2026-09-13 조사에서 pack 생성 promise가 타일 완료를 뜻하지 않음을 확인, 완료 조건에 생성·진행·완료·실패 구별과 iOS 비행기 모드 대조, 미완료). 사용자는 003이 아니라 예외처리 Workspace인 008로 하자고 했다. 008에는 이 문제가 기록돼 있지 않아 넘겨받은 과제로 새로 추가했다([008 현재 상태](../../../../008-exception-notice-rules/current/state/index.md)). Project [map-packs](../../../../../../project/guidance/offline-maps-and-routes/map-packs.md)와 [지도 기준 INDEX](../../../../../../project/guidance/offline-maps-and-routes/INDEX.md)는 이 동작을 현재 동작으로 적고 있다. 그래서 위 완료 조건은 업그레이드의 영향으로만 본다. 경위와 사용자 원문은 [소관 결정 기록](../../../records/2026-11-19-03-createpack-ownership-decision.md)에 있다.
+- (b) `download.ts`가 `'size'`·`'tileCount' in pack`으로 읽는 값이 늘 0·null로 저장된다. Project [map-packs](../../../../../../project/guidance/offline-maps-and-routes/map-packs.md)가 이미 이 값을 신뢰할 근거가 없다고 적고 있고(용량 화면은 `pack.status()`를 따로 읽음), 003 Ticket 05의 완료 조건 "flag와 용량 표시가 실제 자원 상태를 반영"과도 가깝다. 008로 넘긴 (a)와 같은 `download.ts` 저장 경로이지만 이번 결정의 대상이 아니었고 소관은 정하지 않았다(저우선).
+- (c) `requiredResourceCount = 0`인 진행 이벤트에서 NaN이 날 수 있다(저우선). 003 Ticket 05의 진행 처리(진행률 0·10%의 ready 처리, 생성·진행·완료 구별)와 가깝고 (a)와 같은 다운로드 진행 경로이지만, 이번 결정의 대상이 아니었고 소관은 정하지 않았다.
 
-**남은 일:** (a) 결정, 기기 빌드(EAS 횟수를 보고 EAS 또는 로컬)로 실기기 비행기 모드·1.1.4 덮어 설치 확인, `feat/012-newarch`의 main 병합 시점, 12월 갱신 뒤 1.2.0 출시 절차.
+**남은 일:** 기기 빌드(EAS 횟수를 보고 EAS 또는 로컬)로 실기기 비행기 모드·1.1.4 덮어 설치 확인, `feat/012-newarch`의 main 병합 시점, 12월 갱신 뒤 1.2.0 출시 절차.
