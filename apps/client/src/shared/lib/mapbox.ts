@@ -48,6 +48,14 @@ export function decodePolylineForReactNativeMaps(encoded: string): { latitude: n
 }
 
 /**
+ * 오프라인 지도 pack을 받는 스타일이자 Mapbox 지도를 그리는 스타일.
+ * 받은 pack과 그리는 스타일이 같아야 오프라인에서 지도가 그려진다.
+ * `MapboxGL.StyleURL.Street`는 native SDK 기본값을 따르므로 쓰지 않는다(Mapbox v10은 streets-v11, v11은 streets-v12).
+ * 바꾸면 이미 받은 pack과 맞지 않게 되므로 기존 사용자의 지도 처리와 함께 바꾼다.
+ */
+export const OFFLINE_MAP_STYLE_URL = 'mapbox://styles/mapbox/streets-v11';
+
+/**
  * 좌표 배열을 Polyline6 문자열로 인코딩
  * - 디버깅 또는 테스트용
  *

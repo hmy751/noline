@@ -17,6 +17,7 @@ import {
   downloadOfflineMapInBackground,
 } from '@/shared/services/offline-map';
 import { processPendingCleanups } from '@/shared/services/sync/cleanup-job';
+import { OFFLINE_MAP_STYLE_URL } from '@/shared/lib/mapbox';
 import { useAuthStore } from '@/shared/store/auth';
 
 jest.mock('expo-sqlite', () => ({
@@ -164,6 +165,8 @@ it('여행이 획득·반납을 반복해도 한 번만 반영하고 다시 획�
   await Promise.all([downloadOfflineMapInBackground('A'), downloadOfflineMapInBackground('A')]);
   expect(city()).toMatchObject({ referenceCount: 1 });
   expect(manager.createPack).toHaveBeenCalledTimes(1);
+  expect(manager.createPack.mock.calls[0][0]).toMatchObject({ styleURL: OFFLINE_MAP_STYLE_URL });
+  expect(city()).toMatchObject({ styleUrl: OFFLINE_MAP_STYLE_URL });
 
   await setActive('A', false);
   await Promise.all([cleanupOfflineMapForTrip('A'), cleanupOfflineMapForTrip('A')]);

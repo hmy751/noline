@@ -12,7 +12,7 @@ import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { useRef, useEffect, useMemo, useState } from 'react';
 import MapboxGL from '@rnmapbox/maps';
 import { useGetRoutes } from '@/entities/route';
-import { decodePolyline } from '@/shared/lib/mapbox';
+import { decodePolyline, OFFLINE_MAP_STYLE_URL } from '@/shared/lib/mapbox';
 import { formatDistance, formatDuration, type MapboxProfile } from '@/shared/services/directions/mapbox';
 import { buildRouteSegments, findSavedRoute, getScheduleCoordinate } from '@/shared/services/directions/route-plan';
 import type { ScheduleMapViewProps } from './types';
@@ -136,7 +136,7 @@ export function MapboxScheduleMapView({
 
   return (
     <View style={styles.map}>
-      <MapboxGL.MapView style={styles.map} styleURL='mapbox://styles/mapbox/streets-v11'>
+      <MapboxGL.MapView style={styles.map} styleURL={OFFLINE_MAP_STYLE_URL}>
         {/* 카메라 - 모든 일정을 포함하도록 자동 조정 */}
         <MapboxGL.Camera ref={cameraRef} {...initialCamera} animationDuration={0} />
 

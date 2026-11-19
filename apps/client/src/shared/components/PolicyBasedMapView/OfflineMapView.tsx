@@ -6,6 +6,7 @@
 import { View, StyleSheet } from 'react-native';
 import { useEffect, useRef, useMemo } from 'react';
 import MapboxGL from '@rnmapbox/maps';
+import { OFFLINE_MAP_STYLE_URL } from '@/shared/lib/mapbox';
 
 interface Location {
   latitude: number;
@@ -97,7 +98,7 @@ export function OfflineMapView({ locations, selectedLocation, cityId }: OfflineM
 
   return (
     <View style={styles.map}>
-      <MapboxGL.MapView style={styles.map} styleURL={MapboxGL.StyleURL.Street}>
+      <MapboxGL.MapView style={styles.map} styleURL={OFFLINE_MAP_STYLE_URL}>
         <MapboxGL.Camera ref={cameraRef} {...initialCamera} animationDuration={0} />
 
         <MapboxGL.UserLocation visible={true} showsUserHeadingIndicator={true} />

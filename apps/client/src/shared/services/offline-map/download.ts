@@ -2,6 +2,7 @@ import MapboxGL from '@rnmapbox/maps';
 import { and, eq, isNull } from 'drizzle-orm';
 
 import { getDatabase, offlineCities, runDatabaseTransaction, trips, tripActivations } from '@/shared/db';
+import { OFFLINE_MAP_STYLE_URL } from '@/shared/lib/mapbox';
 import { queryClient } from '@/shared/lib/queryClient';
 import { useAuthStore } from '@/shared/store/auth';
 
@@ -55,7 +56,7 @@ export async function downloadOfflineMapInBackground(tripId: string): Promise<vo
   await withCityMapOperation(cityId, async () => {
     if (!isCurrent()) return;
     const regionName = `offline_city_${cityId}`;
-    const styleURL = 'mapbox://styles/mapbox/streets-v11';
+    const styleURL = OFFLINE_MAP_STYLE_URL;
     const minZoom = 10;
     const maxZoom = 16;
     const findPack = async () => (await MapboxGL.offlineManager.getPacks()).find((pack) => pack.name === regionName);
@@ -73,7 +74,7 @@ export async function downloadOfflineMapInBackground(tripId: string): Promise<vo
       await MapboxGL.offlineManager.createPack(
         { name: regionName, styleURL, bounds, minZoom, maxZoom },
         async (_region, status) => {
-          // native Mapbox v11(rnmapbox 10.3)은 받을 양을 아직 모를 때 percentage를 null로 보낸다. 진행률만 건너뛴다.
+          // rnmapbox 10.3 타입은 percentage에 null을 허용한다(진행 이벤트는 숫자를 보낸다). null이면 진행률만 건너뛴다.
           if (status.percentage === null) return;
           const percentage = Math.round(status.percentage);
           if (percentage < lastProgress + 10 && percentage !== 100) return;
