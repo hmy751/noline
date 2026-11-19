@@ -1,6 +1,6 @@
 # 03 — SDK 51→54로 올린다 (Legacy 유지, 출시 안 함)
 
-**상태:** 진행 중 (2026-11-18 시작). SDK 52·53·54를 브랜치 `feat/012-sdk54`에 커밋해 앱이 SDK 54(Legacy)로 로컬 검사와 시뮬레이터 Release 빌드를 통과한다. 2026-11-19까지 검사 장치(EAS Node 24·`engines`·`client:expo-check`), EAS preview 빌드, iPad 실기기 확인도 마쳤다. 남은 것은 main 병합(사용자 확인 필요)이다. 일정은 12월이었지만 02가 끝나 앞당겼다. 결과는 아래 [현재 상태와 실제 결과](#현재-상태와-실제-결과)에 있다.
+**상태:** 완료 (2026-11-19). SDK 51→54(Legacy)를 한 단계씩 올려 `feat/012-sdk54`에서 검사·EAS preview·iPad 실기기 확인을 마치고, 사용자의 "병합해"로 main에 머지 커밋 `ae97809e`로 병합했다(push 전). 완료 조건 가운데 부분 충족 항목은 Main 판단으로 04의 1.2.0 출시 빌드 확인에 넘겼다(아래). 결과는 [현재 상태와 실제 결과](#현재-상태와-실제-결과)에 있다.
 
 ## 맡은 결과와 범위
 
@@ -81,12 +81,16 @@ Spec과의 연결: [완료 판단](../spec/04-quality-and-completion.md)의 6(�
 | 완료 조건 | 현재 |
 | --- | --- |
 | 51→52→53→54 로컬 빌드·검사 결과 | 충족(위 단계 표) |
-| 마지막 EAS preview(Node 24)에서 점검표 6항목 | 부분. EAS preview `f8e97f99`는 성공했지만 Node 24 사용은 로그로 확인하지 않았고, 점검표는 같은 커밋의 로컬 빌드로 iPad에서 봤다. 6항목 중 Apple 로그인은 미확인(Google 로그인 유지는 확인) |
+| 마지막 EAS preview(Node 24)에서 점검표 6항목 | 부분(04로 넘김). EAS preview `f8e97f99`는 성공했지만 Node 24 사용은 로그로 확인하지 않았고, 점검표는 같은 커밋의 로컬 빌드로 iPad에서 봤다. 6항목 중 Apple 로그인은 미확인(Google 로그인 유지는 확인) |
 | 1.1.4 데이터 위 덮어 설치에서 로그인·여행 데이터·미전송 변경·오프라인 지도 보존 | 충족(iPad, 로컬 빌드). iPhone에서는 하지 않았다 |
 | 검사가 기준선과 같거나 나음 | 충족(test 920, typecheck 5 < 6, lint 같음, server·schema 통과) |
 | `--check` 통과, react·react-native 한 벌(`pnpm why`) | 충족(reanimated만 의도적 exclude) |
 | `release/1.1` 핫픽스 경로 그대로 | 충족(브랜치 작업, main·`release/1.1` 무변경). 단 preview 채널 OTA 시험 경로는 `f8e97f99`로 막힘 |
 
-**남은 일**
-- `feat/012-sdk54`를 main에 병합(사용자 확인 필요, main push는 Render 재배포)
+**완료 판단과 병합 (2026-11-19).** Main은 "03을 완료로 보고 병합해도 된다"고 판단했다. 업데이트 경로의 핵심인 데이터·미전송 변경·지도 보존은 같은 커밋의 빌드로 확인했고 EAS 빌드 자체도 성공했으며, 남은 차이(EAS 빌드 실기기 설치, Node 24 로그, Apple 로그인, iPhone 덮어 설치)는 Ticket 04가 1.2.0 출시 빌드를 실기기로 다시 확인할 때 함께 본다는 이유다. 사용자가 "병합해"라고 답했다.
+- `git merge --no-ff feat/012-sdk54` → main 머지 커밋 `ae97809e`(충돌 없음, 21 files). push하지 않았다(main push는 Render 재배포).
+- main 트리에서 `node_modules`를 지우고 `pnpm install --frozen-lockfile` 뒤 검사: client lint 11·ui lint 25 errors(기준선과 같음), client test 920 통과, typecheck 5, schema build·server typecheck·test(89)·build 통과, `pnpm client:expo-check` 통과.
+
+**남은 것 (03 밖으로)**
+- 04로 넘긴 확인: EAS 빌드의 실기기 설치, EAS의 Node 24 사용 로그, Apple 로그인, iPhone 덮어 설치
 - 정리 후보(03에서 하지 않음): react-native-safe-area-context 중복(react-native-calendars가 4.5.0 고정, 1.1.4부터 있음), expo doctor의 Metro `watchFolders` 경고, iPad 오프라인 지도 77.3 MB와 iPhone 196.3 MB 차이의 원인, 업데이트 뒤 경로가 점선으로 보인 것이 원래 동작인지
