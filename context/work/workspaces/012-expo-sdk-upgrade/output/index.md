@@ -10,7 +10,7 @@
 - **테스트 도구 확인 `rntl-check`**와 판정 보고서(`verify-report-online.txt`, `verify-report-offline.txt`), 기기 스크린샷: 같은 scratchpad.
 - **기기**: iPhone의 Noline Dev 자리에 판정용 앱 빌드 91이 설치돼 있다(원복 전). 시뮬레이터에는 이번에 잘못 빌드된 운영 번들 `com.ham.noline` 1.1.4가 남아 있다(열지 않음).
 
-Ticket 03의 결과는 2026-11-19 main에 머지 커밋 `ae97809e`로 병합됐다(push 전, main push는 Render 재배포). 작업 브랜치와 worktree는 병합 뒤 정리 후보다.
+Ticket 03의 결과는 2026-11-19 main에 머지 커밋 `ae97809e`로 병합됐고, 사용자의 "push 해줘"로 `195b62ee`까지 push했다. Render가 다시 배포했고 health가 200이다(05:38Z). 작업 브랜치와 worktree는 병합 뒤 정리 후보다.
 - **worktree `.claude/worktrees/012-sdk54`, 브랜치 `feat/012-sdk54`**: main `ff51ecd9`에서 분기. 커밋 `8bfe21e1`(SDK 52), `668d4e73`(SDK 53), `3902bf7f`(SDK 54). 임시 우회 `apps/client/plugins/with-fmt-consteval-off.js`가 이 브랜치에만 있다. 단계별 검사·빌드 로그는 세션 scratchpad(`baseline/sdk52`…`sdk54c`, `sdk54-sim-build*.log`)에 있어 사라질 수 있고, 수치는 [Ticket 03](../current/memory/tickets/03-sdk54-legacy.md#현재-상태와-실제-결과)에 옮겼다.
 
 - 같은 브랜치의 `7be8f22f`(react 한 벌), `35b21093`(EAS Node 24, `engines`, `client:expo-check`, client 가이드 명령).
