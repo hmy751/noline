@@ -1,6 +1,6 @@
 # 03 — SDK 51→54로 올린다 (Legacy 유지, 출시 안 함)
 
-**상태:** 진행 중 (2026-11-18 시작). SDK 52·53·54를 브랜치 `feat/012-sdk54`에 커밋해 앱이 SDK 54(Legacy)로 로컬 검사와 시뮬레이터 Release 빌드를 통과한다. 남은 것은 EAS Node 24·`engines`·`--check` 검사 편입, EAS preview 빌드와 실기기 확인, main 병합이다. 일정은 12월이었지만 02가 끝나 앞당겼다. 결과는 아래 [현재 상태와 실제 결과](#현재-상태와-실제-결과)에 있다.
+**상태:** 진행 중 (2026-11-18 시작). SDK 52·53·54를 브랜치 `feat/012-sdk54`에 커밋해 앱이 SDK 54(Legacy)로 로컬 검사와 시뮬레이터 Release 빌드를 통과한다. 2026-11-19까지 검사 장치(EAS Node 24·`engines`·`client:expo-check`), EAS preview 빌드, iPad 실기기 확인도 마쳤다. 남은 것은 main 병합(사용자 확인 필요)이다. 일정은 12월이었지만 02가 끝나 앞당겼다. 결과는 아래 [현재 상태와 실제 결과](#현재-상태와-실제-결과)에 있다.
 
 ## 맡은 결과와 범위
 
@@ -45,7 +45,7 @@ Spec과의 연결: [완료 판단](../spec/04-quality-and-completion.md)의 6(�
 
 ## 현재 상태와 실제 결과
 
-2026-11-18 사용자의 "03 시작"으로 시작했다. 작업 위치는 main `ff51ecd9`에서 분기한 worktree `.claude/worktrees/012-sdk54`, 브랜치 `feat/012-sdk54`다(push 안 함, main·`release/1.1` 무변경). 상세와 원문은 [SDK 52·53 진행 기록](../../../records/2026-11-18-07-ticket03-sdk52-53.md)과 [SDK 54·달라진 것 기록](../../../records/2026-11-18-08-ticket03-sdk54-and-plan-deviations.md)에 있다.
+2026-11-18 사용자의 "03 시작"으로 시작했다. 작업 위치는 main `ff51ecd9`에서 분기한 worktree `.claude/worktrees/012-sdk54`, 브랜치 `feat/012-sdk54`다(push 안 함, main·`release/1.1` 무변경). 상세와 원문은 [SDK 52·53 진행 기록](../../../records/2026-11-18-07-ticket03-sdk52-53.md), [SDK 54·달라진 것 기록](../../../records/2026-11-18-08-ticket03-sdk54-and-plan-deviations.md), [EAS·iPad 확인 기록](../../../records/2026-11-19-01-ticket03-eas-and-ipad-verification.md)에 있다.
 
 | 단계 | 커밋 | 주요 버전 | 검사 결과 | 네이티브 |
 | --- | --- | --- | --- | --- |
@@ -69,9 +69,24 @@ Spec과의 연결: [완료 판단](../spec/04-quality-and-completion.md)의 6(�
 
 **시뮬레이터 Release 빌드 조건:** `.env.development`·`.env.development.local`을 export하고 `APP_VARIANT=development`를 줘야 dev 번들이 된다. 그러지 않으면 Release가 `.env.production`을 읽어 운영 번들 앱이 된다.
 
+**마무리 (2026-11-18–19)**
+- `7be8f22f`: `packages/eslint-config`의 react 18.2.0 dev 의존성을 지워 `pnpm why`로 react 19.1.0·react-native 0.81.5·reanimated 3.19.5가 각 한 벌.
+- `35b21093`: `eas.json` `base.node` 24.16.0, 루트 `engines` `node >=24`, 루트 script `client:expo-check`(apps/client scripts에 두면 runtime이 바뀌어 루트), `apps/client/CLAUDE.md` Commands의 test 명령 정정과 expo-check·`pnpm exec expo install` 절차. lint는 client 11·ui 25 errors 유지.
+- EAS preview `f8e97f99`(커밋 `35b21093`, runtime `2056712165b42d79fa82362609f5ea1bcb23f541`): 성공. fmt 우회가 적용된 채 EAS Xcode 26.2에서 빌드됨(우회 없는 EAS 빌드는 시험 안 함). 이 빌드가 preview 채널 최신이 되어 `release/1.1`의 preview OTA 시험은 막혔다.
+- **실기기는 iPhone이 아니라 iPad로 했다.** 사용자가 iPad로 하자고 했고, EAS 11월 iOS 빌드가 제한(사용자 말: 15회)에 가까워 "아이패드로 로컬 빌드해서 진행해"로 정했다. iPad Air 4(iPadOS 26.6.2)를 EAS에 등록하고 1.1.4 preview `2814ad7f`를 iPad 포함 프로필로 다시 빌드했으며, SDK 54 preview는 `eas build --local`로 만들었다(EAS 빌드 `f8e97f99` 자체는 iPad 미포함 프로필이라 설치하지 않았다).
+- **iPad 확인 결과:** 1.1.4에 오프라인 활성화와 비행기 모드 경비를 넣고 SDK 54 로컬 빌드를 덮어 설치했다. 로그인(Google) 유지, 여행 "준비 완료"·일정 3·경비 그대로, 비행기 모드 콜드 스타트, 오프라인 일정·경비 조회와 경비 추가, 오프라인 지도(거리·건물·지명), 경로 표시, 온라인 복귀 뒤 1.1.4·SDK 54에서 만든 미전송 경비 두 건의 서버 전송을 확인했다. Apple 로그인은 보지 않았다.
+
+**완료 조건 대비**
+
+| 완료 조건 | 현재 |
+| --- | --- |
+| 51→52→53→54 로컬 빌드·검사 결과 | 충족(위 단계 표) |
+| 마지막 EAS preview(Node 24)에서 점검표 6항목 | 부분. EAS preview `f8e97f99`는 성공했지만 Node 24 사용은 로그로 확인하지 않았고, 점검표는 같은 커밋의 로컬 빌드로 iPad에서 봤다. 6항목 중 Apple 로그인은 미확인(Google 로그인 유지는 확인) |
+| 1.1.4 데이터 위 덮어 설치에서 로그인·여행 데이터·미전송 변경·오프라인 지도 보존 | 충족(iPad, 로컬 빌드). iPhone에서는 하지 않았다 |
+| 검사가 기준선과 같거나 나음 | 충족(test 920, typecheck 5 < 6, lint 같음, server·schema 통과) |
+| `--check` 통과, react·react-native 한 벌(`pnpm why`) | 충족(reanimated만 의도적 exclude) |
+| `release/1.1` 핫픽스 경로 그대로 | 충족(브랜치 작업, main·`release/1.1` 무변경). 단 preview 채널 OTA 시험 경로는 `f8e97f99`로 막힘 |
+
 **남은 일**
-- EAS `base.node` 24, `engines`(`"node": ">=24"`), `expo install --check`를 검사에 넣기(위치는 실행하며 정함)
-- Ticket 끝 EAS preview 빌드(Node 24). fmt 우회가 EAS의 Xcode 26.2에서도 필요한지 여기서 본다
-- 1.1.4 preview에 데이터를 넣고 이 빌드를 덮어 설치해 로그인·여행 데이터·미전송 변경·오프라인 지도 보존과 실기기 점검표 6항목 확인. 기기에는 지금 판정용 앱이 있어 1.1.4 preview를 다시 설치하고 시작해야 한다
-- `pnpm why` 등으로 react·react-native 한 벌 최종 확인(53·54에서 Main이 한 벌임을 봤지만 완료 조건의 방식으로는 아직)
-- `feat/012-sdk54`를 main에 병합(main push는 Render 재배포)
+- `feat/012-sdk54`를 main에 병합(사용자 확인 필요, main push는 Render 재배포)
+- 정리 후보(03에서 하지 않음): react-native-safe-area-context 중복(react-native-calendars가 4.5.0 고정, 1.1.4부터 있음), expo doctor의 Metro `watchFolders` 경고, iPad 오프라인 지도 77.3 MB와 iPhone 196.3 MB 차이의 원인, 업데이트 뒤 경로가 점선으로 보인 것이 원래 동작인지

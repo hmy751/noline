@@ -13,6 +13,11 @@
 2026-11-18 Ticket 03의 결과는 작업 브랜치에 있다(push·main 병합 전).
 - **worktree `.claude/worktrees/012-sdk54`, 브랜치 `feat/012-sdk54`**: main `ff51ecd9`에서 분기. 커밋 `8bfe21e1`(SDK 52), `668d4e73`(SDK 53), `3902bf7f`(SDK 54). 임시 우회 `apps/client/plugins/with-fmt-consteval-off.js`가 이 브랜치에만 있다. 단계별 검사·빌드 로그는 세션 scratchpad(`baseline/sdk52`…`sdk54c`, `sdk54-sim-build*.log`)에 있어 사라질 수 있고, 수치는 [Ticket 03](../current/memory/tickets/03-sdk54-legacy.md#현재-상태와-실제-결과)에 옮겼다.
 
+- 같은 브랜치의 `7be8f22f`(react 한 벌), `35b21093`(EAS Node 24, `engines`, `client:expo-check`, client 가이드 명령).
+- **EAS 빌드:** SDK 54 preview `f8e97f99`(커밋 `35b21093`, preview 채널 최신, iPhone만 든 프로필). iPad 포함 프로필의 1.1.4 preview `2814ad7f`(커밋 `d160c7b5`). 취소한 `b6e2d1a8`.
+- **로컬 빌드:** SDK 54 preview `sdk54-preview.ipa`(21.7 MB, iPad·iPhone 프로필)는 세션 scratchpad의 `local-build`에 있어 사라질 수 있다. iPad에 설치돼 있다.
+- **iPad 제어 서버:** DeviceKit iPad용 빌드가 `~/Documents/Codex/2026-11-06/new-chat/work/iphone-control/build-ipad`에 iPhone 빌드와 따로 있다.
+
 내용과 남은 일은 [Ticket 01](../current/memory/tickets/01-preparation-baseline-and-node24.md#현재-상태와-실제-결과)에 있다. 설치 절차(`pnpm exec expo install`)는 지금 이 Work의 [공통 규칙 3](../current/memory/tickets/index.md)에만 있다.
 
 결과가 생기면 실제 위치를 여기에 연결한다. 예정된 결과는 다음과 같다.

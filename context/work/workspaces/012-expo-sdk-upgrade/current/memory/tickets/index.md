@@ -8,7 +8,7 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | 01 | [준비](01-preparation-baseline-and-node24.md) | 검사 기준선, 실기기 점검표, `release/1.1`과 핫픽스 경로 확인, 서버·로컬 Node 24(pnpm·eas-cli 준비 포함), 패키지 설치 절차 확정 | 서버 배포만 | — | 11월 | 진행 중 |
 | 02 | [데이터 보존 선검증과 목표 확정](02-data-preservation-check-and-targets.md) | 검증용 최소 앱으로 기기 DB와 오프라인 지도가 남는지 판정, 목표 버전 표와 테스트 도구 선이전 가능 여부 확정 | — | 01과 병행 가능 | 11월 | 판정 완료(DB·지도 성공) |
-| 03 | [SDK 51→54, Legacy 유지](03-sdk54-legacy.md) | 한 단계씩 SDK 54로, React 19·기기 DB 묶음, EAS Node 24, ui peer 전환과 이미 어긋난 것 정리 | — | 02(DB 판정 성공) | 12월 | 진행 중(SDK 54까지, EAS·실기기·병합 남음) |
+| 03 | [SDK 51→54, Legacy 유지](03-sdk54-legacy.md) | 한 단계씩 SDK 54로, React 19·기기 DB 묶음, EAS Node 24, ui peer 전환과 이미 어긋난 것 정리 | — | 02(DB 판정 성공) | 12월 | 진행 중(확인 완료, main 병합 남음) |
 | 04 | [New Architecture와 1.2.0](04-new-architecture-and-1-2-0.md) | reanimated 4·Mapbox v11, 지도 대응(02 판정으로 불필요), 기존 사용자 업데이트, `release/1.2`, 1주일 관찰 | **1.2.0** | 02·03, 멤버십·인증서 갱신 | 1월 | 시작 전 |
 | 05 | [SDK 55→58·iOS 27과 1.3.0](05-sdk58-ios27-and-1-3-0.md) | 테스트 도구 선이전, 한 단계씩 SDK 58로, Xcode 27·SceneDelegate·iOS 16.4, Project 반영 | **1.3.0** | 04와 1주일 관찰 | 2월, 3월 초 출시 | 시작 전 |
 
@@ -23,7 +23,7 @@
 5. **출시마다 release 브랜치를 만든다.** 1.1.4에서 `release/1.1`, 1.2.0에서 `release/1.2`를 만들어 핫픽스는 그 브랜치에서 낸다. 업그레이드는 Ticket마다 main에 병합한다. release 브랜치는 다음 버전이 출시되기 전까지만 쓴다. OTA는 채널의 최신 빌드와 runtime이 같을 때만 발행되고, App Store는 이미 승인된 버전보다 높은 버전만 받으므로(Main의 지식, Apple 문서 재확인 전), 1.2.0이 나간 뒤 1.1.x 사용자는 1.2.x로 업데이트해야 고칠 수 있다. `release/1.1`은 012 변경을 main에 병합하기 전에 가장 먼저 만든다.
 6. **출시 뒤 1주일 관찰한다.** 1.2.0 뒤 1주일 동안 Sentry에 새 크래시가 없어야 1.3.0을 낸다.
 
-확인 기기는 iOS 27.2.1 iPhone 14 Pro 실기기 1대(사용자 답의 Main 해석)와 시뮬레이터(최소 iOS 16.4 포함)다.
+확인 기기는 iOS 27.2.1 iPhone 14 Pro 실기기 1대(사용자 답의 Main 해석)와 시뮬레이터(최소 iOS 16.4 포함)다. 2026-11-19 iPad Air 4(iPadOS 26.6.2)를 EAS에 등록해 03의 실기기 확인에 썼다.
 
 ## Spec 완료 기준을 맡는 Ticket
 

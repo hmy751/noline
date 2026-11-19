@@ -44,6 +44,8 @@ Spec과의 연결: [완료 판단](../spec/04-quality-and-completion.md)의 3(�
 
 **fmt consteval 우회(03에서 넣음).** `apps/client/plugins/with-fmt-consteval-off.js`가 RN 0.76–0.81의 fmt 11.0.2를 Xcode 26 clang에서 빌드되게 한다. SDK 54(03)에서도 필요했다. New Architecture를 켜면 빌드 구성이 바뀌므로 이 Ticket에서도 등록을 빼고 빌드해 보고, 없이 되면 지운다. 출시 빌드(EAS)에 들어가는지는 03 끝 EAS preview에서 먼저 확인한다. 경위는 [SDK 54·달라진 것 기록](../../../records/2026-11-18-08-ticket03-sdk54-and-plan-deviations.md)에 있다.
 
+**빌드 횟수와 확인 기기(03에서 생긴 조건).** EAS 플랜의 월간 iOS 빌드 수가 제한돼 있고(사용자 말: 15회, 2026-11은 이미 16건이라 실패·취소 포함 여부와 기준일은 미확인), 03의 SDK 54 preview는 `eas build --local`로 만들었다. 로컬 빌드에는 fastlane이 필요하고 시험용이면 `SENTRY_DISABLE_AUTO_UPLOAD=true`로 소스맵 업로드를 끈다. 이 Ticket의 preview·출시 빌드를 EAS와 로컬 중 무엇으로 낼지 횟수를 보고 정한다. iPad Air 4(iPadOS 26.6.2)도 EAS 기기로 등록돼 서명 프로필 AN57L8X528에 iPhone과 함께 들어 있어 확인 기기로 쓸 수 있다. 다만 등록 전 빌드(예: `f8e97f99`)는 iPad에 깔리지 않고, iPad에서는 앱이 iPhone 호환 창으로 떠 세로·회전 고정이어야 기기 조작이 된다. 경위는 [EAS·iPad 확인 기록](../../../records/2026-11-19-01-ticket03-eas-and-ipad-verification.md)에 있다.
+
 **실행하며 정할 것:** 엔진 버전 표시만 미리 남길지(지도 대응은 02 판정으로 필요 없음), 업데이트 확인에 쓸 앱, 출시 노트 문구.
 
 ## 완료 조건과 확인 방법
