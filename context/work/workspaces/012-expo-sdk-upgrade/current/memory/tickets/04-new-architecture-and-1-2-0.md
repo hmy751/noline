@@ -1,6 +1,6 @@
 # 04 — New Architecture로 바꾸고 1.2.0을 낸다
 
-**상태:** 진행 중 (2026-11-19 코드 작업 시작). 계획은 1월이었지만 사용자의 "그래 쭉 해봐 다시"로 코드·시뮬레이터·로컬 확인을 앞당겼다. 1.2.0 스토어 빌드·제출은 그대로 멤버십(2026-12-18)·인증서(2026-12-30) 갱신 뒤다. 2026-11-18 02 판정으로 지도 대응은 필요 없다(아래). 결과는 아래 [현재 상태와 실제 결과](#현재-상태와-실제-결과)에 있다.
+**상태:** 진행 중 (2026-11-19 코드 작업 시작, 같은 날 iPad 실기기 확인과 지도 수정까지 마침). 계획은 1월이었지만 사용자의 "그래 쭉 해봐 다시"로 코드·시뮬레이터·로컬 확인을 앞당겼다. 1.2.0 스토어 빌드·제출은 그대로 멤버십(2026-12-18)·인증서(2026-12-30) 갱신 뒤다. 2026-11-18 02 판정으로 지도 대응은 필요 없다(아래). 결과는 아래 [현재 상태와 실제 결과](#현재-상태와-실제-결과)에 있다.
 
 ## 맡은 결과와 범위
 
@@ -58,24 +58,33 @@ Spec과의 연결: [완료 판단](../spec/04-quality-and-completion.md)의 3(�
 
 ## 현재 상태와 실제 결과
 
-2026-11-19 코드 작업을 시작했다. 작업 위치는 main `307ae37b`에서 분기한 worktree `.claude/worktrees/012-newarch`, 브랜치 `feat/012-newarch`다(main 미병합). 과정과 원문은 [04 코드 작업 기록](../../../records/2026-11-19-02-ticket04-newarch-code-and-review.md)에 있다.
+2026-11-19 코드 작업을 시작했고, 같은 날 iPad 실기기에서 1.1.4 위 덮어 설치와 비행기 모드를 확인하다 찾은 일정 지도 차이 두 개를 고쳤다. 작업 위치는 main `307ae37b`에서 분기한 worktree `.claude/worktrees/012-newarch`, 브랜치 `feat/012-newarch`다(main 미병합). 과정과 원문은 [04 코드 작업 기록](../../../records/2026-11-19-02-ticket04-newarch-code-and-review.md)과 [iPad 실기기 확인·지도 수정 기록](../../../records/2026-11-19-04-ticket04-ipad-verification-and-schedule-map-fix.md)에 있다.
 
 **커밋**
 - `6c6b5524`: `newArchEnabled: true`, reanimated ~4.1.7 + worklets 0.5.1(babel plugin 등록과 `expo.install.exclude` 삭제), @rnmapbox/maps ~10.3.18(native v11), `packages/ui` reanimated peer `>=4.1.0`(`>=3.10.0`이면 ui 아래 3.19.5가 한 벌 더 설치됨), Mapbox v11 진행률 `percentage` null 처리, `encodePolyline` 튜플 타입. `MyLocationButton`은 reanimated 4에서도 같은 API라 바꾸지 않았다.
 - `beee6373`: fmt consteval 우회 plugin 삭제. New Architecture에서는 RN 0.81이 fmt·folly를 미리 빌드된 ReactNativeDependencies로 받아 Pods에 fmt 소스가 없다. 우회 없이 시뮬레이터 Release 빌드 0 errors. 빌드 경고: `RNMapboxMapsDownloadToken` deprecated, `RNMAPBOX_MAPS_DOWNLOAD_TOKEN` 환경 변수 권장.
 - `fb73bb25`: 오프라인 지도 스타일 고정. `OfflineMapView`가 쓰던 `MapboxGL.StyleURL.Street`는 native 상수라 v10은 streets-v11, v11(MapboxMaps 11.33.1)은 streets-v12를 가리켜, streets-v11로 받은 pack과 어긋나 비행기 모드에서 지도가 빌 수 있었다(독립 검증자 발견 P1). `shared/lib/mapbox.ts`의 `OFFLINE_MAP_STYLE_URL`로 `download.ts`·`OfflineMapView`·`MapboxScheduleMapView`를 통일하고, 되돌리면 실패하는 테스트를 넣었다.
+- `c5fdbbdc`: 일정 Mapbox 지도(`MapboxScheduleMapView`)의 마커 번호와 처음 위치를 1.1.4와 같게 한다. iPad 실기기에서 찾은 차이다(아래). 마커는 자식 뷰를 한 번 이미지로 찍는 `PointAnnotation` 대신 뷰를 그대로 그리는 `MarkerView`로 바꿨다. 카메라는 `getCameraTarget`이 좌표가 있는 선택 일정이면 그 일정 중심 zoom 15, 아니면 그날 좌표가 있는 일정 전체 범위를 정하고, 처음 위치는 `defaultSettings`로, 이후 이동은 그 값으로 만든 key가 바뀔 때만 한다. 빌드용 임시 커밋 두 개(`ae097b24`, `b2bfb0cb`)를 `129e5321`로 합친 뒤, 새 테스트 파일의 prettier 형식 오류를 고쳐 같은 커밋을 `c5fdbbdc`로 고쳐 썼다. 제품 코드는 실기기에서 본 마지막 빌드(`b2bfb0cb`)와 같다.
 
-**검사:** Jest 79 suites / 923 tests 통과, client typecheck 4(기존 ui 경로 TS6059·TS6307, SDK 54 때 5), lint 11 errors / 254 warnings(기준선과 같음), `expo-check` 통과, reanimated 한 벌.
+**검사:** `fb73bb25`까지 Jest 79 suites / 923 tests 통과, client typecheck 4(기존 ui 경로 TS6059·TS6307, SDK 54 때 5), lint 11 errors / 254 warnings(기준선과 같음), `expo-check` 통과, reanimated 한 벌. 지도 수정에서는 `schedule-map-markers-camera.test.tsx`(5개)를 넣었다. 이 5개는 `fb73bb25` 코드에서 모두, 첫 수정(`ae097b24`)에서 재렌더·좌표 없는 날 2개가 실패하고 지금 코드에서 모두 통과한다. 최종 코드에서 전체 Jest 80 suites / 928 tests 통과, client typecheck 4(기존 ui 경로), client lint 11 errors(기준선)다. 다시 돌린 lint가 처음에 12 errors였고 늘어난 하나는 새 테스트 파일의 prettier 형식 오류라 고쳤다. Jest·typecheck는 형식만 다른 `129e5321`에서, lint와 `tests/shared/components` 11개 통과는 고친 `c5fdbbdc`에서 봤다. 앞서 보고된 926은 첫 수정(새 테스트 3개) 때 숫자다. 이 테스트들은 컴포넌트가 Mapbox에 넘기는 값을 보며 실제 그려진 번호는 실기기로 확인했다.
 
 **시뮬레이터(iPhone 15 Pro, Release, New Architecture):** 기존 데이터(파리, 일정 6, EUR 219) 유지, 일정 지도(react-native-maps)의 마커·경로, 내 위치 버튼(reanimated), 프로필의 오프라인 지도 161.2 MB(이전 Mapbox v10 빌드가 받은 것), 경비 추가·달력 시트·nativewind 정상.
 
-**독립 검증:** 구현에 참여하지 않은 검증자가 P1(스타일)을 찾았고 수정 뒤 재검증에서 충족을 확인했다. v10 pack을 v11이 읽는지는 02의 iOS 실기기 판정이 덮는다. 미확인: Android, 수정된 실제 앱으로 실기기 비행기 모드에서 `OfflineMapView` 확인(출시 빌드 확인에 한 장면 추가).
+**독립 검증:** 구현에 참여하지 않은 검증자가 P1(스타일)을 찾았고 수정 뒤 재검증에서 충족을 확인했다. v10 pack을 v11이 읽는지는 02의 iOS 실기기 판정과 이번 iPad 확인이 덮는다. 지도 수정도 코드를 쓰지 않은 검증자가 봤다. P1은 없었고, P2로 첫 수정이 만든 회귀(첫 일정에 좌표가 없는 날로 바꾸면 카메라가 이전 날에 남음), 예전부터 있던 P3(이동 수단 버튼·경로 조회 같은 재렌더가 사용자가 옮긴 지도를 선택 일정으로 되돌림), 원인을 "New Architecture 때문"으로 단정한 주석(아키텍처와 rnmapbox 10.1→10.3이 함께 바뀜)을 짚었다. 셋 다 `c5fdbbdc`에 반영했고 주석은 "New Architecture·rnmapbox 10.3 빌드에서 관찰"로 낮췄다. 반영 뒤 검증자 재검증은 하지 않았고 Main의 테스트와 실기기 확인으로 봤다.
 
-**아직 확인하지 않은 것:** 비행기 모드의 오프라인 지도, 실기기, 1.1.4 위 덮어 설치(기기 빌드 필요). 03에서 넘긴 확인(EAS 빌드 실기기 설치, EAS Node 24 로그, Apple 로그인, iPhone 덮어 설치)도 남아 있다.
+**iPad 실기기(iPad Air 4, 2026-11-19).** 1.1.4 preview(`2814ad7f` ipa, 프레임워크 구성으로 옛 빌드임을 확인)를 새로 깔고 도쿄 여행을 오프라인 활성화한 뒤, 비행기 모드에서 미전송 경비 "T04 114 offline" JPY 400을 만들고 `fb73bb25`의 로컬 preview(`eas build --local`, `RCTNewArchEnabled` true)를 덮어 설치했다.
+- **보존:** 로그인, "준비 완료", 일정 3개, 경비 합계 JPY 3212.00, 저장 데이터 208 KB, 오프라인 지도 196.3 MB가 그대로였다. v10에서 받은 pack을 v11이 인식했다. 앱 버전 표시는 버전을 올리지 않아 1.1.4다.
+- **비행기 모드:** 새 빌드에서 경비 "T04 newarch offline" JPY 500 추가(합계 JPY 3712), 오프라인 타일·지명·경로 정상. 비행기 모드 첫 콜드 스타트에서 검은 화면이 1분 가까이 이어진 일이 한 번 있었고 이후 세 번은 4초 안에 열렸다. 재현하지 못했고 원인은 모른다.
+- **온라인:** Google 일정 지도의 마커 번호 정상, 내 위치 버튼(reanimated)이 눌려 "권한 필요" 모달(위치 거절 상태, 이전과 같음).
+- **찾아서 고친 것:** 일정 Mapbox 지도에서 마커 번호가 빠지고(초록 원만), 선택한 일정 대신 그날 전체 범위(도쿄 2곳·오사카, 약 200 km 축척)로 열렸다. 1.1.4에서는 번호가 보이고 선택한 일정에서 열렸다. 수정 빌드로 다시 보니 번호 "1"·"2"가 보이고 카드를 넘기면 선택 마커가 바뀌며 선택 일정에서 열렸다. 마지막 빌드에서는 지도를 옮긴 뒤 도보→자전거로 바꿔도 위치가 남고(경로 정보 12.4 km·47분), 일정 없는 2/2는 빈 상태, 2/1로 돌아오면 1번 일정에서 열렸다.
+- **서버:** 온라인에서 오프라인 해제 뒤 서버 기준 합계 JPY 3712로 두 경비가 모두 서버에 있었다. 지금 iPad의 도쿄 여행은 온라인 전용이고 Noline Dev는 `c5fdbbdc`와 제품 코드가 같은 빌드다. 시험 경비 두 건(JPY 400, 500)이 계정의 도쿄 여행에 남아 있다.
+- **보지 못한 것:** 첫 일정에 좌표가 없는 날로 바꾸는 경우(시험 데이터 없음, 테스트로만), `OfflineMapView`(일정 추가는 오프라인에서 검색이 꺼져 지도가 나오지 않음), 마커가 많을 때 `MarkerView`의 겹침·성능, 확대 조작(iPhone 호환 창에서 핀치·두 번 탭이 먹지 않음, 카드 넘기기는 됨). 이 확인은 preview 로컬 빌드이며 1.2.0 출시 빌드가 아니다.
+
+**아직 확인하지 않은 것:** iPhone 실기기, Android, Apple 로그인, `OfflineMapView`의 실기기 오프라인 화면, 1.2.0 출시 빌드에서의 덮어 설치와 OTA(받기·기다리지 않는 시작·롤백). 03에서 넘긴 확인(EAS 빌드 실기기 설치, EAS Node 24 로그, iPhone 덮어 설치)도 남아 있다.
 
 **함께 찾은 기존 문제 (이번 변경으로 생긴 것 아님, 012에서 처리하지 않음)**
 - **(a) `createPack`이 다운로드 시작 직후 resolve한다**(Main이 `RNMBXOfflineModule.swift`를 직접 확인). 그래서 `download.ts`가 다운로드 완료 전에 `mapDownloaded = true`를 기록할 수 있다. 테스트 mock은 완료 뒤 resolve로 모델링돼 가려졌다. **2026-11-19 결정: 012에서는 고치지 않고 [Work 008](../../../../008-exception-notice-rules/README.md)(예외 안내 규칙)로 넘긴다.** 사용자는 다른 Ticket에 이미 기록돼 있으면 012에서는 넘어가자고 했다. Main은 처음에 이 문제를 기록한 곳으로 [003 Ticket 05](../../../../003-bug-investigation-and-fixes/current/memory/tickets/05-offline-map-readiness.md)를 확인했다(2026-09-13 조사에서 pack 생성 promise가 타일 완료를 뜻하지 않음을 확인, 완료 조건에 생성·진행·완료·실패 구별과 iOS 비행기 모드 대조, 미완료). 사용자는 003이 아니라 예외처리 Workspace인 008로 하자고 했다. 008에는 이 문제가 기록돼 있지 않아 넘겨받은 과제로 새로 추가했다([008 현재 상태](../../../../008-exception-notice-rules/current/state/index.md)). Project [map-packs](../../../../../../project/guidance/offline-maps-and-routes/map-packs.md)와 [지도 기준 INDEX](../../../../../../project/guidance/offline-maps-and-routes/INDEX.md)는 이 동작을 현재 동작으로 적고 있다. 그래서 위 완료 조건은 업그레이드의 영향으로만 본다. 경위와 사용자 원문은 [소관 결정 기록](../../../records/2026-11-19-03-createpack-ownership-decision.md)에 있다.
 - (b) `download.ts`가 `'size'`·`'tileCount' in pack`으로 읽는 값이 늘 0·null로 저장된다. Project [map-packs](../../../../../../project/guidance/offline-maps-and-routes/map-packs.md)가 이미 이 값을 신뢰할 근거가 없다고 적고 있고(용량 화면은 `pack.status()`를 따로 읽음), 003 Ticket 05의 완료 조건 "flag와 용량 표시가 실제 자원 상태를 반영"과도 가깝다. 008로 넘긴 (a)와 같은 `download.ts` 저장 경로이지만 이번 결정의 대상이 아니었고 소관은 정하지 않았다(저우선).
 - (c) `requiredResourceCount = 0`인 진행 이벤트에서 NaN이 날 수 있다(저우선). 003 Ticket 05의 진행 처리(진행률 0·10%의 ready 처리, 생성·진행·완료 구별)와 가깝고 (a)와 같은 다운로드 진행 경로이지만, 이번 결정의 대상이 아니었고 소관은 정하지 않았다.
 
-**남은 일:** 기기 빌드(EAS 횟수를 보고 EAS 또는 로컬)로 실기기 비행기 모드·1.1.4 덮어 설치 확인, `feat/012-newarch`의 main 병합 시점, 12월 갱신 뒤 1.2.0 출시 절차.
+**남은 일:** `feat/012-newarch`의 main 병합 시점(main push는 Render 재배포), 12월 갱신 뒤 1.2.0 출시 빌드·제출과 그 빌드의 OTA·덮어 설치 확인, iPhone·Android·Apple 로그인 확인.
