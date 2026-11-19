@@ -19,8 +19,10 @@ export default {
   },
   plugins: [
     'expo-router',
-    // Apple ITMS-90068: 2027년 4월부터 최소 iOS 15.0. SDK 업그레이드(Work 012) 전까지의 임시 설정이다.
-    ['expo-build-properties', { ios: { deploymentTarget: '15.0' } }],
+    // Work 012 임시 우회(RN 0.76–0.81의 fmt 11.0.2가 Xcode 26에서 consteval 오류). 파일 머리말의 제거 기준을 본다.
+    './plugins/with-fmt-consteval-off',
+    // 최소 iOS. SDK 52가 15.1을 요구한다. Work 012에서 SDK를 올리며 함께 올리고 SDK 58에서 16.4가 된다.
+    ['expo-build-properties', { ios: { deploymentTarget: '15.1' } }],
     ...(process.env.SENTRY_ORG && process.env.SENTRY_PROJECT
       ? [['@sentry/react-native/expo', { organization: process.env.SENTRY_ORG, project: process.env.SENTRY_PROJECT }]]
       : []),

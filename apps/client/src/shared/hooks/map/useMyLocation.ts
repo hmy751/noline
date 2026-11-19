@@ -4,7 +4,7 @@ import { Alert } from 'react-native';
 import type MapView from 'react-native-maps';
 
 interface UseMyLocationProps {
-  mapRef?: React.RefObject<MapView>;
+  mapRef?: React.RefObject<MapView | null>;
 }
 
 export const useMyLocation = ({ mapRef }: UseMyLocationProps) => {

@@ -74,12 +74,13 @@ apps/client/src/
 ```bash
 pnpm client start
 pnpm client lint
-pnpm client test --runInBand
+pnpm --filter @apps/client run test --runInBand
 pnpm client test:typecheck
+pnpm client:expo-check
 pnpm harness:check
 ```
 
-`test`는 `tests/`의 Jest 검사를, `test:typecheck`는 client tsconfig 범위의 타입 검사를 실행한다. 관련 검사만 고를 때는 Jest의 파일 경로·필터를 사용한다. 범위가 schema/server까지 번지면 `pnpm schema build`, `pnpm run server typecheck`, `pnpm run server build`도 함께 고려한다. 명령 안내는 현재 검사 통과를 뜻하지 않는다.
+`test`는 `tests/`의 Jest 검사를, `test:typecheck`는 client tsconfig 범위의 타입 검사를 실행한다. `test`는 pnpm 내장 명령과 이름이 겹쳐 `pnpm client test --runInBand`로 쓰면 pnpm이 옵션을 거부하므로 `run`을 붙인다. `client:expo-check`는 설치된 패키지가 현재 Expo SDK가 고른 버전과 맞는지(`expo install --check`) 본다. 일부러 벗어난 패키지는 `apps/client/package.json`의 `expo.install.exclude`에 넣고, JSON에 주석을 둘 수 없으므로 이유는 커밋 메시지와 작업 기록에 남긴다. 패키지는 `apps/client`에서 `pnpm exec expo install <패키지>`로 넣는다(`npx expo install`은 npx가 넘기는 hoist 설정 환경변수 때문에 실패한다). 관련 검사만 고를 때는 Jest의 파일 경로·필터를 사용한다. 범위가 schema/server까지 번지면 `pnpm schema build`, `pnpm run server typecheck`, `pnpm run server build`도 함께 고려한다. 명령 안내는 현재 검사 통과를 뜻하지 않는다.
 
 ## Update Rule
 

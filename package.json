@@ -11,12 +11,10 @@
     "server": "pnpm --filter @apps/server",
     "schema": "pnpm --filter @repo/schema",
     "harness:check": "node scripts/check-harness.mjs",
+    "client:expo-check": "pnpm --filter @apps/client exec expo install --check",
     "ota:publish": "node apps/client/scripts/ota/publish.mjs",
     "lint": "pnpm -r --no-bail run lint",
     "format": "prettier --write ."
-  },
-  "dependencies": {
-    "react": "^18.2.0"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",
@@ -30,9 +28,7 @@
     "apps/*",
     "packages/*"
   ],
-  "pnpm": {
-    "patchedDependencies": {
-      "expo-dev-menu@5.0.23": "patches/expo-dev-menu@5.0.23.patch"
-    }
+  "engines": {
+    "node": ">=24"
   }
 }

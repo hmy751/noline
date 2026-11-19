@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import React from 'react';
-import * as FileSystem from 'expo-file-system';
-import type { FileInfo } from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
+import type { FileInfo } from 'expo-file-system/legacy';
 import MapboxGL from '@rnmapbox/maps';
 import { act, renderHook, waitFor } from '@testing-library/react-native';
 
 import { useStorageStats } from '@/features/profile/hooks/useStorageStats';
 
-jest.mock('expo-file-system', () => ({
+jest.mock('expo-file-system/legacy', () => ({
   __esModule: true,
   documentDirectory: 'file:///documents/',
   getInfoAsync: jest.fn(),
