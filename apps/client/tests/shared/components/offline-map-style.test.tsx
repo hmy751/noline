@@ -25,6 +25,7 @@ jest.mock('@rnmapbox/maps', () => {
       ShapeSource: Passthrough,
       LineLayer: Passthrough,
       PointAnnotation: Passthrough,
+      MarkerView: Passthrough,
       Callout: Passthrough,
     },
   };

@@ -75,45 +75,29 @@ export function MapboxScheduleMapView({
     return { totalDistance, totalDuration, savedCount: savedSegments.length };
   }, [routeSegments]);
 
-  // 초기 카메라 설정
-  const initialCamera = useMemo(() => {
-    if (schedulesWithCoords.length === 1) {
-      // 일정이 1개만 있으면 중심점 + 줌 레벨
-      return {
-        centerCoordinate: [schedulesWithCoords[0].longitude!, schedulesWithCoords[0].latitude!] as [number, number],
-        zoomLevel: 15,
-      };
-    }
+  // 카메라가 보여 줄 곳: 좌표가 있는 선택 일정이면 그 일정을, 아니면 그날 좌표가 있는 일정 전체를 담는다.
+  // 일정 배열은 렌더마다 새로 만들어지므로 값으로 만든 key가 바뀔 때만 카메라를 옮긴다.
+  // 그래야 이동 수단 변경이나 경로 조회 갱신 같은 재렌더가 사용자가 옮겨 둔 지도를 되돌리지 않는다.
+  const cameraTargetKey = JSON.stringify(
+    getCameraTarget(
+      schedulesWithCoords.map((s) => ({ id: s.id, longitude: s.longitude, latitude: s.latitude })),
+      selectedScheduleId,
+    ),
+  );
+  const cameraTarget = useMemo(() => JSON.parse(cameraTargetKey) as CameraTarget | null, [cameraTargetKey]);
 
-    // 일정이 여러 개면 bounds로 자동 조정
-    const lngs = schedulesWithCoords.map((s) => s.longitude!);
-    const lats = schedulesWithCoords.map((s) => s.latitude!);
-
-    return {
-      bounds: {
-        ne: [Math.max(...lngs), Math.max(...lats)] as [number, number],
-        sw: [Math.min(...lngs), Math.min(...lats)] as [number, number],
-        paddingTop: 100,
-        paddingRight: 50,
-        paddingBottom: 300,
-        paddingLeft: 50,
-      },
-    };
-  }, [schedulesWithCoords]);
-
-  // 선택된 일정으로 카메라 이동
+  // 처음 위치는 지도가 준비될 때 한 번만 쓰는 defaultSettings로 넘긴다. Camera의 일반 prop(bounds 등)은 값이 바뀔
+  // 때마다 카메라 이동으로 다시 보내진다. 일반 prop으로 넘기던 때 New Architecture·rnmapbox 10.3 빌드의 실기기에서
+  // 지도가 선택한 일정 대신 전체 범위로 열렸다.
   useEffect(() => {
-    if (cameraRef.current && selectedScheduleId) {
-      const selectedSchedule = schedulesWithCoords.find((s) => s.id === selectedScheduleId);
-      if (selectedSchedule) {
-        cameraRef.current.setCamera({
-          centerCoordinate: [selectedSchedule.longitude, selectedSchedule.latitude],
-          zoomLevel: 15,
-          animationDuration: 300, // 애니메이션 짧게
-        });
-      }
+    if (!cameraRef.current || !cameraTarget) return;
+    if ('centerCoordinate' in cameraTarget) {
+      cameraRef.current.setCamera({ ...cameraTarget, animationDuration: 300 });
+    } else {
+      const { ne, sw, paddingTop, paddingRight, paddingBottom, paddingLeft } = cameraTarget.bounds;
+      cameraRef.current.fitBounds(ne, sw, [paddingTop, paddingRight, paddingBottom, paddingLeft], 300);
     }
-  }, [selectedScheduleId, schedulesWithCoords]);
+  }, [cameraTarget]);
 
   // 좌표가 있는 일정이 없는 경우
   if (schedulesWithCoords.length === 0) {
@@ -137,8 +121,7 @@ export function MapboxScheduleMapView({
   return (
     <View style={styles.map}>
       <MapboxGL.MapView style={styles.map} styleURL={OFFLINE_MAP_STYLE_URL}>
-        {/* 카메라 - 모든 일정을 포함하도록 자동 조정 */}
-        <MapboxGL.Camera ref={cameraRef} {...initialCamera} animationDuration={0} />
+        <MapboxGL.Camera ref={cameraRef} defaultSettings={cameraTarget ?? undefined} />
 
         {/* 경로 선들 */}
         {routeSegments.map((segment) => (
@@ -165,15 +148,12 @@ export function MapboxScheduleMapView({
           </MapboxGL.ShapeSource>
         ))}
 
-        {/* 마커들 - 일정 */}
+        {/* 마커들 - 일정. PointAnnotation은 자식 뷰를 처음 한 번 이미지로 찍어 쓴다. New Architecture·rnmapbox 10.3
+            빌드의 실기기에서 순서 번호가 빠진 채 찍혔고 선택이 바뀌어도 다시 찍지 않는다. MarkerView는 뷰를 그대로 그린다. */}
         {schedulesWithCoords.map((schedule, index) => {
           const isSelected = schedule.id === selectedScheduleId;
           return (
-            <MapboxGL.PointAnnotation
-              key={schedule.id}
-              id={schedule.id}
-              coordinate={[schedule.longitude!, schedule.latitude!]}
-            >
+            <MapboxGL.MarkerView key={schedule.id} coordinate={[schedule.longitude!, schedule.latitude!]} allowOverlap>
               {/* 커스텀 마커 (순서 번호 표시) */}
               <View className='items-center'>
                 <View
@@ -197,16 +177,13 @@ export function MapboxScheduleMapView({
                   />
                 )}
               </View>
-            </MapboxGL.PointAnnotation>
+            </MapboxGL.MarkerView>
           );
         })}
 
         {/* 숙소 마커 (있는 경우) */}
         {accommodationCoords && (
-          <MapboxGL.PointAnnotation
-            id='accommodation'
-            coordinate={[accommodationCoords.longitude, accommodationCoords.latitude]}
-          >
+          <MapboxGL.MarkerView coordinate={[accommodationCoords.longitude, accommodationCoords.latitude]} allowOverlap>
             <View className='items-center'>
               <View
                 className='h-10 w-10 rounded-full border-2 border-white bg-blue-500 shadow-md'
@@ -215,7 +192,7 @@ export function MapboxScheduleMapView({
                 <Text className='text-body font-semibold text-white'>🏠</Text>
               </View>
             </View>
-          </MapboxGL.PointAnnotation>
+          </MapboxGL.MarkerView>
         )}
       </MapboxGL.MapView>
 
@@ -338,3 +315,39 @@ const styles = StyleSheet.create({
     color: '#999',
   },
 });
+
+type CameraTarget =
+  | { centerCoordinate: [number, number]; zoomLevel: number }
+  | {
+      bounds: {
+        ne: [number, number];
+        sw: [number, number];
+        paddingTop: number;
+        paddingRight: number;
+        paddingBottom: number;
+        paddingLeft: number;
+      };
+    };
+
+/** 좌표가 있는 선택 일정이면 그 일정, 아니면 좌표가 있는 일정 전체(한 곳이면 그 일정)를 보여 줄 카메라 위치. */
+function getCameraTarget(
+  schedules: { id: string; longitude: number; latitude: number }[],
+  selectedScheduleId: string | null | undefined,
+): CameraTarget | null {
+  if (schedules.length === 0) return null;
+  const focused = schedules.find((s) => s.id === selectedScheduleId) ?? (schedules.length === 1 ? schedules[0] : null);
+  if (focused) return { centerCoordinate: [focused.longitude, focused.latitude], zoomLevel: 15 };
+
+  const lngs = schedules.map((s) => s.longitude);
+  const lats = schedules.map((s) => s.latitude);
+  return {
+    bounds: {
+      ne: [Math.max(...lngs), Math.max(...lats)],
+      sw: [Math.min(...lngs), Math.min(...lats)],
+      paddingTop: 100,
+      paddingRight: 50,
+      paddingBottom: 300,
+      paddingLeft: 50,
+    },
+  };
+}

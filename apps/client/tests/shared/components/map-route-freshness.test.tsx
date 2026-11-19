@@ -22,7 +22,7 @@ jest.mock('@rnmapbox/maps', () => {
       Camera: ReactRuntime.forwardRef(() => null),
       ShapeSource: Source,
       LineLayer: Source,
-      PointAnnotation: Source,
+      MarkerView: ({ children }: React.PropsWithChildren) => ReactRuntime.createElement(View, null, children),
     },
   };
 });
