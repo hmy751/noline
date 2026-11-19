@@ -18,6 +18,9 @@ Ticket 03의 결과는 2026-11-19 main에 머지 커밋 `ae97809e`로 병합됐�
 - **로컬 빌드:** SDK 54 preview `sdk54-preview.ipa`(21.7 MB, iPad·iPhone 프로필)는 세션 scratchpad의 `local-build`에 있어 사라질 수 있다. iPad에 설치돼 있다.
 - **iPad 제어 서버:** DeviceKit iPad용 빌드가 `~/Documents/Codex/2026-11-06/new-chat/work/iphone-control/build-ipad`에 iPhone 빌드와 따로 있다.
 
+2026-11-19 Ticket 04의 코드 작업은 작업 브랜치에 있다(main 미병합).
+- **worktree `.claude/worktrees/012-newarch`, 브랜치 `feat/012-newarch`**: main `307ae37b`에서 분기. 커밋 `6c6b5524`(New Architecture·reanimated 4·Mapbox v11), `beee6373`(fmt 우회 삭제), `fb73bb25`(오프라인 지도 스타일 상수 `OFFLINE_MAP_STYLE_URL`). 내용은 [Ticket 04](../current/memory/tickets/04-new-architecture-and-1-2-0.md#현재-상태와-실제-결과)에 있다.
+
 내용과 남은 일은 [Ticket 01](../current/memory/tickets/01-preparation-baseline-and-node24.md#현재-상태와-실제-결과)에 있다. 설치 절차(`pnpm exec expo install`)는 지금 이 Work의 [공통 규칙 3](../current/memory/tickets/index.md)에만 있다.
 
 결과가 생기면 실제 위치를 여기에 연결한다. 예정된 결과는 다음과 같다.
