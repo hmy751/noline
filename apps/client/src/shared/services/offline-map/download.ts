@@ -73,6 +73,8 @@ export async function downloadOfflineMapInBackground(tripId: string): Promise<vo
       await MapboxGL.offlineManager.createPack(
         { name: regionName, styleURL, bounds, minZoom, maxZoom },
         async (_region, status) => {
+          // native Mapbox v11(rnmapbox 10.3)은 받을 양을 아직 모를 때 percentage를 null로 보낸다. 진행률만 건너뛴다.
+          if (status.percentage === null) return;
           const percentage = Math.round(status.percentage);
           if (percentage < lastProgress + 10 && percentage !== 100) return;
           lastProgress = percentage;

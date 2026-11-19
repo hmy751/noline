@@ -8,7 +8,7 @@ export default {
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'light',
-  newArchEnabled: false,
+  newArchEnabled: true,
   scheme: 'noline',
   // OTA(expo-updates): 네이티브 층이 같은 빌드에만 업데이트가 가도록 fingerprint로 runtime을 정한다.
   runtimeVersion: { policy: 'fingerprint' },

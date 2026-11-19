@@ -56,7 +56,7 @@ export function decodePolylineForReactNativeMaps(encoded: string): { latitude: n
  */
 export function encodePolyline(coordinates: [number, number][]): string {
   // Mapbox 형식 [[lng, lat]] → polyline 형식 [[lat, lng]]
-  const converted = coordinates.map(([lng, lat]) => [lat, lng]);
+  const converted = coordinates.map(([lng, lat]): [number, number] => [lat, lng]);
 
   return polyline.encode(converted, 6);
 }
