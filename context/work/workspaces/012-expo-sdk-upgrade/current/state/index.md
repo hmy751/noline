@@ -1,12 +1,12 @@
 # 현재 상태와 다음 행동
 
-2026-11-20 기준 상태다. 범위·대상 SDK·출시 2번을 정했고, 라이브러리 호환 점검과 지도 문제를 반영해 Ticket을 5개로 다시 짜 확정했다. **2026-11-18 Ticket 02 판정을 마쳤다.** 기기 DB·오프라인 지도가 업데이트 뒤 남아 03으로 갈 수 있고, 04의 지도 대응은 필요 없다. **2026-11-18 Ticket 01을 시작했다.** 검사 기준선, `release/1.1`(원격, 빌드·OTA 확인), Node 24 설정 변경과 Railway 설정 삭제(`7413b343`), 설치 절차 확정까지 했고, main에 병합·push해 운영 서버가 Node 24.16.0으로 배포됐다. 운영 앱에서도 로그인·여행 조회·동기화가 된다는 사용자 확인("잘 돼")을 받았다. 01에 남은 일은 실기기 점검표와 1.1.4 심사 결과다. **같은 날 Ticket 03을 시작해 SDK 52·53·54를 작업 브랜치 `feat/012-sdk54`에 커밋했다(main 무변경).** 앱이 SDK 54(Legacy)로 로컬 검사와 시뮬레이터 빌드를 통과한다. 2026-11-19까지 검사 장치, EAS preview, iPad 실기기 확인을 마치고 사용자의 "병합해"로 main에 병합해 03을 완료했다(머지 `ae97809e`, 2026-11-19 `195b62ee`까지 push하고 Render 재배포 health 200 확인). **2026-11-19 Ticket 04 코드 작업을 앞당겨 시작했다.** New Architecture·reanimated 4·Mapbox v11 전환과 fmt 우회 삭제, 독립 검증이 찾은 오프라인 지도 스타일 문제 수정을 작업 브랜치 `feat/012-newarch`에 커밋했다. 같은 날 iPad 실기기에서 1.1.4 위 덮어 설치·비행기 모드·서버 전송을 확인했고, 거기서 찾은 일정 지도의 마커 번호·처음 위치 차이를 고쳐(`c5fdbbdc`) 다시 실기기로 확인했다. **2026-11-20 사용자의 "병합하고 push"로 `feat/012-newarch`를 main에 병합해(`6d34c44b`) push했다.** 04의 코드 부분은 main에 들어갔고, 남은 것은 일부 실기기 확인과 1.2.0 출시다. 1.2.0 스토어 빌드는 12월 갱신 뒤다.
+2026-11-20 기준 상태다. 범위·대상 SDK·출시 2번을 정했고, 라이브러리 호환 점검과 지도 문제를 반영해 Ticket을 5개로 다시 짜 확정했다. **2026-11-18 Ticket 02 판정을 마쳤다.** 기기 DB·오프라인 지도가 업데이트 뒤 남아 03으로 갈 수 있고, 04의 지도 대응은 필요 없다. **2026-11-18 Ticket 01을 시작했다.** 검사 기준선, `release/1.1`(원격, 빌드·OTA 확인), Node 24 설정 변경과 Railway 설정 삭제(`7413b343`), 설치 절차 확정까지 했고, main에 병합·push해 운영 서버가 Node 24.16.0으로 배포됐다. 운영 앱에서도 로그인·여행 조회·동기화가 된다는 사용자 확인("잘 돼")을 받았다. 1.1.4는 심사를 통과해 출시됐고(2026-11-20 확인), 01에 남은 일은 실기기 점검표다. **같은 날 Ticket 03을 시작해 SDK 52·53·54를 작업 브랜치 `feat/012-sdk54`에 커밋했다(main 무변경).** 앱이 SDK 54(Legacy)로 로컬 검사와 시뮬레이터 빌드를 통과한다. 2026-11-19까지 검사 장치, EAS preview, iPad 실기기 확인을 마치고 사용자의 "병합해"로 main에 병합해 03을 완료했다(머지 `ae97809e`, 2026-11-19 `195b62ee`까지 push하고 Render 재배포 health 200 확인). **2026-11-19 Ticket 04 코드 작업을 앞당겨 시작했다.** New Architecture·reanimated 4·Mapbox v11 전환과 fmt 우회 삭제, 독립 검증이 찾은 오프라인 지도 스타일 문제 수정을 작업 브랜치 `feat/012-newarch`에 커밋했다. 같은 날 iPad 실기기에서 1.1.4 위 덮어 설치·비행기 모드·서버 전송을 확인했고, 거기서 찾은 일정 지도의 마커 번호·처음 위치 차이를 고쳐(`c5fdbbdc`) 다시 실기기로 확인했다. **2026-11-20 사용자의 "병합하고 push"로 `feat/012-newarch`를 main에 병합해(`6d34c44b`) push했다.** 04의 코드 부분은 main에 들어갔다. **같은 날 사용자의 "쭉 다해줘"로 iPad에서 `OfflineMapView`와 첫 일정에 좌표가 없는 날을 확인했고, 병합된 012 worktree 2개·브랜치 4개를 지웠다.** 04에 남은 것은 iPhone·Android·Apple 로그인 확인과 1.2.0 출시다. 1.2.0 스토어 빌드는 12월 갱신 뒤다.
 
 **이 Work가 생긴 경위:** 2026-11-16 Work 011을 재개하던 중 사용자가 SDK·라이브러리 업그레이드를 함께 맡을지 물었고, Main의 분석과 추천에 따라 별도 Work로 나눴다. 사용자는 "그래 분리해서 진행하자 더 버전에 대해 자세한건 012에서 더 논의한다고 기록해주고"라고 답했다. 분석과 선택 이유는 [분리 기록](../../records/2026-11-16-01-separation-from-011-and-version-analysis.md)에 있다.
 
 **011과의 순서:** 011(SDK 51 위에서 expo-updates, 1.1.4)을 먼저 끝내고 이 Work로 넘어간다. 2026-11-17 현재 이 조건은 사실상 충족됐다.
 - 011의 판단 지점(SDK 51용 expo-updates·dev-client가 Xcode 26에서 빌드되는가)은 `expo-dev-menu@5.0.23` pnpm patch로 통과했다. OTA를 이 Work에 합칠 이유는 없어졌다.
-- 011은 main에 병합됐고 1.1.4(빌드 18)는 심사 대기 중이다. 남은 것은 심사 결과다. 상세는 011의 [현재 상태](../../../011-expo-updates-ota/current/state/index.md)에 있다.
+- 011은 main에 병합됐고 1.1.4(빌드 18)는 심사를 통과해 2026-11-17T22:22:51Z에 App Store에 출시됐다(2026-11-20 App Store 조회로 확인). 011의 문서가 이를 반영했는지는 이 Work에서 보지 않았다. 상세는 011의 [현재 상태](../../../011-expo-updates-ota/current/state/index.md)에 있다.
 - 011 병합으로 dev-client 4.0.29 정렬, expo-updates 0.25.28, 최소 iOS 15.0이 이미 들어왔다. 출시·OTA 기준은 Project의 [app-release-and-ota](../../../../../project/guidance/app-release-and-ota.md)가 소유한다.
 
 ## 2026-11-17에 한 것
@@ -112,19 +112,28 @@
 - **main 병합·push:** 사용자가 2026-11-20 "병합하고 push"를 골랐다. 머지 커밋 `6d34c44b`의 코드가 `c5fdbbdc`와 같다는 diff 대조로 병합 뒤 검사 재실행을 대신했고, lockfile에서 `apps/server` importer가 바뀌지 않은 것을 확인한 뒤 `195b62ee..6d34c44b`를 push했다. push 직후부터 20초 간격으로 8분간(2026-11-20 15:46:37–15:54:26 KST) health가 24번 모두 200(0.23–0.61초)이었고 끊긴 구간은 없었다. 다만 health 응답에 커밋·버전 정보가 없고 Render 대시보드·GitHub deployment 상태는 보지 않아, `6d34c44b` 배포가 실제로 Live가 됐는지는 확정하지 못했다. 서버 코드와 lockfile의 `apps/server` importer가 바뀌지 않아 배포 여부와 무관하게 서버 동작은 같다고 본다(Main 판단).
 - **병합 뒤 OTA:** main push는 OTA 발행이 아니다. main의 runtime은 production의 1.1.4와도, preview 채널 최신인 SDK 54 Legacy `f8e97f99`와도 달라 main에서의 발행은 runtime 대조에서 거부된다고 본다(Project 출시 기준에서 읽은 것, dry-run 안 함). 1.1.4 OTA·핫픽스는 `release/1.1`에서만 낸다. 상세는 [Ticket 04](../memory/tickets/04-new-architecture-and-1-2-0.md#main-병합-2026-11-20)에 있다.
 
+## 2026-11-20 출시 기준 반영, iPad 남은 확인, 1.1.4 출시, 정리
+
+결과는 [Ticket 04](../memory/tickets/04-new-architecture-and-1-2-0.md#현재-상태와-실제-결과)와 [Ticket 01](../memory/tickets/01-preparation-baseline-and-node24.md#현재-상태와-실제-결과), 과정은 [iPad 남은 확인·정리 기록](../../records/2026-11-20-02-ipad-remaining-checks-release-confirmed-and-cleanup.md)에 있다.
+- **기록·출시 기준 커밋:** 사용자의 "012만 커밋"으로 병합 기록을 `a44f1993`으로 커밋했다. 직전 기록이 넘긴 Project 출시 기준의 낡은 문장은 사용자의 "고쳐줘"로 Main이 고쳐 release 브랜치 OTA 절을 새로 넣었고, "커밋"으로 `69bfa8eb`에 넣었다. 둘 다 push하지 않았다.
+- **"쭉 다해줘":** Main이 남은 일(Render 확인, iPad로 볼 수 있는 04 확인, Ticket 01 마무리, main preview 빌드, 브랜치·worktree 정리)을 제시하자 사용자가 "쭉 다해줘"라고 했다. Main은 정리까지 포함한 승인으로 받았다.
+- **Render:** 대시보드가 로그인 화면이라 `6d34c44b` Live 여부는 여전히 확인하지 못했다.
+- **iPad 확인:** 제어 서버를 다시 띄워, 도쿄 여행 2/2에 좌표 없는 일정과 시부야역 일정을 만들고 오프라인 활성화했다. 온라인 검색 결과를 띄운 뒤 비행기 모드로 바꿔 `OfflineMapView`가 오프라인 지도·마커·안내를 그리는 것을, 2/1→2/2 전환에서 카메라가 이전 날에 남지 않는 것을 봤다. 시험 일정은 지우고 오프라인을 해제했으며 제어 서버는 종료했다. 마커 번호가 좌표 있는 일정 기준이라 카드 순서와 어긋나는 것은 1.1.4와 같은 기존 동작이라 고치지 않았고, 해제 직후 이전 서버 목록이 보인 것은 관찰만 했다.
+- **1.1.4 출시:** App Store 조회로 1.1.4 출시를 확인했다. 점검표 6항목은 iPhone 미연결과 로그인 때문에 실행하지 않았다. Main은 iPad 1.1.4 preview 기준선으로 대부분이 덮이고 운영 앱의 Google·Apple 로그인과 iPhone(iOS 27) 동작이 남는다고 봤고, 인정 여부는 사용자 결정이다.
+- **main preview 빌드:** 이번 달 EAS 빌드가 이미 16건(사용자가 말한 월 한도 15회)이고 1.2.0 전까지 필요하지 않아 Main 판단으로 12월로 미뤘다.
+- **정리:** 미커밋 변경이 없고 env 파일이 main과 같음을 확인한 뒤 worktree `.claude/worktrees/012-sdk54`·`012-newarch`를 지우고, main에 병합된 `feat/012-sdk54`·`feat/012-newarch`·`chore/012-node24`·`docs/012-sdk-upgrade-split`을 지웠다. `release/1.1`과 worktree `012-release-1.1`은 1.1.x OTA 경로라 남겼다.
+
 ## 남은 일과 다음 행동
 
 **아직 하지 않은 것:**
-- Ticket 01의 남은 일. 모두 사용자 확인 뒤 한다
-  - 1.1.4 실기기 점검표 6항목 실행(사용자 기기, 운영 앱/preview 선택)
-  - 1.1.4 심사 결과 확인
+- Ticket 01의 실기기 점검표. iPad 1.1.4 preview 기준선을 점검표 근거로 인정할지 사용자가 정한다. 인정하면 운영 앱의 Google·Apple 로그인과 iPhone(iOS 27)에서의 1.1.4 동작만, 아니면 6항목 전체를 iPhone에서 본다(iPhone 연결과 사용자 로그인 필요). 1.1.4 심사 결과는 2026-11-20 출시로 확인했다
 - 02의 남은 것: 목표 버전 표 전체의 확정 여부(rnmapbox 10.3.18과 npm peer만 확인). 기기는 사용자가 "진행에 도움되는 쪽으로 니가 알아서 해"라고 맡겨 Main이 정했다: 판정용 앱(빌드 91)을 그대로 두고(시험 앱은 03 끝의 preview 빌드로 덮어 설치하고, 04의 기존 사용자 업데이트 확인은 1.1.x를 깨끗하게 다시 설치해 시작한다), DeviceKit 제어 서버는 2026-11-18 종료했다
 - 1.1.4 `offline_cities` 0행의 원인 확인과 다룰 위치
 - 04·05의 업데이트 확인 방식 결정(Ticket 04)
 - ESLint 9는 SDK 58이 요구할 때만 넣는다는 Main 기본값의 확인
-- Ticket 04의 남은 실기기 확인(`OfflineMapView` 오프라인 화면, 첫 일정에 좌표가 없는 날, iPhone·Android·Apple 로그인)과, 이번 iPad 확인을 04의 점검표 6항목으로 볼지의 판단
-- Ticket 04의 1.2.0 스토어 빌드·제출·OTA 확인과 `release/1.2`(12월 갱신 뒤), 그 뒤 Ticket 05 전체
-- 병합으로 다 쓴 작업 브랜치(`feat/012-sdk54`, `feat/012-newarch`)와 worktree(`.claude/worktrees/012-sdk54`, `012-newarch`)의 정리. 정리 후보일 뿐 지울지는 사용자가 정하며 아직 지우지 않았다
+- Ticket 04의 남은 실기기 확인(iPhone·Android·Apple 로그인)과, 이번 iPad 확인(2026-11-19·20)을 04의 점검표 6항목으로 볼지의 판단
+- Ticket 04의 main preview 빌드(2026-11-20 Main 판단으로 12월로 미룸, 그 전에는 main에서 preview OTA 시험 불가), 1.2.0 스토어 빌드·제출·OTA 확인과 `release/1.2`(12월 갱신 뒤), 그 뒤 Ticket 05 전체
+- 소관을 정하지 않은 관찰 두 가지: 일정 Mapbox 지도의 마커 번호가 좌표 있는 일정 기준이라 카드 순서와 어긋나는 기존 동작(1.1.4와 같음, 012에서 고치지 않음), 오프라인 해제 직후 이전 서버 목록이 잠시 보이는 현상(원인·1.1.4 동일 여부 미확인). 상세는 [Ticket 04](../memory/tickets/04-new-architecture-and-1-2-0.md#main-병합-2026-11-20)의 (d)·(e)
 
 **중요한 미확인:**
 - 02의 판정은 rnmapbox 10.3.18 한 조합, 기기 1대, 도시 하나로 본 것이다. 04·05의 출시 빌드 덮어 설치에서 다시 확인한다
@@ -136,22 +145,22 @@
 - Render의 실제 PostgreSQL 버전
 - 이미 설치된 SDK 51 빌드가 iOS 27에서 동작하는지(01의 1.1.4 실기기 점검이 근거가 된다)
 - Apple 요건의 정확한 날짜(4월로만 공지)
-- 1.1.4 심사 결과
 - 대화형 셸에서의 `pnpm exec expo install` 동작(확인은 `CI=1` 비대화형으로 했다)
 
-**다음 행동:** 04의 코드는 2026-11-20 main에 들어갔다(`6d34c44b`). push 뒤 8분간 health는 계속 200이었지만 `6d34c44b` 배포가 Live가 됐는지는 확정하지 못했으니, Render 대시보드를 볼 때 그 배포가 Live인지 확인한다(서버 코드는 바뀌지 않아 급하지 않다). 그다음 지금 할 수 있는 일은 세 갈래이며 우선순위는 사용자와 정한다.
-- **04의 남은 실기기 확인:** `OfflineMapView`의 오프라인 화면, 첫 일정에 좌표가 없는 날, iPhone·Android·Apple 로그인. 로컬 빌드(`eas build --local`)가 EAS 월간 횟수를 아끼는 기본 후보이고, iPad는 USB로 연결하고 DeviceKit 서버를 다시 띄워야 조종할 수 있다. iPhone의 Noline Dev 자리에는 판정용 앱(빌드 91)이 있고 미전송 시험 경비가 DB에 남아 있다(판정용 앱은 동기화하지 않아 온라인이어도 보내지 않는다). 1.1.4 preview(`30c46ce2`)를 다시 설치하고 온라인이 되면 그 경비가 서버로 간다. 이번 iPad 확인을 04의 점검표 6항목으로 볼지도 사용자와 정한다.
-- **Ticket 01의 남은 일:** 실기기 점검표 6항목과 1.1.4 심사 결과. 점검표는 시험 앱 대신 운영 앱(App Store Noline)이 1.1.4로 업데이트된 뒤 그 앱으로 실행한다(Main 판단: 시험 앱 재설치가 필요 없고 preview에서 실패할 수 있는 Apple 로그인도 확인된다).
-- **정리 후보:** `feat/012-sdk54`·`feat/012-newarch` 브랜치와 worktree `.claude/worktrees/012-sdk54`·`012-newarch`. 둘 다 main에 병합됐지만 지울지는 사용자가 정한다.
+**다음 행동:** 04의 코드는 main에 들어갔고(`6d34c44b`), iPad로 볼 수 있는 확인과 브랜치·worktree 정리는 2026-11-20 끝났다. 지금 남은 것은 사용자가 움직여야 하는 것이 대부분이다.
+- **Render 확인(사용자):** `6d34c44b` 배포가 Live인지 대시보드에서 본다. 대시보드는 로그인이 필요해 Main이 보지 못했다. push 뒤 8분간 health는 계속 200이었고 서버 코드는 바뀌지 않아 급하지 않다.
+- **Ticket 01 점검표(사용자 결정):** iPad 1.1.4 preview 기준선을 점검표 근거로 인정할지 정한다. 인정하면 운영 앱(App Store Noline 1.1.4)의 Google·Apple 로그인과 iPhone(iOS 27)에서의 1.1.4 동작만 남고, 아니면 6항목 전체를 iPhone에서 본다. 둘 다 iPhone 연결과 사용자 로그인이 필요하다. 운영 앱으로 하면 시험 앱 재설치가 필요 없고 preview에서 실패할 수 있는 Apple 로그인도 확인된다(Main 판단, 2026-11-18).
+- **Ticket 04의 iPhone·Android·Apple 로그인:** 기기·계정이 필요하다. iPhone의 Noline Dev 자리에는 판정용 앱(빌드 91)이 있고 미전송 시험 경비가 DB에 남아 있다(판정용 앱은 동기화하지 않아 온라인이어도 보내지 않는다). 1.1.4 preview(`30c46ce2`)를 다시 설치하고 온라인이 되면 그 경비가 서버로 간다. 로컬 빌드(`eas build --local`)가 EAS 월간 횟수를 아끼는 기본 후보다. 이번 iPad 확인을 04의 점검표 6항목으로 볼지도 사용자와 정한다.
+- **push 시점:** `a44f1993`·`69bfa8eb`와 그 뒤 기록 커밋은 push하지 않았다. main push는 문서만이어도 Render 재배포를 일으키므로 다음 서버 변경과 함께 올려도 된다(Main 안내).
 
-12월 갱신 뒤에는 Ticket 04의 1.2.0 스토어 빌드·제출로 간다. Apple Developer 멤버십 갱신(2026-12-18, 사용자가 직접)과 배포 인증서·프로비저닝 갱신(2026-12-30 만료)이 먼저다. 빌드는 EAS 월간 횟수를 보고 EAS와 로컬 빌드 중 고르고, 03에서 넘긴 확인(EAS 빌드 실기기 설치, Node 24 로그, Apple 로그인, iPhone 덮어 설치)과 1.2.0 빌드의 OTA·덮어 설치를 함께 본다. 그 사이 1.1.4 사용자에게 OTA나 핫픽스를 내야 하면 main이 아니라 `release/1.1`에서 낸다. main은 이제 SDK 54·New Architecture라 production 1.1.4와 runtime이 달라 발행 스크립트가 거부한다(Ticket 04의 [병합 뒤 OTA 발행 주의](../memory/tickets/04-new-architecture-and-1-2-0.md#main-병합-2026-11-20)). main에서 preview OTA를 시험하려면 main에서 EAS preview 빌드를 새로 만든다.
+12월 갱신 뒤에는 Ticket 04의 1.2.0 스토어 빌드·제출로 간다. Apple Developer 멤버십 갱신(2026-12-18, 사용자가 직접)과 배포 인증서·프로비저닝 갱신(2026-12-30 만료)이 먼저다. 11월에 미룬 main preview 빌드도 이때 EAS 횟수를 보고 만든다. 빌드는 EAS 월간 횟수를 보고 EAS와 로컬 빌드 중 고르고, 03에서 넘긴 확인(EAS 빌드 실기기 설치, Node 24 로그, Apple 로그인, iPhone 덮어 설치)과 1.2.0 빌드의 OTA·덮어 설치를 함께 본다. 그 사이 1.1.4 사용자에게 OTA나 핫픽스를 내야 하면 main이 아니라 `release/1.1`에서 낸다. main은 이제 SDK 54·New Architecture라 production 1.1.4와 runtime이 달라 발행 스크립트가 거부한다(Ticket 04의 [병합 뒤 OTA 발행 주의](../memory/tickets/04-new-architecture-and-1-2-0.md#main-병합-2026-11-20)). main에서 preview OTA를 시험하려면 main에서 EAS preview 빌드를 새로 만든다.
 
 기기 조작이 다시 필요하면 DeviceKit 제어 서버를 `~/Documents/Codex/2026-11-06/new-chat/work/` 에서 `xcodebuild test-without-building -xctestrun iphone-control/build/Build/Products/devicekit-ios_iphoneos26.5-arm64.xctestrun -destination id=<UDID> -only-testing:devicekit-iosUITests/DeviceKitUITests/testRunAutomation -collect-test-diagnostics never`로 띄운다(iPad는 `iphone-control/build-ipad`의 xctestrun, "Server is ready" 확인 뒤 `iphone-control/node_modules/.bin/mobilecli`로 관찰·터치). 운영 서버에 문제가 보이면 Render 대시보드의 이전 배포 Rollback으로 되돌린다(자동 배포가 꺼지므로 다시 켠다). 발행 스크립트의 재설치 뒤 watchman 문제를 스크립트·Project 출시 기준에 반영할지도 Main이 판단한다. `createPack` 완료 시점 문제는 2026-11-19 결정으로 Work 008에 넘겨 012에서 고치지 않는다.
 
-**작업 트리 주의:** main 작업 트리는 다시 main 브랜치다. Node 24 첫 운영 배포는 `c60224ee`다. 그 뒤의 기록·정정 커밋 `1174c5c1`, `e10c8c4f`, `a22873b1`, `b38729b4`는 사용자의 "push 해줘"로 2026-11-18 push했고, Render가 `b38729b`로 다시 배포해 Live가 됐다(health 200, 08:58Z). main push는 문서 변경이어도 Render 재배포를 일으킨다. 그 뒤의 Work 기록 커밋들과 Ticket 03 머지 `ae97809e`는 사용자의 "push 해줘"로 2026-11-19 `195b62ee`까지 push했고, Render 재배포 뒤 health 200을 확인했다(05:38Z). 그 뒤의 기록 커밋 `307ae37b`, `6658ee45`, `faab0efc`, `074ff167`과 Ticket 04 머지 `6d34c44b`는 사용자의 "병합하고 push"로 2026-11-20 함께 push했다(`195b62ee..6d34c44b`). 다음 미커밋 수정은 이 Work와 무관한데 브랜치 전환으로 함께 따라왔다. `7413b343`·`4c83ef5f`에는 넣지 않았고 작업 트리에 그대로 있다. 이후 이 Work의 커밋에도 함께 올리지 않는다.
+**작업 트리 주의:** main 작업 트리는 다시 main 브랜치다. Node 24 첫 운영 배포는 `c60224ee`다. 그 뒤의 기록·정정 커밋 `1174c5c1`, `e10c8c4f`, `a22873b1`, `b38729b4`는 사용자의 "push 해줘"로 2026-11-18 push했고, Render가 `b38729b`로 다시 배포해 Live가 됐다(health 200, 08:58Z). main push는 문서 변경이어도 Render 재배포를 일으킨다. 그 뒤의 Work 기록 커밋들과 Ticket 03 머지 `ae97809e`는 사용자의 "push 해줘"로 2026-11-19 `195b62ee`까지 push했고, Render 재배포 뒤 health 200을 확인했다(05:38Z). 그 뒤의 기록 커밋 `307ae37b`, `6658ee45`, `faab0efc`, `074ff167`과 Ticket 04 머지 `6d34c44b`는 사용자의 "병합하고 push"로 2026-11-20 함께 push했다(`195b62ee..6d34c44b`). 그 뒤의 `a44f1993`(Work 기록)과 `69bfa8eb`(Project 출시 기준)는 push하지 않아 main이 origin보다 앞서 있다. 다음 미커밋 수정은 이 Work와 무관한데 브랜치 전환으로 함께 따라왔다. `7413b343`·`4c83ef5f`에는 넣지 않았고 작업 트리에 그대로 있다. 이후 이 Work의 커밋에도 함께 올리지 않는다.
 - `context/personal/experience/*` 4개
 - Work 006의 Ticket 14·state
 
-worktree `.claude/worktrees/012-release-1.1`(`release/1.1`, env 파일 3개 복사, `node_modules` 설치됨)은 핫픽스·Ticket 02에 다시 쓰려고 남겨 두었다. 지울지는 정하지 않았다.
+worktree `.claude/worktrees/012-release-1.1`(`release/1.1`, env 파일 3개 복사, `node_modules` 설치됨)은 1.1.x OTA·핫픽스를 내는 경로라 남긴다(2026-11-20 Main 판단, Project 출시 기준의 [release 브랜치 절](../../../../../project/guidance/app-release-and-ota.md#이미-낸-버전의-수정은-release-브랜치에서-낸다)). 다른 012 worktree(`012-sdk54`, `012-newarch`)와 병합된 브랜치 `feat/012-sdk54`·`feat/012-newarch`·`chore/012-node24`·`docs/012-sdk-upgrade-split`은 2026-11-20 지웠다.
 
 기본 Workspace와 host 세션 선택은 바꾸지 않았다.
