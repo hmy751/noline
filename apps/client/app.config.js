@@ -58,7 +58,7 @@ export default {
   ios: {
     supportsTablet: false,
     bundleIdentifier: IS_PROD ? 'com.ham.noline' : 'com.noline.dev',
-    buildNumber: '19',
+    buildNumber: '20',
     usesAppleSignIn: true,
     config: {
       googleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_IOS_API_KEY,
