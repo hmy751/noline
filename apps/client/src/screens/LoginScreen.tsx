@@ -20,14 +20,16 @@ import { completeLogin } from '@/shared/services/auth/login-service';
 import { router } from 'expo-router';
 
 export default function LoginScreen() {
-  const [isLoading, setIsLoading] = useState(false);
+  // 어떤 동작이 진행 중인지 따로 들고 있어야 누른 버튼에만 로딩을 표시할 수 있다.
+  const [pendingAction, setPendingAction] = useState<'google' | 'apple' | 'logout' | null>(null);
+  const isLoading = pendingAction !== null;
   const [error, setError] = useState<string | null>(null);
   const status = useAuthStore((state) => state.status);
 
   const { signIn: signInWithGoogle, isLoading: isGoogleLoading } = useGoogleAuth();
 
   const handleGoogleLogin = async () => {
-    setIsLoading(true);
+    setPendingAction('google');
     setError(null);
 
     try {
@@ -56,12 +58,12 @@ export default function LoginScreen() {
       console.error('[Login] Google login failed', loginError);
       setError(loginError instanceof Error ? loginError.message : 'Google 로그인에 실패했습니다');
     } finally {
-      setIsLoading(false);
+      setPendingAction(null);
     }
   };
 
   const handleAppleLogin = async () => {
-    setIsLoading(true);
+    setPendingAction('apple');
     setError(null);
 
     try {
@@ -95,7 +97,7 @@ export default function LoginScreen() {
       console.error('[Login] Apple login failed', loginError);
       setError(loginError instanceof Error ? loginError.message : 'Apple 로그인에 실패했습니다');
     } finally {
-      setIsLoading(false);
+      setPendingAction(null);
     }
   };
 
@@ -109,7 +111,7 @@ export default function LoginScreen() {
           text: '데이터 지우고 로그아웃',
           style: 'destructive',
           onPress: async () => {
-            setIsLoading(true);
+            setPendingAction('logout');
             setError(null);
             try {
               const result = await performLogout({ force: true });
@@ -119,7 +121,7 @@ export default function LoginScreen() {
             } catch (cleanupError) {
               setError(cleanupError instanceof Error ? cleanupError.message : '기기의 데이터를 정리하지 못했습니다');
             } finally {
-              setIsLoading(false);
+              setPendingAction(null);
             }
           },
         },
@@ -187,8 +189,8 @@ export default function LoginScreen() {
                 disabled={isLoading || isGoogleLoading || status === 'initializing'}
                 className='h-14 flex-row items-center justify-center gap-sm'
               >
-                {isLoading ? (
-                  <ActivityIndicator size='small' color='hsl(0, 0%, 12%)' />
+                {pendingAction === 'google' ? (
+                  <ActivityIndicator size='small' color='hsl(0, 0%, 12%)' accessibilityLabel='Google 로그인 진행 중' />
                 ) : (
                   <>
                     <GoogleIcon />
@@ -211,6 +213,11 @@ export default function LoginScreen() {
                     }
                   }}
                 />
+                {pendingAction === 'apple' && (
+                  <View className='absolute inset-0 items-center justify-center bg-black'>
+                    <ActivityIndicator size='small' color='white' accessibilityLabel='Apple 로그인 진행 중' />
+                  </View>
+                )}
               </View>
             )}
           </View>
