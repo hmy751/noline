@@ -21,12 +21,25 @@ Ticket 03의 결과는 2026-11-19 main에 머지 커밋 `ae97809e`로 병합됐�
 2026-11-19 Ticket 04의 코드 작업은 2026-11-20 사용자의 "병합하고 push"로 main에 머지 커밋 `6d34c44b`로 병합됐고 `195b62ee..6d34c44b`로 push했다. 병합 뒤 코드는 `c5fdbbdc`와 같다. push 뒤 8분간 health는 24번 모두 200이었지만, 응답에 커밋 정보가 없고 Render 대시보드를 보지 않아 `6d34c44b` 배포가 Live가 됐는지는 확정하지 못했다. 작업 브랜치와 worktree는 2026-11-20 지웠다. 그 뒤의 `a44f1993`(Work 기록)·`69bfa8eb`(Project 출시 기준에 release 브랜치 OTA 절 추가)는 아직 push하지 않았다.
 - **(삭제됨) worktree `.claude/worktrees/012-newarch`, 브랜치 `feat/012-newarch`**: main `307ae37b`에서 분기. 커밋 `6c6b5524`(New Architecture·reanimated 4·Mapbox v11), `beee6373`(fmt 우회 삭제), `fb73bb25`(오프라인 지도 스타일 상수 `OFFLINE_MAP_STYLE_URL`), `c5fdbbdc`(일정 Mapbox 지도의 마커 번호·처음 위치). 내용은 [Ticket 04](../current/memory/tickets/04-new-architecture-and-1-2-0.md#현재-상태와-실제-결과)에 있다.
 
+2026-11-20 Ticket 04의 1.2.0 출시 빌드를 만들어 App Store Connect에 올렸다. 내용은 [Ticket 04](../current/memory/tickets/04-new-architecture-and-1-2-0.md#120-빌드와-app-store-connect-업로드-2026-11-20)에 있다.
+- **버전 커밋 `3ff9832c`**(main, push 안 함): `app.config.js`의 `version` 1.2.0, `ios.buildNumber` 19.
+- **ipa `apps/client/dist/noline-1.2.0-19.ipa`**(38.9 MB, gitignore): `eas build --local` production, `com.ham.noline` 1.2.0(19), runtime `167224c68c33d159626c09f8e67c74fe5f20c02c`. EAS 빌드 목록에는 없다.
+- **App Store Connect 업로드(빌드 19):** EAS submission `11293d25-6b5d-4c01-805d-29e4745b2e8a`, ASC 앱 `6757186547`의 TestFlight. 사용자가 iPhone에서 로그인 확인에 썼고 심사에는 내지 않는다.
+
+같은 날 사용자가 빌드 19에서 찾은 Apple 로그인 로딩 표시를 고쳐 빌드 20을 만들었다. 내용은 [Ticket 04의 빌드 20 절](../current/memory/tickets/04-new-architecture-and-1-2-0.md#apple-로그인-로딩-수정과-빌드-20-2026-11-20)에 있다.
+- **수정 커밋 `378287a6`**(main, push 안 함): `apps/client/src/screens/LoginScreen.tsx`, 새 테스트 `apps/client/tests/screens/login-loading.test.tsx`.
+- **버전 커밋 `92c1766c`**(main, push 안 함): `ios.buildNumber` 20. main은 origin보다 6커밋 앞서 있다.
+- **로컬 브랜치 `release/1.2`**(`92c1766c`, push 안 함): 1.2.x 핫픽스용. 처음 `3ff9832c`에서 만들었다가 빌드 20 커밋으로 옮겼다.
+- **ipa `apps/client/dist/noline-1.2.0-20.ipa`**(gitignore): `eas build --local` production, `com.ham.noline` 1.2.0(20), New Architecture, runtime `c4fc18bb87be563ecadc87afde5936b605ab266d`. EAS 빌드 목록에는 없다.
+- **App Store Connect 업로드(빌드 20):** EAS submission `bc7c857f-af61-4f23-b4fd-09a66e095a60`. 심사에 낼 빌드다.
+- **App Store Connect iOS 버전 1.2.0:** 출시 노트 두 줄, 빌드 20 연결, 출시 설정은 자동 출시·모든 사용자에게 즉시·기존 평가 유지. 2026-11-20 오후 7:13 심사에 제출했고 앱 심사 페이지에 "심사 대기 중"으로 나온다.
+
 내용과 남은 일은 [Ticket 01](../current/memory/tickets/01-preparation-baseline-and-node24.md#현재-상태와-실제-결과)에 있다. 설치 절차(`pnpm exec expo install`)는 지금 이 Work의 [공통 규칙 3](../current/memory/tickets/index.md)에만 있다.
 
 결과가 생기면 실제 위치를 여기에 연결한다. 예정된 결과는 다음과 같다.
 - `apps/client/package.json`·`app.config.js`·`eas.json`, `.nvmrc`, `pnpm-lock.yaml` 변경과 그에 따른 코드 수정
 - 서버 Node 변경: `render.yaml`, `nixpacks.toml` 정리, `@types/node`, `START_GUIDE.md`의 Node 안내와 Render 배포
 - 저장소 의존성 선언 정리: root `package.json`의 react, `packages/ui`·`packages/eslint-config`
-- 업그레이드 스토어 빌드와 심사 제출(1.2.0, 1.3.0 두 번)
+- 업그레이드 스토어 빌드와 심사 제출(1.2.0, 1.3.0 두 번). 1.2.0은 빌드 20으로 2026-11-20 심사에 제출했다(심사 대기 중, 위)
 - 1.2.0 출시 전까지의 1.1.x 핫픽스용 `release/1.1` 브랜치
 - 설치·확인 방법(재발 방지)의 위치

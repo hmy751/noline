@@ -101,6 +101,7 @@ main은 다음 버전을 만드는 곳이다. SDK·네이티브 의존성처럼 
 
 - **1.1.x 사용자에게 보낼 OTA는 `release/1.1`에서 발행한다.** 깨끗한 설치 조건 때문에 main 작업 트리와 분리된 worktree에서 한다. 그 브랜치의 `.nvmrc`에 맞는 Node(1.1에서는 20.18.1)로 설치하고, gitignore 대상인 `apps/client`의 env 파일(`.env.development`, `.env.development.local`, `.env.production`)을 복사해 둔다. 2026-11-18 이 방식으로 `pnpm ota:publish production --dry-run`이 1.1.4 빌드와 runtime 일치를 통과했다.
 - **release 브랜치의 OTA는 다음 버전 빌드가 채널에 생기기 전까지만 쓸 수 있다.** 발행 스크립트는 채널의 최신 빌드를 기준으로 삼으므로, production 채널에 1.2.0 빌드가 생기면 `release/1.1`에서의 발행도 거부된다. 그 뒤 1.1.x 사용자는 [위의 운영 조건](#runtime이-같은-빌드에만-ota가-간다)대로 스토어 업데이트로 고치고, 1.2.x 사용자의 수정은 `release/1.2`에서 OTA로 낸다.
+- **로컬 빌드(`eas build --local`)는 채널의 빌드로 잡히지 않는다.** EAS 빌드 목록에 남지 않기 때문이다. 2026-11-20 1.2.0(빌드 19)을 로컬로 만들어 App Store Connect에 올린 뒤에도 production 채널의 최신 빌드는 1.1.4(`7033c2ba`)였다. 그래서 지금 발행 스크립트는 1.2.0을 OTA 대상으로 보지 않는다. main이나 `release/1.2`에서 1.2.0으로 발행하면 runtime 대조에서 거부된다. 1.2.0을 OTA 대상으로 만드는 방법은 아직 정하지 않았다([Work 012](../../work/workspaces/012-expo-sdk-upgrade/README.md)).
 - **preview 채널도 최신 빌드 하나만 기준이다.** 지금 preview 채널의 최신 빌드는 main에서 만든 SDK 54 빌드라 `release/1.1`의 preview OTA는 거부된다. release 브랜치의 수정을 preview로 먼저 시험하려면 그 브랜치에서 preview 빌드를 다시 만들어야 하고, 그러면 main 쪽 preview 시험이 다시 막힌다.
 
 release 브랜치에서 고친 내용을 main에 옮기는 방법은 아직 정하지 않았다.
@@ -110,6 +111,7 @@ release 브랜치에서 고친 내용을 main에 옮기는 방법은 아직 정�
 1. main에서 `apps/client/app.config.js`의 `version`과 `ios.buildNumber`만 올린 커밋을 만들고 push한다. main push는 [Render](../../../apps/server/README.md#배포-전-확인)의 자동 배포 대상이다. 서버 코드가 그대로면 같은 서버가 다시 배포된다.
 2. 깨끗이 설치하고(`node_modules` 삭제 뒤 `pnpm install --frozen-lockfile`) production runtime을 계산해 둔다. `apps/client`에서 `EXPO_NO_DOTENV=1 eas env:exec production 'npx expo-updates runtimeversion:resolve --platform ios' --non-interactive`로 계산하며, 빌드 결과의 runtime과 같아야 한다.
 3. `eas build --platform ios --profile production`으로 빌드한다. 빌드 이미지는 `eas.json`에 고정돼 있다. 배포 인증서와 프로필은 EAS가 관리한다. 2026-11-17 빌드 때 EAS는 만료일을 2026-12-30으로 보고했으니, 그 뒤 빌드는 먼저 갱신해야 한다.
+   - EAS 월간 빌드 횟수가 모자라면 `--local`로 이 Mac에서 빌드할 수 있다. 이 경우 fastlane이 필요하다. 또 EAS는 Secret 값을 로컬에 넘기지 않으므로, 소스맵을 올리려면 `SENTRY_AUTH_TOKEN`을 `.env.production`에서 꺼내 export한 채로 실행한다. 로컬 빌드는 위의 release 브랜치 절대로 채널의 빌드로 잡히지 않는다. 2026-11-20 1.2.0 빌드에서는 토큰을 넘겼지만, 소스맵이 실제로 Sentry에 올라갔는지는 확인하지 못했다. 로컬로 빌드하면 `--id` 대신 `--path <ipa>`로 4단계 제출을 한다.
 4. `eas submit --platform ios --profile production --id <빌드 ID>`로 App Store Connect에 올린다. 처리 완료 메일 외에 경고 메일이 오는지 본다. 1.1.3 업로드 때는 iOS 최소 버전 관련 경고(ITMS-90068)가 왔다.
 5. App Store Connect에서 버전을 만들고 빌드를 연결한 뒤 심사에 제출한다. 출시는 심사 통과 뒤 자동 공개로 둔다.
    - "이 버전에서 업그레이드된 사항" 칸에는 이전 버전의 안내가 미리 채워져 있으니 바꿔 쓴다.
@@ -118,7 +120,7 @@ release 브랜치에서 고친 내용을 main에 옮기는 방법은 아직 정�
 
 **preview 채널과 시험 앱:**
 - preview 프로필은 개발용 번들 ID(`com.noline.dev`, `APP_VARIANT=development`)의 내부 배포 앱을 만든다. 등록된 기기에만 설치된다.
-- 스토어 버전을 올리거나 runtime을 바꾸는 변경이 들어가면 기존 preview 빌드는 main과 runtime이 달라진다. 그 뒤 preview로 OTA를 시험하려면 `eas build --platform ios --profile preview`로 preview 빌드를 새로 만든다. 2026-11-20 현재 preview 채널의 최신 빌드는 SDK 54(New Architecture 전) 빌드 `f8e97f99`라, New Architecture가 들어간 main도 preview 시험 전에 새 빌드가 필요하다. `eas build --local`로 만든 빌드가 채널의 최신 빌드로 잡히는지는 확인하지 않았다.
+- 스토어 버전을 올리거나 runtime을 바꾸는 변경이 들어가면 기존 preview 빌드는 main과 runtime이 달라진다. 그 뒤 preview로 OTA를 시험하려면 `eas build --platform ios --profile preview`로 preview 빌드를 새로 만든다. 2026-11-20 현재 preview 채널의 최신 빌드는 SDK 54(New Architecture 전) 빌드 `f8e97f99`라, New Architecture가 들어간 main도 preview 시험 전에 새 빌드가 필요하다. `eas build --local`로 만든 빌드는 채널의 최신 빌드로 잡히지 않는다(production에서 2026-11-20 확인).
 - preview 앱은 개발용 Google iOS client를 쓴다. 그래서 서버의 `GOOGLE_IOS_CLIENT_ID`는 운영·개발 client를 쉼표 목록으로 함께 받는다([서버 안내](../../../apps/server/README.md)). preview 앱의 Apple 로그인은 서버 설정이 운영 번들 기준이라 실패할 수 있고, 확인하지 않았다.
 
 ## 현재 범위와 다시 확인할 것
@@ -128,7 +130,7 @@ release 브랜치에서 고친 내용을 main에 옮기는 방법은 아직 정�
 - **Codex의 hook 처리:** hook의 거부를 Codex가 실제로 처리하는지는 확인하지 않았다. Claude Code에서는 실제로 막았다.
 - **Expo 무료 플랜:** 업데이트 사용자 한도는 확인하지 않았다.
 - **SDK 업그레이드([Work 012](../../work/workspaces/012-expo-sdk-upgrade/README.md)):**
-  - main은 SDK 54·New Architecture다. 앱 버전·빌드 번호는 1.1.4/18 그대로지만 runtime은 스토어의 1.1.4 빌드와 다르다(위 [release 브랜치](#이미-낸-버전의-수정은-release-브랜치에서-낸다)).
+  - main은 SDK 54·New Architecture이고, 2026-11-20 버전을 1.2.0(빌드 20)으로 올려 로컬 빌드로 App Store Connect에 올렸다. runtime은 스토어의 1.1.4 빌드와 다르다(위 [release 브랜치](#이미-낸-버전의-수정은-release-브랜치에서-낸다)). 같은 코드에서 빌드 번호만 19에서 20으로 올렸을 때도 runtime이 바뀌었다. 위 "앱 버전과 iOS 빌드 번호" 항목이 SDK 54에서도 그대로라는 확인이다.
   - SDK 51에서 `eas fingerprint:compare`가 "SDK 52 이상만" 오류로 막혔던 제한은 SDK 54로 풀렸을 것으로 본다. 실제로 써 보지는 않았다.
   - SDK 54에서 runtime 계산 요소와 발행 스크립트의 대조가 그대로 맞는지는 아직 dry-run으로 확인하지 않았다. 1.2.0 첫 빌드와 발행에서 확인한다. SDK 58은 fingerprint 기본 방식이 `balanced`로 바뀌므로 그때 다시 확인한다.
   - Apple은 2027년 4월부터 iOS 27 SDK로 빌드한 앱만 받는다. 그 뒤로는 SDK 51로 새 스토어 빌드를 내기 어렵다. 이미 설치된 앱과 OTA 전달은 계속된다.
