@@ -17,6 +17,7 @@ import {
   downloadOfflineMapInBackground,
 } from '@/shared/services/offline-map';
 import { processPendingCleanups } from '@/shared/services/sync/cleanup-job';
+import { OFFLINE_MAP_STYLE_URL } from '@/shared/lib/mapbox';
 import { useAuthStore } from '@/shared/store/auth';
 
 jest.mock('expo-sqlite', () => ({
@@ -164,6 +165,8 @@ it('여행이 획득·반납을 반복해도 한 번만 반영하고 다시 획�
   await Promise.all([downloadOfflineMapInBackground('A'), downloadOfflineMapInBackground('A')]);
   expect(city()).toMatchObject({ referenceCount: 1 });
   expect(manager.createPack).toHaveBeenCalledTimes(1);
+  expect(manager.createPack.mock.calls[0][0]).toMatchObject({ styleURL: OFFLINE_MAP_STYLE_URL });
+  expect(city()).toMatchObject({ styleUrl: OFFLINE_MAP_STYLE_URL });
 
   await setActive('A', false);
   await Promise.all([cleanupOfflineMapForTrip('A'), cleanupOfflineMapForTrip('A')]);
@@ -261,4 +264,27 @@ it('A만 만료되면 미만료 여행 수는 1이 되고, 이후 A를 반납해
   expect(city()).toMatchObject({ referenceCount: 1 });
   expect(nativePacks.has(PACK_NAME)).toBe(true);
   expect(manager.deletePack).not.toHaveBeenCalled();
+});
+
+it('받을 양을 모르는 진행 알림(percentage null)은 건너뛰고 이후 진행률과 완료를 반영한다', async () => {
+  const recorded: (number | null)[] = [];
+  const createPack = manager.createPack as unknown as jest.Mock<
+    (
+      options: { name: string },
+      onProgress: (region: unknown, status: { percentage: number | null }) => Promise<void>,
+    ) => Promise<void>
+  >;
+  createPack.mockImplementationOnce(async ({ name }, onProgress) => {
+    for (const percentage of [null, 55, 100]) {
+      await onProgress({}, { percentage });
+      recorded.push(activation('A')?.syncProgress ?? null);
+    }
+    nativePacks.add(name);
+  });
+
+  await downloadOfflineMapInBackground('A');
+
+  expect(recorded).toEqual([0, 55, 100]);
+  expect(activation('A')).toMatchObject({ mapDownloaded: true });
+  expect(city()).toMatchObject({ referenceCount: 1 });
 });
