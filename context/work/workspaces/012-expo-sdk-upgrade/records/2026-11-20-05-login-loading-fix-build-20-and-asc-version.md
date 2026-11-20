@@ -21,7 +21,7 @@
 - 진행 중인 동작을 `pendingAction: 'google' | 'apple' | 'logout' | null`로 따로 들고, `isLoading`은 `pendingAction !== null`로 계산한다. 버튼 비활성화 조건은 그대로 `isLoading`을 쓴다.
 - Google 버튼의 스피너는 `pendingAction === 'google'`일 때만 그리고, `accessibilityLabel` "Google 로그인 진행 중"을 붙였다.
 - Apple 버튼은 iOS가 그리는 네이티브 버튼(`AppleAuthenticationButton`)이라 안에 스피너를 넣을 수 없다. 그래서 `pendingAction === 'apple'`일 때 버튼 위에 검은 바탕(`absolute inset-0 bg-black`)과 흰 스피너("Apple 로그인 진행 중")를 덮었다.
-- 이 오버레이가 실기기에서 어떻게 보이는지는 Main이 보지 않았다. 빌드 20 TestFlight에서 사용자가 보는 것으로 남았다(아래).
+- 이 오버레이가 실기기에서 어떻게 보이는지는 Main이 보지 않았다. 빌드 20 TestFlight에서 사용자가 보는 것으로 남았다(아래). 제출 뒤 사용자가 빌드 20 TestFlight로 Apple 로그인을 해 보고 "일단 테스트 플라이트 애플 로그인 은 잘되네"라고 했다. 로그인 성공은 확인됐고, 덮개 모양을 따로 봤는지는 그 말에 없다.
 
 **검사(9798–9841행).**
 - 새 테스트 `apps/client/tests/screens/login-loading.test.tsx`(2개): Apple 로그인 중에는 Apple 쪽 표시만 있고 Google 스피너가 없으며 "Google로 계속하기"가 그대로인지, Google 로그인 중에는 Google 스피너만 있는지 본다. 수정 전 `LoginScreen.tsx`로 되돌려 돌리면 2개 모두 실패했고(9814행), 수정 코드에서 통과한다.
