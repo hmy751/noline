@@ -1,6 +1,6 @@
 # 04 — New Architecture로 바꾸고 1.2.0을 낸다
 
-**상태:** 진행 중 (2026-11-19 코드 작업 시작, 같은 날 iPad 실기기 확인과 지도 수정까지 마침). 계획은 1월이었지만 사용자의 "그래 쭉 해봐 다시"로 코드·시뮬레이터·로컬 확인을 앞당겼다. 1.2.0 스토어 빌드·제출은 그대로 멤버십(2026-12-18)·인증서(2026-12-30) 갱신 뒤다. 2026-11-18 02 판정으로 지도 대응은 필요 없다(아래). 결과는 아래 [현재 상태와 실제 결과](#현재-상태와-실제-결과)에 있다.
+**상태:** 진행 중 (2026-11-19 코드 작업 시작, 같은 날 iPad 실기기 확인과 지도 수정까지 마침. 2026-11-20 코드를 main에 병합·push). 계획은 1월이었지만 사용자의 "그래 쭉 해봐 다시"로 코드·시뮬레이터·로컬 확인을 앞당겼다. 1.2.0 스토어 빌드·제출은 그대로 멤버십(2026-12-18)·인증서(2026-12-30) 갱신 뒤다. 2026-11-18 02 판정으로 지도 대응은 필요 없다(아래). 결과는 아래 [현재 상태와 실제 결과](#현재-상태와-실제-결과)에 있다.
 
 ## 맡은 결과와 범위
 
@@ -58,7 +58,7 @@ Spec과의 연결: [완료 판단](../spec/04-quality-and-completion.md)의 3(�
 
 ## 현재 상태와 실제 결과
 
-2026-11-19 코드 작업을 시작했고, 같은 날 iPad 실기기에서 1.1.4 위 덮어 설치와 비행기 모드를 확인하다 찾은 일정 지도 차이 두 개를 고쳤다. 작업 위치는 main `307ae37b`에서 분기한 worktree `.claude/worktrees/012-newarch`, 브랜치 `feat/012-newarch`다(main 미병합). 과정과 원문은 [04 코드 작업 기록](../../../records/2026-11-19-02-ticket04-newarch-code-and-review.md)과 [iPad 실기기 확인·지도 수정 기록](../../../records/2026-11-19-04-ticket04-ipad-verification-and-schedule-map-fix.md)에 있다.
+2026-11-19 코드 작업을 시작했고, 같은 날 iPad 실기기에서 1.1.4 위 덮어 설치와 비행기 모드를 확인하다 찾은 일정 지도 차이 두 개를 고쳤다. 작업 위치는 main `307ae37b`에서 분기한 worktree `.claude/worktrees/012-newarch`, 브랜치 `feat/012-newarch`였고, 2026-11-20 사용자의 "병합하고 push"로 main에 병합했다(아래 [main 병합](#main-병합-2026-11-20)). 이 Ticket의 코드 부분은 main에 들어갔고, 남은 것은 실기기 미확인 항목과 12월 갱신 뒤의 1.2.0 출시다. 과정과 원문은 [04 코드 작업 기록](../../../records/2026-11-19-02-ticket04-newarch-code-and-review.md)과 [iPad 실기기 확인·지도 수정 기록](../../../records/2026-11-19-04-ticket04-ipad-verification-and-schedule-map-fix.md)에 있다.
 
 **커밋**
 - `6c6b5524`: `newArchEnabled: true`, reanimated ~4.1.7 + worklets 0.5.1(babel plugin 등록과 `expo.install.exclude` 삭제), @rnmapbox/maps ~10.3.18(native v11), `packages/ui` reanimated peer `>=4.1.0`(`>=3.10.0`이면 ui 아래 3.19.5가 한 벌 더 설치됨), Mapbox v11 진행률 `percentage` null 처리, `encodePolyline` 튜플 타입. `MyLocationButton`은 reanimated 4에서도 같은 API라 바꾸지 않았다.
@@ -80,11 +80,27 @@ Spec과의 연결: [완료 판단](../spec/04-quality-and-completion.md)의 3(�
 - **서버:** 온라인에서 오프라인 해제 뒤 서버 기준 합계 JPY 3712로 두 경비가 모두 서버에 있었다. 지금 iPad의 도쿄 여행은 온라인 전용이고 Noline Dev는 `c5fdbbdc`와 제품 코드가 같은 빌드다. 시험 경비 두 건(JPY 400, 500)이 계정의 도쿄 여행에 남아 있다.
 - **보지 못한 것:** 첫 일정에 좌표가 없는 날로 바꾸는 경우(시험 데이터 없음, 테스트로만), `OfflineMapView`(일정 추가는 오프라인에서 검색이 꺼져 지도가 나오지 않음), 마커가 많을 때 `MarkerView`의 겹침·성능, 확대 조작(iPhone 호환 창에서 핀치·두 번 탭이 먹지 않음, 카드 넘기기는 됨). 이 확인은 preview 로컬 빌드이며 1.2.0 출시 빌드가 아니다.
 
-**아직 확인하지 않은 것:** iPhone 실기기, Android, Apple 로그인, `OfflineMapView`의 실기기 오프라인 화면, 1.2.0 출시 빌드에서의 덮어 설치와 OTA(받기·기다리지 않는 시작·롤백). 03에서 넘긴 확인(EAS 빌드 실기기 설치, EAS Node 24 로그, iPhone 덮어 설치)도 남아 있다.
+**아직 확인하지 않은 것:** iPhone 실기기, Android, Apple 로그인, `OfflineMapView`의 실기기 오프라인 화면, 첫 일정에 좌표가 없는 날의 실기기 화면(테스트로만 확인), 1.2.0 출시 빌드에서의 덮어 설치와 OTA(받기·기다리지 않는 시작·롤백). 03에서 넘긴 확인(EAS 빌드 실기기 설치, EAS Node 24 로그, iPhone 덮어 설치)도 남아 있다.
+
+**아직 정하지 않은 것:** 이번 iPad 확인(preview 로컬 빌드, iPad 한 대)을 위 완료 조건의 "New Architecture preview 빌드에서 실기기 점검표 6항목"을 채운 것으로 볼지, 출시 빌드 확인에 어느 앱을 쓸지. 둘 다 Main이 2026-11-19 사용자에게 열린 판단으로 알렸고 사용자가 답하지 않았다.
+
+### main 병합 (2026-11-20)
+
+2026-11-19 Main이 남은 일을 설명하며 "`feat/012-newarch`를 지금 main에 병합할까요?"라고 묻자, 사용자가 2026-11-20 "병합하고 push"를 골랐다. 경위는 [main 병합 기록](../../../records/2026-11-20-01-ticket04-main-merge-and-push.md)에 있다.
+- **병합:** main에서 `git merge --no-ff feat/012-newarch`로 머지 커밋 `6d34c44b`를 만들었다. 들어간 것은 `6c6b5524`·`beee6373`·`fb73bb25`·`c5fdbbdc` 네 커밋(client·`packages/ui`·lockfile 14개 파일)이다.
+- **검사를 다시 돌리지 않은 근거:** `git diff c5fdbbdc 6d34c44b -- apps packages pnpm-lock.yaml package.json pnpm-workspace.yaml`이 비어 있다. 병합 뒤 main의 코드가 위 검사·실기기 확인을 거친 `c5fdbbdc`와 같으므로 Main은 병합 뒤 검사 재실행을 이 대조로 대신했다. main 쪽에만 있던 커밋은 Work 기록 문서뿐이었다.
+- **서버 영향:** lockfile에서 바뀐 hunk는 `apps/client`·`packages/ui` importer와 그 패키지 항목뿐이고 `apps/server` importer는 그대로다. main push는 Render 재배포를 일으키지만 서버 코드·의존성은 바뀌지 않는다.
+- **push와 운영 서버:** `git push origin main`으로 `195b62ee..6d34c44b`를 올렸다. 확인 대상은 `https://noline-d6hy.onrender.com/api/health`다. push 직후부터 20초 간격으로 8분간(2026-11-20 15:46:37–15:54:26 KST) health가 24번 모두 200(0.23–0.61초)이었고 끊긴 구간은 없었다. 다만 health 응답에 커밋·버전 정보가 없고 Render 대시보드·GitHub deployment 상태는 보지 않아, `6d34c44b` 배포가 실제로 Live가 됐는지는 확정하지 못했다. 서버 코드와 lockfile의 `apps/server` importer가 바뀌지 않아 배포 여부와 무관하게 서버 동작은 같다고 본다(Main 판단).
+- **main push는 OTA 발행이 아니다.** 운영 앱(1.1.4)에는 아무것도 가지 않았다. 다만 main의 앱이 이제 SDK 54·New Architecture라 OTA 발행 기준이 바뀌었다(바로 아래).
+
+**병합 뒤 OTA 발행 주의.** runtime은 `fingerprint`로 계산되고 발행 스크립트는 채널의 최신 빌드와 runtime이 같을 때만 발행한다([출시 기준](../../../../../../project/guidance/app-release-and-ota.md#runtime이-같은-빌드에만-ota가-간다)). main은 앱 버전·빌드 번호가 여전히 1.1.4/18이지만 네이티브 층이 달라, 기록 담당자가 그 기준에서 읽은 결과는 다음과 같다(dry-run으로 확인하지 않았다).
+- production 채널의 최신 빌드는 SDK 51의 1.1.4(`7033c2ba`)다. main에서 `pnpm ota:publish production`을 실행하면 runtime 대조에서 거부된다. 1.1.4 사용자에게 보낼 OTA·핫픽스는 `release/1.1`(worktree `.claude/worktrees/012-release-1.1`)에서만 낸다. Ticket 01이 `release/1.1`을 먼저 만든 이유가 이 상황이다. SDK 54가 들어간 03 병합(`ae97809e`) 때부터 이미 그랬고, 이번 병합으로 바뀐 것은 아니다.
+- preview 채널의 최신 빌드는 03의 SDK 54 Legacy preview `f8e97f99`다. New Architecture가 들어간 main은 그 빌드와도 runtime이 달라, main에서 preview OTA를 시험하려면 main에서 EAS preview 빌드를 새로 만들어야 한다. 04에서 만든 iPad용 preview는 `eas build --local`이라 EAS의 채널 최신 빌드로 잡히는지는 확인하지 않았다.
+- 1.2.0 스토어 빌드는 main에서 버전을 올려 만들고, 그 빌드가 생기면 main의 production OTA 대상이 된다. 그 전까지 main에서 production OTA를 낼 일은 없다.
 
 **함께 찾은 기존 문제 (이번 변경으로 생긴 것 아님, 012에서 처리하지 않음)**
 - **(a) `createPack`이 다운로드 시작 직후 resolve한다**(Main이 `RNMBXOfflineModule.swift`를 직접 확인). 그래서 `download.ts`가 다운로드 완료 전에 `mapDownloaded = true`를 기록할 수 있다. 테스트 mock은 완료 뒤 resolve로 모델링돼 가려졌다. **2026-11-19 결정: 012에서는 고치지 않고 [Work 008](../../../../008-exception-notice-rules/README.md)(예외 안내 규칙)로 넘긴다.** 사용자는 다른 Ticket에 이미 기록돼 있으면 012에서는 넘어가자고 했다. Main은 처음에 이 문제를 기록한 곳으로 [003 Ticket 05](../../../../003-bug-investigation-and-fixes/current/memory/tickets/05-offline-map-readiness.md)를 확인했다(2026-09-13 조사에서 pack 생성 promise가 타일 완료를 뜻하지 않음을 확인, 완료 조건에 생성·진행·완료·실패 구별과 iOS 비행기 모드 대조, 미완료). 사용자는 003이 아니라 예외처리 Workspace인 008로 하자고 했다. 008에는 이 문제가 기록돼 있지 않아 넘겨받은 과제로 새로 추가했다([008 현재 상태](../../../../008-exception-notice-rules/current/state/index.md)). Project [map-packs](../../../../../../project/guidance/offline-maps-and-routes/map-packs.md)와 [지도 기준 INDEX](../../../../../../project/guidance/offline-maps-and-routes/INDEX.md)는 이 동작을 현재 동작으로 적고 있다. 그래서 위 완료 조건은 업그레이드의 영향으로만 본다. 경위와 사용자 원문은 [소관 결정 기록](../../../records/2026-11-19-03-createpack-ownership-decision.md)에 있다.
 - (b) `download.ts`가 `'size'`·`'tileCount' in pack`으로 읽는 값이 늘 0·null로 저장된다. Project [map-packs](../../../../../../project/guidance/offline-maps-and-routes/map-packs.md)가 이미 이 값을 신뢰할 근거가 없다고 적고 있고(용량 화면은 `pack.status()`를 따로 읽음), 003 Ticket 05의 완료 조건 "flag와 용량 표시가 실제 자원 상태를 반영"과도 가깝다. 008로 넘긴 (a)와 같은 `download.ts` 저장 경로이지만 이번 결정의 대상이 아니었고 소관은 정하지 않았다(저우선).
 - (c) `requiredResourceCount = 0`인 진행 이벤트에서 NaN이 날 수 있다(저우선). 003 Ticket 05의 진행 처리(진행률 0·10%의 ready 처리, 생성·진행·완료 구별)와 가깝고 (a)와 같은 다운로드 진행 경로이지만, 이번 결정의 대상이 아니었고 소관은 정하지 않았다.
 
-**남은 일:** `feat/012-newarch`의 main 병합 시점(main push는 Render 재배포), 12월 갱신 뒤 1.2.0 출시 빌드·제출과 그 빌드의 OTA·덮어 설치 확인, iPhone·Android·Apple 로그인 확인.
+**남은 일:** 실기기 미확인 항목(`OfflineMapView` 오프라인 화면, 첫 일정에 좌표가 없는 날, iPhone·Android·Apple 로그인), 위 두 열린 판단, 12월 갱신(멤버십 2026-12-18, 인증서 2026-12-30) 뒤 1.2.0 출시 빌드·제출과 그 빌드의 OTA·덮어 설치 확인, `release/1.2` 생성, 출시 뒤 1주일 Sentry 관찰. 병합으로 다 쓴 `feat/012-newarch` 브랜치와 worktree `.claude/worktrees/012-newarch`는 정리 후보이며 지울지는 사용자가 정한다(아직 지우지 않았다).

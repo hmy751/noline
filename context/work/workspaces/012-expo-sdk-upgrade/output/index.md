@@ -18,8 +18,8 @@ Ticket 03의 결과는 2026-11-19 main에 머지 커밋 `ae97809e`로 병합됐�
 - **로컬 빌드:** SDK 54 preview `sdk54-preview.ipa`(21.7 MB, iPad·iPhone 프로필)는 세션 scratchpad의 `local-build`에 있어 사라질 수 있다. iPad에 설치돼 있다.
 - **iPad 제어 서버:** DeviceKit iPad용 빌드가 `~/Documents/Codex/2026-11-06/new-chat/work/iphone-control/build-ipad`에 iPhone 빌드와 따로 있다.
 
-2026-11-19 Ticket 04의 코드 작업은 작업 브랜치에 있다(main 미병합).
-- **worktree `.claude/worktrees/012-newarch`, 브랜치 `feat/012-newarch`**: main `307ae37b`에서 분기. 커밋 `6c6b5524`(New Architecture·reanimated 4·Mapbox v11), `beee6373`(fmt 우회 삭제), `fb73bb25`(오프라인 지도 스타일 상수 `OFFLINE_MAP_STYLE_URL`). 내용은 [Ticket 04](../current/memory/tickets/04-new-architecture-and-1-2-0.md#현재-상태와-실제-결과)에 있다.
+2026-11-19 Ticket 04의 코드 작업은 2026-11-20 사용자의 "병합하고 push"로 main에 머지 커밋 `6d34c44b`로 병합됐고 `195b62ee..6d34c44b`로 push했다. 병합 뒤 코드는 `c5fdbbdc`와 같다. push 뒤 8분간 health는 24번 모두 200이었지만, 응답에 커밋 정보가 없고 Render 대시보드를 보지 않아 `6d34c44b` 배포가 Live가 됐는지는 확정하지 못했다. 작업 브랜치와 worktree는 정리 후보이며 지울지는 사용자가 정한다.
+- **worktree `.claude/worktrees/012-newarch`, 브랜치 `feat/012-newarch`**: main `307ae37b`에서 분기. 커밋 `6c6b5524`(New Architecture·reanimated 4·Mapbox v11), `beee6373`(fmt 우회 삭제), `fb73bb25`(오프라인 지도 스타일 상수 `OFFLINE_MAP_STYLE_URL`), `c5fdbbdc`(일정 Mapbox 지도의 마커 번호·처음 위치). 내용은 [Ticket 04](../current/memory/tickets/04-new-architecture-and-1-2-0.md#현재-상태와-실제-결과)에 있다.
 
 내용과 남은 일은 [Ticket 01](../current/memory/tickets/01-preparation-baseline-and-node24.md#현재-상태와-실제-결과)에 있다. 설치 절차(`pnpm exec expo install`)는 지금 이 Work의 [공통 규칙 3](../current/memory/tickets/index.md)에만 있다.
 
