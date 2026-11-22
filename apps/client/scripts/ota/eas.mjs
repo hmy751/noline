@@ -65,8 +65,9 @@ export function listFinishedBuilds(channel) {
 
 export function describeBuild(build) {
   const date = build.completedAt?.slice(0, 10) ?? '';
+  const name = build.source === 'local' ? '로컬 빌드' : build.id.slice(0, 8);
 
-  return `${build.id.slice(0, 8)} (${build.appVersion} / ${build.appBuildVersion}, ${date})`;
+  return `${name} (${build.appVersion} / ${build.appBuildVersion}, ${date})`;
 }
 
 /** 채널과 같은 이름의 environment로 업데이트를 발행하고, 발행된 업데이트를 돌려준다. */
