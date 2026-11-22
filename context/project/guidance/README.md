@@ -24,7 +24,7 @@ Entity를 추가하거나 바꾸면 [schema 기준](development-boundaries/schem
 
 [API 계약과 변경 가이드](api-contracts.md)는 client API, server route, 공유 schema, serializer와 user scope를 추가·수정·리팩터링할 때 읽는다. Schedule·Expense·Trip의 실제 적용 차이, repository·query 경계와 인증 전송, 일반 조회와 sync의 soft-delete 차이를 설명한다.
 
-[스토어 빌드와 OTA 출시 기준](app-release-and-ota.md)은 client 변경을 사용자에게 내보낼 때 읽는다. 어떤 변경을 OTA로 낼 수 있는지, runtime이 바뀌는 조건, `pnpm ota:publish`와 스토어 빌드 절차를 설명한다. 기기 DB 구조나 schema·API·sync 계약을 바꿀 때도 출시 경로가 달라지므로 함께 읽는다.
+[스토어 빌드와 OTA 출시 기준](app-release-and-ota.md)은 client 변경을 사용자에게 내보낼 때 읽는다. 어떤 변경을 OTA로 낼 수 있는지, runtime이 바뀌는 조건, `pnpm ota:publish`와 스토어 빌드 절차, 로컬 빌드를 OTA 대상으로 등록하는 방법과 이미 낸 예전 버전에 OTA를 보내는 경로를 설명한다. 기기 DB 구조나 schema·API·sync 계약을 바꿀 때도 출시 경로가 달라지므로 함께 읽는다.
 
 [오류 전달과 공개 응답](error-handling.md)은 서버 처리·client 변환·React Query·Policy UI의 책임, 민감정보 미공개 기준과 현재 공백을 설명한다. 개발자가 동기화 중단을 조사할 때는 같은 본문에서 앱·서버가 관측한 사건과 전달 한계를 확인한다. 공개 형식·중앙화 선택을 바꿀 때 API 가이드와 함께 읽는다.
 
