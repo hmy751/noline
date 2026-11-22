@@ -58,8 +58,8 @@ export const CHANGE_RULES = [
       'pnpm-lock.yaml',
       'patches/',
     ],
-    // 네이티브가 바뀌었다면 runtime이 달라져 4단계에서 막힌다. 같다면 JS 쪽 변경이다.
-    hint: 'runtime 대조(4단계)가 네이티브 변경을 막습니다.',
+    // 네이티브가 바뀌었다면 runtime이 달라져 받을 빌드를 고르는 3단계에서 이미 막힌다. 여기까지 왔다면 JS 쪽 변경이다.
+    hint: '받을 빌드와 runtime이 같으므로 네이티브 층은 그대로입니다(3단계에서 대조).',
   },
 ];
 

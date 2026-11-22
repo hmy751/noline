@@ -140,10 +140,16 @@ export function selectTargetBuilds(channel, runtime, olderBuildConfirmed) {
     return targets;
   }
 
-  const message = `이 runtime의 빌드 ${names}는 채널의 최신 빌드 ${describeBuild(latest)}보다 예전 버전입니다. 업데이트는 ${targets[0].appVersion} 빌드를 쓰는 사용자에게만 가고, 최신 버전 사용자에게는 가지 않습니다.`;
+  const sameNumber =
+    targets[0].appVersion === latest.appVersion &&
+    String(targets[0].appBuildVersion) === String(latest.appBuildVersion);
+  // preview처럼 같은 버전·빌드 번호로 runtime이 다른 빌드를 여러 번 만들면 버전으로는 구별되지 않는다.
+  const message = sameNumber
+    ? `이 runtime의 빌드 ${names}는 채널에서 가장 최근 빌드 ${describeBuild(latest)}와 버전·빌드 번호는 같지만 runtime이 다릅니다. 업데이트는 이 runtime의 빌드를 설치한 기기에만 가고, 가장 최근 빌드를 설치한 기기에는 가지 않습니다.`
+    : `이 runtime의 빌드 ${names}는 채널의 최신 빌드 ${describeBuild(latest)}보다 예전 버전입니다. 업데이트는 ${targets[0].appVersion} 빌드를 쓰는 사용자에게만 가고, 최신 버전 사용자에게는 가지 않습니다.`;
 
   if (!olderBuildConfirmed) {
-    fail(message, '예전 버전 사용자에게만 보내려는 것이면 --older-build를 붙이세요.');
+    fail(message, '그 기기에만 보내려는 것이면 --older-build를 붙이세요.');
   }
 
   warn(`${message} --older-build로 진행합니다.`);
