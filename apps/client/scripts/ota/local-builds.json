@@ -1,0 +1,14 @@
+{
+  "builds": [
+    {
+      "platform": "ios",
+      "channel": "production",
+      "bundleIdentifier": "com.ham.noline",
+      "appVersion": "1.2.0",
+      "appBuildVersion": "20",
+      "runtimeVersion": "c4fc18bb87be563ecadc87afde5936b605ab266d",
+      "completedAt": "2026-11-20T10:02:49.009Z",
+      "gitCommitHash": "92c1766c65fb2add97ca18266802043531edd420"
+    }
+  ]
+}
