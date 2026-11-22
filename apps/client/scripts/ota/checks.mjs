@@ -348,19 +348,3 @@ export function checkEnvironment(channel, profileEnv, envNames) {
   ok('SENTRY_ORG·SENTRY_PROJECT 있음');
   ok(`코드가 읽는 환경 변수 ${envNames.length}개 모두 EAS environment에 있음`);
 }
-
-// runtime
-
-/** 깨끗한 재설치 뒤에도 runtime이 1단계에서 대상을 고른 값과 같아야 그 빌드들이 업데이트를 받는다. */
-export function checkRuntimeUnchanged(channel, runtime) {
-  const after = resolveLocalRuntime(channel);
-
-  if (after !== runtime) {
-    fail(
-      `깨끗한 재설치 뒤 runtime이 ${after}로 바뀌었습니다(1단계 ${runtime}).`,
-      '재설치 전 node_modules가 lockfile과 달랐다는 뜻입니다. 재설치한 지금 상태로 다시 실행하세요.',
-    );
-  }
-
-  ok(`재설치 뒤에도 runtime 같음 (${runtime})`);
-}
