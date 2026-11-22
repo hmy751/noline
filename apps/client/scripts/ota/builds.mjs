@@ -117,7 +117,7 @@ export function readLedger() {
       } else if (recordSignature(known.build) !== recordSignature(build)) {
         fail(
           `로컬 빌드 장부에 같은 빌드(${key})가 다르게 적혀 있습니다:\n      ${known.names.join(', ')}\n      ${name}`,
-          '실제 ipa와 맞지 않는 기록을 거두려면, 작업 트리 장부에 그 기록을 그대로 두고 "retracted": true만 더해 커밋·push하세요.',
+          '실제 ipa와 맞지 않는 기록을 거두려면, 작업 트리 장부에 그 기록을 그대로 옮겨 적고(이미 있으면 그대로 두고) "retracted": true만 더해 커밋·push하세요.',
         );
       } else {
         known.names.push(name);
