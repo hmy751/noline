@@ -31,7 +31,6 @@ import {
   checkChanges,
   checkEnvironment,
   checkLocalRuntime,
-  checkRuntimeUnchanged,
   checkSentryToken,
   checkWorkingTree,
   collectEnvNames,
@@ -55,9 +54,6 @@ function main() {
   const profileEnv = checkBuildProfile(channel);
   checkWorkingTree(flags.has('allow-dirty'));
   checkSentryToken();
-  const runtime = checkLocalRuntime(channel);
-  const targets = selectTargetBuilds(channel, runtime, flags.has('older-build'));
-  checkChanges(targets, flags);
   const envNames = collectEnvNames();
 
   step('2/5 깨끗한 재설치');
@@ -69,11 +65,14 @@ function main() {
     cleanInstall();
   }
 
-  step('3/5 EAS 환경값 대조');
-  checkEnvironment(channel, profileEnv, envNames);
+  // runtime은 설치된 패키지로 계산되므로 재설치 뒤에 계산해야 받을 빌드를 바르게 고른다.
+  step('3/5 runtime과 받을 빌드');
+  const runtime = checkLocalRuntime(channel);
+  const targets = selectTargetBuilds(channel, runtime, flags.has('older-build'));
+  checkChanges(targets, flags);
 
-  step('4/5 runtime 재확인');
-  checkRuntimeUnchanged(channel, runtime);
+  step('4/5 EAS 환경값 대조');
+  checkEnvironment(channel, profileEnv, envNames);
   const targetNames = targets.map(describeBuild).join(', ');
 
   if (dryRun) {
