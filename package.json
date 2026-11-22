@@ -12,6 +12,7 @@
     "schema": "pnpm --filter @repo/schema",
     "harness:check": "node scripts/check-harness.mjs",
     "ota:publish": "node apps/client/scripts/ota/publish.mjs",
+    "ota:register-local-build": "node apps/client/scripts/ota/register-local-build.mjs",
     "lint": "pnpm -r --no-bail run lint",
     "format": "prettier --write ."
   },

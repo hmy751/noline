@@ -34,14 +34,15 @@ export function indentLines(lines) {
 /**
  * 출력을 받아 해석할 때 쓴다. 진행 표시(stderr)는 그대로 보인다.
  * 명령을 실행하지 못하면 종료하고, 실행은 됐지만 실패한 경우는 status로 돌려줘 호출자가 판단한다.
+ * quiet는 실패가 정상인 조회(없는 파일 확인 등)의 stderr를 숨긴다.
  */
-export function capture(cmd, args, { cwd, env } = {}) {
+export function capture(cmd, args, { cwd, env, quiet = false } = {}) {
   const result = spawnSync(cmd, args, {
     cwd,
     env: { ...process.env, ...env },
     encoding: 'utf8',
     maxBuffer: 64 * 1024 * 1024,
-    stdio: ['ignore', 'pipe', 'inherit'],
+    stdio: ['ignore', 'pipe', quiet ? 'pipe' : 'inherit'],
   });
 
   if (result.error) {
