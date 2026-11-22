@@ -2,8 +2,9 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { extname, join, relative } from 'node:path';
 
-import { CLIENT_DIR, REPO_ROOT, SENTRY_ENV_FILE } from './config.mjs';
-import { describeBuild, listFinishedBuilds, readEnvironment, resolveLocalRuntime } from './eas.mjs';
+import { listChannelBuilds } from './builds.mjs';
+import { CLIENT_DIR, PLATFORM, REPO_ROOT, SENTRY_ENV_FILE } from './config.mjs';
+import { describeBuild, readEnvironment, resolveLocalRuntime } from './eas.mjs';
 import { BUNDLE_SOURCES, CHANGE_RULES, CODE_PATHS, ENV_SOURCE_DIRS } from './rules.mjs';
 import { capture, fail, indentLines, ok, report, warn } from './terminal.mjs';
 
@@ -95,26 +96,59 @@ export function checkSentryToken() {
 
 // 업데이트를 받을 빌드
 
+const REGISTER_HINT =
+  '이 코드로 eas build --local을 했다면 먼저 pnpm ota:register-local-build <ipa>로 장부에 등록하세요.';
+
+/** 지금 작업 트리를 그 채널의 환경값으로 빌드했을 때의 runtime. 업데이트를 받을 빌드를 고르는 기준이다. */
+export function checkLocalRuntime(channel) {
+  const runtime = resolveLocalRuntime(channel);
+
+  ok(`로컬 runtime: ${runtime}`);
+
+  return runtime;
+}
+
 /**
- * 채널의 빌드 가운데 업데이트를 받을 수 있는 것(runtime이 있는 finished 빌드, 최신순)과
- * 이번 업데이트를 받을 대상(최신 빌드와 runtime이 같은 빌드)을 확인한다. 업데이트는 runtime이 같은 빌드에만 간다.
+ * 채널의 빌드(EAS 빌드 목록 + 로컬 빌드 장부) 가운데 지금 runtime과 같은 빌드를 업데이트 대상으로 고른다.
+ * 업데이트는 runtime이 같은 빌드에만 간다. 대상이 채널의 최신 버전이 아니면 그 예전 버전 사용자에게만 가므로
+ * --older-build로 사람이 확인해야 한다.
  */
-export function checkChannelBuilds(channel) {
-  const builds = listFinishedBuilds(channel).filter((build) => build.runtimeVersion);
+export function selectTargetBuilds(channel, runtime, olderBuildConfirmed) {
+  const builds = listChannelBuilds(channel, PLATFORM);
 
   if (!builds.length) {
     fail(
       `채널 "${channel}"에 runtime이 있는 빌드가 없습니다. expo-updates가 들어간 빌드를 먼저 배포해야 합니다.`,
-      channel === 'production' ? '1.1.4 이후의 스토어 빌드가 필요합니다.' : undefined,
+      REGISTER_HINT,
     );
   }
 
-  const targets = builds.filter((build) => build.runtimeVersion === builds[0].runtimeVersion);
-  const others = targets.length > 1 ? ` 외 ${targets.length - 1}개` : '';
+  const latest = builds[0];
+  const targets = builds.filter((build) => build.runtimeVersion === runtime);
 
-  ok(`업데이트를 받을 최신 빌드: ${describeBuild(builds[0])}${others}`);
+  if (!targets.length) {
+    fail(
+      `로컬 runtime이 채널 "${channel}"의 어떤 빌드와도 같지 않습니다. 최신 빌드: ${describeBuild(latest)}(${latest.runtimeVersion})`,
+      `네이티브 의존성·app.config·버전·환경값이 바뀌었다면 OTA가 아니라 새 빌드가 필요합니다. ${REGISTER_HINT}`,
+    );
+  }
 
-  return { builds, targets };
+  const names = targets.map(describeBuild).join(', ');
+
+  if (latest.runtimeVersion === runtime) {
+    ok(`업데이트를 받을 빌드: ${names}`);
+    return targets;
+  }
+
+  const message = `이 runtime의 빌드 ${names}는 채널의 최신 빌드 ${describeBuild(latest)}보다 예전 버전입니다. 업데이트는 ${targets[0].appVersion} 빌드를 쓰는 사용자에게만 가고, 최신 버전 사용자에게는 가지 않습니다.`;
+
+  if (!olderBuildConfirmed) {
+    fail(message, '예전 버전 사용자에게만 보내려는 것이면 --older-build를 붙이세요.');
+  }
+
+  warn(`${message} --older-build로 진행합니다.`);
+
+  return targets;
 }
 
 // OTA로 내면 안 되는 변경
@@ -317,27 +351,16 @@ export function checkEnvironment(channel, profileEnv, envNames) {
 
 // runtime
 
-/**
- * 로컬 runtime이 받을 빌드와 같아야 업데이트가 간다.
- * 최신 빌드와 다르고 예전 빌드와만 같으면 최신 빌드 사용자에게는 가지 않으므로 멈춘다.
- */
-export function checkRuntime(channel, builds) {
-  const runtime = resolveLocalRuntime(channel);
-  const latest = builds[0];
+/** 깨끗한 재설치 뒤에도 runtime이 1단계에서 대상을 고른 값과 같아야 그 빌드들이 업데이트를 받는다. */
+export function checkRuntimeUnchanged(channel, runtime) {
+  const after = resolveLocalRuntime(channel);
 
-  ok(`로컬 runtime: ${runtime}`);
-
-  if (latest.runtimeVersion === runtime) {
-    ok(`최신 빌드 ${describeBuild(latest)}와 runtime이 같음`);
-    return { runtime, build: latest };
+  if (after !== runtime) {
+    fail(
+      `깨끗한 재설치 뒤 runtime이 ${after}로 바뀌었습니다(1단계 ${runtime}).`,
+      '재설치 전 node_modules가 lockfile과 달랐다는 뜻입니다. 재설치한 지금 상태로 다시 실행하세요.',
+    );
   }
 
-  const older = builds.find((build) => build.runtimeVersion === runtime);
-
-  fail(
-    `로컬 runtime이 채널 "${channel}"의 최신 빌드 ${describeBuild(latest)}(${latest.runtimeVersion})와 다릅니다.`,
-    older
-      ? `예전 빌드 ${describeBuild(older)}와만 같습니다. 최신 빌드 사용자에게는 가지 않습니다.`
-      : '이 채널의 어떤 빌드와도 같지 않습니다. 네이티브 의존성·app.config·환경값이 바뀌었다면 OTA가 아니라 새 빌드가 필요합니다.',
-  );
+  ok(`재설치 뒤에도 runtime 같음 (${runtime})`);
 }

@@ -11,6 +11,10 @@
  *   --allow-dirty         코드 경로에 커밋하지 않은 변경이 있어도 진행한다
  *   --confirm-production  production 발행에 필요하다
  *   --server-checked      서버 계약 경로가 바뀌었을 때, 서버를 먼저 배포했거나 서버 변경이 필요 없음을 확인한다
+ *   --older-build         지금 runtime의 빌드가 채널의 최신 버전이 아닐 때, 그 예전 버전 사용자에게만 보냄을 확인한다
+ *
+ * 업데이트를 받을 빌드는 EAS 빌드 목록과 로컬 빌드 장부(local-builds.json)를 합쳐 지금 runtime과 같은 빌드로 고른다.
+ * eas build --local로 만든 빌드는 register-local-build.mjs로 먼저 장부에 등록한다.
  *
  * eas update는 성공으로 끝나도 아무 기기에 가지 않거나(runtime 불일치), 잘못된 환경값·롤백할 수 없는
  * DB 변경을 실어 보낼 수 있다. 그래서 발행은 이 스크립트로만 하고, AI 도구의 직접 실행은
@@ -26,17 +30,18 @@ import {
   checkBuildProfile,
   checkChanges,
   checkEnvironment,
-  checkRuntime,
+  checkLocalRuntime,
+  checkRuntimeUnchanged,
   checkSentryToken,
   checkWorkingTree,
   collectEnvNames,
-  checkChannelBuilds,
+  selectTargetBuilds,
 } from './checks.mjs';
 import { CHANNELS, CLIENT_DIR, PLATFORM, REPO_ROOT } from './config.mjs';
 import { describeBuild, publishUpdate, uploadSourcemaps } from './eas.mjs';
 import { fail, ok, run, step, warn } from './terminal.mjs';
 
-const FLAGS = ['dry-run', 'skip-install', 'allow-dirty', 'confirm-production', 'server-checked'];
+const FLAGS = ['dry-run', 'skip-install', 'allow-dirty', 'confirm-production', 'server-checked', 'older-build'];
 
 function main() {
   const { channel, message, flags } = parseOptions(process.argv.slice(2));
@@ -50,7 +55,8 @@ function main() {
   const profileEnv = checkBuildProfile(channel);
   checkWorkingTree(flags.has('allow-dirty'));
   checkSentryToken();
-  const { builds, targets } = checkChannelBuilds(channel);
+  const runtime = checkLocalRuntime(channel);
+  const targets = selectTargetBuilds(channel, runtime, flags.has('older-build'));
   checkChanges(targets, flags);
   const envNames = collectEnvNames();
 
@@ -66,11 +72,12 @@ function main() {
   step('3/5 EAS 환경값 대조');
   checkEnvironment(channel, profileEnv, envNames);
 
-  step('4/5 runtime 대조');
-  const { runtime, build } = checkRuntime(channel, builds);
+  step('4/5 runtime 재확인');
+  checkRuntimeUnchanged(channel, runtime);
+  const targetNames = targets.map(describeBuild).join(', ');
 
   if (dryRun) {
-    console.log(`\n✔ dry-run 통과. 발행하면 빌드 ${describeBuild(build)}를 쓰는 기기가 업데이트를 받습니다.`);
+    console.log(`\n✔ dry-run 통과. 발행하면 빌드 ${targetNames}를 쓰는 기기가 업데이트를 받습니다.`);
     return;
   }
 
@@ -91,7 +98,7 @@ function main() {
   ok(`Sentry 소스맵 업로드 (debug id ${debugIds.join(', ')})`);
 
   console.log(`\n✔ 발행 완료: ${channel} 채널, 그룹 ${update.group}`);
-  console.log(`  받을 빌드: ${describeBuild(build)}. 앱을 두 번 다시 열면 적용됩니다.`);
+  console.log(`  받을 빌드: ${targetNames}. 앱을 두 번 다시 열면 적용됩니다.`);
 }
 
 function parseOptions(argv) {

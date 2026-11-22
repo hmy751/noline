@@ -13,6 +13,7 @@
     "harness:check": "node scripts/check-harness.mjs",
     "client:expo-check": "pnpm --filter @apps/client exec expo install --check",
     "ota:publish": "node apps/client/scripts/ota/publish.mjs",
+    "ota:register-local-build": "node apps/client/scripts/ota/register-local-build.mjs",
     "lint": "pnpm -r --no-bail run lint",
     "format": "prettier --write ."
   },
