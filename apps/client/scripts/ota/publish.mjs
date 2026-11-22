@@ -77,7 +77,7 @@ function main() {
   const targetNames = targets.map(describeBuild).join(', ');
 
   if (dryRun) {
-    console.log(`\n✔ dry-run 통과. 발행하면 빌드 ${targetNames}를 쓰는 기기가 업데이트를 받습니다.`);
+    console.log(`\n✔ dry-run 통과. 발행하면 ${targetNames}를 쓰는 기기가 업데이트를 받습니다.`);
     return;
   }
 
