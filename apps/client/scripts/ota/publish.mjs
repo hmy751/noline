@@ -23,7 +23,7 @@
  * 실행 명령은 루트 package.json에 둔다. Expo fingerprint가 apps/client/package.json의 scripts까지
  * runtime 계산에 넣어, 거기에 두면 runtime이 바뀌어 기존 빌드가 업데이트를 받지 못한다.
  */
-import { readdirSync, rmSync } from 'node:fs';
+import { existsSync, readdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 
 import {
@@ -82,7 +82,8 @@ function main() {
 
   step('5/5 발행과 소스맵 업로드');
   // 소스맵 업로드는 dist 전체를 올린다. 예전 발행의 번들이 남아 있으면 그 소스맵까지 섞인다.
-  rmSync(join(CLIENT_DIR, 'dist'), { recursive: true, force: true });
+  // 로컬 빌드 ipa는 등록·제출·재확인에 다시 쓰므로 남긴다. 소스맵 업로드는 .js·.map·.hbc만 읽는다.
+  clearDistExceptIpa();
   const update = publishUpdate(channel, message);
 
   if (update.runtimeVersion !== runtime) {
@@ -148,6 +149,20 @@ function parseOptions(argv) {
 }
 
 /** lockfile이 같아도 예전 설치가 남긴 중첩 사본이 fingerprint를 바꾼다(2026-11-17 첫 preview 빌드 실패의 원인). */
+function clearDistExceptIpa() {
+  const dist = join(CLIENT_DIR, 'dist');
+
+  if (!existsSync(dist)) {
+    return;
+  }
+
+  for (const entry of readdirSync(dist, { withFileTypes: true })) {
+    if (!(entry.isFile() && entry.name.endsWith('.ipa'))) {
+      rmSync(join(dist, entry.name), { recursive: true, force: true });
+    }
+  }
+}
+
 function cleanInstall() {
   const workspaceDirs = ['apps', 'packages'].flatMap((group) =>
     readdirSync(join(REPO_ROOT, group), { withFileTypes: true })
