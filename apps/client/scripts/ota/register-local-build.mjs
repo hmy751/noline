@@ -38,8 +38,8 @@ function main() {
 
   step('2/4 빌드 커밋');
   checkWorkingTree(false);
-  const { commit, base } = resolveCommit(commitArg, build.completedAt);
-  ok(`번들 시각 ${build.completedAt} 이전의 마지막 커밋: ${base.slice(0, 8)} ${commitSubject(base)}`);
+  const { commit, base, note } = resolveCommit(commitArg, build.completedAt);
+  ok(`번들 시각 ${build.completedAt} 이전의 마지막 커밋: ${base.slice(0, 8)} ${commitSubject(base)}${note}`);
 
   if (commit !== base) {
     ok(`빌드 커밋으로 더 이른 ${commit.slice(0, 8)}을 적습니다 (--commit)`);
@@ -81,7 +81,7 @@ function main() {
 
     fail(
       `같은 빌드(${key})가 다른 runtime·커밋(${known.gitCommitHash.slice(0, 8)})으로 이미 장부에 있습니다.`,
-      `그 기록이 잘못됐다면 ${relativePath()}에 그 기록을 그대로 두고 "retracted": true만 더해 거둔 뒤 다시 등록하세요.`,
+      `그 기록이 잘못됐다면 ${relativePath()}에 그 기록을 그대로 옮겨 적고 "retracted": true만 더해 거둔 뒤 다시 등록하세요.`,
     );
   }
 
@@ -214,7 +214,7 @@ function resolveCommit(commitArg, bundledAt) {
       fail(problem, '빌드한 커밋을 --commit <커밋>으로 직접 지정하세요.');
     }
 
-    return { commit: base, base };
+    return { commit: base, base, note: '' };
   }
 
   const { status, stdout } = capture('git', ['rev-parse', '--verify', `${commitArg}^{commit}`], {
@@ -237,7 +237,7 @@ function resolveCommit(commitArg, bundledAt) {
     );
   }
 
-  return { commit, base: limit };
+  return { commit, base: limit, note: problem ? ` (상한만 확인함: ${problem})` : '' };
 }
 
 /** 지금 브랜치의 reflog에서 그 시각(초)에 브랜치가 가리키던 커밋. */
