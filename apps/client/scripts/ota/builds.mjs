@@ -77,13 +77,17 @@ export function writeWorkingRegistry(builds) {
   writeFileSync(LOCAL_BUILDS_FILE, `${JSON.stringify({ builds: sorted }, null, 2)}\n`);
 }
 
+export function recordSignature(build) {
+  return [buildKey(build), build.runtimeVersion, build.gitCommitHash].join(' ');
+}
+
 /**
  * 작업 트리와 main·release 브랜치(로컬·origin)의 장부를 합친다.
- * 한 곳에서라도 retracted로 표시한 빌드는 뺀다. 이미 다른 브랜치·origin에 퍼진 잘못된 기록을
- * 그 브랜치들을 고쳐 쓰지 않고 거둘 수 있게 하려는 것이다.
+ * 한 곳에서라도 retracted로 표시한 기록(빌드·runtime·커밋이 모두 같은 기록)은 뺀다. 이미 다른 브랜치·origin에
+ * 퍼진 잘못된 기록을 그 브랜치들을 고쳐 쓰지 않고 거두고, 같은 빌드의 바른 기록을 새로 적을 수 있게 하려는 것이다.
  * 거두지 않은 같은 빌드가 다르게 적혀 있으면 멈춘다.
  */
-export function readAllRegistries() {
+export function readLedger() {
   const sources = [{ name: REGISTRY_PATH, builds: readWorkingRegistry() }];
 
   for (const ref of registryRefs()) {
@@ -94,28 +98,26 @@ export function readAllRegistries() {
     }
   }
 
-  const retracted = new Set(sources.flatMap(({ builds }) => builds.filter((build) => build.retracted).map(buildKey)));
+  const retracted = new Set(
+    sources.flatMap(({ builds }) => builds.filter((build) => build.retracted).map(recordSignature)),
+  );
   const byKey = new Map();
 
   for (const { name, builds } of sources) {
     for (const build of builds) {
-      const key = buildKey(build);
-
-      if (retracted.has(key)) {
+      if (retracted.has(recordSignature(build))) {
         continue;
       }
 
+      const key = buildKey(build);
       const known = byKey.get(key);
 
       if (!known) {
         byKey.set(key, { build, names: [name] });
-      } else if (
-        known.build.runtimeVersion !== build.runtimeVersion ||
-        known.build.gitCommitHash !== build.gitCommitHash
-      ) {
+      } else if (recordSignature(known.build) !== recordSignature(build)) {
         fail(
           `로컬 빌드 장부에 같은 빌드(${key})가 다르게 적혀 있습니다:\n      ${known.names.join(', ')}\n      ${name}`,
-          '실제 ipa와 맞지 않는 쪽을 고치거나, 그 기록을 거두려면 작업 트리 장부의 해당 항목에 "retracted": true를 넣어 커밋·push하세요.',
+          '실제 ipa와 맞지 않는 기록을 거두려면, 작업 트리 장부에 그 기록을 그대로 두고 "retracted": true만 더해 커밋·push하세요.',
         );
       } else {
         known.names.push(name);
@@ -123,7 +125,11 @@ export function readAllRegistries() {
     }
   }
 
-  return [...byKey.values()].map(({ build }) => build);
+  return { builds: [...byKey.values()].map(({ build }) => build), retracted };
+}
+
+export function readAllRegistries() {
+  return readLedger().builds;
 }
 
 /** ref의 장부 내용. 그 ref에 장부 파일이 없으면 undefined, 읽는 데 실패하면 멈춘다. */

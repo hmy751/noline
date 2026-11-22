@@ -2,7 +2,7 @@
 /**
  * eas build --local로 만든 빌드를 로컬 빌드 장부(local-builds.json)에 등록한다.
  *
- *   pnpm ota:register-local-build apps/client/dist/noline-1.2.0-20.ipa
+ *   pnpm ota:register-local-build apps/client/build/noline-1.2.0-20.ipa
  *   pnpm ota:register-local-build <ipa> --commit <빌드한 커밋>
  *
  * 로컬 빌드는 EAS 빌드 목록에 남지 않아 발행 점검(publish.mjs)이 그 빌드를 모른다.
@@ -10,9 +10,10 @@
  *
  * 빌드 커밋은 발행 점검이 "빌드 이후 바뀐 파일"을 셀 기준이다. 실제보다 늦은 커밋을 적으면 그 사이의
  * JS 변경(예: 기기 DB 구조)이 검사에서 빠진다. runtime은 JS 변경으로 바뀌지 않아 이를 잡지 못한다.
- * 그래서 HEAD의 first-parent 이력에서 번들 시각 이전의 마지막 커밋을 빌드 커밋으로 삼고,
- * --commit은 그 커밋이거나 그보다 이른 커밋만 받는다. 이른 커밋은 검사를 더 엄격하게 할 뿐이다.
- * 빌드한 브랜치에서 실행해야 하며, 커밋하지 않은 변경으로 빌드했다면 그 변경은 이 기준으로 잡히지 않는다.
+ * 그래서 번들 시각에 빌드가 볼 수 있었던 가장 늦은 커밋을 브랜치 reflog와 커밋 시각으로 찾아 빌드 커밋으로 삼고
+ * (resolveCommit), --commit은 그 커밋이거나 그보다 이른 커밋만 받는다. 이른 커밋은 검사를 더 엄격하게 할 뿐이다.
+ * 빌드한 브랜치·기기에서 실행해야 한다. 빌드 중에 그 브랜치에 커밋하거나, 커밋하지 않은 변경으로 빌드하면
+ * 이 기준이 빌드 내용과 어긋나므로 빌드는 커밋한 상태에서 하고 끝날 때까지 커밋하지 않는다.
  *
  * 등록한 뒤 장부를 커밋·push해야 다른 브랜치·기기의 발행 점검이 이 빌드를 안다.
  */
@@ -20,7 +21,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
 
-import { buildKey, readAllRegistries, readWorkingRegistry, writeWorkingRegistry } from './builds.mjs';
+import { buildKey, readLedger, readWorkingRegistry, recordSignature, writeWorkingRegistry } from './builds.mjs';
 import { checkWorkingTree } from './checks.mjs';
 import { CHANNELS, LOCAL_BUILDS_FILE, PLATFORM, REPO_ROOT } from './config.mjs';
 import { listFinishedBuilds, resolveLocalRuntime } from './eas.mjs';
@@ -61,7 +62,16 @@ function main() {
   const key = buildKey(entry);
   const registry = readWorkingRegistry();
   // 다른 브랜치·origin의 장부까지 본다. 여기서 놓치면 다음 발행에서야 충돌로 멈춘다.
-  const known = readAllRegistries().find((item) => buildKey(item) === key);
+  const ledger = readLedger();
+
+  if (ledger.retracted.has(recordSignature(entry))) {
+    fail(
+      `이 기록(${key}, 커밋 ${commit.slice(0, 8)})은 장부에서 거둬진 기록입니다.`,
+      '거둔 이유를 확인하세요. 같은 빌드의 바른 기록이라면 빌드 커밋이 달라야 합니다.',
+    );
+  }
+
+  const known = ledger.builds.find((item) => buildKey(item) === key);
 
   if (known) {
     if (known.runtimeVersion === entry.runtimeVersion && known.gitCommitHash === entry.gitCommitHash) {
@@ -71,7 +81,7 @@ function main() {
 
     fail(
       `같은 빌드(${key})가 다른 runtime·커밋(${known.gitCommitHash.slice(0, 8)})으로 이미 장부에 있습니다.`,
-      `잘못된 기록이면 ${relativePath()}의 그 항목에 "retracted": true를 넣어 거둔 뒤, 빌드 번호를 올려 다시 빌드하세요.`,
+      `그 기록이 잘못됐다면 ${relativePath()}에 그 기록을 그대로 두고 "retracted": true만 더해 거둔 뒤 다시 등록하세요.`,
     );
   }
 
@@ -172,19 +182,38 @@ function readPlist(file) {
 }
 
 /**
- * HEAD의 first-parent 이력에서 번들 시각 이전의 마지막 커밋(base)을 찾는다. --commit이 없으면 base를 적고,
- * 있으면 base이거나 base의 조상일 때만 받는다. 위의 머리말처럼 늦은 커밋을 막기 위해서다.
+ * 번들 시각에 빌드가 볼 수 있었던 가장 늦은 커밋(base)을 두 근거 중 이른 쪽으로 정한다.
+ * - 브랜치 reflog: 그 시각에 이 브랜치가 가리키던 커밋. 나중에 fast-forward·pull로 붙은 커밋을 뺀다.
+ * - 커밋 시각: HEAD의 first-parent 이력에서 번들 시각 이전에 커밋된 마지막 커밋. reflog가 실제 이동보다
+ *   늦게 기록된 경우를 덮는다.
+ * --commit이 없으면 base를 적고, 있으면 base이거나 그 조상일 때만 받는다. 머리말처럼 늦은 커밋을 막기 위해서다.
+ * reflog가 없거나(detached HEAD, 만료, 다른 기기) 두 근거가 갈라지면 --commit을 요구한다.
  */
 function resolveCommit(commitArg, bundledAt) {
-  // git의 날짜 해석이 밀리초를 받지 않으므로 초 단위 ISO로 넘긴다.
-  const before = bundledAt.replace(/\.\d+Z$/, 'Z');
-  const base = git(['rev-list', '-1', '--first-parent', `--before=${before}`, 'HEAD']);
+  // git의 날짜 해석이 밀리초를 받지 않으므로 초 단위로 넘긴다.
+  const bundledSec = Math.floor(Date.parse(bundledAt) / 1000);
+  const byDate = git(['rev-list', '-1', '--first-parent', `--before=${bundledSec}`, 'HEAD']);
+  const byReflog = branchAt(bundledSec);
+  let base;
+  let problem;
 
-  if (!base) {
-    fail(`HEAD 이력에 번들 시각(${bundledAt}) 이전의 커밋이 없습니다.`, '이 ipa를 빌드한 브랜치에서 실행하세요.');
+  if (!byDate) {
+    problem = `HEAD 이력에 번들 시각(${bundledAt}) 이전의 커밋이 없습니다. 이 ipa를 빌드한 브랜치에서 실행하세요.`;
+  } else if (!byReflog.commit) {
+    problem = `${byReflog.reason} 그래서 번들 시각에 브랜치가 어디 있었는지 확인할 수 없습니다.`;
+  } else if (isAncestor(byReflog.commit, byDate)) {
+    base = byReflog.commit;
+  } else if (isAncestor(byDate, byReflog.commit)) {
+    base = byDate;
+  } else {
+    problem = `reflog(${byReflog.commit.slice(0, 8)})와 커밋 시각(${byDate.slice(0, 8)})이 가리키는 커밋이 갈라집니다.`;
   }
 
   if (!commitArg) {
+    if (problem) {
+      fail(problem, '빌드한 커밋을 --commit <커밋>으로 직접 지정하세요.');
+    }
+
     return { commit: base, base };
   }
 
@@ -198,15 +227,44 @@ function resolveCommit(commitArg, bundledAt) {
   }
 
   const commit = stdout.trim();
+  // 근거가 부족해도 커밋 시각 기준보다 늦은 커밋은 받지 않는다.
+  const limit = base ?? byDate;
 
-  if (capture('git', ['merge-base', '--is-ancestor', commit, base], { cwd: REPO_ROOT }).status !== 0) {
+  if (!limit || !isAncestor(commit, limit)) {
     fail(
-      `--commit ${commitArg}이 번들 시각 이전의 마지막 커밋 ${base.slice(0, 8)}이거나 그 조상이 아닙니다.`,
+      `--commit ${commitArg}이 번들 시각 이전의 마지막 커밋${limit ? ` ${limit.slice(0, 8)}` : ''}이거나 그 조상이 아닙니다.`,
       '빌드보다 늦은 커밋을 적으면 빌드 이후 변경이 발행 점검에서 빠집니다.',
     );
   }
 
-  return { commit, base };
+  return { commit, base: limit };
+}
+
+/** 지금 브랜치의 reflog에서 그 시각(초)에 브랜치가 가리키던 커밋. */
+function branchAt(sec) {
+  const { status, stdout } = capture('git', ['symbolic-ref', '-q', 'HEAD'], { cwd: REPO_ROOT, quiet: true });
+
+  if (status !== 0) {
+    return { reason: 'HEAD가 브랜치가 아닙니다(detached).' };
+  }
+
+  const ref = stdout.trim();
+  const entries = git(['log', '-g', '--format=%H %gd', '--date=unix', ref])
+    .split('\n')
+    .map((line) => line.match(/^([0-9a-f]{40}) .*@\{(\d+)\}$/))
+    .filter(Boolean)
+    .map(([, commit, time]) => ({ commit, time: Number(time) }));
+  const entry = entries.find((item) => item.time <= sec);
+
+  if (!entry) {
+    return { reason: `${ref}의 reflog에 번들 시각 이전 기록이 없습니다.` };
+  }
+
+  return { commit: entry.commit };
+}
+
+function isAncestor(a, b) {
+  return capture('git', ['merge-base', '--is-ancestor', a, b], { cwd: REPO_ROOT }).status === 0;
 }
 
 function commitSubject(commit) {
@@ -253,7 +311,7 @@ function parseOptions(argv) {
   }
 
   if (!ipa) {
-    fail('등록할 ipa 경로를 지정하세요.', '예: pnpm ota:register-local-build apps/client/dist/noline-1.2.0-20.ipa');
+    fail('등록할 ipa 경로를 지정하세요.', '예: pnpm ota:register-local-build apps/client/build/noline-1.2.0-20.ipa');
   }
 
   // pnpm은 루트에서 실행하므로 상대 경로는 실행한 위치(INIT_CWD) 기준으로 푼다.
